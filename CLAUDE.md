@@ -18,6 +18,23 @@
    - 임의로 데이터를 생성하지 않기
    - 시스템은 실제 운영 데이터만 처리
 
+### UI 개선 검증 원칙
+1. **Playwright 자동 검증**
+   - UI 개선 작업 후 반드시 Playwright로 자동 검증 수행
+   - 모든 언어(한국어, 영어, 베트남어)에서 번역 확인
+   - 개선되지 않은 부분을 구체적으로 파악하여 보고
+
+2. **검증 항목**
+   - 언어 전환 시 모든 UI 요소 번역 확인
+   - 팝업 창의 제목, 차트 레이블, 테이블 헤더 검증
+   - 동적으로 생성되는 콘텐츠의 번역 상태 확인
+   - JavaScript 콘솔 오류 체크
+
+3. **최종 보고**
+   - 개선 완료된 항목 명시
+   - 아직 개선되지 않은 항목 구체적 보고
+   - 스크린샷 캡처를 통한 시각적 검증 포함
+
 ## 📁 프로젝트 구조
 
 ```
@@ -160,6 +177,29 @@
   ```
 - **결과**: action.sh에서 지정한 월이 모든 언어에서 올바르게 표시
 
+### 11. **Position Detail 탭 직급 구분 문제** ✅ 해결 (2025년 8월 21일)
+- **증상**: Position Detail 탭에서 모든 직급이 빈 값으로 표시되어 TYPE별로 구분되지 않음
+- **원인**: CSV 데이터에서 존재하지 않는 'Position' 컬럼을 참조
+  - 기존 코드: `'position': row.get('Position', '')`
+  - 실제 CSV에는 'Position' 컬럼이 존재하지 않음
+- **진단 과정**: 
+  1. basic manpower data august.csv 컬럼 구조 분석
+  2. 실제 컬럼명 확인: 'QIP POSITION 1ST  NAME', 'QIP POSITION 2ND  NAME' 등
+  3. step2_dashboard_version4.py의 load_employees 함수에서 잘못된 컬럼 참조 발견
+- **해결**: step2_dashboard_version4.py:225 라인 수정
+  ```python
+  # 기존
+  'position': row.get('Position', ''),
+  
+  # 수정 후
+  'position': row.get('QIP POSITION 1ST  NAME', ''),
+  ```
+- **결과**: 
+  - TYPE-1: 10개 직급 정확히 구분 (SUPERVISOR, MANAGER, AQL INSPECTOR 등)
+  - TYPE-2: 14개 직급 정확히 구분 (BOTTOM INSPECTOR, MTL INSPECTOR 등)
+  - TYPE-3: 1개 직급 정확히 구분 (NEW QIP MEMBER)
+  - 464명 전체 직원의 직급 정보가 Position Detail 탭에서 완벽하게 표시됨
+
 ## 📈 성과 지표
 
 - **초기 상태**: 0 VND (100% 오류)
@@ -173,12 +213,15 @@
 ## 🔑 핵심 교훈
 
 1. **컬럼명 정확성**: CSV 파일의 실제 컬럼명 확인 필수
+   - 코드에서 참조하는 컬럼명과 실제 CSV 파일의 컬럼명이 일치해야 함
+   - 'Position' 대신 'QIP POSITION 1ST  NAME' 같은 실제 컬럼명 사용
 2. **언어 변경 시 데이터 재생성**: UI 텍스트뿐만 아니라 데이터도 재생성 필요
 3. **완전한 번역 객체**: 모든 언어에 동일한 변수 세트 필요
 4. **동적 변수 처리**: 하드코딩 대신 템플릿 변수 사용
+5. **Playwright 자동 검증**: UI 개선 후 반드시 자동 검증으로 문제 조기 발견
 
 ---
 
 *이 지침은 프로젝트 완료 시까지 항상 준수되어야 합니다.*
 *Claude는 대화 시작 시 이 파일을 자동으로 읽고 적용합니다.*
-*최종 업데이트: 2025년 8월 - Type별 구분 및 다국어 지원 완료*
+*최종 업데이트: 2025년 8월 21일 - Position Detail 탭 직급 구분 문제 해결*

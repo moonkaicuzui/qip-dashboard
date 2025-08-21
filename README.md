@@ -11,6 +11,13 @@
 
 ## 📝 업데이트 이력
 
+### Version 8.1 (2025-08-21) 🔧 **Position Detail 탭 직급 구분 문제 해결**
+- **Position Detail 탭 빈 값 문제 해결**: 
+  - 증상: 모든 직급이 빈 값으로 표시되어 TYPE별로 구분되지 않음
+  - 원인: CSV에서 존재하지 않는 'Position' 컬럼 참조
+  - 해결: `step2_dashboard_version4.py:225`에서 'QIP POSITION 1ST  NAME' 컬럼으로 수정
+  - 결과: TYPE-1(10개 직급), TYPE-2(14개 직급), TYPE-3(1개 직급) 완벽 구분
+
 ### Version 8.0 (2025-08-21) 🎉 **Type별 구분 및 완전한 다국어 지원**
 - **Type별 데이터 구분 문제 해결**: CSV 컬럼명 수정 ('TYPE' → 'ROLE TYPE STD')
 - **언어 변경 시 단위 표시 문제 해결**: changeLanguage()에 데이터 재생성 로직 추가
@@ -399,6 +406,15 @@ python src/step2_dashboard_version4.py --month september --year 2025
 - **원인**: 번역 객체에 일부 변수 누락
 - **해결**: vi 객체에 unitPeople, detailButton, positionStatusByType 등 추가
 
+**문제 13**: Position Detail 탭에서 직급이 빈 값으로 표시
+- **증상**: Position Detail 탭에서 모든 직급이 공백으로 표시되고 구분되지 않음
+- **원인**: CSV 데이터에서 존재하지 않는 'Position' 컬럼을 참조
+- **해결**: 
+  1. `basic manpower data august.csv` 파일의 실제 컬럼명 확인
+  2. `step2_dashboard_version4.py:225` 라인 수정
+  3. `'position': row.get('Position', '')` → `'position': row.get('QIP POSITION 1ST  NAME', '')`
+- **확인**: TYPE별로 다양한 직급이 정확히 표시됨 (SUPERVISOR, MANAGER, INSPECTOR 등)
+
 **문제 5**: Google Drive 연동 시 "Incentive calculation failed" 오류
 - **원인**: `auto_run_with_drive.py`가 잘못된 스크립트 이름을 참조
 - **증상**: 
@@ -714,6 +730,6 @@ git reset --soft HEAD~1    # 마지막 커밋만 취소
 
 ---
 
-*마지막 업데이트: 2025년 8월 21일 - Version 8.0*
-*프로젝트 상태: ✅ Type별 구분 및 다국어 지원 완벽 구현*
+*마지막 업데이트: 2025년 8월 21일 - Version 8.1*
+*프로젝트 상태: ✅ Position Detail 탭 직급 구분 문제 해결 완료*
 

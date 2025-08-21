@@ -222,7 +222,7 @@ def extract_data_from_csv(month='july', year=2025):
         emp = {
             'emp_no': str(row.get('Employee No', '')),
             'name': row.get('Name_vi', row.get('Full Name', '')),
-            'position': row.get('Position', ''),
+            'position': row.get('QIP POSITION 1ST  NAME', ''),
             'type': type_value,
             'june_incentive': str(row.get('June_Incentive', '0')),
             'july_incentive': str(row.get('July_Incentive', '0')),
@@ -1378,7 +1378,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 다국어 번역 데이터
+        // 다국어 번역 데이터 (확장판)
         const translations = {{
             ko: {{
                 title: 'QIP 인센티브 대시보드',
@@ -1406,17 +1406,65 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 position: '직급',
                 juneIncentive: '6월 인센티브',
                 julyIncentive: '7월 인센티브',
+                augustIncentive: '8월 인센티브',
                 change: '변동',
                 reason: '사유',
-                attendanceRate: '출근율',
-                absenceDays: '무단결근',
-                workingDays: '실제 근무일',
-                actualValue: '실제값',
-                threshold: '기준',
-                notApplicable: '평가 대상 아님',
-                absenceRateCalc: '결근율 계산 방법',
+                // 팝업창 관련 추가
+                paymentStatus: '지급 현황',
                 paid: '지급',
                 unpaid: '미지급',
+                conditionFulfillmentRate: '충족률',
+                unpaidRate: '미지급률',
+                avgFulfillmentRate: '평균 충족률',
+                conditionDetails: '조건별 충족 현황',
+                // 조건 카테고리
+                attendanceConditions: '출근 조건',
+                aqlConditions: 'AQL 조건',
+                prsConditions: '5PRS 조건',
+                // 테이블 헤더
+                condition: '조건',
+                evaluationTarget: '평가 대상',
+                fulfilled: '충족',
+                notFulfilled: '미충족',
+                fulfillmentRate: '충족률',
+                notApplicable: '평가 대상 아님',
+                // 조건 텍스트
+                attendanceRate: '출근율',
+                attendanceRateCondition: '출근율 ≥88%',
+                unexcusedAbsence: '무단결근',
+                unexcusedAbsenceCondition: '무단결근 ≤2일',
+                actualWorkDays: '실제 근무일',
+                actualWorkDaysCondition: '실제 근무일 >0일',
+                personalAQL: '개인 AQL: 당월 실패',
+                personalAQLCondition: '개인 AQL: 당월 실패 0건',
+                continuityCheck: '연속성 체크',
+                continuityCheckCondition: '연속성 체크: 3개월 연속 실패 없음',
+                teamAreaAQL: '팀/구역 AQL',
+                teamAreaAQLCondition: '팀/구역 AQL: 부하직원 3개월 연속 실패자 없음',
+                areaRejectRate: '담당구역 reject율',
+                areaRejectRateCondition: '담당구역 reject율 <3%',
+                prsPassRate: '5PRS 통과율',
+                prsPassRateCondition: '5PRS 통과율 ≥95%',
+                prsInspectionVolume: '5PRS 검사량',
+                prsInspectionVolumeCondition: '5PRS 검사량 ≥100개',
+                // 필터 옵션
+                allPositions: '모든 직급',
+                resetFilter: '필터 초기화',
+                paidOnly: '지급자만',
+                unpaidOnly: '미지급자만',
+                all: '전체',
+                // 상세 정보
+                incentiveStatistics: '인센티브 통계',
+                monthIncentiveInfo: '{month}월 인센티브 정보',
+                paymentAmount: '지급액',
+                changeAmount: '변동',
+                status: '상태',
+                conditionFulfillmentStatus: '조건 충족 상태',
+                calculationBasis: '계산 근거',
+                typeCriteriaMet: 'TYPE 기준 충족',
+                additionalInfo: '추가',
+                absenteeismRate: '결근율',
+                // 값 번역
                 passed: '충족',
                 failed: '미충족',
                 normal: '정상',
@@ -1425,9 +1473,14 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 notEvaluated: '평가 대상 아님',
                 pass: 'Pass',
                 fail: 'Fail',
+                // 단위
+                cases: '건',
+                days: '일',
+                pieces: '개',
+                people: '명',
+                // 기타
                 incentiveDetail: '인센티브 계산 상세',
                 calculationResult: '계산 결과',
-                conditionFulfillment: '조건별 충족 현황',
                 fulfillmentRate: '충족율',
                 detailView: '상세보기',
                 positionDetailTitle: '직급별 상세 현황',
@@ -1441,7 +1494,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 viewPaidOnly: '지급자만',
                 viewUnpaidOnly: '미지급자만',
                 viewAll: '전체',
-                chartPaymentStatus: '지급별 충족 현황',
+                chartPaymentStatus: '지급/미지급 비율',
                 chartConditionStatus: '조건별 충족률',
                 statisticsTitle: '인센티브 통계',
                 basicInfo: '기본 정보',
@@ -1473,17 +1526,65 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 position: 'Position',
                 juneIncentive: 'June Incentive',
                 julyIncentive: 'July Incentive',
+                augustIncentive: 'August Incentive',
                 change: 'Change',
                 reason: 'Reason',
-                attendanceRate: 'Attendance Rate',
-                absenceDays: 'Unapproved Absences',
-                workingDays: 'Actual Working Days',
-                actualValue: 'Actual',
-                threshold: 'Threshold',
-                notApplicable: 'Not Applicable',
-                absenceRateCalc: 'Absence Rate Calculation Method',
+                // Popup related additions
+                paymentStatus: 'Payment Status',
                 paid: 'Paid',
                 unpaid: 'Unpaid',
+                conditionFulfillmentRate: 'Fulfillment Rate',
+                unpaidRate: 'Unpaid Rate',
+                avgFulfillmentRate: 'Average Fulfillment Rate',
+                conditionDetails: 'Condition Fulfillment Details',
+                // Condition categories
+                attendanceConditions: 'Attendance Conditions',
+                aqlConditions: 'AQL Conditions',
+                prsConditions: '5PRS Conditions',
+                // Table headers
+                condition: 'Condition',
+                evaluationTarget: 'Evaluation Target',
+                fulfilled: 'Fulfilled',
+                notFulfilled: 'Not Fulfilled',
+                fulfillmentRate: 'Fulfillment Rate',
+                notApplicable: 'Not Applicable',
+                // Condition texts
+                attendanceRate: 'Attendance Rate',
+                attendanceRateCondition: 'Attendance Rate ≥88%',
+                unexcusedAbsence: 'Unexcused Absence',
+                unexcusedAbsenceCondition: 'Unexcused Absence ≤2 days',
+                actualWorkDays: 'Actual Work Days',
+                actualWorkDaysCondition: 'Actual Work Days >0 days',
+                personalAQL: 'Personal AQL: Monthly Failures',
+                personalAQLCondition: 'Personal AQL: 0 Monthly Failures',
+                continuityCheck: 'Continuity Check',
+                continuityCheckCondition: 'Continuity Check: No 3-month consecutive failures',
+                teamAreaAQL: 'Team/Area AQL',
+                teamAreaAQLCondition: 'Team/Area AQL: No subordinates with 3-month consecutive failures',
+                areaRejectRate: 'Area Reject Rate',
+                areaRejectRateCondition: 'Area Reject Rate <3%',
+                prsPassRate: '5PRS Pass Rate',
+                prsPassRateCondition: '5PRS Pass Rate ≥95%',
+                prsInspectionVolume: '5PRS Inspection Volume',
+                prsInspectionVolumeCondition: '5PRS Inspection Volume ≥100 pieces',
+                // Filter options
+                allPositions: 'All Positions',
+                resetFilter: 'Reset Filter',
+                paidOnly: 'Paid Only',
+                unpaidOnly: 'Unpaid Only',
+                all: 'All',
+                // Detail information
+                incentiveStatistics: 'Incentive Statistics',
+                monthIncentiveInfo: '{month} Incentive Information',
+                paymentAmount: 'Payment Amount',
+                changeAmount: 'Change',
+                status: 'Status',
+                conditionFulfillmentStatus: 'Condition Fulfillment Status',
+                calculationBasis: 'Calculation Basis',
+                typeCriteriaMet: 'TYPE Criteria Met',
+                additionalInfo: 'Additional',
+                absenteeismRate: 'Absenteeism Rate',
+                // Value translations
                 passed: 'Passed',
                 failed: 'Failed',
                 normal: 'Normal',
@@ -1492,9 +1593,14 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 notEvaluated: 'Not Evaluated',
                 pass: 'Pass',
                 fail: 'Fail',
+                // Units
+                cases: ' cases',
+                days: ' days',
+                pieces: ' pieces',
+                people: ' people',
+                // Others
                 incentiveDetail: 'Incentive Calculation Detail',
                 calculationResult: 'Calculation Result',
-                conditionFulfillment: 'Condition Fulfillment Status',
                 fulfillmentRate: 'Fulfillment Rate',
                 detailView: 'View Details',
                 positionDetailTitle: 'Position Detail Status',
@@ -1508,7 +1614,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 viewPaidOnly: 'Paid Only',
                 viewUnpaidOnly: 'Unpaid Only',
                 viewAll: 'All',
-                chartPaymentStatus: 'Payment Status',
+                chartPaymentStatus: 'Payment/Unpaid Ratio',
                 chartConditionStatus: 'Condition Fulfillment Rate',
                 statisticsTitle: 'Incentive Statistics',
                 basicInfo: 'Basic Information',
@@ -1540,17 +1646,66 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 position: 'Chức vụ',
                 juneIncentive: 'Khuyến khích tháng 6',
                 julyIncentive: 'Khuyến khích tháng 7',
+                augustIncentive: 'Khuyến khích tháng 8',
                 change: 'Thay đổi',
                 reason: 'Lý do',
-                attendanceRate: 'Tỷ lệ đi làm',
-                absenceDays: 'Ngày vắng không phép',
-                workingDays: 'Ngày làm việc thực tế',
-                actualValue: 'Thực tế',
-                threshold: 'Ngưỡng',
-                notApplicable: 'Không áp dụng',
-                absenceRateCalc: 'Phương pháp tính tỷ lệ vắng mặt',
+                // Popup liên quan
+                paymentStatus: 'Tình trạng thanh toán',
                 paid: 'Đã trả',
                 unpaid: 'Chưa trả',
+                conditionFulfillmentRate: 'Tỷ lệ đáp ứng',
+                unpaidRate: 'Tỷ lệ chưa trả',
+                avgFulfillmentRate: 'Tỷ lệ đáp ứng trung bình',
+                conditionDetails: 'Chi tiết đáp ứng điều kiện',
+                // Danh mục điều kiện
+                attendanceConditions: 'Điều kiện chấm công',
+                aqlConditions: 'Điều kiện AQL',
+                prsConditions: 'Điều kiện 5PRS',
+                // Tiêu đề bảng
+                condition: 'Điều kiện',
+                evaluationTarget: 'Đối tượng đánh giá',
+                fulfilled: 'Đáp ứng',
+                notFulfilled: 'Không đáp ứng',
+                fulfillmentRate: 'Tỷ lệ đáp ứng',
+                notApplicable: 'Không áp dụng',
+                // Văn bản điều kiện
+                attendanceRate: 'Tỷ lệ đi làm',
+                attendanceRateCondition: 'Tỷ lệ đi làm ≥88%',
+                unexcusedAbsence: 'Vắng không phép',
+                unexcusedAbsenceCondition: 'Vắng không phép ≤2 ngày',
+                actualWorkDays: 'Ngày làm thực tế',
+                actualWorkDaysCondition: 'Ngày làm thực tế >0 ngày',
+                personalAQL: 'AQL cá nhân: Thất bại trong tháng',
+                personalAQLCondition: 'AQL cá nhân: 0 lần thất bại trong tháng',
+                continuityCheck: 'Kiểm tra liên tục',
+                continuityCheckCondition: 'Kiểm tra liên tục: Không có 3 tháng liên tiếp thất bại',
+                teamAreaAQL: 'AQL nhóm/khu vực',
+                teamAreaAQLCondition: 'AQL nhóm/khu vực: Không có nhân viên cấp dưới thất bại 3 tháng liên tiếp',
+                areaRejectRate: 'Tỷ lệ từ chối khu vực',
+                areaRejectRateCondition: 'Tỷ lệ từ chối khu vực <3%',
+                prsPassRate: 'Tỷ lệ đạt 5PRS',
+                prsPassRateCondition: 'Tỷ lệ đạt 5PRS ≥95%',
+                prsInspectionVolume: 'Khối lượng kiểm tra 5PRS',
+                prsInspectionVolumeCondition: 'Khối lượng kiểm tra 5PRS ≥100 cái',
+                // Tùy chọn lọc
+                allTypes: 'Tất cả loại',
+                allPositions: 'Tất cả chức vụ',
+                resetFilter: 'Đặt lại bộ lọc',
+                paidOnly: 'Chỉ người được trả',
+                unpaidOnly: 'Chỉ người chưa trả',
+                all: 'Tất cả',
+                // Thông tin chi tiết
+                incentiveStatistics: 'Thống kê khuyến khích',
+                monthIncentiveInfo: 'Thông tin khuyến khích {month}',
+                paymentAmount: 'Số tiền thanh toán',
+                changeAmount: 'Thay đổi',
+                status: 'Trạng thái',
+                conditionFulfillmentStatus: 'Trạng thái đáp ứng điều kiện',
+                calculationBasis: 'Cơ sở tính toán',
+                typeCriteriaMet: 'Đáp ứng tiêu chí TYPE',
+                additionalInfo: 'Bổ sung',
+                absenteeismRate: 'Tỷ lệ vắng mặt',
+                // Dịch giá trị
                 passed: 'Đạt',
                 failed: 'Không đạt',
                 normal: 'Bình thường',
@@ -1559,9 +1714,14 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 notEvaluated: 'Không đánh giá',
                 pass: 'Đạt',
                 fail: 'Không đạt',
+                // Đơn vị
+                cases: ' trường hợp',
+                days: ' ngày',
+                pieces: ' cái',
+                people: ' người',
+                // Khác
                 incentiveDetail: 'Chi tiết tính toán khuyến khích',
                 calculationResult: 'Kết quả tính toán',
-                conditionFulfillment: 'Trạng thái đáp ứng điều kiện',
                 fulfillmentRate: 'Tỷ lệ đáp ứng',
                 detailView: 'Xem chi tiết',
                 detailButton: 'Xem chi tiết',
@@ -1575,11 +1735,20 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 viewPaidOnly: 'Chỉ người được trả',
                 viewUnpaidOnly: 'Chỉ người chưa trả',
                 viewAll: 'Tất cả',
-                chartPaymentStatus: 'Tình trạng thanh toán',
+                chartPaymentStatus: 'Tỷ lệ Đã trả/Chưa trả',
                 chartConditionStatus: 'Tỷ lệ đáp ứng điều kiện',
                 statisticsTitle: 'Thống kê khuyến khích',
                 basicInfo: 'Thông tin cơ bản',
-                conditionCheck: 'Kiểm tra điều kiện'
+                conditionCheck: 'Kiểm tra điều kiện',
+                notEvaluationTarget: 'Không phải đối tượng đánh giá',
+                items: ' mục',
+                '5prsConditions': 'Điều kiện 5PRS',
+                employeeNumber: 'Mã nhân viên',
+                incentive: 'Tiền thưởng',
+                employeeDetailStatus: 'Tình trạng chi tiết nhân viên',
+                paidOnly: 'Chỉ người được trả',
+                unpaidOnly: 'Chỉ người chưa được trả',
+                viewAll: 'Xem tất cả'
             }}
         }};
         
@@ -1641,9 +1810,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             const positionModalTitle = document.getElementById('positionModalTitle');
             if (positionModalTitle) positionModalTitle.textContent = t.positionModalTitle;
             
-            // 팝업창 내 텍스트 업데이트
-            const conditionFulfillmentTitle = document.getElementById('conditionFulfillmentTitle');
-            if (conditionFulfillmentTitle) conditionFulfillmentTitle.textContent = t.conditionFulfillment;
+            // 팝업창 내 텍스트 업데이트 - 아래에서 처리
             
             const employeeDetailTitle = document.getElementById('employeeDetailTitle');
             if (employeeDetailTitle) employeeDetailTitle.textContent = t.employeeDetailStatus;
@@ -1671,6 +1838,79 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             // 검색 플레이스홀더 업데이트
             const searchInput = document.querySelector('input[placeholder*="검색"]');
             if (searchInput) searchInput.placeholder = t.searchPlaceholder;
+            
+            // 팩업창 내 텍스트 업데이트
+            const conditionFulfillmentTitle = document.getElementById('conditionFulfillmentTitle');
+            if (conditionFulfillmentTitle) conditionFulfillmentTitle.textContent = t.conditionFulfillmentStatus || '조건별 충족 현황';
+            
+            // 조건 테이블 헤더 업데이트
+            const conditionHeaders = document.querySelectorAll('.condition-group .th-condition');
+            conditionHeaders.forEach(th => {{ th.textContent = t.condition || '조건'; }});
+            
+            const evaluationHeaders = document.querySelectorAll('.condition-group .th-evaluation-target');
+            evaluationHeaders.forEach(th => {{ th.textContent = t.evaluationTarget || '평가 대상'; }});
+            
+            const fulfilledHeaders = document.querySelectorAll('.condition-group .th-fulfilled');
+            fulfilledHeaders.forEach(th => {{ th.textContent = t.fulfilled || '충족'; }});
+            
+            const unfulfilledHeaders = document.querySelectorAll('.condition-group .th-unfulfilled');
+            unfulfilledHeaders.forEach(th => {{ th.textContent = t.notFulfilled || '미충족'; }});
+            
+            const rateHeaders = document.querySelectorAll('.condition-group .th-fulfillment-rate');
+            rateHeaders.forEach(th => {{ th.textContent = t.fulfillmentRate || '충족률'; }});
+            
+            // 개인별 상세 탭 업데이트
+            const individualDetailTitle = document.getElementById('individualDetailTitle');
+            if (individualDetailTitle) individualDetailTitle.textContent = t.individualDetail || '개인별 상세 정보';
+            
+            const optAllTypes = document.getElementById('optAllTypes');
+            if (optAllTypes) optAllTypes.textContent = t.allTypes || '모든 타입';
+            
+            const optAllPositions = document.getElementById('optAllPositions');
+            if (optAllPositions) optAllPositions.textContent = t.allPositions || '모든 직급';
+            
+            const optPaymentAll = document.getElementById('optPaymentAll');
+            if (optPaymentAll) optPaymentAll.textContent = t.all || '전체';
+            
+            const optPaymentPaid = document.getElementById('optPaymentPaid');
+            if (optPaymentPaid) optPaymentPaid.textContent = t.paid || '지급';
+            
+            const optPaymentUnpaid = document.getElementById('optPaymentUnpaid');
+            if (optPaymentUnpaid) optPaymentUnpaid.textContent = t.unpaid || '미지급';
+            
+            const btnResetFilterText = document.getElementById('btnResetFilterText');
+            if (btnResetFilterText) btnResetFilterText.textContent = t.resetFilter || '필터 초기화';
+            
+            // 차트 재생성 (언어 변경 시)
+            if (window.doughnutChart) {{
+                window.doughnutChart.destroy();
+                window.doughnutChart = null;
+            }}
+            if (window.barChart) {{
+                window.barChart.destroy();
+                window.barChart = null;
+            }}
+            
+            // 팩업이 열려 있으면 닫고 다시 열기 (차트 재생성을 위해)
+            const openModal = document.querySelector('.modal.show');
+            if (openModal) {{
+                const modalId = openModal.id;
+                const modalInstance = bootstrap.Modal.getInstance(openModal);
+                if (modalInstance) {{
+                    modalInstance.hide();
+                    // 모달이 완전히 닫힌 후 다시 열기
+                    setTimeout(() => {{
+                        if (modalId === 'positionDetailModal') {{
+                            // 저장된 데이터로 다시 열기
+                            const lastType = window.lastPositionDetailType;
+                            const lastPosition = window.lastPositionDetailPosition;
+                            if (lastType && lastPosition) {{
+                                showPositionDetail(lastType, lastPosition);
+                            }}
+                        }}
+                    }}, 300);
+                }}
+            }}
         }}
         
         // 테이블 데이터 업데이트 함수
@@ -1830,17 +2070,14 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             }}
             
             // 개인별 상세 테이블 헤더
-            const individualTableHeaders = document.querySelectorAll('#individual table th');
-            if (individualTableHeaders.length > 0) {{
-                individualTableHeaders[0].textContent = t.employeeNo;
-                individualTableHeaders[1].textContent = t.name;
-                individualTableHeaders[2].textContent = t.position;
-                individualTableHeaders[3].textContent = t.type;
-                individualTableHeaders[4].textContent = t.juneIncentive;
-                individualTableHeaders[5].textContent = t.julyIncentive;
-                individualTableHeaders[6].textContent = t.change;
-                individualTableHeaders[7].textContent = t.reason;
-            }}
+            if (document.getElementById('thEmployeeNo')) document.getElementById('thEmployeeNo').textContent = t.employeeNo || '직원번호';
+            if (document.getElementById('thName')) document.getElementById('thName').textContent = t.name || '이름';
+            if (document.getElementById('thPosition')) document.getElementById('thPosition').textContent = t.position || '직급';
+            if (document.getElementById('thType')) document.getElementById('thType').textContent = t.type || 'Type';
+            if (document.getElementById('thJuneIncentive')) document.getElementById('thJuneIncentive').textContent = t.juneIncentive || '6월 인센티브';
+            if (document.getElementById('thJulyIncentive')) document.getElementById('thJulyIncentive').textContent = t.julyIncentive || '7월 인센티브';
+            if (document.getElementById('thChange')) document.getElementById('thChange').textContent = t.change || '증감';
+            if (document.getElementById('thReason')) document.getElementById('thReason').textContent = t.reason || '계산 근거';
         }}
         
         // 탭 전환
@@ -1855,7 +2092,12 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         
         // 직급별 상세 팝업
         function showPositionDetail(type, position) {{
+            // 마지막 열린 정보 저장 (언어 변경 시 재생성을 위해)
+            window.lastPositionDetailType = type;
+            window.lastPositionDetailPosition = position;
+            
             const modal = new bootstrap.Modal(document.getElementById('positionDetailModal'));
+            const t = translations[currentLanguage]; // 현재 언어 가져오기
             document.getElementById('positionModalTitle').textContent = `${{type}} - ${{translateDataValue('position', position)}} ${{t.incentiveDetail || '인센티브 현황'}}`;
             
             // 해당 직급 데이터 필터링
@@ -1882,7 +2124,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             doughnutChart = new Chart(ctxDoughnut, {{
                 type: 'doughnut',
                 data: {{
-                    labels: ['지급', '미지급'],
+                    labels: [t.paid || '지급', t.unpaid || '미지급'],
                     datasets: [{{
                         data: [paid, unpaid],
                         backgroundColor: ['#4caf50', '#f44336'],
@@ -1938,7 +2180,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                         // 지급률 텍스트
                         ctx.font = '14px sans-serif';
                         ctx.fillStyle = '#333';  // 진한 회색
-                        ctx.fillText('지급률', textX, textY + 25);
+                        ctx.fillText(t.paymentRate || '지급률', textX, textY + 25);
                         ctx.save();
                     }}
                 }}]
@@ -1954,7 +2196,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 data: {{
                     labels: Object.keys(conditions),
                     datasets: [{{
-                        label: '충족률 (%)',
+                        label: t.fulfillmentRate || '충족률' + ' (%)',
                         data: Object.values(conditions).map(c => c.rate),
                         backgroundColor: '#667eea',
                         borderColor: '#5a67d8',
@@ -2061,17 +2303,17 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             // 조건별 테이블 - 3-4-2 그룹으로 재구성
             const conditionGroups = {{
                 attendance: {{
-                    title: '📅 출근 조건 (3가지)',
+                    title: '📅 ' + (t.attendanceConditions || '출근 조건') + ' (3' + (t.items || '가지') + ')',
                     conditions: [],
                     bgClass: 'bg-primary bg-opacity-10'
                 }},
                 aql: {{
-                    title: '🎯 AQL 조건 (4가지)', 
+                    title: '🎯 ' + (t.aqlConditions || 'AQL 조건') + ' (4' + (t.items || '가지') + ')', 
                     conditions: [],
                     bgClass: 'bg-success bg-opacity-10'
                 }},
                 '5prs': {{
-                    title: '📊 5PRS 조건 (2가지)',
+                    title: '📊 ' + (t['5prsConditions'] || '5PRS 조건') + ' (2' + (t.items || '가지') + ')',
                     conditions: [],
                     bgClass: 'bg-info bg-opacity-10'
                 }}
@@ -2105,11 +2347,11 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             <table class="table table-sm table-bordered mb-0">
                                 <thead class="table-light">
                                     <tr>
-                                        <th width="30%">조건</th>
-                                        <th width="20%">평가 대상</th>
-                                        <th width="15%">충족</th>
-                                        <th width="15%">미충족</th>
-                                        <th width="20%">충족률</th>
+                                        <th width="30%" class="th-condition">조건</th>
+                                        <th width="20%" class="th-evaluation-target">평가 대상</th>
+                                        <th width="15%" class="th-fulfilled">충족</th>
+                                        <th width="15%" class="th-unfulfilled">미충족</th>
+                                        <th width="20%" class="th-fulfillment-rate">충족률</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2121,7 +2363,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             conditionHtml += `
                                 <tr class="table-secondary">
                                     <td>${{condition.name}}</td>
-                                    <td colspan="4" class="text-center text-muted">평가 대상 아님</td>
+                                    <td colspan="4" class="text-center text-muted">${{t.notEvaluationTarget || '평가 대상 아님'}}</td>
                                 </tr>
                             `;
                         }} else {{
@@ -2169,16 +2411,16 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             const employeeDetailHtml = `
                 <div class="mt-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold mb-0" id="employeeDetailTitle">직원별 상세 현황</h6>
+                        <h6 class="fw-bold mb-0" id="employeeDetailTitle">${{t.employeeDetailStatus || '직원별 상세 현황'}}</h6>
                         <div class="btn-group btn-group-sm" role="group">
                             <button type="button" class="btn btn-outline-success" onclick="filterPositionTable('paid')" id="btnPaidOnly">
-                                지급자만
+                                ${{t.paidOnly || '지급자만'}}
                             </button>
                             <button type="button" class="btn btn-outline-danger" onclick="filterPositionTable('unpaid')" id="btnUnpaidOnly">
-                                미지급자만
+                                ${{t.unpaidOnly || '미지급자만'}}
                             </button>
                             <button type="button" class="btn btn-outline-secondary" onclick="filterPositionTable('all')" id="btnViewAll">
-                                전체
+                                ${{t.viewAll || '전체'}}
                             </button>
                         </div>
                     </div>
@@ -2229,7 +2471,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                             <td class="fw-bold ${{isPaid ? 'text-success' : 'text-danger'}}">${{emp.{month}_incentive}}</td>
                                             <td>
                                                 <span class="badge ${{isPaid ? 'bg-success' : 'bg-danger'}}">
-                                                    ${{isPaid ? '지급' : '미지급'}}
+                                                    ${{isPaid ? (t.paid || '지급') : (t.unpaid || '미지급')}}
                                                 </span>
                                             </td>
                                             <td>
@@ -2513,7 +2755,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             const positionSelect = document.getElementById('positionFilter');
             
             // 기존 옵션 초기화
-            positionSelect.innerHTML = '<option value="">모든 직급</option>';
+            positionSelect.innerHTML = `<option value="">${{t.allPositions || '모든 직급'}}</option>`;
             
             // 직급 목록 수집
             const positions = new Set();
@@ -3029,6 +3271,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
     html_content = html_content.replace('{month_korean}', month_korean)
     html_content = html_content.replace('{month_english}', month_english)
     html_content = html_content.replace('{month_vietnamese}', month_vietnamese)
+    html_content = html_content.replace('{month}', month)  # JavaScript에서 사용하는 월 변수
     
     # HTML 파일 저장
     with open(output_html, 'w', encoding='utf-8') as f:
@@ -3147,7 +3390,7 @@ def generate_position_tab(employees):
 def generate_detail_tab(employees, month='july'):
     """개인별 상세 탭 HTML 생성"""
     html = """
-        <h3>개인별 상세 정보</h3>
+        <h3 id="individualDetailTitle">개인별 상세 정보</h3>
         <div class="filter-container">
             <div class="row">
                 <div class="col-md-3">
@@ -3157,7 +3400,7 @@ def generate_detail_tab(employees, month='july'):
                 <div class="col-md-2">
                     <select id="typeFilter" class="form-select" 
                         onchange="updatePositionFilter(); filterTable()">
-                        <option value="">모든 타입</option>
+                        <option value="" id="optAllTypes">모든 타입</option>
                         <option value="TYPE-1">TYPE-1</option>
                         <option value="TYPE-2">TYPE-2</option>
                         <option value="TYPE-3">TYPE-3</option>
@@ -3165,19 +3408,19 @@ def generate_detail_tab(employees, month='july'):
                 </div>
                 <div class="col-md-3">
                     <select id="positionFilter" class="form-select" onchange="filterTable()">
-                        <option value="">모든 직급</option>
+                        <option value="" id="optAllPositions">모든 직급</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select id="paymentFilter" class="form-select" onchange="filterTable()">
-                        <option value="">전체</option>
-                        <option value="paid">지급</option>
-                        <option value="unpaid">미지급</option>
+                        <option value="" id="optPaymentAll">전체</option>
+                        <option value="paid" id="optPaymentPaid">지급</option>
+                        <option value="unpaid" id="optPaymentUnpaid">미지급</option>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <button class="btn btn-secondary w-100" onclick="clearFilters()">
-                        필터 초기화
+                        <span id="btnResetFilterText">필터 초기화</span>
                     </button>
                 </div>
             </div>
@@ -3186,14 +3429,14 @@ def generate_detail_tab(employees, month='july'):
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>직원번호</th>
-                        <th>이름</th>
-                        <th>직급</th>
-                        <th>Type</th>
-                        <th>6월 인센티브</th>
-                        <th>7월 인센티브</th>
-                        <th>증감</th>
-                        <th>계산 근거</th>
+                        <th id="thEmployeeNo">직원번호</th>
+                        <th id="thName">이름</th>
+                        <th id="thPosition">직급</th>
+                        <th id="thType">Type</th>
+                        <th id="thJuneIncentive">6월 인센티브</th>
+                        <th id="thJulyIncentive">7월 인센티브</th>
+                        <th id="thChange">증감</th>
+                        <th id="thReason">계산 근거</th>
                     </tr>
                 </thead>
                 <tbody id="detailTableBody">
