@@ -148,6 +148,24 @@ else
     echo -e "${GREEN}✅ Config 파일 확인 완료: $CONFIG_FILE${NC}"
 fi
 
+# Step 0.5: Google Drive 동기화 (파일 다운로드)
+echo ""
+echo -e "${YELLOW}📥 Google Drive에서 필요한 파일 동기화 중...${NC}"
+python3 src/auto_run_with_drive.py --month $MONTH --year $YEAR
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Google Drive 동기화 완료${NC}"
+else
+    echo -e "${YELLOW}⚠️ Google Drive 동기화 실패 (수동 다운로드 필요할 수 있음)${NC}"
+fi
+
+# Step 0.6: 이전 월 인센티브 파일 동기화
+echo ""
+echo -e "${YELLOW}📥 이전 월 인센티브 파일 확인 중...${NC}"
+python3 src/sync_previous_incentive.py $MONTH $YEAR
+
+# Step 0.7: 출근 데이터 변환
+run_step "Step 0.7: 출근 데이터 변환" "python3 src/convert_attendance_data.py $MONTH"
+
 # Step 1: 인센티브 계산
 run_step "Step 1: 인센티브 계산" "python3 src/step1_인센티브_계산_개선버전.py --config $CONFIG_FILE"
 

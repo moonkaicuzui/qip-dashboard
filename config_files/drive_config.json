@@ -59,6 +59,18 @@
       "drive_pattern": "configs/type2_position_mapping.json",
       "local_path": "type2_position_mapping.json",
       "required": false
+    },
+    {
+      "drive_pattern": "monthly_data/{year}_{month:02d}/{year}년 {month}월 인센티브 지급 세부 정보.csv",
+      "local_path": "input_files/{year}년 {month}월 인센티브 지급 세부 정보.csv",
+      "required": false,
+      "description": "Current month incentive data"
+    },
+    {
+      "drive_pattern": "monthly_data/{prev_year}_{prev_month:02d}/{prev_year}년 {prev_month}월 인센티브 지급 세부 정보.csv",
+      "local_path": "input_files/{prev_year}년 {prev_month}월 인센티브 지급 세부 정보.csv",
+      "required": false,
+      "description": "Previous month incentive data for calculation"
     }
   ],
   "validation_rules": {
