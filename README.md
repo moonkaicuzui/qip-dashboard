@@ -11,6 +11,14 @@
 
 ## 📝 업데이트 이력
 
+### Version 8.0 (2025-08-21) 🎉 **Type별 구분 및 완전한 다국어 지원**
+- **Type별 데이터 구분 문제 해결**: CSV 컬럼명 수정 ('TYPE' → 'ROLE TYPE STD')
+- **언어 변경 시 단위 표시 문제 해결**: changeLanguage()에 데이터 재생성 로직 추가
+- **베트남어 번역 완성**: 누락된 번역 변수 추가 (unitPeople, detailButton 등)
+- **동적 월 정보 처리**: 하드코딩된 월 정보를 템플릿 변수로 대체
+- **결과**: TYPE-1 (150명), TYPE-2 (276명), TYPE-3 (38명) 정확히 구분
+- **다국어 지원**: 한국어, 영어, 베트남어 완벽 지원
+
 ### Version 7.0 (2025-01-21) 🎉 **0 VND → 121,996,842 VND 완벽 해결**
 - **핵심 문제 해결**: 출석 데이터 컬럼 매칭 오류 수정 ("No." → "ID No")
 - **데이터 타입 불일치 해결**: int64/string ID 매칭 문제 수정
@@ -376,6 +384,21 @@ python src/step2_dashboard_version4.py --month september --year 2025
 **문제 9**: HTML 파일이 안 열려요
 - **해결**: 크롬이나 엣지 브라우저로 열기 → 파일 우클릭 → "연결 프로그램" → Chrome/Edge 선택
 
+**문제 10**: Type별 데이터가 구분되지 않음
+- **증상**: Type별 현황 테이블에서 모든 Type이 동일한 값으로 표시
+- **원인**: CSV 컬럼명 불일치 ('TYPE' vs 실제 'ROLE TYPE STD')
+- **해결**: step2_dashboard_version4.py에서 `row.get('ROLE TYPE STD', '')` 로 수정
+
+**문제 11**: 언어 변경 시 단위가 안 바뀜
+- **증상**: 베트남어로 변경해도 "명"이 계속 표시됨
+- **원인**: changeLanguage() 함수가 UI 텍스트만 변경하고 테이블 데이터는 재생성하지 않음
+- **해결**: changeLanguage() 함수에 `generateSummaryData()` 및 `generatePositionData()` 추가
+
+**문제 12**: 베트남어 번역 누락
+- **증상**: 베트남어 선택 시 일부 UI 요소가 번역되지 않음
+- **원인**: 번역 객체에 일부 변수 누락
+- **해결**: vi 객체에 unitPeople, detailButton, positionStatusByType 등 추가
+
 **문제 5**: Google Drive 연동 시 "Incentive calculation failed" 오류
 - **원인**: `auto_run_with_drive.py`가 잘못된 스크립트 이름을 참조
 - **증상**: 
@@ -691,6 +714,6 @@ git reset --soft HEAD~1    # 마지막 커밋만 취소
 
 ---
 
-*마지막 업데이트: 2025년 1월 21일 - Version 7.0*
-*프로젝트 상태: ✅ 모든 주요 버그 해결 완료*
+*마지막 업데이트: 2025년 8월 21일 - Version 8.0*
+*프로젝트 상태: ✅ Type별 구분 및 다국어 지원 완벽 구현*
 
