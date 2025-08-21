@@ -558,6 +558,48 @@ class GoogleDriveManager:
         
         return validation_results
     
+    def download_specific_file(self, drive_path: str, local_path: str) -> bool:
+        """
+        특정 파일을 Google Drive에서 다운로드
+        
+        Args:
+            drive_path: Google Drive 파일 경로 (예: "monthly_data/2025_07/파일명.csv")
+            local_path: 로컬 저장 경로
+            
+        Returns:
+            bool: 다운로드 성공 여부
+        """
+        try:
+            # Google Drive 서비스 초기화 확인
+            if not self.service:
+                logger.info("Google Drive 연결 초기화 중...")
+                if not self.initialize():
+                    logger.error("Google Drive 연결 실패")
+                    return False
+            
+            logger.info(f"🔍 Google Drive에서 파일 검색: {drive_path}")
+            
+            # 파일 검색
+            file_id = self._find_file_by_path(drive_path)
+            if not file_id:
+                logger.warning(f"❌ 파일을 찾을 수 없습니다: {drive_path}")
+                return False
+            
+            # 다운로드 실행
+            logger.info(f"📥 파일 다운로드 중: {drive_path}")
+            success = self._download_file(file_id, local_path)
+            
+            if success:
+                logger.info(f"✅ 파일 다운로드 성공: {local_path}")
+            else:
+                logger.error(f"❌ 파일 다운로드 실패: {drive_path}")
+                
+            return success
+            
+        except Exception as e:
+            logger.error(f"파일 다운로드 중 오류: {e}")
+            return False
+    
     def _validate_file(self, file_path: str) -> bool:
         """
         Validate individual file

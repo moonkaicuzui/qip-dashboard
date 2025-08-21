@@ -1208,6 +1208,22 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         </div>
         
         <div class="content p-4">
+            <!-- 데이터 오류 경고 메시지 -->
+            {f'''
+            <div class="alert alert-danger mb-4" role="alert" style="display: {'block' if stats['total_amount'] == 0 else 'none'};">
+                <h4 class="alert-heading">⚠️ 데이터 오류</h4>
+                <p>인센티브 계산에 필요한 데이터가 누락되었습니다:</p>
+                <ul class="mb-0">
+                    <li>출근 데이터 파일: <code>attendance data august_converted.csv</code> - 누락</li>
+                    <li>이전 월 인센티브 파일: <code>2025년 7월 인센티브 지급 세부 정보.csv</code> - 누락</li>
+                    <li>설정 파일: <code>type2_position_mapping.json</code> - 누락</li>
+                    <li>설정 파일: <code>auditor_trainer_area_mapping.json</code> - 누락</li>
+                </ul>
+                <hr>
+                <p class="mb-0"><strong>해결 방법:</strong> Google Drive에서 필요한 데이터 파일을 동기화하거나, 시스템 관리자에게 문의하세요.</p>
+            </div>
+            ''' if stats['total_amount'] == 0 else ''}
+            
             <!-- 요약 카드 -->
             <div class="row mb-4">
                 <div class="col-md-3">
@@ -1256,7 +1272,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             
             <!-- 개인별 상세 탭 -->
             <div id="detail" class="tab-content">
-                {generate_detail_tab(employees)}
+                {generate_detail_tab(employees, month)}
             </div>
             
             <!-- 인센티브 기준 탭 -->
@@ -1817,7 +1833,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             
             // 지급/미지급 정확한 계산
             const paid = filteredData.filter(emp => {{
-                const amount = parseFloat(emp.july_incentive.replace(/[^0-9]/g, '')) || 0;
+                const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
                 return amount > 0;
             }}).length;
             const unpaid = filteredData.length - paid;
@@ -2148,7 +2164,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             </thead>
                             <tbody>
                                 ${{filteredData.map(emp => {{
-                                    const amount = parseFloat(emp.july_incentive.replace(/[^0-9]/g, '')) || 0;
+                                    const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
                                     const isPaid = amount > 0;
                                     const rowClass = isPaid ? 'table-row-paid' : 'table-row-unpaid';
                                     
@@ -2178,7 +2194,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                         <tr class="${{rowClass}}" data-payment="${{isPaid ? 'paid' : 'unpaid'}}" onclick="showEmployeeDetail('${{emp.emp_no}}')" style="cursor: pointer;">
                                             <td>${{emp.emp_no}}</td>
                                             <td><strong>${{emp.name}}</strong></td>
-                                            <td class="fw-bold ${{isPaid ? 'text-success' : 'text-danger'}}">${{emp.july_incentive}}</td>
+                                            <td class="fw-bold ${{isPaid ? 'text-success' : 'text-danger'}}">${{emp.{month}_incentive}}</td>
                                             <td>
                                                 <span class="badge ${{isPaid ? 'bg-success' : 'bg-danger'}}">
                                                     ${{isPaid ? '지급' : '미지급'}}
@@ -2238,9 +2254,9 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             `;
             
             // 계산 결과 - 직급별 현황과 동일한 형식으로 개선
-            const julyAmount = parseFloat(employee.july_incentive.replace(/[^0-9]/g, '')) || 0;
-            const status = julyAmount > 0 ? '지급' : '미지급';
-            const statusClass = julyAmount > 0 ? 'payment-success' : 'payment-fail';
+            const incentiveAmount = parseFloat(employee.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
+            const status = incentiveAmount > 0 ? '지급' : '미지급';
+            const statusClass = incentiveAmount > 0 ? 'payment-success' : 'payment-fail';
             
             // 충족율 계산
             let metConditions = 0;
@@ -2272,7 +2288,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                         <table class="table table-sm">
                             <tr>
                                 <td width="50%">지급액:</td>
-                                <td class="text-end"><strong>${{employee.july_incentive}}</strong></td>
+                                <td class="text-end"><strong>${{employee.{month}_incentive}}</strong></td>
                             </tr>
                             <tr>
                                 <td>변동:</td>
@@ -2793,7 +2809,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             let paidCount = 0;
             
             employees.forEach(emp => {{
-                const amount = parseFloat(emp.july_incentive.replace(/[^0-9]/g, '')) || 0;
+                const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
                 if (amount > 0) {{
                     totalAmount += amount;
                     paidCount++;
@@ -2823,7 +2839,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 }}
                 
                 typeSummary[type].total++;
-                const amount = parseFloat(emp.july_incentive.replace(/[^0-9]/g, '')) || 0;
+                const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
                 if (amount > 0) {{
                     typeSummary[type].paid++;
                     typeSummary[type].totalAmount += amount;
@@ -2876,7 +2892,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 
                 positionData[key].total++;
                 positionData[key].employees.push(emp);
-                const amount = parseFloat(emp.july_incentive.replace(/[^0-9]/g, '')) || 0;
+                const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
                 if (amount > 0) {{
                     positionData[key].paid++;
                     positionData[key].totalAmount += amount;
@@ -2994,6 +3010,19 @@ def calculate_statistics(employees, calculation_month=None, exclude_types=None):
     """
     import pandas as pd
     
+    # calculation_month에서 월 이름 추출 (예: '2025-08' → 'august')
+    month_num_to_name = {
+        '01': 'january', '02': 'february', '03': 'march', '04': 'april',
+        '05': 'may', '06': 'june', '07': 'july', '08': 'august', 
+        '09': 'september', '10': 'october', '11': 'november', '12': 'december'
+    }
+    
+    if calculation_month and '-' in calculation_month:
+        month_num = calculation_month.split('-')[1]
+        incentive_field = f"{month_num_to_name.get(month_num, 'july')}_incentive"
+    else:
+        incentive_field = 'july_incentive'  # 기본값
+    
     # Stop working Date 기준으로 필터링
     active_employees = []
     
@@ -3018,11 +3047,11 @@ def calculate_statistics(employees, calculation_month=None, exclude_types=None):
                            if emp.get('type') not in exclude_types]
     
     total = len(active_employees)
-    paid = sum(1 for emp in active_employees if not emp['july_incentive'].startswith('0 VND'))
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
     
     total_amount = 0
     for emp in active_employees:
-        amount_str = emp['july_incentive'].replace(' VND', '').replace(',', '')
+        amount_str = emp[incentive_field].replace(' VND', '').replace(',', '')
         try:
             amount = float(amount_str)
             total_amount += amount
@@ -3073,7 +3102,7 @@ def generate_position_tab(employees):
         </div>
     """
 
-def generate_detail_tab(employees):
+def generate_detail_tab(employees, month='july'):
     """개인별 상세 탭 HTML 생성"""
     html = """
         <h3>개인별 상세 정보</h3>
@@ -3145,7 +3174,7 @@ def generate_detail_tab(employees):
                 <td>{emp['position']}</td>
                 <td><span class="type-badge {type_class}">{type_display}</span></td>
                 <td>{emp['june_incentive']}</td>
-                <td><strong>{emp['july_incentive']}</strong></td>
+                <td><strong>{emp[f'{month}_incentive']}</strong></td>
                 <td>{emp['change']}</td>
                 <td>{emp['reason']}</td>
             </tr>

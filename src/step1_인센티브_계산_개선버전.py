@@ -471,11 +471,11 @@ class DataProcessor:
         """출석 조건 처리 (개선된 버전)"""
         print("\n📊 출석 조건 처리 중...")
         
-        # 직원 ID 칼럼 찾기
+        # 직원 ID 칼럼 찾기 (ID No를 우선으로)
         emp_col = self.detect_column_names(att_df, [
-            'EMPLOYEE NO', 'EMPLOYEE_NO', 'EMP_NO', 
+            'ID No', 'Employee No', 'EMPLOYEE NO', 'EMPLOYEE_NO', 'EMP_NO', 
             'EMPLOYEE ID', 'EMPLOYEE_ID', 'ID',
-            'WORKER ID', 'STAFF ID', 'Employee No'
+            'WORKER ID', 'STAFF ID'
         ])
         
         if not emp_col:
@@ -549,14 +549,23 @@ class DataProcessor:
             return result_df
         
         # 원본 일별 데이터 처리 (기존 코드)
-        date_patterns = [r'\d{1,2}[-/]\d{1,2}', r'\d{4}[-/]\d{2}[-/]\d{2}']
+        # Work Date 컬럼 포함하여 날짜 컬럼 찾기
         date_columns = []
         
+        # 먼저 명시적인 날짜 컬럼명 확인
+        known_date_cols = ['Work Date', 'WorkDate', 'Date', '날짜', '일자']
         for col in att_df.columns:
-            for pattern in date_patterns:
-                if re.search(pattern, str(col)):
-                    date_columns.append(col)
-                    break
+            if col in known_date_cols:
+                date_columns.append(col)
+        
+        # 없으면 패턴으로 찾기
+        if not date_columns:
+            date_patterns = [r'\d{1,2}[-/]\d{1,2}', r'\d{4}[-/]\d{2}[-/]\d{2}']
+            for col in att_df.columns:
+                for pattern in date_patterns:
+                    if re.search(pattern, str(col)):
+                        date_columns.append(col)
+                        break
         
         if not date_columns:
             print("❌ 날짜 칼럼을 찾을 수 없습니다.")
@@ -579,19 +588,27 @@ class DataProcessor:
             actual_working_days = 0
             unapproved_absence = 0
             
-            emp_data = att_df[att_df[emp_col] == emp_id]
+            # 타입 호환성을 위해 출석 데이터의 ID도 문자열로 변환하여 매칭
+            emp_data = att_df[att_df[emp_col].astype(str).str.zfill(9) == emp_id]
             
-            for date_col in date_columns:
-                if date_col in emp_data.columns:
-                    value = emp_data.iloc[0][date_col]
-                    if pd.notna(value):
-                        value_str = str(value).strip().upper()
+            # 방어적 코딩: 출석 데이터가 없는 직원 처리
+            if emp_data.empty:
+                print(f"⚠️ 출석 데이터 없음: {emp_id}")
+                # 출석 데이터 없는 직원은 0일로 처리하고 다음 직원으로
+                continue
+            
+            # 실제 출석 데이터에서 출근/결근 계산 (각 행이 하루씩)
+            if 'compAdd' in emp_data.columns:
+                for idx, row in emp_data.iterrows():
+                    comp_add = row['compAdd']
+                    if pd.notna(comp_add):
+                        comp_str = str(comp_add).strip()
                         
-                        # 출근 체크
-                        if value_str in ['P', 'PRESENT', '출근', 'O', 'OK', '1']:
+                        # 출근 체크 ('Đi làm' = 출근)
+                        if comp_str == 'Đi làm':
                             actual_working_days += 1
-                        # 무단결근 체크
-                        elif 'UNAPP' in value_str or '무단' in value_str or value_str == 'U':
+                        # 무단결근 체크 (필요 시 다른 패턴 추가)
+                        elif '무단' in comp_str or 'UNAPP' in comp_str.upper():
                             unapproved_absence += 1
             
             # 실제 근무일이 전체 근무일보다 많은 경우 조정
@@ -1902,12 +1919,12 @@ class CompleteQIPCalculator:
         Auditor/Trainer 담당 구역 매핑 JSON 파일 로드
         """
         try:
-            # 먼저 input_files 폴더에서 찾기
-            json_path = self.base_path / 'auditor_trainer_area_mapping.json'
+            # config_files 폴더에서 찾기
+            json_path = self.base_path / 'config_files' / 'auditor_trainer_area_mapping.json'
             if not json_path.exists():
-                # 없으면 프로젝트 루트에서 찾기
+                # 없으면 프로젝트 루트의 config_files에서 찾기
                 from pathlib import Path
-                json_path = Path('auditor_trainer_area_mapping.json')
+                json_path = Path('config_files/auditor_trainer_area_mapping.json')
             
             if json_path.exists():
                 with open(json_path, 'r', encoding='utf-8') as f:
@@ -2038,12 +2055,12 @@ class CompleteQIPCalculator:
     def load_aql_inspector_config(self) -> Dict:
         """AQL Inspector 인센티브 설정 로드"""
         try:
-            # 먼저 input_files 폴더에서 찾기
-            config_path = self.base_path / 'aql_inspector_incentive_config.json'
+            # config_files 폴더에서 찾기
+            config_path = self.base_path / 'config_files' / 'aql_inspector_incentive_config.json'
             if not config_path.exists():
-                # 없으면 프로젝트 루트에서 찾기
+                # 없으면 프로젝트 루트의 config_files에서 찾기
                 from pathlib import Path
-                config_path = Path('aql_inspector_incentive_config.json')
+                config_path = Path('config_files/aql_inspector_incentive_config.json')
             
             if config_path.exists():
                 with open(config_path, 'r', encoding='utf-8') as f:
@@ -2569,7 +2586,7 @@ class CompleteQIPCalculator:
         try:
             # 프로젝트 루트에서 매핑 파일 로드
             import os
-            mapping_path = 'type2_position_mapping.json'
+            mapping_path = 'config_files/type2_position_mapping.json'
             if os.path.exists(mapping_path):
                 with open(mapping_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
