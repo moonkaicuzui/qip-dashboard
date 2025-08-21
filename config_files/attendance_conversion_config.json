@@ -1,0 +1,28 @@
+{
+  "auto_convert": true,
+  "debug_mode": false,
+  "validate_conversion": true,
+  "cache_enabled": true,
+  "log_file": "logs/attendance_conversion.log",
+  "save_metadata": true,
+  "keep_backup": false,
+  "generate_report": false,
+  "conversion_options": {
+    "remove_empty_rows": true,
+    "standardize_id": true,
+    "calculate_absence_rate": true
+  },
+  "paths": {
+    "original_folder": "input_files/attendance/original",
+    "converted_folder": "input_files/attendance/converted",
+    "cache_folder": "input_files/attendance/.cache",
+    "metadata_folder": "input_files/attendance/metadata",
+    "reports_folder": "input_files/attendance/reports"
+  },
+  "validation": {
+    "check_employee_count": true,
+    "check_work_days": true,
+    "sample_size": 10,
+    "tolerance_percent": 0.01
+  }
+}
