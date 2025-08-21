@@ -424,6 +424,20 @@ git clone https://github.com/username/repository.git
 
 ### 📝 일상적인 작업 흐름
 
+#### 🔥 중요: Git의 3단계 작업 흐름 이해하기
+
+```
+1️⃣ 파일 수정 (Working Directory)
+      ↓
+2️⃣ git add . (Staging Area로 이동) ← ⚠️ 필수 단계!
+      ↓
+3️⃣ git commit -m "메시지" (Repository에 저장)
+```
+
+**⚠️ 핵심 포인트**: `git add`를 반드시 먼저 해야 합니다!
+- `git add` 없이 `commit`하면 → "no changes added to commit" 오류 발생
+- 새로 만든 파일은 특히 `git add`가 필수입니다
+
 #### 1. 상태 확인
 ```bash
 # 현재 상태 확인
@@ -434,16 +448,41 @@ git diff                    # 스테이징 전 변경사항
 git diff --staged           # 스테이징된 변경사항
 ```
 
-#### 2. 변경사항 저장
+#### 2. 변경사항 저장 (⭐ 가장 중요!)
 ```bash
-# 파일 스테이징 (추가)
-git add .                   # 모든 변경사항 추가
+# ✅ 올바른 방법 (2단계)
+git add .                   # 1단계: 모든 변경사항을 스테이징
+git commit -m "테스트 커밋"  # 2단계: 스테이징된 내용을 커밋
+
+# ❌ 자주 하는 실수
+git commit -m "테스트 커밋"  # 실패! add를 안했음 → "no changes added to commit"
+
+# 💡 단축 방법 (수정된 파일만 가능, 새 파일 X)
+git commit -am "메시지"      # add + commit 동시에
+
+# 파일별로 추가하기
 git add 파일명               # 특정 파일만 추가
 git add *.py                # 특정 패턴 파일 추가
+```
 
-# 커밋 (로컬 저장)
-git commit -m "커밋 메시지"
-git commit -am "메시지"      # add + commit 동시에 (수정된 파일만)
+#### 실제 예시로 이해하기
+```bash
+# 상황: README.md를 수정했을 때
+
+# ❌ 잘못된 방법
+echo "수정 내용" >> README.md
+git commit -m "README 수정"     # 실패! "no changes added to commit"
+
+# ✅ 올바른 방법
+echo "수정 내용" >> README.md
+git add README.md               # 또는 git add .
+git commit -m "README 수정"      # 성공!
+
+# 💡 팁: 상태 확인 습관화
+git status                      # 어떤 파일이 변경되었는지 확인
+git add .                       # 변경사항 스테이징
+git status                      # 스테이징 확인 (녹색으로 표시)
+git commit -m "수정 완료"        # 커밋
 ```
 
 #### 3. 커밋 기록 확인
