@@ -212,8 +212,8 @@ def extract_data_from_csv(month='july', year=2025):
     # CSV 데이터를 employees 형식으로 변환
     employees = []
     for idx, row in df.iterrows():
-        # Type 값 처리 - 빈 값이나 NaN일 경우 빈 문자열로 처리
-        type_value = row.get('TYPE', '')
+        # Type 값 처리 - 'ROLE TYPE STD' 컬럼에서 읽기
+        type_value = row.get('ROLE TYPE STD', '')
         if pd.isna(type_value):
             type_value = ''
         else:
@@ -872,6 +872,25 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         calculation_month: 인센티브 계산 기준 월 (기본값: '2025-07')
     """
     
+    # 월 이름 매핑
+    month_korean = {
+        'january': '1월', 'february': '2월', 'march': '3월', 'april': '4월',
+        'may': '5월', 'june': '6월', 'july': '7월', 'august': '8월',
+        'september': '9월', 'october': '10월', 'november': '11월', 'december': '12월'
+    }.get(month.lower(), '7월')
+    
+    month_english = {
+        'january': 'January', 'february': 'February', 'march': 'March', 'april': 'April',
+        'may': 'May', 'june': 'June', 'july': 'July', 'august': 'August',
+        'september': 'September', 'october': 'October', 'november': 'November', 'december': 'December'
+    }.get(month.lower(), 'July')
+    
+    month_vietnamese = {
+        'january': 'Tháng 1 năm', 'february': 'Tháng 2 năm', 'march': 'Tháng 3 năm', 'april': 'Tháng 4 năm',
+        'may': 'Tháng 5 năm', 'june': 'Tháng 6 năm', 'july': 'Tháng 7 năm', 'august': 'Tháng 8 năm',
+        'september': 'Tháng 9 năm', 'october': 'Tháng 10 năm', 'november': 'Tháng 11 năm', 'december': 'Tháng 12 năm'
+    }.get(month.lower(), 'Tháng 7 năm')
+    
     # 데이터 추출
     employees = extract_data_from_html(input_html, month=month, year=year)
     
@@ -1363,7 +1382,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         const translations = {{
             ko: {{
                 title: 'QIP 인센티브 대시보드',
-                subtitle: '2025년 7월 인센티브 지급 현황',
+                subtitle: '{year}년 {month_korean} 인센티브 지급 현황',
                 generationDate: '보고서 생성일: {datetime.now().strftime('%Y년 %m월 %d일 %H:%M')}',
                 totalEmployees: '전체 직원',
                 paidEmployees: '수령 직원',
@@ -1414,7 +1433,10 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 positionDetailTitle: '직급별 상세 현황',
                 positionStatus: '직급별 현황',
                 detail: '상세',
+                detailButton: '상세 보기',
+                unitPeople: '명',
                 positionModalTitle: '직급별 인센티브 현황',
+                positionStatusByType: '직급별 현황',
                 employeeDetailStatus: '직원별 상세 현황',
                 viewPaidOnly: '지급자만',
                 viewUnpaidOnly: '미지급자만',
@@ -1427,7 +1449,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             }},
             en: {{
                 title: 'QIP Incentive Dashboard',
-                subtitle: 'July 2025 Incentive Payment Status',
+                subtitle: '{month_english} {year} Incentive Payment Status',
                 generationDate: 'Report Generated: {datetime.now().strftime('%B %d, %Y %H:%M')}',
                 totalEmployees: 'Total Employees',
                 paidEmployees: 'Paid Employees',
@@ -1478,7 +1500,10 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 positionDetailTitle: 'Position Detail Status',
                 positionStatus: 'Position Status',
                 detail: 'Detail',
+                detailButton: 'View Details',
+                unitPeople: ' people',
                 positionModalTitle: 'Position Incentive Status',
+                positionStatusByType: 'Position Status',
                 employeeDetailStatus: 'Employee Detail Status',
                 viewPaidOnly: 'Paid Only',
                 viewUnpaidOnly: 'Unpaid Only',
@@ -1491,7 +1516,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             }},
             vi: {{
                 title: 'Bảng điều khiển Khuyến khích QIP',
-                subtitle: 'Tình trạng thanh toán khuyến khích Tháng 7 năm 2025',
+                subtitle: 'Tình trạng thanh toán khuyến khích {month_vietnamese} {year}',
                 generationDate: 'Báo cáo được tạo: {datetime.now().strftime('%d/%m/%Y %H:%M')}',
                 totalEmployees: 'Tổng số nhân viên',
                 paidEmployees: 'Nhân viên được trả',
@@ -1539,6 +1564,9 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 conditionFulfillment: 'Trạng thái đáp ứng điều kiện',
                 fulfillmentRate: 'Tỷ lệ đáp ứng',
                 detailView: 'Xem chi tiết',
+                detailButton: 'Xem chi tiết',
+                unitPeople: ' người',
+                positionStatusByType: 'Trạng thái theo chức vụ',
                 positionDetailTitle: 'Tình trạng chi tiết theo chức vụ',
                 positionStatus: 'Tình trạng theo chức vụ',
                 detail: 'Chi tiết',
@@ -1635,6 +1663,10 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             
             // 테이블 데이터 업데이트
             updateTableData();
+            
+            // Type별 요약 및 직급별 데이터 재생성 (단위 반영을 위해)
+            generateSummaryData();
+            generatePositionData();
             
             // 검색 플레이스홀더 업데이트
             const searchInput = document.querySelector('input[placeholder*="검색"]');
@@ -2825,6 +2857,9 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         
         // 요약 탭 데이터 생성
         function generateSummaryData() {{
+            const t = translations[currentLanguage];
+            console.log('Current language:', currentLanguage);
+            console.log('Unit people:', t.unitPeople);
             const typeSummary = {{}};
             
             // Type별 데이터 집계
@@ -2860,8 +2895,8 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     tbody.innerHTML += `
                         <tr>
                             <td><span class="type-badge type-${{type.slice(-1).toLowerCase()}}">${{type}}</span></td>
-                            <td>${{data.total}}명</td>
-                            <td>${{data.paid}}명</td>
+                            <td>${{data.total}}${{t.unitPeople}}</td>
+                            <td>${{data.paid}}${{t.unitPeople}}</td>
                             <td>${{paymentRate}}%</td>
                             <td>${{data.totalAmount.toLocaleString()}} VND</td>
                             <td>${{avgPaid}} VND</td>
@@ -2874,6 +2909,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         
         // 직급별 상세 탭 데이터 생성
         function generatePositionData() {{
+            const t = translations[currentLanguage];
             const positionData = {{}};
             
             // Type-직급별 데이터 집계
@@ -2918,18 +2954,18 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     
                     let html = `
                         <div class="mb-4">
-                            <h4><span class="type-badge ${{typeClass}}">${{type}}</span> 직급별 현황</h4>
+                            <h4><span class="type-badge ${{typeClass}}">${{type}}</span> ${{t.positionStatusByType}}</h4>
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>직급</th>
-                                        <th>전체 인원</th>
-                                        <th>수령 인원</th>
-                                        <th>수령률</th>
-                                        <th>총 지급액</th>
-                                        <th>수령인원 기준<br>평균 지급액</th>
-                                        <th>총원 기준<br>평균 지급액</th>
-                                        <th>상세</th>
+                                        <th>${{t.position}}</th>
+                                        <th>${{t.totalCount}}</th>
+                                        <th>${{t.paidCount}}</th>
+                                        <th>${{t.paymentRate}}</th>
+                                        <th>${{t.totalAmount}}</th>
+                                        <th>${{t.paidBasis}}<br>${{t.avgAmount}}</th>
+                                        <th>${{t.totalBasis}}<br>${{t.avgAmount}}</th>
+                                        <th>${{t.detail}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2944,8 +2980,8 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                         html += `
                             <tr>
                                 <td>${{pos.position}}</td>
-                                <td>${{pos.total}}명</td>
-                                <td>${{pos.paid}}명</td>
+                                <td>${{pos.total}}${{t.unitPeople}}</td>
+                                <td>${{pos.paid}}${{t.unitPeople}}</td>
                                 <td>${{paymentRate}}%</td>
                                 <td>${{pos.totalAmount.toLocaleString()}} VND</td>
                                 <td>${{avgPaid}} VND</td>
@@ -2954,7 +2990,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                     <button class="btn btn-sm btn-primary" 
                                         onclick="showPositionDetail('${{type}}', '${{pos.position}}')"
                                         style="padding: 2px 8px; font-size: 0.85em;">
-                                        📈 ${{t.detailView}}
+                                        📈 ${{t.detailButton}}
                                     </button>
                                 </td>
                             </tr>
@@ -2987,6 +3023,12 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
     </script>
 </body>
 </html>"""
+    
+    # 변수 치환
+    html_content = html_content.replace('{year}', str(year))
+    html_content = html_content.replace('{month_korean}', month_korean)
+    html_content = html_content.replace('{month_english}', month_english)
+    html_content = html_content.replace('{month_vietnamese}', month_vietnamese)
     
     # HTML 파일 저장
     with open(output_html, 'w', encoding='utf-8') as f:

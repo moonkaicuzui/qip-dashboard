@@ -132,3 +132,34 @@
 2025-08-21 15:19:34,211 - google_drive_manager - INFO - 🔍 Google Drive에서 파일 검색: monthly_data/2025_07/2025년 7월 인센티브 지급 세부 정보.csv
 2025-08-21 15:19:35,344 - google_drive_manager - INFO - 📥 파일 다운로드 중: monthly_data/2025_07/2025년 7월 인센티브 지급 세부 정보.csv
 2025-08-21 15:19:36,992 - google_drive_manager - INFO - ✅ 파일 다운로드 성공: /Users/ksmoon/Downloads/대시보드 인센티브 테스트8_구글 연동 완료_by Macbook air copy/input_files/2025년 7월 인센티브 지급 세부 정보.csv
+2025-08-21 16:15:41,132 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-08-21 16:15:42,180 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-08-21 16:15:42,180 - __main__ - INFO - ✅ Google Drive connection established
+2025-08-21 16:15:42,181 - __main__ - INFO - 🚀 Starting monthly calculation for august 2025
+2025-08-21 16:15:42,181 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-08-21 16:15:42,181 - google_drive_manager - INFO - Starting sync for august 2025
+2025-08-21 16:15:44,127 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/basic_manpower_data.csv
+2025-08-21 16:15:46,071 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/attendance_data.csv
+2025-08-21 16:15:48,528 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/5prs_data.csv
+2025-08-21 16:15:49,690 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-08-21 16:15:50,933 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-08-21 16:15:52,215 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JUNE_2025.csv
+2025-08-21 16:15:53,136 - google_drive_manager - WARNING - File not found in Drive: configs/auditor_trainer_area_mapping.json
+2025-08-21 16:15:53,882 - google_drive_manager - WARNING - File not found in Drive: configs/type2_position_mapping.json
+2025-08-21 16:15:53,882 - google_drive_manager - INFO - Sync completed: 6 succeeded, 2 failed
+2025-08-21 16:15:53,883 - __main__ - WARNING - ⚠️ Some files failed to sync (2 files), but continuing with 6 synced files
+2025-08-21 16:15:53,883 - __main__ - INFO - ✅ Successfully synced 6 files
+2025-08-21 16:15:54,318 - __main__ - WARNING - ⚠️ Some optional files failed validation
+2025-08-21 16:15:54,318 - __main__ - WARNING -   ⚠️ auditor_trainer_area_mapping.json
+2025-08-21 16:15:54,318 - __main__ - WARNING -   ⚠️ type2_position_mapping.json
+2025-08-21 16:15:54,318 - __main__ - INFO - 📊 Converting attendance data...
+2025-08-21 16:15:54,318 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-08-21 16:15:54,318 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-08-21 16:15:54,318 - __main__ - INFO - Using existing config: config_august_2025.json
+2025-08-21 16:15:54,318 - __main__ - INFO - 💰 Running incentive calculation...
+2025-08-21 16:15:55,890 - __main__ - INFO - ✅ Incentive calculation completed
+2025-08-21 16:15:55,890 - __main__ - INFO - 📈 Generating dashboards...
+2025-08-21 16:15:55,890 - __main__ - INFO - Generating dashboard v4 for august 2025...
+2025-08-21 16:15:56,388 - __main__ - INFO - ✅ Dashboard generation completed
+2025-08-21 16:15:56,389 - __main__ - INFO - ✅ Monthly calculation completed successfully for august 2025
+2025-08-21 16:15:56,389 - __main__ - INFO - 📧 Notification: Successfully processed august 2025

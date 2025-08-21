@@ -112,6 +112,54 @@
 - **해결**: 'compAdd' == 'Đi làm' 체크로 변경
 - **결과**: 실제 근무일수 정확히 계산 (예: 13일)
 
+## 🏆 극복한 주요 문제들 (2025년 8월)
+
+### 7. **Type별 데이터 구분 문제** ✅ 해결
+- **증상**: Type별 현황 테이블에서 모든 Type이 동일한 값 (464명)으로 표시
+- **원인**: CSV 컬럼명 불일치 ('TYPE' vs 실제 'ROLE TYPE STD')
+- **해결**: `row.get('ROLE TYPE STD', '')` 올바른 컬럼명으로 수정
+- **결과**: TYPE-1 (150명), TYPE-2 (276명), TYPE-3 (38명) 정확히 구분
+
+### 8. **언어 변경 시 단위 표시 문제** ✅ 해결
+- **증상**: 베트남어로 변경해도 "명"이 계속 표시됨
+- **원인**: `changeLanguage()` 함수가 UI 텍스트만 변경하고 테이블 데이터는 재생성하지 않음
+- **해결**: 
+  ```javascript
+  // changeLanguage() 함수에 추가
+  generateSummaryData();  // Type별 요약 데이터 재생성
+  generatePositionData(); // 직급별 상세 데이터 재생성
+  ```
+- **결과**: 
+  - 한국어: "150명", "276명", "38명"
+  - 영어: "150 people", "276 people", "38 people"
+  - 베트남어: "150 người", "276 người", "38 người"
+
+### 9. **베트남어 번역 누락** ✅ 해결
+- **증상**: 베트남어 선택 시 일부 UI 요소가 번역되지 않음
+- **원인**: 베트남어 번역 객체에 `unitPeople`, `detailButton`, `positionStatusByType` 누락
+- **해결**: 베트남어 번역 객체에 누락된 변수들 추가
+  ```javascript
+  vi: {
+    unitPeople: ' người',
+    detailButton: 'Xem chi tiết',
+    positionStatusByType: 'Trạng thái theo chức vụ',
+    // ...
+  }
+  ```
+- **결과**: 완전한 3개 언어 지원 (한국어, 영어, 베트남어)
+
+### 10. **동적 월 정보 처리** ✅ 해결
+- **증상**: 대시보드 타이틀이 "July 2025"로 하드코딩됨
+- **원인**: JavaScript 번역 객체에 월 정보가 하드코딩
+- **해결**: Python에서 월 정보 매핑 후 HTML 문자열 치환
+  ```python
+  html_content = html_content.replace('{year}', str(year))
+  html_content = html_content.replace('{month_korean}', month_korean)
+  html_content = html_content.replace('{month_english}', month_english)
+  html_content = html_content.replace('{month_vietnamese}', month_vietnamese)
+  ```
+- **결과**: action.sh에서 지정한 월이 모든 언어에서 올바르게 표시
+
 ## 📈 성과 지표
 
 - **초기 상태**: 0 VND (100% 오류)
@@ -119,9 +167,18 @@
 - **매칭률**: 84.5% (392/464 직원)
 - **자동화**: 수동 작업 5단계 → 완전 자동화
 - **동적 처리**: 하드코딩 제거, 모든 월 지원
+- **다국어 지원**: 한국어, 영어, 베트남어 완벽 지원
+- **Type별 분석**: TYPE-1, TYPE-2, TYPE-3 정확한 구분
+
+## 🔑 핵심 교훈
+
+1. **컬럼명 정확성**: CSV 파일의 실제 컬럼명 확인 필수
+2. **언어 변경 시 데이터 재생성**: UI 텍스트뿐만 아니라 데이터도 재생성 필요
+3. **완전한 번역 객체**: 모든 언어에 동일한 변수 세트 필요
+4. **동적 변수 처리**: 하드코딩 대신 템플릿 변수 사용
 
 ---
 
 *이 지침은 프로젝트 완료 시까지 항상 준수되어야 합니다.*
 *Claude는 대화 시작 시 이 파일을 자동으로 읽고 적용합니다.*
-*최종 업데이트: 2025년 1월 - 모든 주요 문제 해결 완료*
+*최종 업데이트: 2025년 8월 - Type별 구분 및 다국어 지원 완료*
