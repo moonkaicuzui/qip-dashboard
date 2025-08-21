@@ -2792,10 +2792,11 @@ class CompleteQIPCalculator:
             self.month_data.to_excel(excel_file, index=False)
             print(f"✅ Excel 파일 저장 완료: {excel_file}")
             
-            # HTML 리포트 생성
-            html_file = self.generate_html_report()
-            if html_file:
-                print(f"✅ HTML 리포트 생성 완료: {html_file}")
+            # HTML 리포트 생성 (비활성화 - dashboard_version4.html만 사용)
+            # html_file = self.generate_html_report()
+            # if html_file:
+            #     print(f"✅ HTML 리포트 생성 완료: {html_file}")
+            print("ℹ️ HTML Report 생성 건너뜀 (dashboard_version4.html만 사용)")
             
             # 다음 달 계산용 파일 자동 생성
             self.prepare_next_month_file(csv_file)

@@ -65,7 +65,15 @@ def load_aql_history(month='july'):
         return {}
 
 def extract_data_from_html(html_file_path, month='july', year=2025):
-    """기존 HTML 파일에서 데이터 추출 - Version 4 개선"""
+    """기존 HTML 파일에서 데이터 추출 - Version 4 개선
+    
+    수정: HTML 파일이 없으면 CSV에서 직접 데이터 읽기
+    """
+    # HTML 파일이 없으면 CSV에서 직접 읽기
+    if not Path(html_file_path).exists():
+        print(f"ℹ️ HTML 파일이 없어 CSV에서 직접 데이터를 읽습니다.")
+        return extract_data_from_csv(month, year)
+    
     with open(html_file_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
@@ -178,6 +186,155 @@ def add_stop_working_date(employees):
             emp['stop_working_date_str'] = None
     
     return employees
+
+def extract_data_from_csv(month='july', year=2025):
+    """
+    CSV 파일에서 직접 데이터 추출
+    HTML 파싱 없이 CSV에서 직접 읽기
+    """
+    import pandas as pd
+    from pathlib import Path
+    
+    # CSV 파일 경로
+    csv_path = Path(__file__).parent.parent / "output_files" / f"output_QIP_incentive_{month}_{year}_최종완성버전_v6.0_Complete.csv"
+    
+    if not csv_path.exists():
+        raise FileNotFoundError(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
+    
+    print(f"✅ CSV 파일에서 데이터 로드: {csv_path.name}")
+    
+    # CSV 데이터 로드
+    df = pd.read_csv(csv_path, encoding='utf-8-sig')
+    
+    # AQL history 로드
+    aql_history = load_aql_history(month)
+    
+    # CSV 데이터를 employees 형식으로 변환
+    employees = []
+    for idx, row in df.iterrows():
+        # Type 값 처리 - 빈 값이나 NaN일 경우 빈 문자열로 처리
+        type_value = row.get('TYPE', '')
+        if pd.isna(type_value):
+            type_value = ''
+        else:
+            type_value = str(type_value).strip()
+            
+        emp = {
+            'emp_no': str(row.get('Employee No', '')),
+            'name': row.get('Name_vi', row.get('Full Name', '')),
+            'position': row.get('Position', ''),
+            'type': type_value,
+            'june_incentive': str(row.get('June_Incentive', '0')),
+            'july_incentive': str(row.get('July_Incentive', '0')),
+            'august_incentive': str(row.get('August_Incentive', '0')),
+            'change': '',  # CSV에서 계산
+            'reason': row.get('Remarks', '')
+        }
+        
+        # 인센티브 값 포맷팅
+        current_month_col = f'{month.capitalize()}_Incentive'
+        if current_month_col in df.columns:
+            current_incentive = row.get(current_month_col, 0)
+        else:
+            # 월 이름 매핑
+            current_incentive = row.get('August_Incentive', 0)
+        
+        # 조건 분석 - CSV 데이터 사용
+        conditions = analyze_conditions_from_csv_row(row, emp['type'], emp['position'], month)
+        emp['conditions'] = conditions
+        
+        # Stop working Date 추가
+        if pd.notna(row.get('Stop working Date')):
+            emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+            emp['stop_working_date_str'] = emp['stop_working_date'].strftime('%Y-%m-%d')
+        else:
+            emp['stop_working_date'] = None
+            emp['stop_working_date_str'] = None
+        
+        employees.append(emp)
+    
+    print(f"✅ {len(employees)}명의 직원 데이터 로드 완료")
+    return employees
+
+def analyze_conditions_from_csv_row(row, emp_type, position='', month='august'):
+    """
+    CSV row에서 직접 조건 분석
+    """
+    conditions = {}
+    
+    # 월 이름에 따른 AQL 컬럼 선택
+    month_map = {
+        'july': 'July',
+        'august': 'August',
+        'september': 'September'
+    }
+    month_title = month_map.get(month.lower(), 'August')
+    
+    # 출근 조건
+    conditions['attendance_rate'] = {
+        'status': 'pass' if row.get('Actual Working Days', 0) >= 8 else 'fail',
+        'value': 100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100,
+        'requirement': '≥ 95%'
+    }
+    conditions['absence_days'] = {
+        'status': 'pass' if row.get('Unapproved Absences', 0) == 0 else 'fail',
+        'value': row.get('Unapproved Absences', 0),
+        'requirement': '0일'
+    }
+    conditions['working_days'] = {
+        'status': 'pass' if row.get('Actual Working Days', 0) >= 8 else 'fail',
+        'value': row.get('Actual Working Days', 0),
+        'requirement': '≥ 8일'
+    }
+    
+    # AQL 조건
+    month_aql_col = f'{month_title} AQL Failures'
+    conditions['aql_monthly'] = {
+        'status': 'pass' if row.get(month_aql_col, 0) == 0 else 'fail',
+        'value': row.get(month_aql_col, 0),
+        'requirement': '0건'
+    }
+    conditions['aql_3month'] = {
+        'status': 'pass' if row.get('Continuous_FAIL', 'NO') == 'NO' else 'fail',
+        'value': '3개월 연속' if row.get('Continuous_FAIL', 'NO') == 'YES' else '통과',
+        'requirement': '비연속'
+    }
+    
+    # 관리자급 추가 조건
+    manager_positions = [
+        'SUPERVISOR', '(V) SUPERVISOR', '(VICE) SUPERVISOR', 'V.SUPERVISOR',
+        'MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', 'SENIOR MANAGER',
+        'GROUP LEADER'
+    ]
+    is_manager = any(pos in position.upper() for pos in manager_positions)
+    
+    if is_manager:
+        # 부하직원 AQL 조건
+        conditions['subordinate_aql'] = {
+            'status': 'pass',  # CSV에서 정확한 값을 가져올 수 없으므로 기본값
+            'value': 0,
+            'requirement': '≤ 10%'
+        }
+        # 구역 reject율
+        conditions['area_reject_rate'] = {
+            'status': 'pass',  # CSV에서 정확한 값을 가져올 수 없으므로 기본값
+            'value': 0,
+            'requirement': '< 5%'
+        }
+    
+    # 5PRS 조건
+    conditions['5prs_volume'] = {
+        'status': 'pass' if row.get('Total Valiation Qty', 0) >= 100 else 'fail',
+        'value': row.get('Total Valiation Qty', 0),
+        'requirement': '≥ 100개'
+    }
+    conditions['5prs_pass_rate'] = {
+        'status': 'pass' if row.get('Pass %', 0) >= 95 else 'fail',
+        'value': row.get('Pass %', 0),
+        'requirement': '≥ 95%'
+    }
+    
+    return conditions
 
 def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no='', csv_data=None, aql_history=None):
     """계산 근거에서 조건 분석 (직급별 적용 조건 차별화) - Version 4 실제 값 포함
@@ -825,6 +982,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         .type-1 {{ background: #e8f5e8; color: #2e7d2e; }}
         .type-2 {{ background: #e8f0ff; color: #1e3a8a; }}
         .type-3 {{ background: #fff5e8; color: #9a3412; }}
+        .type-unknown {{ background: #f0f0f0; color: #666666; }}
         
         .summary-card {{
             background: #f8f9fa;
@@ -2972,13 +3130,20 @@ def generate_detail_tab(employees):
     
     # 직원 데이터 추가
     for emp in employees:
-        type_class = f"type-{emp['type'][-1].lower()}"
+        # Type이 비어있을 경우 처리
+        if emp.get('type') and len(emp['type']) > 0:
+            type_class = f"type-{emp['type'][-1].lower()}"
+            type_display = emp['type']
+        else:
+            type_class = "type-unknown"
+            type_display = "N/A"
+            
         html += f"""
             <tr onclick="showEmployeeDetail('{emp['emp_no']}')" style="cursor: pointer;">
                 <td>{emp['emp_no']}</td>
                 <td>{emp['name']}</td>
                 <td>{emp['position']}</td>
-                <td><span class="type-badge {type_class}">{emp['type']}</span></td>
+                <td><span class="type-badge {type_class}">{type_display}</span></td>
                 <td>{emp['june_incentive']}</td>
                 <td><strong>{emp['july_incentive']}</strong></td>
                 <td>{emp['change']}</td>

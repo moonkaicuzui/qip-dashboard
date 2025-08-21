@@ -1,0 +1,3 @@
+날짜: 2025년 08월 21일 12:36
+작성자: Your Name <your.email@example.com>
+메시지: Version 6.1: 동적 월/년도 처리 및 emp_id 오류 수정
