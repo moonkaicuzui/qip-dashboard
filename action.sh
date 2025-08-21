@@ -163,8 +163,7 @@ echo ""
 echo -e "${WHITE}📁 생성된 파일:${NC}"
 echo -e "  ${BLUE}• Excel: output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.xlsx${NC}"
 echo -e "  ${BLUE}• CSV: output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.csv${NC}"
-echo -e "  ${BLUE}• HTML: output_files/dashboard_version4.html${NC}"
-echo -e "  ${BLUE}• Report: output_files/QIP_Incentive_Report_${MONTH^}_${YEAR}.html${NC}"
+echo -e "  ${BLUE}• HTML Dashboard: output_files/dashboard_version4.html${NC}"
 echo ""
 echo -e "${YELLOW}💡 HTML 파일을 브라우저에서 열어 결과를 확인하세요.${NC}"
 echo ""
@@ -192,9 +191,8 @@ if [ "$open_html" = "y" ] || [ "$open_html" = "Y" ]; then
         echo -e "${GREEN}✅ 브라우저에서 열렸습니다!${NC}"
     else
         echo -e "${YELLOW}⚠️ HTML 파일을 찾을 수 없습니다: $HTML_FILE${NC}"
-        echo -e "${YELLOW}   다음 파일들을 확인해보세요:${NC}"
+        echo -e "${YELLOW}   다음 파일을 확인해보세요:${NC}"
         echo -e "${YELLOW}   - output_files/dashboard_version4.html${NC}"
-        echo -e "${YELLOW}   - output_files/QIP_Incentive_Report_${MONTH^}_${YEAR}.html${NC}"
     fi
 fi
 
