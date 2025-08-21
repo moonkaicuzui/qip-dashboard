@@ -1,0 +1,19 @@
+# Google Drive Integration Requirements
+# Install with: pip install -r requirements_drive.txt
+
+# Google API Client Libraries
+google-api-python-client==2.70.0
+google-auth==2.16.0
+google-auth-oauthlib==0.8.0
+google-auth-httplib2==0.1.0
+
+# Scheduling and Automation
+schedule==1.1.0
+apscheduler==3.9.1
+
+# File Monitoring (optional, for advanced features)
+watchdog==2.2.1
+
+# Additional utilities
+python-dateutil==2.8.2
+pytz==2022.7
