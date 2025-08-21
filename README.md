@@ -399,4 +399,241 @@ python src/step2_dashboard_version4.py --month september --year 2025
 
 ---
 
+## 📚 Git 주요 명령어 가이드
+
+### 🔍 기본 명령어
+
+#### 1. Git 초기 설정
+```bash
+# 사용자 정보 설정
+git config --global user.name "당신의 이름"
+git config --global user.email "your.email@hotmail.com"
+
+# 설정 확인
+git config --list
+```
+
+#### 2. 저장소 초기화
+```bash
+# 새 저장소 만들기
+git init
+
+# 원격 저장소 복제
+git clone https://github.com/username/repository.git
+```
+
+### 📝 일상적인 작업 흐름
+
+#### 1. 상태 확인
+```bash
+# 현재 상태 확인
+git status
+
+# 변경 내용 확인
+git diff                    # 스테이징 전 변경사항
+git diff --staged           # 스테이징된 변경사항
+```
+
+#### 2. 변경사항 저장
+```bash
+# 파일 스테이징 (추가)
+git add .                   # 모든 변경사항 추가
+git add 파일명               # 특정 파일만 추가
+git add *.py                # 특정 패턴 파일 추가
+
+# 커밋 (로컬 저장)
+git commit -m "커밋 메시지"
+git commit -am "메시지"      # add + commit 동시에 (수정된 파일만)
+```
+
+#### 3. 커밋 기록 확인
+```bash
+# 커밋 로그 보기
+git log                     # 전체 로그
+git log --oneline          # 한 줄로 요약
+git log --oneline -5       # 최근 5개만
+git log --graph            # 그래프로 보기
+git log -p 파일명           # 특정 파일 변경 이력
+
+# 특정 커밋 상세 보기
+git show                    # 최근 커밋
+git show 커밋ID             # 특정 커밋
+```
+
+### 🌿 브랜치 작업
+
+#### 1. 브랜치 관리
+```bash
+# 브랜치 목록
+git branch                  # 로컬 브랜치
+git branch -a              # 모든 브랜치 (원격 포함)
+
+# 브랜치 생성
+git branch 브랜치명
+
+# 브랜치 전환
+git checkout 브랜치명
+git checkout -b 브랜치명     # 생성 + 전환
+
+# 브랜치 삭제
+git branch -d 브랜치명       # 안전 삭제
+git branch -D 브랜치명       # 강제 삭제
+```
+
+#### 2. 브랜치 병합
+```bash
+# 현재 브랜치에 다른 브랜치 병합
+git merge 브랜치명
+
+# 충돌 해결 후
+git add .
+git commit -m "충돌 해결"
+```
+
+### 🔄 되돌리기
+
+#### 1. 작업 되돌리기
+```bash
+# 수정한 파일 되돌리기 (스테이징 전)
+git checkout -- 파일명
+git restore 파일명          # 새로운 방식
+
+# 스테이징 취소
+git reset HEAD 파일명
+git restore --staged 파일명  # 새로운 방식
+```
+
+#### 2. 커밋 되돌리기
+```bash
+# 커밋 취소 (내용은 유지)
+git reset --soft HEAD~1
+
+# 커밋 취소 (내용도 삭제)
+git reset --hard HEAD~1
+
+# 특정 커밋으로 되돌리기
+git reset --hard 커밋ID
+
+# 되돌린 것을 되돌리기 (새 커밋 생성)
+git revert HEAD
+```
+
+### 🌐 원격 저장소
+
+#### 1. 원격 저장소 관리
+```bash
+# 원격 저장소 확인
+git remote -v
+
+# 원격 저장소 추가
+git remote add origin URL
+
+# 원격 저장소 변경
+git remote set-url origin 새URL
+```
+
+#### 2. Push & Pull
+```bash
+# 원격에 올리기
+git push origin main
+git push -u origin main     # 처음 푸시할 때
+
+# 원격에서 가져오기
+git pull origin main        # fetch + merge
+git fetch origin            # 가져오기만 (병합 X)
+```
+
+### 🔍 유용한 추가 명령어
+
+#### 1. 파일 관리
+```bash
+# 파일 삭제
+git rm 파일명
+git rm --cached 파일명      # Git에서만 삭제 (파일은 유지)
+
+# 파일 이동/이름 변경
+git mv 원래이름 새이름
+```
+
+#### 2. 임시 저장 (Stash)
+```bash
+# 작업 내용 임시 저장
+git stash
+git stash save "메시지"
+
+# 임시 저장 목록
+git stash list
+
+# 임시 저장 복원
+git stash pop              # 복원 + 삭제
+git stash apply            # 복원만
+```
+
+#### 3. 태그
+```bash
+# 태그 생성
+git tag v1.0.0
+git tag -a v1.0.0 -m "버전 1.0.0"
+
+# 태그 목록
+git tag
+
+# 태그 푸시
+git push origin v1.0.0
+git push origin --tags     # 모든 태그
+```
+
+### 🆘 문제 해결
+
+#### 1. 자주 발생하는 문제
+```bash
+# 마지막 커밋 메시지 수정
+git commit --amend -m "새 메시지"
+
+# 마지막 커밋에 파일 추가
+git add 빠진파일
+git commit --amend --no-edit
+
+# .gitignore 적용 안될 때
+git rm -r --cached .
+git add .
+git commit -m "gitignore 재적용"
+```
+
+#### 2. 충돌 해결
+```bash
+# 충돌 발생 시
+1. 충돌 파일 수정
+2. git add 충돌파일
+3. git commit -m "충돌 해결"
+
+# 병합 취소
+git merge --abort
+```
+
+### 📊 프로젝트에서 실제 사용 예시
+
+```bash
+# 1. 오늘 작업한 내용 저장하기
+git status                  # 변경사항 확인
+git add .                   # 모든 변경사항 추가
+git commit -m "Report HTML 제거 및 CSV 직접 읽기 구현"
+
+# 2. 커밋 히스토리 확인
+git log --oneline -5
+
+# 3. 이전 상태로 되돌리기 (실수했을 때)
+git reset --soft HEAD~1    # 마지막 커밋만 취소
+```
+
+### 💡 Git 작업 팁
+
+1. **커밋은 자주, 작은 단위로**: 한 번에 한 가지 변경사항만
+2. **명확한 커밋 메시지**: 무엇을, 왜 변경했는지 작성
+3. **브랜치 활용**: main/master는 안정적으로 유지
+4. **Pull 먼저**: push 전에 항상 pull로 최신 상태 유지
+5. **.gitignore 활용**: 불필요한 파일은 처음부터 제외
+
+---
+
 *마지막 업데이트: 2025년 1월 21일*
