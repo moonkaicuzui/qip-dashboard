@@ -272,42 +272,32 @@ def analyze_conditions_from_csv_row(row, emp_type, position='', month='august'):
     
     # 출근 조건
     conditions['attendance_rate'] = {
-        'passed': row.get('Actual Working Days', 0) >= 8,
+        'status': 'pass' if row.get('Actual Working Days', 0) >= 8 else 'fail',
         'value': 100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100,
-        'threshold': '≥ 95%',
-        'actual': f"{100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100:.1f}%",
-        'applicable': True
+        'requirement': '≥ 95%'
     }
     conditions['absence_days'] = {
-        'passed': row.get('Unapproved Absences', 0) == 0,
+        'status': 'pass' if row.get('Unapproved Absences', 0) == 0 else 'fail',
         'value': row.get('Unapproved Absences', 0),
-        'threshold': '0일',
-        'actual': f"{row.get('Unapproved Absences', 0)}일",
-        'applicable': True
+        'requirement': '0일'
     }
     conditions['working_days'] = {
-        'passed': row.get('Actual Working Days', 0) >= 8,
+        'status': 'pass' if row.get('Actual Working Days', 0) >= 8 else 'fail',
         'value': row.get('Actual Working Days', 0),
-        'threshold': '≥ 8일',
-        'actual': f"{row.get('Actual Working Days', 0)}일",
-        'applicable': True
+        'requirement': '≥ 8일'
     }
     
     # AQL 조건
     month_aql_col = f'{month_title} AQL Failures'
     conditions['aql_monthly'] = {
-        'passed': row.get(month_aql_col, 0) == 0,
+        'status': 'pass' if row.get(month_aql_col, 0) == 0 else 'fail',
         'value': row.get(month_aql_col, 0),
-        'threshold': '0건',
-        'actual': f"{row.get(month_aql_col, 0)}건",
-        'applicable': True
+        'requirement': '0건'
     }
     conditions['aql_3month'] = {
-        'passed': row.get('Continuous_FAIL', 'NO') == 'NO',
+        'status': 'pass' if row.get('Continuous_FAIL', 'NO') == 'NO' else 'fail',
         'value': '3개월 연속' if row.get('Continuous_FAIL', 'NO') == 'YES' else '통과',
-        'threshold': '비연속',
-        'actual': 'YES' if row.get('Continuous_FAIL', 'NO') == 'YES' else 'NO',
-        'applicable': True
+        'requirement': '비연속'
     }
     
     # 관리자급 추가 조건
@@ -321,35 +311,27 @@ def analyze_conditions_from_csv_row(row, emp_type, position='', month='august'):
     if is_manager:
         # 부하직원 AQL 조건
         conditions['subordinate_aql'] = {
-            'passed': True,  # CSV에서 정확한 값을 가져올 수 없으므로 기본값
+            'status': 'pass',  # CSV에서 정확한 값을 가져올 수 없으므로 기본값
             'value': 0,
-            'threshold': '≤ 10%',
-            'actual': '0%',
-            'applicable': True
+            'requirement': '≤ 10%'
         }
         # 구역 reject율
         conditions['area_reject_rate'] = {
-            'passed': True,  # CSV에서 정확한 값을 가져올 수 없으므로 기본값
+            'status': 'pass',  # CSV에서 정확한 값을 가져올 수 없으므로 기본값
             'value': 0,
-            'threshold': '< 5%',
-            'actual': '0%',
-            'applicable': True
+            'requirement': '< 5%'
         }
     
     # 5PRS 조건
     conditions['5prs_volume'] = {
-        'passed': row.get('Total Valiation Qty', 0) >= 100,
+        'status': 'pass' if row.get('Total Valiation Qty', 0) >= 100 else 'fail',
         'value': row.get('Total Valiation Qty', 0),
-        'threshold': '≥ 100개',
-        'actual': f"{row.get('Total Valiation Qty', 0)}개",
-        'applicable': True
+        'requirement': '≥ 100개'
     }
     conditions['5prs_pass_rate'] = {
-        'passed': row.get('Pass %', 0) >= 95,
+        'status': 'pass' if row.get('Pass %', 0) >= 95 else 'fail',
         'value': row.get('Pass %', 0),
-        'threshold': '≥ 95%',
-        'actual': f"{row.get('Pass %', 0):.1f}%",
-        'applicable': True
+        'requirement': '≥ 95%'
     }
     
     return conditions
@@ -1434,7 +1416,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         // 다국어 번역 데이터 (확장판)
         const translations = {{
             ko: {{
-                title: 'QIP 인센티브 계산 결과',
+                title: 'QIP 인센티브 대시보드',
                 subtitle: '{year}년 {month_korean} 인센티브 지급 현황',
                 generationDate: '보고서 생성일: {datetime.now().strftime('%Y년 %m월 %d일 %H:%M')}',
                 totalEmployees: '전체 직원',
@@ -1477,16 +1459,6 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 attendanceConditions: '출근 조건',
                 aqlConditions: 'AQL 조건',
                 prsConditions: '5PRS 조건',
-                unitPeopleForTable: '명',
-                calculationBasisHeader: '계산 근거',
-                conditionFulfillmentHeader: '조건 충족 현황',
-                employeeNoHeader: '직원번호',
-                nameHeader: '이름',
-                incentiveHeader: '인센티브',
-                statusHeader: '상태',
-                attendanceLabel: '출근',
-                aqlLabel: 'AQL',
-                prsLabel: '5PRS',
                 // 테이블 헤더
                 condition: '조건',
                 evaluationTarget: '평가 대상',
@@ -1526,8 +1498,6 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 changeAmount: '변동',
                 status: '상태',
                 conditionFulfillmentStatus: '조건 충족 상태',
-                notEvaluationTarget: '평가 대상 아님',
-                prsConditions: '5PRS 조건',
                 calculationBasis: '계산 근거',
                 typeCriteriaMet: 'TYPE 기준 충족',
                 additionalInfo: '추가',
@@ -1577,7 +1547,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 actualReason: '사유'
             }},
             en: {{
-                title: 'QIP Incentive Calculation Results',
+                title: 'QIP Incentive Dashboard',
                 subtitle: '{month_english} {year} Incentive Payment Status',
                 generationDate: 'Report Generated: {datetime.now().strftime('%B %d, %Y %H:%M')}',
                 totalEmployees: 'Total Employees',
@@ -1659,8 +1629,6 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 changeAmount: 'Change',
                 status: 'Status',
                 conditionFulfillmentStatus: 'Condition Fulfillment Status',
-                notEvaluationTarget: 'Not Applicable',
-                prsConditions: '5PRS Conditions',
                 calculationBasis: 'Calculation Basis',
                 typeCriteriaMet: 'TYPE Criteria Met',
                 additionalInfo: 'Additional',
@@ -1707,20 +1675,10 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 employeeDetailTitle: 'Employee Detail Status',
                 allTypes: 'All Types',
                 items: ' items',
-                actualReason: 'Reason',
-                unitPeopleForTable: ' people',
-                calculationBasisHeader: 'Calculation Basis',
-                conditionFulfillmentHeader: 'Condition Fulfillment',
-                employeeNoHeader: 'Employee No',
-                nameHeader: 'Name',
-                incentiveHeader: 'Incentive',
-                statusHeader: 'Status',
-                attendanceLabel: 'Attendance',
-                aqlLabel: 'AQL',
-                prsLabel: '5PRS'
+                actualReason: 'Reason'
             }},
             vi: {{
-                title: 'Kết quả tính toán khuyến khích QIP',
+                title: 'Bảng điều khiển Khuyến khích QIP',
                 subtitle: 'Tình trạng thanh toán khuyến khích {month_vietnamese} {year}',
                 generationDate: 'Báo cáo được tạo: {datetime.now().strftime('%d/%m/%Y %H:%M')}',
                 totalEmployees: 'Tổng số nhân viên',
@@ -1851,18 +1809,8 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 items: ' mục',
                 actualReason: 'Lý do',
                 notEvaluationTarget: 'Không phải đối tượng đánh giá',
-                prsConditions: 'Điều kiện 5PRS',
+                items: ' mục',
                 '5prsConditions': 'Điều kiện 5PRS',
-                unitPeopleForTable: ' người',
-                calculationBasisHeader: 'Cơ sở tính toán',
-                conditionFulfillmentHeader: 'Tình trạng đáp ứng điều kiện',
-                employeeNoHeader: 'Mã nhân viên',
-                nameHeader: 'Tên',
-                incentiveHeader: 'Khuyến khích',
-                statusHeader: 'Trạng thái',
-                attendanceLabel: 'Đi làm',
-                aqlLabel: 'AQL',
-                prsLabel: '5PRS',
                 employeeNumber: 'Mã nhân viên',
                 incentive: 'Tiền thưởng',
                 employeeDetailStatus: 'Tình trạng chi tiết nhân viên',
@@ -1891,9 +1839,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             t = translations[lang];
             
             // 메인 타이틀과 서브타이틀 업데이트
-            if (t.title && document.getElementById('mainTitle')) {{
-                document.getElementById('mainTitle').innerHTML = t.title + ' <span class="version-badge">v4.2</span>';
-            }}
+            document.getElementById('mainTitle').innerHTML = t.title + ' <span class="version-badge">v4.2</span>';
             document.getElementById('mainSubtitle').textContent = t.subtitle;
             if (document.getElementById('generationDate')) {{
                 document.getElementById('generationDate').textContent = t.generationDate;
@@ -1956,7 +1902,6 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             // Type별 요약 및 직급별 데이터 재생성 (단위 반영을 위해)
             generateSummaryData();
             generatePositionData();
-            generateCriteriaContent();
             
             // 검색 플레이스홀더 업데이트
             const searchInput = document.querySelector('input[placeholder*="검색"]');
@@ -2272,7 +2217,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                     const value = context.parsed || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${{label}}: ${{value}}${{currentLanguage === 'ko' ? '명' : currentLanguage === 'vi' ? ' người' : ''}} (${{percentage}}%)`;
+                                    return `${{label}}: ${{value}}명 (${{percentage}}%)`;
                                 }}
                             }}
                         }}
@@ -2321,49 +2266,24 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     datasets: [{{
                         label: t.fulfillmentRate || '충족률' + ' (%)',
                         data: Object.values(conditions).map(c => c.rate),
-                        backgroundColor: Object.values(conditions).map(c => {{
-                            if (c.rate >= 80) return '#28a745';  // 초록색
-                            if (c.rate >= 50) return '#ffc107';  // 노란색
-                            return '#dc3545';  // 빨간색
-                        }}),
-                        borderColor: Object.values(conditions).map(c => {{
-                            if (c.rate >= 80) return '#1e7e34';
-                            if (c.rate >= 50) return '#d39e00';
-                            return '#bd2130';
-                        }}),
+                        backgroundColor: '#667eea',
+                        borderColor: '#5a67d8',
                         borderWidth: 1
                     }}]
                 }},
                 options: {{
-                    indexAxis: 'y',  // 가로 막대 차트로 변경
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {{
-                        x: {{
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {{
-                                callback: function(value) {{
-                                    return value + '%';
-                                }}
-                            }}
-                        }},
                         y: {{
-                            ticks: {{
-                                font: {{
-                                    size: 10  // 레이블 폰트 크기 축소
-                                }},
-                                autoSkip: false  // 레이블 자동 건너뛰기 비활성화
-                            }}
+                            beginAtZero: true,
+                            max: 100
                         }}
                     }},
                     plugins: {{
                         title: {{
                             display: true,
                             text: translations[currentLanguage].chartConditionStatus || '조건별 충족률'
-                        }},
-                        legend: {{
-                            display: false  // 범례 숨기기 (단일 데이터셋이므로)
                         }}
                     }}
                 }}
@@ -2524,9 +2444,9 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             conditionHtml += `
                                 <tr>
                                     <td>${{condition.name}}</td>
-                                    <td>${{applicable}}${{applicable > 0 ? (currentLanguage === 'ko' ? '명' : currentLanguage === 'vi' ? ' người' : '') : ''}}</td>
-                                    <td class="text-success">${{condition.passed}}${{condition.passed > 0 ? (currentLanguage === 'ko' ? '명' : currentLanguage === 'vi' ? ' người' : '') : ''}}</td>
-                                    <td class="text-danger">${{condition.failed}}${{condition.failed > 0 ? (currentLanguage === 'ko' ? '명' : currentLanguage === 'vi' ? ' người' : '') : ''}}</td>
+                                    <td>${{applicable}}명${{notApplicableText}}</td>
+                                    <td class="text-success">${{condition.passed}}명</td>
+                                    <td class="text-danger">${{condition.failed}}명</td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <div class="progress flex-grow-1 me-2" style="height: 20px;">
@@ -2580,12 +2500,12 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                         <table class="table table-sm table-hover" id="positionEmployeeTable">
                             <thead style="position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; z-index: 10;">
                                 <tr>
-                                    <th width="10%">${{t.employeeNoHeader || '직원번호'}}</th>
-                                    <th width="12%">${{t.nameHeader || '이름'}}</th>
-                                    <th width="12%">${{t.incentiveHeader || '인센티브'}}</th>
-                                    <th width="8%">${{t.statusHeader || '상태'}}</th>
-                                    <th width="38%">${{t.conditionFulfillmentHeader || '조건 충족 현황'}}</th>
-                                    <th width="20%">${{t.calculationBasisHeader || '계산 근거'}}</th>
+                                    <th width="10%">직원번호</th>
+                                    <th width="12%">이름</th>
+                                    <th width="12%">인센티브</th>
+                                    <th width="8%">상태</th>
+                                    <th width="38%">조건 충족 현황</th>
+                                    <th width="20%">계산 근거</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2607,61 +2527,13 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                     }}
                                     const fulfillmentRate = totalConditions > 0 ? Math.round((metConditions / totalConditions) * 100) : 0;
                                     
-                                    // 조건 상태 미니 표시 (출근/AQL/5PRS 3개만 표시)
-                                    const getConditionBadge = (conditions, type) => {{
-                                        let condition = null;
-                                        let label = '';
-                                        
-                                        if (type === 'attendance') {{
-                                            // 출근 조건은 3가지 (출근율, 무단결근, 실제근무일)를 종합
-                                            label = t.attendanceLabel || '출근';
-                                            const attendanceOk = conditions?.attendance_rate?.passed !== false;
-                                            const absenceOk = conditions?.absence_days?.passed !== false;
-                                            const workdaysOk = conditions?.working_days?.passed !== false;
-                                            
-                                            if (conditions?.attendance_rate?.applicable === false &&
-                                                conditions?.absence_days?.applicable === false &&
-                                                conditions?.working_days?.applicable === false) {{
-                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: -</span>`;
-                                            }}
-                                            
-                                            const allPassed = attendanceOk && absenceOk && workdaysOk;
-                                            return `<span class="badge ${{allPassed ? 'bg-success' : 'bg-danger'}}" style="font-size: 0.9em;">${{label}}: ${{allPassed ? '✓' : '✗'}}</span>`;
-                                        }}
-                                        else if (type === 'aql') {{
-                                            // AQL 조건들을 종합
-                                            label = t.aqlLabel || 'AQL';
-                                            const monthlyOk = conditions?.aql_monthly?.passed !== false;
-                                            const continuityOk = conditions?.aql_3month?.passed !== false;
-                                            const teamOk = conditions?.subordinate_aql?.passed !== false;
-                                            const rejectOk = conditions?.area_reject_rate?.passed !== false;
-                                            
-                                            if (conditions?.aql_monthly?.applicable === false &&
-                                                conditions?.aql_3month?.applicable === false &&
-                                                conditions?.subordinate_aql?.applicable === false &&
-                                                conditions?.area_reject_rate?.applicable === false) {{
-                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: -</span>`;
-                                            }}
-                                            
-                                            const allPassed = monthlyOk && continuityOk && teamOk && rejectOk;
-                                            return `<span class="badge ${{allPassed ? 'bg-success' : 'bg-danger'}}" style="font-size: 0.9em;">${{label}}: ${{allPassed ? '✓' : '✗'}}</span>`;
-                                        }}
-                                        else if (type === '5prs') {{
-                                            // 5PRS 조건들을 종합
-                                            label = t.prsLabel || '5PRS';
-                                            const volumeOk = conditions?.['5prs_volume']?.passed !== false;
-                                            const passRateOk = conditions?.['5prs_pass_rate']?.passed !== false;
-                                            
-                                            if (conditions?.['5prs_volume']?.applicable === false &&
-                                                conditions?.['5prs_pass_rate']?.applicable === false) {{
-                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: -</span>`;
-                                            }}
-                                            
-                                            const allPassed = volumeOk && passRateOk;
-                                            return `<span class="badge ${{allPassed ? 'bg-success' : 'bg-danger'}}" style="font-size: 0.9em;">${{label}}: ${{allPassed ? '✓' : '✗'}}</span>`;
-                                        }}
-                                        
-                                        return '';
+                                    // 조건 상태 미니 표시
+                                    const getConditionBadge = (condition, label) => {{
+                                        if (!condition) return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: -</span>`;
+                                        if (condition.applicable === false) return `<span class="badge bg-light text-dark" style="font-size: 0.9em;">${{label}}: N/A</span>`;
+                                        const bgClass = condition.passed ? 'bg-success' : 'bg-danger';
+                                        const icon = condition.passed ? '✓' : '✗';
+                                        return `<span class="badge ${{bgClass}}" style="font-size: 0.9em;" title="${{condition.actual || condition.value}}">${{label}}: ${{icon}}</span>`;
                                     }};
                                     
                                     return `
@@ -2676,9 +2548,10 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                             </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
-                                                    ${{getConditionBadge(emp.conditions, 'attendance')}}
-                                                    ${{getConditionBadge(emp.conditions, 'aql')}}
-                                                    ${{getConditionBadge(emp.conditions, '5prs')}}
+                                                    ${{getConditionBadge(emp.conditions?.attendance_rate, '출근')}}
+                                                    ${{getConditionBadge(emp.conditions?.aql_status, 'AQL')}}
+                                                    ${{getConditionBadge(emp.conditions?.absence_days, '결근')}}
+                                                    ${{getConditionBadge(emp.conditions?.['5prs_condition'], '5PRS')}}
                                                 </div>
                                                 <div class="progress mt-1" style="height: 15px;">
                                                     <div class="progress-bar ${{fulfillmentRate >= 80 ? 'bg-success' : fulfillmentRate >= 50 ? 'bg-warning' : 'bg-danger'}}" 
@@ -2687,45 +2560,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td><small class="text-muted">${{(() => {{
-                                                // Generate calculation basis text based on conditions
-                                                if (!emp.conditions) return '-';
-                                                
-                                                let basis = [];
-                                                let amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
-                                                
-                                                if (amount > 0) {{
-                                                    // Paid - show met conditions count
-                                                    let metCount = 0;
-                                                    let totalCount = 0;
-                                                    Object.values(emp.conditions).forEach(cond => {{
-                                                        if (cond.applicable !== false) {{
-                                                            totalCount++;
-                                                            if (cond.passed) metCount++;
-                                                        }}
-                                                    }});
-                                                    basis.push(`${{metCount}}/${{totalCount}} ${{t.conditionsMet || '조건 충족'}}`);
-                                                }} else {{
-                                                    // Not paid - show failed conditions
-                                                    let failedConditions = [];
-                                                    if (emp.conditions.attendance_rate?.passed === false) failedConditions.push(t.attendanceLabel || '출근');
-                                                    if (emp.conditions.aql_monthly?.passed === false) failedConditions.push('AQL');
-                                                    if (emp.conditions['5prs_pass_rate']?.passed === false || emp.conditions['5prs_volume']?.passed === false) failedConditions.push('5PRS');
-                                                    
-                                                    if (failedConditions.length > 0) {{
-                                                        basis.push(`${{failedConditions.join(', ')}} ${{t.failed || '미충족'}}`);
-                                                    }} else {{
-                                                        basis.push(t.noConditionsFailed || '조건 미달');
-                                                    }}
-                                                }}
-                                                
-                                                // Add original reason if exists
-                                                if (emp.reason && emp.reason.trim() !== '') {{
-                                                    basis.push(emp.reason);
-                                                }}
-                                                
-                                                return basis.join(' / ');
-                                            }})()}}</small></td>
+                                            <td><small class="text-muted">${{emp.reason}}</small></td>
                                         </tr>
                                     `;
                                 }}).join('')}}
@@ -3173,15 +3008,13 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             
             // 디버깅용 로그
             console.log(`analyzeConditions - type: ${{type}}, position: ${{position}}, employees: ${{employees.length}}`);
-            
-            // 실제로 조건이 있는 직원 수 체크
-            let hasConditionsCount = 0;
-            employees.forEach(emp => {{
-                if (emp.conditions && Object.keys(emp.conditions).length > 0) {{
-                    hasConditionsCount++;
+            if (employees.length > 0) {{
+                console.log('First employee:', employees[0]);
+                console.log('First employee conditions:', employees[0]?.conditions);
+                if (employees[0]?.conditions) {{
+                    console.log('Conditions keys:', Object.keys(employees[0].conditions));
                 }}
-            }});
-            console.log(`Employees with conditions: ${{hasConditionsCount}}/${{employees.length}}`);
+            }}
             
             employees.forEach(emp => {{
                 // 모든 직원을 먼저 카운트 (조건이 없어도)
@@ -3528,203 +3361,11 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             }}
         }}
         
-        // 인센티브 기준 콘텐츠 생성
-        function generateCriteriaContent() {{
-            const t = translations[currentLanguage];
-            
-            // 언어별 기준 콘텐츠 정의
-            const criteriaContent = {{
-                ko: {{
-                    title: '인센티브 지급 기준',
-                    section1: '1. 기본 자격 요건',
-                    attendance: '출근율: 88% 이상 (결근율 12% 이하)',
-                    absence: '무단결근: 2일 이하',
-                    workdays: '실제 근무일: 15일 이상',
-                    section2: '2. 업무 성과 기준',
-                    aqlTitle: 'AQL (Acceptable Quality Level)',
-                    monthlyAql: '당월 AQL: PASS 필수',
-                    consecutive: '3개월 연속 실패: 인센티브 지급 제외',
-                    subordinate: '부하직원 AQL: 관리자의 경우 팀/구역 AQL PASS 필수',
-                    prsTitle: '5PRS (5 Point Rating System)',
-                    inspectionVolume: '검사량: 월 100건 이상',
-                    passRate: '합격률: 90% 이상',
-                    section3: '3. 직급별 특별 조건',
-                    managerCondition: '관리자급 (Supervisor, Manager): 팀/구역 성과 반영',
-                    employeeCondition: '일반 직원: 개인 성과 중심 평가',
-                    section4: '4. 인센티브 금액',
-                    colType: 'TYPE',
-                    colAmount: '지급액',
-                    colNote: '비고',
-                    type1Note: '정규직 생산직',
-                    type2Note: '계약직/신입',
-                    type3Note: '인센티브 제외 대상',
-                    section5: '5. 지급 제외 사유',
-                    exclude1: '출근일수 0일',
-                    exclude2: '무단결근 3일 이상',
-                    exclude3: '결근율 12% 초과',
-                    exclude4: '3개월 연속 AQL 실패',
-                    exclude5: '월중 퇴사자',
-                    exclude6: 'TYPE-3 정책 제외 대상',
-                    note: '참고: 인센티브는 매월 말일 기준으로 평가되며, 익월 급여와 함께 지급됩니다.'
-                }},
-                en: {{
-                    title: 'Incentive Payment Criteria',
-                    section1: '1. Basic Qualification Requirements',
-                    attendance: 'Attendance Rate: 88% or higher (Absence rate 12% or lower)',
-                    absence: 'Unexcused Absence: 2 days or less',
-                    workdays: 'Actual Working Days: 15 days or more',
-                    section2: '2. Work Performance Criteria',
-                    aqlTitle: 'AQL (Acceptable Quality Level)',
-                    monthlyAql: 'Monthly AQL: PASS required',
-                    consecutive: '3 Consecutive Months Failure: Excluded from incentive',
-                    subordinate: 'Subordinate AQL: Team/Area AQL PASS required for managers',
-                    prsTitle: '5PRS (5 Point Rating System)',
-                    inspectionVolume: 'Inspection Volume: 100 items or more per month',
-                    passRate: 'Pass Rate: 90% or higher',
-                    section3: '3. Position-specific Conditions',
-                    managerCondition: 'Management Level (Supervisor, Manager): Team/Area performance reflected',
-                    employeeCondition: 'General Employee: Individual performance-focused evaluation',
-                    section4: '4. Incentive Amount',
-                    colType: 'TYPE',
-                    colAmount: 'Payment Amount',
-                    colNote: 'Remarks',
-                    type1Note: 'Regular Production Staff',
-                    type2Note: 'Contract/New Employee',
-                    type3Note: 'Excluded from Incentive',
-                    section5: '5. Exclusion Reasons',
-                    exclude1: 'Working days: 0 days',
-                    exclude2: 'Unexcused absence: 3 days or more',
-                    exclude3: 'Absence rate exceeds 12%',
-                    exclude4: '3 consecutive months of AQL failure',
-                    exclude5: 'Mid-month resignation',
-                    exclude6: 'TYPE-3 policy exclusion',
-                    note: 'Note: Incentives are evaluated on the last day of each month and paid with the following month\\'s salary.'
-                }},
-                vi: {{
-                    title: 'Tiêu chuẩn thanh toán khuyến khích',
-                    section1: '1. Yêu cầu trình độ cơ bản',
-                    attendance: 'Tỷ lệ đi làm: 88% trở lên (Tỷ lệ vắng mặt 12% trở xuống)',
-                    absence: 'Vắng không phép: 2 ngày trở xuống',
-                    workdays: 'Ngày làm việc thực tế: 15 ngày trở lên',
-                    section2: '2. Tiêu chuẩn hiệu suất công việc',
-                    aqlTitle: 'AQL (Mức chất lượng chấp nhận được)',
-                    monthlyAql: 'AQL hàng tháng: Bắt buộc ĐẠT',
-                    consecutive: 'Thất bại 3 tháng liên tiếp: Loại trừ khỏi khuyến khích',
-                    subordinate: 'AQL cấp dưới: Quản lý phải ĐẠT AQL nhóm/khu vực',
-                    prsTitle: '5PRS (Hệ thống đánh giá 5 điểm)',
-                    inspectionVolume: 'Khối lượng kiểm tra: 100 mục trở lên mỗi tháng',
-                    passRate: 'Tỷ lệ đạt: 90% trở lên',
-                    section3: '3. Điều kiện theo chức vụ',
-                    managerCondition: 'Cấp quản lý (Giám sát, Quản lý): Phản ánh hiệu suất nhóm/khu vực',
-                    employeeCondition: 'Nhân viên chung: Đánh giá tập trung vào hiệu suất cá nhân',
-                    section4: '4. Số tiền khuyến khích',
-                    colType: 'LOẠI',
-                    colAmount: 'Số tiền thanh toán',
-                    colNote: 'Ghi chú',
-                    type1Note: 'Nhân viên sản xuất chính thức',
-                    type2Note: 'Hợp đồng/Nhân viên mới',
-                    type3Note: 'Loại trừ khỏi khuyến khích',
-                    section5: '5. Lý do loại trừ',
-                    exclude1: 'Ngày làm việc: 0 ngày',
-                    exclude2: 'Vắng không phép: 3 ngày trở lên',
-                    exclude3: 'Tỷ lệ vắng mặt vượt quá 12%',
-                    exclude4: '3 tháng liên tiếp thất bại AQL',
-                    exclude5: 'Nghỉ việc giữa tháng',
-                    exclude6: 'Loại trừ theo chính sách TYPE-3',
-                    note: 'Lưu ý: Khuyến khích được đánh giá vào ngày cuối cùng của mỗi tháng và được thanh toán cùng với lương tháng sau.'
-                }}
-            }};
-            
-            const content = criteriaContent[currentLanguage] || criteriaContent.ko;
-            
-            // HTML 생성
-            const html = `
-                <h2 class="section-title">${{content.title}}</h2>
-                <div class="criteria-content">
-                    <h3>${{content.section1}}</h3>
-                    <ul>
-                        <li><strong>${{content.attendance.split(':')[0]}}:</strong> ${{content.attendance.split(':')[1]}}</li>
-                        <li><strong>${{content.absence.split(':')[0]}}:</strong> ${{content.absence.split(':')[1]}}</li>
-                        <li><strong>${{content.workdays.split(':')[0]}}:</strong> ${{content.workdays.split(':')[1]}}</li>
-                    </ul>
-                    
-                    <h3>${{content.section2}}</h3>
-                    <h4>${{content.aqlTitle}}</h4>
-                    <ul>
-                        <li><strong>${{content.monthlyAql.split(':')[0]}}:</strong> ${{content.monthlyAql.split(':')[1]}}</li>
-                        <li><strong>${{content.consecutive.split(':')[0]}}:</strong> ${{content.consecutive.split(':')[1]}}</li>
-                        <li><strong>${{content.subordinate.split(':')[0]}}:</strong> ${{content.subordinate.split(':')[1]}}</li>
-                    </ul>
-                    
-                    <h4>${{content.prsTitle}}</h4>
-                    <ul>
-                        <li><strong>${{content.inspectionVolume.split(':')[0]}}:</strong> ${{content.inspectionVolume.split(':')[1]}}</li>
-                        <li><strong>${{content.passRate.split(':')[0]}}:</strong> ${{content.passRate.split(':')[1]}}</li>
-                    </ul>
-                    
-                    <h3>${{content.section3}}</h3>
-                    <ul>
-                        <li><strong>${{content.managerCondition.split(':')[0]}}:</strong> ${{content.managerCondition.split(':')[1]}}</li>
-                        <li><strong>${{content.employeeCondition.split(':')[0]}}:</strong> ${{content.employeeCondition.split(':')[1]}}</li>
-                    </ul>
-                    
-                    <h3>${{content.section4}}</h3>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>${{content.colType}}</th>
-                                <th>${{content.colAmount}}</th>
-                                <th>${{content.colNote}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>TYPE-1</td>
-                                <td>500,000 VND</td>
-                                <td>${{content.type1Note}}</td>
-                            </tr>
-                            <tr>
-                                <td>TYPE-2</td>
-                                <td>300,000 VND</td>
-                                <td>${{content.type2Note}}</td>
-                            </tr>
-                            <tr>
-                                <td>TYPE-3</td>
-                                <td>-</td>
-                                <td>${{content.type3Note}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <h3>${{content.section5}}</h3>
-                    <ul>
-                        <li>${{content.exclude1}}</li>
-                        <li>${{content.exclude2}}</li>
-                        <li>${{content.exclude3}}</li>
-                        <li>${{content.exclude4}}</li>
-                        <li>${{content.exclude5}}</li>
-                        <li>${{content.exclude6}}</li>
-                    </ul>
-                    
-                    <div class="alert alert-info mt-4">
-                        <strong>${{content.note.split(':')[0]}}:</strong> ${{content.note.substring(content.note.indexOf(':') + 1).trim()}}
-                    </div>
-                </div>
-            `;
-            
-            // 콘텐츠 업데이트
-            const container = document.getElementById('criteriaContent');
-            if (container) {{
-                container.innerHTML = html;
-            }}
-        }}
-        
         // 페이지 로드 시 초기화
         window.onload = function() {{
             updatePositionFilter();
             generateSummaryData();
             generatePositionData();
-            generateCriteriaContent();
             showTab('summary');
             
             // 언어 선택 이벤트 리스너
@@ -3950,11 +3591,17 @@ def generate_detail_tab(employees, month='july'):
     return html
 
 def generate_criteria_tab():
-    """인센티브 기준 탭 HTML 생성 - 다국어 지원"""
+    """인센티브 기준 탭 HTML 생성 - dashboard_version2.html과 동일"""
+    # criteria_content.html 파일 읽기
+    criteria_file = Path(__file__).parent / "criteria_content.html"
+    if criteria_file.exists():
+        with open(criteria_file, 'r', encoding='utf-8') as f:
+            return f.read()
+    
+    # 파일이 없으면 기본 내용 반환
     return """
-        <div id="criteriaContent">
-            <!-- JavaScript로 동적으로 채워질 예정 -->
-        </div>
+        <h2 class="section-title">인센티브 기준</h2>
+        <p>인센티브 기준 내용을 로드할 수 없습니다.</p>
     """
 
 # 메인 실행
