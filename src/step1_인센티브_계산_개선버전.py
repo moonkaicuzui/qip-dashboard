@@ -2136,7 +2136,16 @@ class CompleteQIPCalculator:
         return incentive_table.get(continuous_months, 150000)
     
     def calculate_assembly_inspector_incentive_type1_only(self):
-        """Type-1 Assembly Inspector 및 AQL Inspector 인센티브 계산"""
+        """Type-1 Assembly Inspector 및 AQL Inspector 인센티브 계산
+        
+        10개 조건 체계 (4-4-2 구조):
+        - 출근 조건 (4개): 출근율, 무단결근, 실제 근무일, 최소 12일
+        - AQL 조건 (4개): 당월 실패, 3개월 연속(ASSEMBLY만), 부하직원(해당없음), 구역(해당없음)
+        - 5PRS 조건 (2개): 검사량, 통과율
+        
+        ASSEMBLY INSPECTOR: 8/10 조건 적용 (6번 조건 포함)
+        AQL INSPECTOR: 5/10 조건 적용 (6번 조건 제외)
+        """
         print("\n👥 TYPE-1 ASSEMBLY/AQL INSPECTOR 인센티브 계산...")
         
         # Type-1 Assembly Inspector 필터링
@@ -2168,19 +2177,20 @@ class CompleteQIPCalculator:
             
             # Stop working 직원도 정상 계산 (제외하지 않음)
             
-            # 조건 체크 - 모든 타입에 적용되는 공통 조건
+            # [조건 1-4] 출근 조건 체크 (4개)
             attendance_fail = (
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                row.get('attendancy condition 4 - minimum working days') == 'yes'  # 최소 12일 근무 조건 추가
+                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or  # 조건3: 실제근무일>0
+                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or  # 조건2: 무단결근≤2
+                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or  # 조건1: 출근율≥88%
+                row.get('attendancy condition 4 - minimum working days') == 'yes'  # 조건4: 최소근무일≥12
             )
             
-            # 5PRS 조건: 검사량 100개 이상 AND 통과율 95% 이상 필요
+            # [조건 9-10] 5PRS 조건: 검사량 100개 이상 AND 통과율 95% 이상
             prs_pass = row.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%') == 'yes'
             
-            # AQL 조건: 당월 실패 건수 0건, 3개월 연속 실패 아님
+            # [조건 5] AQL 당월 실패 건수 0건
             aql_fail = row.get(aql_col, 0) > 0
+            # [조건 6] ASSEMBLY INSPECTOR는 3개월 연속 실패 체크 적용
             continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
             
             # emp_id를 먼저 정의 (디버깅 목적으로 사용됨)
@@ -2329,7 +2339,15 @@ class CompleteQIPCalculator:
         print(f"  → 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
     def calculate_head_incentive(self, subordinate_mapping: Dict[str, List[str]]):
-        """Type-1 Head(Group Leader) 인센티브 계산"""
+        """Type-1 Head(Group Leader) 인센티브 계산
+        
+        10개 조건 체계 중 4/10 조건만 적용:
+        - 출근 조건 (4개): 출근율, 무단결근, 실제 근무일, 최소 12일
+        - AQL 조건 (4개): 모두 미적용 (부하직원 조건도 미적용)
+        - 5PRS 조건 (2개): 모두 미적용
+        
+        GROUP LEADER: 4/10 조건 적용 (출근 조건만)
+        """
         print("\n👥 TYPE-1 HEAD(GROUP LEADER) 인센티브 계산 (Line Leader 평균 × 2)...")
         
         # Type-1 Head/Group Leader 필터링

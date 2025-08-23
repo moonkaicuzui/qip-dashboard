@@ -271,24 +271,33 @@ def analyze_conditions_from_csv_row(row, emp_type, position='', month='august'):
     month_title = month_map.get(month.lower(), 'August')
     
     # 출근 조건
+    attendance_rate_value = 100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100
     conditions['attendance_rate'] = {
-        'passed': row.get('Actual Working Days', 0) >= 8,
-        'value': 100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100,
-        'threshold': '≥ 95%',
-        'actual': f"{100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100:.1f}%",
+        'passed': attendance_rate_value >= 88,  # 88% 이상이 기준
+        'value': attendance_rate_value,
+        'threshold': '≥ 88%',
+        'actual': f"{attendance_rate_value:.1f}%",
         'applicable': True
     }
     conditions['absence_days'] = {
-        'passed': row.get('Unapproved Absences', 0) == 0,
-        'value': row.get('Unapproved Absences', 0),
-        'threshold': '0일',
-        'actual': f"{row.get('Unapproved Absences', 0)}일",
+        'passed': row.get('Unapproved Absence Days', 0) <= 2,  # 2일 이하가 통과
+        'value': row.get('Unapproved Absence Days', 0),
+        'threshold': '≤ 2일',
+        'actual': f"{row.get('Unapproved Absence Days', 0)}일",
         'applicable': True
     }
     conditions['working_days'] = {
-        'passed': row.get('Actual Working Days', 0) >= 8,
+        'passed': row.get('Actual Working Days', 0) > 0,
         'value': row.get('Actual Working Days', 0),
-        'threshold': '≥ 8일',
+        'threshold': '> 0일',
+        'actual': f"{row.get('Actual Working Days', 0)}일",
+        'applicable': True
+    }
+    # 최소 근무일 조건 추가 (조건 4)
+    conditions['minimum_working_days'] = {
+        'passed': row.get('Actual Working Days', 0) >= 12,
+        'value': row.get('Actual Working Days', 0),
+        'threshold': '≥ 12일',
         'actual': f"{row.get('Actual Working Days', 0)}일",
         'applicable': True
     }
@@ -313,8 +322,8 @@ def analyze_conditions_from_csv_row(row, emp_type, position='', month='august'):
     # 관리자급 추가 조건
     manager_positions = [
         'SUPERVISOR', '(V) SUPERVISOR', '(VICE) SUPERVISOR', 'V.SUPERVISOR',
-        'MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', 'SENIOR MANAGER',
-        'GROUP LEADER'
+        'MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', 'SENIOR MANAGER'
+        # GROUP LEADER는 별도 처리
     ]
     is_manager = any(pos in position.upper() for pos in manager_positions)
     
@@ -374,12 +383,18 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
     # CSV에서 실제 값 가져오기
     actual_data = {}
     if csv_data is not None and emp_no:
-        emp_row = csv_data[csv_data['Employee No'] == emp_no]
+        # emp_no를 정수로 변환하여 비교 (CSV의 Employee No는 정수형)
+        try:
+            emp_no_int = int(emp_no)
+            emp_row = csv_data[csv_data['Employee No'] == emp_no_int]
+        except (ValueError, TypeError):
+            emp_row = csv_data[csv_data['Employee No'] == emp_no]
+        
         if not emp_row.empty:
             emp_row = emp_row.iloc[0]
             actual_data = {
                 'attendance_rate': 100 - emp_row.get('Absence Rate (raw)', 0) if pd.notna(emp_row.get('Absence Rate (raw)')) else None,
-                'unapproved_absences': emp_row.get('Unapproved Absences', 0) if pd.notna(emp_row.get('Unapproved Absences')) else 0,
+                'unapproved_absences': emp_row.get('Unapproved Absence Days', 0) if pd.notna(emp_row.get('Unapproved Absence Days')) else 0,
                 'actual_working_days': emp_row.get('Actual Working Days', 0) if pd.notna(emp_row.get('Actual Working Days')) else 0,
                 'july_aql_failures': emp_row.get('July AQL Failures', 0) if pd.notna(emp_row.get('July AQL Failures')) else 0,
                 'continuous_fail': emp_row.get('Continuous_FAIL', 'NO') if pd.notna(emp_row.get('Continuous_FAIL')) else 'NO',
@@ -391,8 +406,8 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
     # 관리자급 직급 확인
     manager_positions = [
         'SUPERVISOR', '(V) SUPERVISOR', '(VICE) SUPERVISOR', 'V.SUPERVISOR',
-        'MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', 'SENIOR MANAGER',
-        'GROUP LEADER'
+        'MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', 'SENIOR MANAGER'
+        # GROUP LEADER는 별도 처리
     ]
     is_manager = any(pos in position.upper() for pos in manager_positions)
     
@@ -427,6 +442,15 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
             'value': '정상',
             'actual': None,
             'threshold': '1일 이상',
+            'applicable': True
+        }
+        conditions['minimum_working_days'] = {
+            'name': '최소 근무일 ≥12일',
+            'category': 'attendance',
+            'passed': True,
+            'value': '정상',
+            'actual': None,
+            'threshold': '12일 이상',
             'applicable': True
         }
         
@@ -489,8 +513,9 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
         }
         
         # 직급별 조건 적용 차별화
-        # ASSEMBLY INSPECTOR - 개인 AQL과 5PRS만 적용 (부하직원/구역 미적용)
+        # ASSEMBLY INSPECTOR - 개인 AQL(당월+3개월)과 5PRS 적용 (부하직원/구역 미적용)
         if 'ASSEMBLY INSPECTOR' in position:
+            # 3개월 연속 체크는 적용됨 (6번 조건)
             conditions['subordinate_aql']['applicable'] = False
             conditions['subordinate_aql']['value'] = 'N/A'
             conditions['area_reject_rate']['applicable'] = False
@@ -555,6 +580,21 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
             conditions['5prs_pass_rate']['applicable'] = False
             conditions['5prs_pass_rate']['value'] = 'N/A'
             
+        # GROUP LEADER - 출근 조건만 적용 (부하직원 AQL 제외)
+        elif 'GROUP LEADER' in position:
+            conditions['aql_monthly']['applicable'] = False
+            conditions['aql_monthly']['value'] = 'N/A'
+            conditions['aql_3month']['applicable'] = False
+            conditions['aql_3month']['value'] = 'N/A'
+            conditions['subordinate_aql']['applicable'] = False  # 7번 조건 미적용
+            conditions['subordinate_aql']['value'] = 'N/A'
+            conditions['area_reject_rate']['applicable'] = False
+            conditions['area_reject_rate']['value'] = 'N/A'
+            conditions['5prs_volume']['applicable'] = False
+            conditions['5prs_volume']['value'] = 'N/A'
+            conditions['5prs_pass_rate']['applicable'] = False
+            conditions['5prs_pass_rate']['value'] = 'N/A'
+            
     elif emp_type == 'TYPE-2':
         # TYPE-2 기본 조건 (AQL, 5PRS 미적용) - 출근 조건만 적용
         conditions['attendance_rate'] = {
@@ -582,6 +622,15 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
             'value': '정상',
             'actual': None,
             'threshold': '1일 이상',
+            'applicable': True
+        }
+        conditions['minimum_working_days'] = {
+            'name': '최소 근무일 ≥12일',
+            'category': 'attendance',
+            'passed': True,
+            'value': '정상',
+            'actual': None,
+            'threshold': '12일 이상',
             'applicable': True
         }
         
@@ -680,6 +729,18 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
                 else:
                     conditions['working_days']['passed'] = True
                     conditions['working_days']['value'] = '정상'
+        
+        # 최소 근무일 12일 실제 값 - 항상 실제 값 설정
+        if 'minimum_working_days' in conditions and conditions['minimum_working_days']['applicable']:
+            if actual_data.get('actual_working_days') is not None:
+                actual_days = int(actual_data['actual_working_days'])
+                conditions['minimum_working_days']['actual'] = f"{actual_days}일"
+                if actual_days < 12:
+                    conditions['minimum_working_days']['passed'] = False
+                    conditions['minimum_working_days']['value'] = '기준 미달'
+                else:
+                    conditions['minimum_working_days']['passed'] = True
+                    conditions['minimum_working_days']['value'] = '정상'
         
         # AQL 실패 건수 실제 값 - 항상 실제 값 설정
         if 'aql_monthly' in conditions and conditions['aql_monthly']['applicable']:
@@ -879,7 +940,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
     """개선된 대시보드 HTML 생성 - Version 4 (실제 값 표시 + 다국어 지원)
     
     주요 개선사항:
-    - 팝업창 조건 그룹별 표시 (3-4-2 구조)
+    - 팝업창 조건 그룹별 표시 (4-4-2 구조)
     - 각 카테고리별 시각적 구분
     - 직급별 적용 조건 명확화
     - 다국어 지원 (한국어, 영어, 베트남어)
@@ -1275,7 +1336,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 </select>
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v4.2</span></h1>
-            <p id="mainSubtitle">2025년 7월 인센티브 지급 현황</p>
+            <p id="mainSubtitle">{year}년 {month_korean} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;">보고서 생성일: {datetime.now().strftime('%Y년 %m월 %d일 %H:%M')}</p>
         </div>
         
@@ -1286,8 +1347,8 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 <h4 class="alert-heading">⚠️ 데이터 오류</h4>
                 <p>인센티브 계산에 필요한 데이터가 누락되었습니다:</p>
                 <ul class="mb-0">
-                    <li>출근 데이터 파일: <code>attendance data august_converted.csv</code> - 누락</li>
-                    <li>이전 월 인센티브 파일: <code>2025년 7월 인센티브 지급 세부 정보.csv</code> - 누락</li>
+                    <li>출근 데이터 파일: <code>attendance data {month}_converted.csv</code> - 누락</li>
+                    <li>이전 월 인센티브 파일: <code>{year}년 {month_korean} 인센티브 지급 세부 정보.csv</code> - 누락</li>
                     <li>설정 파일: <code>type2_position_mapping.json</code> - 누락</li>
                     <li>설정 파일: <code>auditor_trainer_area_mapping.json</code> - 누락</li>
                 </ul>
@@ -1420,7 +1481,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     </div>
                     <div class="card">
                         <div class="card-header bg-light">
-                            <h6 class="mb-0">조건 충족 현황 (3-4-2 구조)</h6>
+                            <h6 class="mb-0">조건 충족 현황 (4-4-2 구조)</h6>
                         </div>
                         <div class="card-body p-0" id="employeeConditions"></div>
                     </div>
@@ -1574,7 +1635,19 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 employeeDetailTitle: '직원별 상세 현황',
                 allTypes: '모든 타입',
                 items: '가지',
-                actualReason: '사유'
+                actualReason: '사유',
+                conditionsMet: '조건 충족',
+                noConditionsFailed: '조건 미달',
+                allConditionsMet: '✅ 조건 충족',
+                attendanceRateShort: '출근율',
+                unauthorizedAbsenceShort: '무단결근',
+                actualWorkingDaysShort: '실제 근무일',
+                aqlMonthlyShort: '당월 AQL',
+                subordinateAqlFailed: '부하직원 AQL 실패',
+                inspectionVolumeShort: '검사량',
+                passRateShort: '합격률',
+                required: '기준',
+                days: '일'
             }},
             en: {{
                 title: 'QIP Incentive Calculation Results',
@@ -1717,7 +1790,19 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 statusHeader: 'Status',
                 attendanceLabel: 'Attendance',
                 aqlLabel: 'AQL',
-                prsLabel: '5PRS'
+                prsLabel: '5PRS',
+                conditionsMet: 'conditions met',
+                noConditionsFailed: 'conditions not met',
+                allConditionsMet: '✅ All conditions met',
+                attendanceRateShort: 'Attendance rate',
+                unauthorizedAbsenceShort: 'Unexcused absence',
+                actualWorkingDaysShort: 'Actual working days',
+                aqlMonthlyShort: 'Monthly AQL',
+                subordinateAqlFailed: 'Subordinate AQL failed',
+                inspectionVolumeShort: 'Inspection volume',
+                passRateShort: 'Pass rate',
+                required: 'Required',
+                days: ' days'
             }},
             vi: {{
                 title: 'Kết quả tính toán khuyến khích QIP',
@@ -1868,7 +1953,19 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 employeeDetailStatus: 'Tình trạng chi tiết nhân viên',
                 paidOnly: 'Chỉ người được trả',
                 unpaidOnly: 'Chỉ người chưa được trả',
-                viewAll: 'Xem tất cả'
+                viewAll: 'Xem tất cả',
+                conditionsMet: 'điều kiện đáp ứng',
+                noConditionsFailed: 'điều kiện không đạt',
+                allConditionsMet: '✅ Tất cả điều kiện đáp ứng',
+                attendanceRateShort: 'Tỷ lệ đi làm',
+                unauthorizedAbsenceShort: 'Vắng không phép',
+                actualWorkingDaysShort: 'Ngày làm việc thực tế',
+                aqlMonthlyShort: 'AQL tháng',
+                subordinateAqlFailed: 'AQL nhân viên cấp dưới thất bại',
+                inspectionVolumeShort: 'Khối lượng kiểm tra',
+                passRateShort: 'Tỷ lệ đạt',
+                required: 'Yêu cầu',
+                days: ' ngày'
             }}
         }};
         
@@ -2451,7 +2548,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             // 조건별 테이블 - 3-4-2 그룹으로 재구성
             const conditionGroups = {{
                 attendance: {{
-                    title: '📅 ' + (t.attendanceConditions || '출근 조건') + ' (3' + (t.items || '가지') + ')',
+                    title: '📅 ' + (t.attendanceConditions || '출근 조건') + ' (4' + (t.items || '가지') + ')',
                     conditions: [],
                     bgClass: 'bg-primary bg-opacity-10'
                 }},
@@ -2467,12 +2564,13 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 }}
             }};
             
-            // 조건을 그룹별로 분류 (9개 조건) - 언어 비의존적
+            // 조건을 그룹별로 분류 (10개 조건) - 언어 비의존적
             Object.entries(conditions).forEach(([name, data]) => {{
-                // 출근 조건 (3개) - 모든 언어에서 작동하도록 개선
+                // 출근 조건 (4개) - 모든 언어에서 작동하도록 개선
                 if (name.includes('출근율') || name.includes('Attendance Rate') || name.includes('Tỷ lệ đi làm') ||
                     name.includes('무단결근') || name.includes('Unexcused Absence') || name.includes('Vắng không phép') ||
-                    name.includes('실제 근무일') || name.includes('Actual Work Days') || name.includes('Ngày làm thực tế')) {{
+                    name.includes('실제 근무일') || name.includes('Actual Work Days') || name.includes('Ngày làm thực tế') ||
+                    name.includes('최소 근무일') || name.includes('Minimum Work Days') || name.includes('Ngày làm tối thiểu')) {{
                     conditionGroups.attendance.conditions.push({{name, ...data}});
                 }}
                 // AQL 조건 (4개) - 모든 언어에서 작동하도록 개선
@@ -2607,58 +2705,209 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                     }}
                                     const fulfillmentRate = totalConditions > 0 ? Math.round((metConditions / totalConditions) * 100) : 0;
                                     
-                                    // 조건 상태 미니 표시 (출근/AQL/5PRS 3개만 표시)
-                                    const getConditionBadge = (conditions, type) => {{
+                                    // 조건 상태 미니 표시 (출근/AQL/5PRS 3개만 표시) - TYPE 확인 추가
+                                    const getConditionBadge = (conditions, type, empType, position) => {{
                                         let condition = null;
                                         let label = '';
+                                        
+                                        // MANAGER 계열 체크 (A.MANAGER, MANAGER, SENIOR MANAGER 등)
+                                        const isManagerType = position && (
+                                            position.toUpperCase().includes('MANAGER') && 
+                                            !position.toUpperCase().includes('DEPUTY') && 
+                                            !position.toUpperCase().includes('TEAM')
+                                        );
+                                        
+                                        // AQL INSPECTOR 체크
+                                        const isAQLInspector = position && position.toUpperCase().includes('AQL INSPECTOR');
+                                        
+                                        // ASSEMBLY INSPECTOR 체크 (AQL INSPECTOR와 구분 필요)
+                                        const isAssemblyInspector = position && 
+                                            position.toUpperCase().includes('ASSEMBLY INSPECTOR');
+                                        
+                                        // AUDIT & TRAINING TEAM 체크
+                                        const isAuditTrainer = position && (
+                                            position.toUpperCase().includes('AUDIT') || 
+                                            position.toUpperCase().includes('TRAINING')
+                                        );
+                                        
+                                        // (V) SUPERVISOR는 AQL과 5PRS 조건이 적용되지 않음 (타입 무관)
+                                        const isVSupervisor = position && (
+                                            position.toUpperCase().includes('(V) SUPERVISOR') ||
+                                            position.toUpperCase().includes('(VICE) SUPERVISOR') ||
+                                            position.toUpperCase().includes('V.SUPERVISOR')
+                                        );
+                                        
+                                        // AQL INSPECTOR는 5PRS 조건이 적용되지 않음
+                                        if (isAQLInspector && type === '5prs') {{
+                                            label = t.prsLabel || '5PRS';
+                                            return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
+                                        }}
+                                        
+                                        // AUDIT & TRAINING TEAM는 5PRS 조건이 적용되지 않음
+                                        if (isAuditTrainer && type === '5prs') {{
+                                            label = t.prsLabel || '5PRS';
+                                            return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
+                                        }}
+                                        
+                                        // MANAGER 계열은 5PRS 조건이 적용되지 않음
+                                        if (isManagerType && type === '5prs') {{
+                                            label = t.prsLabel || '5PRS';
+                                            return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
+                                        }}
+                                        
+                                        // MANAGER 계열은 AQL 조건이 적용되지 않음
+                                        if (isManagerType && type === 'aql') {{
+                                            label = t.aqlLabel || 'AQL';
+                                            return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
+                                        }}
+                                        
+                                        if (isVSupervisor && (type === 'aql' || type === '5prs')) {{
+                                            if (type === 'aql') {{
+                                                label = t.aqlLabel || 'AQL';
+                                            }} else if (type === '5prs') {{
+                                                label = t.prsLabel || '5PRS';
+                                            }}
+                                            return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
+                                        }}
+                                        
+                                        // TYPE-2 직원은 AQL 조건이 적용되지 않음 (V) SUPERVISOR 제외
+                                        if (empType === 'TYPE-2' && type === 'aql' && !isVSupervisor) {{
+                                            label = t.aqlLabel || 'AQL';
+                                            return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
+                                        }}
+                                        
+                                        // TYPE-3 직원은 AQL과 5PRS 조건이 적용되지 않음
+                                        if (empType === 'TYPE-3' && (type === 'aql' || type === '5prs')) {{
+                                            if (type === 'aql') {{
+                                                label = t.aqlLabel || 'AQL';
+                                            }} else if (type === '5prs') {{
+                                                label = t.prsLabel || '5PRS';
+                                            }}
+                                            return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
+                                        }}
                                         
                                         if (type === 'attendance') {{
                                             // 출근 조건은 3가지 (출근율, 무단결근, 실제근무일)를 종합
                                             label = t.attendanceLabel || '출근';
-                                            const attendanceOk = conditions?.attendance_rate?.passed !== false;
-                                            const absenceOk = conditions?.absence_days?.passed !== false;
-                                            const workdaysOk = conditions?.working_days?.passed !== false;
                                             
+                                            // 먼저 모든 조건이 해당없음인지 체크
                                             if (conditions?.attendance_rate?.applicable === false &&
                                                 conditions?.absence_days?.applicable === false &&
                                                 conditions?.working_days?.applicable === false) {{
-                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: -</span>`;
+                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
                                             }}
                                             
-                                            const allPassed = attendanceOk && absenceOk && workdaysOk;
-                                            return `<span class="badge ${{allPassed ? 'bg-success' : 'bg-danger'}}" style="font-size: 0.9em;">${{label}}: ${{allPassed ? '✓' : '✗'}}</span>`;
+                                            // 적용 가능한 조건만 체크
+                                            const attendanceOk = conditions?.attendance_rate?.applicable !== false && conditions?.attendance_rate?.passed === true;
+                                            const absenceOk = conditions?.absence_days?.applicable !== false && conditions?.absence_days?.passed === true;
+                                            const workdaysOk = conditions?.working_days?.applicable !== false && conditions?.working_days?.passed === true;
+                                            
+                                            // 하나라도 실패한 경우 빨간색
+                                            const hasFailure = (conditions?.attendance_rate?.applicable !== false && conditions?.attendance_rate?.passed !== true) ||
+                                                             (conditions?.absence_days?.applicable !== false && conditions?.absence_days?.passed !== true) ||
+                                                             (conditions?.working_days?.applicable !== false && conditions?.working_days?.passed !== true);
+                                            
+                                            if (hasFailure) {{
+                                                return `<span class="badge bg-danger" style="font-size: 0.9em;">${{label}}: ✗</span>`;
+                                            }} else {{
+                                                return `<span class="badge bg-success" style="font-size: 0.9em;">${{label}}: ✓</span>`;
+                                            }}
                                         }}
                                         else if (type === 'aql') {{
                                             // AQL 조건들을 종합
                                             label = t.aqlLabel || 'AQL';
-                                            const monthlyOk = conditions?.aql_monthly?.passed !== false;
-                                            const continuityOk = conditions?.aql_3month?.passed !== false;
-                                            const teamOk = conditions?.subordinate_aql?.passed !== false;
-                                            const rejectOk = conditions?.area_reject_rate?.passed !== false;
                                             
+                                            // AQL INSPECTOR는 AQL 조건 중 일부만 적용 (5번만 적용, 6,7,8번 제외)
+                                            if (isAQLInspector) {{
+                                                // AQL INSPECTOR는 당월 실패(5번)만 체크
+                                                if (conditions?.aql_monthly?.passed === false) {{
+                                                    return `<span class="badge bg-danger" style="font-size: 0.9em;">${{label}}: ✗</span>`;
+                                                }} else {{
+                                                    return `<span class="badge bg-success" style="font-size: 0.9em;">${{label}}: ✓</span>`;
+                                                }}
+                                            }}
+                                            
+                                            // ASSEMBLY INSPECTOR는 5번, 6번 조건만 체크 (7,8번 제외)
+                                            if (isAssemblyInspector) {{
+                                                // 당월 실패(5번)와 3개월 연속(6번)만 체크
+                                                const monthlyOk = conditions?.aql_monthly?.applicable !== false && conditions?.aql_monthly?.passed === true;
+                                                const continuityOk = conditions?.aql_3month?.applicable !== false && conditions?.aql_3month?.passed === true;
+                                                
+                                                const hasFailure = (conditions?.aql_monthly?.applicable !== false && conditions?.aql_monthly?.passed !== true) ||
+                                                                 (conditions?.aql_3month?.applicable !== false && conditions?.aql_3month?.passed !== true);
+                                                
+                                                if (hasFailure) {{
+                                                    return `<span class="badge bg-danger" style="font-size: 0.9em;">${{label}}: ✗</span>`;
+                                                }} else {{
+                                                    return `<span class="badge bg-success" style="font-size: 0.9em;">${{label}}: ✓</span>`;
+                                                }}
+                                            }}
+                                            
+                                            // AUDIT & TRAINING TEAM는 팀 AQL과 구역 reject율만 체크 (5,6번 제외, 7,8번만 적용)
+                                            if (isAuditTrainer) {{
+                                                // 팀 AQL(7번)과 구역 reject율(8번)만 체크
+                                                const teamOk = conditions?.subordinate_aql?.applicable !== false && conditions?.subordinate_aql?.passed === true;
+                                                const rejectOk = conditions?.area_reject_rate?.applicable !== false && conditions?.area_reject_rate?.passed === true;
+                                                
+                                                const hasFailure = (conditions?.subordinate_aql?.applicable !== false && conditions?.subordinate_aql?.passed !== true) ||
+                                                                 (conditions?.area_reject_rate?.applicable !== false && conditions?.area_reject_rate?.passed !== true);
+                                                
+                                                if (hasFailure) {{
+                                                    return `<span class="badge bg-danger" style="font-size: 0.9em;">${{label}}: ✗</span>`;
+                                                }} else {{
+                                                    return `<span class="badge bg-success" style="font-size: 0.9em;">${{label}}: ✓</span>`;
+                                                }}
+                                            }}
+                                            
+                                            // 먼저 모든 조건이 해당없음인지 체크
                                             if (conditions?.aql_monthly?.applicable === false &&
                                                 conditions?.aql_3month?.applicable === false &&
                                                 conditions?.subordinate_aql?.applicable === false &&
                                                 conditions?.area_reject_rate?.applicable === false) {{
-                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: -</span>`;
+                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
                                             }}
                                             
-                                            const allPassed = monthlyOk && continuityOk && teamOk && rejectOk;
-                                            return `<span class="badge ${{allPassed ? 'bg-success' : 'bg-danger'}}" style="font-size: 0.9em;">${{label}}: ${{allPassed ? '✓' : '✗'}}</span>`;
+                                            // 적용 가능한 조건만 체크
+                                            const monthlyOk = conditions?.aql_monthly?.applicable !== false && conditions?.aql_monthly?.passed === true;
+                                            const continuityOk = conditions?.aql_3month?.applicable !== false && conditions?.aql_3month?.passed === true;
+                                            const teamOk = conditions?.subordinate_aql?.applicable !== false && conditions?.subordinate_aql?.passed === true;
+                                            const rejectOk = conditions?.area_reject_rate?.applicable !== false && conditions?.area_reject_rate?.passed === true;
+                                            
+                                            // 하나라도 실패한 경우 빨간색
+                                            const hasFailure = (conditions?.aql_monthly?.applicable !== false && conditions?.aql_monthly?.passed !== true) ||
+                                                             (conditions?.aql_3month?.applicable !== false && conditions?.aql_3month?.passed !== true) ||
+                                                             (conditions?.subordinate_aql?.applicable !== false && conditions?.subordinate_aql?.passed !== true) ||
+                                                             (conditions?.area_reject_rate?.applicable !== false && conditions?.area_reject_rate?.passed !== true);
+                                            
+                                            if (hasFailure) {{
+                                                return `<span class="badge bg-danger" style="font-size: 0.9em;">${{label}}: ✗</span>`;
+                                            }} else {{
+                                                return `<span class="badge bg-success" style="font-size: 0.9em;">${{label}}: ✓</span>`;
+                                            }}
                                         }}
                                         else if (type === '5prs') {{
                                             // 5PRS 조건들을 종합
                                             label = t.prsLabel || '5PRS';
-                                            const volumeOk = conditions?.['5prs_volume']?.passed !== false;
-                                            const passRateOk = conditions?.['5prs_pass_rate']?.passed !== false;
                                             
+                                            // 먼저 모든 조건이 해당없음인지 체크
                                             if (conditions?.['5prs_volume']?.applicable === false &&
                                                 conditions?.['5prs_pass_rate']?.applicable === false) {{
-                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: -</span>`;
+                                                return `<span class="badge bg-secondary" style="font-size: 0.9em;">${{label}}: N/A</span>`;
                                             }}
                                             
-                                            const allPassed = volumeOk && passRateOk;
-                                            return `<span class="badge ${{allPassed ? 'bg-success' : 'bg-danger'}}" style="font-size: 0.9em;">${{label}}: ${{allPassed ? '✓' : '✗'}}</span>`;
+                                            // 적용 가능한 조건만 체크
+                                            const volumeOk = conditions?.['5prs_volume']?.applicable !== false && conditions?.['5prs_volume']?.passed === true;
+                                            const passRateOk = conditions?.['5prs_pass_rate']?.applicable !== false && conditions?.['5prs_pass_rate']?.passed === true;
+                                            
+                                            // 하나라도 실패한 경우 빨간색
+                                            const hasFailure = (conditions?.['5prs_volume']?.applicable !== false && conditions?.['5prs_volume']?.passed !== true) ||
+                                                             (conditions?.['5prs_pass_rate']?.applicable !== false && conditions?.['5prs_pass_rate']?.passed !== true);
+                                            
+                                            if (hasFailure) {{
+                                                return `<span class="badge bg-danger" style="font-size: 0.9em;">${{label}}: ✗</span>`;
+                                            }} else {{
+                                                return `<span class="badge bg-success" style="font-size: 0.9em;">${{label}}: ✓</span>`;
+                                            }}
                                         }}
                                         
                                         return '';
@@ -2676,9 +2925,9 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                             </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
-                                                    ${{getConditionBadge(emp.conditions, 'attendance')}}
-                                                    ${{getConditionBadge(emp.conditions, 'aql')}}
-                                                    ${{getConditionBadge(emp.conditions, '5prs')}}
+                                                    ${{getConditionBadge(emp.conditions, 'attendance', emp.type, emp.position)}}
+                                                    ${{getConditionBadge(emp.conditions, 'aql', emp.type, emp.position)}}
+                                                    ${{getConditionBadge(emp.conditions, '5prs', emp.type, emp.position)}}
                                                 </div>
                                                 <div class="progress mt-1" style="height: 15px;">
                                                     <div class="progress-bar ${{fulfillmentRate >= 80 ? 'bg-success' : fulfillmentRate >= 50 ? 'bg-warning' : 'bg-danger'}}" 
@@ -2694,34 +2943,96 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                                 let basis = [];
                                                 let amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
                                                 
+                                                // AQL INSPECTOR 체크
+                                                const isAQLInspector = emp.position && emp.position.toUpperCase().includes('AQL INSPECTOR');
+                                                
+                                                // ASSEMBLY INSPECTOR 체크
+                                                const isAssemblyInspector = emp.position && 
+                                                    emp.position.toUpperCase().includes('ASSEMBLY INSPECTOR');
+                                                
+                                                // AUDIT & TRAINING TEAM 체크
+                                                const isAuditTrainer = emp.position && (
+                                                    emp.position.toUpperCase().includes('AUDIT') || 
+                                                    emp.position.toUpperCase().includes('TRAINING')
+                                                );
+                                                
                                                 if (amount > 0) {{
-                                                    // Paid - show met conditions count
-                                                    let metCount = 0;
-                                                    let totalCount = 0;
-                                                    Object.values(emp.conditions).forEach(cond => {{
-                                                        if (cond.applicable !== false) {{
-                                                            totalCount++;
-                                                            if (cond.passed) metCount++;
-                                                        }}
-                                                    }});
-                                                    basis.push(`${{metCount}}/${{totalCount}} ${{t.conditionsMet || '조건 충족'}}`);
+                                                    // Paid - show all conditions met
+                                                    basis.push(t.allConditionsMet || '✅ 조건 충족');
                                                 }} else {{
-                                                    // Not paid - show failed conditions
-                                                    let failedConditions = [];
-                                                    if (emp.conditions.attendance_rate?.passed === false) failedConditions.push(t.attendanceLabel || '출근');
-                                                    if (emp.conditions.aql_monthly?.passed === false) failedConditions.push('AQL');
-                                                    if (emp.conditions['5prs_pass_rate']?.passed === false || emp.conditions['5prs_volume']?.passed === false) failedConditions.push('5PRS');
+                                                    // Not paid - show specific failed conditions with values
+                                                    let failedDetails = [];
                                                     
-                                                    if (failedConditions.length > 0) {{
-                                                        basis.push(`${{failedConditions.join(', ')}} ${{t.failed || '미충족'}}`);
+                                                    // 출근 조건 체크
+                                                    if (emp.conditions.attendance_rate?.applicable !== false && emp.conditions.attendance_rate?.passed === false) {{
+                                                        let rate = emp.conditions.attendance_rate?.value || 'N/A';
+                                                        // 출근율을 소수점 1자리로 표시
+                                                        if (typeof rate === 'number' || (typeof rate === 'string' && !isNaN(parseFloat(rate)))) {{
+                                                            rate = parseFloat(rate).toFixed(1) + '%';
+                                                        }}
+                                                        const threshold = emp.conditions.attendance_rate?.threshold || '88%';
+                                                        failedDetails.push(`${{t.attendanceRateShort || '출근율'}}: ${{rate}} (${{t.required || '기준'}}: ≥${{threshold}})`);
+                                                    }}
+                                                    
+                                                    if (emp.conditions.absence_days?.applicable !== false && emp.conditions.absence_days?.passed === false) {{
+                                                        const days = emp.conditions.absence_days?.value || 'N/A';
+                                                        const threshold = emp.conditions.absence_days?.threshold || '2';
+                                                        failedDetails.push(`${{t.unauthorizedAbsenceShort || '무단결근'}}: ${{days}}${{t.days || '일'}} (${{t.required || '기준'}}: ≤${{threshold}}${{t.days || '일'}})`);
+                                                    }}
+                                                    
+                                                    if (emp.conditions.working_days?.applicable !== false && emp.conditions.working_days?.passed === false) {{
+                                                        const days = emp.conditions.working_days?.value || 'N/A';
+                                                        const threshold = emp.conditions.working_days?.threshold || '12';
+                                                        failedDetails.push(`${{t.actualWorkingDaysShort || '실제 근무일'}}: ${{days}}${{t.days || '일'}} (${{t.required || '기준'}}: ≥${{threshold}}${{t.days || '일'}})`);
+                                                    }}
+                                                    
+                                                    // AQL 조건 체크
+                                                    if (emp.conditions.aql_monthly?.applicable !== false && emp.conditions.aql_monthly?.passed === false) {{
+                                                        failedDetails.push(`${{t.aqlMonthlyShort || '당월 AQL'}}: FAIL`);
+                                                    }}
+                                                    
+                                                    if (emp.conditions.subordinate_aql?.applicable !== false && emp.conditions.subordinate_aql?.passed === false) {{
+                                                        const subordinateId = emp.conditions.subordinate_aql?.subordinate_id || '';
+                                                        if (subordinateId) {{
+                                                            failedDetails.push(`${{t.subordinateAqlFailed || '부하직원 AQL 실패'}}: ${{subordinateId}}`);
+                                                        }} else {{
+                                                            failedDetails.push(`${{t.subordinateAqlFailed || '부하직원 AQL 실패'}}`);
+                                                        }}
+                                                    }}
+                                                    
+                                                    // 구역 reject율 체크 (AUDIT & TRAINING TEAM만)
+                                                    if (isAuditTrainer && emp.conditions.area_reject_rate?.applicable !== false && emp.conditions.area_reject_rate?.passed === false) {{
+                                                        const rate = emp.conditions.area_reject_rate?.value || 'N/A';
+                                                        const threshold = emp.conditions.area_reject_rate?.threshold || '3%';
+                                                        failedDetails.push(`${{t.areaRejectRateShort || '구역 reject율'}}: ${{rate}} (${{t.required || '기준'}}: <${{threshold}})`);
+                                                    }}
+                                                    
+                                                    // 5PRS 조건 체크 (AQL INSPECTOR와 AUDIT & TRAINING TEAM은 제외)
+                                                    if (!isAQLInspector && !isAuditTrainer) {{
+                                                        if (emp.conditions['5prs_volume']?.applicable !== false && emp.conditions['5prs_volume']?.passed === false) {{
+                                                            const volume = emp.conditions['5prs_volume']?.value || 'N/A';
+                                                            const threshold = emp.conditions['5prs_volume']?.threshold || '100';
+                                                            failedDetails.push(`${{t.inspectionVolumeShort || '검사량'}}: ${{volume}} (${{t.required || '기준'}}: ≥${{threshold}})`);
+                                                        }}
+                                                        
+                                                        if (emp.conditions['5prs_pass_rate']?.applicable !== false && emp.conditions['5prs_pass_rate']?.passed === false) {{
+                                                            const rate = emp.conditions['5prs_pass_rate']?.value || 'N/A';
+                                                            const threshold = emp.conditions['5prs_pass_rate']?.threshold || '90%';
+                                                            failedDetails.push(`${{t.passRateShort || '합격률'}}: ${{rate}} (${{t.required || '기준'}}: ≥${{threshold}})`);
+                                                        }}
+                                                    }}
+                                                    
+                                                    // 최대 3개까지만 표시
+                                                    if (failedDetails.length > 3) {{
+                                                        failedDetails = failedDetails.slice(0, 3);
+                                                        failedDetails.push('...');
+                                                    }}
+                                                    
+                                                    if (failedDetails.length > 0) {{
+                                                        basis.push(failedDetails.join('<br>'));
                                                     }} else {{
                                                         basis.push(t.noConditionsFailed || '조건 미달');
                                                     }}
-                                                }}
-                                                
-                                                // Add original reason if exists
-                                                if (emp.reason && emp.reason.trim() !== '') {{
-                                                    basis.push(emp.reason);
                                                 }}
                                                 
                                                 return basis.join(' / ');
@@ -2832,7 +3143,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 </div>
             `;
             
-            // Version 4: 조건 충족 현황 - 실제 값 표시 (3-4-2 구조)
+            // Version 4: 조건 충족 현황 - 실제 값 표시 (4-4-2 구조)
             let conditionsHtml = '';
             
             if (employee.conditions) {{
@@ -2849,7 +3160,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     }}
                 }});
                 
-                // 출근 조건 섹션 (3가지)
+                // 출근 조건 섹션 (4가지)
                 if (groupedConditions.attendance.length > 0) {{
                     conditionsHtml += `
                         <div class="condition-section">
@@ -3059,6 +3370,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     attendance: '출근율 ≥88%',
                     absence: '무단결근 ≤2일',
                     workdays: '실제 근무일 >0일',
+                    minimumDays: '최소 근무일 ≥12일',
                     personalAQL: '개인 AQL: 당월 실패 0건',
                     continuity: '연속성 체크: 3개월 연속 실패 없음',
                     teamAQL: '팀/구역 AQL: 3개월 연속 실패 없음',
@@ -3070,6 +3382,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     attendance: 'Attendance Rate ≥88%',
                     absence: 'Unexcused Absence ≤2 days',
                     workdays: 'Actual Work Days >0',
+                    minimumDays: 'Minimum Work Days ≥12',
                     personalAQL: 'Personal AQL: Monthly Failures 0',
                     continuity: 'Continuity Check: No 3-Month Consecutive Failures',
                     teamAQL: 'Team/Area AQL: No 3-Month Failures',
@@ -3081,6 +3394,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     attendance: 'Tỷ lệ đi làm ≥88%',
                     absence: 'Vắng không phép ≤2 ngày',
                     workdays: 'Ngày làm thực tế >0',
+                    minimumDays: 'Ngày làm tối thiểu ≥12',
                     personalAQL: 'AQL cá nhân: Thất bại trong tháng 0',
                     continuity: 'Kiểm tra liên tục: Không thất bại 3 tháng liên tiếp',
                     teamAQL: 'AQL nhóm/khu vực: Không thất bại 3 tháng',
@@ -3096,6 +3410,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 [labels.attendance]: {{ passed: 0, failed: 0, notApplicable: 0, rate: 0, applicable: true }},
                 [labels.absence]: {{ passed: 0, failed: 0, notApplicable: 0, rate: 0, applicable: true }},
                 [labels.workdays]: {{ passed: 0, failed: 0, notApplicable: 0, rate: 0, applicable: true }},
+                [labels.minimumDays]: {{ passed: 0, failed: 0, notApplicable: 0, rate: 0, applicable: true }},
                 [labels.personalAQL]: {{ passed: 0, failed: 0, notApplicable: 0, rate: 0, applicable: true }},
                 [labels.continuity]: {{ passed: 0, failed: 0, notApplicable: 0, rate: 0, applicable: true }},
                 [labels.teamAQL]: {{ passed: 0, failed: 0, notApplicable: 0, rate: 0, applicable: true }},
@@ -3104,17 +3419,42 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 [labels.prsVolume]: {{ passed: 0, failed: 0, notApplicable: 0, rate: 0, applicable: true }}
             }};
             
-            // 관리자급 직급 확인 - AUDIT & TRAINING TEAM, MODEL MASTER 추가
+            // 관리자급 직급 확인 - (V) SUPERVISOR 제외
             const managerPositions = [
-                'SUPERVISOR', '(V) SUPERVISOR', '(VICE) SUPERVISOR', 'V.SUPERVISOR',
-                'MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', 'SENIOR MANAGER',
-                'GROUP LEADER'
+                'SUPERVISOR',  // (V) SUPERVISOR는 제외
+                'MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', 'SENIOR MANAGER'
+                // GROUP LEADER는 별도 처리
             ];
-            const isManager = managerPositions.some(pos => position.toUpperCase().includes(pos));
+            // (V) SUPERVISOR가 아닌 경우에만 관리자로 판단
+            const isManager = !position.toUpperCase().includes('(V) SUPERVISOR') && 
+                             !position.toUpperCase().includes('(VICE) SUPERVISOR') && 
+                             !position.toUpperCase().includes('V.SUPERVISOR') &&
+                             managerPositions.some(pos => position.toUpperCase().includes(pos));
             
-            // 타입별/직급별 조건 적용 여부 결정 (정확한 규칙 적용)
+            // 타입별/직급별 조건 적용 여부 결정 (10개 조건 체계)
             if (type === 'TYPE-2') {{
-                // TYPE-2는 출근 조건만 적용 (3개)
+                // (V) SUPERVISOR는 Type-2에서도 4개 조건만 (출근 조건만)
+                if (position.toUpperCase().includes('(V) SUPERVISOR') || 
+                    position.toUpperCase().includes('(VICE) SUPERVISOR') || 
+                    position.toUpperCase().includes('V.SUPERVISOR')) {{
+                    conditions[labels.personalAQL].applicable = false;
+                    conditions[labels.continuity].applicable = false;
+                    conditions[labels.teamAQL].applicable = false;
+                    conditions[labels.rejectRate].applicable = false;
+                    conditions[labels.prsPassRate].applicable = false;  // 5PRS도 제외
+                    conditions[labels.prsVolume].applicable = false;    // 5PRS도 제외
+                }}
+                // 일반 TYPE-2는 출근 4개 + 5PRS 2개 조건 적용
+                else {{
+                    conditions[labels.personalAQL].applicable = false;
+                    conditions[labels.continuity].applicable = false;
+                    conditions[labels.teamAQL].applicable = false;
+                    conditions[labels.rejectRate].applicable = false;
+                    // 5PRS 조건은 적용됨 (prsPassRate, prsVolume)
+                }}
+            }}
+            // TYPE-3는 출근 조건 4개만 적용
+            else if (type === 'TYPE-3') {{
                 conditions[labels.personalAQL].applicable = false;
                 conditions[labels.continuity].applicable = false;
                 conditions[labels.teamAQL].applicable = false;
@@ -3122,52 +3462,96 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 conditions[labels.prsPassRate].applicable = false;
                 conditions[labels.prsVolume].applicable = false;
             }}
-            // TYPE-1 직급별 차별화
+            // TYPE-1 직급별 차별화 (10개 조건 체계)
             else if (type === 'TYPE-1') {{
-                // ASSEMBLY INSPECTOR - 7개 (출근 3 + 개인AQL 2 + 5PRS 2)
-                if (position.toUpperCase().includes('ASSEMBLY INSPECTOR')) {{
-                    conditions[labels.teamAQL].applicable = false;
-                    conditions[labels.rejectRate].applicable = false;
+                // (V) SUPERVISOR - 4개 조건 (출근 조건만)
+                if (position.toUpperCase().includes('(V) SUPERVISOR') || 
+                    position.toUpperCase().includes('(VICE) SUPERVISOR') || 
+                    position.toUpperCase().includes('V.SUPERVISOR')) {{
+                    conditions[labels.personalAQL].applicable = false;  // 5번 제외
+                    conditions[labels.continuity].applicable = false;   // 6번 제외
+                    conditions[labels.teamAQL].applicable = false;      // 7번 제외
+                    conditions[labels.rejectRate].applicable = false;   // 8번 제외
+                    conditions[labels.prsPassRate].applicable = false;  // 9번 제외
+                    conditions[labels.prsVolume].applicable = false;    // 10번 제외
                 }}
-                // AQL INSPECTOR - 4개 (출근 3 + 개인AQL 당월만 1)
+                // GROUP LEADER - 8개 조건 (7번 부하직원 체크 제외)
+                else if (position.toUpperCase().includes('GROUP LEADER')) {{
+                    conditions[labels.continuity].applicable = false;  // 6번 제외
+                    conditions[labels.teamAQL].applicable = false;     // 7번 제외
+                }}
+                // ASSEMBLY INSPECTOR - 8개 조건 (6번 3개월 연속 적용)
+                else if (position.toUpperCase().includes('ASSEMBLY INSPECTOR')) {{
+                    conditions[labels.teamAQL].applicable = false;     // 7번 제외
+                    conditions[labels.rejectRate].applicable = false;  // 8번 제외
+                }}
+                // AQL INSPECTOR - 5개 조건 (5PRS 조건과 6번 조건 제외)
                 else if (position.toUpperCase().includes('AQL INSPECTOR')) {{
-                    conditions[labels.continuity].applicable = false;
-                    conditions[labels.teamAQL].applicable = false;
-                    conditions[labels.rejectRate].applicable = false;
-                    conditions[labels.prsPassRate].applicable = false;
-                    conditions[labels.prsVolume].applicable = false;
+                    conditions[labels.continuity].applicable = false;   // 6번 제외 (3개월 연속 체크 안함)
+                    conditions[labels.teamAQL].applicable = false;     // 7번 제외
+                    conditions[labels.rejectRate].applicable = false;  // 8번 제외
+                    conditions[labels.prsPassRate].applicable = false;  // 9번 제외 (5PRS 통과율)
+                    conditions[labels.prsVolume].applicable = false;    // 10번 제외 (5PRS 검사량)
                 }}
-                // 관리자급 - 출근 조건만 (3개)
-                else if (isManager) {{
+                // MANAGER, A.MANAGER - 4개 조건 (출근 조건만)
+                else if (position.toUpperCase().includes('MANAGER') && 
+                         !position.toUpperCase().includes('DEPUTY') && 
+                         !position.toUpperCase().includes('TEAM')) {{
+                    // MANAGER와 A.MANAGER는 출근 4개 조건만 적용
+                    conditions[labels.personalAQL].applicable = false;  // 5번 제외
+                    conditions[labels.continuity].applicable = false;   // 6번 제외
+                    conditions[labels.teamAQL].applicable = false;      // 7번 제외
+                    conditions[labels.rejectRate].applicable = false;   // 8번 제외
+                    conditions[labels.prsPassRate].applicable = false;  // 9번 제외
+                    conditions[labels.prsVolume].applicable = false;    // 10번 제외
+                }}
+                // 일반 SUPERVISOR - 9개 조건 (6번만 제외)
+                else if (position.toUpperCase().includes('SUPERVISOR') && 
+                         !position.toUpperCase().includes('(V)') && 
+                         !position.toUpperCase().includes('(VICE)') && 
+                         !position.toUpperCase().includes('V.')) {{
+                    conditions[labels.continuity].applicable = false;  // 6번만 제외
+                }}
+                // 기타 검사원 (BOTTOM, STITCHING, MTL INSPECTOR) - 6개 조건 (출근 4 + 5PRS 2)
+                else if (position.toUpperCase().includes('BOTTOM INSPECTOR') || 
+                         position.toUpperCase().includes('STITCHING INSPECTOR') ||
+                         position.toUpperCase().includes('MTL INSPECTOR')) {{
                     conditions[labels.personalAQL].applicable = false;
                     conditions[labels.continuity].applicable = false;
                     conditions[labels.teamAQL].applicable = false;
                     conditions[labels.rejectRate].applicable = false;
-                    conditions[labels.prsPassRate].applicable = false;
-                    conditions[labels.prsVolume].applicable = false;
                 }}
-                // LINE LEADER - 4개 (출근 3 + 팀AQL 1)
-                else if (position.toUpperCase().includes('LINE LEADER')) {{
-                    conditions[labels.personalAQL].applicable = false;
-                    conditions[labels.continuity].applicable = false;
-                    conditions[labels.rejectRate].applicable = false;
-                    conditions[labels.prsPassRate].applicable = false;
-                    conditions[labels.prsVolume].applicable = false;
+                // DEPUTY MANAGER, TEAM LEADER - 9개 조건 (6번만 제외)
+                else if (position.toUpperCase().includes('DEPUTY MANAGER') || 
+                         position.toUpperCase().includes('TEAM LEADER')) {{
+                    conditions[labels.continuity].applicable = false;  // 6번만 제외
                 }}
-                // AUDIT & TRAINING TEAM - 5개 (출근 3 + 팀AQL 1 + reject율 1)
-                else if (position.toUpperCase().includes('AUDIT') || position.toUpperCase().includes('TRAINING')) {{
-                    conditions[labels.personalAQL].applicable = false;
-                    conditions[labels.continuity].applicable = false;
-                    conditions[labels.prsPassRate].applicable = false;
-                    conditions[labels.prsVolume].applicable = false;
-                }}
-                // MODEL MASTER - 4개 (출근 3 + reject율 1)
+                // MODEL MASTER - 5개 조건 (출근 4 + 구역담당 1)
                 else if (position.toUpperCase().includes('MODEL MASTER')) {{
-                    conditions[labels.personalAQL].applicable = false;
-                    conditions[labels.continuity].applicable = false;
-                    conditions[labels.teamAQL].applicable = false;
-                    conditions[labels.prsPassRate].applicable = false;
-                    conditions[labels.prsVolume].applicable = false;
+                    conditions[labels.personalAQL].applicable = false;  // 5번 제외
+                    conditions[labels.continuity].applicable = false;   // 6번 제외
+                    conditions[labels.teamAQL].applicable = false;      // 7번 제외
+                    // 8번 구역담당은 적용
+                    conditions[labels.prsPassRate].applicable = false;  // 9번 제외
+                    conditions[labels.prsVolume].applicable = false;    // 10번 제외
+                }}
+                // AUDIT & TRAINING TEAM - 6개 조건 (출근 4 + 팀AQL 1 + 구역담당 1)
+                else if (position.toUpperCase().includes('AUDIT') || position.toUpperCase().includes('TRAINING')) {{
+                    conditions[labels.personalAQL].applicable = false;  // 5번 제외
+                    conditions[labels.continuity].applicable = false;   // 6번 제외
+                    // 7번 팀AQL은 적용
+                    // 8번 구역담당은 적용
+                    conditions[labels.prsPassRate].applicable = false;  // 9번 제외
+                    conditions[labels.prsVolume].applicable = false;    // 10번 제외
+                }}
+                // LINE LEADER - 5개 조건 (출근 4 + 팀AQL 1)
+                else if (position.toUpperCase().includes('LINE LEADER')) {{
+                    conditions[labels.personalAQL].applicable = false;  // 5번 제외
+                    conditions[labels.continuity].applicable = false;   // 6번 제외
+                    // 7번 팀AQL은 적용
+                    conditions[labels.rejectRate].applicable = false;   // 8번 제외
+                    conditions[labels.prsPassRate].applicable = false;  // 9번 제외
+                    conditions[labels.prsVolume].applicable = false;    // 10번 제외
                 }}
             }}
             
@@ -3245,7 +3629,23 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     }} else {{
                         conditions[labels.workdays].notApplicable++;
                     }}
-                    // 4. 개인 AQL (aql_monthly)
+                    // 4. 최소 근무일 12일 (minimum_working_days)
+                    if (conditions[labels.minimumDays].applicable) {{
+                        if (emp.conditions.minimum_working_days) {{
+                            if (emp.conditions.minimum_working_days.applicable === false) {{
+                                conditions[labels.minimumDays].notApplicable++;
+                            }} else if (emp.conditions.minimum_working_days.passed) {{
+                                conditions[labels.minimumDays].passed++;
+                            }} else {{
+                                conditions[labels.minimumDays].failed++;
+                            }}
+                        }} else {{
+                            conditions[labels.minimumDays].failed++;
+                        }}
+                    }} else {{
+                        conditions[labels.minimumDays].notApplicable++;
+                    }}
+                    // 5. 개인 AQL (aql_monthly)
                     if (conditions[labels.personalAQL].applicable) {{
                         if (emp.conditions.aql_monthly) {{
                             if (emp.conditions.aql_monthly.applicable === false) {{
@@ -3261,7 +3661,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     }} else {{
                         conditions[labels.personalAQL].notApplicable++;
                     }}
-                    // 5. 3개월 연속 실패 없음 (aql_3month)
+                    // 6. 3개월 연속 실패 없음 (aql_3month)
                     if (conditions[labels.continuity].applicable) {{
                         if (emp.conditions.aql_3month) {{
                             if (emp.conditions.aql_3month.applicable === false) {{
@@ -3277,7 +3677,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     }} else {{
                         conditions[labels.continuity].notApplicable++;
                     }}
-                    // 6. 부하직원 AQL (subordinate_aql)
+                    // 7. 부하직원 AQL (subordinate_aql)
                     if (conditions[labels.teamAQL].applicable) {{
                         if (emp.conditions.subordinate_aql) {{
                             if (emp.conditions.subordinate_aql.applicable === false) {{
@@ -3293,7 +3693,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     }} else {{
                         conditions[labels.teamAQL].notApplicable++;
                     }}
-                    // 7. 담당구역 reject율 (area_reject_rate)
+                    // 8. 담당구역 reject율 (area_reject_rate)
                     if (conditions[labels.rejectRate].applicable) {{
                         if (emp.conditions.area_reject_rate) {{
                             if (emp.conditions.area_reject_rate.applicable === false) {{
@@ -3309,7 +3709,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     }} else {{
                         conditions[labels.rejectRate].notApplicable++;
                     }}
-                    // 8. 5PRS 통과율 (5prs_pass_rate)
+                    // 9. 5PRS 통과율 (5prs_pass_rate)
                     if (conditions[labels.prsPassRate].applicable) {{
                         if (emp.conditions['5prs_pass_rate']) {{
                             if (emp.conditions['5prs_pass_rate'].applicable === false) {{
@@ -3325,7 +3725,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     }} else {{
                         conditions[labels.prsPassRate].notApplicable++;
                     }}
-                    // 9. 5PRS 검사량 (5prs_volume)
+                    // 10. 5PRS 검사량 (5prs_volume)
                     if (conditions[labels.prsVolume].applicable) {{
                         if (emp.conditions['5prs_volume']) {{
                             if (emp.conditions['5prs_volume'].applicable === false) {{
@@ -3759,7 +4159,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
     print(f"📊 처리된 직원 수: {len(employees)}명")
     print(f"💰 총 지급액: {format_currency(stats['total_amount'])}")
     print(f"📈 지급률: {stats['payment_rate']:.1f}%")
-    print(f"🎯 주요 개선사항: 팝업창 조건 3-4-2 구조로 세분화")
+    print(f"🎯 주요 개선사항: 팝업창 조건 4-4-2 구조로 세분화")
 
 def calculate_statistics(employees, calculation_month=None, exclude_types=None):
     """통계 계산
