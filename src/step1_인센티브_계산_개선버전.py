@@ -1252,6 +1252,9 @@ class CompleteQIPCalculator:
         # 기본값 설정
         self._set_improved_default_values()
         
+        # TYPE-1 STITCHING INSPECTOR를 TYPE-2로 수정하는 전처리
+        self._preprocess_position_type_corrections()
+        
         print(f"✅ {self.config.get_month_str('korean')} 데이터 준비 완료: {len(self.month_data)} 명")
     
     def _merge_all_conditions(self):
@@ -1516,6 +1519,42 @@ class CompleteQIPCalculator:
                 self.month_data[col] = default_val
             else:
                 self.month_data[col] = self.month_data[col].fillna(default_val)
+    
+    def _preprocess_position_type_corrections(self):
+        """직급과 타입 불일치를 수정하는 전처리 함수
+        
+        주요 수정사항:
+        - TYPE-1 STITCHING INSPECTOR → TYPE-2로 변경
+        """
+        print("\n🔧 직급-타입 데이터 전처리 중...")
+        correction_count = 0
+        
+        # TYPE-1이면서 STITCHING INSPECTOR인 경우를 TYPE-2로 수정
+        if 'ROLE TYPE STD' in self.month_data.columns and 'QIP POSITION 1ST  NAME' in self.month_data.columns:
+            # 수정이 필요한 직원 찾기
+            stitching_mask = (
+                (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
+                (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('STITCHING', na=False)) &
+                (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('INSPECTOR', na=False))
+            )
+            
+            # 수정 대상 확인 및 로깅
+            if stitching_mask.any():
+                affected_employees = self.month_data[stitching_mask]
+                for idx, row in affected_employees.iterrows():
+                    emp_no = row.get('Employee No', 'Unknown')
+                    emp_name = row.get('Full Name', 'Unknown')
+                    position = row.get('QIP POSITION 1ST  NAME', 'Unknown')
+                    print(f"  → TYPE-1 → TYPE-2 수정: {emp_no} ({emp_name}) - {position}")
+                    correction_count += 1
+                
+                # TYPE을 TYPE-2로 수정
+                self.month_data.loc[stitching_mask, 'ROLE TYPE STD'] = 'TYPE-2'
+        
+        if correction_count > 0:
+            print(f"  ✅ 총 {correction_count}명의 직급-타입 불일치 수정 완료")
+        else:
+            print(f"  ✅ 수정이 필요한 직급-타입 불일치 없음")
     
     def calculate_all_incentives(self):
         """모든 인센티브 계산 실행"""

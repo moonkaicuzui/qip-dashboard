@@ -8,6 +8,13 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
+# Import the new condition matrix manager
+try:
+    from condition_matrix_manager import ConditionMatrixManager, get_condition_manager
+except ImportError:
+    print("Warning: Could not import ConditionMatrixManager. Using fallback logic.")
+    ConditionMatrixManager = None
+
 def load_incentive_csv_data(csv_path):
     """인센티브 CSV 파일에서 상세 데이터 로드"""
     try:
@@ -239,9 +246,19 @@ def extract_data_from_csv(month='july', year=2025):
             # 월 이름 매핑
             current_incentive = row.get('August_Incentive', 0)
         
-        # 조건 분석 - CSV 데이터 사용
-        conditions = analyze_conditions_from_csv_row(row, emp['type'], emp['position'], month)
-        emp['conditions'] = conditions
+        # 조건 분석 - CSV 데이터 사용 (메타데이터 포함)
+        analysis_result = analyze_conditions_from_csv_row(row, emp['type'], emp['position'], month)
+        
+        # 새로운 반환 형식 처리
+        if isinstance(analysis_result, dict) and 'conditions' in analysis_result:
+            emp['conditions'] = analysis_result['conditions']
+            emp['metadata'] = analysis_result.get('metadata', {})
+            emp['condition_summary'] = analysis_result.get('summary', {})
+        else:
+            # 이전 버전 호환성 (fallback)
+            emp['conditions'] = analysis_result
+            emp['metadata'] = {}
+            emp['condition_summary'] = {}
         
         # Stop working Date 추가
         if pd.notna(row.get('Stop working Date')):
@@ -256,112 +273,83 @@ def extract_data_from_csv(month='july', year=2025):
     print(f"✅ {len(employees)}명의 직원 데이터 로드 완료")
     return employees
 
-def analyze_conditions_from_csv_row(row, emp_type, position='', month='august'):
+def _get_condition_key(condition_id):
+    """조건 ID를 기존 키로 매핑"""
+    mapping = {
+        1: 'working_days',
+        2: 'absence_days', 
+        3: 'attendance_rate',
+        4: 'minimum_working_days',
+        5: 'aql_current',
+        6: 'aql_continuous',
+        7: 'subordinate_aql',  # Team/Area AQL - was incorrectly '5prs_validation_qty'
+        8: 'area_reject_rate',  # Area Reject Rate - was incorrectly '5prs_pass_rate'
+        9: '5prs_volume',  # 5PRS Inspection Quantity
+        10: '5prs_pass_rate'  # 5PRS Pass Rate
+    }
+    return mapping.get(condition_id)
+
+def analyze_conditions_from_csv_row(row, emp_type, position='', month='august', language='ko'):
     """
-    CSV row에서 직접 조건 분석
+    CSV row에서 직접 조건 분석 - 100% JSON 매트릭스 기반 (폴백 없음)
+    
+    Returns:
+        {
+            'conditions': evaluation results,
+            'metadata': UI metadata for dynamic rendering
+        }
     """
+    if not ConditionMatrixManager:
+        raise ImportError("ConditionMatrixManager is required for condition analysis")
+    
+    manager = get_condition_manager()
+    
+    # 직원 데이터를 딕셔너리로 변환
+    employee_data = row.to_dict() if hasattr(row, 'to_dict') else row
+    
+    # 데이터 전처리 (TYPE-1 STITCHING INSPECTOR 수정 등)
+    employee_data = manager.preprocess_employee_data(employee_data)
+    
+    # 수정된 타입과 직급 가져오기
+    corrected_type = employee_data.get('ROLE TYPE STD', emp_type)
+    corrected_position = employee_data.get('QIP POSITION 1ST NAME', position)
+    
+    # 매트릭스 기반 조건 평가
+    evaluation_result = manager.evaluate_all_conditions(employee_data, corrected_type, corrected_position)
+    
+    # UI 메타데이터 생성
+    ui_metadata = manager.get_ui_metadata(corrected_type, corrected_position, language)
+    
+    # 결과를 기존 형식으로 변환
     conditions = {}
+    for result in evaluation_result.get('all_results', []):
+        condition_key = _get_condition_key(result.condition_id)
+        if condition_key:
+            conditions[condition_key] = {
+                'passed': result.is_passed if result.is_applicable else None,
+                'value': result.actual_value,
+                'threshold': result.threshold_value,
+                'actual': result.message,
+                'applicable': result.is_applicable,
+                'category': _get_condition_category(result.condition_id),
+                'name': manager.get_condition_info(result.condition_id).get('name', '')
+            }
     
-    # 월 이름에 따른 AQL 컬럼 선택
-    month_map = {
-        'july': 'July',
-        'august': 'August',
-        'september': 'September'
+    return {
+        'conditions': conditions,
+        'metadata': ui_metadata,
+        'summary': evaluation_result.get('summary', {})
     }
-    month_title = month_map.get(month.lower(), 'August')
-    
-    # 출근 조건
-    attendance_rate_value = 100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100
-    conditions['attendance_rate'] = {
-        'passed': attendance_rate_value >= 88,  # 88% 이상이 기준
-        'value': attendance_rate_value,
-        'threshold': '≥ 88%',
-        'actual': f"{attendance_rate_value:.1f}%",
-        'applicable': True
-    }
-    conditions['absence_days'] = {
-        'passed': row.get('Unapproved Absence Days', 0) <= 2,  # 2일 이하가 통과
-        'value': row.get('Unapproved Absence Days', 0),
-        'threshold': '≤ 2일',
-        'actual': f"{row.get('Unapproved Absence Days', 0)}일",
-        'applicable': True
-    }
-    conditions['working_days'] = {
-        'passed': row.get('Actual Working Days', 0) > 0,
-        'value': row.get('Actual Working Days', 0),
-        'threshold': '> 0일',
-        'actual': f"{row.get('Actual Working Days', 0)}일",
-        'applicable': True
-    }
-    # 최소 근무일 조건 추가 (조건 4)
-    conditions['minimum_working_days'] = {
-        'passed': row.get('Actual Working Days', 0) >= 12,
-        'value': row.get('Actual Working Days', 0),
-        'threshold': '≥ 12일',
-        'actual': f"{row.get('Actual Working Days', 0)}일",
-        'applicable': True
-    }
-    
-    # AQL 조건
-    month_aql_col = f'{month_title} AQL Failures'
-    conditions['aql_monthly'] = {
-        'passed': row.get(month_aql_col, 0) == 0,
-        'value': row.get(month_aql_col, 0),
-        'threshold': '0건',
-        'actual': f"{row.get(month_aql_col, 0)}건",
-        'applicable': True
-    }
-    conditions['aql_3month'] = {
-        'passed': row.get('Continuous_FAIL', 'NO') == 'NO',
-        'value': '3개월 연속' if row.get('Continuous_FAIL', 'NO') == 'YES' else '통과',
-        'threshold': '비연속',
-        'actual': 'YES' if row.get('Continuous_FAIL', 'NO') == 'YES' else 'NO',
-        'applicable': True
-    }
-    
-    # 관리자급 추가 조건
-    manager_positions = [
-        'SUPERVISOR', '(V) SUPERVISOR', '(VICE) SUPERVISOR', 'V.SUPERVISOR',
-        'MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', 'SENIOR MANAGER'
-        # GROUP LEADER는 별도 처리
-    ]
-    is_manager = any(pos in position.upper() for pos in manager_positions)
-    
-    if is_manager:
-        # 부하직원 AQL 조건
-        conditions['subordinate_aql'] = {
-            'passed': True,  # CSV에서 정확한 값을 가져올 수 없으므로 기본값
-            'value': 0,
-            'threshold': '≤ 10%',
-            'actual': '0%',
-            'applicable': True
-        }
-        # 구역 reject율
-        conditions['area_reject_rate'] = {
-            'passed': True,  # CSV에서 정확한 값을 가져올 수 없으므로 기본값
-            'value': 0,
-            'threshold': '< 5%',
-            'actual': '0%',
-            'applicable': True
-        }
-    
-    # 5PRS 조건
-    conditions['5prs_volume'] = {
-        'passed': row.get('Total Valiation Qty', 0) >= 100,
-        'value': row.get('Total Valiation Qty', 0),
-        'threshold': '≥ 100개',
-        'actual': f"{row.get('Total Valiation Qty', 0)}개",
-        'applicable': True
-    }
-    conditions['5prs_pass_rate'] = {
-        'passed': row.get('Pass %', 0) >= 95,
-        'value': row.get('Pass %', 0),
-        'threshold': '≥ 95%',
-        'actual': f"{row.get('Pass %', 0):.1f}%",
-        'applicable': True
-    }
-    
-    return conditions
+
+def _get_condition_category(condition_id):
+    """Get category for a condition ID"""
+    if condition_id in [1, 2, 3, 4]:
+        return 'attendance'
+    elif condition_id in [5, 6, 7, 8]:
+        return 'aql'
+    elif condition_id in [9, 10]:
+        return '5prs'
+    return 'unknown'
 
 def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no='', csv_data=None, aql_history=None):
     """계산 근거에서 조건 분석 (직급별 적용 조건 차별화) - Version 4 실제 값 포함
@@ -2473,19 +2461,10 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             let totalFulfillment = 0;
             let fulfillmentCount = 0;
             filteredData.forEach(emp => {{
-                if (emp.conditions) {{
-                    let metConditions = 0;
-                    let totalConditions = 0;
-                    Object.values(emp.conditions).forEach(cond => {{
-                        if (cond.applicable !== false) {{
-                            totalConditions++;
-                            if (cond.passed) metConditions++;
-                        }}
-                    }});
-                    if (totalConditions > 0) {{
-                        totalFulfillment += (metConditions / totalConditions) * 100;
-                        fulfillmentCount++;
-                    }}
+                const rate = calculateFulfillmentRate(emp);
+                if (rate !== null) {{
+                    totalFulfillment += rate;
+                    fulfillmentCount++;
                 }}
             }});
             const avgFulfillment = fulfillmentCount > 0 ? (totalFulfillment / fulfillmentCount).toFixed(1) : 0;
@@ -2692,18 +2671,8 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                     const isPaid = amount > 0;
                                     const rowClass = isPaid ? 'table-row-paid' : 'table-row-unpaid';
                                     
-                                    // 조건 충족률 계산
-                                    let metConditions = 0;
-                                    let totalConditions = 0;
-                                    if (emp.conditions) {{
-                                        Object.values(emp.conditions).forEach(cond => {{
-                                            if (cond.applicable !== false) {{
-                                                totalConditions++;
-                                                if (cond.passed) metConditions++;
-                                            }}
-                                        }});
-                                    }}
-                                    const fulfillmentRate = totalConditions > 0 ? Math.round((metConditions / totalConditions) * 100) : 0;
+                                    // 조건 충족률 계산 (메타데이터 기반)
+                                    const fulfillmentRate = calculateFulfillmentRate(emp);
                                     
                                     // 조건 상태 미니 표시 (출근/AQL/5PRS 3개만 표시) - TYPE 확인 추가
                                     const getConditionBadge = (conditions, type, empType, position) => {{
@@ -3080,18 +3049,8 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             const status = incentiveAmount > 0 ? (t.paid || '지급') : (t.unpaid || '미지급');
             const statusClass = incentiveAmount > 0 ? 'payment-success' : 'payment-fail';
             
-            // 충족율 계산
-            let metConditions = 0;
-            let totalConditions = 0;
-            if (employee.conditions) {{
-                Object.values(employee.conditions).forEach(cond => {{
-                    if (cond.applicable !== false) {{
-                        totalConditions++;
-                        if (cond.passed) metConditions++;
-                    }}
-                }});
-            }}
-            const fulfillmentRate = totalConditions > 0 ? Math.round((metConditions / totalConditions) * 100) : 0;
+            // 충족율 계산 (메타데이터 기반)
+            const fulfillmentRate = calculateFulfillmentRate(employee);
             
             // 개인 인센티브 정보 표시
             document.getElementById('employeeCalculation').innerHTML = `
@@ -3143,88 +3102,215 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 </div>
             `;
             
-            // Version 4: 조건 충족 현황 - 실제 값 표시 (4-4-2 구조)
+            // 동적 UI 생성 - 메타데이터 기반
             let conditionsHtml = '';
             
-            if (employee.conditions) {{
-                // 조건을 카테고리별로 그룹핑
-                const groupedConditions = {{
-                    attendance: [],
-                    aql: [],
-                    '5prs': []
-                }};
-                
-                Object.entries(employee.conditions).forEach(([key, value]) => {{
-                    if (value.category) {{
-                        groupedConditions[value.category].push({{key, ...value}});
-                    }}
-                }});
-                
-                // 출근 조건 섹션 (4가지)
-                if (groupedConditions.attendance.length > 0) {{
-                    conditionsHtml += `
-                        <div class="condition-section">
-                            <div class="condition-section-header attendance">
-                                📅 ${{t.attendanceConditions || '출근 조건'}} (3${{t.items || '가지'}})
-                            </div>
-                            <div class="condition-section-body">
-                    `;
-                    
-                    groupedConditions.attendance.forEach(condition => {{
-                        conditionsHtml += renderCondition(condition);
-                    }});
-                    
-                    conditionsHtml += `
-                            </div>
-                        </div>
-                    `;
-                }}
-                
-                // AQL 조건 섹션 (4가지)
-                if (groupedConditions.aql.length > 0) {{
-                    conditionsHtml += `
-                        <div class="condition-section">
-                            <div class="condition-section-header aql">
-                                🎯 ${{t.aqlConditions || 'AQL 조건'}} (4${{t.items || '가지'}})
-                            </div>
-                            <div class="condition-section-body">
-                    `;
-                    
-                    groupedConditions.aql.forEach(condition => {{
-                        conditionsHtml += renderCondition(condition);
-                    }});
-                    
-                    conditionsHtml += `
-                            </div>
-                        </div>
-                    `;
-                }}
-                
-                // 5PRS 조건 섹션 (2가지)
-                if (groupedConditions['5prs'].length > 0) {{
-                    conditionsHtml += `
-                        <div class="condition-section">
-                            <div class="condition-section-header prs">
-                                📊 ${{t.prsConditions || '5PRS 조건'}} (2${{t.items || '가지'}})
-                            </div>
-                            <div class="condition-section-body">
-                    `;
-                    
-                    groupedConditions['5prs'].forEach(condition => {{
-                        conditionsHtml += renderCondition(condition);
-                    }});
-                    
-                    conditionsHtml += `
-                            </div>
-                        </div>
-                    `;
-                }}
+            if (employee.metadata && employee.metadata.condition_groups) {{
+                // 메타데이터 기반 동적 렌더링
+                conditionsHtml = renderConditionGroupsDynamic(employee);
+            }} else if (employee.conditions) {{
+                // 폴백: 기존 방식 (legacy)
+                conditionsHtml = renderConditionGroupsLegacy(employee);
             }}
             
             document.getElementById('employeeConditions').innerHTML = conditionsHtml || 
                 '<p class="text-muted p-3">조건 정보 없음</p>';
             
             modal.show();
+        }}
+        
+        // 동적 조건 그룹 렌더링 (메타데이터 기반)
+        function renderConditionGroupsDynamic(employee) {{
+            const metadata = employee.metadata;
+            const conditions = employee.conditions;
+            const t = translations[currentLanguage];
+            
+            if (!metadata || !metadata.condition_groups) return '';
+            
+            let html = '';
+            const groupOrder = metadata.display_config?.group_order || ['attendance', 'aql', '5prs'];
+            
+            groupOrder.forEach(groupKey => {{
+                const group = metadata.condition_groups[groupKey];
+                if (!group) return;
+                
+                // 적용 가능한 조건이 없고 show_empty_groups가 false면 그룹 자체를 표시하지 않음
+                if (group.applicable_count === 0 && !metadata.display_config?.show_empty_groups) {{
+                    return;
+                }}
+                
+                // 그룹 헤더
+                html += `
+                    <div class="condition-section">
+                        <div class="condition-section-header ${{groupKey}}">
+                            ${{group.icon}} ${{group.name}}
+                            ${{group.applicable_count > 0 ? 
+                                `(${{group.applicable_count}}${{t.items || '가지'}})` : 
+                                `<span class="text-muted">(${{t.notApplicable || '해당없음'}})</span>`
+                            }}
+                        </div>
+                        <div class="condition-section-body">
+                `;
+                
+                // 각 조건 렌더링
+                if (group.conditions && group.conditions.length > 0) {{
+                    group.conditions.forEach(condDef => {{
+                        const conditionKey = _getConditionKeyById(condDef.id);
+                        const conditionData = conditions[conditionKey] || {{}};
+                        
+                        if (!condDef.applicable) {{
+                            // N/A 조건
+                            html += `
+                                <div class="condition-check not-applicable">
+                                    <div>
+                                        <span class="condition-icon">➖</span>
+                                        <strong>${{condDef.name}}</strong>
+                                    </div>
+                                    <div class="condition-value">
+                                        <span class="badge bg-secondary">N/A</span>
+                                    </div>
+                                </div>
+                            `;
+                        }} else {{
+                            // 적용 가능한 조건
+                            const passed = conditionData.passed || false;
+                            const statusClass = passed ? 'success' : 'fail';
+                            const statusIcon = passed ? '✅' : '❌';
+                            
+                            html += `
+                                <div class="condition-check ${{statusClass}}">
+                                    <div>
+                                        <span class="condition-icon">${{statusIcon}}</span>
+                                        <strong>${{condDef.name}}</strong>
+                                    </div>
+                                    <div class="condition-value">
+                                        <strong>${{conditionData.actual || '-'}}</strong>
+                                        <br>
+                                        <small class="text-muted">(${{t.threshold || '기준'}}: ${{conditionData.threshold || '-'}})</small>
+                                    </div>
+                                </div>
+                            `;
+                        }}
+                    }});
+                }} else {{
+                    html += `<p class="text-muted p-2">${{t.noConditionData || '조건 데이터 없음'}}</p>`;
+                }}
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }});
+            
+            return html;
+        }}
+        
+        // 조건 ID로 키 가져오기
+        function _getConditionKeyById(conditionId) {{
+            const mapping = {{
+                1: 'working_days',
+                2: 'absence_days',
+                3: 'attendance_rate',
+                4: 'minimum_working_days',
+                5: 'aql_current',
+                6: 'aql_continuous',
+                7: 'subordinate_aql',  // Team/Area AQL
+                8: 'area_reject_rate',  // Area Reject Rate
+                9: '5prs_volume',  // 5PRS Inspection Quantity
+                10: '5prs_pass_rate'  // 5PRS Pass Rate
+            }};
+            return mapping[conditionId] || `condition_${{conditionId}}`;
+        }}
+        
+        // 레거시 조건 그룹 렌더링 (폴백)
+        function renderConditionGroupsLegacy(employee) {{
+            let html = '';
+            const t = translations[currentLanguage];
+            
+            // 기존 하드코딩 방식
+            const groupedConditions = {{
+                attendance: [],
+                aql: [],
+                '5prs': []
+            }};
+            
+            Object.entries(employee.conditions).forEach(([key, value]) => {{
+                if (value.category) {{
+                    groupedConditions[value.category].push({{key, ...value}});
+                }}
+            }});
+            
+            // 각 그룹 렌더링 (기존 코드 유지)
+            ['attendance', 'aql', '5prs'].forEach(category => {{
+                if (groupedConditions[category].length > 0) {{
+                    const categoryInfo = {{
+                        attendance: {{icon: '📅', name: t.attendanceConditions || '출근 조건', count: 4}},
+                        aql: {{icon: '🎯', name: t.aqlConditions || 'AQL 조건', count: 4}},
+                        '5prs': {{icon: '📊', name: t.prsConditions || '5PRS 조건', count: 2}}
+                    }};
+                    
+                    const info = categoryInfo[category];
+                    html += `
+                        <div class="condition-section">
+                            <div class="condition-section-header ${{category}}">
+                                ${{info.icon}} ${{info.name}} (${{info.count}}${{t.items || '가지'}})
+                            </div>
+                            <div class="condition-section-body">
+                    `;
+                    
+                    groupedConditions[category].forEach(condition => {{
+                        html += renderCondition(condition);
+                    }});
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }}
+            }});
+            
+            return html;
+        }}
+        
+        // 조건 충족률 계산 함수 (메타데이터 기반)
+        function calculateFulfillmentRate(employee) {{
+            // 메타데이터가 있으면 사용
+            if (employee.metadata && employee.metadata.statistics) {{
+                const stats = employee.metadata.statistics;
+                if (stats.applicable_conditions > 0) {{
+                    // 실제 통과한 조건 수 계산
+                    let passed = 0;
+                    if (employee.condition_summary && employee.condition_summary.total_passed) {{
+                        passed = employee.condition_summary.total_passed;
+                    }} else if (employee.conditions) {{
+                        // 폴백: 조건 데이터에서 직접 계산
+                        Object.values(employee.conditions).forEach(cond => {{
+                            if (cond.applicable !== false && cond.passed) {{
+                                passed++;
+                            }}
+                        }});
+                    }}
+                    return Math.round((passed / stats.applicable_conditions) * 100);
+                }}
+                return 100; // 적용 조건이 없으면 100%
+            }}
+            
+            // 폴백: 기존 방식
+            if (employee.conditions) {{
+                let metConditions = 0;
+                let totalConditions = 0;
+                Object.values(employee.conditions).forEach(cond => {{
+                    if (cond.applicable !== false) {{
+                        totalConditions++;
+                        if (cond.passed) metConditions++;
+                    }}
+                }});
+                if (totalConditions > 0) {{
+                    return Math.round((metConditions / totalConditions) * 100);
+                }}
+            }}
+            
+            return null; // 계산 불가
         }}
         
         // 조건 렌더링 헬퍼 함수
