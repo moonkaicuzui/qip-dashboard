@@ -1199,9 +1199,9 @@ class CompleteQIPCalculator:
         self.special_handler = SpecialCaseHandler(config)
         self.data_processor = DataProcessor(config)
         
-        # base_path 설정 (JSON 파일 경로)
+        # base_path 설정 (프로젝트 루트 디렉토리)
         from pathlib import Path
-        self.base_path = Path("input_files")
+        self.base_path = Path.cwd()
         
         # 데이터 저장
         self.raw_data = data
@@ -1556,9 +1556,140 @@ class CompleteQIPCalculator:
         else:
             print(f"  ✅ 수정이 필요한 직급-타입 불일치 없음")
     
+    def check_required_files_for_month(self, month_obj, year):
+        """특정 월 계산에 필요한 파일들이 존재하는지 확인"""
+        month_name = month_obj.full_name
+        
+        required_files = {
+            'basic': self.base_path / 'input_files' / f'basic manpower data {month_name}.csv',
+            'aql': self.base_path / 'input_files' / 'AQL history' / f'1.HSRG AQL REPORT-{month_name.upper()}.{year}.csv',
+            '5prs': self.base_path / 'input_files' / f'5prs data {month_name}.csv',
+            'attendance': self.base_path / 'input_files' / 'attendance' / 'converted' / f'attendance data {month_name}_converted.csv'
+        }
+        
+        missing_files = []
+        for file_type, file_path in required_files.items():
+            if not file_path.exists():
+                missing_files.append({
+                    'type': file_type,
+                    'path': str(file_path),
+                    'name': file_path.name
+                })
+        
+        if missing_files:
+            print(f"\n⚠️ {month_obj.number}월 계산에 필요한 파일이 없습니다:")
+            print(f"   현재 작업 디렉토리: {self.base_path}")
+            print(f"\n   찾을 수 없는 파일:")
+            for missing in missing_files:
+                print(f"   - {missing['type']}: {missing['name']}")
+                print(f"     전체 경로: {missing['path']}")
+            return False
+        
+        return True
+    
+    def ensure_previous_month_exists(self):
+        """이전 월 인센티브 파일 확인 및 자동 생성"""
+        if self.config.month.number == 1:
+            prev_month = 12
+            prev_year = self.config.year - 1
+        else:
+            prev_month = self.config.month.number - 1
+            prev_year = self.config.year
+        
+        prev_month_obj = Month.from_number(prev_month)
+        prev_file_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_최종완성버전_v6.0_Complete.csv'
+        
+        if not prev_file_path.exists():
+            print(f"\n📊 {prev_month}월 인센티브 파일이 없습니다.")
+            print(f"   {prev_month}월을 자동으로 계산합니다...")
+            
+            # 이전 월 계산에 필요한 파일들 체크
+            if not self.check_required_files_for_month(prev_month_obj, prev_year):
+                print(f"\n❌ {prev_month}월 계산을 중단합니다.")
+                print(f"   필요한 파일들을 먼저 준비해주세요.")
+                print(f"\n❌ {self.config.month.number}월 계산도 중단합니다.")
+                print(f"   이전 월 데이터가 필요하므로 {prev_month}월을 먼저 준비해주세요.")
+                raise Exception(f"{prev_month}월 데이터가 없어 {self.config.month.number}월 계산을 중단합니다.")
+            
+            print(f"\n✅ {prev_month}월 계산에 필요한 파일이 모두 있습니다.")
+            print(f"   {prev_month}월 계산 시작...")
+            
+            # 이전 월 계산기 생성 및 실행
+            # 이전 월 config 파일 로드
+            prev_config_file = self.base_path / 'config_files' / f'config_{prev_month_obj.full_name}_{prev_year}.json'
+            if not prev_config_file.exists():
+                print(f"❌ {prev_month}월 config 파일이 없습니다: {prev_config_file}")
+                raise Exception(f"{prev_month}월 config 파일이 없어 {self.config.month.number}월 계산을 중단합니다.")
+            
+            # JSON 파일 로드
+            import json
+            with open(prev_config_file, 'r', encoding='utf-8') as f:
+                config_data = json.load(f)
+            
+            # previous_months를 Month 객체로 변환
+            prev_months_str = config_data.get('previous_months', [])
+            prev_months_obj = []
+            for month_str in prev_months_str:
+                # Month enum 찾기
+                for m in Month:
+                    if m.full_name == month_str:
+                        prev_months_obj.append(m)
+                        break
+            
+            # MonthConfig 생성
+            prev_config = MonthConfig(
+                month=prev_month_obj,
+                year=prev_year,
+                working_days=config_data.get('working_days', 22),
+                previous_months=prev_months_obj,
+                file_paths=config_data.get('file_paths', {}),
+                output_prefix=config_data.get('output_prefix', f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}')
+            )
+            
+            prev_data_loader = CompleteDataLoader(prev_config)
+            prev_data = prev_data_loader.load_all_files()
+            
+            if not prev_data:
+                print(f"❌ {prev_month}월 데이터 로드 실패")
+                raise Exception(f"{prev_month}월 데이터 로드 실패로 {self.config.month.number}월 계산을 중단합니다.")
+            
+            # 이전 월 계산기 생성
+            prev_processor = CompleteQIPCalculator(prev_data, prev_config)
+            
+            # 재귀 방지를 위해 이전 월의 이전 월은 체크하지 않음
+            prev_processor.calculate_all_incentives_without_check()
+            
+            # 결과 저장
+            output_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_최종완성버전_v6.0_Complete.csv'
+            prev_processor.month_data.to_csv(output_path, index=False, encoding='utf-8-sig')
+            
+            print(f"✅ {prev_month}월 계산 완료\n")
+    
+    def calculate_all_incentives_without_check(self):
+        """이전 월 체크 없이 인센티브 계산 (재귀 방지용)"""
+        print(f"📊 TYPE별 인센티브 계산 시작...")
+        
+        # 관리자-부하 매핑 생성
+        subordinate_mapping = self.create_manager_subordinate_mapping()
+        
+        # 동일한 로직 실행
+        self.calculate_auditor_trainer_incentive(subordinate_mapping)
+        self.calculate_assembly_inspector_incentive_type1_only()
+        self.calculate_type2_incentive()
+        self.calculate_line_leader_incentive_type1_only(subordinate_mapping)
+        self.calculate_head_incentive(subordinate_mapping)
+        
+        print(f"✅ 인센티브 계산 완료")
+    
     def calculate_all_incentives(self):
         """모든 인센티브 계산 실행"""
         print(f"\n🚀 {self.config.get_month_str('korean')} QIP 인센티브 계산 시작...")
+        
+        # 0. 데이터 검증
+        self.validate_and_report_issues()
+        
+        # 0.5. 이전 월 데이터 확인
+        self.ensure_previous_month_exists()
         
         # 1. 특별 케이스 처리
         self.handle_special_cases()
@@ -1656,6 +1787,47 @@ class CompleteQIPCalculator:
             elif 'Building' in emp_data.columns:
                 return str(emp_data.iloc[0]['Building'])
         return ''
+    
+    def validate_and_report_issues(self):
+        """데이터 문제 검증 및 보고"""
+        print("\n🔍 데이터 검증 중...")
+        
+        # AQL reject rate 검증
+        aql_data = self.load_aql_data_for_area_calculation()
+        if aql_data is not None and not aql_data.empty:
+            buildings = ['A', 'B', 'C', 'D']
+            problems_found = False
+            
+            for building in buildings:
+                # REPACKING PO가 NORMAL PO인 데이터만 필터
+                building_data = aql_data[
+                    (aql_data['BUILDING'] == building) & 
+                    (aql_data['REPACKING PO'] == 'NORMAL PO')
+                ]
+                
+                if not building_data.empty:
+                    total = len(building_data)
+                    fails = len(building_data[building_data['RESULT'] == 'FAIL'])
+                    rate = (fails / total * 100) if total > 0 else 0
+                    
+                    if rate >= 3.0:
+                        problems_found = True
+                        print(f"   ⚠️ Building {building}: Reject Rate {rate:.2f}% (>=3%)")
+                        
+                        # 해당 Building 담당자 찾기
+                        area_mapping = self.load_auditor_trainer_area_mapping()
+                        for emp_id, config in area_mapping.get('auditor_trainer_areas', {}).items():
+                            for cond in config.get('conditions', []):
+                                for filter_item in cond.get('filters', []):
+                                    if filter_item.get('column') == 'BUILDING' and filter_item.get('value') == building:
+                                        emp_name = config.get('name', 'Unknown')
+                                        print(f"      → 영향받는 직원: {emp_name} ({emp_id})")
+                                        break
+            
+            if problems_found:
+                print("\n   인센티브가 0이 될 수 있는 조건이 발견되었습니다.")
+        else:
+            print("   ⚠️ AQL 데이터를 찾을 수 없습니다.")
     
     def get_auditor_assigned_factory(self, auditor_id: str) -> str:
         """
@@ -1983,7 +2155,7 @@ class CompleteQIPCalculator:
             # AQL history 파일 경로 설정
             month_upper = self.config.get_month_str('capital').upper()
             year = self.config.year
-            file_path = self.base_path / 'AQL history' / f'1.HSRG AQL REPORT-{month_upper}.{year}.csv'
+            file_path = self.base_path / 'input_files' / 'AQL history' / f'1.HSRG AQL REPORT-{month_upper}.{year}.csv'
             
             if file_path.exists():
                 # 파일 로드

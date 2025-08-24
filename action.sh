@@ -118,13 +118,15 @@ run_step() {
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
     eval $command
+    local result=$?
     
-    if [ $? -eq 0 ]; then
+    if [ $result -eq 0 ]; then
         echo -e "${GREEN}✅ ${step_name} 완료!${NC}"
+        return 0
     else
         echo -e "${RED}❌ ${step_name} 실패!${NC}"
         echo -e "${YELLOW}오류가 발생했습니다. 로그를 확인해주세요.${NC}"
-        exit 1
+        return $result
     fi
 }
 
@@ -168,6 +170,16 @@ run_step "Step 0.7: 출근 데이터 변환" "python3 src/convert_attendance_dat
 
 # Step 1: 인센티브 계산
 run_step "Step 1: 인센티브 계산" "python3 src/step1_인센티브_계산_개선버전.py --config $CONFIG_FILE"
+STEP1_RESULT=$?
+
+# Step 1이 실패하면 중단
+if [ $STEP1_RESULT -ne 0 ]; then
+    echo ""
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}❌ 인센티브 계산 중 오류가 발생하여 작업을 중단합니다.${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    exit 1
+fi
 
 # Step 2: Dashboard 생성
 run_step "Step 2: HTML Dashboard 생성" "python3 src/step2_dashboard_version4.py --month $MONTH --year $YEAR"
