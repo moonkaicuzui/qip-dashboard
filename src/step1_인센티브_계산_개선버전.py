@@ -50,6 +50,13 @@ from enum import Enum
 
 warnings.filterwarnings('ignore')
 
+# 공통 조건 체크 모듈 import
+try:
+    from common_condition_checker import get_condition_checker
+except ImportError:
+    print("⚠️ 공통 조건 체크 모듈을 찾을 수 없습니다. 기존 로직 사용.")
+    get_condition_checker = None
+
 # Position condition matrix 로드
 def load_position_condition_matrix():
     """위치 조건 매트릭스 JSON 파일 로드"""
