@@ -398,3 +398,104 @@
 2025-08-22 16:30:02,907 - __main__ - INFO - ✅ Dashboard generation completed
 2025-08-22 16:30:02,907 - __main__ - INFO - ✅ Monthly calculation completed successfully for august 2025
 2025-08-22 16:30:02,907 - __main__ - INFO - 📧 Notification: Successfully processed august 2025
+2025-08-24 19:49:54,057 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-08-24 19:49:55,304 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-08-24 19:49:55,305 - __main__ - INFO - ✅ Google Drive connection established
+2025-08-24 19:49:55,305 - __main__ - INFO - 🚀 Starting monthly calculation for august 2025
+2025-08-24 19:49:55,305 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-08-24 19:49:55,305 - google_drive_manager - INFO - Starting sync for august 2025
+2025-08-24 19:49:59,810 - google_drive_manager - INFO - Successfully synced monthly_data/2025_08/basic_manpower_data.csv to input_files/basic manpower data august.csv
+2025-08-24 19:50:03,190 - google_drive_manager - INFO - Successfully synced monthly_data/2025_08/attendance_data.csv to input_files/attendance/original/attendance data august.csv
+2025-08-24 19:50:07,143 - google_drive_manager - INFO - Successfully synced monthly_data/2025_08/5prs_data.csv to input_files/5prs data august.csv
+2025-08-24 19:50:09,948 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-08-24 19:50:13,038 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_JULY_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-JULY.2025.csv
+2025-08-24 19:50:15,888 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_JUNE_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-JUNE.2025.csv
+2025-08-24 19:50:16,674 - google_drive_manager - WARNING - File not found in Drive: configs/auditor_trainer_area_mapping.json
+2025-08-24 19:50:17,525 - google_drive_manager - WARNING - File not found in Drive: configs/type2_position_mapping.json
+2025-08-24 19:50:17,526 - google_drive_manager - INFO - Sync completed: 6 succeeded, 2 failed
+2025-08-24 19:50:17,526 - __main__ - WARNING - ⚠️ Some files failed to sync (2 files), but continuing with 6 synced files
+2025-08-24 19:50:17,526 - __main__ - INFO - ✅ Successfully synced 6 files
+2025-08-24 19:50:17,738 - __main__ - WARNING - ⚠️ Some optional files failed validation
+2025-08-24 19:50:17,738 - __main__ - WARNING -   ⚠️ auditor_trainer_area_mapping.json
+2025-08-24 19:50:17,738 - __main__ - WARNING -   ⚠️ type2_position_mapping.json
+2025-08-24 19:50:17,738 - __main__ - INFO - 📊 Converting attendance data...
+2025-08-24 19:50:17,738 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-08-24 19:50:17,738 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-08-24 19:50:17,738 - __main__ - INFO - Using existing config: config_august_2025.json
+2025-08-24 19:50:17,738 - __main__ - INFO - 💰 Running incentive calculation...
+2025-08-24 19:50:18,959 - __main__ - INFO - ✅ Incentive calculation completed
+2025-08-24 19:50:18,959 - __main__ - INFO - 📈 Generating dashboards...
+2025-08-24 19:50:18,959 - __main__ - INFO - Generating dashboard v4 for august 2025...
+2025-08-24 19:50:19,201 - __main__ - INFO - ✅ Dashboard generation completed
+2025-08-24 19:50:19,201 - __main__ - INFO - ✅ Monthly calculation completed successfully for august 2025
+2025-08-24 19:50:19,201 - __main__ - INFO - 📧 Notification: Successfully processed august 2025
+2025-08-24 20:19:51,683 - __main__ - INFO - 🚀 Starting monthly calculation for august 2025
+2025-08-24 20:19:51,683 - __main__ - WARNING - ⚠️ Drive not initialized, using local files
+2025-08-24 20:19:51,683 - __main__ - INFO - 📊 Converting attendance data...
+2025-08-24 20:19:51,683 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-08-24 20:19:51,683 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-08-24 20:19:51,683 - __main__ - INFO - Using existing config: config_august_2025.json
+2025-08-24 20:19:51,683 - __main__ - INFO - 💰 Running incentive calculation...
+2025-08-24 20:19:53,018 - __main__ - INFO - ✅ Incentive calculation completed
+2025-08-24 20:19:53,018 - __main__ - INFO - 📈 Generating dashboards...
+2025-08-24 20:19:53,018 - __main__ - INFO - Generating dashboard v4 for august 2025...
+2025-08-24 20:19:53,284 - __main__ - INFO - ✅ Dashboard generation completed
+2025-08-24 20:19:53,284 - __main__ - INFO - ✅ Monthly calculation completed successfully for august 2025
+2025-08-24 20:19:53,284 - __main__ - INFO - 📧 Notification: Successfully processed august 2025
+2025-08-24 20:20:07,096 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-08-24 20:20:08,693 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-08-24 20:20:08,693 - __main__ - INFO - ✅ Google Drive connection established
+2025-08-24 20:20:08,694 - __main__ - INFO - 🚀 Starting monthly calculation for august 2025
+2025-08-24 20:20:08,694 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-08-24 20:20:08,694 - google_drive_manager - INFO - Starting sync for august 2025
+2025-08-24 20:20:11,662 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/basic_manpower_data.csv
+2025-08-24 20:20:13,233 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/attendance_data.csv
+2025-08-24 20:20:15,143 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/5prs_data.csv
+2025-08-24 20:20:16,884 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-08-24 20:20:18,289 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-08-24 20:20:19,505 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JUNE_2025.csv
+2025-08-24 20:20:20,478 - google_drive_manager - WARNING - File not found in Drive: configs/auditor_trainer_area_mapping.json
+2025-08-24 20:20:21,527 - google_drive_manager - WARNING - File not found in Drive: configs/type2_position_mapping.json
+2025-08-24 20:20:21,528 - google_drive_manager - INFO - Sync completed: 6 succeeded, 2 failed
+2025-08-24 20:20:21,528 - __main__ - WARNING - ⚠️ Some files failed to sync (2 files), but continuing with 6 synced files
+2025-08-24 20:20:21,528 - __main__ - INFO - ✅ Successfully synced 6 files
+2025-08-24 20:20:21,659 - __main__ - INFO - 📊 Converting attendance data...
+2025-08-24 20:20:21,659 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-08-24 20:20:21,659 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-08-24 20:20:21,659 - __main__ - INFO - Using existing config: config_august_2025.json
+2025-08-24 20:20:21,659 - __main__ - INFO - 💰 Running incentive calculation...
+2025-08-24 20:20:22,876 - __main__ - INFO - ✅ Incentive calculation completed
+2025-08-24 20:20:22,876 - __main__ - INFO - 📈 Generating dashboards...
+2025-08-24 20:20:22,876 - __main__ - INFO - Generating dashboard v4 for august 2025...
+2025-08-24 20:20:23,125 - __main__ - INFO - ✅ Dashboard generation completed
+2025-08-24 20:20:23,125 - __main__ - INFO - ✅ Monthly calculation completed successfully for august 2025
+2025-08-24 20:20:23,125 - __main__ - INFO - 📧 Notification: Successfully processed august 2025
+2025-08-24 20:32:22,768 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-08-24 20:32:23,948 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-08-24 20:32:23,949 - __main__ - INFO - ✅ Google Drive connection established
+2025-08-24 20:32:23,949 - __main__ - INFO - 🚀 Starting monthly calculation for august 2025
+2025-08-24 20:32:23,949 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-08-24 20:32:23,949 - google_drive_manager - INFO - Starting sync for august 2025
+2025-08-24 20:32:26,686 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/basic_manpower_data.csv
+2025-08-24 20:32:28,258 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/attendance_data.csv
+2025-08-24 20:32:31,289 - google_drive_manager - INFO - Using cached version of monthly_data/2025_08/5prs_data.csv
+2025-08-24 20:32:32,723 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-08-24 20:32:33,951 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-08-24 20:32:35,283 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JUNE_2025.csv
+2025-08-24 20:32:37,843 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to auditor_trainer_area_mapping.json
+2025-08-24 20:32:41,074 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to type2_position_mapping.json
+2025-08-24 20:32:41,074 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-08-24 20:32:41,074 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-08-24 20:32:41,297 - __main__ - INFO - 📊 Converting attendance data...
+2025-08-24 20:32:41,297 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-08-24 20:32:41,297 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-08-24 20:32:41,297 - __main__ - INFO - Using existing config: config_august_2025.json
+2025-08-24 20:32:41,297 - __main__ - INFO - 💰 Running incentive calculation...
+2025-08-24 20:32:42,535 - __main__ - INFO - ✅ Incentive calculation completed
+2025-08-24 20:32:42,535 - __main__ - INFO - 📈 Generating dashboards...
+2025-08-24 20:32:42,535 - __main__ - INFO - Generating dashboard v4 for august 2025...
+2025-08-24 20:32:42,785 - __main__ - INFO - ✅ Dashboard generation completed
+2025-08-24 20:32:42,785 - __main__ - INFO - ✅ Monthly calculation completed successfully for august 2025
+2025-08-24 20:32:42,785 - __main__ - INFO - 📧 Notification: Successfully processed august 2025
+2025-08-24 20:33:16,645 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-08-24 20:33:17,779 - src.google_drive_manager - INFO - Google Drive connection initialized successfully

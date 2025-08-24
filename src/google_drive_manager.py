@@ -540,21 +540,32 @@ class GoogleDriveManager:
         """
         validation_results = {}
         
-        # Define required files
+        # Define required files (only critical data files)
         required_files = [
             f'input_files/basic manpower data {month}.csv',
             f'input_files/attendance/original/attendance data {month}.csv',
-            f'input_files/5prs data {month}.csv',
-            'auditor_trainer_area_mapping.json',
-            'type2_position_mapping.json'
+            f'input_files/5prs data {month}.csv'
         ]
         
+        # Optional config files (already exist locally in config_files folder)
+        optional_files = [
+            'config_files/auditor_trainer_area_mapping.json',
+            'config_files/type2_position_mapping.json'
+        ]
+        
+        # Check required files
         for file_path in required_files:
             if Path(file_path).exists():
                 # Additional validation (file size, format, etc.)
                 validation_results[file_path] = self._validate_file(file_path)
             else:
                 validation_results[file_path] = False
+        
+        # Check optional files (don't fail if missing)
+        for file_path in optional_files:
+            if Path(file_path).exists():
+                validation_results[file_path] = self._validate_file(file_path)
+            # Don't add to results if missing (to avoid warnings)
         
         return validation_results
     

@@ -37,6 +37,7 @@ python src/step1_인센티브_계산_개선버전.py --config config_files/confi
 import pandas as pd
 import numpy as np
 import os
+import sys
 import re
 import json
 from datetime import datetime
@@ -3032,12 +3033,22 @@ class CompleteQIPCalculator:
             # CSV 저장
             csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_최종완성버전_v6.0_Complete.csv")
             self.month_data.to_csv(csv_file, index=False, encoding='utf-8-sig')
-            print(f"✅ CSV 파일 저장 완료: {csv_file}")
+            
+            # CSV 파일 생성 검증
+            if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
+                print(f"✅ CSV 파일 저장 완료: {csv_file}")
+            else:
+                print(f"⚠️ CSV 파일 생성 실패: {csv_file}")
             
             # Excel 저장
             excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_최종완성버전_v6.0_Complete.xlsx")
             self.month_data.to_excel(excel_file, index=False)
-            print(f"✅ Excel 파일 저장 완료: {excel_file}")
+            
+            # Excel 파일 생성 검증
+            if os.path.exists(excel_file) and os.path.getsize(excel_file) > 0:
+                print(f"✅ Excel 파일 저장 완료: {excel_file}")
+            else:
+                print(f"⚠️ Excel 파일 생성 실패: {excel_file}")
             
             # 메타데이터 저장 (조건 충족 상세 정보)
             metadata_file = self.save_calculation_metadata(output_dir)
@@ -3073,9 +3084,18 @@ class CompleteQIPCalculator:
                 amount = row[incentive_col] if pd.notna(row[incentive_col]) else 0
                 
                 # 기본 정보
+                # Position 컬럼 동적 처리
+                position_value = ''
+                if 'QIP POSITION 1ST  NAME' in row.index:
+                    position_value = row['QIP POSITION 1ST  NAME']
+                elif 'Position' in row.index:
+                    position_value = row['Position']
+                elif 'POSITION' in row.index:
+                    position_value = row['POSITION']
+                
                 emp_metadata = {
                     'name': row['Full Name'],
-                    'position': row['Position'],
+                    'position': position_value,
                     'type': row['ROLE TYPE STD'],
                     'amount': float(amount),
                     'calculation_basis': '',
@@ -3114,7 +3134,7 @@ class CompleteQIPCalculator:
                 # AQL 조건 (TYPE-1만)
                 if row['ROLE TYPE STD'] == 'TYPE-1':
                     # AQL INSPECTOR 특별 처리
-                    if 'AQL INSPECTOR' in str(row['Position']):
+                    if 'AQL INSPECTOR' in str(position_value):
                         emp_metadata['conditions']['aql'] = {
                             'monthly_failure': {
                                 'passed': amount > 0,  # 인센티브를 받았으면 통과로 간주
@@ -3144,7 +3164,7 @@ class CompleteQIPCalculator:
                         }
                 
                 # 5PRS 조건 (TYPE-1, TYPE-2 일부)
-                if row['ROLE TYPE STD'] in ['TYPE-1', 'TYPE-2'] and 'AQL INSPECTOR' not in str(row['Position']):
+                if row['ROLE TYPE STD'] in ['TYPE-1', 'TYPE-2'] and 'AQL INSPECTOR' not in str(position_value):
                     emp_metadata['conditions']['5prs'] = {
                         'volume': {
                             'passed': row.get('Total Valiation Qty', 0) >= 100 if pd.notna(row.get('Total Valiation Qty')) else False,
@@ -3169,7 +3189,12 @@ class CompleteQIPCalculator:
             with open(metadata_file, 'w', encoding='utf-8') as f:
                 json.dump(metadata, f, ensure_ascii=False, indent=2)
             
-            return metadata_file
+            # 파일 생성 검증
+            if os.path.exists(metadata_file) and os.path.getsize(metadata_file) > 0:
+                return metadata_file
+            else:
+                print(f"⚠️ 메타데이터 파일 생성 실패: {metadata_file}")
+                return None
             
         except Exception as e:
             print(f"  ⚠️ 메타데이터 저장 실패: {e}")
@@ -4226,11 +4251,25 @@ class CompleteDataLoader:
         # 자동 변환기 초기화 (필요시)
         if self.attendance_converter is None:
             try:
-                from input_files.attendance.attendance_auto_converter import AttendanceAutoConverter
-                self.attendance_converter = AttendanceAutoConverter(
-                    debug_mode=self.auto_convert_config.get('debug_mode', False)
-                )
-                print("✅ 출결 자동 변환 모듈 로드 완료")
+                # Try different import methods
+                try:
+                    from input_files.attendance.attendance_auto_converter import AttendanceAutoConverter
+                except ImportError:
+                    try:
+                        # Alternative import path
+                        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                        from input_files.attendance.attendance_auto_converter import AttendanceAutoConverter
+                    except ImportError:
+                        # If still fails, set converter to None
+                        AttendanceAutoConverter = None
+                if AttendanceAutoConverter:
+                    self.attendance_converter = AttendanceAutoConverter(
+                        debug_mode=self.auto_convert_config.get('debug_mode', False)
+                    )
+                    print("✅ 출결 자동 변환 모듈 로드 완료")
+                else:
+                    self.attendance_converter = None
+                    print("⚠️ 자동 변환 모듈 로드 실패: 수동 변환 경로 사용")
             except ImportError as e:
                 print(f"⚠️ 자동 변환 모듈 로드 실패: {e}")
                 return file_path

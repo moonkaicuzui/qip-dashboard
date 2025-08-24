@@ -32,15 +32,24 @@ import os
 import sys
 import json
 import logging
-import schedule
 import time
 import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
 
-# Add current directory to path
+# Try to import schedule, but continue if not available
+try:
+    import schedule
+    SCHEDULE_AVAILABLE = True
+except ImportError:
+    print("⚠️ Warning: 'schedule' module not found. Scheduling features will be disabled.")
+    print("  Install with: pip install schedule")
+    SCHEDULE_AVAILABLE = False
+
+# Add current directory and parent directory to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from google_drive_manager import GoogleDriveManager
 
@@ -408,12 +417,12 @@ class AutomatedQIPRunner:
     
     def schedule_monthly_runs(self):
         """
-        Schedule monthly runs
+        Schedule daily runs (changed from monthly)
         """
-        # Schedule for the 1st day of each month at 8:00 AM
-        schedule.every().month.at("08:00").do(self.run_monthly_calculation)
+        # Schedule for every day at 8:00 AM
+        schedule.every().day.at("08:00").do(self.run_monthly_calculation)
         
-        logger.info("📅 Scheduled monthly runs at 8:00 AM on the 1st of each month")
+        logger.info("📅 Scheduled daily runs at 8:00 AM every day")
         
         # Keep the scheduler running
         while True:
