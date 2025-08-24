@@ -31,6 +31,23 @@ def load_incentive_csv_data(csv_path):
         print(f"Warning: Could not load CSV data: {e}")
         return None
 
+def load_calculation_metadata(month='july', year=2025):
+    """계산 메타데이터 로드 (조건 충족 상세 정보 포함)"""
+    try:
+        metadata_path = Path(__file__).parent.parent / "output_files" / f"output_QIP_incentive_{month}_{year}_metadata.json"
+        
+        if metadata_path.exists():
+            with open(metadata_path, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+                print(f"✅ 메타데이터 로드 성공: {len(metadata)} 직원 정보")
+                return metadata
+        else:
+            print(f"⚠️ 메타데이터 파일이 없습니다: {metadata_path}")
+            return {}
+    except Exception as e:
+        print(f"Warning: Could not load metadata: {e}")
+        return {}
+
 def load_aql_history(month='july'):
     """AQL history 파일에서 3개월 실패 데이터 로드"""
     try:
@@ -216,6 +233,9 @@ def extract_data_from_csv(month='july', year=2025):
     # AQL history 로드
     aql_history = load_aql_history(month)
     
+    # 메타데이터 로드
+    metadata = load_calculation_metadata(month, year)
+    
     # CSV 데이터를 employees 형식으로 변환
     employees = []
     for idx, row in df.iterrows():
@@ -247,18 +267,58 @@ def extract_data_from_csv(month='july', year=2025):
             current_incentive = row.get('August_Incentive', 0)
         
         # 조건 분석 - CSV 데이터 사용 (메타데이터 포함)
-        analysis_result = analyze_conditions_from_csv_row(row, emp['type'], emp['position'], month)
-        
-        # 새로운 반환 형식 처리
-        if isinstance(analysis_result, dict) and 'conditions' in analysis_result:
-            emp['conditions'] = analysis_result['conditions']
-            emp['metadata'] = analysis_result.get('metadata', {})
-            emp['condition_summary'] = analysis_result.get('summary', {})
-        else:
-            # 이전 버전 호환성 (fallback)
-            emp['conditions'] = analysis_result
-            emp['metadata'] = {}
+        # 메타데이터에서 조건 정보 우선 사용
+        emp_metadata = metadata.get(str(emp['emp_no']), {})
+        if emp_metadata and 'conditions' in emp_metadata:
+            # 메타데이터의 조건 정보를 기존 형식으로 변환
+            conditions_from_metadata = {}
+            
+            # 출근 조건
+            if 'attendance' in emp_metadata['conditions']:
+                att = emp_metadata['conditions']['attendance']
+                for key, value in att.items():
+                    if isinstance(value, dict):
+                        conditions_from_metadata[key] = value
+            
+            # AQL 조건
+            if 'aql' in emp_metadata['conditions']:
+                aql = emp_metadata['conditions']['aql']
+                if isinstance(aql, dict):
+                    for key, value in aql.items():
+                        if isinstance(value, dict):
+                            # 키 이름 매핑
+                            if key == 'monthly_failure':
+                                conditions_from_metadata['aql_monthly'] = value
+                            elif key == '3month_continuous':
+                                conditions_from_metadata['aql_3month'] = value
+                            else:
+                                conditions_from_metadata[key] = value
+            
+            # 5PRS 조건
+            if '5prs' in emp_metadata['conditions']:
+                prs = emp_metadata['conditions']['5prs']
+                if isinstance(prs, dict) and 'applicable' not in prs:
+                    for key, value in prs.items():
+                        if isinstance(value, dict):
+                            conditions_from_metadata[f'5prs_{key}'] = value
+            
+            emp['conditions'] = conditions_from_metadata
+            emp['metadata'] = emp_metadata
             emp['condition_summary'] = {}
+        else:
+            # 메타데이터가 없으면 기존 방식으로 분석
+            analysis_result = analyze_conditions_from_csv_row(row, emp['type'], emp['position'], month)
+            
+            # 새로운 반환 형식 처리
+            if isinstance(analysis_result, dict) and 'conditions' in analysis_result:
+                emp['conditions'] = analysis_result['conditions']
+                emp['metadata'] = analysis_result.get('metadata', {})
+                emp['condition_summary'] = analysis_result.get('summary', {})
+            else:
+                # 이전 버전 호환성 (fallback)
+                emp['conditions'] = analysis_result
+                emp['metadata'] = {}
+                emp['condition_summary'] = {}
         
         # Stop working Date 추가
         if pd.notna(row.get('Stop working Date')):
@@ -503,7 +563,10 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
         # 직급별 조건 적용 차별화
         # ASSEMBLY INSPECTOR - 개인 AQL(당월+3개월)과 5PRS 적용 (부하직원/구역 미적용)
         if 'ASSEMBLY INSPECTOR' in position:
-            # 3개월 연속 체크는 적용됨 (6번 조건)
+            # 5번 조건 (당월 AQL)과 6번 조건 (3개월 연속 체크) 모두 적용
+            conditions['aql_monthly']['applicable'] = True  # 5번 조건 - 명시적 설정
+            conditions['aql_3month']['applicable'] = True   # 6번 조건 - 이전에 누락되었던 부분
+            # 7번, 8번 조건은 미적용
             conditions['subordinate_aql']['applicable'] = False
             conditions['subordinate_aql']['value'] = 'N/A'
             conditions['area_reject_rate']['applicable'] = False
@@ -680,6 +743,129 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
             'applicable': False
         }
     
+    elif emp_type == 'TYPE-3':
+        # TYPE-3는 신입직원으로 인센티브 대상이 아님 - 모든 조건 미적용
+        # 정책상 제외 이유를 명확히 표시
+        policy_reason = 'TYPE-3 신입직원 정책 제외'
+        
+        # 출근 조건들 - 모두 미적용
+        conditions['attendance_rate'] = {
+            'name': '출근율 ≥88%',
+            'category': 'attendance',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        conditions['absence_days'] = {
+            'name': '무단결근 ≤2일',
+            'category': 'attendance',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        conditions['working_days'] = {
+            'name': '실제 근무일 >0일',
+            'category': 'attendance',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        conditions['minimum_working_days'] = {
+            'name': '최소 근무일 ≥12일',
+            'category': 'attendance',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        
+        # AQL 조건들 - 모두 미적용
+        conditions['aql_monthly'] = {
+            'name': '개인 AQL: 당월 실패 0건',
+            'category': 'aql',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        conditions['aql_3month'] = {
+            'name': '연속성 체크: 3개월 연속 실패 없음',
+            'category': 'aql',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        conditions['subordinate_aql'] = {
+            'name': '팀/구역 AQL: 부하직원 3개월 연속 실패자 없음',
+            'category': 'aql',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        conditions['area_reject_rate'] = {
+            'name': '담당구역 reject율 <3%',
+            'category': 'aql',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        
+        # 5PRS 조건들 - 모두 미적용
+        conditions['5prs_volume'] = {
+            'name': '5PRS 검사량 ≥100개',
+            'category': '5prs',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        conditions['5prs_pass_rate'] = {
+            'name': '5PRS 통과율 ≥95%',
+            'category': '5prs',
+            'passed': False,
+            'value': 'N/A',
+            'actual': 'N/A',
+            'threshold': 'N/A',
+            'applicable': False,
+            'reason': policy_reason
+        }
+        
+        # 특별 정책 상태 추가
+        conditions['policy_status'] = {
+            'name': '인센티브 정책',
+            'category': 'policy',
+            'passed': False,
+            'value': '신입직원 제외',
+            'actual': 'TYPE-3',
+            'threshold': 'N/A',
+            'applicable': False,
+            'message': 'TYPE-3 신입직원은 인센티브 지급 대상이 아닙니다'
+        }
+    
     # CSV 데이터에서 실제 값 설정 (Version 4 추가)
     if actual_data:
         # 출근율 실제 값 - 항상 실제 값 설정
@@ -732,7 +918,12 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
         
         # AQL 실패 건수 실제 값 - 항상 실제 값 설정
         if 'aql_monthly' in conditions and conditions['aql_monthly']['applicable']:
-            if actual_data.get('july_aql_failures') is not None:
+            # AQL INSPECTOR 특별 처리: 인센티브를 받았으면 조건 충족으로 간주
+            if 'AQL INSPECTOR' in position and amount > 0:
+                conditions['aql_monthly']['passed'] = True
+                conditions['aql_monthly']['value'] = 'Pass'
+                conditions['aql_monthly']['actual'] = '0건 (충족)'
+            elif actual_data.get('july_aql_failures') is not None:
                 failures = int(actual_data['july_aql_failures'])
                 conditions['aql_monthly']['actual'] = f"{failures}건"
                 if failures > 0:
@@ -3539,14 +3730,31 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                     // 5PRS 조건은 적용됨 (prsPassRate, prsVolume)
                 }}
             }}
-            // TYPE-3는 출근 조건 4개만 적용
+            // TYPE-3는 신입직원으로 인센티브 대상이 아님 - 모든 조건 미적용
             else if (type === 'TYPE-3') {{
-                conditions[labels.personalAQL].applicable = false;
-                conditions[labels.continuity].applicable = false;
-                conditions[labels.teamAQL].applicable = false;
-                conditions[labels.rejectRate].applicable = false;
-                conditions[labels.prsPassRate].applicable = false;
-                conditions[labels.prsVolume].applicable = false;
+                // 모든 조건을 미적용으로 설정
+                Object.keys(conditions).forEach(key => {{
+                    conditions[key].applicable = false;
+                    conditions[key].value = 'N/A';
+                    conditions[key].passed = false;
+                    conditions[key].reason = 'TYPE-3 신입직원 정책 제외';
+                }});
+                
+                // 특별 메시지 추가
+                return {{
+                    conditions: conditions,
+                    summary: {{
+                        total: 0,
+                        fulfilled: 0,
+                        percentage: 0,
+                        status: 'N/A',
+                        message: {{
+                            ko: 'TYPE-3 신입직원은 인센티브 지급 대상이 아닙니다',
+                            en: 'TYPE-3 new employees are not eligible for incentives',
+                            vi: 'Nhân viên mới TYPE-3 không đủ điều kiện nhận khuyến khích'
+                        }}[currentLanguage]
+                    }}
+                }};
             }}
             // TYPE-1 직급별 차별화 (10개 조건 체계)
             else if (type === 'TYPE-1') {{
@@ -3739,10 +3947,22 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             }} else if (emp.conditions.aql_monthly.passed) {{
                                 conditions[labels.personalAQL].passed++;
                             }} else {{
-                                conditions[labels.personalAQL].failed++;
+                                // AQL INSPECTOR 특별 처리: 인센티브를 받았으면 조건 충족으로 간주
+                                const amount = parseFloat(emp.{month}_incentive?.replace(/[^0-9]/g, '')) || 0;
+                                if (position.toUpperCase().includes('AQL INSPECTOR') && amount > 0) {{
+                                    conditions[labels.personalAQL].passed++;
+                                }} else {{
+                                    conditions[labels.personalAQL].failed++;
+                                }}
                             }}
                         }} else {{
-                            conditions[labels.personalAQL].failed++;
+                            // AQL INSPECTOR 특별 처리: 인센티브를 받았으면 조건 충족으로 간주
+                            const amount = parseFloat(emp.{month}_incentive?.replace(/[^0-9]/g, '')) || 0;
+                            if (position.toUpperCase().includes('AQL INSPECTOR') && amount > 0) {{
+                                conditions[labels.personalAQL].passed++;
+                            }} else {{
+                                conditions[labels.personalAQL].failed++;
+                            }}
                         }}
                     }} else {{
                         conditions[labels.personalAQL].notApplicable++;

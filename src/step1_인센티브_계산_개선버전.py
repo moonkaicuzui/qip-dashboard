@@ -2978,6 +2978,7 @@ class CompleteQIPCalculator:
             # output_files 폴더 생성
             import os
             import shutil
+            import json
             output_dir = "output_files"
             os.makedirs(output_dir, exist_ok=True)
             
@@ -3038,6 +3039,11 @@ class CompleteQIPCalculator:
             self.month_data.to_excel(excel_file, index=False)
             print(f"✅ Excel 파일 저장 완료: {excel_file}")
             
+            # 메타데이터 저장 (조건 충족 상세 정보)
+            metadata_file = self.save_calculation_metadata(output_dir)
+            if metadata_file:
+                print(f"✅ 메타데이터 파일 저장 완료: {metadata_file}")
+            
             # HTML 리포트 생성 (비활성화 - dashboard_version4.html만 사용)
             # html_file = self.generate_html_report()
             # if html_file:
@@ -3052,6 +3058,124 @@ class CompleteQIPCalculator:
             print(f"❌ 파일 저장 중 오류: {e}")
             traceback.print_exc()
             return False
+    
+    def save_calculation_metadata(self, output_dir: str) -> Optional[str]:
+        """계산 메타데이터를 JSON으로 저장 (조건 충족 상세 정보 포함)"""
+        try:
+            import json
+            import os
+            
+            metadata = {}
+            incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
+            
+            for _, row in self.month_data.iterrows():
+                emp_id = str(row['Employee No'])
+                amount = row[incentive_col] if pd.notna(row[incentive_col]) else 0
+                
+                # 기본 정보
+                emp_metadata = {
+                    'name': row['Full Name'],
+                    'position': row['Position'],
+                    'type': row['ROLE TYPE STD'],
+                    'amount': float(amount),
+                    'calculation_basis': '',
+                    'conditions': {}
+                }
+                
+                # 조건 충족 정보 구성
+                # 출근 조건
+                emp_metadata['conditions']['attendance'] = {
+                    'attendance_rate': {
+                        'passed': row.get('Absence Rate (raw)', 0) <= 12 if pd.notna(row.get('Absence Rate (raw)')) else True,
+                        'value': 100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100,
+                        'threshold': 88,
+                        'applicable': True
+                    },
+                    'unapproved_absence': {
+                        'passed': row.get('Unapproved Absence Days', 0) <= 2 if pd.notna(row.get('Unapproved Absence Days')) else True,
+                        'value': int(row.get('Unapproved Absence Days', 0)) if pd.notna(row.get('Unapproved Absence Days')) else 0,
+                        'threshold': 2,
+                        'applicable': True
+                    },
+                    'working_days': {
+                        'passed': row.get('Actual Working Days', 0) > 0 if pd.notna(row.get('Actual Working Days')) else False,
+                        'value': int(row.get('Actual Working Days', 0)) if pd.notna(row.get('Actual Working Days')) else 0,
+                        'threshold': 1,
+                        'applicable': True
+                    },
+                    'minimum_days': {
+                        'passed': row.get('Actual Working Days', 0) >= 12 if pd.notna(row.get('Actual Working Days')) else False,
+                        'value': int(row.get('Actual Working Days', 0)) if pd.notna(row.get('Actual Working Days')) else 0,
+                        'threshold': 12,
+                        'applicable': True
+                    }
+                }
+                
+                # AQL 조건 (TYPE-1만)
+                if row['ROLE TYPE STD'] == 'TYPE-1':
+                    # AQL INSPECTOR 특별 처리
+                    if 'AQL INSPECTOR' in str(row['Position']):
+                        emp_metadata['conditions']['aql'] = {
+                            'monthly_failure': {
+                                'passed': amount > 0,  # 인센티브를 받았으면 통과로 간주
+                                'value': 0 if amount > 0 else int(row.get('July AQL Failures', 0)) if pd.notna(row.get('July AQL Failures')) else 0,
+                                'threshold': 0,
+                                'applicable': True
+                            },
+                            '3month_continuous': {'applicable': False},
+                            'subordinate_aql': {'applicable': False},
+                            'area_reject_rate': {'applicable': False}
+                        }
+                        emp_metadata['calculation_basis'] = 'AQL Inspector 3-part incentive'
+                    else:
+                        emp_metadata['conditions']['aql'] = {
+                            'monthly_failure': {
+                                'passed': row.get('July AQL Failures', 0) == 0 if pd.notna(row.get('July AQL Failures')) else True,
+                                'value': int(row.get('July AQL Failures', 0)) if pd.notna(row.get('July AQL Failures')) else 0,
+                                'threshold': 0,
+                                'applicable': True
+                            },
+                            '3month_continuous': {
+                                'passed': row.get('Continuous_FAIL', 'NO') != 'YES' if pd.notna(row.get('Continuous_FAIL')) else True,
+                                'value': row.get('Continuous_FAIL', 'NO'),
+                                'threshold': 'NO',
+                                'applicable': True
+                            }
+                        }
+                
+                # 5PRS 조건 (TYPE-1, TYPE-2 일부)
+                if row['ROLE TYPE STD'] in ['TYPE-1', 'TYPE-2'] and 'AQL INSPECTOR' not in str(row['Position']):
+                    emp_metadata['conditions']['5prs'] = {
+                        'volume': {
+                            'passed': row.get('Total Valiation Qty', 0) >= 100 if pd.notna(row.get('Total Valiation Qty')) else False,
+                            'value': int(row.get('Total Valiation Qty', 0)) if pd.notna(row.get('Total Valiation Qty')) else 0,
+                            'threshold': 100,
+                            'applicable': True
+                        },
+                        'pass_rate': {
+                            'passed': row.get('Pass %', 0) >= 95 if pd.notna(row.get('Pass %')) else False,
+                            'value': float(row.get('Pass %', 0)) if pd.notna(row.get('Pass %')) else 0,
+                            'threshold': 95,
+                            'applicable': True
+                        }
+                    }
+                else:
+                    emp_metadata['conditions']['5prs'] = {'applicable': False}
+                
+                metadata[emp_id] = emp_metadata
+            
+            # JSON 파일로 저장
+            metadata_file = os.path.join(output_dir, f"{self.config.output_prefix}_metadata.json")
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, ensure_ascii=False, indent=2)
+            
+            return metadata_file
+            
+        except Exception as e:
+            print(f"  ⚠️ 메타데이터 저장 실패: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
     
     def prepare_next_month_file(self, csv_file_path):
         """다음 달 계산용 파일 자동 생성 (월 자동 순환 포함)"""
