@@ -50,6 +50,54 @@ from enum import Enum
 
 warnings.filterwarnings('ignore')
 
+# Position condition matrix 로드
+def load_position_condition_matrix():
+    """위치 조건 매트릭스 JSON 파일 로드"""
+    try:
+        config_path = Path(__file__).parent.parent / 'config_files' / 'position_condition_matrix.json'
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                matrix = json.load(f)
+                print("✅ Position condition matrix 로드 성공")
+                return matrix
+        else:
+            print(f"⚠️ Position condition matrix 파일을 찾을 수 없습니다: {config_path}")
+    except Exception as e:
+        print(f"❌ Position condition matrix 로드 실패: {e}")
+    return None
+
+# 전역 변수로 matrix 로드
+POSITION_CONDITION_MATRIX = load_position_condition_matrix()
+
+def get_position_config_from_matrix(emp_type, position):
+    """
+    JSON matrix에서 해당 직급의 설정을 찾아 반환
+    
+    Args:
+        emp_type: 'TYPE-1', 'TYPE-2', 'TYPE-3' 등
+        position: 직급명
+    
+    Returns:
+        dict: 직급 설정 (적용 조건, 제외 조건 등)
+    """
+    if not POSITION_CONDITION_MATRIX:
+        return None
+        
+    position_upper = position.upper()
+    type_config = POSITION_CONDITION_MATRIX.get('position_matrix', {}).get(emp_type, {})
+    
+    # 직급별 설정 찾기
+    for pos_key, pos_config in type_config.items():
+        if pos_key == 'default':
+            continue
+        patterns = pos_config.get('patterns', [])
+        for pattern in patterns:
+            if pattern in position_upper:
+                return pos_config
+    
+    # 기본값 반환
+    return type_config.get('default', {})
+
 
 class Month(Enum):
     """월 열거형"""
@@ -2528,12 +2576,28 @@ class CompleteQIPCalculator:
                                 receiving_count += 1
                                 total_sub_incentive += sub_incentive
                 
+                # JSON matrix 기반 조건 체크
+                should_check_subordinates = False
+                if POSITION_CONDITION_MATRIX:
+                    pos_config = get_position_config_from_matrix('TYPE-1', 'LINE LEADER')
+                    if pos_config:
+                        applicable_conditions = pos_config.get('applicable_conditions', [])
+                        # 조건 7: 팀/구역 AQL (부하직원 AQL 체크)
+                        if 7 in applicable_conditions:
+                            should_check_subordinates = True
+                            print(f"    → Line Leader - JSON 기반 조건 7 적용")
+                else:
+                    # 폴백: 기존 로직
+                    should_check_subordinates = True
+                
                 # 부하직원 중 3개월 연속 AQL 실패자 확인
-                has_continuous_fail = self.check_subordinates_continuous_fail(leader_id, subordinate_mapping)
+                has_continuous_fail = False
+                if should_check_subordinates:
+                    has_continuous_fail = self.check_subordinates_continuous_fail(leader_id, subordinate_mapping)
                 
                 if has_continuous_fail:
                     incentive = 0
-                    print(f"    → Line Leader {row.get('Full Name', 'Unknown')}: 부하직원 중 3개월 연속 AQL 실패자 있음")
+                    print(f"    → Line Leader {row.get('Full Name', 'Unknown')}: 부하직원 중 3개월 연속 AQL 실패자 있음 (조건 7 미충족)")
                 elif total_count > 0 and receiving_count > 0:
                     # 7% 계산 및 인센티브 수령 비율 반영
                     receiving_ratio = receiving_count / total_count
@@ -3854,11 +3918,25 @@ class CompleteQIPCalculator:
                                 if row.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%') == 'no':
                                     reasons.append("5PRS 조건 미달")
                         
-                        # LINE LEADER 특수 조건
+                        # LINE LEADER 특수 조건 (JSON matrix 기반)
                         if 'LINE LEADER' in position_upper and curr_amount == 0:
-                            subordinates = valid_employees[valid_employees['MST direct boss name'] == emp_no]
-                            if (subordinates['Continuous_FAIL'] == 'YES').any():
-                                reasons.append("부하직원 3개월 연속 AQL 실패")
+                            # JSON matrix에서 설정 확인
+                            should_check_subordinates = False
+                            if POSITION_CONDITION_MATRIX:
+                                pos_config = get_position_config_from_matrix('TYPE-1', position)
+                                if pos_config:
+                                    applicable_conditions = pos_config.get('applicable_conditions', [])
+                                    # 조건 7: 팀/구역 AQL
+                                    if 7 in applicable_conditions:
+                                        should_check_subordinates = True
+                            else:
+                                # 폴백: 기존 로직
+                                should_check_subordinates = True
+                            
+                            if should_check_subordinates:
+                                subordinates = valid_employees[valid_employees['MST direct boss name'] == emp_no]
+                                if (subordinates['Continuous_FAIL'] == 'YES').any():
+                                    reasons.append("부하직원 3개월 연속 AQL 실패 (조건 7 미충족)")
                         
                         # AUDITOR/TRAINER 특수 조건
                         if ('AUDIT' in position_upper or 'TRAINER' in position_upper) and curr_amount == 0:

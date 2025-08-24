@@ -15,6 +15,45 @@ except ImportError:
     print("Warning: Could not import ConditionMatrixManager. Using fallback logic.")
     ConditionMatrixManager = None
 
+# Position condition matrix 로드
+def load_position_condition_matrix():
+    """position_condition_matrix.json 파일 로드"""
+    try:
+        config_path = Path(__file__).parent.parent / 'config_files' / 'position_condition_matrix.json'
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                matrix = json.load(f)
+                print("✅ Position condition matrix 로드 성공")
+                return matrix
+        else:
+            print(f"⚠️ Position condition matrix 파일을 찾을 수 없습니다: {config_path}")
+    except Exception as e:
+        print(f"❌ Position condition matrix 로드 실패: {e}")
+    return None
+
+# 전역 변수로 matrix 로드
+POSITION_CONDITION_MATRIX = load_position_condition_matrix()
+
+def get_position_config_from_matrix(emp_type, position, matrix):
+    """JSON matrix에서 해당 직급의 설정을 찾아 반환"""
+    if not matrix:
+        return None
+        
+    position_upper = position.upper()
+    type_config = matrix.get('position_matrix', {}).get(emp_type, {})
+    
+    # 직급별 설정 찾기
+    for pos_key, pos_config in type_config.items():
+        if pos_key == 'default':
+            continue
+        patterns = pos_config.get('patterns', [])
+        for pattern in patterns:
+            if pattern in position_upper:
+                return pos_config
+    
+    # 기본값 반환
+    return type_config.get('default', {})
+
 def load_incentive_csv_data(csv_path):
     """인센티브 CSV 파일에서 상세 데이터 로드"""
     try:
@@ -560,91 +599,126 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
             'applicable': True
         }
         
-        # 직급별 조건 적용 차별화
-        # ASSEMBLY INSPECTOR - 개인 AQL(당월+3개월)과 5PRS 적용 (부하직원/구역 미적용)
-        if 'ASSEMBLY INSPECTOR' in position:
-            # 5번 조건 (당월 AQL)과 6번 조건 (3개월 연속 체크) 모두 적용
-            conditions['aql_monthly']['applicable'] = True  # 5번 조건 - 명시적 설정
-            conditions['aql_3month']['applicable'] = True   # 6번 조건 - 이전에 누락되었던 부분
-            # 7번, 8번 조건은 미적용
-            conditions['subordinate_aql']['applicable'] = False
-            conditions['subordinate_aql']['value'] = 'N/A'
-            conditions['area_reject_rate']['applicable'] = False
-            conditions['area_reject_rate']['value'] = 'N/A'
-            
-        # AQL INSPECTOR - 개인 AQL 당월만 적용
-        elif 'AQL INSPECTOR' in position:
-            conditions['aql_3month']['applicable'] = False
-            conditions['aql_3month']['value'] = 'N/A'
-            conditions['subordinate_aql']['applicable'] = False
-            conditions['subordinate_aql']['value'] = 'N/A'
-            conditions['area_reject_rate']['applicable'] = False
-            conditions['area_reject_rate']['value'] = 'N/A'
-            conditions['5prs_volume']['applicable'] = False
-            conditions['5prs_volume']['value'] = 'N/A'
-            conditions['5prs_pass_rate']['applicable'] = False
-            conditions['5prs_pass_rate']['value'] = 'N/A'
-            
-        # 관리자급은 AQL, 5PRS 조건 미적용
-        elif is_manager:
-            for key in ['aql_monthly', 'aql_3month', 'subordinate_aql', 'area_reject_rate']:
-                conditions[key]['applicable'] = False
-                conditions[key]['value'] = 'N/A'
-            for key in ['5prs_volume', '5prs_pass_rate']:
-                conditions[key]['applicable'] = False
-                conditions[key]['value'] = 'N/A'
+        # JSON matrix 기반 조건 적용
+        if POSITION_CONDITION_MATRIX:
+            pos_config = get_position_config_from_matrix(emp_type, position, POSITION_CONDITION_MATRIX)
+            if pos_config:
+                applicable_conditions = pos_config.get('applicable_conditions', [])
+                excluded_conditions = pos_config.get('excluded_conditions', [])
                 
-        # LINE LEADER - 부하직원 AQL만 적용
-        elif 'LINE LEADER' in position:
-            conditions['aql_monthly']['applicable'] = False
-            conditions['aql_monthly']['value'] = 'N/A'
-            conditions['aql_3month']['applicable'] = False
-            conditions['aql_3month']['value'] = 'N/A'
-            conditions['area_reject_rate']['applicable'] = False
-            conditions['area_reject_rate']['value'] = 'N/A'
-            conditions['5prs_volume']['applicable'] = False
-            conditions['5prs_volume']['value'] = 'N/A'
-            conditions['5prs_pass_rate']['applicable'] = False
-            conditions['5prs_pass_rate']['value'] = 'N/A'
-            
-        # AUDIT & TRAINING TEAM - 부하직원 AQL + 구역 reject율 적용
-        elif 'AUDIT' in position or 'TRAINING' in position:
-            conditions['aql_monthly']['applicable'] = False
-            conditions['aql_monthly']['value'] = 'N/A'
-            conditions['aql_3month']['applicable'] = False
-            conditions['aql_3month']['value'] = 'N/A'
-            conditions['5prs_volume']['applicable'] = False
-            conditions['5prs_volume']['value'] = 'N/A'
-            conditions['5prs_pass_rate']['applicable'] = False
-            conditions['5prs_pass_rate']['value'] = 'N/A'
-            
-        # MODEL MASTER - 구역 reject율만 적용 (전체구역)
-        elif 'MODEL MASTER' in position:
-            conditions['aql_monthly']['applicable'] = False
-            conditions['aql_monthly']['value'] = 'N/A'
-            conditions['aql_3month']['applicable'] = False
-            conditions['aql_3month']['value'] = 'N/A'
-            conditions['subordinate_aql']['applicable'] = False
-            conditions['subordinate_aql']['value'] = 'N/A'
-            conditions['5prs_volume']['applicable'] = False
-            conditions['5prs_volume']['value'] = 'N/A'
-            conditions['5prs_pass_rate']['applicable'] = False
-            conditions['5prs_pass_rate']['value'] = 'N/A'
-            
-        # GROUP LEADER - 출근 조건만 적용 (부하직원 AQL 제외)
-        elif 'GROUP LEADER' in position:
-            conditions['aql_monthly']['applicable'] = False
-            conditions['aql_monthly']['value'] = 'N/A'
-            conditions['aql_3month']['applicable'] = False
-            conditions['aql_3month']['value'] = 'N/A'
-            conditions['subordinate_aql']['applicable'] = False  # 7번 조건 미적용
-            conditions['subordinate_aql']['value'] = 'N/A'
-            conditions['area_reject_rate']['applicable'] = False
-            conditions['area_reject_rate']['value'] = 'N/A'
-            conditions['5prs_volume']['applicable'] = False
-            conditions['5prs_volume']['value'] = 'N/A'
-            conditions['5prs_pass_rate']['applicable'] = False
-            conditions['5prs_pass_rate']['value'] = 'N/A'
+                # 조건 ID와 실제 조건 매핑
+                condition_mapping = {
+                    5: 'aql_monthly',      # 개인 AQL: 당월 실패
+                    6: 'aql_3month',       # 개인 AQL: 3개월 연속
+                    7: 'subordinate_aql',  # 팀/구역 AQL
+                    8: 'area_reject_rate', # 담당구역 reject율
+                    9: '5prs_volume',      # 5PRS 검사량
+                    10: '5prs_pass_rate'   # 5PRS 통과율
+                }
+                
+                # 제외된 조건들을 N/A로 설정
+                for cond_id in excluded_conditions:
+                    if cond_id in condition_mapping:
+                        cond_key = condition_mapping[cond_id]
+                        if cond_key in conditions:
+                            conditions[cond_key]['applicable'] = False
+                            conditions[cond_key]['value'] = 'N/A'
+                
+                # 적용되는 조건들을 활성화
+                for cond_id in applicable_conditions:
+                    if cond_id in condition_mapping:
+                        cond_key = condition_mapping[cond_id]
+                        if cond_key in conditions:
+                            conditions[cond_key]['applicable'] = True
+                            
+                print(f"  📋 {position} - JSON 기반 조건 적용: {applicable_conditions}, 제외: {excluded_conditions}")
+        else:
+            # 폴백: 기존 하드코딩 로직 (JSON 로드 실패 시)
+            print(f"  ⚠️ {position} - 폴백 로직 사용 (JSON 미사용)")
+            # ASSEMBLY INSPECTOR - 개인 AQL(당월+3개월)과 5PRS 적용 (부하직원/구역 미적용)
+            if 'ASSEMBLY INSPECTOR' in position:
+                # 5번 조건 (당월 AQL)과 6번 조건 (3개월 연속 체크) 모두 적용
+                conditions['aql_monthly']['applicable'] = True  # 5번 조건 - 명시적 설정
+                conditions['aql_3month']['applicable'] = True   # 6번 조건 - 이전에 누락되었던 부분
+                # 7번, 8번 조건은 미적용
+                conditions['subordinate_aql']['applicable'] = False
+                conditions['subordinate_aql']['value'] = 'N/A'
+                conditions['area_reject_rate']['applicable'] = False
+                conditions['area_reject_rate']['value'] = 'N/A'
+                
+            # AQL INSPECTOR - 개인 AQL 당월만 적용
+            elif 'AQL INSPECTOR' in position:
+                conditions['aql_3month']['applicable'] = False
+                conditions['aql_3month']['value'] = 'N/A'
+                conditions['subordinate_aql']['applicable'] = False
+                conditions['subordinate_aql']['value'] = 'N/A'
+                conditions['area_reject_rate']['applicable'] = False
+                conditions['area_reject_rate']['value'] = 'N/A'
+                conditions['5prs_volume']['applicable'] = False
+                conditions['5prs_volume']['value'] = 'N/A'
+                conditions['5prs_pass_rate']['applicable'] = False
+                conditions['5prs_pass_rate']['value'] = 'N/A'
+                
+            # 관리자급은 AQL, 5PRS 조건 미적용
+            elif is_manager:
+                for key in ['aql_monthly', 'aql_3month', 'subordinate_aql', 'area_reject_rate']:
+                    conditions[key]['applicable'] = False
+                    conditions[key]['value'] = 'N/A'
+                for key in ['5prs_volume', '5prs_pass_rate']:
+                    conditions[key]['applicable'] = False
+                    conditions[key]['value'] = 'N/A'
+                    
+            # LINE LEADER - 부하직원 AQL만 적용
+            elif 'LINE LEADER' in position:
+                conditions['aql_monthly']['applicable'] = False
+                conditions['aql_monthly']['value'] = 'N/A'
+                conditions['aql_3month']['applicable'] = False
+                conditions['aql_3month']['value'] = 'N/A'
+                conditions['area_reject_rate']['applicable'] = False
+                conditions['area_reject_rate']['value'] = 'N/A'
+                conditions['5prs_volume']['applicable'] = False
+                conditions['5prs_volume']['value'] = 'N/A'
+                conditions['5prs_pass_rate']['applicable'] = False
+                conditions['5prs_pass_rate']['value'] = 'N/A'
+                
+            # AUDIT & TRAINING TEAM - 부하직원 AQL + 구역 reject율 적용
+            elif 'AUDIT' in position or 'TRAINING' in position:
+                conditions['aql_monthly']['applicable'] = False
+                conditions['aql_monthly']['value'] = 'N/A'
+                conditions['aql_3month']['applicable'] = False
+                conditions['aql_3month']['value'] = 'N/A'
+                conditions['5prs_volume']['applicable'] = False
+                conditions['5prs_volume']['value'] = 'N/A'
+                conditions['5prs_pass_rate']['applicable'] = False
+                conditions['5prs_pass_rate']['value'] = 'N/A'
+                
+            # MODEL MASTER - 구역 reject율만 적용 (전체구역)
+            elif 'MODEL MASTER' in position:
+                conditions['aql_monthly']['applicable'] = False
+                conditions['aql_monthly']['value'] = 'N/A'
+                conditions['aql_3month']['applicable'] = False
+                conditions['aql_3month']['value'] = 'N/A'
+                conditions['subordinate_aql']['applicable'] = False
+                conditions['subordinate_aql']['value'] = 'N/A'
+                conditions['5prs_volume']['applicable'] = False
+                conditions['5prs_volume']['value'] = 'N/A'
+                conditions['5prs_pass_rate']['applicable'] = False
+                conditions['5prs_pass_rate']['value'] = 'N/A'
+                
+            # GROUP LEADER - 출근 조건만 적용 (부하직원 AQL 제외)
+            elif 'GROUP LEADER' in position:
+                conditions['aql_monthly']['applicable'] = False
+                conditions['aql_monthly']['value'] = 'N/A'
+                conditions['aql_3month']['applicable'] = False
+                conditions['aql_3month']['value'] = 'N/A'
+                conditions['subordinate_aql']['applicable'] = False  # 7번 조건 미적용
+                conditions['subordinate_aql']['value'] = 'N/A'
+                conditions['area_reject_rate']['applicable'] = False
+                conditions['area_reject_rate']['value'] = 'N/A'
+                conditions['5prs_volume']['applicable'] = False
+                conditions['5prs_volume']['value'] = 'N/A'
+                conditions['5prs_pass_rate']['applicable'] = False
+                conditions['5prs_pass_rate']['value'] = 'N/A'
             
     elif emp_type == 'TYPE-2':
         # TYPE-2 기본 조건 (AQL, 5PRS 미적용) - 출근 조건만 적용
