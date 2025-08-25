@@ -1,0 +1,644 @@
+{
+  "timestamp": "2025-08-24T21:44:31.758705",
+  "summary": {
+    "total_positions": 24,
+    "passed": 24,
+    "failed": 0
+  },
+  "details": [
+    {
+      "type": "TYPE-1",
+      "position": "MANAGER",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-1",
+      "position": "A.MANAGER",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-1",
+      "position": "(V) SUPERVISOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-1",
+      "position": "GROUP LEADER",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-1",
+      "position": "LINE LEADER",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "7": false
+      },
+      "all_passed": false,
+      "3month_check": {
+        "condition_7": {
+          "name": "팀/구역 AQL 3개월 연속 실패 없음",
+          "result": false,
+          "logic_exists": true,
+          "has_failing_subordinate": true,
+          "expected_result": false,
+          "detail": {
+            "name": "팀/구역 AQL: 3개월 연속 실패 없음",
+            "passed": false
+          }
+        }
+      }
+    },
+    {
+      "type": "TYPE-1",
+      "position": "AQL INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-1",
+      "position": "ASSEMBLY INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true,
+        "5": true,
+        "6": true,
+        "9": true,
+        "10": true
+      },
+      "all_passed": true,
+      "3month_check": {
+        "condition_6": {
+          "name": "개인 AQL 3개월 연속 실패 없음",
+          "result": true,
+          "logic_exists": true,
+          "detail": {
+            "name": "개인 AQL: 3개월 연속 실패 없음",
+            "passed": true,
+            "continuous_fail": "NO"
+          }
+        }
+      }
+    },
+    {
+      "type": "TYPE-1",
+      "position": "AUDIT & TRAINING TEAM",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7,
+        8
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7,
+        8
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": false,
+      "3month_check": {
+        "condition_7": {
+          "name": "팀/구역 AQL 3개월 연속 실패 없음",
+          "result": null,
+          "logic_exists": true,
+          "has_failing_subordinate": true,
+          "expected_result": false,
+          "detail": {}
+        },
+        "condition_8": {
+          "name": "담당구역 reject율 <3%",
+          "result": null,
+          "logic_exists": true,
+          "detail": {}
+        }
+      }
+    },
+    {
+      "type": "TYPE-1",
+      "position": "MODEL MASTER",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4,
+        8
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4,
+        8
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": false,
+      "3month_check": {
+        "condition_8": {
+          "name": "담당구역 reject율 <3%",
+          "result": null,
+          "logic_exists": true,
+          "detail": {}
+        }
+      }
+    },
+    {
+      "type": "TYPE-2",
+      "position": "(V) SUPERVISOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "A.MANAGER",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "GROUP LEADER",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "LINE LEADER",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "AQL INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "ASSEMBLY INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "STITCHING INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "BOTTOM INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "CUTTING INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "MTL INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "OCPT STFF",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "OSC INSPECTOR",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "QA TEAM",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-2",
+      "position": "RQC",
+      "expected_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "actual_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "match": true,
+      "condition_results": {
+        "1": true,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "all_passed": true
+    },
+    {
+      "type": "TYPE-3",
+      "position": "NEW QIP MEMBER",
+      "expected_conditions": [],
+      "actual_conditions": [],
+      "match": true,
+      "condition_results": {},
+      "all_passed": true
+    }
+  ]
+}
