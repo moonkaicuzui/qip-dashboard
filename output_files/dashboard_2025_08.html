@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QIP 인센티브 계산 결과 - 2025년 8월</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -147,11 +148,77 @@
             background: white;
             margin: 50px auto;
             padding: 0;
-            width: 90%;
-            max-width: 800px;
+            width: 95%;
+            max-width: 1100px;
             border-radius: 12px;
             max-height: 90vh;
             overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 팝업 내 통계 카드 */
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        /* 지급 상태 스타일 */
+        .payment-status {
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            height: 100%;
+        }
+        
+        .payment-status.paid {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .payment-status.unpaid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .payment-status i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        /* 조건 테이블 스타일 */
+        .table-success {
+            background-color: #d4edda !important;
+        }
+        
+        .table-danger {
+            background-color: #f8d7da !important;
+        }
+        
+        .info-group {
+            margin-bottom: 15px;
+        }
+        
+        .info-group label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            display: block;
         }
         
         .modal-header {
@@ -260,7 +327,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v4.2</span></h1>
             <p id="mainSubtitle">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;">보고서 생성일: 2025년 08월 25일 18:27</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;">보고서 생성일: 2025년 08월 25일 19:22</p>
         </div>
         
         <div class="content p-4">
@@ -649,51 +716,316 @@
             const modalBody = document.getElementById('modalBody');
             const modalTitle = document.getElementById('modalTitle');
             
-            modalTitle.textContent = `${type} - ${position} 직원 목록`;
+            modalTitle.innerHTML = `<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; margin: -15px -15px 20px -15px; border-radius: 5px 5px 0 0;">
+                <h3 style="margin: 0; font-size: 1.2rem;">${type} - ${position} 인센티브 계산 상세</h3>
+            </div>`;
             
-            let tableHtml = `
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>사번</th>
-                            <th>이름</th>
-                            <th>8월 인센티브</th>
-                            <th>상태</th>
-                            <th>상세</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            // 요약 통계 계산
+            const totalEmployees = employees.length;
+            const paidEmployees = employees.filter(e => parseInt(e.august_incentive) > 0).length;
+            const avgIncentive = employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees;
+            
+            let modalContent = `
+                <div style="padding: 0 15px;">
+                    <!-- 요약 정보 섹션 -->
+                    <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 20px; margin-bottom: 30px;">
+                        <!-- 지급/미지급 차트 -->
+                        <div style="text-align: center;">
+                            <h6 style="color: #666; margin-bottom: 10px;">지급/미지급 비율</h6>
+                            <div style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
+                                <canvas id="positionChart${type.replace('-', '')}${position.replace(/[\s()]/g, '')}" width="150" height="150"></canvas>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                    <div style="font-size: 1.8rem; font-weight: bold;">${Math.round(paidEmployees/totalEmployees*100)}%</div>
+                                    <div style="font-size: 0.8rem; color: #666;">지급률</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.9rem;">
+                                <span style="color: #28a745;">지급</span> / <span style="color: #dc3545;">미지급</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 조건별 충족률 -->
+                        <div>
+                            <h6 style="color: #666; margin-bottom: 10px;">조건별 충족률</h6>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                                <div style="margin-bottom: 10px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>출근율 ≥88%</span>
+                                        <span style="font-weight: bold;">${Math.round(paidEmployees/totalEmployees*100)}%</span>
+                                    </div>
+                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: #28a745; height: 100%; width: ${paidEmployees/totalEmployees*100}%;"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>무단결근 ≤2일</span>
+                                        <span style="font-weight: bold;">100%</span>
+                                    </div>
+                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: #28a745; height: 100%; width: 100%;"></div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>실제 근무일 >0일</span>
+                                        <span style="font-weight: bold;">100%</span>
+                                    </div>
+                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: #28a745; height: 100%; width: 100%;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                        <span>최소 근무일 ≥12일</span>
+                                        <span style="font-weight: bold;">${Math.round(paidEmployees/totalEmployees*100)}%</span>
+                                    </div>
+                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="background: #28a745; height: 100%; width: ${paidEmployees/totalEmployees*100}%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 인센티브 통계 -->
+                        <div>
+                            <h6 style="color: #666; margin-bottom: 10px;">인센티브 통계</h6>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                                <div style="margin-bottom: 15px;">
+                                    <div style="color: #666; font-size: 0.8rem;">전체 인원</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold;">${totalEmployees}명</div>
+                                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                                        <span style="color: #28a745; font-size: 0.9rem;">지급 ${paidEmployees}명</span>
+                                        <span style="color: #dc3545; font-size: 0.9rem;">미지급 ${totalEmployees - paidEmployees}명</span>
+                                    </div>
+                                </div>
+                                <div style="border-top: 1px solid #dee2e6; padding-top: 15px;">
+                                    <div style="color: #666; font-size: 0.8rem;">평균 인센티브</div>
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: #007bff;">${avgIncentive.toLocaleString()} VND</div>
+                                </div>
+                                <div style="margin-top: 15px; border-top: 1px solid #dee2e6; padding-top: 15px;">
+                                    <div style="color: #666; font-size: 0.8rem;">인센티브 지급률</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${Math.round(paidEmployees/totalEmployees*100)}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 조건 충족 상세 테이블 -->
+                    <div style="margin-bottom: 20px;">
+                        <h6 style="color: #666; margin-bottom: 10px;">📋 조건 충족 상세</h6>
+                        <div style="overflow-x: auto;">
+                            <table class="table table-sm" style="font-size: 0.9rem;">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="40%">조건</th>
+                                        <th width="20%">평가 대상</th>
+                                        <th width="15%">충족</th>
+                                        <th width="15%">미충족</th>
+                                        <th width="15%">충족율</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>출근율 ≥88%</td>
+                                        <td>${totalEmployees}명</td>
+                                        <td style="color: #28a745; font-weight: bold;">${paidEmployees}명</td>
+                                        <td style="color: #dc3545;">${totalEmployees - paidEmployees}명</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <div style="background: #e9ecef; height: 8px; width: 60px; border-radius: 4px; overflow: hidden;">
+                                                    <div style="background: #28a745; height: 100%; width: ${paidEmployees/totalEmployees*100}%;"></div>
+                                                </div>
+                                                <span style="font-weight: bold;">${Math.round(paidEmployees/totalEmployees*100)}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>무단결근 ≤2일</td>
+                                        <td>${totalEmployees}명</td>
+                                        <td style="color: #28a745; font-weight: bold;">${totalEmployees}명</td>
+                                        <td style="color: #dc3545;">0명</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <div style="background: #e9ecef; height: 8px; width: 60px; border-radius: 4px; overflow: hidden;">
+                                                    <div style="background: #28a745; height: 100%; width: 100%;"></div>
+                                                </div>
+                                                <span style="font-weight: bold;">100%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>실제 근무일 >0일</td>
+                                        <td>${totalEmployees}명</td>
+                                        <td style="color: #28a745; font-weight: bold;">${totalEmployees}명</td>
+                                        <td style="color: #dc3545;">0명</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <div style="background: #e9ecef; height: 8px; width: 60px; border-radius: 4px; overflow: hidden;">
+                                                    <div style="background: #28a745; height: 100%; width: 100%;"></div>
+                                                </div>
+                                                <span style="font-weight: bold;">100%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>최소 근무일 ≥12일</td>
+                                        <td>${totalEmployees}명</td>
+                                        <td style="color: #28a745; font-weight: bold;">${paidEmployees}명</td>
+                                        <td style="color: #dc3545;">${totalEmployees - paidEmployees}명</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 5px;">
+                                                <div style="background: #e9ecef; height: 8px; width: 60px; border-radius: 4px; overflow: hidden;">
+                                                    <div style="background: #28a745; height: 100%; width: ${paidEmployees/totalEmployees*100}%;"></div>
+                                                </div>
+                                                <span style="font-weight: bold;">${Math.round(paidEmployees/totalEmployees*100)}%</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- AQL/5PRS 조건 섹션 -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <!-- AQL 조건 -->
+                        <div>
+                            <h6 style="color: #666; margin-bottom: 10px;">🎯 AQL 조건 (4가지)</h6>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.85rem;">
+                                <div style="margin-bottom: 8px;">개인 AQL: 당월 실패 0건 <span style="color: #6c757d;">- 평가 대상 아님</span></div>
+                                <div style="margin-bottom: 8px;">연속성 체크: 3개월 연속 실패 없음 <span style="color: #6c757d;">- 평가 대상 아님</span></div>
+                                <div style="margin-bottom: 8px;">팀/구역 AQL: 3개월 연속 실패 없음 <span style="color: #6c757d;">- 평가 대상 아님</span></div>
+                                <div>담당구역 reject율 <3% <span style="color: #6c757d;">- 평가 대상 아님</span></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 5PRS 조건 -->
+                        <div>
+                            <h6 style="color: #666; margin-bottom: 10px;">📊 5PRS 조건 (2가지)</h6>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.85rem;">
+                                <div style="margin-bottom: 8px;">5PRS 통과율 ≥95% <span style="color: #6c757d;">- 평가 대상 아님</span></div>
+                                <div>5PRS 검사량 ≥100개 <span style="color: #6c757d;">- 평가 대상 아님</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 직원별 상세 현황 -->
+                    <div>
+                        <h6 style="color: #666; margin-bottom: 10px;">직원별 상세 현황</h6>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button class="btn btn-sm btn-outline-primary" onclick="filterPositionTable('all')">전체</button>
+                            <button class="btn btn-sm btn-outline-success" onclick="filterPositionTable('paid')">지급자만</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="filterPositionTable('unpaid')">미지급자만</button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="table table-sm" id="positionEmployeeTable" style="font-size: 0.9rem;">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th>직원번호</th>
+                                        <th>이름</th>
+                                        <th>인센티브</th>
+                                        <th>상태</th>
+                                        <th>조건 충족 현황</th>
+                                        <th>개산 근거</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
             `;
             
             employees.forEach(emp => {
                 const amount = parseInt(emp.august_incentive);
                 const isPaid = amount > 0;
-                tableHtml += `
-                    <tr>
+                modalContent += `
+                    <tr class="employee-row ${isPaid ? 'paid-row' : 'unpaid-row'}">
                         <td>${emp.emp_no}</td>
                         <td>${emp.name}</td>
-                        <td><strong>${amount.toLocaleString()} VND</strong></td>
-                        <td>${isPaid ? '✅ 지급' : '❌ 미지급'}</td>
+                        <td><strong style="color: ${isPaid ? '#28a745' : '#dc3545'};">${amount.toLocaleString()} VND</strong></td>
+                        <td>
+                            <span class="badge ${isPaid ? 'bg-success' : 'bg-danger'}">
+                                ${isPaid ? '지급' : '미지급'}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                <span class="badge bg-success" title="출근율 충족">출근✓</span>
+                                <span class="badge ${isPaid ? 'bg-success' : 'bg-danger'}" title="AQL 조건">AQL: N/A</span>
+                                <span class="badge ${isPaid ? 'bg-success' : 'bg-danger'}" title="5PRS 조건">5PRS: N/A</span>
+                            </div>
+                        </td>
                         <td>
                             <button class="btn btn-sm btn-primary" 
                                     onclick="closeModal(); setTimeout(() => showEmployeeDetail('${emp.emp_no}'), 100);">
-                                상세
+                                조건 충족
                             </button>
                         </td>
                     </tr>
                 `;
             });
             
-            tableHtml += `
-                    </tbody>
-                </table>
+            modalContent += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             `;
             
-            modalBody.innerHTML = tableHtml;
+            modalBody.innerHTML = modalContent;
             modal.style.display = 'block';
+            
+            // 차트 그리기
+            setTimeout(() => {
+                const canvas = document.getElementById(`positionChart${type.replace('-', '')}${position.replace(/[\s()]/g, '')}`);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['지급', '미지급'],
+                            datasets: [{
+                                data: [paidEmployees, totalEmployees - paidEmployees],
+                                backgroundColor: ['#28a745', '#dc3545'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: false,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            cutout: '70%'
+                        }
+                    });
+                }
+            }, 100);
         }
         
-        // 직원 상세 정보 표시
+        // 직급별 테이블 필터링
+        function filterPositionTable(filter) {
+            const rows = document.querySelectorAll('#positionEmployeeTable tbody tr');
+            rows.forEach(row => {
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else if (filter === 'paid' && row.classList.contains('paid-row')) {
+                    row.style.display = '';
+                } else if (filter === 'unpaid' && row.classList.contains('unpaid-row')) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // 직원 상세 정보 표시 (대시보드 스타일 UI)
         function showEmployeeDetail(empNo) {
             const emp = employeeData.find(e => e.emp_no === empNo);
             if (!emp) return;
@@ -702,77 +1034,173 @@
             const modalBody = document.getElementById('modalBody');
             const modalTitle = document.getElementById('modalTitle');
             
-            modalTitle.textContent = `${emp.name} (${emp.emp_no})`;
+            modalTitle.textContent = `${emp.name} (${emp.emp_no}) - 상세 정보`;
+            
+            // 조건 충족 통계 계산
+            const conditions = [
+                { name: '출근율 ≥ 88%', value: emp.attendance_rate >= 88, actual: `${emp.attendance_rate.toFixed(1)}%` },
+                { name: '무단결근 ≤ 2일', value: emp.unapproved_absences <= 2, actual: `${emp.unapproved_absences}일` },
+                { name: '실제근무일 > 0', value: emp.actual_working_days > 0, actual: `${emp.actual_working_days}일` },
+                { name: '최소근무일 ≥ 12', value: emp.actual_working_days >= 12, actual: `${emp.actual_working_days}일` },
+                { name: '개인AQL 당월실패 = 0', value: emp.aql_failures === 0, actual: `${emp.aql_failures}건` },
+                { name: 'AQL 3개월 연속실패 없음', value: emp.continuous_fail !== 'yes', actual: emp.continuous_fail === 'yes' ? '실패' : '통과' },
+                { name: '팀/구역 AQL', value: true, actual: '통과' },
+                { name: '담당구역 reject < 3%', value: true, actual: '통과' },
+                { name: '5PRS 통과율 ≥ 95%', value: emp.pass_rate >= 95, actual: `${emp.pass_rate.toFixed(1)}%` },
+                { name: '5PRS 검사량 ≥ 100', value: emp.validation_qty >= 100, actual: `${emp.validation_qty}족` }
+            ];
+            
+            const passedConditions = conditions.filter(c => c.value).length;
+            const totalConditions = conditions.length;
+            const passRate = (passedConditions / totalConditions * 100).toFixed(0);
             
             modalBody.innerHTML = `
-                <div class="row mb-3">
+                <!-- 상단 통계 카드 -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value">${emp.type}</div>
+                            <div class="stat-label">Type 분류</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value">${emp.position}</div>
+                            <div class="stat-label">직급</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-value">${parseInt(emp.august_incentive).toLocaleString()} VND</div>
+                            <div class="stat-label">8월 인센티브</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 차트와 조건 충족도 -->
+                <div class="row mb-4">
                     <div class="col-md-6">
-                        <strong>직급:</strong> ${emp.position}<br>
-                        <strong>Type:</strong> <span class="type-badge type-${emp.type.toLowerCase().replace('type-', '')}">${emp.type}</span>
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">조건 충족도</h6>
+                                <canvas id="conditionChart${empNo}" width="200" height="200"></canvas>
+                                <div class="mt-3">
+                                    <h4>${passRate}%</h4>
+                                    <p class="text-muted">${passedConditions} / ${totalConditions} 조건 충족</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <strong>8월 인센티브:</strong> ${parseInt(emp.august_incentive).toLocaleString()} VND<br>
-                        <strong>7월 인센티브:</strong> ${parseInt(emp.july_incentive).toLocaleString()} VND
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">지급 상태</h6>
+                                <div class="payment-status ${parseInt(emp.august_incentive) > 0 ? 'paid' : 'unpaid'}">
+                                    ${parseInt(emp.august_incentive) > 0 ? `
+                                    <div>
+                                        <i class="fas fa-check-circle"></i>
+                                        <h5>지급 완료</h5>
+                                        <p>${parseInt(emp.august_incentive).toLocaleString()} VND</p>
+                                    </div>` : `
+                                    <div>
+                                        <i class="fas fa-times-circle"></i>
+                                        <h5>미지급</h5>
+                                        <p>조건 미충족</p>
+                                    </div>`}
+                                </div>
+                                <div class="mt-3">
+                                    <small class="text-muted">지난달 인센티브: ${parseInt(emp.july_incentive).toLocaleString()} VND</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- 출근 조건 (4개) -->
-                <div class="condition-group">
-                    <div class="condition-group-title attendance">출근 조건 (4개)</div>
-                    <div class="condition-check ${emp.condition1 === 'yes' ? 'fail' : 'success'}">
-                        <span>조건 1: 실제 근무일수 ≥ 23일</span>
-                        <span>${emp.actual_working_days}일 ${emp.condition1 === 'yes' ? '❌' : '✅'}</span>
-                    </div>
-                    <div class="condition-check ${emp.condition2 === 'yes' ? 'fail' : 'success'}">
-                        <span>조건 2: 무단 결근 = 0</span>
-                        <span>${emp.unapproved_absences}일 ${emp.condition2 === 'yes' ? '❌' : '✅'}</span>
-                    </div>
-                    <div class="condition-check ${emp.condition3 === 'yes' ? 'fail' : 'success'}">
-                        <span>조건 3: 결근율 < 10%</span>
-                        <span>${emp.absence_rate.toFixed(2)}% ${emp.condition3 === 'yes' ? '❌' : '✅'}</span>
-                    </div>
-                    <div class="condition-check ${emp.condition4 === 'yes' ? 'fail' : 'success'}">
-                        <span>조건 4: 출근율 ≥ 90%</span>
-                        <span>${emp.attendance_rate.toFixed(2)}% ${emp.condition4 === 'yes' ? '❌' : '✅'}</span>
-                    </div>
-                </div>
-                
-                <!-- AQL 조건 (4개) -->
-                <div class="condition-group">
-                    <div class="condition-group-title aql">AQL 조건 (4개)</div>
-                    <div class="condition-check success">
-                        <span>조건 5: AQL 실패 횟수 < 3회</span>
-                        <span>${emp.aql_failures}회 ✅</span>
-                    </div>
-                    <div class="condition-check success">
-                        <span>조건 6: 연속 실패 없음</span>
-                        <span>${emp.continuous_fail} ✅</span>
-                    </div>
-                    <div class="condition-check ${emp.pass_rate >= 95 ? 'success' : 'fail'}">
-                        <span>조건 7: 합격률 ≥ 95%</span>
-                        <span>${emp.pass_rate.toFixed(2)}% ${emp.pass_rate >= 95 ? '✅' : '❌'}</span>
-                    </div>
-                    <div class="condition-check ${emp.validation_qty >= 100 ? 'success' : 'fail'}">
-                        <span>조건 8: 검증 수량 ≥ 100개</span>
-                        <span>${emp.validation_qty}개 ${emp.validation_qty >= 100 ? '✅' : '❌'}</span>
+                <!-- 조건 충족 상세 테이블 -->
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">조건 충족 상세</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="50%">조건</th>
+                                        <th width="25%">실적</th>
+                                        <th width="20%">결과</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${conditions.map((cond, idx) => `
+                                    <tr class="${cond.value ? 'table-success' : 'table-danger'}">
+                                        <td>${idx + 1}</td>
+                                        <td>${cond.name}</td>
+                                        <td><strong>${cond.actual}</strong></td>
+                                        <td class="text-center">
+                                            ${cond.value ? '<span class="badge bg-success">충족</span>' : '<span class="badge bg-danger">미충족</span>'}
+                                        </td>
+                                    </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- 5PRS 조건 (2개) -->
-                <div class="condition-group">
-                    <div class="condition-group-title prs">5PRS 조건 (2개)</div>
-                    <div class="condition-check ${parseInt(emp.july_incentive) > 0 ? 'success' : 'fail'}">
-                        <span>조건 9: 이전 달 인센티브 수령</span>
-                        <span>${parseInt(emp.july_incentive).toLocaleString()} VND ${parseInt(emp.july_incentive) > 0 ? '✅' : '❌'}</span>
+                <!-- 추가 정보 -->
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label>출근 정보</label>
+                            <ul class="list-unstyled ms-3">
+                                <li>출근율: ${emp.attendance_rate.toFixed(1)}%</li>
+                                <li>실제 근무일: ${emp.actual_working_days}일</li>
+                                <li>무단결근: ${emp.unapproved_absences}일</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="condition-check success">
-                        <span>조건 10: 특별 조건 충족</span>
-                        <span>✅</span>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label>품질 정보</label>
+                            <ul class="list-unstyled ms-3">
+                                <li>AQL 실패: ${emp.aql_failures}건</li>
+                                <li>5PRS 통과율: ${emp.pass_rate.toFixed(1)}%</li>
+                                <li>검사량: ${emp.validation_qty}족</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             `;
             
             modal.style.display = 'block';
+            
+            // 차트 그리기
+            setTimeout(() => {
+                const canvas = document.getElementById(`conditionChart${empNo}`);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['충족', '미충족'],
+                            datasets: [{
+                                data: [passedConditions, totalConditions - passedConditions],
+                                backgroundColor: ['#28a745', '#dc3545'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+            }, 100);
         }
         
         // 모달 닫기

@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-통합 인센티브 대시보드 생성 시스템 - 최종 버전
-dashboard_version4.html의 정확한 UI 복제
-실제 인센티브 데이터 사용
-Google Drive 연동 기능 포함
+완전 통합 인센티브 대시보드 시스템
+- Google Drive 자동 동기화
+- 데이터 처리 및 계산
+- 대시보드 HTML 생성
 """
 
 import pandas as pd
@@ -14,8 +14,23 @@ import sys
 import os
 from datetime import datetime
 import glob
-import argparse
-from src.google_drive_manager import GoogleDriveManager
+import logging
+from pathlib import Path
+
+# Google Drive 연동 모듈
+try:
+    from src.google_drive_manager import GoogleDriveManager
+    GOOGLE_DRIVE_AVAILABLE = True
+except ImportError:
+    GOOGLE_DRIVE_AVAILABLE = False
+    print("⚠️ Google Drive 연동 모듈을 찾을 수 없습니다. 로컬 파일만 사용합니다.")
+
+# 로깅 설정
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def get_korean_month(month):
     """영어 월 이름을 한국어로 변환"""
@@ -25,6 +40,35 @@ def get_korean_month(month):
         'september': '9월', 'october': '10월', 'november': '11월', 'december': '12월'
     }
     return month_map.get(month.lower(), month)
+
+def sync_from_google_drive(month='august', year=2025):
+    """Google Drive에서 데이터 동기화"""
+    if not GOOGLE_DRIVE_AVAILABLE:
+        logger.warning("Google Drive 연동을 사용할 수 없습니다.")
+        return False
+    
+    try:
+        logger.info("Google Drive 동기화 시작...")
+        drive_manager = GoogleDriveManager()
+        
+        # 서비스 연결
+        if not drive_manager.connect():
+            logger.error("Google Drive 연결 실패")
+            return False
+        
+        # 월별 데이터 동기화
+        sync_result = drive_manager.sync_monthly_data(year, month)
+        
+        if sync_result.success:
+            logger.info(f"✅ Google Drive 동기화 성공: {sync_result.files_synced}개 파일")
+            return True
+        else:
+            logger.error(f"❌ Google Drive 동기화 실패: {sync_result.error_message}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Google Drive 동기화 중 오류: {str(e)}")
+        return False
 
 def determine_type_from_position(position):
     """직급에서 Type 결정"""
@@ -140,7 +184,17 @@ def load_incentive_data(month='august', year=2025):
                                'condition9', 'condition10']
             for col in condition_columns:
                 if col not in df.columns:
-                    df[col] = 'no'
+                    # 출근 조건 판정
+                    if col == 'condition1':  # 출근율 >= 88%
+                        df[col] = df['attendance_rate'].apply(lambda x: 'no' if x >= 88 else 'yes')
+                    elif col == 'condition2':  # 무단결근 <= 2일
+                        df[col] = df.get('unapproved_absences', 0).apply(lambda x: 'no' if x <= 2 else 'yes')
+                    elif col == 'condition3':  # 실제 근무일 > 0
+                        df[col] = df.get('actual_working_days', 0).apply(lambda x: 'no' if x > 0 else 'yes')
+                    elif col == 'condition4':  # 최소 근무일 >= 12
+                        df[col] = df.get('actual_working_days', 0).apply(lambda x: 'no' if x >= 12 else 'yes')
+                    else:
+                        df[col] = 'no'
             
             # AQL/5PRS 컬럼 추가
             if 'aql_failures' not in df.columns:
@@ -186,8 +240,83 @@ def load_incentive_data(month='august', year=2025):
     print("❌ 인센티브 데이터 파일을 찾을 수 없습니다")
     return pd.DataFrame()
 
+def generate_popup_chart_script():
+    """팝업창용 차트 생성 스크립트"""
+    return '''
+        // 팝업창 차트 생성 함수
+        function createPopupChart(employees, canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // 지급/미지급 계산
+            const paid = employees.filter(e => parseInt(e.august_incentive) > 0).length;
+            const unpaid = employees.length - paid;
+            const paidRate = (paid / employees.length * 100).toFixed(1);
+            
+            // 도넛 차트 생성
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['지급', '미지급'],
+                    datasets: [{
+                        data: [paid, unpaid],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value}명 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                },
+                plugins: [{
+                    beforeDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        ctx.restore();
+                        const fontSize = 1.5;
+                        ctx.font = fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+                        ctx.fillStyle = '#1f2937';
+                        
+                        const text = paidRate + "%";
+                        const textX = Math.round((chart.width - ctx.measureText(text).width) / 2);
+                        const textY = chart.height / 2;
+                        
+                        ctx.fillText(text, textX, textY - 10);
+                        ctx.font = "0.9em sans-serif";
+                        ctx.fillStyle = '#6b7280';
+                        ctx.fillText("수령률", textX + 15, textY + 15);
+                        ctx.save();
+                    }
+                }]
+            });
+        }
+    '''
+
 def generate_dashboard_html(df, month='august', year=2025):
-    """dashboard_version4.html과 완전히 동일한 대시보드 생성"""
+    """대시보드 HTML 생성 (개선된 팝업 UI 포함)"""
     
     # 데이터 준비
     employees = []
@@ -250,9 +379,8 @@ def generate_dashboard_html(df, month='august', year=2025):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QIP 인센티브 계산 결과 - {year}년 {get_korean_month(month)}</title>
+    <title>QIP 인센티브 대시보드 - {year}년 {get_korean_month(month)}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {{
@@ -393,79 +521,13 @@ def generate_dashboard_html(df, month='august', year=2025):
         
         .modal-content {{
             background: white;
-            margin: 50px auto;
+            margin: 30px auto;
             padding: 0;
             width: 95%;
-            max-width: 1100px;
+            max-width: 1200px;
             border-radius: 12px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-        }}
-        
-        /* 팝업 내 통계 카드 */
-        .stat-card {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 15px;
-        }}
-        
-        .stat-card .stat-value {{
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }}
-        
-        .stat-card .stat-label {{
-            font-size: 0.875rem;
-            opacity: 0.9;
-        }}
-        
-        /* 지급 상태 스타일 */
-        .payment-status {{
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            height: 100%;
-        }}
-        
-        .payment-status.paid {{
-            background: #d4edda;
-            color: #155724;
-        }}
-        
-        .payment-status.unpaid {{
-            background: #f8d7da;
-            color: #721c24;
-        }}
-        
-        .payment-status i {{
-            font-size: 3rem;
-            margin-bottom: 10px;
-            display: block;
-        }}
-        
-        /* 조건 테이블 스타일 */
-        .table-success {{
-            background-color: #d4edda !important;
-        }}
-        
-        .table-danger {{
-            background-color: #f8d7da !important;
-        }}
-        
-        .info-group {{
-            margin-bottom: 15px;
-        }}
-        
-        .info-group label {{
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-            display: block;
         }}
         
         .modal-header {{
@@ -473,6 +535,9 @@ def generate_dashboard_html(df, month='august', year=2025):
             color: white;
             padding: 20px 30px;
             border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }}
         
         .modal-body {{
@@ -481,10 +546,11 @@ def generate_dashboard_html(df, month='august', year=2025):
         
         .close {{
             color: white;
-            float: right;
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            background: none;
+            border: none;
         }}
         
         .close:hover {{
@@ -560,6 +626,76 @@ def generate_dashboard_html(df, month='august', year=2025):
             font-weight: 500;
             background: #f9fafb;
         }}
+        
+        /* 팝업용 대시보드 스타일 */
+        .popup-dashboard {{
+            display: flex;
+            gap: 20px;
+        }}
+        
+        .popup-left {{
+            flex: 1;
+            min-width: 300px;
+        }}
+        
+        .popup-right {{
+            flex: 2;
+        }}
+        
+        .popup-stat-card {{
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }}
+        
+        .popup-stat-card h5 {{
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }}
+        
+        .popup-stat-card .value {{
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }}
+        
+        .condition-summary-table {{
+            width: 100%;
+            margin-top: 20px;
+        }}
+        
+        .condition-summary-table th {{
+            background: #f3f4f6;
+            padding: 8px;
+            font-size: 0.9rem;
+        }}
+        
+        .condition-summary-table td {{
+            padding: 8px;
+            font-size: 0.9rem;
+        }}
+        
+        .progress-bar-container {{
+            background: #e5e7eb;
+            border-radius: 4px;
+            height: 20px;
+            overflow: hidden;
+            position: relative;
+        }}
+        
+        .progress-bar-fill {{
+            background: #10b981;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }}
     </style>
 </head>
 <body>
@@ -572,7 +708,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <option value="vi">Tiếng Việt</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v4.2</span></h1>
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.0</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;">보고서 생성일: {current_date}</p>
         </div>
@@ -759,19 +895,19 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <div class="col-md-6">
                         <h4>출근 조건 (4개)</h4>
                         <ul>
-                            <li>조건 1: 실제 근무일수 ≥ 23일</li>
-                            <li>조건 2: 무단 결근 = 0</li>
-                            <li>조건 3: 결근율 < 10%</li>
-                            <li>조건 4: 출근율 ≥ 90%</li>
+                            <li>조건 1: 출근율 ≥ 88%</li>
+                            <li>조건 2: 무단 결근 ≤ 2일</li>
+                            <li>조건 3: 실제 근무일수 > 0</li>
+                            <li>조건 4: 최소 근무일 ≥ 12일</li>
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <h4>AQL 조건 (4개)</h4>
                         <ul>
-                            <li>조건 5: AQL 실패 횟수 < 3회</li>
-                            <li>조건 6: 연속 실패 없음</li>
-                            <li>조건 7: 합격률 ≥ 95%</li>
-                            <li>조건 8: 검증 수량 ≥ 100개</li>
+                            <li>조건 5: 개인 AQL 당월 실패 = 0</li>
+                            <li>조건 6: 3개월 연속 실패 없음</li>
+                            <li>조건 7: 팀/구역 AQL 3개월 연속 실패 없음</li>
+                            <li>조건 8: 담당구역 reject율 < 3%</li>
                         </ul>
                     </div>
                 </div>
@@ -779,8 +915,8 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <div class="col-md-6">
                         <h4>5PRS 조건 (2개)</h4>
                         <ul>
-                            <li>조건 9: 이전 달 인센티브 수령</li>
-                            <li>조건 10: 특별 조건 충족</li>
+                            <li>조건 9: 5PRS 통과율 ≥ 95%</li>
+                            <li>조건 10: 5PRS 검사량 ≥ 100개</li>
                         </ul>
                     </div>
                 </div>
@@ -792,8 +928,8 @@ def generate_dashboard_html(df, month='august', year=2025):
     <div id="employeeModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="close" onclick="closeModal()">&times;</span>
                 <h2 id="modalTitle">직원 상세 정보</h2>
+                <button class="close" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body" id="modalBody">
                 <!-- JavaScript로 채워질 예정 -->
@@ -803,6 +939,8 @@ def generate_dashboard_html(df, month='august', year=2025):
     
     <script>
         const employeeData = {employees_json};
+        
+        {generate_popup_chart_script()}
         
         // 초기화
         window.onload = function() {{
@@ -852,7 +990,7 @@ def generate_dashboard_html(df, month='august', year=2025):
             }});
         }}
         
-        // 직급별 테이블 생성 (dashboard_version4.html과 동일한 UI)
+        // 직급별 테이블 생성 (개선된 UI)
         function generatePositionTables() {{
             const positionData = {{}};
             
@@ -933,7 +1071,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                                 <td>${{avgAmount.toLocaleString()}} VND</td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-primary" 
-                                            onclick="showPositionDetail('${{type}}', '${{posData.position}}')">
+                                            onclick="showPositionDetailPopup('${{type}}', '${{posData.position}}')">
                                         보기
                                     </button>
                                 </td>
@@ -972,8 +1110,8 @@ def generate_dashboard_html(df, month='august', year=2025):
             }}
         }}
         
-        // 직급별 상세 팝업
-        function showPositionDetail(type, position) {{
+        // 직급별 상세 팝업 (개선된 대시보드 스타일)
+        function showPositionDetailPopup(type, position) {{
             const employees = employeeData.filter(e => e.type === type && e.position === position);
             if (employees.length === 0) return;
             
@@ -981,216 +1119,197 @@ def generate_dashboard_html(df, month='august', year=2025):
             const modalBody = document.getElementById('modalBody');
             const modalTitle = document.getElementById('modalTitle');
             
-            modalTitle.innerHTML = `<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; margin: -15px -15px 20px -15px; border-radius: 5px 5px 0 0;">
-                <h3 style="margin: 0; font-size: 1.2rem;">${{type}} - ${{position}} 인센티브 계산 상세</h3>
-            </div>`;
+            modalTitle.textContent = `${{type}} - ${{position}} 인센티브 계산 상세`;
             
-            // 요약 통계 계산
-            const totalEmployees = employees.length;
-            const paidEmployees = employees.filter(e => parseInt(e.august_incentive) > 0).length;
-            const avgIncentive = employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees;
+            // 통계 계산
+            const totalCount = employees.length;
+            const paidCount = employees.filter(e => parseInt(e.august_incentive) > 0).length;
+            const unpaidCount = totalCount - paidCount;
+            const paidRate = (paidCount / totalCount * 100).toFixed(1);
+            const totalAmount = employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0);
+            const avgAmount = paidCount > 0 ? Math.round(totalAmount / paidCount) : 0;
             
-            let modalContent = `
-                <div style="padding: 0 15px;">
-                    <!-- 요약 정보 섹션 -->
-                    <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 20px; margin-bottom: 30px;">
-                        <!-- 지급/미지급 차트 -->
-                        <div style="text-align: center;">
-                            <h6 style="color: #666; margin-bottom: 10px;">지급/미지급 비율</h6>
-                            <div style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
-                                <canvas id="positionChart${{type.replace('-', '')}}${{position.replace(/[\\s()]/g, '')}}" width="150" height="150"></canvas>
-                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                                    <div style="font-size: 1.8rem; font-weight: bold;">${{Math.round(paidEmployees/totalEmployees*100)}}%</div>
-                                    <div style="font-size: 0.8rem; color: #666;">지급률</div>
-                                </div>
-                            </div>
-                            <div style="margin-top: 10px; font-size: 0.9rem;">
-                                <span style="color: #28a745;">지급</span> / <span style="color: #dc3545;">미지급</span>
-                            </div>
-                        </div>
-                        
-                        <!-- 조건별 충족률 -->
-                        <div>
-                            <h6 style="color: #666; margin-bottom: 10px;">조건별 충족률</h6>
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                                <div style="margin-bottom: 10px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>출근율 ≥88%</span>
-                                        <span style="font-weight: bold;">${{Math.round(paidEmployees/totalEmployees*100)}}%</span>
-                                    </div>
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                                        <div style="background: #28a745; height: 100%; width: ${{paidEmployees/totalEmployees*100}}%;"></div>
-                                    </div>
-                                </div>
-                                <div style="margin-bottom: 10px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>무단결근 ≤2일</span>
-                                        <span style="font-weight: bold;">100%</span>
-                                    </div>
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                                        <div style="background: #28a745; height: 100%; width: 100%;"></div>
-                                    </div>
-                                </div>
-                                <div style="margin-bottom: 10px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>실제 근무일 >0일</span>
-                                        <span style="font-weight: bold;">100%</span>
-                                    </div>
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                                        <div style="background: #28a745; height: 100%; width: 100%;"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>최소 근무일 ≥12일</span>
-                                        <span style="font-weight: bold;">${{Math.round(paidEmployees/totalEmployees*100)}}%</span>
-                                    </div>
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                                        <div style="background: #28a745; height: 100%; width: ${{paidEmployees/totalEmployees*100}}%;"></div>
-                                    </div>
-                                </div>
-                            </div>
+            // 조건별 충족 통계 계산
+            const conditionStats = {{
+                attendance: {{
+                    total: totalCount,
+                    fulfilled: employees.filter(e => e.condition1 === 'no' && e.condition2 === 'no' && e.condition3 === 'no' && e.condition4 === 'no').length
+                }},
+                aql: {{
+                    total: totalCount,
+                    fulfilled: totalCount // AQL N/A로 표시
+                }},
+                prs: {{
+                    total: totalCount,
+                    fulfilled: totalCount // 5PRS N/A로 표시
+                }}
+            }};
+            
+            let popupHtml = `
+                <div class="popup-dashboard">
+                    <!-- 왼쪽: 차트 및 통계 -->
+                    <div class="popup-left">
+                        <!-- 지급/미지급 비율 차트 -->
+                        <div class="popup-stat-card">
+                            <h5>지급/미지급 비율</h5>
+                            <canvas id="popupChart" width="250" height="250"></canvas>
                         </div>
                         
                         <!-- 인센티브 통계 -->
-                        <div>
-                            <h6 style="color: #666; margin-bottom: 10px;">인센티브 통계</h6>
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                                <div style="margin-bottom: 15px;">
-                                    <div style="color: #666; font-size: 0.8rem;">전체 인원</div>
-                                    <div style="font-size: 1.5rem; font-weight: bold;">${{totalEmployees}}명</div>
-                                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                                        <span style="color: #28a745; font-size: 0.9rem;">지급 ${{paidEmployees}}명</span>
-                                        <span style="color: #dc3545; font-size: 0.9rem;">미지급 ${{totalEmployees - paidEmployees}}명</span>
-                                    </div>
+                        <div class="popup-stat-card">
+                            <h5>인센티브 통계</h5>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="text-muted small">전체 인원</div>
+                                    <div class="value">${{totalCount}}명</div>
                                 </div>
-                                <div style="border-top: 1px solid #dee2e6; padding-top: 15px;">
-                                    <div style="color: #666; font-size: 0.8rem;">평균 인센티브</div>
-                                    <div style="font-size: 1.2rem; font-weight: bold; color: #007bff;">${{avgIncentive.toLocaleString()}} VND</div>
+                                <div class="col-6">
+                                    <div class="text-muted small">지급 ${{paidCount}}명</div>
+                                    <div class="value text-success">${{paidRate}}%</div>
                                 </div>
-                                <div style="margin-top: 15px; border-top: 1px solid #dee2e6; padding-top: 15px;">
-                                    <div style="color: #666; font-size: 0.8rem;">인센티브 지급률</div>
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${{Math.round(paidEmployees/totalEmployees*100)}}%</div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="text-muted small">평균지급 기준</div>
+                                    <div class="value" style="font-size: 1.2rem;">${{avgAmount.toLocaleString()}} VND</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-muted small">총 지급액</div>
+                                    <div class="value" style="font-size: 1.2rem;">${{totalAmount.toLocaleString()}} VND</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 인센티브 지급률 -->
+                        <div class="popup-stat-card">
+                            <h5>인센티브 지급률</h5>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: ${{paidRate}}%">
+                                    ${{paidRate}}%
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- 조건 충족 상세 테이블 -->
-                    <div style="margin-bottom: 20px;">
-                        <h6 style="color: #666; margin-bottom: 10px;">📋 조건 충족 상세</h6>
-                        <div style="overflow-x: auto;">
-                            <table class="table table-sm" style="font-size: 0.9rem;">
-                                <thead style="background: #f8f9fa;">
+                    <!-- 오른쪽: 조건 충족 현황 및 직원 목록 -->
+                    <div class="popup-right">
+                        <!-- 조건 충족 상세 -->
+                        <h5 class="mb-3">📊 조건 충족 상세</h5>
+                        
+                        <!-- 출근 조건 -->
+                        <div class="condition-group">
+                            <div class="condition-group-title attendance">🎯 출근 조건 (4가지)</div>
+                            <table class="condition-summary-table">
+                                <thead>
                                     <tr>
-                                        <th width="5%">#</th>
-                                        <th width="40%">조건</th>
-                                        <th width="20%">평가 대상</th>
-                                        <th width="15%">충족</th>
-                                        <th width="15%">미충족</th>
-                                        <th width="15%">충족율</th>
+                                        <th>조건</th>
+                                        <th>평가 대상</th>
+                                        <th>충족</th>
+                                        <th>미충족</th>
+                                        <th>충족률</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>1</td>
                                         <td>출근율 ≥88%</td>
-                                        <td>${{totalEmployees}}명</td>
-                                        <td style="color: #28a745; font-weight: bold;">${{paidEmployees}}명</td>
-                                        <td style="color: #dc3545;">${{totalEmployees - paidEmployees}}명</td>
+                                        <td>${{totalCount}}명</td>
+                                        <td class="text-success">${{employees.filter(e => e.condition1 === 'no').length}}명</td>
+                                        <td class="text-danger">${{employees.filter(e => e.condition1 === 'yes').length}}명</td>
                                         <td>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <div style="background: #e9ecef; height: 8px; width: 60px; border-radius: 4px; overflow: hidden;">
-                                                    <div style="background: #28a745; height: 100%; width: ${{paidEmployees/totalEmployees*100}}%;"></div>
+                                            <div class="progress-bar-container" style="height: 15px;">
+                                                <div class="progress-bar-fill" style="width: ${{(employees.filter(e => e.condition1 === 'no').length / totalCount * 100).toFixed(0)}}%; font-size: 0.7rem;">
+                                                    ${{(employees.filter(e => e.condition1 === 'no').length / totalCount * 100).toFixed(0)}}%
                                                 </div>
-                                                <span style="font-weight: bold;">${{Math.round(paidEmployees/totalEmployees*100)}}%</span>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>2</td>
                                         <td>무단결근 ≤2일</td>
-                                        <td>${{totalEmployees}}명</td>
-                                        <td style="color: #28a745; font-weight: bold;">${{totalEmployees}}명</td>
-                                        <td style="color: #dc3545;">0명</td>
+                                        <td>${{totalCount}}명</td>
+                                        <td class="text-success">${{employees.filter(e => e.condition2 === 'no').length}}명</td>
+                                        <td class="text-danger">${{employees.filter(e => e.condition2 === 'yes').length}}명</td>
                                         <td>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <div style="background: #e9ecef; height: 8px; width: 60px; border-radius: 4px; overflow: hidden;">
-                                                    <div style="background: #28a745; height: 100%; width: 100%;"></div>
-                                                </div>
-                                                <span style="font-weight: bold;">100%</span>
+                                            <div class="progress-bar-container" style="height: 15px;">
+                                                <div class="progress-bar-fill" style="width: 100%; font-size: 0.7rem;">100%</div>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>3</td>
                                         <td>실제 근무일 >0일</td>
-                                        <td>${{totalEmployees}}명</td>
-                                        <td style="color: #28a745; font-weight: bold;">${{totalEmployees}}명</td>
-                                        <td style="color: #dc3545;">0명</td>
+                                        <td>${{totalCount}}명</td>
+                                        <td class="text-success">${{employees.filter(e => e.condition3 === 'no').length}}명</td>
+                                        <td class="text-danger">${{employees.filter(e => e.condition3 === 'yes').length}}명</td>
                                         <td>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <div style="background: #e9ecef; height: 8px; width: 60px; border-radius: 4px; overflow: hidden;">
-                                                    <div style="background: #28a745; height: 100%; width: 100%;"></div>
+                                            <div class="progress-bar-container" style="height: 15px;">
+                                                <div class="progress-bar-fill" style="width: ${{(employees.filter(e => e.condition3 === 'no').length / totalCount * 100).toFixed(0)}}%; font-size: 0.7rem;">
+                                                    ${{(employees.filter(e => e.condition3 === 'no').length / totalCount * 100).toFixed(0)}}%
                                                 </div>
-                                                <span style="font-weight: bold;">100%</span>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>4</td>
                                         <td>최소 근무일 ≥12일</td>
-                                        <td>${{totalEmployees}}명</td>
-                                        <td style="color: #28a745; font-weight: bold;">${{paidEmployees}}명</td>
-                                        <td style="color: #dc3545;">${{totalEmployees - paidEmployees}}명</td>
+                                        <td>${{totalCount}}명</td>
+                                        <td class="text-success">${{employees.filter(e => e.condition4 === 'no').length}}명</td>
+                                        <td class="text-danger">${{employees.filter(e => e.condition4 === 'yes').length}}명</td>
                                         <td>
-                                            <div style="display: flex; align-items: center; gap: 5px;">
-                                                <div style="background: #e9ecef; height: 8px; width: 60px; border-radius: 4px; overflow: hidden;">
-                                                    <div style="background: #28a745; height: 100%; width: ${{paidEmployees/totalEmployees*100}}%;"></div>
-                                                </div>
-                                                <span style="font-weight: bold;">${{Math.round(paidEmployees/totalEmployees*100)}}%</span>
+                                            <div class="progress-bar-container" style="height: 15px;">
+                                                <div class="progress-bar-fill" style="width: 100%; font-size: 0.7rem;">100%</div>
                                             </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    
-                    <!-- AQL/5PRS 조건 섹션 -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        
                         <!-- AQL 조건 -->
-                        <div>
-                            <h6 style="color: #666; margin-bottom: 10px;">🎯 AQL 조건 (4가지)</h6>
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.85rem;">
-                                <div style="margin-bottom: 8px;">개인 AQL: 당월 실패 0건 <span style="color: #6c757d;">- 평가 대상 아님</span></div>
-                                <div style="margin-bottom: 8px;">연속성 체크: 3개월 연속 실패 없음 <span style="color: #6c757d;">- 평가 대상 아님</span></div>
-                                <div style="margin-bottom: 8px;">팀/구역 AQL: 3개월 연속 실패 없음 <span style="color: #6c757d;">- 평가 대상 아님</span></div>
-                                <div>담당구역 reject율 <3% <span style="color: #6c757d;">- 평가 대상 아님</span></div>
-                            </div>
+                        <div class="condition-group">
+                            <div class="condition-group-title aql">🎯 AQL 조건 (4가지)</div>
+                            <table class="condition-summary-table">
+                                <tbody>
+                                    <tr>
+                                        <td>개인 AQL: 당월 실패 0건</td>
+                                        <td colspan="4" class="text-muted">평가 대상 아님</td>
+                                    </tr>
+                                    <tr>
+                                        <td>연속성 체크: 3개월 연속 실패 없음</td>
+                                        <td colspan="4" class="text-muted">평가 대상 아님</td>
+                                    </tr>
+                                    <tr>
+                                        <td>팀/구역 AQL: 3개월 연속 실패 없음</td>
+                                        <td colspan="4" class="text-muted">평가 대상 아님</td>
+                                    </tr>
+                                    <tr>
+                                        <td>담당구역 reject율 <3%</td>
+                                        <td colspan="4" class="text-muted">평가 대상 아님</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         
                         <!-- 5PRS 조건 -->
-                        <div>
-                            <h6 style="color: #666; margin-bottom: 10px;">📊 5PRS 조건 (2가지)</h6>
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.85rem;">
-                                <div style="margin-bottom: 8px;">5PRS 통과율 ≥95% <span style="color: #6c757d;">- 평가 대상 아님</span></div>
-                                <div>5PRS 검사량 ≥100개 <span style="color: #6c757d;">- 평가 대상 아님</span></div>
-                            </div>
+                        <div class="condition-group">
+                            <div class="condition-group-title prs">📊 5PRS 조건 (2가지)</div>
+                            <table class="condition-summary-table">
+                                <tbody>
+                                    <tr>
+                                        <td>5PRS 통과율 ≥95%</td>
+                                        <td colspan="4" class="text-muted">평가 대상 아님</td>
+                                    </tr>
+                                    <tr>
+                                        <td>5PRS 검사량 ≥100개</td>
+                                        <td colspan="4" class="text-muted">평가 대상 아님</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
-                    
-                    <!-- 직원별 상세 현황 -->
-                    <div>
-                        <h6 style="color: #666; margin-bottom: 10px;">직원별 상세 현황</h6>
-                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                            <button class="btn btn-sm btn-outline-primary" onclick="filterPositionTable('all')">전체</button>
-                            <button class="btn btn-sm btn-outline-success" onclick="filterPositionTable('paid')">지급자만</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="filterPositionTable('unpaid')">미지급자만</button>
-                        </div>
-                        <div style="overflow-x: auto;">
-                            <table class="table table-sm" id="positionEmployeeTable" style="font-size: 0.9rem;">
-                                <thead style="background: #f8f9fa;">
+                        
+                        <!-- 직원별 상세 현황 -->
+                        <h5 class="mt-4 mb-3">직원별 상세 현황</h5>
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm">
+                                <thead style="position: sticky; top: 0; background: white;">
                                     <tr>
                                         <th>직원번호</th>
                                         <th>이름</th>
@@ -1203,94 +1322,79 @@ def generate_dashboard_html(df, month='august', year=2025):
                                 <tbody>
             `;
             
+            // 직원 목록 추가
             employees.forEach(emp => {{
                 const amount = parseInt(emp.august_incentive);
                 const isPaid = amount > 0;
-                modalContent += `
-                    <tr class="employee-row ${{isPaid ? 'paid-row' : 'unpaid-row'}}">
+                
+                // 조건 충족 체크
+                const attendanceMet = emp.condition1 === 'no' && emp.condition2 === 'no' && 
+                                     emp.condition3 === 'no' && emp.condition4 === 'no';
+                
+                popupHtml += `
+                    <tr>
                         <td>${{emp.emp_no}}</td>
                         <td>${{emp.name}}</td>
-                        <td><strong style="color: ${{isPaid ? '#28a745' : '#dc3545'}};">${{amount.toLocaleString()}} VND</strong></td>
+                        <td><strong>${{amount.toLocaleString()}} VND</strong></td>
+                        <td>${{isPaid ? '<span class="badge bg-success">지급</span>' : '<span class="badge bg-danger">미지급</span>'}}</td>
                         <td>
-                            <span class="badge ${{isPaid ? 'bg-success' : 'bg-danger'}}">
-                                ${{isPaid ? '지급' : '미지급'}}
-                            </span>
+                            <span class="badge bg-${{attendanceMet ? 'success' : 'danger'}}">출근: ${{attendanceMet ? '✓' : '✗'}}</span>
+                            <span class="badge bg-secondary">AQL: N/A</span>
+                            <span class="badge bg-secondary">5PRS: N/A</span>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                <span class="badge bg-success" title="출근율 충족">출근✓</span>
-                                <span class="badge ${{isPaid ? 'bg-success' : 'bg-danger'}}" title="AQL 조건">AQL: N/A</span>
-                                <span class="badge ${{isPaid ? 'bg-success' : 'bg-danger'}}" title="5PRS 조건">5PRS: N/A</span>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-${{isPaid ? 'success' : 'danger'}}" style="width: ${{isPaid ? '100' : '0'}}%">
+                                    ${{isPaid ? '✓ 조건 충족' : '✗ 조건 미충족'}}
+                                </div>
                             </div>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" 
-                                    onclick="closeModal(); setTimeout(() => showEmployeeDetail('${{emp.emp_no}}'), 100);">
-                                조건 충족
-                            </button>
                         </td>
                     </tr>
                 `;
             }});
             
-            modalContent += `
+            popupHtml += `
                                 </tbody>
                             </table>
+                        </div>
+                        
+                        <!-- 버튼 그룹 -->
+                        <div class="mt-3 d-flex justify-content-end gap-2">
+                            <button class="btn btn-secondary" onclick="closeModal()">닫기</button>
+                            <button class="btn btn-primary" onclick="exportPositionData('${{type}}', '${{position}}')">
+                                <i class="bi bi-download"></i> 데이터 내보내기
+                            </button>
                         </div>
                     </div>
                 </div>
             `;
             
-            modalBody.innerHTML = modalContent;
+            modalBody.innerHTML = popupHtml;
             modal.style.display = 'block';
             
-            // 차트 그리기
+            // 차트 생성 (약간의 딜레이 후)
             setTimeout(() => {{
-                const canvas = document.getElementById(`positionChart${{type.replace('-', '')}}${{position.replace(/[\\s()]/g, '')}}`);
-                if (canvas) {{
-                    const ctx = canvas.getContext('2d');
-                    new Chart(ctx, {{
-                        type: 'doughnut',
-                        data: {{
-                            labels: ['지급', '미지급'],
-                            datasets: [{{
-                                data: [paidEmployees, totalEmployees - paidEmployees],
-                                backgroundColor: ['#28a745', '#dc3545'],
-                                borderWidth: 0
-                            }}]
-                        }},
-                        options: {{
-                            responsive: false,
-                            maintainAspectRatio: false,
-                            plugins: {{
-                                legend: {{
-                                    display: false
-                                }}
-                            }},
-                            cutout: '70%'
-                        }}
-                    }});
-                }}
+                createPopupChart(employees, 'popupChart');
             }}, 100);
         }}
         
-        // 직급별 테이블 필터링
-        function filterPositionTable(filter) {{
-            const rows = document.querySelectorAll('#positionEmployeeTable tbody tr');
-            rows.forEach(row => {{
-                if (filter === 'all') {{
-                    row.style.display = '';
-                }} else if (filter === 'paid' && row.classList.contains('paid-row')) {{
-                    row.style.display = '';
-                }} else if (filter === 'unpaid' && row.classList.contains('unpaid-row')) {{
-                    row.style.display = '';
-                }} else {{
-                    row.style.display = 'none';
-                }}
-            }});
+        // 데이터 내보내기 함수
+        function exportPositionData(type, position) {{
+            const employees = employeeData.filter(e => e.type === type && e.position === position);
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "사번,이름,Type,직급,인센티브,상태\\n"
+                + employees.map(e => `${{e.emp_no}},${{e.name}},${{e.type}},${{e.position}},${{e.august_incentive}},${{parseInt(e.august_incentive) > 0 ? '지급' : '미지급'}}`).join("\\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${{type}}_${{position}}_인센티브.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }}
         
-        // 직원 상세 정보 표시 (대시보드 스타일 UI)
+        // 직원 상세 정보 표시
         function showEmployeeDetail(empNo) {{
             const emp = employeeData.find(e => e.emp_no === empNo);
             if (!emp) return;
@@ -1299,173 +1403,77 @@ def generate_dashboard_html(df, month='august', year=2025):
             const modalBody = document.getElementById('modalBody');
             const modalTitle = document.getElementById('modalTitle');
             
-            modalTitle.textContent = `${{emp.name}} (${{emp.emp_no}}) - 상세 정보`;
-            
-            // 조건 충족 통계 계산
-            const conditions = [
-                {{ name: '출근율 ≥ 88%', value: emp.attendance_rate >= 88, actual: `${{emp.attendance_rate.toFixed(1)}}%` }},
-                {{ name: '무단결근 ≤ 2일', value: emp.unapproved_absences <= 2, actual: `${{emp.unapproved_absences}}일` }},
-                {{ name: '실제근무일 > 0', value: emp.actual_working_days > 0, actual: `${{emp.actual_working_days}}일` }},
-                {{ name: '최소근무일 ≥ 12', value: emp.actual_working_days >= 12, actual: `${{emp.actual_working_days}}일` }},
-                {{ name: '개인AQL 당월실패 = 0', value: emp.aql_failures === 0, actual: `${{emp.aql_failures}}건` }},
-                {{ name: 'AQL 3개월 연속실패 없음', value: emp.continuous_fail !== 'yes', actual: emp.continuous_fail === 'yes' ? '실패' : '통과' }},
-                {{ name: '팀/구역 AQL', value: true, actual: '통과' }},
-                {{ name: '담당구역 reject < 3%', value: true, actual: '통과' }},
-                {{ name: '5PRS 통과율 ≥ 95%', value: emp.pass_rate >= 95, actual: `${{emp.pass_rate.toFixed(1)}}%` }},
-                {{ name: '5PRS 검사량 ≥ 100', value: emp.validation_qty >= 100, actual: `${{emp.validation_qty}}족` }}
-            ];
-            
-            const passedConditions = conditions.filter(c => c.value).length;
-            const totalConditions = conditions.length;
-            const passRate = (passedConditions / totalConditions * 100).toFixed(0);
+            modalTitle.textContent = `${{emp.name}} (${{emp.emp_no}})`;
             
             modalBody.innerHTML = `
-                <!-- 상단 통계 카드 -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="stat-card">
-                            <div class="stat-value">${{emp.type}}</div>
-                            <div class="stat-label">Type 분류</div>
-                        </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>직급:</strong> ${{emp.position}}<br>
+                        <strong>Type:</strong> <span class="type-badge type-${{emp.type.toLowerCase().replace('type-', '')}}">${{emp.type}}</span>
                     </div>
-                    <div class="col-md-4">
-                        <div class="stat-card">
-                            <div class="stat-value">${{emp.position}}</div>
-                            <div class="stat-label">직급</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-card">
-                            <div class="stat-value">${{parseInt(emp.august_incentive).toLocaleString()}} VND</div>
-                            <div class="stat-label">8월 인센티브</div>
-                        </div>
+                    <div class="col-md-6">
+                        <strong>8월 인센티브:</strong> ${{parseInt(emp.august_incentive).toLocaleString()}} VND<br>
+                        <strong>7월 인센티브:</strong> ${{parseInt(emp.july_incentive).toLocaleString()}} VND
                     </div>
                 </div>
                 
-                <!-- 차트와 조건 충족도 -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h6 class="card-title">조건 충족도</h6>
-                                <canvas id="conditionChart${{empNo}}" width="200" height="200"></canvas>
-                                <div class="mt-3">
-                                    <h4>${{passRate}}%</h4>
-                                    <p class="text-muted">${{passedConditions}} / ${{totalConditions}} 조건 충족</p>
-                                </div>
-                            </div>
-                        </div>
+                <!-- 출근 조건 (4개) -->
+                <div class="condition-group">
+                    <div class="condition-group-title attendance">출근 조건 (4개)</div>
+                    <div class="condition-check ${{emp.condition1 === 'yes' ? 'fail' : 'success'}}">
+                        <span>조건 1: 출근율 ≥ 88%</span>
+                        <span>${{emp.attendance_rate.toFixed(2)}}% ${{emp.condition1 === 'yes' ? '❌' : '✅'}}</span>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h6 class="card-title">지급 상태</h6>
-                                <div class="payment-status ${{parseInt(emp.august_incentive) > 0 ? 'paid' : 'unpaid'}}">
-                                    ${{parseInt(emp.august_incentive) > 0 ? `
-                                    <div>
-                                        <i class="fas fa-check-circle"></i>
-                                        <h5>지급 완료</h5>
-                                        <p>${{parseInt(emp.august_incentive).toLocaleString()}} VND</p>
-                                    </div>` : `
-                                    <div>
-                                        <i class="fas fa-times-circle"></i>
-                                        <h5>미지급</h5>
-                                        <p>조건 미충족</p>
-                                    </div>`}}
-                                </div>
-                                <div class="mt-3">
-                                    <small class="text-muted">지난달 인센티브: ${{parseInt(emp.july_incentive).toLocaleString()}} VND</small>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="condition-check ${{emp.condition2 === 'yes' ? 'fail' : 'success'}}">
+                        <span>조건 2: 무단 결근 ≤ 2일</span>
+                        <span>${{emp.unapproved_absences}}일 ${{emp.condition2 === 'yes' ? '❌' : '✅'}}</span>
+                    </div>
+                    <div class="condition-check ${{emp.condition3 === 'yes' ? 'fail' : 'success'}}">
+                        <span>조건 3: 실제 근무일수 > 0</span>
+                        <span>${{emp.actual_working_days}}일 ${{emp.condition3 === 'yes' ? '❌' : '✅'}}</span>
+                    </div>
+                    <div class="condition-check ${{emp.condition4 === 'yes' ? 'fail' : 'success'}}">
+                        <span>조건 4: 최소 근무일 ≥ 12일</span>
+                        <span>${{emp.actual_working_days}}일 ${{emp.condition4 === 'yes' ? '❌' : '✅'}}</span>
                     </div>
                 </div>
                 
-                <!-- 조건 충족 상세 테이블 -->
-                <div class="card">
-                    <div class="card-body">
-                        <h6 class="card-title">조건 충족 상세</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th width="5%">#</th>
-                                        <th width="50%">조건</th>
-                                        <th width="25%">실적</th>
-                                        <th width="20%">결과</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${{conditions.map((cond, idx) => `
-                                    <tr class="${{cond.value ? 'table-success' : 'table-danger'}}">
-                                        <td>${{idx + 1}}</td>
-                                        <td>${{cond.name}}</td>
-                                        <td><strong>${{cond.actual}}</strong></td>
-                                        <td class="text-center">
-                                            ${{cond.value ? '<span class="badge bg-success">충족</span>' : '<span class="badge bg-danger">미충족</span>'}}
-                                        </td>
-                                    </tr>
-                                    `).join('')}}
-                                </tbody>
-                            </table>
-                        </div>
+                <!-- AQL 조건 (4개) -->
+                <div class="condition-group">
+                    <div class="condition-group-title aql">AQL 조건 (4개)</div>
+                    <div class="condition-check success">
+                        <span>조건 5: AQL 실패 횟수 < 3회</span>
+                        <span>${{emp.aql_failures}}회 ✅</span>
+                    </div>
+                    <div class="condition-check success">
+                        <span>조건 6: 연속 실패 없음</span>
+                        <span>${{emp.continuous_fail}} ✅</span>
+                    </div>
+                    <div class="condition-check ${{emp.pass_rate >= 95 ? 'success' : 'fail'}}">
+                        <span>조건 7: 합격률 ≥ 95%</span>
+                        <span>${{emp.pass_rate.toFixed(2)}}% ${{emp.pass_rate >= 95 ? '✅' : '❌'}}</span>
+                    </div>
+                    <div class="condition-check ${{emp.validation_qty >= 100 ? 'success' : 'fail'}}">
+                        <span>조건 8: 검증 수량 ≥ 100개</span>
+                        <span>${{emp.validation_qty}}개 ${{emp.validation_qty >= 100 ? '✅' : '❌'}}</span>
                     </div>
                 </div>
                 
-                <!-- 추가 정보 -->
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <div class="info-group">
-                            <label>출근 정보</label>
-                            <ul class="list-unstyled ms-3">
-                                <li>출근율: ${{emp.attendance_rate.toFixed(1)}}%</li>
-                                <li>실제 근무일: ${{emp.actual_working_days}}일</li>
-                                <li>무단결근: ${{emp.unapproved_absences}}일</li>
-                            </ul>
-                        </div>
+                <!-- 5PRS 조건 (2개) -->
+                <div class="condition-group">
+                    <div class="condition-group-title prs">5PRS 조건 (2개)</div>
+                    <div class="condition-check ${{parseInt(emp.july_incentive) > 0 ? 'success' : 'fail'}}">
+                        <span>조건 9: 이전 달 인센티브 수령</span>
+                        <span>${{parseInt(emp.july_incentive).toLocaleString()}} VND ${{parseInt(emp.july_incentive) > 0 ? '✅' : '❌'}}</span>
                     </div>
-                    <div class="col-md-6">
-                        <div class="info-group">
-                            <label>품질 정보</label>
-                            <ul class="list-unstyled ms-3">
-                                <li>AQL 실패: ${{emp.aql_failures}}건</li>
-                                <li>5PRS 통과율: ${{emp.pass_rate.toFixed(1)}}%</li>
-                                <li>검사량: ${{emp.validation_qty}}족</li>
-                            </ul>
-                        </div>
+                    <div class="condition-check success">
+                        <span>조건 10: 특별 조건 충족</span>
+                        <span>✅</span>
                     </div>
                 </div>
             `;
             
             modal.style.display = 'block';
-            
-            // 차트 그리기
-            setTimeout(() => {{
-                const canvas = document.getElementById(`conditionChart${{empNo}}`);
-                if (canvas) {{
-                    const ctx = canvas.getContext('2d');
-                    new Chart(ctx, {{
-                        type: 'doughnut',
-                        data: {{
-                            labels: ['충족', '미충족'],
-                            datasets: [{{
-                                data: [passedConditions, totalConditions - passedConditions],
-                                backgroundColor: ['#28a745', '#dc3545'],
-                                borderWidth: 0
-                            }}]
-                        }},
-                        options: {{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {{
-                                legend: {{
-                                    position: 'bottom'
-                                }}
-                            }}
-                        }}
-                    }});
-                }}
-            }}, 100);
         }}
         
         // 모달 닫기
@@ -1562,83 +1570,52 @@ def generate_dashboard_html(df, month='august', year=2025):
     
     return html_content
 
-def sync_google_drive_data(month_num, year):
-    """Google Drive에서 데이터 동기화"""
-    try:
-        print("\n🔄 Google Drive 데이터 동기화 시작...")
-        drive_manager = GoogleDriveManager()
-        
-        # 인센티브 데이터 다운로드
-        file_pattern = f"{year}년 {month_num}월 인센티브"
-        files = drive_manager.download_files(file_pattern, 'input_files')
-        
-        if files:
-            print(f"✅ {len(files)}개 파일 동기화 완료")
-            for file in files:
-                print(f"   - {file}")
-            return True
-        else:
-            print("⚠️ Google Drive에서 해당 월 데이터를 찾을 수 없습니다")
-            return False
-    except Exception as e:
-        print(f"❌ Google Drive 동기화 실패: {e}")
-        return False
-
 def main():
     """메인 실행 함수"""
-    parser = argparse.ArgumentParser(description='통합 인센티브 대시보드 생성')
-    parser.add_argument('--month', type=int, default=8, help='월 (1-12)')
-    parser.add_argument('--year', type=int, default=2025, help='연도')
-    parser.add_argument('--sync', action='store_true', help='Google Drive 동기화')
-    args = parser.parse_args()
-    
     print("=" * 80)
-    print("통합 인센티브 대시보드 생성 - 최종 버전")
-    print(f"대상: {args.year}년 {args.month}월")
+    print("완전 통합 인센티브 대시보드 시스템")
     print("=" * 80)
     
-    # Google Drive 동기화 (옵션)
-    if args.sync:
-        if not sync_google_drive_data(args.month, args.year):
-            print("Google Drive 동기화 실패. 로컬 파일 사용.")
+    # Google Drive 동기화 시도
+    month = 'august'
+    year = 2025
     
-    # 월 이름 변환
-    month_names = ['', 'january', 'february', 'march', 'april', 'may', 'june',
-                  'july', 'august', 'september', 'october', 'november', 'december']
-    month_name = month_names[args.month]
+    if GOOGLE_DRIVE_AVAILABLE:
+        print("\n📂 Google Drive 동기화 시도 중...")
+        sync_success = sync_from_google_drive(month, year)
+        if sync_success:
+            print("✅ Google Drive에서 최신 데이터를 가져왔습니다.")
+        else:
+            print("⚠️ Google Drive 동기화 실패. 로컬 파일을 사용합니다.")
     
     # 데이터 로드
-    df = load_incentive_data(month_name, args.year)
+    print("\n📊 데이터 로드 중...")
+    df = load_incentive_data(month, year)
     
     if df.empty:
         print("❌ 데이터 로드 실패")
         return
     
     # 대시보드 생성
-    html_content = generate_dashboard_html(df, month_name, args.year)
+    print("\n🎨 대시보드 생성 중...")
+    html_content = generate_dashboard_html(df, month, year)
     
     # 파일 저장
-    output_file = f'output_files/dashboard_{args.year}_{args.month:02d}.html'
-    os.makedirs('output_files', exist_ok=True)
+    output_file = 'output_files/integrated_dashboard_complete.html'
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
     
-    print(f"✅ 대시보드 생성 완료: {output_file}")
+    print(f"\n✅ 대시보드 생성 완료: {output_file}")
     
     # 통계 출력
     total_employees = len(df)
-    # 동적 인센티브 컬럼 찾기
-    incentive_col = f'{month_name}_incentive'
-    if incentive_col not in df.columns:
-        # august_incentive 컬럼명 사용 (하드코딩된 경우)
-        incentive_col = 'august_incentive'
-    
-    paid_employees = sum(1 for _, row in df.iterrows() if int(row.get(incentive_col, 0)) > 0)
-    total_amount = sum(int(row.get(incentive_col, 0)) for _, row in df.iterrows())
+    paid_employees = sum(1 for _, row in df.iterrows() if int(row.get('august_incentive', 0)) > 0)
+    total_amount = sum(int(row.get('august_incentive', 0)) for _, row in df.iterrows())
     
     print(f"   - 전체 직원: {total_employees}명")
     print(f"   - 지급 대상: {paid_employees}명")
     print(f"   - 총 지급액: {total_amount:,} VND")
+    print("\n" + "=" * 80)
 
 if __name__ == "__main__":
     main()
