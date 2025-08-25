@@ -1,0 +1,31 @@
+{
+  "calculation_date": "2025-08-25T16:51:20.505147",
+  "config": {
+    "year": 2025,
+    "month": "july",
+    "working_days": 23
+  },
+  "statistics": {
+    "total_employees": 459,
+    "paid_employees": "371",
+    "total_amount": 109550000.0,
+    "payment_rate": 80.82788671023965
+  },
+  "type_summary": {
+    "TYPE-2": {
+      "total": 276,
+      "paid": 219,
+      "total_amount": 74500000
+    },
+    "TYPE-1": {
+      "total": 149,
+      "paid": 118,
+      "total_amount": 29950000
+    },
+    "TYPE-3": {
+      "total": 34,
+      "paid": 34,
+      "total_amount": 5100000
+    }
+  }
+}
