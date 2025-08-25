@@ -1432,64 +1432,114 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             background: #1a202c;
         }}
         
+        /* 조건 카드 스타일 - 4-4-2 구조 */
+        .condition-group {{
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }}
+        
+        .condition-group-title {{
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+        
+        .condition-group-title.attendance {{
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }}
+        
+        .condition-group-title.aql {{
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }}
+        
+        .condition-group-title.prs {{
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+        }}
+        
         .condition-check {{
             padding: 12px 15px;
-            margin: 0;
-            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 8px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
         }}
         
         .condition-check:last-child {{
-            border-bottom: none;
+            margin-bottom: 0;
+        }}
+        
+        .condition-check:hover {{
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(3px);
         }}
         
         .condition-check.success {{
-            background: #f0fdf4;
-            color: #166534;
+            background: linear-gradient(135deg, rgba(72, 187, 120, 0.2) 0%, rgba(56, 161, 105, 0.2) 100%);
+            border-color: #48bb78;
+            color: #68d391;
         }}
         
         .condition-check.fail {{
-            background: #fef2f2;
-            color: #991b1b;
+            background: linear-gradient(135deg, rgba(245, 101, 101, 0.2) 0%, rgba(229, 62, 62, 0.2) 100%);
+            border-color: #f56565;
+            color: #fc8181;
         }}
         
         .condition-check.not-applicable {{
-            background: #f9fafb;
-            color: #6b7280;
+            background: rgba(107, 114, 128, 0.1);
+            border-color: rgba(107, 114, 128, 0.3);
+            color: #a0aec0;
+            opacity: 0.7;
         }}
         
-        /* 실제 값 표시 스타일 추가 */
+        /* 실제 값 표시 스타일 - 다크 테마 */
         .actual-value-container {{
             margin-top: 8px;
             padding: 6px 10px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 6px;
             display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }}
         
         .actual-label {{
             font-weight: 600;
-            color: #374151;
+            color: #cbd5e0;
             margin-right: 8px;
+            font-size: 0.9em;
         }}
         
         .actual-value {{
             font-weight: 700;
             font-size: 14px;
-            padding: 2px 6px;
+            padding: 3px 10px;
             border-radius: 4px;
         }}
         
         .actual-value.actual-success {{
-            color: #059669;
-            background: #d1fae5;
+            color: #68d391;
+            background: rgba(72, 187, 120, 0.25);
+            border: 1px solid rgba(72, 187, 120, 0.5);
         }}
         
         .actual-value.actual-fail {{
-            color: #dc2626;
-            background: #fee2e2;
+            color: #fc8181;
+            background: rgba(245, 101, 101, 0.25);
+            border: 1px solid rgba(245, 101, 101, 0.5);
         }}
         
         .condition-icon {{
@@ -1502,9 +1552,72 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             font-weight: 500;
         }}
         
+        /* 밝은 테마 모달 스타일 */
+        .modal-content {{
+            background: white;
+            border: 1px solid #dee2e6;
+            color: #212529;
+        }}
+        
         .modal-header {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border-bottom: 1px solid #dee2e6;
+        }}
+        
+        .modal-body {{
+            background: white;
+            color: #212529;
+        }}
+        
+        .modal-footer {{
+            background: white;
+            border-top: 1px solid #dee2e6;
+        }}
+        
+        /* 모달 내 테이블 스타일 */
+        .modal-body table {{
+            color: #212529;
+        }}
+        
+        .modal-body table th {{
+            background: #f8f9fa !important;
+            color: #495057 !important;
+            border-color: #dee2e6 !important;
+        }}
+        
+        .modal-body table td {{
+            border-color: #dee2e6;
+            color: #212529;
+        }}
+        
+        .modal-body table tr:hover {{
+            background: #f8f9fa;
+        }}
+        
+        .modal-body .table-row-paid {{
+            background: rgba(72, 187, 120, 0.1);
+        }}
+        
+        .modal-body .table-row-paid:hover {{
+            background: rgba(72, 187, 120, 0.15);
+        }}
+        
+        .modal-body .table-row-unpaid {{
+            background: rgba(245, 101, 101, 0.1);
+        }}
+        
+        .modal-body .table-row-unpaid:hover {{
+            background: rgba(245, 101, 101, 0.15);
+        }}
+        
+        /* 조건 요약 텍스트 스타일 */
+        .modal-body .text-muted {{
+            color: #a0aec0 !important;
+        }}
+        
+        .modal-body small {{
+            color: #cbd5e0;
         }}
         
         .chart-container {{
@@ -1784,7 +1897,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 unpaid: '미지급',
                 conditionFulfillmentRate: '충족률',
                 unpaidRate: '미지급률',
-                avgFulfillmentRate: '평균 충족률',
+                avgFulfillmentRate: '인센티브 지급률',
                 average: '평균',
                 conditionDetails: '조건별 충족 현황',
                 // 조건 카테고리
@@ -1939,7 +2052,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 unpaid: 'Unpaid',
                 conditionFulfillmentRate: 'Fulfillment Rate',
                 unpaidRate: 'Unpaid Rate',
-                avgFulfillmentRate: 'Average Fulfillment Rate',
+                avgFulfillmentRate: 'Incentive Payment Rate',
                 average: 'Average',
                 conditionDetails: 'Condition Fulfillment Details',
                 // Condition categories
@@ -2094,7 +2207,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 unpaid: 'Chưa trả',
                 conditionFulfillmentRate: 'Tỷ lệ đáp ứng',
                 unpaidRate: 'Tỷ lệ chưa trả',
-                avgFulfillmentRate: 'Tỷ lệ đáp ứng trung bình',
+                avgFulfillmentRate: 'Tỷ lệ thanh toán khuyến khích',
                 average: 'Trung bình',
                 conditionDetails: 'Chi tiết đáp ứng điều kiện',
                 // Danh mục điều kiện
@@ -2580,7 +2693,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             
             // 지급/미지급 정확한 계산
             const paid = filteredData.filter(emp => {{
-                const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
+                const amount = parseFloat(emp.{month.lower()}_incentive.replace(/[^0-9]/g, '')) || 0;
                 return amount > 0;
             }}).length;
             const unpaid = filteredData.length - paid;
@@ -2593,6 +2706,10 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             const paymentRate = filteredData.length > 0 
                 ? ((paid / filteredData.length) * 100).toFixed(1) 
                 : '0.0';
+            
+            // paymentRate를 window 객체에 저장하여 플러그인에서 사용 가능하게 함
+            window.currentPaymentRate = paymentRate;
+            
             const ctxDoughnut = document.getElementById('positionDoughnutChart').getContext('2d');
             doughnutChart = new Chart(ctxDoughnut, {{
                 type: 'doughnut',
@@ -2643,7 +2760,14 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                         ctx.textBaseline = 'middle';
                         ctx.textAlign = 'center';
                         
-                        const text = `${{paymentRate}}%`;
+                        // paymentRate를 안전하게 가져오기
+                        let displayRate = '0';
+                        try {{
+                            displayRate = window.currentPaymentRate || '0';
+                        }} catch(e) {{
+                            console.warn('Failed to get paymentRate:', e);
+                        }}
+                        const text = `${{displayRate}}%`;
                         const textX = width / 2;
                         const textY = height / 2 - 10;
                         
@@ -2722,17 +2846,16 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             // 통계 표시 - 개선된 구조
             const stats = calculatePositionStats(filteredData);
             
-            // 평균 충족률 계산
-            let totalFulfillment = 0;
-            let fulfillmentCount = 0;
+            // 인센티브 지급률 계산 (지급된 직원 비율)
+            let paidCount = 0;
+            let totalCount = filteredData.length;
             filteredData.forEach(emp => {{
-                const rate = calculateFulfillmentRate(emp);
-                if (rate !== null) {{
-                    totalFulfillment += rate;
-                    fulfillmentCount++;
+                const amount = parseFloat(emp.{month.lower()}_incentive.replace(/[^0-9]/g, '')) || 0;
+                if (amount > 0) {{
+                    paidCount++;
                 }}
             }});
-            const avgFulfillment = fulfillmentCount > 0 ? (totalFulfillment / fulfillmentCount).toFixed(1) : 0;
+            const statsPaymentRate = totalCount > 0 ? ((paidCount / totalCount) * 100).toFixed(1) : 0;
             
             // 직급별 통계 표시 - 간소화된 버전
             document.getElementById('positionStats').innerHTML = `
@@ -2776,12 +2899,12 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             </div>
                         </div>
                         
-                        <!-- 조건 충족률 -->
+                        <!-- 인센티브 지급률 -->
                         <div class="stat-section">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="text-muted">${{t.avgFulfillmentRate || '평균 충족률'}}</span>
-                                <span class="badge bg-${{avgFulfillment >= 80 ? 'success' : avgFulfillment >= 50 ? 'warning' : 'danger'}} fs-6">
-                                    ${{avgFulfillment}}%
+                                <span class="text-muted">${{t.avgFulfillmentRate || '인센티브 지급률'}}</span>
+                                <span class="badge bg-${{statsPaymentRate >= 80 ? 'success' : statsPaymentRate >= 50 ? 'warning' : 'danger'}} fs-6">
+                                    ${{statsPaymentRate}}%
                                 </span>
                             </div>
                         </div>
@@ -2932,7 +3055,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             </thead>
                             <tbody>
                                 ${{filteredData.map(emp => {{
-                                    const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
+                                    const amount = parseFloat(emp.{month.lower()}_incentive.replace(/[^0-9]/g, '')) || 0;
                                     const isPaid = amount > 0;
                                     const rowClass = isPaid ? 'table-row-paid' : 'table-row-unpaid';
                                     
@@ -3151,7 +3274,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                         <tr class="${{rowClass}}" data-payment="${{isPaid ? 'paid' : 'unpaid'}}" onclick="showEmployeeDetail('${{emp.emp_no}}')" style="cursor: pointer;">
                                             <td>${{emp.emp_no}}</td>
                                             <td><strong>${{emp.name}}</strong></td>
-                                            <td class="fw-bold ${{isPaid ? 'text-success' : 'text-danger'}}">${{emp.{month}_incentive}}</td>
+                                            <td class="fw-bold ${{isPaid ? 'text-success' : 'text-danger'}}">${{emp.{month.lower()}_incentive}}</td>
                                             <td>
                                                 <span class="badge ${{isPaid ? 'bg-success' : 'bg-danger'}}">
                                                     ${{isPaid ? (t.paid || '지급') : (t.unpaid || '미지급')}}
@@ -3175,7 +3298,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                                 if (!emp.conditions) return '-';
                                                 
                                                 let basis = [];
-                                                let amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
+                                                let amount = parseFloat(emp.{month.lower()}_incentive.replace(/[^0-9]/g, '')) || 0;
                                                 
                                                 // AQL INSPECTOR 체크
                                                 const isAQLInspector = emp.position && emp.position.toUpperCase().includes('AQL INSPECTOR');
@@ -3310,7 +3433,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             `;
             
             // 계산 결과 - 직급별 현황과 동일한 형식으로 개선
-            const incentiveAmount = parseFloat(employee.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
+            const incentiveAmount = parseFloat(employee.{month.lower()}_incentive.replace(/[^0-9]/g, '')) || 0;
             const status = incentiveAmount > 0 ? (t.paid || '지급') : (t.unpaid || '미지급');
             const statusClass = incentiveAmount > 0 ? 'payment-success' : 'payment-fail';
             
@@ -3334,7 +3457,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                         <table class="table table-sm">
                             <tr>
                                 <td width="50%">${{t.paymentAmount || '지급액'}}:</td>
-                                <td class="text-end"><strong>${{employee.{month}_incentive}}</strong></td>
+                                <td class="text-end"><strong>${{employee.{month.lower()}_incentive}}</strong></td>
                             </tr>
                             <tr>
                                 <td>${{t.changeAmount || '변동'}}:</td>
@@ -3487,7 +3610,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             return mapping[conditionId] || `condition_${{conditionId}}`;
         }}
         
-        // 레거시 조건 그룹 렌더링 (폴백)
+        // 레거시 조건 그룹 렌더링 (폴백) - 4-4-2 구조 개선
         function renderConditionGroupsLegacy(employee) {{
             let html = '';
             const t = translations[currentLanguage];
@@ -3505,33 +3628,66 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 }}
             }});
             
-            // 각 그룹 렌더링 (기존 코드 유지)
+            // 4-4-2 구조로 렌더링
+            const categoryInfo = {{
+                attendance: {{
+                    icon: '📅', 
+                    name: t.attendanceConditions || '출근 조건', 
+                    count: 4,
+                    gradient: 'attendance'
+                }},
+                aql: {{
+                    icon: '🎯', 
+                    name: t.aqlConditions || 'AQL 조건', 
+                    count: 4,
+                    gradient: 'aql'
+                }},
+                '5prs': {{
+                    icon: '📊', 
+                    name: t.prsConditions || '5PRS 조건', 
+                    count: 2,
+                    gradient: 'prs'
+                }}
+            }};
+            
+            // 각 그룹 렌더링 - 4-4-2 구조
             ['attendance', 'aql', '5prs'].forEach(category => {{
-                if (groupedConditions[category].length > 0) {{
-                    const categoryInfo = {{
-                        attendance: {{icon: '📅', name: t.attendanceConditions || '출근 조건', count: 4}},
-                        aql: {{icon: '🎯', name: t.aqlConditions || 'AQL 조건', count: 4}},
-                        '5prs': {{icon: '📊', name: t.prsConditions || '5PRS 조건', count: 2}}
-                    }};
-                    
-                    const info = categoryInfo[category];
-                    html += `
-                        <div class="condition-section">
-                            <div class="condition-section-header ${{category}}">
-                                ${{info.icon}} ${{info.name}} (${{info.count}}${{t.items || '가지'}})
-                            </div>
-                            <div class="condition-section-body">
-                    `;
-                    
-                    groupedConditions[category].forEach(condition => {{
+                const info = categoryInfo[category];
+                const conditions = groupedConditions[category];
+                const applicableCount = conditions.filter(c => c.applicable !== false).length;
+                
+                // 그룹 컨테이너 시작
+                html += `
+                    <div class="condition-group">
+                        <div class="condition-group-title ${{info.gradient}}">
+                            ${{info.icon}} ${{info.name}} 
+                            <span style="float: right; font-size: 0.9em; opacity: 0.9;">
+                                ${{applicableCount}}/${{info.count}} 조건
+                            </span>
+                        </div>
+                        <div class="condition-group-body">
+                `;
+                
+                // 각 조건 렌더링
+                if (conditions.length > 0) {{
+                    conditions.forEach(condition => {{
                         html += renderCondition(condition);
                     }});
-                    
+                }} else {{
+                    // 해당 카테고리에 조건이 없는 경우
                     html += `
+                        <div class="condition-check not-applicable">
+                            <div class="text-center w-100">
+                                <span class="text-muted">${{t.noConditionsInCategory || '이 카테고리에 적용되는 조건이 없습니다'}}</span>
                             </div>
                         </div>
                     `;
                 }}
+                
+                html += `
+                        </div>
+                    </div>
+                `;
             }});
             
             return html;
@@ -3539,28 +3695,50 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         
         // 조건 충족률 계산 함수 (메타데이터 기반)
         function calculateFulfillmentRate(employee) {{
-            // 메타데이터가 있으면 사용
+            // 개선된 로직: 인센티브 지급 여부 기준 (100% 또는 0%)
+            
+            // 1. 인센티브 금액으로 직접 판단 (가장 정확)
+            const incentiveAmount = parseFloat(employee.{month.lower()}_incentive.replace(/[^0-9]/g, '')) || 0;
+            if (incentiveAmount > 0) {{
+                return 100; // 인센티브 받음 = 모든 조건 충족
+            }}
+            
+            // 2. 메타데이터 확인
             if (employee.metadata && employee.metadata.statistics) {{
                 const stats = employee.metadata.statistics;
+                
+                // 특별 계산 직급 체크 (관리자급 등)
+                const managerialPositions = ['SUPERVISOR', 'MANAGER', 'GROUP LEADER', 'HEAD'];
+                const isManagerial = managerialPositions.some(pos => 
+                    employee.position && employee.position.toUpperCase().includes(pos)
+                );
+                
+                if (isManagerial) {{
+                    // 관리자급은 인센티브 여부로만 판단
+                    return incentiveAmount > 0 ? 100 : 0;
+                }}
+                
+                // 일반 직급: 모든 적용 조건 충족 여부
                 if (stats.applicable_conditions > 0) {{
-                    // 실제 통과한 조건 수 계산
                     let passed = 0;
                     if (employee.condition_summary && employee.condition_summary.total_passed) {{
                         passed = employee.condition_summary.total_passed;
                     }} else if (employee.conditions) {{
-                        // 폴백: 조건 데이터에서 직접 계산
                         Object.values(employee.conditions).forEach(cond => {{
                             if (cond.applicable !== false && cond.passed) {{
                                 passed++;
                             }}
                         }});
                     }}
-                    return Math.round((passed / stats.applicable_conditions) * 100);
+                    
+                    // 모든 조건 충족 시 100%, 하나라도 미충족 시 0%
+                    return (passed === stats.applicable_conditions) ? 100 : 0;
                 }}
-                return 100; // 적용 조건이 없으면 100%
+                
+                return incentiveAmount > 0 ? 100 : 0;
             }}
             
-            // 폴백: 기존 방식
+            // 3. 폴백: 조건 데이터 직접 확인
             if (employee.conditions) {{
                 let metConditions = 0;
                 let totalConditions = 0;
@@ -3570,16 +3748,20 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                         if (cond.passed) metConditions++;
                     }}
                 }});
+                
                 if (totalConditions > 0) {{
-                    return Math.round((metConditions / totalConditions) * 100);
+                    // 모든 조건 충족 시 100%, 하나라도 미충족 시 0%
+                    return (metConditions === totalConditions) ? 100 : 0;
                 }}
             }}
             
-            return null; // 계산 불가
+            // 4. 최종 폴백: 인센티브 금액 기준
+            return incentiveAmount > 0 ? 100 : 0;
         }}
         
         // 조건 렌더링 헬퍼 함수
         function renderCondition(condition) {{
+            const t = translations[currentLanguage];
             
             if (condition.applicable === false) {{
                 return `
@@ -3589,37 +3771,67 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             <strong>${{translateConditionName(condition.name)}}</strong>
                         </div>
                         <div class="condition-value">
-                            ${{t.notApplicable}}
+                            <span class="text-muted">${{t.notApplicable || '해당 없음'}}</span>
                         </div>
                     </div>
                 `;
             }} else {{
                 const statusClass = condition.passed ? 'success' : 'fail';
                 const statusIcon = condition.passed ? '✅' : '❌';
-                let displayValue = translateConditionValue(condition.value);
-                let actualValueHtml = '';
+                const statusText = condition.passed ? (t.passed || '충족') : (t.failed || '미충족');
                 
-                // Version 4: 실제 값 표시 - 개선된 버전
+                // 실적값과 기준값 포맷팅
+                let actualValue = '';
+                let thresholdValue = '';
+                
+                // 실제 값 처리
                 if (condition.actual) {{
-                    const actualClass = condition.passed ? 'actual-success' : 'actual-fail';
-                    actualValueHtml = `
-                        <div class="actual-value-container">
-                            <span class="actual-label">${{t.actualValue}}:</span>
-                            <span class="actual-value ${{actualClass}}">${{condition.actual}}</span>
-                        </div>`;
+                    actualValue = condition.actual;
+                }} else if (condition.value !== undefined && condition.value !== null) {{
+                    // value를 실적값으로 사용
+                    if (typeof condition.value === 'number') {{
+                        if (condition.name.includes('율') || condition.name.includes('Rate')) {{
+                            actualValue = `${{(condition.value * 100).toFixed(1)}}%`;
+                        }} else {{
+                            actualValue = `${{condition.value}}`;
+                        }}
+                    }} else {{
+                        actualValue = `${{condition.value}}`;
+                    }}
+                }}
+                
+                // 기준값 처리
+                if (condition.threshold !== undefined && condition.threshold !== null) {{
+                    if (typeof condition.threshold === 'number') {{
+                        if (condition.name.includes('율') || condition.name.includes('Rate')) {{
+                            thresholdValue = `${{(condition.threshold * 100).toFixed(1)}}%`;
+                        }} else {{
+                            thresholdValue = `${{condition.threshold}}`;
+                        }}
+                    }} else {{
+                        thresholdValue = `${{condition.threshold}}`;
+                    }}
                 }}
                 
                 return `
                     <div class="condition-check ${{statusClass}}">
-                        <div>
+                        <div style="margin-bottom: 8px;">
                             <span class="condition-icon">${{statusIcon}}</span>
                             <strong>${{translateConditionName(condition.name)}}</strong>
                         </div>
-                        <div class="condition-value">
-                            <strong>${{displayValue}}</strong>
-                            <br>
-                            <small class="text-muted">(${{t.threshold}}: ${{translateThreshold(condition.threshold)}})</small>
-                            ${{actualValueHtml}}
+                        <div class="condition-value" style="font-size: 0.9em;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>${{t.actualValue || '실적'}}:</span>
+                                <strong>${{actualValue || 'N/A'}}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>${{t.threshold || '기준'}}:</span>
+                                <strong>${{thresholdValue || 'N/A'}}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-top: 1px solid #dee2e6; padding-top: 4px; margin-top: 4px;">
+                                <span>${{t.result || '결과'}}:</span>
+                                <strong class="${{statusClass === 'success' ? 'text-success' : 'text-danger'}}">${{statusText}}</strong>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -4022,7 +4234,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                 conditions[labels.personalAQL].passed++;
                             }} else {{
                                 // AQL INSPECTOR 특별 처리: 인센티브를 받았으면 조건 충족으로 간주
-                                const amount = parseFloat(emp.{month}_incentive?.replace(/[^0-9]/g, '')) || 0;
+                                const amount = parseFloat(emp.{month.lower()}_incentive?.replace(/[^0-9]/g, '')) || 0;
                                 if (position.toUpperCase().includes('AQL INSPECTOR') && amount > 0) {{
                                     conditions[labels.personalAQL].passed++;
                                 }} else {{
@@ -4031,7 +4243,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                             }}
                         }} else {{
                             // AQL INSPECTOR 특별 처리: 인센티브를 받았으면 조건 충족으로 간주
-                            const amount = parseFloat(emp.{month}_incentive?.replace(/[^0-9]/g, '')) || 0;
+                            const amount = parseFloat(emp.{month.lower()}_incentive?.replace(/[^0-9]/g, '')) || 0;
                             if (position.toUpperCase().includes('AQL INSPECTOR') && amount > 0) {{
                                 conditions[labels.personalAQL].passed++;
                             }} else {{
@@ -4141,7 +4353,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             let paidCount = 0;
             
             employees.forEach(emp => {{
-                const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
+                const amount = parseFloat(emp.{month.lower()}_incentive.replace(/[^0-9]/g, '')) || 0;
                 if (amount > 0) {{
                     totalAmount += amount;
                     paidCount++;
@@ -4158,13 +4370,27 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         // 요약 탭 데이터 생성
         function generateSummaryData() {{
             const t = translations[currentLanguage];
+            console.log('generateSummaryData called');
+            console.log('Employee data count:', employeeData.length);
             console.log('Current language:', currentLanguage);
             console.log('Unit people:', t.unitPeople);
+            
             const typeSummary = {{}};
             
             // Type별 데이터 집계
+            if (!employeeData || employeeData.length === 0) {{
+                console.error('employeeData is empty or undefined!');
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">데이터가 없습니다</td></tr>';
+                return;
+            }}
+            
             employeeData.forEach(emp => {{
                 const type = emp.type;
+                if (!type) {{
+                    console.warn('Employee without type:', emp);
+                    return;
+                }}
+                
                 if (!typeSummary[type]) {{
                     typeSummary[type] = {{
                         total: 0,
@@ -4174,37 +4400,66 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 }}
                 
                 typeSummary[type].total++;
-                const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
+                const incentiveField = '{month.lower()}_incentive';
+                const incentiveValue = emp[incentiveField];
+                
+                if (!incentiveValue) {{
+                    console.warn('No incentive value for:', emp.emp_no, 'field:', incentiveField);
+                    return;
+                }}
+                
+                const amount = parseFloat(incentiveValue.replace(/[^0-9]/g, '')) || 0;
                 if (amount > 0) {{
                     typeSummary[type].paid++;
                     typeSummary[type].totalAmount += amount;
                 }}
             }});
             
+            console.log('Type summary:', typeSummary);
+            console.log('Type summary keys:', Object.keys(typeSummary));
+            
             // 테이블 생성
             const tbody = document.getElementById('typeSummaryBody');
-            if (tbody) {{
-                tbody.innerHTML = '';
-                
-                Object.entries(typeSummary).sort().forEach(([type, data]) => {{
-                    const paymentRate = (data.paid / data.total * 100).toFixed(1);
-                    // 평균 지급액 (소수점 제거)
-                    const avgPaid = data.paid > 0 ? Math.round(data.totalAmount / data.paid).toLocaleString() : '0';
-                    const avgTotal = data.total > 0 ? Math.round(data.totalAmount / data.total).toLocaleString() : '0';
-                    
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><span class="type-badge type-${{type.slice(-1).toLowerCase()}}">${{type}}</span></td>
-                            <td>${{data.total}}${{t.unitPeople}}</td>
-                            <td>${{data.paid}}${{t.unitPeople}}</td>
-                            <td>${{paymentRate}}%</td>
-                            <td>${{data.totalAmount.toLocaleString()}} VND</td>
-                            <td>${{avgPaid}} VND</td>
-                            <td>${{avgTotal}} VND</td>
-                        </tr>
-                    `;
-                }});
+            if (!tbody) {{
+                console.error('typeSummaryBody element not found!');
+                return;
             }}
+            
+            console.log('tbody element found:', tbody);
+            tbody.innerHTML = '';
+            
+            // 타입 데이터가 있는지 확인
+            if (Object.keys(typeSummary).length === 0) {{
+                console.error('No type data to display!');
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">Type 데이터가 없습니다</td></tr>';
+                return;
+            }}
+            
+            Object.entries(typeSummary).sort().forEach(([type, data]) => {{
+                console.log('Processing type:', type, 'with data:', data);
+                const paymentRate = (data.paid / data.total * 100).toFixed(1);
+                // 평균 지급액 (소수점 제거)
+                const avgPaid = data.paid > 0 ? Math.round(data.totalAmount / data.paid).toLocaleString() : '0';
+                const avgTotal = data.total > 0 ? Math.round(data.totalAmount / data.total).toLocaleString() : '0';
+                
+                const unitText = t.unitPeople || '명';
+                
+                const rowHtml = `
+                    <tr>
+                        <td><span class="type-badge type-${{type.slice(-1).toLowerCase()}}">${{type}}</span></td>
+                        <td>${{data.total}}${{unitText}}</td>
+                        <td>${{data.paid}}${{unitText}}</td>
+                        <td>${{paymentRate}}%</td>
+                        <td>${{data.totalAmount.toLocaleString()}} VND</td>
+                        <td>${{avgPaid}} VND</td>
+                        <td>${{avgTotal}} VND</td>
+                    </tr>
+                `;
+                console.log('Adding row HTML for type', type, ':', rowHtml);
+                tbody.innerHTML += rowHtml;
+            }});
+            
+            console.log('Table updated with', Object.keys(typeSummary).length, 'types');
         }}
         
         // 직급별 상세 탭 데이터 생성
@@ -4228,7 +4483,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                 
                 positionData[key].total++;
                 positionData[key].employees.push(emp);
-                const amount = parseFloat(emp.{month}_incentive.replace(/[^0-9]/g, '')) || 0;
+                const amount = parseFloat(emp.{month.lower()}_incentive.replace(/[^0-9]/g, '')) || 0;
                 if (amount > 0) {{
                     positionData[key].paid++;
                     positionData[key].totalAmount += amount;
@@ -4501,11 +4756,46 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
         
         // 페이지 로드 시 초기화
         window.onload = function() {{
-            updatePositionFilter();
-            generateSummaryData();
-            generatePositionData();
-            generateCriteriaContent();
+            console.log('Window onload triggered');
+            try {{
+                updatePositionFilter();
+                console.log('updatePositionFilter completed');
+            }} catch(e) {{
+                console.error('Error in updatePositionFilter:', e);
+            }}
+            
+            try {{
+                generateSummaryData();
+                console.log('generateSummaryData completed');
+            }} catch(e) {{
+                console.error('Error in generateSummaryData:', e);
+            }}
+            
+            try {{
+                generatePositionData();
+                console.log('generatePositionData completed');
+            }} catch(e) {{
+                console.error('Error in generatePositionData:', e);
+            }}
+            
+            try {{
+                generateCriteriaContent();
+                console.log('generateCriteriaContent completed');
+            }} catch(e) {{
+                console.error('Error in generateCriteriaContent:', e);
+            }}
             showTab('summary');
+            
+            // 디버깅: 로드 완료 후 데이터 확인
+            console.log('=== Window onload complete ===');
+            console.log('EmployeeData length:', employeeData.length);
+            console.log('First 3 employees:', employeeData.slice(0, 3));
+            
+            // 수동으로 generateSummaryData 재실행 테스트
+            setTimeout(() => {{
+                console.log('=== Manual retry generateSummaryData ===');
+                generateSummaryData();
+            }}, 1000);
             
             // 언어 선택 이벤트 리스너
             document.getElementById('languageSelector').addEventListener('change', function(e) {{
@@ -4612,7 +4902,7 @@ def format_currency(amount):
     return f"{amount:,.0f} VND"
 
 def generate_summary_tab(stats):
-    """요약 탭 HTML 생성"""
+    """요약 탭 HTML 생성 - 동적 JavaScript 생성"""
     return """
         <h3>Type별 현황</h3>
         <table class="table">
@@ -4631,8 +4921,10 @@ def generate_summary_tab(stats):
                 </tr>
             </thead>
             <tbody id="typeSummaryBody">
+                <!-- JavaScript로 동적 생성됨 -->
             </tbody>
         </table>
+        <!-- generateSummaryData는 window.onload에서 호출됨 -->
     """
 
 def generate_position_tab(employees):
@@ -4716,7 +5008,7 @@ def generate_detail_tab(employees, month='july'):
                 <td>{emp['position']}</td>
                 <td><span class="type-badge {type_class}">{type_display}</span></td>
                 <td>{emp['june_incentive']}</td>
-                <td><strong>{emp[f'{month}_incentive']}</strong></td>
+                <td><strong>{emp[f'{month.lower()}_incentive']}</strong></td>
                 <td>{emp['change']}</td>
                 <td>{emp['reason']}</td>
             </tr>
@@ -4730,10 +5022,344 @@ def generate_detail_tab(employees, month='july'):
     return html
 
 def generate_criteria_tab():
-    """인센티브 기준 탭 HTML 생성 - 다국어 지원"""
+    """인센티브 기준 탭 HTML 생성 - 포괄적 정책 문서"""
     return """
-        <div id="criteriaContent">
-            <!-- JavaScript로 동적으로 채워질 예정 -->
+        <div id="criteriaContent" style="background: #f8f9fa; padding: 30px; border-radius: 10px;">
+            <h2 class="mb-4" style="color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px;">
+                QIP 인센티브 지급 정책 가이드
+            </h2>
+            
+            <!-- 정책 요약 섹션 -->
+            <div class="alert alert-info mb-4">
+                <h5 class="alert-heading">📌 핵심 원칙</h5>
+                <p class="mb-2">모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.</p>
+                <p class="mb-0">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.</p>
+            </div>
+            
+            <!-- 10가지 조건 상세 설명 -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📊 10가지 평가 조건 상세</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 출근 조건 -->
+                    <h6 class="text-success mb-3">📅 출근 조건 (4개)</h6>
+                    <table class="table table-sm table-bordered mb-4">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="25%">조건명</th>
+                                <th width="20%">기준</th>
+                                <th width="50%">설명</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>출근율</td>
+                                <td>≥88%</td>
+                                <td>월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>무단결근</td>
+                                <td>≤2일</td>
+                                <td>사전 승인 없는 결근이 월 2일 이하여야 합니다</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>실제 근무일</td>
+                                <td>>0일</td>
+                                <td>실제 출근한 날이 1일 이상이어야 합니다</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>최소 근무일</td>
+                                <td>≥12일</td>
+                                <td>월간 최소 12일 이상 근무해야 합니다</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- AQL 조건 -->
+                    <h6 class="text-primary mb-3">🎯 AQL 조건 (4개)</h6>
+                    <table class="table table-sm table-bordered mb-4">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="25%">조건명</th>
+                                <th width="20%">기준</th>
+                                <th width="50%">설명</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>5</td>
+                                <td>개인 AQL (당월)</td>
+                                <td>실패 0건</td>
+                                <td>당월 개인 AQL 검사 실패가 없어야 합니다</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>개인 AQL (연속성)</td>
+                                <td>3개월 연속 실패 없음</td>
+                                <td>최근 3개월간 연속으로 AQL 실패가 없어야 합니다</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>팀/구역 AQL</td>
+                                <td>3개월 연속 실패 없음</td>
+                                <td>관리하는 팀/구역에서 3개월 연속 실패자가 없어야 합니다</td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>담당구역 Reject율</td>
+                                <td><3%</td>
+                                <td>담당 구역의 품질 불량률이 3% 미만이어야 합니다</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <!-- 5PRS 조건 -->
+                    <h6 class="text-warning mb-3">📊 5PRS 조건 (2개)</h6>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="25%">조건명</th>
+                                <th width="20%">기준</th>
+                                <th width="50%">설명</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>9</td>
+                                <td>5PRS 통과율</td>
+                                <td>≥95%</td>
+                                <td>5점 평가 시스템에서 95% 이상 통과해야 합니다</td>
+                            </tr>
+                            <tr>
+                                <td>10</td>
+                                <td>5PRS 검사량</td>
+                                <td>≥100개</td>
+                                <td>월간 최소 100개 이상 검사를 수행해야 합니다</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 직급별 적용 조건 매트릭스 -->
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">🎖️ 직급별 적용 조건</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning mb-3">
+                        <strong>중요:</strong> AUDITOR & TRAINING TEAM은 조건 7(팀/구역 AQL)과 조건 8(담당구역 Reject율)이 적용됩니다.
+                    </div>
+                    
+                    <h6 class="text-info mb-3">TYPE-1 직급별 조건</h6>
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>직급</th>
+                                <th>적용 조건</th>
+                                <th>조건 수</th>
+                                <th>특이사항</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>MANAGER</strong></td>
+                                <td>1, 2, 3, 4</td>
+                                <td>4개</td>
+                                <td>출근 조건만</td>
+                            </tr>
+                            <tr>
+                                <td><strong>A.MANAGER</strong></td>
+                                <td>1, 2, 3, 4</td>
+                                <td>4개</td>
+                                <td>출근 조건만</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(V) SUPERVISOR</strong></td>
+                                <td>1, 2, 3, 4</td>
+                                <td>4개</td>
+                                <td>출근 조건만</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GROUP LEADER</strong></td>
+                                <td>1, 2, 3, 4</td>
+                                <td>4개</td>
+                                <td>출근 조건만</td>
+                            </tr>
+                            <tr class="table-info">
+                                <td><strong>LINE LEADER</strong></td>
+                                <td>1, 2, 3, 4, 7</td>
+                                <td>5개</td>
+                                <td>출근 + 팀/구역 AQL</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AQL INSPECTOR</strong></td>
+                                <td>1, 2, 3, 4, 5</td>
+                                <td>5개</td>
+                                <td>출근 + 당월 AQL (특별 계산)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ASSEMBLY INSPECTOR</strong></td>
+                                <td>1, 2, 3, 4, 5, 6, 9, 10</td>
+                                <td>8개</td>
+                                <td>출근 + 개인 AQL + 5PRS</td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td><strong>AUDIT & TRAINING TEAM</strong></td>
+                                <td>1, 2, 3, 4, 7, 8</td>
+                                <td>6개</td>
+                                <td>출근 + 팀/구역 AQL + 담당구역 reject</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MODEL MASTER</strong></td>
+                                <td>1, 2, 3, 4, 8</td>
+                                <td>5개</td>
+                                <td>출근 + 담당구역 reject</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h6 class="text-info mb-3 mt-4">TYPE-2 직급별 조건</h6>
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>직급</th>
+                                <th>적용 조건</th>
+                                <th>조건 수</th>
+                                <th>특이사항</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>모든 TYPE-2 직급</strong></td>
+                                <td>1, 2, 3, 4</td>
+                                <td>4개</td>
+                                <td>출근 조건만 적용</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <h6 class="text-info mb-3 mt-4">TYPE-3 직급별 조건</h6>
+                    <table class="table table-sm table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>직급</th>
+                                <th>적용 조건</th>
+                                <th>조건 수</th>
+                                <th>특이사항</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-secondary">
+                                <td><strong>NEW QIP MEMBER</strong></td>
+                                <td>없음</td>
+                                <td>0개</td>
+                                <td>신입직원 - 조건 없이 기본 인센티브</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 인센티브 금액 정보 -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">💰 인센티브 지급액 기준</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>타입</th>
+                                <th>기본 지급 범위</th>
+                                <th>특별 케이스</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>TYPE-1</strong></td>
+                                <td>150,000 ~ 500,000 VND</td>
+                                <td>
+                                    AQL INSPECTOR: 최대 2,600,000 VND<br>
+                                    (Part1: 1,000,000 + Part2: 700,000 + Part3: 900,000)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>TYPE-2</strong></td>
+                                <td>50,000 ~ 300,000 VND</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TYPE-3</strong></td>
+                                <td>30,000 ~ 150,000 VND</td>
+                                <td>신입직원 기본 지급</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- FAQ 섹션 -->
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">❓ 자주 묻는 질문</h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="faqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    Q1. 조건 중 하나만 미충족해도 인센티브를 못 받나요?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    <strong>네, 맞습니다.</strong> 해당 직급에 적용되는 모든 조건을 충족해야만 인센티브를 받을 수 있습니다.
+                                    예를 들어, LINE LEADER는 5개 조건(1,2,3,4,7)을 모두 충족해야 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    Q2. AQL INSPECTOR의 특별 계산이란 무엇인가요?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    AQL INSPECTOR는 3가지 파트로 나누어 계산됩니다:
+                                    <ul>
+                                        <li>Part 1: AQL 평가 결과 (최대 1,000,000 VND)</li>
+                                        <li>Part 2: CFA 자격증 보유 (700,000 VND)</li>
+                                        <li>Part 3: HWK 클레임 방지 (최대 900,000 VND)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Q3. 신입직원(TYPE-3)은 왜 조건이 없나요?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    신입직원은 아직 업무에 적응 중이므로 성과 조건 없이 기본 인센티브를 지급합니다.
+                                    이는 신입직원의 동기부여와 안정적인 정착을 돕기 위한 정책입니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     """
 

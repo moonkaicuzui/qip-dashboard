@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard JS Test</title>
+    <meta charset="utf-8">
+</head>
+<body>
+    <h1>Testing Dashboard JavaScript</h1>
+    <div id="test-output"></div>
+    
+    <script>
+        // Test variable scoping issue
+        function testPaymentRate() {
+            const output = document.getElementById('test-output');
+            let results = [];
+            
+            // Test 1: Local scope paymentRate
+            try {
+                const paymentRate = "75.5";
+                results.push(`✅ Test 1 - Local paymentRate: ${paymentRate}`);
+            } catch(e) {
+                results.push(`❌ Test 1 - Error: ${e.message}`);
+            }
+            
+            // Test 2: Window scope paymentRate
+            try {
+                window.currentPaymentRate = "85.5";
+                const text = `${window.currentPaymentRate}%`;
+                results.push(`✅ Test 2 - Window paymentRate: ${text}`);
+            } catch(e) {
+                results.push(`❌ Test 2 - Error: ${e.message}`);
+            }
+            
+            // Test 3: Template literal with conditional
+            try {
+                const paymentRate = 75;
+                const className = paymentRate >= 80 ? 'success' : paymentRate >= 50 ? 'warning' : 'danger';
+                results.push(`✅ Test 3 - Conditional class: ${className}`);
+            } catch(e) {
+                results.push(`❌ Test 3 - Error: ${e.message}`);
+            }
+            
+            // Test 4: Nested template literals
+            try {
+                const data = { paid: 10, total: 20 };
+                const paymentRate = (data.paid / data.total * 100).toFixed(1);
+                const html = `<td>${paymentRate}%</td>`;
+                results.push(`✅ Test 4 - Nested template: ${html}`);
+            } catch(e) {
+                results.push(`❌ Test 4 - Error: ${e.message}`);
+            }
+            
+            output.innerHTML = results.join('<br>');
+        }
+        
+        // Run test
+        testPaymentRate();
+    </script>
+</body>
+</html>
