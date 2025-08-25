@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Table Population Test</title>
+    <meta charset="utf-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .type-badge {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .type-1 { background-color: #e3f2fd; color: #1976d2; }
+        .type-2 { background-color: #f3e5f5; color: #7b1fa2; }
+        .type-3 { background-color: #e8f5e9; color: #388e3c; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Type Summary Table Test</h2>
+        
+        <table class="table table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th>Type</th>
+                    <th>전체 인원</th>
+                    <th>수령 인원</th>
+                    <th>수령률</th>
+                    <th>총 지급액</th>
+                </tr>
+            </thead>
+            <tbody id="typeSummaryBody">
+                <!-- Table will be populated here -->
+            </tbody>
+        </table>
+        
+        <button class="btn btn-primary" onclick="populateTable()">Populate Table</button>
+        <button class="btn btn-success" onclick="testDirectInsert()">Test Direct Insert</button>
+        
+        <div id="debug" class="mt-3 p-3 bg-light"></div>
+    </div>
+    
+    <script>
+        // Simulated employee data
+        const employeeData = [
+            {type: 'TYPE-1', july_incentive: '150000'},
+            {type: 'TYPE-1', july_incentive: '0'},
+            {type: 'TYPE-2', july_incentive: '150000'},
+            {type: 'TYPE-2', july_incentive: '150000'},
+            {type: 'TYPE-2', july_incentive: '0'},
+            {type: 'TYPE-3', july_incentive: '100000'},
+        ];
+        
+        function populateTable() {
+            const debug = document.getElementById('debug');
+            debug.innerHTML = '<h4>Debug Log:</h4>';
+            
+            const typeSummary = {};
+            
+            // Aggregate data
+            employeeData.forEach(emp => {
+                const type = emp.type;
+                if (!typeSummary[type]) {
+                    typeSummary[type] = {
+                        total: 0,
+                        paid: 0,
+                        totalAmount: 0
+                    };
+                }
+                
+                typeSummary[type].total++;
+                const amount = parseFloat(emp.july_incentive) || 0;
+                if (amount > 0) {
+                    typeSummary[type].paid++;
+                    typeSummary[type].totalAmount += amount;
+                }
+            });
+            
+            debug.innerHTML += `<p>Type Summary: ${JSON.stringify(typeSummary)}</p>`;
+            
+            // Get tbody element
+            const tbody = document.getElementById('typeSummaryBody');
+            debug.innerHTML += `<p>tbody found: ${tbody !== null}</p>`;
+            
+            if (!tbody) {
+                debug.innerHTML += '<p class="text-danger">ERROR: tbody not found!</p>';
+                return;
+            }
+            
+            // Clear existing content
+            tbody.innerHTML = '';
+            debug.innerHTML += '<p>Cleared tbody content</p>';
+            
+            // Add rows
+            Object.entries(typeSummary).sort().forEach(([type, data]) => {
+                const paymentRate = (data.paid / data.total * 100).toFixed(1);
+                
+                const rowHtml = `
+                    <tr>
+                        <td><span class="type-badge type-${type.slice(-1).toLowerCase()}">${type}</span></td>
+                        <td>${data.total}명</td>
+                        <td>${data.paid}명</td>
+                        <td>${paymentRate}%</td>
+                        <td>${data.totalAmount.toLocaleString()} VND</td>
+                    </tr>
+                `;
+                
+                debug.innerHTML += `<p>Adding row for ${type}</p>`;
+                tbody.innerHTML += rowHtml;
+            });
+            
+            debug.innerHTML += `<p class="text-success">Table populated with ${Object.keys(typeSummary).length} types</p>`;
+        }
+        
+        function testDirectInsert() {
+            const tbody = document.getElementById('typeSummaryBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td><span class="type-badge type-1">TYPE-1</span></td>
+                    <td>149명</td>
+                    <td>24명</td>
+                    <td>16.1%</td>
+                    <td>23,800,000 VND</td>
+                </tr>
+                <tr>
+                    <td><span class="type-badge type-2">TYPE-2</span></td>
+                    <td>276명</td>
+                    <td>109명</td>
+                    <td>39.5%</td>
+                    <td>46,350,000 VND</td>
+                </tr>
+                <tr>
+                    <td><span class="type-badge type-3">TYPE-3</span></td>
+                    <td>34명</td>
+                    <td>26명</td>
+                    <td>76.5%</td>
+                    <td>3,750,000 VND</td>
+                </tr>
+            `;
+            document.getElementById('debug').innerHTML = '<p class="text-success">Direct insert completed!</p>';
+        }
+    </script>
+</body>
+</html>
