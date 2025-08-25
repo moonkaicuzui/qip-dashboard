@@ -60,8 +60,50 @@ def determine_type_from_position(position):
     # Default to TYPE-2 for unknown positions
     return 'TYPE-2'
 
-def load_incentive_data(month='august', year=2025):
+def generate_previous_month_data(current_month='august', current_year=2025):
+    """이전 월 데이터 자동 생성"""
+    import random
+    
+    # 이전 월 계산
+    month_map = {
+        'january': 12, 'february': 1, 'march': 2, 'april': 3,
+        'may': 4, 'june': 5, 'july': 6, 'august': 7,
+        'september': 8, 'october': 9, 'november': 10, 'december': 11
+    }
+    
+    month_names = ['january', 'february', 'march', 'april', 'may', 'june', 
+                   'july', 'august', 'september', 'october', 'november', 'december']
+    
+    current_month_num = month_map.get(current_month.lower(), 7)
+    prev_month_name = month_names[current_month_num - 1] if current_month_num > 0 else 'december'
+    prev_year = current_year if current_month_num > 0 else current_year - 1
+    
+    # 이전 월 파일 확인
+    prev_patterns = [
+        f"input_files/{prev_year}년 {get_korean_month(prev_month_name)} 인센티브 지급 세부 정보.csv",
+        f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_*.csv"
+    ]
+    
+    for pattern in prev_patterns:
+        files = glob.glob(pattern)
+        if files:
+            print(f"✅ 이전 월({prev_month_name}) 데이터 발견: {files[0]}")
+            return prev_month_name, prev_year
+    
+    # 이전 월 데이터가 없으면 빈 데이터로 처리
+    print(f"⚠️ {prev_month_name} 데이터가 없습니다. 빈 데이터로 처리됩니다.")
+    
+    # 가짜 데이터를 생성하지 않고 빈 값으로 반환
+    # 실제 데이터가 없을 때는 0 또는 빈 값으로 표시
+    
+    return prev_month_name, prev_year
+
+def load_incentive_data(month='august', year=2025, generate_prev=True):
     """실제 인센티브 데이터 로드"""
+    
+    # 이전 월 데이터 생성/로드
+    if generate_prev:
+        prev_month_name, prev_year = generate_previous_month_data(month, year)
     
     # 가능한 파일 패턴들
     patterns = [
@@ -162,9 +204,65 @@ def load_incentive_data(month='august', year=2025):
             if 'absence_rate' not in df.columns:
                 df['absence_rate'] = 0
             
-            # 이전 달 인센티브 (기본값 0)
-            df['june_incentive'] = '0'
-            df['july_incentive'] = '0'
+            # 이전 달 인센티브 로드
+            prev_month_name = 'july' if month.lower() == 'august' else 'june'
+            prev_year = year
+            
+            # 이전 월 데이터 로드 시도
+            prev_patterns = [
+                f"input_files/{prev_year}년 {get_korean_month(prev_month_name)} 인센티브 지급 세부 정보.csv",
+                f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_*.csv"
+            ]
+            
+            prev_df = pd.DataFrame()
+            for pattern in prev_patterns:
+                prev_files = glob.glob(pattern)
+                if prev_files:
+                    try:
+                        prev_df = pd.read_csv(prev_files[0], encoding='utf-8-sig')
+                        print(f"✅ {prev_month_name} 인센티브 데이터 로드: {prev_files[0]}")
+                        break
+                    except:
+                        pass
+            
+            # 이전 월 데이터와 병합
+            if not prev_df.empty:
+                # 직원번호를 기준으로 이전 월 인센티브 매칭
+                for col in prev_df.columns:
+                    if 'employee' in col.lower() and 'no' in col.lower():
+                        prev_df.rename(columns={col: 'emp_no'}, inplace=True)
+                        break
+                
+                # 이전 월 인센티브 컬럼 찾기
+                for col in prev_df.columns:
+                    if f'{prev_month_name.lower()}_incentive' in col.lower() or f'{prev_month_name.lower()} incentive' in col.lower():
+                        prev_df.rename(columns={col: f'{prev_month_name}_incentive'}, inplace=True)
+                        break
+                
+                # 사번 기준으로 병합
+                if 'emp_no' in prev_df.columns and f'{prev_month_name}_incentive' in prev_df.columns:
+                    prev_df['emp_no'] = prev_df['emp_no'].astype(str)
+                    df['emp_no'] = df['emp_no'].astype(str)
+                    
+                    # 이전 월 인센티브 데이터 병합
+                    df = df.merge(
+                        prev_df[['emp_no', f'{prev_month_name}_incentive']], 
+                        on='emp_no', 
+                        how='left',
+                        suffixes=('', '_prev')
+                    )
+                    
+                    # NaN 값을 '0'으로 대체
+                    df[f'{prev_month_name}_incentive'] = df[f'{prev_month_name}_incentive'].fillna('0')
+                    print(f"✅ {prev_month_name} 인센티브 데이터 병합 완료")
+                else:
+                    df[f'{prev_month_name}_incentive'] = '0'
+            else:
+                df[f'{prev_month_name}_incentive'] = '0'
+            
+            # 다른 월 인센티브도 기본값 설정
+            df['june_incentive'] = df.get('june_incentive', '0')
+            df['july_incentive'] = df.get('july_incentive', '0')
             
             # 퇴사일 필터링 (8월 1일 이전 퇴사자 제외)
             if 'Stop working Date' in df.columns:
@@ -186,8 +284,111 @@ def load_incentive_data(month='august', year=2025):
     print("❌ 인센티브 데이터 파일을 찾을 수 없습니다")
     return pd.DataFrame()
 
+def load_condition_matrix():
+    """조건 매트릭스 JSON 파일 로드"""
+    try:
+        with open('config_files/position_condition_matrix.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        print("⚠️ 조건 매트릭스 파일을 찾을 수 없습니다. 기본 설정 사용")
+        return None
+
+def get_applicable_conditions(position, type_name, condition_matrix):
+    """직급과 타입에 따른 적용 조건 가져오기"""
+    if not condition_matrix:
+        # 기본값
+        return [1, 2, 3, 4]  # 출근 조건만
+    
+    position_upper = str(position).upper()
+    type_matrix = condition_matrix.get('position_matrix', {}).get(type_name, {})
+    
+    # 특정 직급 패턴 확인
+    for pos_key, pos_config in type_matrix.items():
+        if pos_key == 'default':
+            continue
+        patterns = pos_config.get('patterns', [])
+        for pattern in patterns:
+            if pattern in position_upper:
+                return pos_config.get('applicable_conditions', [1, 2, 3, 4])
+    
+    # 기본값 반환
+    return type_matrix.get('default', {}).get('applicable_conditions', [1, 2, 3, 4])
+
+def evaluate_conditions(emp_data, condition_matrix):
+    """직원 데이터에 대한 조건 평가"""
+    if not condition_matrix:
+        return []
+    
+    conditions = condition_matrix.get('conditions', {})
+    position = emp_data.get('position', '')
+    type_name = emp_data.get('type', 'TYPE-2')
+    
+    applicable_conditions = get_applicable_conditions(position, type_name, condition_matrix)
+    results = []
+    
+    for cond_id in applicable_conditions:
+        cond = conditions.get(str(cond_id), {})
+        cond_name = cond.get('description', f'조건 {cond_id}')
+        
+        # 실제 조건 평가
+        is_met = False
+        actual_value = ''
+        
+        if cond_id == 1:  # 출근율 >= 88%
+            attendance_rate = float(emp_data.get('attendance_rate', 0))
+            is_met = attendance_rate >= 88
+            actual_value = f"{attendance_rate:.1f}%"
+        elif cond_id == 2:  # 무단결근 <= 2일
+            unapproved = int(emp_data.get('unapproved_absences', 0))
+            is_met = unapproved <= 2
+            actual_value = f"{unapproved}일"
+        elif cond_id == 3:  # 실제근무일 > 0
+            working_days = int(emp_data.get('actual_working_days', 0))
+            is_met = working_days > 0
+            actual_value = f"{working_days}일"
+        elif cond_id == 4:  # 최소 근무일 >= 12
+            working_days = int(emp_data.get('actual_working_days', 0))
+            is_met = working_days >= 12
+            actual_value = f"{working_days}일"
+        elif cond_id == 5:  # 개인 AQL 당월 실패 = 0
+            aql_failures = int(emp_data.get('aql_failures', 0))
+            is_met = aql_failures == 0
+            actual_value = f"{aql_failures}건"
+        elif cond_id == 6:  # AQL 3개월 연속 실패 없음
+            continuous_fail = str(emp_data.get('continuous_fail', 'NO')).upper()
+            is_met = continuous_fail != 'YES'
+            actual_value = '통과' if is_met else '실패'
+        elif cond_id == 7:  # 팀/구역 AQL
+            # 팀/구역 데이터가 없으면 기본값 통과
+            is_met = True
+            actual_value = '평가 대상 아님'
+        elif cond_id == 8:  # 담당구역 reject < 3%
+            # 담당구역 데이터가 없으면 기본값 통과
+            is_met = True
+            actual_value = '평가 대상 아님'
+        elif cond_id == 9:  # 5PRS 통과율 >= 95%
+            pass_rate = float(emp_data.get('pass_rate', 0))
+            is_met = pass_rate >= 95
+            actual_value = f"{pass_rate:.1f}%"
+        elif cond_id == 10:  # 5PRS 검사량 >= 100
+            validation_qty = int(emp_data.get('validation_qty', 0))
+            is_met = validation_qty >= 100
+            actual_value = f"{validation_qty}족"
+        
+        results.append({
+            'id': cond_id,
+            'name': cond_name,
+            'is_met': is_met,
+            'actual': actual_value
+        })
+    
+    return results
+
 def generate_dashboard_html(df, month='august', year=2025):
     """dashboard_version4.html과 완전히 동일한 대시보드 생성"""
+    
+    # 조건 매트릭스 로드
+    condition_matrix = load_condition_matrix()
     
     # 데이터 준비
     employees = []
@@ -213,6 +414,10 @@ def generate_dashboard_html(df, month='august', year=2025):
             'pass_rate': float(row.get('pass_rate', 0)),
             'validation_qty': int(row.get('validation_qty', 0))
         }
+        
+        # 조건 평가 결과 추가
+        emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
+        
         employees.append(emp)
     
     # 통계 계산
@@ -972,7 +1177,7 @@ def generate_dashboard_html(df, month='august', year=2025):
             }}
         }}
         
-        // 직급별 상세 팝업
+        // 직급별 상세 팝업 - 완전 새로운 UI
         function showPositionDetail(type, position) {{
             const employees = employeeData.filter(e => e.type === type && e.position === position);
             if (employees.length === 0) return;
@@ -981,100 +1186,179 @@ def generate_dashboard_html(df, month='august', year=2025):
             const modalBody = document.getElementById('modalBody');
             const modalTitle = document.getElementById('modalTitle');
             
-            modalTitle.innerHTML = `<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; margin: -15px -15px 20px -15px; border-radius: 5px 5px 0 0;">
-                <h3 style="margin: 0; font-size: 1.2rem;">${{type}} - ${{position}} 인센티브 계산 상세</h3>
-            </div>`;
+            modalTitle.innerHTML = `${{type}} - ${{position}} 인센티브 계산 상세`;
             
             // 요약 통계 계산
             const totalEmployees = employees.length;
             const paidEmployees = employees.filter(e => parseInt(e.august_incentive) > 0).length;
             const avgIncentive = employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees;
+            const paidRate = Math.round(paidEmployees/totalEmployees*100);
+            
+            // 각 직원의 조건 충족 통계 계산
+            const conditionStats = {{}};
+            if (employees[0] && employees[0].condition_results) {{
+                employees[0].condition_results.forEach(cond => {{
+                    conditionStats[cond.id] = {{
+                        name: cond.name,
+                        met: 0,
+                        total: 0
+                    }};
+                }});
+                
+                employees.forEach(emp => {{
+                    if (emp.condition_results) {{
+                        emp.condition_results.forEach(cond => {{
+                            if (conditionStats[cond.id]) {{
+                                conditionStats[cond.id].total++;
+                                if (cond.is_met) {{
+                                    conditionStats[cond.id].met++;
+                                }}
+                            }}
+                        }});
+                    }}
+                }});
+            }}
             
             let modalContent = `
-                <div style="padding: 0 15px;">
-                    <!-- 요약 정보 섹션 -->
-                    <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 20px; margin-bottom: 30px;">
-                        <!-- 지급/미지급 차트 -->
-                        <div style="text-align: center;">
-                            <h6 style="color: #666; margin-bottom: 10px;">지급/미지급 비율</h6>
-                            <div style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
-                                <canvas id="positionChart${{type.replace('-', '')}}${{position.replace(/[\\s()]/g, '')}}" width="150" height="150"></canvas>
-                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                                    <div style="font-size: 1.8rem; font-weight: bold;">${{Math.round(paidEmployees/totalEmployees*100)}}%</div>
-                                    <div style="font-size: 0.8rem; color: #666;">지급률</div>
-                                </div>
-                            </div>
-                            <div style="margin-top: 10px; font-size: 0.9rem;">
-                                <span style="color: #28a745;">지급</span> / <span style="color: #dc3545;">미지급</span>
+                <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 20px; padding: 20px;">
+                    <!-- 왼쪽: 지급/미지급 차트 -->
+                    <div>
+                        <h6 style="color: #666; font-size: 0.85rem; margin-bottom: 10px;">지급/미지급 비율</h6>
+                        <div style="position: relative; width: 180px; height: 180px; margin: 0 auto;">
+                            <canvas id="positionChart${{type.replace('-', '')}}${{position.replace(/[\\s()]/g, '')}}" width="180" height="180"></canvas>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${{paidRate}}%</div>
+                                <div style="font-size: 0.85rem; color: #666;">수령률</div>
                             </div>
                         </div>
-                        
-                        <!-- 조건별 충족률 -->
-                        <div>
-                            <h6 style="color: #666; margin-bottom: 10px;">조건별 충족률</h6>
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                                <div style="margin-bottom: 10px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>출근율 ≥88%</span>
-                                        <span style="font-weight: bold;">${{Math.round(paidEmployees/totalEmployees*100)}}%</span>
-                                    </div>
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                                        <div style="background: #28a745; height: 100%; width: ${{paidEmployees/totalEmployees*100}}%;"></div>
-                                    </div>
+                        <div style="text-align: center; margin-top: 10px; font-size: 0.85rem;">
+                            <span style="color: #28a745;">지급</span> / <span style="color: #dc3545;">미지급</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 중앙: 조건별 충족률 -->
+                    <div>
+                        <h6 style="color: #666; font-size: 0.85rem; margin-bottom: 10px;">조건별 충족률</h6>
+                        <div style="background: white; padding: 0;">
+            `;
+            
+            // 조건별 진행바 동적 생성
+            let condIdx = 1;
+            for (const [condId, stat] of Object.entries(conditionStats)) {{
+                const percentage = stat.total > 0 ? Math.round((stat.met / stat.total) * 100) : 0;
+                modalContent += `
+                            <div style="margin-bottom: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.85rem;">
+                                    <span>${{stat.name}}</span>
+                                    <span style="font-weight: bold;">${{percentage}}%</span>
                                 </div>
-                                <div style="margin-bottom: 10px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>무단결근 ≤2일</span>
-                                        <span style="font-weight: bold;">100%</span>
-                                    </div>
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                                        <div style="background: #28a745; height: 100%; width: 100%;"></div>
-                                    </div>
-                                </div>
-                                <div style="margin-bottom: 10px;">
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>실제 근무일 >0일</span>
-                                        <span style="font-weight: bold;">100%</span>
-                                    </div>
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                                        <div style="background: #28a745; height: 100%; width: 100%;"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                        <span>최소 근무일 ≥12일</span>
-                                        <span style="font-weight: bold;">${{Math.round(paidEmployees/totalEmployees*100)}}%</span>
-                                    </div>
-                                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                                        <div style="background: #28a745; height: 100%; width: ${{paidEmployees/totalEmployees*100}}%;"></div>
-                                    </div>
+                                <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: ${{percentage === 100 ? '#28a745' : percentage >= 50 ? '#ffc107' : '#dc3545'}}; height: 100%; width: ${{percentage}}%; transition: width 0.3s;"></div>
                                 </div>
                             </div>
+                `;
+                condIdx++;
+                if (condIdx > 4) break; // 상위 4개 조건만 표시
+            }}
+            
+            // AQL/5PRS 조건 표시 (해당하는 경우)
+            const hasAQL = Object.keys(conditionStats).some(id => parseInt(id) >= 5 && parseInt(id) <= 8);
+            const has5PRS = Object.keys(conditionStats).some(id => parseInt(id) >= 9 && parseInt(id) <= 10);
+            
+            if (hasAQL || has5PRS) {{
+                modalContent += `
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                `;
+                
+                if (hasAQL) {{
+                    modalContent += `
+                                <div style="margin-bottom: 10px;">
+                                    <span style="font-size: 0.8rem; color: #666;">개인 AQL: 당월 실패 0건</span>
+                                    <span style="float: right; font-size: 0.8rem; color: #6c757d;">평가 대상 아님</span>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <span style="font-size: 0.8rem; color: #666;">연속성 체크: 3개월 연속 실패 없음</span>
+                                    <span style="float: right; font-size: 0.8rem; color: #6c757d;">평가 대상 아님</span>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <span style="font-size: 0.8rem; color: #666;">팀/구역 AQL: 3개월 연속 실패 없음</span>
+                                    <span style="float: right; font-size: 0.8rem; color: #6c757d;">평가 대상 아님</span>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <span style="font-size: 0.8rem; color: #666;">담당구역 reject률 <3%</span>
+                                    <span style="float: right; font-size: 0.8rem; color: #6c757d;">평가 대상 아님</span>
+                                </div>
+                    `;
+                }}
+                
+                if (has5PRS) {{
+                    modalContent += `
+                                <div style="margin-bottom: 10px;">
+                                    <span style="font-size: 0.8rem; color: #666;">5PRS 통과율 ≥95%</span>
+                                    <span style="float: right; font-size: 0.8rem; color: #6c757d;">평가 대상 아님</span>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <span style="font-size: 0.8rem; color: #666;">5PRS 검사량 ≥100개</span>
+                                    <span style="float: right; font-size: 0.8rem; color: #6c757d;">평가 대상 아님</span>
+                                </div>
+                    `;
+                }}
+                
+                modalContent += `
+                            </div>
+                `;
+            }}
+            
+            modalContent += `
                         </div>
-                        
-                        <!-- 인센티브 통계 -->
-                        <div>
-                            <h6 style="color: #666; margin-bottom: 10px;">인센티브 통계</h6>
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
-                                <div style="margin-bottom: 15px;">
-                                    <div style="color: #666; font-size: 0.8rem;">전체 인원</div>
-                                    <div style="font-size: 1.5rem; font-weight: bold;">${{totalEmployees}}명</div>
-                                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                                        <span style="color: #28a745; font-size: 0.9rem;">지급 ${{paidEmployees}}명</span>
-                                        <span style="color: #dc3545; font-size: 0.9rem;">미지급 ${{totalEmployees - paidEmployees}}명</span>
-                                    </div>
+                    </div>
+                    
+                    <!-- 오른쪽: 인센티브 통계 -->
+                    <div>
+                        <h6 style="color: #666; font-size: 0.85rem; margin-bottom: 10px;">📊 인센티브 통계</h6>
+                        <div style="background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 15px;">
+                            <div style="margin-bottom: 20px;">
+                                <div style="color: #666; font-size: 0.75rem;">전체 인원</div>
+                                <div style="font-size: 1.8rem; font-weight: bold; color: #333;">${{totalEmployees}}명</div>
+                                <div style="background: #e9ecef; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-top: 10px;">
+                                    <span style="color: #666; font-size: 0.85rem;">지급 ${{paidEmployees}}명</span>
                                 </div>
-                                <div style="border-top: 1px solid #dee2e6; padding-top: 15px;">
-                                    <div style="color: #666; font-size: 0.8rem;">평균 인센티브</div>
-                                    <div style="font-size: 1.2rem; font-weight: bold; color: #007bff;">${{avgIncentive.toLocaleString()}} VND</div>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #666; font-size: 0.75rem;">수령율:</span>
+                                    <span style="font-size: 1rem; font-weight: bold; color: #333;">${{paidRate}}%</span>
                                 </div>
-                                <div style="margin-top: 15px; border-top: 1px solid #dee2e6; padding-top: 15px;">
-                                    <div style="color: #666; font-size: 0.8rem;">인센티브 지급률</div>
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${{Math.round(paidEmployees/totalEmployees*100)}}%</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                                    <span style="color: #28a745; font-size: 0.85rem;">미지급율:</span>
+                                    <span style="font-size: 1rem; font-weight: bold; color: #dc3545;">${{100 - paidRate}}%</span>
+                                </div>
+                            </div>
+                            
+                            <div style="border-top: 1px solid #dee2e6; padding-top: 15px;">
+                                <div style="color: #666; font-size: 0.75rem;">평균인센티브 기준</div>
+                                <div style="font-size: 1.2rem; font-weight: bold; color: #007bff; margin-top: 5px;">
+                                    ${{avgIncentive.toLocaleString()}} VND
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px; border-top: 1px solid #dee2e6; padding-top: 15px;">
+                                <div style="color: #666; font-size: 0.75rem;">예상인센티브</div>
+                                <div style="font-size: 1.2rem; font-weight: bold; color: #333; margin-top: 5px;">
+                                    ${{avgIncentive.toLocaleString()}} VND
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 20px; text-align: center;">
+                                <div style="background: #28a745; color: white; padding: 10px; border-radius: 6px; font-size: 1rem; font-weight: bold;">
+                                    인센티브 지급률
+                                    <div style="font-size: 1.5rem; margin-top: 5px;">${{paidRate}}%</div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
                     
                     <!-- 조건 충족 상세 테이블 -->
                     <div style="margin-bottom: 20px;">
@@ -1246,10 +1530,18 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             // 차트 그리기
             setTimeout(() => {{
-                const canvas = document.getElementById(`positionChart${{type.replace('-', '')}}${{position.replace(/[\\s()]/g, '')}}`);
+                const chartId = `positionChart${{type.replace('-', '')}}${{position.replace(/[\\s()]/g, '')}}`;
+                const canvas = document.getElementById(chartId);
                 if (canvas) {{
                     const ctx = canvas.getContext('2d');
-                    new Chart(ctx, {{
+                    
+                    // 기존 차트 삭제
+                    if (window[`chart_${{chartId}}`]) {{
+                        window[`chart_${{chartId}}`].destroy();
+                    }}
+                    
+                    // 새 차트 생성
+                    window[`chart_${{chartId}}`] = new Chart(ctx, {{
                         type: 'doughnut',
                         data: {{
                             labels: ['지급', '미지급'],
@@ -1301,21 +1593,9 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             modalTitle.textContent = `${{emp.name}} (${{emp.emp_no}}) - 상세 정보`;
             
-            // 조건 충족 통계 계산
-            const conditions = [
-                {{ name: '출근율 ≥ 88%', value: emp.attendance_rate >= 88, actual: `${{emp.attendance_rate.toFixed(1)}}%` }},
-                {{ name: '무단결근 ≤ 2일', value: emp.unapproved_absences <= 2, actual: `${{emp.unapproved_absences}}일` }},
-                {{ name: '실제근무일 > 0', value: emp.actual_working_days > 0, actual: `${{emp.actual_working_days}}일` }},
-                {{ name: '최소근무일 ≥ 12', value: emp.actual_working_days >= 12, actual: `${{emp.actual_working_days}}일` }},
-                {{ name: '개인AQL 당월실패 = 0', value: emp.aql_failures === 0, actual: `${{emp.aql_failures}}건` }},
-                {{ name: 'AQL 3개월 연속실패 없음', value: emp.continuous_fail !== 'yes', actual: emp.continuous_fail === 'yes' ? '실패' : '통과' }},
-                {{ name: '팀/구역 AQL', value: true, actual: '통과' }},
-                {{ name: '담당구역 reject < 3%', value: true, actual: '통과' }},
-                {{ name: '5PRS 통과율 ≥ 95%', value: emp.pass_rate >= 95, actual: `${{emp.pass_rate.toFixed(1)}}%` }},
-                {{ name: '5PRS 검사량 ≥ 100', value: emp.validation_qty >= 100, actual: `${{emp.validation_qty}}족` }}
-            ];
-            
-            const passedConditions = conditions.filter(c => c.value).length;
+            // 조건 충족 통계 계산 - 실제 데이터 사용
+            const conditions = emp.condition_results || [];
+            const passedConditions = conditions.filter(c => c.is_met).length;
             const totalConditions = conditions.length;
             const passRate = (passedConditions / totalConditions * 100).toFixed(0);
             
@@ -1397,12 +1677,12 @@ def generate_dashboard_html(df, month='august', year=2025):
                                 </thead>
                                 <tbody>
                                     ${{conditions.map((cond, idx) => `
-                                    <tr class="${{cond.value ? 'table-success' : 'table-danger'}}">
+                                    <tr class="${{cond.is_met ? 'table-success' : 'table-danger'}}">
                                         <td>${{idx + 1}}</td>
                                         <td>${{cond.name}}</td>
                                         <td><strong>${{cond.actual}}</strong></td>
                                         <td class="text-center">
-                                            ${{cond.value ? '<span class="badge bg-success">충족</span>' : '<span class="badge bg-danger">미충족</span>'}}
+                                            ${{cond.is_met ? '<span class="badge bg-success">충족</span>' : '<span class="badge bg-danger">미충족</span>'}}
                                         </td>
                                     </tr>
                                     `).join('')}}
@@ -1444,7 +1724,14 @@ def generate_dashboard_html(df, month='august', year=2025):
                 const canvas = document.getElementById(`conditionChart${{empNo}}`);
                 if (canvas) {{
                     const ctx = canvas.getContext('2d');
-                    new Chart(ctx, {{
+                    
+                    // 기존 차트 삭제
+                    if (window[`chart_${{empNo}}`]) {{
+                        window[`chart_${{empNo}}`].destroy();
+                    }}
+                    
+                    // 새 차트 생성
+                    window[`chart_${{empNo}}`] = new Chart(ctx, {{
                         type: 'doughnut',
                         data: {{
                             labels: ['충족', '미충족'],
@@ -1470,6 +1757,13 @@ def generate_dashboard_html(df, month='august', year=2025):
         
         // 모달 닫기
         function closeModal() {{
+            // 모든 차트 정리
+            Object.keys(window).forEach(key => {{
+                if (key.startsWith('chart_') && window[key]) {{
+                    window[key].destroy();
+                    delete window[key];
+                }}
+            }});
             document.getElementById('employeeModal').style.display = 'none';
         }}
         
