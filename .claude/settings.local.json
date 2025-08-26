@@ -21,7 +21,8 @@
       "Bash(cd:*)",
       "mcp__playwright__browser_console_messages",
       "Bash(cd:*)",
-      "Read(//Users/ksmoon/Downloads/대시보드 인센티브 테스트8.3_구글 연동 완료_by Macbook pro_조건 매트릭스 JSON 파일 도입/config_files/**)"
+      "Read(//Users/ksmoon/Downloads/대시보드 인센티브 테스트8.3_구글 연동 완료_by Macbook pro_조건 매트릭스 JSON 파일 도입/config_files/**)",
+      "Read(//Users/ksmoon/Downloads/대시보드 인센티브 테스트8.3_구글 연동 완료_by Macbook pro_조건 매트릭스 JSON 파일 도입/**)"
     ],
     "deny": [],
     "ask": [],
