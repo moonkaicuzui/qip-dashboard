@@ -1330,8 +1330,8 @@ def generate_dashboard_html(df, month='august', year=2025):
                                         
                                         return `
                                         <tr>
-                                            <td>${{index + 1}}</td>
-                                            <td>${{stat.name}}</td>
+                                            <td style="color: ${{isNA ? '#999' : '#000'}};">${{index + 1}}</td>
+                                            <td style="color: ${{isNA ? '#999' : '#000'}};">${{stat.name}}</td>
                                             <td>${{isNA ? `<span style="color: #999;">N/A</span>` : `${{evaluatedCount}}명`}}</td>
                                             <td style="color: ${{isNA ? '#999' : '#28a745'}}; font-weight: bold;">
                                                 ${{isNA ? 'N/A' : `${{stat.met}}명`}}
