@@ -327,7 +327,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v4.2</span></h1>
             <p id="mainSubtitle">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;">보고서 생성일: 2025년 08월 26일 07:03</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;">보고서 생성일: 2025년 08월 26일 08:46</p>
         </div>
         
         <div class="content p-4">
@@ -832,8 +832,8 @@
                                         
                                         return `
                                         <tr>
-                                            <td>${index + 1}</td>
-                                            <td>${stat.name}</td>
+                                            <td style="color: ${isNA ? '#999' : '#000'};">${index + 1}</td>
+                                            <td style="color: ${isNA ? '#999' : '#000'};">${stat.name}</td>
                                             <td>${isNA ? `<span style="color: #999;">N/A</span>` : `${evaluatedCount}명`}</td>
                                             <td style="color: ${isNA ? '#999' : '#28a745'}; font-weight: bold;">
                                                 ${isNA ? 'N/A' : `${stat.met}명`}
