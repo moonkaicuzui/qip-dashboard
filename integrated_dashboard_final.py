@@ -184,14 +184,93 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 if col not in df.columns:
                     df[col] = 'no'
             
-            # AQL/5PRS 컬럼 추가
-            if 'aql_failures' not in df.columns:
+            # AQL 데이터 로드 및 병합
+            aql_file = f"input_files/AQL history/1.HSRG AQL REPORT-{month.upper()}.{year}.csv"
+            if os.path.exists(aql_file):
+                print(f"✅ AQL 데이터 로드: {aql_file}")
+                aql_df = pd.read_csv(aql_file, encoding='utf-8-sig')
+                
+                # Employee NO 기준으로 FAIL 집계
+                aql_df['EMPLOYEE NO'] = aql_df['EMPLOYEE NO'].fillna(0).astype(float).astype(int).astype(str).str.zfill(9)
+                
+                # 각 직원별 실패 건수 계산
+                aql_summary = aql_df[aql_df['RESULT'] == 'FAIL'].groupby('EMPLOYEE NO').size().reset_index(name='aql_failures')
+                aql_summary.columns = ['emp_no', 'aql_failures']
+                
+                # 3개월 연속 실패 체크를 위한 이력 데이터 로드
+                continuous_fail_dict = {}
+                months_to_check = []
+                
+                if month.lower() == 'august':
+                    months_to_check = ['JUNE', 'JULY', 'AUGUST']
+                elif month.lower() == 'july':
+                    months_to_check = ['MAY', 'JUNE', 'JULY']
+                
+                if months_to_check:
+                    monthly_fails = {}
+                    for check_month in months_to_check:
+                        check_file = f"input_files/AQL history/1.HSRG AQL REPORT-{check_month}.{year}.csv"
+                        if os.path.exists(check_file):
+                            month_df = pd.read_csv(check_file, encoding='utf-8-sig')
+                            month_df['EMPLOYEE NO'] = month_df['EMPLOYEE NO'].fillna(0).astype(float).astype(int).astype(str).str.zfill(9)
+                            fails = month_df[month_df['RESULT'] == 'FAIL'].groupby('EMPLOYEE NO').size()
+                            monthly_fails[check_month] = set(fails[fails > 0].index)
+                    
+                    # 3개월 모두 실패한 직원 찾기
+                    if len(monthly_fails) == 3:
+                        continuous_fail_emps = set.intersection(*monthly_fails.values())
+                        for emp in continuous_fail_emps:
+                            continuous_fail_dict[emp] = 'YES'
+                
+                # DataFrame과 병합
+                df['emp_no'] = df['emp_no'].astype(str).str.zfill(9)
+                df = df.merge(aql_summary, on='emp_no', how='left')
+                
+                # NaN 값을 0으로 채우기
+                df['aql_failures'] = df['aql_failures'].fillna(0).astype(int)
+                
+                # 3개월 연속 실패 정보 추가
+                df['continuous_fail'] = df['emp_no'].map(continuous_fail_dict).fillna('NO')
+                
+                print(f"✅ AQL 데이터 병합 완료: {len(aql_summary)}명 실패 기록")
+            else:
+                print(f"⚠️ AQL 데이터 파일이 없습니다: {aql_file}")
                 df['aql_failures'] = 0
-            if 'continuous_fail' not in df.columns:
                 df['continuous_fail'] = 'NO'
-            if 'pass_rate' not in df.columns:
+            
+            # 5PRS 데이터 로드 및 병합
+            prs_file = f"input_files/5prs data {month.lower()}.csv"
+            if os.path.exists(prs_file):
+                print(f"✅ 5PRS 데이터 로드: {prs_file}")
+                prs_df = pd.read_csv(prs_file, encoding='utf-8-sig')
+                
+                # TQC ID 기준으로 집계
+                prs_summary = prs_df.groupby('TQC ID').agg({
+                    'Valiation Qty': 'sum',
+                    'Pass Qty': 'sum'
+                }).reset_index()
+                
+                prs_summary.columns = ['emp_no', 'validation_qty', 'pass_qty']
+                prs_summary['emp_no'] = prs_summary['emp_no'].astype(str)
+                
+                # Pass rate 계산
+                prs_summary['pass_rate'] = 0.0
+                mask = prs_summary['validation_qty'] > 0
+                prs_summary.loc[mask, 'pass_rate'] = (prs_summary.loc[mask, 'pass_qty'] / prs_summary.loc[mask, 'validation_qty']) * 100
+                
+                # DataFrame과 병합
+                df['emp_no'] = df['emp_no'].astype(str)
+                df = df.merge(prs_summary[['emp_no', 'pass_rate', 'validation_qty']], 
+                            on='emp_no', how='left')
+                
+                # NaN 값을 0으로 채우기
+                df['pass_rate'] = df['pass_rate'].fillna(0)
+                df['validation_qty'] = df['validation_qty'].fillna(0)
+                
+                print(f"✅ 5PRS 데이터 병합 완료: {len(prs_summary)}명 데이터")
+            else:
+                print(f"⚠️ 5PRS 데이터 파일이 없습니다: {prs_file}")
                 df['pass_rate'] = 0
-            if 'validation_qty' not in df.columns:
                 df['validation_qty'] = 0
             
             # 출근 관련 컬럼
