@@ -184,6 +184,9 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 if col not in df.columns:
                     df[col] = 'no'
             
+            # 담당구역 매핑 로드
+            area_mapping = load_area_mapping()
+            
             # AQL 데이터 로드 및 병합
             aql_file = f"input_files/AQL history/1.HSRG AQL REPORT-{month.upper()}.{year}.csv"
             if os.path.exists(aql_file):
@@ -196,6 +199,101 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 # 각 직원별 실패 건수 계산
                 aql_summary = aql_df[aql_df['RESULT'] == 'FAIL'].groupby('EMPLOYEE NO').size().reset_index(name='aql_failures')
                 aql_summary.columns = ['emp_no', 'aql_failures']
+                
+                # 조건 8: Building별 reject rate 계산 (담당구역)
+                # 조건 7: 담당구역 3개월 연속 실패 체크
+                if 'BUILDING' in aql_df.columns:
+                    # Building별 reject rate (조건 8: 담당구역)
+                    building_stats = aql_df.groupby('BUILDING').agg({
+                        'RESULT': lambda x: (x == 'FAIL').sum() / len(x) * 100 if len(x) > 0 else 0
+                    }).rename(columns={'RESULT': 'area_reject_rate'})
+                    
+                    # 전체 공장 reject rate (MODEL MASTER용)
+                    total_reject_rate = (aql_df['RESULT'] == 'FAIL').sum() / len(aql_df) * 100 if len(aql_df) > 0 else 0
+                    
+                    # 조건 7: 담당구역의 3개월 연속 실패 체크
+                    building_consecutive_fail = {}
+                    
+                    # 3개월 데이터로 Building별 연속 실패 체크
+                    if month.lower() == 'august':
+                        months_to_check = ['JUNE', 'JULY', 'AUGUST']
+                    elif month.lower() == 'july':
+                        months_to_check = ['MAY', 'JUNE', 'JULY']
+                    else:
+                        months_to_check = []
+                    
+                    if months_to_check:
+                        monthly_building_fails = {}
+                        for check_month in months_to_check:
+                            check_file = f"input_files/AQL history/1.HSRG AQL REPORT-{check_month}.{year}.csv"
+                            if os.path.exists(check_file):
+                                month_df = pd.read_csv(check_file, encoding='utf-8-sig')
+                                if 'BUILDING' in month_df.columns:
+                                    # Building별 실패 여부 확인
+                                    building_fails = month_df[month_df['RESULT'] == 'FAIL']['BUILDING'].unique()
+                                    monthly_building_fails[check_month] = set(building_fails)
+                        
+                        # 3개월 모두 실패한 Building 찾기
+                        if len(monthly_building_fails) == 3:
+                            consecutive_fail_buildings = set.intersection(*monthly_building_fails.values())
+                            for building in consecutive_fail_buildings:
+                                building_consecutive_fail[building] = 'YES'
+                    
+                    # 직원별 담당구역 reject rate 계산
+                    emp_area_stats = []
+                    
+                    if area_mapping:
+                        for emp_no in df['emp_no'].unique():
+                            emp_no_str = str(emp_no).zfill(9)  # emp_no를 문자열로 통일
+                            emp_stats = {'emp_no': emp_no_str}
+                            
+                            # MODEL MASTER 체크
+                            if emp_no_str in area_mapping.get('model_master', {}).get('employees', {}):
+                                # MODEL MASTER는 전체 공장 담당
+                                emp_stats['area_reject_rate'] = total_reject_rate
+                                emp_stats['area_consecutive_fail'] = 'YES' if len(consecutive_fail_buildings) > 0 else 'NO'
+                            
+                            # AUDIT & TRAINING 체크
+                            elif emp_no_str in area_mapping.get('auditor_trainer_areas', {}):
+                                emp_info = area_mapping['auditor_trainer_areas'][emp_no_str]
+                                # 담당 Building 찾기
+                                for condition in emp_info.get('conditions', []):
+                                    for filter_item in condition.get('filters', []):
+                                        if filter_item.get('column') == 'BUILDING':
+                                            building = filter_item.get('value')
+                                            # 해당 Building의 reject rate
+                                            if building in building_stats.index:
+                                                emp_stats['area_reject_rate'] = building_stats.loc[building, 'area_reject_rate']
+                                            else:
+                                                emp_stats['area_reject_rate'] = 0
+                                            # 해당 Building의 연속 실패 여부
+                                            emp_stats['area_consecutive_fail'] = building_consecutive_fail.get(building, 'NO')
+                                            break
+                            else:
+                                # 매핑되지 않은 직원은 자신이 속한 Building 사용
+                                emp_building = aql_df[aql_df['EMPLOYEE NO'] == emp_no_str]['BUILDING'].iloc[0] if len(aql_df[aql_df['EMPLOYEE NO'] == emp_no_str]) > 0 else None
+                                if emp_building and emp_building in building_stats.index:
+                                    emp_stats['area_reject_rate'] = building_stats.loc[emp_building, 'area_reject_rate']
+                                    emp_stats['area_consecutive_fail'] = building_consecutive_fail.get(emp_building, 'NO')
+                                else:
+                                    emp_stats['area_reject_rate'] = 0
+                                    emp_stats['area_consecutive_fail'] = 'NO'
+                            
+                            emp_area_stats.append(emp_stats)
+                    
+                    # DataFrame으로 변환
+                    if emp_area_stats:
+                        emp_area_df = pd.DataFrame(emp_area_stats)
+                        aql_summary = aql_summary.merge(emp_area_df, on='emp_no', how='left')
+                    
+                    # NaN 값 처리
+                    if 'area_reject_rate' not in aql_summary.columns:
+                        aql_summary['area_reject_rate'] = 0
+                    if 'area_consecutive_fail' not in aql_summary.columns:
+                        aql_summary['area_consecutive_fail'] = 'NO'
+                    
+                    aql_summary['area_reject_rate'] = aql_summary['area_reject_rate'].fillna(0)
+                    aql_summary['area_consecutive_fail'] = aql_summary['area_consecutive_fail'].fillna('NO')
                 
                 # 3개월 연속 실패 체크를 위한 이력 데이터 로드
                 continuous_fail_dict = {}
@@ -228,15 +326,20 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 
                 # NaN 값을 0으로 채우기
                 df['aql_failures'] = df['aql_failures'].fillna(0).astype(int)
+                df['area_reject_rate'] = df['area_reject_rate'].fillna(0)
+                df['area_consecutive_fail'] = df['area_consecutive_fail'].fillna('NO')
                 
                 # 3개월 연속 실패 정보 추가
                 df['continuous_fail'] = df['emp_no'].map(continuous_fail_dict).fillna('NO')
                 
                 print(f"✅ AQL 데이터 병합 완료: {len(aql_summary)}명 실패 기록")
+                print(f"   - 팀/구역 reject rate 데이터 포함")
             else:
                 print(f"⚠️ AQL 데이터 파일이 없습니다: {aql_file}")
                 df['aql_failures'] = 0
                 df['continuous_fail'] = 'NO'
+                df['area_reject_rate'] = 0
+                df['area_consecutive_fail'] = 'NO'
             
             # 5PRS 데이터 로드 및 병합
             prs_file = f"input_files/5prs data {month.lower()}.csv"
@@ -372,6 +475,15 @@ def load_condition_matrix():
         print("⚠️ 조건 매트릭스 파일을 찾을 수 없습니다. 기본 설정 사용")
         return None
 
+def load_area_mapping():
+    """담당구역 매핑 JSON 파일 로드"""
+    try:
+        with open('config_files/auditor_trainer_area_mapping.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        print("⚠️ 담당구역 매핑 파일을 찾을 수 없습니다.")
+        return None
+
 def get_applicable_conditions(position, type_name, condition_matrix):
     """직급과 타입에 따른 적용 조건 가져오기"""
     if not condition_matrix:
@@ -464,14 +576,22 @@ def evaluate_conditions(emp_data, condition_matrix):
             continuous_fail = str(emp_data.get('continuous_fail', 'NO')).upper()
             is_met = continuous_fail != 'YES'
             actual_value = '통과' if is_met else '실패'
-        elif cond_id == 7:  # 팀/구역 AQL
-            # 팀/구역 데이터가 없으면 기본값 통과
-            is_met = True
-            actual_value = '평가 대상 아님'
+        elif cond_id == 7:  # 팀/구역 AQL - 3개월 연속 실패 없음
+            # 담당구역(Building)의 3개월 연속 실패 체크
+            # area_consecutive_fail 필드 사용 (area_mapping에서 계산됨)
+            area_consecutive_fail = emp_data.get('area_consecutive_fail', 'NO')
+            is_met = area_consecutive_fail != 'YES'
+            actual_value = '통과' if is_met else '3개월 연속 실패'
         elif cond_id == 8:  # 담당구역 reject < 3%
-            # 담당구역 데이터가 없으면 기본값 통과
-            is_met = True
-            actual_value = '평가 대상 아님'
+            area_reject_rate = float(emp_data.get('area_reject_rate', 0))
+            # 담당구역 reject rate가 3% 미만이면 충족
+            if area_reject_rate > 0:
+                is_met = area_reject_rate < 3.0
+                actual_value = f"{area_reject_rate:.1f}%"
+            else:
+                # 데이터가 없는 경우 기본 충족
+                is_met = True
+                actual_value = '0.0%'
         elif cond_id == 9:  # 5PRS 통과율 >= 95%
             pass_rate = float(emp_data.get('pass_rate', 0))
             is_met = pass_rate >= 95
@@ -518,6 +638,8 @@ def generate_dashboard_html(df, month='august', year=2025):
             'condition4': str(row.get('condition4', 'no')),
             'aql_failures': int(row.get('aql_failures', 0)),
             'continuous_fail': str(row.get('continuous_fail', 'NO')),
+            'area_reject_rate': float(row.get('area_reject_rate', 0)),
+            'area_consecutive_fail': str(row.get('area_consecutive_fail', 'NO')),
             'pass_rate': float(row.get('pass_rate', 0)),
             'validation_qty': int(row.get('validation_qty', 0))
         }
@@ -701,17 +823,21 @@ def generate_dashboard_html(df, month='august', year=2025):
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
+            overflow: hidden; /* 모달 배경 스크롤 방지 */
         }}
         
         .modal-content {{
             background: white;
-            margin: 50px auto;
+            margin: 30px auto; /* 상단 여백 줄임 */
             padding: 0;
             width: 95%;
             max-width: 1100px;
             border-radius: 12px;
-            max-height: 90vh;
-            overflow-y: auto;
+            height: 85vh; /* 고정 높이 */
+            max-height: 85vh; /* 최대 높이 */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* 오버플로우 방지 */
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
         }}
         
@@ -785,10 +911,18 @@ def generate_dashboard_html(df, month='august', year=2025):
             color: white;
             padding: 20px 30px;
             border-radius: 12px 12px 0 0;
+            flex: 0 0 auto; /* 고정 높이 */
+            min-height: 60px;
+            max-height: 60px;
         }}
         
         .modal-body {{
             padding: 30px;
+            overflow-y: auto; /* 본문만 스크롤 */
+            overflow-x: hidden; /* 가로 스크롤 방지 */
+            flex: 1 1 auto; /* 유연한 크기 */
+            min-height: 0; /* flexbox 버그 방지 */
+            max-height: calc(85vh - 120px); /* 헤더 공간 뺄고 높이 제한 */
         }}
         
         .close {{
@@ -1552,6 +1686,10 @@ def generate_dashboard_html(df, month='august', year=2025):
             modalBody.innerHTML = modalContent;
             modal.style.display = 'block';
             
+            // 모달 스크롤 초기화 (맨 위로)
+            modalBody.scrollTop = 0;
+            document.querySelector('.modal-content').scrollTop = 0;
+            
             // 차트 그리기
             setTimeout(() => {{
                 const chartId = `positionChart${{type.replace('-', '')}}${{position.replace(/[\\s()]/g, '')}}`;
@@ -1652,7 +1790,9 @@ def generate_dashboard_html(df, month='august', year=2025):
                         <div class="card">
                             <div class="card-body text-center">
                                 <h6 class="card-title">조건 충족도</h6>
-                                <canvas id="conditionChart${{empNo}}" width="200" height="200"></canvas>
+                                <div style="width: 200px; height: 200px; margin: 0 auto; position: relative;">
+                                    <canvas id="conditionChart${{empNo}}"></canvas>
+                                </div>
                                 <div class="mt-3">
                                     <h4>${{passRate}}%</h4>
                                     <p class="text-muted">${{passedConditions}} / ${{totalConditions}} 조건 충족</p>
@@ -1756,6 +1896,10 @@ def generate_dashboard_html(df, month='august', year=2025):
             `;
             
             modal.style.display = 'block';
+            
+            // 모달 스크롤 초기화 (맨 위로)
+            modalBody.scrollTop = 0;
+            document.querySelector('.modal-content').scrollTop = 0;
             
             // 차트 그리기
             setTimeout(() => {{
