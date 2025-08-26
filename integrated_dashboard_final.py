@@ -200,86 +200,28 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 aql_summary = aql_df[aql_df['RESULT'] == 'FAIL'].groupby('EMPLOYEE NO').size().reset_index(name='aql_failures')
                 aql_summary.columns = ['emp_no', 'aql_failures']
                 
-                # 조건 8: Building별 reject rate 계산 (담당구역)
-                # 조건 7: 담당구역 3개월 연속 실패 체크
+                # Building별 통계 계산
                 if 'BUILDING' in aql_df.columns:
-                    # Building별 reject rate (조건 8: 담당구역)
-                    building_stats = aql_df.groupby('BUILDING').agg({
-                        'RESULT': lambda x: (x == 'FAIL').sum() / len(x) * 100 if len(x) > 0 else 0
-                    }).rename(columns={'RESULT': 'area_reject_rate'})
+                    building_stats = aql_df.groupby('BUILDING')['RESULT'].apply(
+                        lambda x: (x == 'FAIL').sum() / len(x) * 100
+                    ).to_frame('area_reject_rate')
                     
-                    # 전체 공장 reject rate (MODEL MASTER용)
-                    total_reject_rate = (aql_df['RESULT'] == 'FAIL').sum() / len(aql_df) * 100 if len(aql_df) > 0 else 0
+                    total_reject_rate = (aql_df['RESULT'] == 'FAIL').mean() * 100
                     
-                    # 조건 7: 담당구역의 3개월 연속 실패 체크
-                    building_consecutive_fail = {}
+                    # 3개월 연속 실패 체크
+                    building_consecutive_fail = check_consecutive_failures(
+                        month, year, 'BUILDING', 'input_files/AQL history'
+                    )
                     
-                    # 3개월 데이터로 Building별 연속 실패 체크
-                    if month.lower() == 'august':
-                        months_to_check = ['JUNE', 'JULY', 'AUGUST']
-                    elif month.lower() == 'july':
-                        months_to_check = ['MAY', 'JUNE', 'JULY']
-                    else:
-                        months_to_check = []
-                    
-                    if months_to_check:
-                        monthly_building_fails = {}
-                        for check_month in months_to_check:
-                            check_file = f"input_files/AQL history/1.HSRG AQL REPORT-{check_month}.{year}.csv"
-                            if os.path.exists(check_file):
-                                month_df = pd.read_csv(check_file, encoding='utf-8-sig')
-                                if 'BUILDING' in month_df.columns:
-                                    # Building별 실패 여부 확인
-                                    building_fails = month_df[month_df['RESULT'] == 'FAIL']['BUILDING'].unique()
-                                    monthly_building_fails[check_month] = set(building_fails)
-                        
-                        # 3개월 모두 실패한 Building 찾기
-                        if len(monthly_building_fails) == 3:
-                            consecutive_fail_buildings = set.intersection(*monthly_building_fails.values())
-                            for building in consecutive_fail_buildings:
-                                building_consecutive_fail[building] = 'YES'
-                    
-                    # 직원별 담당구역 reject rate 계산
-                    emp_area_stats = []
-                    
+                    # 직원별 담당구역 매핑 및 계산
                     if area_mapping:
-                        for emp_no in df['emp_no'].unique():
-                            emp_no_str = str(emp_no).zfill(9)  # emp_no를 문자열로 통일
-                            emp_stats = {'emp_no': emp_no_str}
-                            
-                            # MODEL MASTER 체크
-                            if emp_no_str in area_mapping.get('model_master', {}).get('employees', {}):
-                                # MODEL MASTER는 전체 공장 담당
-                                emp_stats['area_reject_rate'] = total_reject_rate
-                                emp_stats['area_consecutive_fail'] = 'YES' if len(consecutive_fail_buildings) > 0 else 'NO'
-                            
-                            # AUDIT & TRAINING 체크
-                            elif emp_no_str in area_mapping.get('auditor_trainer_areas', {}):
-                                emp_info = area_mapping['auditor_trainer_areas'][emp_no_str]
-                                # 담당 Building 찾기
-                                for condition in emp_info.get('conditions', []):
-                                    for filter_item in condition.get('filters', []):
-                                        if filter_item.get('column') == 'BUILDING':
-                                            building = filter_item.get('value')
-                                            # 해당 Building의 reject rate
-                                            if building in building_stats.index:
-                                                emp_stats['area_reject_rate'] = building_stats.loc[building, 'area_reject_rate']
-                                            else:
-                                                emp_stats['area_reject_rate'] = 0
-                                            # 해당 Building의 연속 실패 여부
-                                            emp_stats['area_consecutive_fail'] = building_consecutive_fail.get(building, 'NO')
-                                            break
-                            else:
-                                # 매핑되지 않은 직원은 자신이 속한 Building 사용
-                                emp_building = aql_df[aql_df['EMPLOYEE NO'] == emp_no_str]['BUILDING'].iloc[0] if len(aql_df[aql_df['EMPLOYEE NO'] == emp_no_str]) > 0 else None
-                                if emp_building and emp_building in building_stats.index:
-                                    emp_stats['area_reject_rate'] = building_stats.loc[emp_building, 'area_reject_rate']
-                                    emp_stats['area_consecutive_fail'] = building_consecutive_fail.get(emp_building, 'NO')
-                                else:
-                                    emp_stats['area_reject_rate'] = 0
-                                    emp_stats['area_consecutive_fail'] = 'NO'
-                            
-                            emp_area_stats.append(emp_stats)
+                        emp_area_stats = [
+                            calculate_employee_area_stats(
+                                str(emp_no).zfill(9), area_mapping, building_stats, 
+                                building_consecutive_fail, total_reject_rate, aql_df
+                            )
+                            for emp_no in df['emp_no'].unique()
+                        ]
                     
                     # DataFrame으로 변환
                     if emp_area_stats:
@@ -295,30 +237,10 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     aql_summary['area_reject_rate'] = aql_summary['area_reject_rate'].fillna(0)
                     aql_summary['area_consecutive_fail'] = aql_summary['area_consecutive_fail'].fillna('NO')
                 
-                # 3개월 연속 실패 체크를 위한 이력 데이터 로드
-                continuous_fail_dict = {}
-                months_to_check = []
-                
-                if month.lower() == 'august':
-                    months_to_check = ['JUNE', 'JULY', 'AUGUST']
-                elif month.lower() == 'july':
-                    months_to_check = ['MAY', 'JUNE', 'JULY']
-                
-                if months_to_check:
-                    monthly_fails = {}
-                    for check_month in months_to_check:
-                        check_file = f"input_files/AQL history/1.HSRG AQL REPORT-{check_month}.{year}.csv"
-                        if os.path.exists(check_file):
-                            month_df = pd.read_csv(check_file, encoding='utf-8-sig')
-                            month_df['EMPLOYEE NO'] = month_df['EMPLOYEE NO'].fillna(0).astype(float).astype(int).astype(str).str.zfill(9)
-                            fails = month_df[month_df['RESULT'] == 'FAIL'].groupby('EMPLOYEE NO').size()
-                            monthly_fails[check_month] = set(fails[fails > 0].index)
-                    
-                    # 3개월 모두 실패한 직원 찾기
-                    if len(monthly_fails) == 3:
-                        continuous_fail_emps = set.intersection(*monthly_fails.values())
-                        for emp in continuous_fail_emps:
-                            continuous_fail_dict[emp] = 'YES'
+                # 개인별 3개월 연속 실패 체크
+                continuous_fail_dict = check_consecutive_failures(
+                    month, year, 'EMPLOYEE NO', 'input_files/AQL history', is_employee=True
+                )
                 
                 # DataFrame과 병합
                 df['emp_no'] = df['emp_no'].astype(str).str.zfill(9)
@@ -506,110 +428,139 @@ def get_applicable_conditions(position, type_name, condition_matrix):
     return type_matrix.get('default', {}).get('applicable_conditions', [1, 2, 3, 4])
 
 def evaluate_conditions(emp_data, condition_matrix):
-    """직원 데이터에 대한 조건 평가"""
+    """직원 데이터에 대한 조건 평가 (최적화)"""
     if not condition_matrix:
         return []
     
     conditions = condition_matrix.get('conditions', {})
-    position = emp_data.get('position', '')
     type_name = emp_data.get('type', 'TYPE-2')
     
-    # TYPE-3인 경우 모든 조건을 N/A로 처리
+    # TYPE-3: 모든 조건 N/A
     if type_name == 'TYPE-3':
-        results = []
-        for cond_id in range(1, 11):  # 1부터 10까지 모든 조건
-            cond = conditions.get(str(cond_id), {})
-            cond_name = cond.get('description', f'조건 {cond_id}')
-            results.append({
-                'id': cond_id,
-                'name': cond_name,
-                'is_met': False,
-                'actual': 'N/A',
-                'is_na': True  # N/A 표시를 위한 플래그
-            })
-        return results
+        return [create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')) 
+                for cond_id in range(1, 11)]
     
-    applicable_conditions = get_applicable_conditions(position, type_name, condition_matrix)
+    applicable = get_applicable_conditions(emp_data.get('position', ''), type_name, condition_matrix)
     results = []
     
-    # 모든 조건(1-10)에 대해 처리
+    # 조건 평가 함수 매핑
+    evaluators = {
+        1: lambda d: (d.get('attendance_rate', 0) >= 88, f"{d.get('attendance_rate', 0):.1f}%"),
+        2: lambda d: (d.get('unapproved_absences', 0) <= 2, f"{d.get('unapproved_absences', 0)}일"),
+        3: lambda d: (d.get('actual_working_days', 0) > 0, f"{d.get('actual_working_days', 0)}일"),
+        4: lambda d: (d.get('actual_working_days', 0) >= 12, f"{d.get('actual_working_days', 0)}일"),
+        5: lambda d: (d.get('aql_failures', 0) == 0, f"{d.get('aql_failures', 0)}건"),
+        6: lambda d: (d.get('continuous_fail', 'NO') != 'YES', '통과' if d.get('continuous_fail', 'NO') != 'YES' else '실패'),
+        7: lambda d: (d.get('area_consecutive_fail', 'NO') != 'YES', '통과' if d.get('area_consecutive_fail', 'NO') != 'YES' else '3개월 연속 실패'),
+        8: lambda d: evaluate_area_reject(d),
+        9: lambda d: (d.get('pass_rate', 0) >= 95, f"{d.get('pass_rate', 0):.1f}%"),
+        10: lambda d: (d.get('validation_qty', 0) >= 100, f"{d.get('validation_qty', 0)}족")
+    }
+    
     for cond_id in range(1, 11):
-        cond = conditions.get(str(cond_id), {})
-        cond_name = cond.get('description', f'조건 {cond_id}')
+        cond_name = conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')
         
-        # 이 조건이 applicable_conditions에 없으면 N/A로 처리
-        if cond_id not in applicable_conditions:
+        if cond_id not in applicable:
+            results.append(create_na_result(cond_id, cond_name))
+        else:
+            is_met, actual = evaluators[cond_id](emp_data)
             results.append({
                 'id': cond_id,
                 'name': cond_name,
-                'is_met': False,
-                'actual': 'N/A',
-                'is_na': True
+                'is_met': is_met,
+                'actual': actual,
+                'is_na': False
             })
-            continue
-        
-        # 실제 조건 평가
-        is_met = False
-        actual_value = ''
-        
-        if cond_id == 1:  # 출근율 >= 88%
-            attendance_rate = float(emp_data.get('attendance_rate', 0))
-            is_met = attendance_rate >= 88
-            actual_value = f"{attendance_rate:.1f}%"
-        elif cond_id == 2:  # 무단결근 <= 2일
-            unapproved = int(emp_data.get('unapproved_absences', 0))
-            is_met = unapproved <= 2
-            actual_value = f"{unapproved}일"
-        elif cond_id == 3:  # 실제근무일 > 0
-            working_days = int(emp_data.get('actual_working_days', 0))
-            is_met = working_days > 0
-            actual_value = f"{working_days}일"
-        elif cond_id == 4:  # 최소 근무일 >= 12
-            working_days = int(emp_data.get('actual_working_days', 0))
-            is_met = working_days >= 12
-            actual_value = f"{working_days}일"
-        elif cond_id == 5:  # 개인 AQL 당월 실패 = 0
-            aql_failures = int(emp_data.get('aql_failures', 0))
-            is_met = aql_failures == 0
-            actual_value = f"{aql_failures}건"
-        elif cond_id == 6:  # AQL 3개월 연속 실패 없음
-            continuous_fail = str(emp_data.get('continuous_fail', 'NO')).upper()
-            is_met = continuous_fail != 'YES'
-            actual_value = '통과' if is_met else '실패'
-        elif cond_id == 7:  # 팀/구역 AQL - 3개월 연속 실패 없음
-            # 담당구역(Building)의 3개월 연속 실패 체크
-            # area_consecutive_fail 필드 사용 (area_mapping에서 계산됨)
-            area_consecutive_fail = emp_data.get('area_consecutive_fail', 'NO')
-            is_met = area_consecutive_fail != 'YES'
-            actual_value = '통과' if is_met else '3개월 연속 실패'
-        elif cond_id == 8:  # 담당구역 reject < 3%
-            area_reject_rate = float(emp_data.get('area_reject_rate', 0))
-            # 담당구역 reject rate가 3% 미만이면 충족
-            if area_reject_rate > 0:
-                is_met = area_reject_rate < 3.0
-                actual_value = f"{area_reject_rate:.1f}%"
-            else:
-                # 데이터가 없는 경우 기본 충족
-                is_met = True
-                actual_value = '0.0%'
-        elif cond_id == 9:  # 5PRS 통과율 >= 95%
-            pass_rate = float(emp_data.get('pass_rate', 0))
-            is_met = pass_rate >= 95
-            actual_value = f"{pass_rate:.1f}%"
-        elif cond_id == 10:  # 5PRS 검사량 >= 100
-            validation_qty = int(emp_data.get('validation_qty', 0))
-            is_met = validation_qty >= 100
-            actual_value = f"{validation_qty}족"
-        
-        results.append({
-            'id': cond_id,
-            'name': cond_name,
-            'is_met': is_met,
-            'actual': actual_value,
-            'is_na': False
-        })
     
     return results
+
+def create_na_result(cond_id, cond_name):
+    """N/A 결과 생성 헬퍼"""
+    return {
+        'id': cond_id,
+        'name': cond_name,
+        'is_met': False,
+        'actual': 'N/A',
+        'is_na': True
+    }
+
+def evaluate_area_reject(emp_data):
+    """조건 8 평가 헬퍼"""
+    rate = float(emp_data.get('area_reject_rate', 0))
+    if rate > 0:
+        return rate < 3.0, f"{rate:.1f}%"
+    return True, '0.0%'
+
+def check_consecutive_failures(month, year, group_col, data_path, is_employee=False):
+    """3개월 연속 실패 체크 (통합 함수)"""
+    months_map = {
+        'august': ['JUNE', 'JULY', 'AUGUST'],
+        'july': ['MAY', 'JUNE', 'JULY']
+    }
+    months_to_check = months_map.get(month.lower(), [])
+    
+    if not months_to_check:
+        return {}
+    
+    monthly_fails = {}
+    for check_month in months_to_check:
+        check_file = f"{data_path}/1.HSRG AQL REPORT-{check_month}.{year}.csv"
+        if os.path.exists(check_file):
+            month_df = pd.read_csv(check_file, encoding='utf-8-sig')
+            
+            if is_employee:
+                month_df['EMPLOYEE NO'] = month_df['EMPLOYEE NO'].fillna(0).astype(float).astype(int).astype(str).str.zfill(9)
+                fails = month_df[month_df['RESULT'] == 'FAIL'].groupby('EMPLOYEE NO').size()
+                monthly_fails[check_month] = set(fails[fails > 0].index)
+            else:
+                if group_col in month_df.columns:
+                    fails = month_df[month_df['RESULT'] == 'FAIL'][group_col].unique()
+                    monthly_fails[check_month] = set(fails)
+    
+    # 3개월 모두 실패한 항목 찾기
+    if len(monthly_fails) == 3:
+        consecutive_fails = set.intersection(*monthly_fails.values())
+        return {item: 'YES' for item in consecutive_fails}
+    
+    return {}
+
+def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats, 
+                                 building_consecutive_fail, total_reject_rate, aql_df):
+    """직원별 담당구역 통계 계산"""
+    emp_stats = {'emp_no': emp_no_str}
+    
+    # MODEL MASTER
+    if emp_no_str in area_mapping.get('model_master', {}).get('employees', {}):
+        emp_stats['area_reject_rate'] = total_reject_rate
+        emp_stats['area_consecutive_fail'] = 'YES' if any(v == 'YES' for v in building_consecutive_fail.values()) else 'NO'
+    
+    # AUDIT & TRAINING
+    elif emp_no_str in area_mapping.get('auditor_trainer_areas', {}):
+        emp_info = area_mapping['auditor_trainer_areas'][emp_no_str]
+        for condition in emp_info.get('conditions', []):
+            for filter_item in condition.get('filters', []):
+                if filter_item.get('column') == 'BUILDING':
+                    building = filter_item.get('value')
+                    emp_stats['area_reject_rate'] = building_stats.get(building, {}).get('area_reject_rate', 0) if isinstance(building_stats, dict) else building_stats.loc[building, 'area_reject_rate'] if building in building_stats.index else 0
+                    emp_stats['area_consecutive_fail'] = building_consecutive_fail.get(building, 'NO')
+                    break
+    
+    # 기타 직원
+    else:
+        emp_df = aql_df[aql_df['EMPLOYEE NO'] == emp_no_str]
+        if not emp_df.empty and 'BUILDING' in emp_df.columns:
+            emp_building = emp_df['BUILDING'].iloc[0]
+            if emp_building and emp_building in building_stats.index:
+                emp_stats['area_reject_rate'] = building_stats.loc[emp_building, 'area_reject_rate']
+                emp_stats['area_consecutive_fail'] = building_consecutive_fail.get(emp_building, 'NO')
+            else:
+                emp_stats['area_reject_rate'] = 0
+                emp_stats['area_consecutive_fail'] = 'NO'
+        else:
+            emp_stats['area_reject_rate'] = 0
+            emp_stats['area_consecutive_fail'] = 'NO'
+    
+    return emp_stats
 
 def generate_dashboard_html(df, month='august', year=2025):
     """dashboard_version4.html과 완전히 동일한 대시보드 생성"""
