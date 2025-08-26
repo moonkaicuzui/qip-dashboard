@@ -1397,44 +1397,54 @@ def generate_dashboard_html(df, month='august', year=2025):
                                 ${{(() => {{
                                     if (!emp.condition_results || emp.condition_results.length === 0) return '';
                                     
-                                    // 카테고리별로 조건 그룹화
-                                    const attendance = emp.condition_results.slice(0, 4); // 조건 1-4: 출근
-                                    const aql = emp.condition_results.slice(4, 8); // 조건 5-8: AQL
-                                    const prs = emp.condition_results.slice(8, 10); // 조건 9-10: 5PRS
+                                    // 카테고리별로 조건 그룹화 (id 기준으로 필터링)
+                                    const attendance = emp.condition_results.filter(c => c.id >= 1 && c.id <= 4); // 조건 1-4: 출근
+                                    const aql = emp.condition_results.filter(c => c.id >= 5 && c.id <= 8); // 조건 5-8: AQL
+                                    const prs = emp.condition_results.filter(c => c.id >= 9 && c.id <= 10); // 조건 9-10: 5PRS
                                     
                                     let badges = [];
                                     
                                     // 출근 카테고리 평가
-                                    const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
-                                    const attendanceMet = !attendanceNA && attendance.every(c => c.is_met);
-                                    if (attendanceNA) {{
-                                        badges.push('<span class="badge" style="background-color: #999;" title="출근 조건">출근: N/A</span>');
-                                    }} else if (attendanceMet) {{
-                                        badges.push('<span class="badge bg-success" title="출근 조건 충족">출근 ✓</span>');
-                                    }} else {{
-                                        badges.push('<span class="badge bg-danger" title="출근 조건 미충족">출근 ✗</span>');
+                                    if (attendance.length > 0) {{
+                                        const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
+                                        const attendanceMet = !attendanceNA && attendance.every(c => c.is_met);
+                                        if (attendanceNA) {{
+                                            badges.push('<span class="badge" style="background-color: #999;" title="출근 조건">출근: N/A</span>');
+                                        }} else if (attendanceMet) {{
+                                            badges.push('<span class="badge bg-success" title="출근 조건 충족">출근 ✓</span>');
+                                        }} else {{
+                                            badges.push('<span class="badge bg-danger" title="출근 조건 미충족">출근 ✗</span>');
+                                        }}
                                     }}
                                     
                                     // AQL 카테고리 평가
-                                    const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
-                                    const aqlMet = !aqlNA && aql.every(c => c.is_met);
-                                    if (aqlNA) {{
-                                        badges.push('<span class="badge" style="background-color: #999;" title="AQL 조건">AQL: N/A</span>');
-                                    }} else if (aqlMet) {{
-                                        badges.push('<span class="badge bg-success" title="AQL 조건 충족">AQL ✓</span>');
+                                    if (aql.length > 0) {{
+                                        const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
+                                        const aqlMet = !aqlNA && aql.every(c => c.is_met);
+                                        if (aqlNA) {{
+                                            badges.push('<span class="badge" style="background-color: #999;" title="AQL 조건">AQL: N/A</span>');
+                                        }} else if (aqlMet) {{
+                                            badges.push('<span class="badge bg-success" title="AQL 조건 충족">AQL ✓</span>');
+                                        }} else {{
+                                            badges.push('<span class="badge bg-danger" title="AQL 조건 미충족">AQL ✗</span>');
+                                        }}
                                     }} else {{
-                                        badges.push('<span class="badge bg-danger" title="AQL 조건 미충족">AQL ✗</span>');
+                                        badges.push('<span class="badge" style="background-color: #999;" title="AQL 조건">AQL: N/A</span>');
                                     }}
                                     
                                     // 5PRS 카테고리 평가
-                                    const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
-                                    const prsMet = !prsNA && prs.every(c => c.is_met);
-                                    if (prsNA) {{
-                                        badges.push('<span class="badge" style="background-color: #999;" title="5PRS 조건">5PRS: N/A</span>');
-                                    }} else if (prsMet) {{
-                                        badges.push('<span class="badge bg-success" title="5PRS 조건 충족">5PRS ✓</span>');
+                                    if (prs.length > 0) {{
+                                        const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
+                                        const prsMet = !prsNA && prs.every(c => c.is_met);
+                                        if (prsNA) {{
+                                            badges.push('<span class="badge" style="background-color: #999;" title="5PRS 조건">5PRS: N/A</span>');
+                                        }} else if (prsMet) {{
+                                            badges.push('<span class="badge bg-success" title="5PRS 조건 충족">5PRS ✓</span>');
+                                        }} else {{
+                                            badges.push('<span class="badge bg-danger" title="5PRS 조건 미충족">5PRS ✗</span>');
+                                        }}
                                     }} else {{
-                                        badges.push('<span class="badge bg-danger" title="5PRS 조건 미충족">5PRS ✗</span>');
+                                        badges.push('<span class="badge" style="background-color: #999;" title="5PRS 조건">5PRS: N/A</span>');
                                     }}
                                     
                                     return badges.join('');
