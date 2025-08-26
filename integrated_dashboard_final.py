@@ -1407,7 +1407,9 @@ def generate_dashboard_html(df, month='august', year=2025):
                                     // 출근 카테고리 평가
                                     if (attendance.length > 0) {{
                                         const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
-                                        const attendanceMet = !attendanceNA && attendance.every(c => c.is_met);
+                                        // N/A가 아닌 조건들만 필터링하여 평가
+                                        const applicableAttendance = attendance.filter(c => !c.is_na && c.actual !== 'N/A');
+                                        const attendanceMet = applicableAttendance.length > 0 && applicableAttendance.every(c => c.is_met);
                                         if (attendanceNA) {{
                                             badges.push('<span class="badge" style="background-color: #999;" title="출근 조건">출근: N/A</span>');
                                         }} else if (attendanceMet) {{
@@ -1420,7 +1422,9 @@ def generate_dashboard_html(df, month='august', year=2025):
                                     // AQL 카테고리 평가
                                     if (aql.length > 0) {{
                                         const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
-                                        const aqlMet = !aqlNA && aql.every(c => c.is_met);
+                                        // N/A가 아닌 조건들만 필터링하여 평가
+                                        const applicableAql = aql.filter(c => !c.is_na && c.actual !== 'N/A');
+                                        const aqlMet = applicableAql.length > 0 && applicableAql.every(c => c.is_met);
                                         if (aqlNA) {{
                                             badges.push('<span class="badge" style="background-color: #999;" title="AQL 조건">AQL: N/A</span>');
                                         }} else if (aqlMet) {{
@@ -1435,7 +1439,9 @@ def generate_dashboard_html(df, month='august', year=2025):
                                     // 5PRS 카테고리 평가
                                     if (prs.length > 0) {{
                                         const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
-                                        const prsMet = !prsNA && prs.every(c => c.is_met);
+                                        // N/A가 아닌 조건들만 필터링하여 평가
+                                        const applicablePrs = prs.filter(c => !c.is_na && c.actual !== 'N/A');
+                                        const prsMet = applicablePrs.length > 0 && applicablePrs.every(c => c.is_met);
                                         if (prsNA) {{
                                             badges.push('<span class="badge" style="background-color: #999;" title="5PRS 조건">5PRS: N/A</span>');
                                         }} else if (prsMet) {{
