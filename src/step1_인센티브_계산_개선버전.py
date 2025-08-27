@@ -2420,8 +2420,15 @@ class CompleteQIPCalculator:
         return amounts.get(str(months), 0)
     
     def get_assembly_inspector_amount(self, continuous_months: int) -> int:
-        """연속 충족 개월 수에 따른 Assembly Inspector 인센티브 금액 결정"""
-        # 인센티브 금액 테이블
+        """연속 충족 개월 수에 따른 Assembly Inspector 인센티브 금액 결정
+        
+        이 테이블은 Assembly Inspector, Model Master, Audit & Training 
+        3개 직급 모두에 동일하게 적용됩니다.
+        
+        Condition 1: 연속으로 performance 유지 시 (2개월 이상)
+        Condition 2: 1개월만 달성 시 150,000 VND 고정
+        """
+        # 인센티브 금액 테이블 (이미지와 완벽히 일치)
         incentive_table = {
             0: 150000,    # 처음 충족 또는 연속 끊김 후 재충족
             1: 150000,    # 1개월 연속

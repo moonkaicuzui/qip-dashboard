@@ -1288,9 +1288,9 @@ def generate_dashboard_html(df, month='august', year=2025):
                                 </tr>
                                 <tr>
                                     <td>8</td>
-                                    <td>담당구역 Reject율</td>
+                                    <td>담당구역 AQL Reject율</td>
                                     <td><3%</td>
-                                    <td>담당 구역의 품질 불량률이 3% 미만이어야 합니다</td>
+                                    <td>담당 구역의 AQL 리젝률이 3% 미만이어야 합니다</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1311,7 +1311,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                                     <td>9</td>
                                     <td>5PRS 통과율</td>
                                     <td>≥95%</td>
-                                    <td>5점 평가 시스템에서 95% 이상 통과해야 합니다</td>
+                                    <td>5족 평가 시스템에서 95% 이상 통과해야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>10</td>
@@ -1330,9 +1330,6 @@ def generate_dashboard_html(df, month='august', year=2025):
                         <h5 class="mb-0">🎖️ 직급별 적용 조건</h5>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-warning mb-3">
-                            <strong>중요:</strong> AUDITOR & TRAINING TEAM은 조건 7(팀/구역 AQL)과 조건 8(담당구역 Reject율)이 적용됩니다.
-                        </div>
                         
                         <h6 class="text-info mb-3">TYPE-1 직급별 조건</h6>
                         <table class="table table-sm table-bordered table-hover">
@@ -1437,7 +1434,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                                     <td><strong>NEW QIP MEMBER</strong></td>
                                     <td>없음</td>
                                     <td>0개</td>
-                                    <td>신입직원 - 조건 없이 기본 인센티브</td>
+                                    <td>신입직원 - 인센티브 없음</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1447,74 +1444,145 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <!-- 인센티브 금액 정보 -->
                 <div class="card mb-4">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">💰 인센티브 지급액 기준</h5>
+                        <h5 class="mb-0">💰 인센티브 지급액 계산 방법</h5>
                     </div>
                     <div class="card-body">
                         <!-- TYPE-1 인센티브 테이블 -->
-                        <h6 class="text-primary mb-3">TYPE-1 직급 인센티브</h6>
+                        <h6 class="text-primary mb-3">TYPE-1 직급별 인센티브 계산 방법 및 실제 예시</h6>
                         <table class="table table-sm table-bordered mb-4">
                             <thead class="table-light">
                                 <tr>
-                                    <th>직급</th>
-                                    <th>금액 범위 (VND)</th>
-                                    <th>비고</th>
+                                    <th width="20%">직급</th>
+                                    <th width="40%">계산 방법</th>
+                                    <th width="40%">실제 계산 예시 (2025년 8월)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>MANAGER</td>
-                                    <td>450,000 ~ 500,000</td>
-                                    <td>최고 관리직</td>
+                                    <td><strong>1. MANAGER</strong></td>
+                                    <td><strong>조건 충족시 TYPE-1 평균 인센티브</strong><br>
+                                        <span class="text-primary">인센티브 = Line Leader 평균 × 3.5</span><br>
+                                        적용 조건: 출근(1-4) = 4개 조건</td>
+                                    <td>Line Leader 평균: 138,485 VND<br>
+                                        계산: 138,485 × 3.5 = <strong>484,698 VND</strong><br>
+                                        조건 미충족 → 0 VND</td>
                                 </tr>
                                 <tr>
-                                    <td>A.MANAGER</td>
-                                    <td>400,000 ~ 450,000</td>
-                                    <td>부관리자</td>
+                                    <td><strong>2. A.MANAGER</strong></td>
+                                    <td><strong>조건 충족시 TYPE-1 평균 인센티브</strong><br>
+                                        <span class="text-primary">인센티브 = Line Leader 평균 × 3</span><br>
+                                        적용 조건: 출근(1-4) = 4개 조건</td>
+                                    <td>예시: 618030049 직원<br>
+                                        Line Leader 평균: 127,767 VND<br>
+                                        계산: 127,767 × 3 = <strong>383,301 VND</strong></td>
                                 </tr>
                                 <tr>
-                                    <td>(V) SUPERVISOR</td>
-                                    <td>350,000 ~ 400,000</td>
-                                    <td>감독관</td>
+                                    <td><strong>3. (V) SUPERVISOR</strong></td>
+                                    <td><strong>조건 충족시 TYPE-1 평균 인센티브</strong><br>
+                                        <span class="text-primary">인센티브 = Line Leader 평균 × 2.5</span><br>
+                                        적용 조건: 출근(1-4) = 4개 조건</td>
+                                    <td>예시: 618040412 직원<br>
+                                        Line Leader 평균: 115,500 VND<br>
+                                        계산: 115,500 × 2.5 = <strong>288,750 VND</strong></td>
                                 </tr>
                                 <tr>
-                                    <td>GROUP LEADER</td>
-                                    <td>300,000 ~ 350,000</td>
-                                    <td>그룹 리더</td>
+                                    <td><strong>4. GROUP LEADER</strong></td>
+                                    <td><strong>조건 충족시 TYPE-1 평균 인센티브</strong><br>
+                                        <span class="text-primary">인센티브 = Line Leader 평균 × 2</span><br>
+                                        적용 조건: 출근(1-4) = 4개 조건</td>
+                                    <td>예시: 619030390 직원<br>
+                                        조건 미충족(근무일 4일)<br>
+                                        → <strong>0 VND</strong></td>
                                 </tr>
                                 <tr>
-                                    <td>LINE LEADER</td>
-                                    <td>250,000 ~ 300,000</td>
-                                    <td>라인 리더</td>
+                                    <td><strong>5. LINE LEADER</strong></td>
+                                    <td><strong>부하직원 인센티브 기반 계산</strong><br>
+                                        <span class="text-primary">인센티브 = (부하직원 총 인센티브 × 7%) × (수령 비율)</span><br>
+                                        적용 조건: 출근(1-4) + 팀/구역 AQL(7) = 5개 조건</td>
+                                    <td>예시: 619020468 직원<br>
+                                        부하직원 총: 1,270,585 VND<br>
+                                        계산: 1,270,585 × 0.07 × (8/10)<br>
+                                        = <strong>88,941 VND</strong></td>
                                 </tr>
                                 <tr class="table-warning">
-                                    <td>AQL INSPECTOR</td>
-                                    <td>최대 2,600,000</td>
-                                    <td>Part1+Part2+Part3 합산</td>
+                                    <td><strong>6. AQL INSPECTOR</strong></td>
+                                    <td>Part1 + Part2 + Part3 특별 계산<br>
+                                        Part1: AQL 평가 결과(최대 1,000,000)<br>
+                                        Part2: CFA 자격증(700,000)<br>
+                                        Part3: HWK 방지(최대 900,000)</td>
+                                    <td>예시: 618110077 직원<br>
+                                        Part1: 1,000,000 (12개월)<br>
+                                        Part2: 700,000 (CFA 보유)<br>
+                                        Part3: 900,000 (13개월)<br>
+                                        합계: 2,600,000 VND</td>
                                 </tr>
                                 <tr class="table-info">
-                                    <td>ASSEMBLY INSPECTOR</td>
-                                    <td>150,000 ~ 1,000,000</td>
-                                    <td>연속 근무 개월에 따라 증가</td>
+                                    <td><strong>7. ASSEMBLY INSPECTOR</strong></td>
+                                    <td><strong>연속 충족 개월 기준 인센티브</strong><br>
+                                        <small>적용 조건: 1-4(출근), 5-6(개인AQL), 9-10(5PRS)</small><br>
+                                        0-1개월: 150,000 | 2개월: 250,000<br>
+                                        3개월: 300,000 | 4개월: 350,000<br>
+                                        5개월: 400,000 | 6개월: 450,000<br>
+                                        7개월: 500,000 | 8개월: 650,000<br>
+                                        9개월: 750,000 | 10개월: 850,000<br>
+                                        11개월: 950,000 | 12개월+: 1,000,000</td>
+                                    <td><strong>예시: 10개월 연속 충족</strong><br>
+                                        ✅ 출근율 92% ≥88%<br>
+                                        ✅ 무단결근 0일 ≤2일<br>
+                                        ✅ 근무일 20일 ≥12일<br>
+                                        ✅ 개인AQL 실패 0건<br>
+                                        ✅ 5PRS 통과율 98% ≥95%<br>
+                                        ✅ 5PRS 검사량 250족 ≥100<br>
+                                        → <strong>850,000 VND</strong></td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td><strong>8. AUDIT & TRAINING</strong></td>
+                                    <td><strong>연속 충족 개월 기준 인센티브</strong><br>
+                                        <small>적용 조건: 1-4(출근), 7(팀AQL), 8(reject율)</small><br>
+                                        0-1개월: 150,000 | 2개월: 250,000<br>
+                                        3개월: 300,000 | 4개월: 350,000<br>
+                                        5개월: 400,000 | 6개월: 450,000<br>
+                                        7개월: 500,000 | 8개월: 650,000<br>
+                                        9개월: 750,000 | 10개월: 850,000<br>
+                                        11개월: 950,000 | 12개월+: 1,000,000</td>
+                                    <td><strong>예시: 조건 미충족 → 리셋</strong><br>
+                                        전월: 11개월 연속 → 950,000<br>
+                                        당월 평가:<br>
+                                        ✅ 출근 조건 모두 충족<br>
+                                        ✅ 팀AQL 연속실패 없음<br>
+                                        ❌ reject율 4.35% >3%<br>
+                                        → 연속개월 0으로 리셋<br>
+                                        → <strong>0 VND</strong></td>
                                 </tr>
                                 <tr>
-                                    <td>AUDIT & TRAINING TEAM</td>
-                                    <td>200,000 ~ 350,000</td>
-                                    <td>담당 구역별 차등</td>
-                                </tr>
-                                <tr>
-                                    <td>MODEL MASTER</td>
-                                    <td>200,000 ~ 300,000</td>
-                                    <td>기술 전문직</td>
+                                    <td><strong>9. MODEL MASTER</strong></td>
+                                    <td><strong>연속 충족 개월 기준 인센티브</strong><br>
+                                        <small>적용 조건: 1-4(출근), 8(reject율 <3%)</small><br>
+                                        0-1개월: 150,000 | 2개월: 250,000<br>
+                                        3개월: 300,000 | 4개월: 350,000<br>
+                                        5개월: 400,000 | 6개월: 450,000<br>
+                                        7개월: 500,000 | 8개월: 650,000<br>
+                                        9개월: 750,000 | 10개월: 850,000<br>
+                                        11개월: 950,000 | 12개월+: 1,000,000</td>
+                                    <td><strong>예시: 12개월 이상 최대</strong><br>
+                                        전월: 15개월 → 1,000,000<br>
+                                        당월 평가:<br>
+                                        ✅ 출근율 95% ≥88%<br>
+                                        ✅ 무단결근 1일 ≤2일<br>
+                                        ✅ 근무일 18일 ≥12일<br>
+                                        ✅ reject율 2.5% <3%<br>
+                                        → 16개월 연속 충족<br>
+                                        → <strong>1,000,000 VND</strong></td>
                                 </tr>
                             </tbody>
                         </table>
                         
-                        <!-- TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브 -->
+                        <!-- TYPE-1 ASSEMBLY INSPECTOR 연속 목표 달성시 인센티브 지급 기준 -->
                         <h6 class="text-info mb-3">TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브</h6>
                         <table class="table table-sm table-bordered mb-4">
                             <thead class="table-light">
                                 <tr>
-                                    <th>연속 근무 개월</th>
+                                    <th>연속 목표 달성 개월</th>
                                     <th>인센티브 금액 (VND)</th>
                                 </tr>
                             </thead>
@@ -1534,50 +1602,256 @@ def generate_dashboard_html(df, month='august', year=2025):
                             </tbody>
                         </table>
                         
-                        <!-- TYPE-2, TYPE-3 인센티브 테이블 -->
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="text-success mb-3">TYPE-2 직급 인센티브</h6>
-                                <table class="table table-sm table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>직급</th>
-                                            <th>금액 범위 (VND)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>모든 TYPE-2 직급</td>
-                                            <td>50,000 ~ 300,000</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="text-warning mb-3">TYPE-3 직급 인센티브</h6>
-                                <table class="table table-sm table-bordered">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>직급</th>
-                                            <th>금액 범위 (VND)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>NEW QIP MEMBER</td>
-                                            <td>30,000 ~ 150,000</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <!-- TYPE-2 인센티브 계산 방법 -->
+                        <h6 class="text-success mb-3">TYPE-2 전체 직급 인센티브 계산 방법</h6>
+                        <div class="alert alert-info mb-3">
+                            <strong>📊 TYPE-2 계산 원칙:</strong> TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.
                         </div>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="25%">TYPE-2 직급</th>
+                                    <th width="25%">참조 TYPE-1 직급</th>
+                                    <th width="25%">계산 방법</th>
+                                    <th width="25%">2025년 8월 평균</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>1. (V) SUPERVISOR</strong></td>
+                                    <td>TYPE-1 (V) SUPERVISOR</td>
+                                    <td>(V) SUPERVISOR 평균</td>
+                                    <td>357,977 VND</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>2. A.MANAGER</strong></td>
+                                    <td>TYPE-1 A.MANAGER</td>
+                                    <td>A.MANAGER 평균</td>
+                                    <td>383,301 VND</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>3. GROUP LEADER</strong></td>
+                                    <td>TYPE-1 GROUP LEADER</td>
+                                    <td>GROUP LEADER 평균</td>
+                                    <td>254,659 VND</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>4. LINE LEADER</strong></td>
+                                    <td>TYPE-1 LINE LEADER</td>
+                                    <td>LINE LEADER 평균</td>
+                                    <td>127,767 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>5. AQL INSPECTOR</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>6. ASSEMBLY INSPECTOR</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>7. STITCHING INSPECTOR</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>8. BOTTOM INSPECTOR</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>9. CUTTING INSPECTOR</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>10. MTL INSPECTOR</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>11. OCPT STAFF</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>12. OSC INSPECTOR</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>13. QA TEAM</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>14. RQC</strong></td>
+                                    <td>TYPE-1 ASSEMBLY INSPECTOR</td>
+                                    <td>ASSEMBLY INSPECTOR 평균</td>
+                                    <td>369,531 VND</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <!-- TYPE-3 인센티브 -->
+                        <h6 class="text-warning mb-3">TYPE-3 신입 직원 인센티브</h6>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>구분</th>
+                                    <th>기준 인센티브</th>
+                                    <th>계산 방법</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>NEW QIP MEMBER</td>
+                                    <td>0 VND</td>
+                                    <td>신입 직원은 인센티브 지급 없음.<br>
+                                        단, 1달 후 근무지 배치한 다음부터<br>
+                                        TYPE을 변경하며, 인센티브 지급 조건 부여됨</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <!-- AQL INSPECTOR 특별 계산 방법 -->
+                        <h6 class="text-danger mb-3">AQL INSPECTOR 특별 계산 방법 (TYPE-1)</h6>
+                        <div class="alert alert-warning mb-3">
+                            <strong>⚡ 특별 계산:</strong> AQL INSPECTOR는 3개 파트를 합산하여 계산합니다.
+                        </div>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>구분</th>
+                                    <th>조건</th>
+                                    <th>금액</th>
+                                    <th>비고</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-info">
+                                    <td rowspan="3"><strong>Part 1</strong><br>AQL 검사 평가</td>
+                                    <td>Level-A 1개월</td>
+                                    <td>150,000 VND</td>
+                                    <td rowspan="3">Rejection rate < 3%</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>Level-A 2개월 연속</td>
+                                    <td>250,000 VND</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>Level-A 12개월 이상</td>
+                                    <td>1,000,000 VND</td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td><strong>Part 2</strong><br>CFA 자격증</td>
+                                    <td>Adidas 승인 자격증 보유</td>
+                                    <td>700,000 VND</td>
+                                    <td>매월 고정</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td rowspan="3"><strong>Part 3</strong><br>HWK 클레임 방지</td>
+                                    <td>클레임 없음 4~6개월</td>
+                                    <td>300,000 VND</td>
+                                    <td rowspan="3">누적 개월 기준</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td>클레임 없음 7~9개월</td>
+                                    <td>500,000 VND</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td>클레임 없음 13개월 이상</td>
+                                    <td>900,000 VND</td>
+                                </tr>
+                                <tr class="table-dark">
+                                    <td colspan="2"><strong>최대 합계 (Part1 + Part2 + Part3)</strong></td>
+                                    <td colspan="2"><strong>2,600,000 VND</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- 추가 정보 섹션 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">💡 알아두면 좋은 정보</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">인센티브 계산 핵심 원칙</h6>
+                        <ul class="list-group mb-3">
+                            <li class="list-group-item">
+                                <strong>📌 실제 지급액:</strong> 표시된 금액 범위는 예시이며, 실제 지급액은 개인의 성과와 조건 충족 여부에 따라 달라집니다.
+                            </li>
+                            <li class="list-group-item">
+                                <strong>📊 TYPE-2 동적 계산:</strong> TYPE-2 직원의 인센티브는 매월 해당 TYPE-1 직급의 실제 평균값으로 자동 계산됩니다.
+                            </li>
+                            <li class="list-group-item">
+                                <strong>🔄 연속성 보상:</strong> ASSEMBLY INSPECTOR는 연속 근무 개월이 증가할수록 인센티브가 단계적으로 상승합니다.
+                            </li>
+                            <li class="list-group-item">
+                                <strong>⚡ 특별 계산 직급:</strong> AQL INSPECTOR(3단계 합산: Part1 + Part2 + Part3)
+                            </li>
+                            <li class="list-group-item">
+                                <strong>🎯 조건 미충족시:</strong> 하나라도 필수 조건을 충족하지 못하면 인센티브가 0이 됩니다.
+                            </li>
+                        </ul>
+                        
+                        <h6 class="text-success mb-3">월별 인센티브 변동 요인</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>변동 요인</th>
+                                    <th>영향</th>
+                                    <th>예시</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>근무일수</td>
+                                    <td>12일 미만시 미지급</td>
+                                    <td>11일 근무 → 0 VND</td>
+                                </tr>
+                                <tr>
+                                    <td>출근율</td>
+                                    <td>88% 미만시 미지급</td>
+                                    <td>87% 출근율 → 0 VND</td>
+                                </tr>
+                                <tr>
+                                    <td>무단결근</td>
+                                    <td>3일 이상시 미지급</td>
+                                    <td>3일 무단결근 → 0 VND</td>
+                                </tr>
+                                <tr>
+                                    <td>AQL 실패</td>
+                                    <td>해당 직급만 영향</td>
+                                    <td>AQL 실패 → 조건 미충족</td>
+                                </tr>
+                                <tr>
+                                    <td>5PRS 통과율</td>
+                                    <td>95% 미만시 미지급 (해당자)</td>
+                                    <td>94% → 0 VND</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 
                 <!-- 계산 예시 섹션 -->
                 <div class="card mb-4">
                     <div class="card-header bg-warning">
-                        <h5 class="mb-0">📐 계산 예시</h5>
+                        <h5 class="mb-0">📐 실제 계산 예시</h5>
                     </div>
                     <div class="card-body">
                         <h6 class="text-primary mb-3">예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)</h6>
@@ -1630,31 +1904,75 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <!-- 출근 계산 공식 -->
                 <div class="card mb-4">
                     <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0">📊 출근율 계산 공식</h5>
+                        <h5 class="mb-0">📊 출근율 계산 방식</h5>
                     </div>
                     <div class="card-body">
                         <div class="formula-box p-3 bg-light rounded mb-3">
-                            <h6>기본 공식:</h6>
-                            <code class="d-block p-2 bg-white rounded">
-                                출근율(%) = (실제 출근일 / 월 근무일) × 100
+                            <h6>실제 계산 공식 (시스템 구현):</h6>
+                            <code class="d-block p-2 bg-white rounded mb-2">
+                                출근율(%) = 100 - 결근율(%)
                             </code>
+                            <code class="d-block p-2 bg-white rounded">
+                                결근율(%) = (결근 일수 / 총 근무일) × 100
+                            </code>
+                            <p class="mt-2 text-muted small">* 결근 일수 = 총 근무일 - 실제 근무일 - 승인된 휴가</p>
                         </div>
                         
                         <div class="formula-box p-3 bg-light rounded mb-3">
-                            <h6>결근율 계산:</h6>
-                            <code class="d-block p-2 bg-white rounded">
-                                결근율(%) = 100 - 출근율(%)
-                            </code>
-                            <p class="mt-2 text-muted">* 결근율이 12% 이하여야 조건 충족 (출근율 88% 이상)</p>
+                            <h6>결근 사유별 분류:</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="text-success"><strong>✅ 결근율에 포함 안됨 (승인된 휴가):</strong></p>
+                                    <ul class="small">
+                                        <li>Sinh thường 1 con (출산휴가)</li>
+                                        <li>Phép năm (연차휴가)</li>
+                                        <li>Vắng có phép (승인된 휴가)</li>
+                                        <li>Dưỡng sức sinh thường (출산 후 요양)</li>
+                                        <li>Khám thai bình thường (산전검진)</li>
+                                        <li>Con dưới 3 tuổi bị bệnh (육아휴가)</li>
+                                        <li>AR2 - ốm ngắn ngày (병가)</li>
+                                        <li>Đi công tác (출장)</li>
+                                        <li>Nghĩa vụ quân sự (군복무)</li>
+                                        <li class="text-info"><strong>Đi làm không quẹt thẻ</strong> (출퇴근 체크 누락)</li>
+                                        <li class="text-info"><strong>Công nhân viên mới</strong> (신규입사 특례)</li>
+                                        <li class="text-info"><strong>Nghỉ bù</strong> (대체휴무)</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-danger"><strong>❌ 결근율에 포함됨 (무단결근):</strong></p>
+                                    <ul class="small">
+                                        <li><strong>AR1 - Vắng không phép</strong> (무단결근)</li>
+                                        <li><strong>AR1 - Gửi thư</strong> (서면통지 결근)</li>
+                                    </ul>
+                                    <div class="alert alert-warning mt-3">
+                                        <strong>📢 무단결근 카운팅 규칙:</strong>
+                                        <ul class="mb-0 small">
+                                            <li>AR1 카테고리만 무단결근으로 카운트</li>
+                                            <li>2일까지는 인센티브 지급 가능</li>
+                                            <li>3일 이상 → 인센티브 0원</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="formula-box p-3 bg-light rounded">
-                            <h6>무단결근 계산:</h6>
+                            <h6>조건 충족 기준:</h6>
                             <ul>
-                                <li>승인된 휴가는 무단결근에 포함되지 않음</li>
-                                <li>사전 통보 없는 결근만 카운트</li>
-                                <li>월 2일 이하여야 조건 충족</li>
+                                <li><strong>출근율:</strong> ≥ 88% (결근율 ≤ 12%)</li>
+                                <li><strong>무단결근:</strong> ≤ 2일 (AR1 카테고리만 해당)</li>
+                                <li><strong>실제 근무일:</strong> > 0일</li>
+                                <li><strong>최소 근무일:</strong> ≥ 12일</li>
                             </ul>
+                            <div class="alert alert-info mt-2">
+                                <strong>📊 Unapproved Absence Days 설명:</strong>
+                                <ul class="mb-0 small">
+                                    <li>HR 시스템에서 제공하는 무단결근 일수 데이터</li>
+                                    <li>AR1 (Vắng không phép) 카테고리만 집계</li>
+                                    <li>서면통지 결근(Gửi thư)도 AR1에 포함</li>
+                                    <li>인센티브 조건: ≤2일 (개인별 최대 허용치)</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1662,54 +1980,211 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <!-- FAQ 섹션 -->
                 <div class="card">
                     <div class="card-header bg-info text-white">
-                        <h5 class="mb-0">❓ 자주 묻는 질문</h5>
+                        <h5 class="mb-0">❓ 자주 묻는 질문 (FAQ)</h5>
                     </div>
                     <div class="card-body">
-                        <div class="accordion" id="faqAccordion">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                        Q1. 조건 중 하나만 미충족해도 인센티브를 못 받나요?
-                                    </button>
-                                </h2>
-                                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                                    <div class="accordion-body">
-                                        <strong>네, 맞습니다.</strong> 해당 직급에 적용되는 모든 조건을 충족해야만 인센티브를 받을 수 있습니다.
-                                        예를 들어, LINE LEADER는 5개 조건(1,2,3,4,7)을 모두 충족해야 합니다.
-                                    </div>
+                        <style>
+                            .faq-item {{
+                                border: 1px solid #ddd;
+                                border-radius: 5px;
+                                margin-bottom: 10px;
+                            }}
+                            .faq-question {{
+                                background-color: #f8f9fa;
+                                padding: 15px;
+                                cursor: pointer;
+                                font-weight: bold;
+                                border-radius: 5px;
+                                transition: background-color 0.3s;
+                            }}
+                            .faq-question:hover {{
+                                background-color: #e9ecef;
+                            }}
+                            .faq-question::before {{
+                                content: "▶ ";
+                                display: inline-block;
+                                transition: transform 0.3s;
+                            }}
+                            .faq-question.active::before {{
+                                transform: rotate(90deg);
+                            }}
+                            .faq-answer {{
+                                padding: 15px;
+                                display: none;
+                                background-color: #fff;
+                                border-top: 1px solid #ddd;
+                            }}
+                            .faq-answer.show {{
+                                display: block;
+                            }}
+                        </style>
+                        
+                        <div class="faq-container">
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q1. 왜 나는 인센티브를 못 받았나요? 조건을 확인하는 방법은?
+                                </div>
+                                <div class="faq-answer">
+                                    <strong>인센티브를 받지 못한 주요 이유:</strong>
+                                    <ul>
+                                        <li>최소 근무일 12일 미충족</li>
+                                        <li>출근율 88% 미만</li>
+                                        <li>무단결근 3일 이상</li>
+                                        <li>AQL 실패 (해당 직급)</li>
+                                        <li>5PRS 통과율 95% 미만 (해당 직급)</li>
+                                    </ul>
+                                    개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 수 있습니다.
                                 </div>
                             </div>
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                        Q2. AQL INSPECTOR의 특별 계산이란 무엇인가요?
-                                    </button>
-                                </h2>
-                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                    <div class="accordion-body">
-                                        AQL INSPECTOR는 3가지 파트로 나누어 계산됩니다:
-                                        <ul>
-                                            <li>Part 1: AQL 평가 결과 (최대 1,000,000 VND)</li>
-                                            <li>Part 2: CFA 자격증 보유 (700,000 VND)</li>
-                                            <li>Part 3: HWK 클레임 방지 (최대 900,000 VND)</li>
-                                        </ul>
-                                    </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q2. 무단결근이 며칠까지 허용되나요?
+                                </div>
+                                <div class="faq-answer">
+                                    <strong>무단결근은 최대 2일까지 허용됩니다.</strong> 3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 
+                                    사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.
                                 </div>
                             </div>
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                        Q3. 신입직원(TYPE-3)은 왜 조건이 없나요?
-                                    </button>
-                                </h2>
-                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                                    <div class="accordion-body">
-                                        신입직원은 아직 업무에 적응 중이므로 성과 조건 없이 기본 인센티브를 지급합니다.
-                                        이는 신입직원의 동기부여와 안정적인 정착을 돕기 위한 정책입니다.
-                                    </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q3. TYPE-2 직급의 인센티브는 어떻게 계산되나요?
+                                </div>
+                                <div class="faq-answer">
+                                    TYPE-2 직급의 인센티브는 <strong>해당하는 TYPE-1 직급의 평균 인센티브</strong>를 기준으로 계산됩니다.
+                                    예를 들어:
+                                    <ul>
+                                        <li>TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 인센티브</li>
+                                        <li>TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 인센티브</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q4. ASSEMBLY INSPECTOR의 연속 근무 개월은 어떻게 계산되나요?
+                                </div>
+                                <div class="faq-answer">
+                                    TYPE-1 ASSEMBLY INSPECTOR만 해당되며, <strong>조건을 충족하며 인센티브를 받은 개월수</strong>가 누적됩니다.
+                                    <ul>
+                                        <li>조건 미충족으로 인센티브를 못 받으면 0개월로 리셋</li>
+                                        <li>12개월 이상 연속시 최대 인센티브 1,000,000 VND</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q5. AQL 실패가 무엇이고 어떤 영향을 미치나요?
+                                </div>
+                                <div class="faq-answer">
+                                    <strong>AQL(Acceptable Quality Limit)</strong>은 품질 검사 기준입니다.
+                                    <ul>
+                                        <li>개인 AQL 실패: 해당 월에 품질 검사 실패한 경우</li>
+                                        <li>3개월 연속 실패: 지난 3개월 동안 연속으로 실패한 경우</li>
+                                        <li>AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q6. 5PRS 검사량이 부족하면 어떻게 되나요?
+                                </div>
+                                <div class="faq-answer">
+                                    5PRS 관련 직급은 다음 조건을 충족해야 합니다:
+                                    <ul>
+                                        <li>검사량 100족 이상</li>
+                                        <li>통과율 95% 이상</li>
+                                    </ul>
+                                    <strong>둘 중 하나라도 미충족시 인센티브를 받을 수 없습니다.</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q7. 출산휴가나 병가 중에도 인센티브를 받을 수 있나요?
+                                </div>
+                                <div class="faq-answer">
+                                    <strong>출산휴가나 장기 병가 중에는 인센티브가 지급되지 않습니다.</strong>
+                                    <ul>
+                                        <li>최소 근무일 12일 조건을 충족할 수 없기 때문</li>
+                                        <li>복귀 후 조건 충족시 다시 인센티브 수령 가능</li>
+                                        <li>ASSEMBLY INSPECTOR의 경우 연속 개월수는 0으로 리셋</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q8. 전월 인센티브와 차이가 나는 이유는 무엇인가요?
+                                </div>
+                                <div class="faq-answer">
+                                    인센티브 금액이 변동하는 주요 이유:
+                                    <ul>
+                                        <li><strong>ASSEMBLY INSPECTOR</strong>: 연속 근무 개월 변화</li>
+                                        <li><strong>TYPE-2 직급</strong>: TYPE-1 평균값 변동</li>
+                                        <li><strong>AQL INSPECTOR</strong>: Part1, Part2, Part3 조건 변화</li>
+                                        <li><strong>조건 미충족</strong>: 하나라도 미충족시 0</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q9. TYPE-3에서 TYPE-2로 승진하면 인센티브가 어떻게 변하나요?
+                                </div>
+                                <div class="faq-answer">
+                                    <ul>
+                                        <li><strong>TYPE-3</strong>: 조건 없이 기본 150,000 VND (근무시 자동 지급)</li>
+                                        <li><strong>TYPE-2</strong>: 조건 충족 필요, TYPE-1 평균 기준 계산</li>
+                                        <li>승진 후 조건 충족시 일반적으로 인센티브 증가</li>
+                                        <li>하지만 조건 미충족시 0이 될 수 있으므로 주의 필요</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    Q10. 조건을 모두 충족했는데도 인센티브가 0인 이유는 무엇인가요?
+                                </div>
+                                <div class="faq-answer">
+                                    다음 사항을 재확인해 보세요:
+                                    <ul>
+                                        <li><strong>숨겨진 조건</strong>: 직급별로 적용되는 모든 조건 확인</li>
+                                        <li><strong>데이터 업데이트</strong>: 최신 데이터 반영 여부</li>
+                                        <li><strong>특별한 사유</strong>: 징계, 경고 등 특별 사유</li>
+                                        <li><strong>시스템 오류</strong>: HR 부서에 문의</li>
+                                    </ul>
+                                    개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.
                                 </div>
                             </div>
                         </div>
+                        
+                        <script>
+                            function toggleFAQ(element) {{
+                                const answer = element.nextElementSibling;
+                                const allAnswers = document.querySelectorAll('.faq-answer');
+                                const allQuestions = document.querySelectorAll('.faq-question');
+                                
+                                // 다른 모든 답변 닫기
+                                allAnswers.forEach(a => {{
+                                    if (a !== answer) {{
+                                        a.classList.remove('show');
+                                    }}
+                                }});
+                                allQuestions.forEach(q => {{
+                                    if (q !== element) {{
+                                        q.classList.remove('active');
+                                    }}
+                                }});
+                                
+                                // 현재 항목 토글
+                                answer.classList.toggle('show');
+                                element.classList.toggle('active');
+                            }}
+                        </script>
                     </div>
                 </div>
                 
