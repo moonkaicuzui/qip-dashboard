@@ -1706,11 +1706,12 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             modalTitle.textContent = `${{emp.name}} (${{emp.emp_no}}) - 상세 정보`;
             
-            // 조건 충족 통계 계산 - 실제 데이터 사용
+            // 조건 충족 통계 계산 - N/A 제외
             const conditions = emp.condition_results || [];
-            const passedConditions = conditions.filter(c => c.is_met).length;
-            const totalConditions = conditions.length;
-            const passRate = (passedConditions / totalConditions * 100).toFixed(0);
+            const applicableConditions = conditions.filter(c => !c.is_na && c.actual !== 'N/A');
+            const passedConditions = applicableConditions.filter(c => c.is_met).length;
+            const totalConditions = applicableConditions.length;
+            const passRate = totalConditions > 0 ? (passedConditions / totalConditions * 100).toFixed(0) : 0;
             
             modalBody.innerHTML = `
                 <!-- 상단 통계 카드 -->
@@ -1746,7 +1747,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                                 </div>
                                 <div class="mt-3">
                                     <h4>${{passRate}}%</h4>
-                                    <p class="text-muted">${{passedConditions}} / ${{totalConditions}} 조건 충족</p>
+                                    <p class="text-muted">${{totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' 조건 충족' : '해당 조건 없음'}}</p>
                                 </div>
                             </div>
                         </div>
@@ -1820,30 +1821,6 @@ def generate_dashboard_html(df, month='august', year=2025):
                         </div>
                     </div>
                 </div>
-                
-                <!-- 추가 정보 -->
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <div class="info-group">
-                            <label>출근 정보</label>
-                            <ul class="list-unstyled ms-3">
-                                <li>출근율: ${{emp.attendance_rate.toFixed(1)}}%</li>
-                                <li>실제 근무일: ${{emp.actual_working_days}}일</li>
-                                <li>무단결근: ${{emp.unapproved_absences}}일</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="info-group">
-                            <label>품질 정보</label>
-                            <ul class="list-unstyled ms-3">
-                                <li>AQL 실패: ${{emp.aql_failures}}건</li>
-                                <li>5PRS 통과율: ${{emp.pass_rate.toFixed(1)}}%</li>
-                                <li>검사량: ${{emp.validation_qty}}족</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
             `;
             
             modal.style.display = 'block';
@@ -1869,7 +1846,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                         data: {{
                             labels: ['충족', '미충족'],
                             datasets: [{{
-                                data: [passedConditions, totalConditions - passedConditions],
+                                data: [passedConditions, Math.max(0, totalConditions - passedConditions)],
                                 backgroundColor: ['#28a745', '#dc3545'],
                                 borderWidth: 0
                             }}]
