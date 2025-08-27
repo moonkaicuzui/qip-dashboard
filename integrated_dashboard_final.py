@@ -312,7 +312,20 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             prev_month_name = 'july' if month.lower() == 'august' else 'june'
             prev_year = year
             
-            # 이전 월 데이터 로드 시도
+            # 모든 직원의 7월 인센티브는 JSON 설정 파일에서 로드
+            july_incentive_data = {}
+            if month.lower() == 'august' and os.path.exists("config_files/july_incentive_all_employees.json"):
+                try:
+                    with open("config_files/july_incentive_all_employees.json", 'r', encoding='utf-8') as f:
+                        july_data = json.load(f)
+                        # JSON에서 모든 직원의 7월 인센티브 정보 추출
+                        for emp_id, emp_info in july_data.get('employees', {}).items():
+                            july_incentive_data[emp_id] = emp_info.get('july_incentive', 0)
+                        print(f"✅ 7월 인센티브 JSON 설정 로드: {len(july_incentive_data)}명의 데이터")
+                except Exception as e:
+                    print(f"⚠️ JSON 설정 파일 로드 실패: {e}")
+            
+            # 이전 월 데이터 로드 시도 (다른 직급을 위해)
             prev_patterns = [
                 f"input_files/{prev_year}년 {get_korean_month(prev_month_name)} 인센티브 지급 세부 정보.csv",
                 f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_*.csv"
@@ -367,6 +380,16 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             # 다른 월 인센티브도 기본값 설정
             df['june_incentive'] = df.get('june_incentive', '0')
             df['july_incentive'] = df.get('july_incentive', '0')
+            
+            # 모든 직원의 7월 인센티브를 JSON 설정에서 덮어쓰기
+            if july_incentive_data and month.lower() == 'august':
+                updated_count = 0
+                for idx, row in df.iterrows():
+                    emp_id = str(row['emp_no'])
+                    if emp_id in july_incentive_data:
+                        df.at[idx, 'july_incentive'] = str(july_incentive_data[emp_id])
+                        updated_count += 1
+                print(f"✅ 7월 인센티브 JSON 설정 적용 완료: {updated_count}명 업데이트")
             
             # 퇴사일 필터링 (8월 1일 이전 퇴사자 제외)
             if 'Stop working Date' in df.columns:
@@ -568,6 +591,16 @@ def generate_dashboard_html(df, month='august', year=2025):
     # 조건 매트릭스 로드
     condition_matrix = load_condition_matrix()
     
+    # 메타데이터 파일 로드
+    metadata = {}
+    metadata_file = f"output_files/output_QIP_incentive_{month}_{year}_metadata.json"
+    if os.path.exists(metadata_file):
+        with open(metadata_file, 'r', encoding='utf-8') as f:
+            metadata = json.load(f)
+            print(f"✅ 메타데이터 로드 완료: {metadata_file}")
+    else:
+        print(f"⚠️ 메타데이터 파일이 없습니다: {metadata_file}")
+    
     # 데이터 준비
     employees = []
     for _, row in df.iterrows():
@@ -589,11 +622,19 @@ def generate_dashboard_html(df, month='august', year=2025):
             'condition4': str(row.get('condition4', 'no')),
             'aql_failures': int(row.get('aql_failures', 0)),
             'continuous_fail': str(row.get('continuous_fail', 'NO')),
-            'area_reject_rate': float(row.get('area_reject_rate', 0)),
+            'area_reject_rate': float(row.get('area_reject_rate', 0)),  # 이 값은 metadata에서 덮어씌워짐
             'area_consecutive_fail': str(row.get('area_consecutive_fail', 'NO')),
             'pass_rate': float(row.get('pass_rate', 0)),
             'validation_qty': int(row.get('validation_qty', 0))
         }
+        
+        # metadata에서 area_reject_rate 가져오기
+        emp_no = str(emp['emp_no']).zfill(9)
+        if emp_no in metadata:
+            emp_metadata = metadata[emp_no]
+            if 'conditions' in emp_metadata and 'aql' in emp_metadata['conditions']:
+                if 'area_reject_rate' in emp_metadata['conditions']['aql']:
+                    emp['area_reject_rate'] = float(emp_metadata['conditions']['aql']['area_reject_rate'].get('value', 0))
         
         # 조건 평가 결과 추가
         emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
@@ -1151,36 +1192,560 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             <!-- 인센티브 기준 탭 -->
             <div id="criteria" class="tab-content">
-                <h3>인센티브 지급 기준</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <h4>출근 조건 (4개)</h4>
-                        <ul>
-                            <li>조건 1: 실제 근무일수 ≥ 23일</li>
-                            <li>조건 2: 무단 결근 = 0</li>
-                            <li>조건 3: 결근율 < 10%</li>
-                            <li>조건 4: 출근율 ≥ 90%</li>
-                        </ul>
+                <div class="language-selector-container" style="text-align: right; margin-bottom: 20px;">
+                    <select id="languageSelector" class="form-select" style="width: 150px; display: inline-block;">
+                        <option value="ko">한국어</option>
+                        <option value="en">English</option>
+                        <option value="vi">Tiếng Việt</option>
+                    </select>
+                </div>
+
+                <h1 class="section-title" style="text-align: center; font-size: 28px; margin-bottom: 30px;" id="criteriaMainTitle">
+                    QIP 인센티브 정책 및 계산 기준
+                </h1>
+                
+                <!-- 정책 요약 섹션 -->
+                <div class="alert alert-info mb-4">
+                    <h5 class="alert-heading">📌 핵심 원칙</h5>
+                    <p class="mb-2">모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.</p>
+                    <p class="mb-0">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.</p>
+                </div>
+                
+                <!-- 10가지 조건 상세 설명 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">📊 10가지 평가 조건 상세</h5>
                     </div>
-                    <div class="col-md-6">
-                        <h4>AQL 조건 (4개)</h4>
-                        <ul>
-                            <li>조건 5: AQL 실패 횟수 < 3회</li>
-                            <li>조건 6: 연속 실패 없음</li>
-                            <li>조건 7: 합격률 ≥ 95%</li>
-                            <li>조건 8: 검증 수량 ≥ 100개</li>
-                        </ul>
+                    <div class="card-body">
+                        <!-- 출근 조건 -->
+                        <h6 class="text-success mb-3">📅 출근 조건 (4개)</h6>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">조건명</th>
+                                    <th width="20%">기준</th>
+                                    <th width="50%">설명</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>출근율</td>
+                                    <td>≥88%</td>
+                                    <td>월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>무단결근</td>
+                                    <td>≤2일</td>
+                                    <td>사전 승인 없는 결근이 월 2일 이하여야 합니다</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>실제 근무일</td>
+                                    <td>>0일</td>
+                                    <td>실제 출근한 날이 1일 이상이어야 합니다</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>최소 근무일</td>
+                                    <td>≥12일</td>
+                                    <td>월간 최소 12일 이상 근무해야 합니다</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <!-- AQL 조건 -->
+                        <h6 class="text-primary mb-3">🎯 AQL 조건 (4개)</h6>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">조건명</th>
+                                    <th width="20%">기준</th>
+                                    <th width="50%">설명</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>5</td>
+                                    <td>개인 AQL (당월)</td>
+                                    <td>실패 0건</td>
+                                    <td>당월 개인 AQL 검사 실패가 없어야 합니다</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>개인 AQL (연속성)</td>
+                                    <td>3개월 연속 실패 없음</td>
+                                    <td>최근 3개월간 연속으로 AQL 실패가 없어야 합니다</td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>팀/구역 AQL</td>
+                                    <td>3개월 연속 실패 없음</td>
+                                    <td>관리하는 팀/구역에서 3개월 연속 실패자가 없어야 합니다</td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>담당구역 Reject율</td>
+                                    <td><3%</td>
+                                    <td>담당 구역의 품질 불량률이 3% 미만이어야 합니다</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <!-- 5PRS 조건 -->
+                        <h6 class="text-warning mb-3">📊 5PRS 조건 (2개)</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">조건명</th>
+                                    <th width="20%">기준</th>
+                                    <th width="50%">설명</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>9</td>
+                                    <td>5PRS 통과율</td>
+                                    <td>≥95%</td>
+                                    <td>5점 평가 시스템에서 95% 이상 통과해야 합니다</td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>5PRS 검사량</td>
+                                    <td>≥100개</td>
+                                    <td>월간 최소 100개 이상 검사를 수행해야 합니다</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <h4>5PRS 조건 (2개)</h4>
-                        <ul>
-                            <li>조건 9: 이전 달 인센티브 수령</li>
-                            <li>조건 10: 특별 조건 충족</li>
-                        </ul>
+                
+                <!-- 직급별 적용 조건 매트릭스 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">🎖️ 직급별 적용 조건</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning mb-3">
+                            <strong>중요:</strong> AUDITOR & TRAINING TEAM은 조건 7(팀/구역 AQL)과 조건 8(담당구역 Reject율)이 적용됩니다.
+                        </div>
+                        
+                        <h6 class="text-info mb-3">TYPE-1 직급별 조건</h6>
+                        <table class="table table-sm table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>직급</th>
+                                    <th>적용 조건</th>
+                                    <th>조건 수</th>
+                                    <th>특이사항</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>MANAGER</strong></td>
+                                    <td>1, 2, 3, 4</td>
+                                    <td>4개</td>
+                                    <td>출근 조건만</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>A.MANAGER</strong></td>
+                                    <td>1, 2, 3, 4</td>
+                                    <td>4개</td>
+                                    <td>출근 조건만</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>(V) SUPERVISOR</strong></td>
+                                    <td>1, 2, 3, 4</td>
+                                    <td>4개</td>
+                                    <td>출근 조건만</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>GROUP LEADER</strong></td>
+                                    <td>1, 2, 3, 4</td>
+                                    <td>4개</td>
+                                    <td>출근 조건만</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><strong>LINE LEADER</strong></td>
+                                    <td>1, 2, 3, 4, 7</td>
+                                    <td>5개</td>
+                                    <td>출근 + 팀/구역 AQL</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AQL INSPECTOR</strong></td>
+                                    <td>1, 2, 3, 4, 5</td>
+                                    <td>5개</td>
+                                    <td>출근 + 당월 AQL (특별 계산)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ASSEMBLY INSPECTOR</strong></td>
+                                    <td>1, 2, 3, 4, 5, 6, 9, 10</td>
+                                    <td>8개</td>
+                                    <td>출근 + 개인 AQL + 5PRS</td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td><strong>AUDIT & TRAINING TEAM</strong></td>
+                                    <td>1, 2, 3, 4, 7, 8</td>
+                                    <td>6개</td>
+                                    <td>출근 + 팀/구역 AQL + 담당구역 reject</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>MODEL MASTER</strong></td>
+                                    <td>1, 2, 3, 4, 8</td>
+                                    <td>5개</td>
+                                    <td>출근 + 담당구역 reject</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h6 class="text-info mb-3 mt-4">TYPE-2 직급별 조건</h6>
+                        <table class="table table-sm table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>직급</th>
+                                    <th>적용 조건</th>
+                                    <th>조건 수</th>
+                                    <th>특이사항</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>모든 TYPE-2 직급</strong></td>
+                                    <td>1, 2, 3, 4</td>
+                                    <td>4개</td>
+                                    <td>출근 조건만 적용</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h6 class="text-info mb-3 mt-4">TYPE-3 직급별 조건</h6>
+                        <table class="table table-sm table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>직급</th>
+                                    <th>적용 조건</th>
+                                    <th>조건 수</th>
+                                    <th>특이사항</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-secondary">
+                                    <td><strong>NEW QIP MEMBER</strong></td>
+                                    <td>없음</td>
+                                    <td>0개</td>
+                                    <td>신입직원 - 조건 없이 기본 인센티브</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+                
+                <!-- 인센티브 금액 정보 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">💰 인센티브 지급액 기준</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- TYPE-1 인센티브 테이블 -->
+                        <h6 class="text-primary mb-3">TYPE-1 직급 인센티브</h6>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>직급</th>
+                                    <th>금액 범위 (VND)</th>
+                                    <th>비고</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>MANAGER</td>
+                                    <td>450,000 ~ 500,000</td>
+                                    <td>최고 관리직</td>
+                                </tr>
+                                <tr>
+                                    <td>A.MANAGER</td>
+                                    <td>400,000 ~ 450,000</td>
+                                    <td>부관리자</td>
+                                </tr>
+                                <tr>
+                                    <td>(V) SUPERVISOR</td>
+                                    <td>350,000 ~ 400,000</td>
+                                    <td>감독관</td>
+                                </tr>
+                                <tr>
+                                    <td>GROUP LEADER</td>
+                                    <td>300,000 ~ 350,000</td>
+                                    <td>그룹 리더</td>
+                                </tr>
+                                <tr>
+                                    <td>LINE LEADER</td>
+                                    <td>250,000 ~ 300,000</td>
+                                    <td>라인 리더</td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td>AQL INSPECTOR</td>
+                                    <td>최대 2,600,000</td>
+                                    <td>Part1+Part2+Part3 합산</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>ASSEMBLY INSPECTOR</td>
+                                    <td>150,000 ~ 1,000,000</td>
+                                    <td>연속 근무 개월에 따라 증가</td>
+                                </tr>
+                                <tr>
+                                    <td>AUDIT & TRAINING TEAM</td>
+                                    <td>200,000 ~ 350,000</td>
+                                    <td>담당 구역별 차등</td>
+                                </tr>
+                                <tr>
+                                    <td>MODEL MASTER</td>
+                                    <td>200,000 ~ 300,000</td>
+                                    <td>기술 전문직</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <!-- TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브 -->
+                        <h6 class="text-info mb-3">TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브</h6>
+                        <table class="table table-sm table-bordered mb-4">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>연속 근무 개월</th>
+                                    <th>인센티브 금액 (VND)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1개월</td><td>150,000</td></tr>
+                                <tr><td>2개월</td><td>250,000</td></tr>
+                                <tr><td>3개월</td><td>300,000</td></tr>
+                                <tr><td>4개월</td><td>350,000</td></tr>
+                                <tr><td>5개월</td><td>450,000</td></tr>
+                                <tr><td>6개월</td><td>500,000</td></tr>
+                                <tr><td>7개월</td><td>600,000</td></tr>
+                                <tr><td>8개월</td><td>700,000</td></tr>
+                                <tr><td>9개월</td><td>750,000</td></tr>
+                                <tr><td>10개월</td><td>850,000</td></tr>
+                                <tr><td>11개월</td><td>900,000</td></tr>
+                                <tr class="table-success"><td>12개월 이상</td><td>1,000,000</td></tr>
+                            </tbody>
+                        </table>
+                        
+                        <!-- TYPE-2, TYPE-3 인센티브 테이블 -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-success mb-3">TYPE-2 직급 인센티브</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>직급</th>
+                                            <th>금액 범위 (VND)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>모든 TYPE-2 직급</td>
+                                            <td>50,000 ~ 300,000</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-warning mb-3">TYPE-3 직급 인센티브</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>직급</th>
+                                            <th>금액 범위 (VND)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>NEW QIP MEMBER</td>
+                                            <td>30,000 ~ 150,000</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 계산 예시 섹션 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0">📐 계산 예시</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-primary mb-3">예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)</h6>
+                        <div class="alert alert-light">
+                            <p><strong>직원:</strong> BÙI THỊ KIỀU LY (619060201)</p>
+                            <p><strong>전월 상태:</strong> 9개월 연속 근무, 750,000 VND 수령</p>
+                            <p><strong>당월 조건 충족:</strong></p>
+                            <ul>
+                                <li>✅ 출근율: 92% (≥88%)</li>
+                                <li>✅ 무단결근: 0일 (≤2일)</li>
+                                <li>✅ 실제 근무일: 20일 (>0일)</li>
+                                <li>✅ 최소 근무일: 20일 (≥12일)</li>
+                                <li>✅ 개인 AQL (당월): 실패 0건</li>
+                                <li>✅ 개인 AQL (연속): 3개월 연속 실패 없음</li>
+                                <li>✅ 5PRS 통과율: 97% (≥95%)</li>
+                                <li>✅ 5PRS 검사량: 150개 (≥100개)</li>
+                            </ul>
+                            <p><strong>결과:</strong> 모든 조건 충족 → <span class="badge bg-success">10개월 연속 → 850,000 VND 지급</span></p>
+                        </div>
+                        
+                        <h6 class="text-primary mb-3 mt-4">예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 계산)</h6>
+                        <div class="alert alert-light">
+                            <p><strong>직원:</strong> VÕ THỊ THÙY LINH (AUDIT & TRAINING TEAM LEADER)</p>
+                            <p><strong>담당 구역:</strong> Line1, Line2, Line3</p>
+                            <p><strong>구역별 reject 수:</strong></p>
+                            <ul>
+                                <li>Line1: 2건 reject</li>
+                                <li>Line2: 1건 reject</li>
+                                <li>Line3: 0건 reject</li>
+                            </ul>
+                            <p><strong>총 검사 수량:</strong> 150개</p>
+                            <p><strong>계산:</strong> (2+1+0) / 150 × 100 = 2%</p>
+                            <p><strong>결과:</strong> ✅ 2% < 3% → <span class="badge bg-success">조건 충족</span></p>
+                        </div>
+                        
+                        <h6 class="text-primary mb-3 mt-4">예시 3: AQL INSPECTOR 특별 계산</h6>
+                        <div class="alert alert-light">
+                            <p><strong>특별 계산 방식:</strong></p>
+                            <ul>
+                                <li><strong>Part 1 (개인 실적):</strong> 최대 1,000,000 VND</li>
+                                <li><strong>Part 2 (팀 성과):</strong> 최대 700,000 VND</li>
+                                <li><strong>Part 3 (품질 보너스):</strong> 최대 900,000 VND</li>
+                            </ul>
+                            <p><strong>총 가능 인센티브:</strong> 최대 2,600,000 VND</p>
+                            <p class="text-muted">* 각 Part별 세부 계산은 개별 성과 지표에 따라 결정됩니다.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 출근 계산 공식 -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">📊 출근율 계산 공식</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="formula-box p-3 bg-light rounded mb-3">
+                            <h6>기본 공식:</h6>
+                            <code class="d-block p-2 bg-white rounded">
+                                출근율(%) = (실제 출근일 / 월 근무일) × 100
+                            </code>
+                        </div>
+                        
+                        <div class="formula-box p-3 bg-light rounded mb-3">
+                            <h6>결근율 계산:</h6>
+                            <code class="d-block p-2 bg-white rounded">
+                                결근율(%) = 100 - 출근율(%)
+                            </code>
+                            <p class="mt-2 text-muted">* 결근율이 12% 이하여야 조건 충족 (출근율 88% 이상)</p>
+                        </div>
+                        
+                        <div class="formula-box p-3 bg-light rounded">
+                            <h6>무단결근 계산:</h6>
+                            <ul>
+                                <li>승인된 휴가는 무단결근에 포함되지 않음</li>
+                                <li>사전 통보 없는 결근만 카운트</li>
+                                <li>월 2일 이하여야 조건 충족</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- FAQ 섹션 -->
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">❓ 자주 묻는 질문</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="accordion" id="faqAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        Q1. 조건 중 하나만 미충족해도 인센티브를 못 받나요?
+                                    </button>
+                                </h2>
+                                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        <strong>네, 맞습니다.</strong> 해당 직급에 적용되는 모든 조건을 충족해야만 인센티브를 받을 수 있습니다.
+                                        예를 들어, LINE LEADER는 5개 조건(1,2,3,4,7)을 모두 충족해야 합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        Q2. AQL INSPECTOR의 특별 계산이란 무엇인가요?
+                                    </button>
+                                </h2>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        AQL INSPECTOR는 3가지 파트로 나누어 계산됩니다:
+                                        <ul>
+                                            <li>Part 1: AQL 평가 결과 (최대 1,000,000 VND)</li>
+                                            <li>Part 2: CFA 자격증 보유 (700,000 VND)</li>
+                                            <li>Part 3: HWK 클레임 방지 (최대 900,000 VND)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        Q3. 신입직원(TYPE-3)은 왜 조건이 없나요?
+                                    </button>
+                                </h2>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body">
+                                        신입직원은 아직 업무에 적응 중이므로 성과 조건 없이 기본 인센티브를 지급합니다.
+                                        이는 신입직원의 동기부여와 안정적인 정착을 돕기 위한 정책입니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Multi-language Script -->
+                <script>
+                    document.getElementById('languageSelector').addEventListener('change', function() {{
+                        const lang = this.value;
+                        
+                        // Main title translations
+                        const titles = {{
+                            ko: 'QIP 인센티브 정책 및 계산 기준',
+                            en: 'QIP Incentive Policy and Calculation Standards',
+                            vi: 'Chính Sách và Tiêu Chuẩn Tính Thưởng QIP'
+                        }};
+                        
+                        document.getElementById('criteriaMainTitle').textContent = titles[lang] || titles['ko'];
+                        
+                        // Update all text elements based on language
+                        // This is a simplified version - in production, you would have complete translations
+                        if (lang === 'en') {{
+                            // Update English content
+                            document.querySelectorAll('.alert-heading').forEach(el => {{
+                                if (el.textContent.includes('핵심 원칙')) {{
+                                    el.innerHTML = '📌 Core Principles';
+                                }}
+                            }});
+                        }} else if (lang === 'vi') {{
+                            // Update Vietnamese content
+                            document.querySelectorAll('.alert-heading').forEach(el => {{
+                                if (el.textContent.includes('핵심 원칙')) {{
+                                    el.innerHTML = '📌 Nguyên Tắc Cốt Lõi';
+                                }}
+                            }});
+                        }}
+                    }});
+                </script>
             </div>
         </div>
     </div>
@@ -1547,7 +2112,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                 const amount = parseInt(emp.august_incentive);
                 const isPaid = amount > 0;
                 modalContent += `
-                    <tr class="employee-row ${{isPaid ? 'paid-row' : 'unpaid-row'}}">
+                    <tr class="employee-row ${{isPaid ? 'paid-row' : 'unpaid-row'}}" data-emp-no="${{emp.emp_no}}" style="cursor: pointer;">
                         <td>${{emp.emp_no}}</td>
                         <td>${{emp.name}}</td>
                         <td><strong style="color: ${{isPaid ? '#28a745' : '#dc3545'}};">${{amount.toLocaleString()}} VND</strong></td>
@@ -1641,6 +2206,39 @@ def generate_dashboard_html(df, month='august', year=2025):
             modalBody.scrollTop = 0;
             document.querySelector('.modal-content').scrollTop = 0;
             
+            // Event delegation을 사용하여 직원 행 클릭 이벤트 처리
+            setTimeout(() => {{
+                const table = document.getElementById('positionEmployeeTable');
+                if (!table) {{
+                    console.error('Position employee table not found');
+                    return;
+                }}
+                
+                // 이전 이벤트 리스너 제거 (중복 방지)
+                if (window.positionTableClickHandler) {{
+                    table.removeEventListener('click', window.positionTableClickHandler);
+                }}
+                
+                // 새로운 이벤트 핸들러 생성 및 저장
+                window.positionTableClickHandler = function(event) {{
+                    // tbody 내의 tr을 찾기
+                    const row = event.target.closest('tbody tr.employee-row');
+                    if (!row) return;
+                    
+                    // data-emp-no 속성에서 직원번호 가져오기
+                    const empNo = row.getAttribute('data-emp-no');
+                    console.log('Employee row clicked, empNo:', empNo);
+                    
+                    if (empNo) {{
+                        showEmployeeDetailFromPosition(empNo);
+                    }}
+                }};
+                
+                // 테이블에 이벤트 리스너 추가
+                table.addEventListener('click', window.positionTableClickHandler);
+                console.log('Event delegation set up for employee table');
+            }}, 100);
+            
             // 차트 그리기
             setTimeout(() => {{
                 const chartId = `positionChart${{type.replace('-', '')}}${{position.replace(/[\\s()]/g, '')}}`;
@@ -1693,6 +2291,36 @@ def generate_dashboard_html(df, month='august', year=2025):
                     row.style.display = 'none';
                 }}
             }});
+        }}
+        
+        // 직급별 상세 팝업에서 호출하는 개인별 상세 팝업 함수
+        function showEmployeeDetailFromPosition(empNo) {{
+            console.log('showEmployeeDetailFromPosition called with empNo:', empNo);
+            
+            try {{
+                // 먼저 직급별 상세 팝업을 닫기
+                const positionModal = document.getElementById('positionModal');
+                console.log('Position modal element:', positionModal);
+                
+                if (positionModal) {{
+                    const bsPositionModal = bootstrap.Modal.getInstance(positionModal);
+                    console.log('Position modal instance:', bsPositionModal);
+                    
+                    if (bsPositionModal) {{
+                        bsPositionModal.hide();
+                    }}
+                }}
+                
+                // 잠시 후에 개인별 상세 팝업 열기 (애니메이션 충돌 방지)
+                setTimeout(() => {{
+                    console.log('Opening employee detail modal for:', empNo);
+                    showEmployeeDetail(empNo);
+                }}, 300);
+            }} catch (error) {{
+                console.error('Error in showEmployeeDetailFromPosition:', error);
+                // 오류가 있어도 개인별 상세 팝업은 열려야 함
+                showEmployeeDetail(empNo);
+            }}
         }}
         
         // 직원 상세 정보 표시 (대시보드 스타일 UI)

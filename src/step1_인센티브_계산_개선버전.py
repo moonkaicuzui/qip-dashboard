@@ -792,20 +792,24 @@ class DataProcessor:
         return result_df
     
     def get_months_from_incentive_amount(self, amount: float) -> int:
-        """인센티브 금액으로 연속 개월 수 역산"""
+        """인센티브 금액으로 연속 개월 수 역산
+        
+        주의: Final Incentive amount는 실제 연속 개월과 다를 수 있음
+        실제 지급 금액(July_Incentive 등)을 기준으로 계산
+        """
         incentive_map = {
-            150000: 1,
-            250000: 2,
-            300000: 3,
-            350000: 4,
-            400000: 5,
-            450000: 6,
-            500000: 7,
-            650000: 8,
-            750000: 9,
-            850000: 10,
-            950000: 11,
-            1000000: 12
+            150000: 1,   # 1개월차 또는 신규
+            250000: 2,   # 2개월 연속
+            300000: 3,   # 3개월 연속
+            350000: 4,   # 4개월 연속
+            400000: 5,   # 5개월 연속
+            450000: 6,   # 6개월 연속
+            500000: 7,   # 7개월 연속
+            650000: 8,   # 8개월 연속
+            750000: 9,   # 9개월 연속
+            850000: 10,  # 10개월 연속
+            950000: 11,  # 11개월 연속
+            1000000: 12  # 12개월 이상
         }
         
         # 정확한 매칭 찾기
@@ -817,12 +821,38 @@ class DataProcessor:
         if amount >= 1000000:
             return 12
         
-        return 0  # 매칭 없으면 0
+        return 0  # 매칭 없으면 0 (연속성 끊김)
     
     def calculate_continuous_months_from_history(self, emp_id: str) -> int:
-        """연속 인센티브 수령 개월 수 계산 (이전 월 인센티브 파일 기반)"""
+        """연속 인센티브 수령 개월 수 계산 (JSON 설정 파일 우선, 이전 월 인센티브 파일 백업)"""
         continuous_months = 0
         
+        # 1. 먼저 JSON 설정 파일에서 확인
+        try:
+            json_path = Path('config_files/assembly_inspector_continuous_months.json')
+            if json_path.exists():
+                import json
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                
+                # 직원 ID를 9자리로 패딩
+                emp_id_padded = str(emp_id).zfill(9)
+                
+                if emp_id_padded in config.get('employees', {}):
+                    emp_data = config['employees'][emp_id_padded]
+                    # 8월 예상 개월수 반환 (7월 연속 개월 + 1)
+                    expected_months = emp_data.get('august_expected_months', 0)
+                    print(f"[JSON 설정] {emp_id_padded}: 7월 {emp_data.get('july_continuous_months', 0)}개월 → 8월 {expected_months}개월")
+                    if expected_months > 0:
+                        return expected_months
+                else:
+                    print(f"[JSON 설정] {emp_id_padded}: JSON 파일에 없음")
+        except Exception as e:
+            # JSON 파일 오류 시 백업 로직으로 진행
+            print(f"[JSON 오류] {e}")
+            pass
+        
+        # 2. JSON 파일이 없거나 직원 정보가 없으면 기존 로직 사용
         # 먼저 직전 월(i=1)의 인센티브 금액으로 연속 개월 수 추정
         for i in range(1, 2):  # 직전 월만 확인
             month_num = (self.config.month.number - i) % 12 or 12
@@ -867,16 +897,25 @@ class DataProcessor:
                 emp_data = prev_month_df[prev_month_df['Employee No'] == emp_id]
                 
                 if not emp_data.empty:
-                    # Final Incentive amount 칼럼 확인
-                    incentive_col = 'Final Incentive amount'
-                    if incentive_col not in emp_data.columns:
-                        # 대체 칼럼명 시도
+                    # 월별 인센티브 컬럼 찾기 (예: July_Incentive, June_Incentive)
+                    incentive_col = None
+                    month_incentive_col = f"{month_obj.full_name}_Incentive"
+                    
+                    # 우선순위: 1. 월별 인센티브 (July_Incentive 등)
+                    if month_incentive_col in emp_data.columns:
+                        incentive_col = month_incentive_col
+                    # 2. Final Incentive amount (백업)
+                    elif 'Final Incentive amount' in emp_data.columns:
+                        # Final Incentive amount는 신뢰도가 낮으므로 주의
+                        incentive_col = 'Final Incentive amount'
+                    # 3. 다른 incentive 컬럼 찾기
+                    else:
                         for col in emp_data.columns:
                             if 'incentive' in col.lower() and month_obj.full_name.lower() in col.lower():
                                 incentive_col = col
                                 break
                     
-                    if incentive_col in emp_data.columns:
+                    if incentive_col:
                         incentive_amount = emp_data.iloc[0].get(incentive_col, 0)
                         if pd.notna(incentive_amount) and float(incentive_amount) > 0:
                             # 인센티브 금액으로 연속 개월 수 역산
@@ -1946,6 +1985,10 @@ class CompleteQIPCalculator:
         """Auditor/Trainer 및 Model Master 인센티브 계산 (자동화)"""
         print("\n👥 TYPE-1 AUDITOR/TRAINER & MODEL MASTER 인센티브 계산...")
         
+        # 담당 구역 reject율을 저장할 딕셔너리
+        if not hasattr(self, 'auditor_area_reject_rates'):
+            self.auditor_area_reject_rates = {}
+        
         # Auditor/Trainer 필터링
         auditor_trainer_mask = (
             (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
@@ -1954,26 +1997,21 @@ class CompleteQIPCalculator:
              (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('TRAINING', na=False)))
         )
         
-        # Model Master 필터링 - 두 가지 방법으로 식별
-        # 1. QA2A 코드를 가진 직원 (예: 620080295)
-        # 2. QIP POSITION 1ST NAME이 'MODEL MASTER'인 직원
+        # Model Master 필터링 - QIP POSITION NAME이 'MODEL MASTER'인 직원만
+        # QA2A는 AUDIT & TRAINING TEAM LEADER이므로 제외
         model_master_mask = (
             (self.month_data['ROLE TYPE STD'] == 'TYPE-1') & 
             (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('MODEL MASTER', na=False))
         )
-        
-        if 'FINAL QIP POSITION NAME CODE' in self.month_data.columns:
-            qa2a_mask = (
-                (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
-                (self.month_data['FINAL QIP POSITION NAME CODE'] == 'QA2A')
-            )
-            model_master_mask = model_master_mask | qa2a_mask
         
         # 3개월 연속 실패자의 공장별 분포 찾기
         continuous_fail_by_factory = self.get_continuous_fail_by_factory()
         
         # Model Master를 위한 전체 공장 reject율 계산
         total_factory_reject_rate = self.calculate_total_factory_reject_rate()
+        
+        # Model Master의 area_reject_rate 저장을 위한 전역 변수
+        self.model_master_reject_rate = total_factory_reject_rate
         
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
         aql_col = f"{self.config.get_month_str('capital')} AQL Failures"
@@ -2024,6 +2062,9 @@ class CompleteQIPCalculator:
             
             # 1. 담당 구역 AQL reject율 계산
             area_reject_rate = self.calculate_area_aql_reject_rate(emp_id, subordinate_mapping)
+            
+            # reject율 저장 (메타데이터용)
+            self.auditor_area_reject_rates[str(emp_id)] = area_reject_rate
             
             # 2. 담당 공장에 3개월 연속 실패자가 있는지 확인
             # Auditor/Trainer의 담당 공장을 매핑에서 찾기
@@ -3204,8 +3245,93 @@ class CompleteQIPCalculator:
                 
                 # AQL 조건 (TYPE-1만)
                 if row['ROLE TYPE STD'] == 'TYPE-1':
+                    # MODEL MASTER 특별 처리
+                    if 'MODEL MASTER' in str(position_value).upper():
+                        # Model Master는 전체 공장 reject율 사용
+                        area_reject_rate = 0.0
+                        if hasattr(self, 'model_master_reject_rate'):
+                            area_reject_rate = self.model_master_reject_rate
+                        
+                        emp_metadata['conditions']['aql'] = {
+                            'monthly_failure': {
+                                'passed': row.get(f'{self.config.get_month_str("capital")} AQL Failures', 0) == 0 if pd.notna(row.get(f'{self.config.get_month_str("capital")} AQL Failures')) else True,
+                                'value': int(row.get(f'{self.config.get_month_str("capital")} AQL Failures', 0)) if pd.notna(row.get(f'{self.config.get_month_str("capital")} AQL Failures')) else 0,
+                                'threshold': 0,
+                                'applicable': False  # Model Master는 개인 AQL 체크 안함
+                            },
+                            '3month_continuous': {
+                                'passed': row.get('Continuous_FAIL', 'NO') != 'YES' if pd.notna(row.get('Continuous_FAIL')) else True,
+                                'value': row.get('Continuous_FAIL', 'NO'),
+                                'threshold': 'NO',
+                                'applicable': True
+                            },
+                            'subordinate_aql': {
+                                'passed': True,
+                                'value': 'N/A',
+                                'threshold': 'N/A',
+                                'applicable': False
+                            },
+                            'area_reject_rate': {
+                                'passed': area_reject_rate < 3.0,
+                                'value': round(area_reject_rate, 2),
+                                'threshold': 3.0,
+                                'applicable': True
+                            }
+                        }
+                        
+                        # 미지급 사유 추가
+                        if amount == 0 and area_reject_rate >= 3.0:
+                            emp_metadata['calculation_basis'] = f'전체 공장 AQL reject율 {area_reject_rate:.1f}% (기준: 3% 미만)'
+                        elif amount == 0:
+                            emp_metadata['calculation_basis'] = '기타 조건 미충족'
+                        else:
+                            emp_metadata['calculation_basis'] = 'Model Master incentive'
+                    # AUDIT & TRAINING TEAM 특별 처리
+                    elif 'AUDIT' in str(position_value).upper() or 'TRAINING' in str(position_value).upper():
+                        # 담당 구역 reject율 계산
+                        emp_id_str = str(row['Employee No'])
+                        area_reject_rate = 0.0
+                        
+                        # 담당 구역 reject율 가져오기 (이미 계산된 값을 참조해야 함)
+                        if hasattr(self, 'auditor_area_reject_rates') and emp_id_str in self.auditor_area_reject_rates:
+                            area_reject_rate = self.auditor_area_reject_rates[emp_id_str]
+                        
+                        emp_metadata['conditions']['aql'] = {
+                            'monthly_failure': {
+                                'passed': row.get(f'{self.config.get_month_str("capital")} AQL Failures', 0) == 0 if pd.notna(row.get(f'{self.config.get_month_str("capital")} AQL Failures')) else True,
+                                'value': int(row.get(f'{self.config.get_month_str("capital")} AQL Failures', 0)) if pd.notna(row.get(f'{self.config.get_month_str("capital")} AQL Failures')) else 0,
+                                'threshold': 0,
+                                'applicable': True
+                            },
+                            '3month_continuous': {
+                                'passed': row.get('Continuous_FAIL', 'NO') != 'YES' if pd.notna(row.get('Continuous_FAIL')) else True,
+                                'value': row.get('Continuous_FAIL', 'NO'),
+                                'threshold': 'NO',
+                                'applicable': True
+                            },
+                            'subordinate_aql': {
+                                'passed': True,  # 부하직원 AQL은 별도 체크
+                                'value': 'N/A',
+                                'threshold': 'N/A',
+                                'applicable': True
+                            },
+                            'area_reject_rate': {
+                                'passed': area_reject_rate < 3.0,
+                                'value': round(area_reject_rate, 2),
+                                'threshold': 3.0,
+                                'applicable': True
+                            }
+                        }
+                        
+                        # 미지급 사유 추가
+                        if amount == 0 and area_reject_rate >= 3.0:
+                            emp_metadata['calculation_basis'] = f'담당 구역 AQL reject율 {area_reject_rate:.1f}% (기준: 3% 미만)'
+                        elif amount == 0:
+                            emp_metadata['calculation_basis'] = '기타 조건 미충족'
+                        else:
+                            emp_metadata['calculation_basis'] = 'Auditor/Trainer incentive'
                     # AQL INSPECTOR 특별 처리
-                    if 'AQL INSPECTOR' in str(position_value):
+                    elif 'AQL INSPECTOR' in str(position_value):
                         emp_metadata['conditions']['aql'] = {
                             'monthly_failure': {
                                 'passed': amount > 0,  # 인센티브를 받았으면 통과로 간주

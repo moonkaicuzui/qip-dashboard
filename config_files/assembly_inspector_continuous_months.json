@@ -1,0 +1,725 @@
+{
+  "description": "TYPE-1 ASSEMBLY INSPECTOR 연속 근무 개월수 추적 (7월 인센티브 금액 정보.csv 기준)",
+  "generated_date": "2025-08-27",
+  "source_file": "7월 인센티브 금액 정보.csv",
+  "note": "User specified: BÙI THỊ KIỀU LY received 750,000 VND in July = 9 months continuous → 850,000 VND in August (10 months)",
+  "incentive_table": {
+    "0": 0,
+    "1": 150000,
+    "2": 250000,
+    "3": 300000,
+    "4": 350000,
+    "5": 400000,
+    "6": 450000,
+    "7": 500000,
+    "8": 650000,
+    "9": 750000,
+    "10": 850000,
+    "11": 950000,
+    "12": 1000000
+  },
+  "employees": {
+    "619060201": {
+      "name": "BÙI THỊ KIỀU LY",
+      "july_incentive": 750000,
+      "july_continuous_months": 9,
+      "august_expected_months": 10
+    },
+    "620030032": {
+      "name": "NGUYỄN THỊ KIỀU TIÊN",
+      "july_incentive": 350000,
+      "july_continuous_months": 4,
+      "august_expected_months": 5
+    },
+    "620060084": {
+      "name": "ĐỖ THỊ HỒNG THÚY",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "620080271": {
+      "name": "THỊ MINH PHƯỢNG",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "620080362": {
+      "name": "DƯƠNG THỊ MỸ XUYÊN",
+      "july_incentive": 500000,
+      "july_continuous_months": 7,
+      "august_expected_months": 8
+    },
+    "620110124": {
+      "name": "PHẠM THỊ KIM MAI",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "620120148": {
+      "name": "VƯƠNG THỊ MỸ NGA",
+      "july_incentive": 650000,
+      "july_continuous_months": 8,
+      "august_expected_months": 9
+    },
+    "621030280": {
+      "name": "NGUYỄN THỊ THỦY QUỲNH",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "621030557": {
+      "name": "THỊ NHÀN",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621030996": {
+      "name": "DANH MINH HIẾU",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621040446": {
+      "name": "THÁI THỊ XUÂN",
+      "july_incentive": 750000,
+      "july_continuous_months": 9,
+      "august_expected_months": 10
+    },
+    "621050282": {
+      "name": "PHAN MINH ANH",
+      "july_incentive": 750000,
+      "july_continuous_months": 9,
+      "august_expected_months": 10
+    },
+    "621060243": {
+      "name": "HÀ CÔNG NHANH",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621070084": {
+      "name": "THỊ NGỌC ĐIỆP",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621100361": {
+      "name": "TRẦN THỊ TÚ NGA",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "621110258": {
+      "name": "PHAN TRUNG HẢO",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "621110407": {
+      "name": "LÊ YẾN NHI",
+      "july_incentive": 650000,
+      "july_continuous_months": 8,
+      "august_expected_months": 9
+    },
+    "621110412": {
+      "name": "NGUYỄN THỊ KIM LOAN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "621120120": {
+      "name": "LÊ HỒNG ĐÀO",
+      "july_incentive": 500000,
+      "july_continuous_months": 7,
+      "august_expected_months": 8
+    },
+    "621120400": {
+      "name": "TRẦN THỊ NGỌC QUYỀN",
+      "july_incentive": 750000,
+      "july_continuous_months": 9,
+      "august_expected_months": 10
+    },
+    "622020056": {
+      "name": "NGUYỄN ÚT TÝ",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622020174": {
+      "name": "NGUYỄN NGỌC BÍCH THỦY",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622020703": {
+      "name": "DANH CHÀNH THUƠL",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622020913": {
+      "name": "LÂM THỊ THU PHƯƠNG",
+      "july_incentive": 1000000,
+      "july_continuous_months": 12,
+      "august_expected_months": 13
+    },
+    "622021048": {
+      "name": "NGUYỄN MỘNG THÊM",
+      "july_incentive": 500000,
+      "july_continuous_months": 7,
+      "august_expected_months": 8
+    },
+    "622021050": {
+      "name": "LÊ THỊ DẠ LÝ",
+      "july_incentive": 1000000,
+      "july_continuous_months": 12,
+      "august_expected_months": 13
+    },
+    "622021338": {
+      "name": "THỊ THANH THẢO",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "622021407": {
+      "name": "DANH TRƯỜNG",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622030023": {
+      "name": "LƯU HUỲNH BỬU XUYẾN",
+      "july_incentive": 350000,
+      "july_continuous_months": 4,
+      "august_expected_months": 5
+    },
+    "622030320": {
+      "name": "QUÁCH THANH TOÀN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622030777": {
+      "name": "NGUYỄN THỊ THẢO QUYÊN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622050542": {
+      "name": "BÙI THANH THẲNG",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622050636": {
+      "name": "LÊ THỊ PHƯỢNG UYÊN",
+      "july_incentive": 1000000,
+      "july_continuous_months": 12,
+      "august_expected_months": 13
+    },
+    "622070156": {
+      "name": "ĐÀO HỒNG NHIỀU",
+      "july_incentive": 750000,
+      "july_continuous_months": 9,
+      "august_expected_months": 10
+    },
+    "622070194": {
+      "name": "NGUYỄN QUỐC HUY",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622080106": {
+      "name": "NGUYỄN THỊ YẾN NHƯ",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "622080458": {
+      "name": "NGUYỄN HỒNG CẨM",
+      "july_incentive": 1000000,
+      "july_continuous_months": 12,
+      "august_expected_months": 13
+    },
+    "623030007": {
+      "name": "ĐOÀN THỊ MỸ NGÂN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "623080380": {
+      "name": "PHAN THỊ BÉ NGÂN",
+      "july_incentive": 650000,
+      "july_continuous_months": 8,
+      "august_expected_months": 9
+    },
+    "623090032": {
+      "name": "ĐẶNG CHÍ CÔNG",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "623090063": {
+      "name": "LÝ NHỰT KHOA",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "623090139": {
+      "name": "PHẠM THỊ CẨM LINH",
+      "july_incentive": 650000,
+      "july_continuous_months": 8,
+      "august_expected_months": 9
+    },
+    "623090194": {
+      "name": "DANH THỊ KIỀU PHƯƠNG",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "623090198": {
+      "name": "TRƯƠNG THẢO HUY",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "623090218": {
+      "name": "HUỲNH CHÍ TÂM",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "623100210": {
+      "name": "LÊ THỊ KIM ANH",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "623100234": {
+      "name": "HUỲNH THỊ HẢO",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "623110220": {
+      "name": "PHAN THỊ MY PHA",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "623120136": {
+      "name": "VÕ KIM HOÀI",
+      "july_incentive": 250000,
+      "july_continuous_months": 2,
+      "august_expected_months": 3
+    },
+    "624020086": {
+      "name": "NGUYỄN THỊ KIM THOA",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624020152": {
+      "name": "HUỲNH THỊ THANH THÙY",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624020153": {
+      "name": "HUỲNH THỊ THANH THÚY",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "624020170": {
+      "name": "HUỲNH TẤN TƯỚC",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624020551": {
+      "name": "TRẦN THỊ MỘNG TUYỀN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624030105": {
+      "name": "DANH THỊ NƯƠNG",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "624030271": {
+      "name": "ĐẶNG HOÀNG DUY",
+      "july_incentive": 400000,
+      "july_continuous_months": 5,
+      "august_expected_months": 6
+    },
+    "624030295": {
+      "name": "NGUYỄN THỊ ANH THƯ",
+      "july_incentive": 250000,
+      "july_continuous_months": 2,
+      "august_expected_months": 3
+    },
+    "624030533": {
+      "name": "TRẦN TRẦN TRUNG KIÊN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624030607": {
+      "name": "THÁI PHƯƠNG YẾN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624030608": {
+      "name": "TRẦN THỊ TRÚC QUYÊN",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "624040270": {
+      "name": "LÝ THỊ CHANH ĐA",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624040282": {
+      "name": "ĐOÀN CÔNG HÀO",
+      "july_incentive": 400000,
+      "july_continuous_months": 5,
+      "august_expected_months": 6
+    },
+    "624040283": {
+      "name": "TRẦN VĂN HÀ",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624040410": {
+      "name": "LÊ THỊ HUYỀN TRÂN",
+      "july_incentive": 250000,
+      "july_continuous_months": 2,
+      "august_expected_months": 3
+    },
+    "624050151": {
+      "name": "PHẠM THỊ THU THẢO",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624050200": {
+      "name": "NGUYỄN THỊ HUỲNH HÂN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624050331": {
+      "name": "THỊ NHẬT THANH",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624050450": {
+      "name": "TRẦN THỊ MỸ LỆ",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624060040": {
+      "name": "HỒ NHỰT PHI",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624060131": {
+      "name": "PHẠM THỊ THÙY DƯƠNG",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624060316": {
+      "name": "NGUYỄN THỊ CẨM NHUNG",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624060318": {
+      "name": "NGUYỄN THỊ MỸ HOA",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624060331": {
+      "name": "HUỲNH LÊ THANH TÚ",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "624060384": {
+      "name": "TÔ THỊ DIỄM MI",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624070020": {
+      "name": "NGUYỄN NGỌC TẤN",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624070060": {
+      "name": "TRẦN THANH THANH",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624070252": {
+      "name": "PHẠM THỊ KIỀU TRANG",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624070393": {
+      "name": "LÊ THỊ CHI",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624080015": {
+      "name": "TRƯƠNG KIM MỴ",
+      "july_incentive": 250000,
+      "july_continuous_months": 2,
+      "august_expected_months": 3
+    },
+    "624080082": {
+      "name": "TRẦN THỊ BÍCH THẢO",
+      "july_incentive": 350000,
+      "july_continuous_months": 4,
+      "august_expected_months": 5
+    },
+    "624080083": {
+      "name": "CHƯƠNG THỊ YẾN NHI",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624080127": {
+      "name": "TRẦN KIM Y",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624080166": {
+      "name": "LƯU THỊ THU UYÊN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624080236": {
+      "name": "BÙI THỊ CẨM",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624080430": {
+      "name": "NGUYỄN VĂN TOÀN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624090322": {
+      "name": "NGÔ THANH NHƯ",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624090346": {
+      "name": "NGUYỄN QUỐC HUY",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624100065": {
+      "name": "DIỆP TÚ TIÊN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624100308": {
+      "name": "NGUYỄN THỊ MỸ ANH",
+      "july_incentive": 650000,
+      "july_continuous_months": 8,
+      "august_expected_months": 9
+    },
+    "624100316": {
+      "name": "TRƯƠNG MINH ĐƯƠNG",
+      "july_incentive": 350000,
+      "july_continuous_months": 4,
+      "august_expected_months": 5
+    },
+    "624100346": {
+      "name": "NGUYỄN THỊ NGỌC HÂN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624100460": {
+      "name": "HỒ CHÍ TRUNG",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "624110158": {
+      "name": "VƯƠNG Ý NHI",
+      "july_incentive": 250000,
+      "july_continuous_months": 2,
+      "august_expected_months": 3
+    },
+    "624110228": {
+      "name": "THỊ KIỀU XUÂN",
+      "july_incentive": 650000,
+      "july_continuous_months": 8,
+      "august_expected_months": 9
+    },
+    "624110274": {
+      "name": "NGUYỄN THỊ MINH THY",
+      "july_incentive": 400000,
+      "july_continuous_months": 5,
+      "august_expected_months": 6
+    },
+    "624120070": {
+      "name": "NGUYỄN ANH KIỆT",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625010030": {
+      "name": "LÂM THỊ THU LAN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625020179": {
+      "name": "NGUYỄN PHÁT LỢI",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625020385": {
+      "name": "LÊ THÀNH THUẬN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625020419": {
+      "name": "NGUYỄN THỊ DIỄM MY",
+      "july_incentive": 250000,
+      "july_continuous_months": 2,
+      "august_expected_months": 3
+    },
+    "625020464": {
+      "name": "DANH THỊ THÙY DƯƠNG",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625020551": {
+      "name": "TRẦN VĂN SÁNG",
+      "july_incentive": 400000,
+      "july_continuous_months": 5,
+      "august_expected_months": 6
+    },
+    "625020591": {
+      "name": "ĐẶNG THỊ DIỄM ÁI",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "625030063": {
+      "name": "THỊ XUÂN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625030111": {
+      "name": "NGUYỄN VĂN VINH",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "625030163": {
+      "name": "LÊ THANH NGÂN",
+      "july_incentive": 350000,
+      "july_continuous_months": 4,
+      "august_expected_months": 5
+    },
+    "625030164": {
+      "name": "TRẦN CẨM TIÊN",
+      "july_incentive": 300000,
+      "july_continuous_months": 3,
+      "august_expected_months": 4
+    },
+    "625030234": {
+      "name": "VÕ THỊ CẨM TIÊN",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "625030296": {
+      "name": "NGUYỄN THỊ MỸ SAL",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "625030360": {
+      "name": "ĐIÊU KIM NHƯ",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "625030361": {
+      "name": "HUỲNH THỊ NHƯ Ý",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625030363": {
+      "name": "HUỲNH NGỌC TRÂN",
+      "july_incentive": 250000,
+      "july_continuous_months": 2,
+      "august_expected_months": 3
+    },
+    "625040238": {
+      "name": "VÕ THỊ BẢO HIỀN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625050156": {
+      "name": "NGUYỄN TUYẾT ĐÀO",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "625050250": {
+      "name": "LÊ HUYỀN TRÂN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625050278": {
+      "name": "NGUYỄN THỊ MỸ TIÊN",
+      "july_incentive": 0,
+      "july_continuous_months": 0,
+      "august_expected_months": 0
+    },
+    "625060019": {
+      "name": "DƯƠNG THỊ HẬU",
+      "july_incentive": 150000,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    }
+  }
+}
