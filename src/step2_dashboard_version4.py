@@ -163,6 +163,9 @@ def extract_data_from_html(html_file_path, month='july', year=2025):
     # AQL history 로드
     aql_history = load_aql_history(month)
     
+    # 메타데이터 로드
+    metadata = load_calculation_metadata(month, year)
+    
     # 직원 데이터 추출 패턴
     pattern = r'<td>(\d+)</td>\s*<td>(.*?)</td>\s*<td>(.*?)</td>\s*<td><span class="type-badge type-\d">(.*?)</span></td>\s*<td>(.*?)</td>\s*<td><strong>(.*?)</strong></td>\s*<td[^>]*>(.*?)</td>\s*<td>(.*?)</td>'
     
@@ -186,7 +189,8 @@ def extract_data_from_html(html_file_path, month='july', year=2025):
             emp['position'],
             emp['emp_no'],
             csv_data,
-            aql_history
+            aql_history,
+            metadata
         )
         emp['conditions'] = conditions
         
@@ -450,7 +454,7 @@ def _get_condition_category(condition_id):
         return '5prs'
     return 'unknown'
 
-def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no='', csv_data=None, aql_history=None):
+def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no='', csv_data=None, aql_history=None, metadata=None):
     """계산 근거에서 조건 분석 (직급별 적용 조건 차별화) - Version 4 실제 값 포함
     
     조건 구조:
@@ -569,15 +573,38 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
             'threshold': 'Pass',
             'applicable': True
         }
-        conditions['area_reject_rate'] = {
-            'name': '담당구역 reject율 <3%',
-            'category': 'aql',
-            'passed': True,
-            'value': 'Pass',
-            'actual': None,
-            'threshold': '<3%',
-            'applicable': True
-        }
+        # area_reject_rate 조건 - 메타데이터에서 실제 값 가져오기
+        area_reject_metadata = None
+        if metadata and str(emp_no) in metadata:
+            emp_metadata = metadata[str(emp_no)]
+            if 'conditions' in emp_metadata and 'aql' in emp_metadata['conditions']:
+                if 'area_reject_rate' in emp_metadata['conditions']['aql']:
+                    area_reject_metadata = emp_metadata['conditions']['aql']['area_reject_rate']
+        
+        if area_reject_metadata:
+            # 메타데이터에서 실제 값 사용
+            reject_rate_value = area_reject_metadata.get('value', 0.0)
+            reject_rate_passed = area_reject_metadata.get('passed', True)
+            conditions['area_reject_rate'] = {
+                'name': '담당구역 reject율 <3%',
+                'category': 'aql',
+                'passed': reject_rate_passed,
+                'value': 'Pass' if reject_rate_passed else 'Fail',
+                'actual': f"{reject_rate_value:.2f}%",
+                'threshold': '<3%',
+                'applicable': area_reject_metadata.get('applicable', True)
+            }
+        else:
+            # 메타데이터가 없으면 기본값 사용
+            conditions['area_reject_rate'] = {
+                'name': '담당구역 reject율 <3%',
+                'category': 'aql',
+                'passed': True,
+                'value': 'Pass',
+                'actual': None,
+                'threshold': '<3%',
+                'applicable': True
+            }
         
         # 5PRS 조건 세분화 (2가지)
         conditions['5prs_volume'] = {
@@ -787,15 +814,38 @@ def analyze_conditions_with_actual_values(reason, emp_type, position='', emp_no=
             'threshold': 'N/A',
             'applicable': False
         }
-        conditions['area_reject_rate'] = {
-            'name': '담당구역 reject율 <3%',
-            'category': 'aql',
-            'passed': True,
-            'value': 'N/A',
-            'actual': None,
-            'threshold': 'N/A',
-            'applicable': False
-        }
+        # area_reject_rate 조건 - 메타데이터에서 실제 값 가져오기 (TYPE-2도 동일하게 적용)
+        area_reject_metadata = None
+        if metadata and str(emp_no) in metadata:
+            emp_metadata = metadata[str(emp_no)]
+            if 'conditions' in emp_metadata and 'aql' in emp_metadata['conditions']:
+                if 'area_reject_rate' in emp_metadata['conditions']['aql']:
+                    area_reject_metadata = emp_metadata['conditions']['aql']['area_reject_rate']
+        
+        if area_reject_metadata and area_reject_metadata.get('applicable', False):
+            # 메타데이터에서 실제 값 사용 (TYPE-2에서도 적용되는 경우)
+            reject_rate_value = area_reject_metadata.get('value', 0.0)
+            reject_rate_passed = area_reject_metadata.get('passed', True)
+            conditions['area_reject_rate'] = {
+                'name': '담당구역 reject율 <3%',
+                'category': 'aql',
+                'passed': reject_rate_passed,
+                'value': 'Pass' if reject_rate_passed else 'Fail',
+                'actual': f"{reject_rate_value:.2f}%",
+                'threshold': '<3%',
+                'applicable': True
+            }
+        else:
+            # TYPE-2는 일반적으로 area_reject_rate 미적용
+            conditions['area_reject_rate'] = {
+                'name': '담당구역 reject율 <3%',
+                'category': 'aql',
+                'passed': True,
+                'value': 'N/A',
+                'actual': None,
+                'threshold': 'N/A',
+                'applicable': False
+            }
         
         # 5PRS 조건 - TYPE-2는 미적용
         conditions['5prs_volume'] = {
@@ -1557,6 +1607,18 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             background: white;
             border: 1px solid #dee2e6;
             color: #212529;
+        }}
+        
+        /* 직원 테이블 행 클릭 가능 스타일 */
+        #positionEmployeeTable tbody tr {{
+            transition: all 0.2s ease;
+        }}
+        
+        #positionEmployeeTable tbody tr:hover {{
+            background-color: rgba(102, 126, 234, 0.15) !important;
+            transform: translateX(2px);
+            box-shadow: -3px 0 0 #667eea;
+            cursor: pointer;
         }}
         
         .modal-header {{
@@ -3045,6 +3107,11 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                         <table class="table table-sm table-hover" id="positionEmployeeTable">
                             <thead style="position: sticky; top: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; z-index: 10;">
                                 <tr>
+                                    <th colspan="7" style="text-align: center; background: rgba(255,255,255,0.1); padding: 4px;">
+                                        <small style="font-style: italic;">💡 ${{t.clickRowForDetails || '직원 행을 클릭하면 상세 정보를 볼 수 있습니다'}}</small>
+                                    </th>
+                                </tr>
+                                <tr>
                                     <th width="10%">${{t.employeeNoHeader || '직원번호'}}</th>
                                     <th width="12%">${{t.nameHeader || '이름'}}</th>
                                     <th width="12%">${{t.incentiveHeader || '인센티브'}}</th>
@@ -3271,7 +3338,7 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
                                     }};
                                     
                                     return `
-                                        <tr class="${{rowClass}}" data-payment="${{isPaid ? 'paid' : 'unpaid'}}" onclick="showEmployeeDetail('${{emp.emp_no}}')" style="cursor: pointer;">
+                                        <tr class="${{rowClass}}" data-payment="${{isPaid ? 'paid' : 'unpaid'}}" onclick="showEmployeeDetailFromPosition('${{emp.emp_no}}')" style="cursor: pointer;">
                                             <td>${{emp.emp_no}}</td>
                                             <td><strong>${{emp.name}}</strong></td>
                                             <td class="fw-bold ${{isPaid ? 'text-success' : 'text-danger'}}">${{emp.{month.lower()}_incentive}}</td>
@@ -3410,6 +3477,82 @@ def generate_improved_dashboard(input_html, output_html, calculation_month='2025
             }}
             
             modal.show();
+            
+            // Event delegation을 사용하여 직원 행 클릭 이벤트 처리
+            // 모달이 표시된 후 이벤트 리스너 설정
+            setTimeout(() => {{
+                const table = document.getElementById('positionEmployeeTable');
+                if (!table) {{
+                    console.error('Position employee table not found');
+                    return;
+                }}
+                
+                // 이전 이벤트 리스너 제거 (중복 방지)
+                if (window.positionTableClickHandler) {{
+                    table.removeEventListener('click', window.positionTableClickHandler);
+                }}
+                
+                // 새로운 이벤트 핸들러 생성 및 저장
+                window.positionTableClickHandler = function(event) {{
+                    // tbody 내의 tr을 찾기
+                    const row = event.target.closest('tbody tr');
+                    if (!row) return;
+                    
+                    // emp_no 찾기 (첫 번째 td의 텍스트)
+                    const empNo = row.querySelector('td:first-child')?.textContent?.trim();
+                    console.log('Employee row clicked, empNo:', empNo);
+                    
+                    if (empNo) {{
+                        // 버튼 클릭은 무시 (이벤트 버블링 방지)
+                        if (event.target.tagName === 'BUTTON' || event.target.closest('button')) {{
+                            return;
+                        }}
+                        showEmployeeDetailFromPosition(empNo);
+                    }}
+                }};
+                
+                // 테이블에 이벤트 리스너 추가
+                table.addEventListener('click', window.positionTableClickHandler);
+                
+                // 커서 스타일 설정
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {{
+                    row.style.cursor = 'pointer';
+                    row.title = '클릭하여 직원 상세 정보 보기';
+                }});
+                
+                console.log('Event delegation set up for', rows.length, 'employee rows');
+            }}, 300);
+        }}
+        
+        // 직급별 상세 팝업에서 호출하는 개인별 상세 팝업 함수
+        function showEmployeeDetailFromPosition(empNo) {{
+            console.log('showEmployeeDetailFromPosition called with empNo:', empNo);
+            
+            try {{
+                // 먼저 직급별 상세 팝업을 닫기
+                const positionModalElement = document.getElementById('positionDetailModal');
+                console.log('Position modal element:', positionModalElement);
+                
+                if (positionModalElement) {{
+                    const positionModal = bootstrap.Modal.getInstance(positionModalElement);
+                    console.log('Position modal instance:', positionModal);
+                    
+                    if (positionModal) {{
+                        positionModal.hide();
+                    }}
+                }}
+                
+                // 잠시 후에 개인별 상세 팝업 열기 (애니메이션 충돌 방지)
+                setTimeout(() => {{
+                    console.log('Opening employee detail modal for:', empNo);
+                    showEmployeeDetail(empNo);
+                }}, 300);
+            }} catch (error) {{
+                console.error('Error in showEmployeeDetailFromPosition:', error);
+                // 오류가 있어도 개인별 상세 팝업은 열려야 함
+                showEmployeeDetail(empNo);
+            }}
         }}
         
         // 개인별 상세 팝업 - Version 4 실제 값 표시
@@ -5022,12 +5165,19 @@ def generate_detail_tab(employees, month='july'):
     return html
 
 def generate_criteria_tab():
-    """인센티브 기준 탭 HTML 생성 - 포괄적 정책 문서"""
-    return """
-        <div id="criteriaContent" style="background: #f8f9fa; padding: 30px; border-radius: 10px;">
-            <h2 class="mb-4" style="color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px;">
-                QIP 인센티브 지급 정책 가이드
-            </h2>
+    """인센티브 정책 및 계산 기준 탭 생성"""
+    return f'''
+        <div class="language-selector-container" style="text-align: right; margin-bottom: 20px;">
+            <select id="languageSelector" class="form-select" style="width: 150px; display: inline-block;">
+                <option value="ko">한국어</option>
+                <option value="en">English</option>
+                <option value="vi">Tiếng Việt</option>
+            </select>
+        </div>
+
+        <h1 class="section-title" style="text-align: center; font-size: 28px; margin-bottom: 30px;" id="criteriaMainTitle">
+            QIP 인센티브 정책 및 계산 기준
+        </h1>
             
             <!-- 정책 요약 섹션 -->
             <div class="alert alert-info mb-4">
@@ -5360,8 +5510,42 @@ def generate_criteria_tab():
                     </div>
                 </div>
             </div>
+            
+            <!-- Multi-language Script -->
+            <script>
+                document.getElementById('languageSelector').addEventListener('change', function() {{
+                    const lang = this.value;
+                    
+                    // Main title translations
+                    const titles = {{
+                        ko: 'QIP 인센티브 정책 및 계산 기준',
+                        en: 'QIP Incentive Policy and Calculation Standards',
+                        vi: 'Chính Sách và Tiêu Chuẩn Tính Thưởng QIP'
+                    }};
+                    
+                    document.getElementById('criteriaMainTitle').textContent = titles[lang] || titles['ko'];
+                    
+                    // Update all text elements based on language
+                    // This is a simplified version - in production, you would have complete translations
+                    if (lang === 'en') {{
+                        // Update English content
+                        document.querySelectorAll('.alert-heading').forEach(el => {{
+                            if (el.textContent.includes('핵심 원칙')) {{
+                                el.innerHTML = '📌 Core Principles';
+                            }}
+                        }});
+                    }} else if (lang === 'vi') {{
+                        // Update Vietnamese content
+                        document.querySelectorAll('.alert-heading').forEach(el => {{
+                            if (el.textContent.includes('핵심 원칙')) {{
+                                el.innerHTML = '📌 Nguyên Tắc Cốt Lõi';
+                            }}
+                        }});
+                    }}
+                }});
+            </script>
         </div>
-    """
+        '''
 
 # 메인 실행
 if __name__ == "__main__":
