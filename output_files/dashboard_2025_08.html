@@ -116,6 +116,8 @@
             border-radius: 20px;
             font-size: 0.875rem;
             font-weight: 600;
+            white-space: nowrap;
+            display: inline-block;
         }
         
         .type-badge.type-1 {
@@ -339,7 +341,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v4.2</span></h1>
             <p id="mainSubtitle">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="08" data-day="28" data-hour="11" data-minute="46">보고서 생성일: 2025년 08월 28일 11:46</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="08" data-day="28" data-hour="13" data-minute="33">보고서 생성일: 2025년 08월 28일 13:33</p>
         </div>
         
         <div class="content p-4">
@@ -2713,6 +2715,63 @@
         "ko": "해당없음",
         "en": "N/A",
         "vi": "Không áp dụng"
+      },
+      "metUnmet": {
+        "ko": "충족/미충족",
+        "en": "Met/Unmet",
+        "vi": "Đạt/Không đạt"
+      }
+    },
+    "detailPopup": {
+      "conditionFulfillment": {
+        "ko": "조건 충족도",
+        "en": "Condition Fulfillment",
+        "vi": "Mức độ đáp ứng điều kiện"
+      },
+      "paymentStatus": {
+        "ko": "지급 상태",
+        "en": "Payment Status",
+        "vi": "Trạng thái thanh toán"
+      },
+      "lastMonthIncentive": {
+        "ko": "지난달 인센티브",
+        "en": "Last Month's Incentive",
+        "vi": "Tiền thưởng tháng trước"
+      },
+      "conditionsFulfilled": {
+        "ko": "조건 충족",
+        "en": "conditions fulfilled",
+        "vi": "điều kiện đã đáp ứng"
+      },
+      "conditionNotMet": {
+        "ko": "조건 미충족",
+        "en": "Conditions not met",
+        "vi": "Không đủ điều kiện"
+      },
+      "noConditions": {
+        "ko": "해당 조건 없음",
+        "en": "No applicable conditions",
+        "vi": "Không có điều kiện áp dụng"
+      },
+      "conditionDetails": {
+        "ko": "조건 충족 상세",
+        "en": "Condition Fulfillment Details",
+        "vi": "Chi tiết điều kiện đáp ứng"
+      },
+      "condition": {
+        "ko": "조건",
+        "en": "Condition",
+        "vi": "Điều kiện"
+      },
+      "performance": {
+        "ko": "실적",
+        "en": "Performance",
+        "vi": "Hiệu suất"
+      },
+      "result": {
+        "ko": "결과",
+        "en": "Result",
+        "vi": "Kết quả"
       }
     },
     "conditionTexts": {
@@ -2766,6 +2825,58 @@
         "en": "5PRS inspection qty ≥100 pairs",
         "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
       }
+    },
+    "tenConditions": {
+      "1": {
+        "ko": "출근율 88% 이상",
+        "en": "Attendance rate ≥88%",
+        "vi": "Tỷ lệ chấm công ≥88%"
+      },
+      "2": {
+        "ko": "무단결근 2일 이하",
+        "en": "Unapproved absence ≤2 days",
+        "vi": "Vắng không phép ≤2 ngày"
+      },
+      "3": {
+        "ko": "실제근무일 0일 초과",
+        "en": "Actual working days >0",
+        "vi": "Ngày làm thực tế >0"
+      },
+      "4": {
+        "ko": "최소 근무일 12일 이상",
+        "en": "Min working days ≥12",
+        "vi": "Tối thiểu ≥12 ngày"
+      },
+      "5": {
+        "ko": "개인AQL: 당월실패 0건",
+        "en": "Personal AQL: 0 monthly failures",
+        "vi": "AQL cá nhân: 0 thất bại tháng"
+      },
+      "6": {
+        "ko": "연속성 체크: 3개월 연속 실패 없음",
+        "en": "Continuity: No 3-month consecutive failures",
+        "vi": "Liên tục: Không thất bại 3 tháng liên tiếp"
+      },
+      "7": {
+        "ko": "팀/구역 AQL: 3개월 연속 실패 없음",
+        "en": "Team/Area AQL: No 3-month consecutive failures",
+        "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"
+      },
+      "8": {
+        "ko": "담당구역 reject % < 3%",
+        "en": "Area reject rate < 3%",
+        "vi": "Tỷ lệ từ chối khu vực < 3%"
+      },
+      "9": {
+        "ko": "5PRS 통과율 95% 이상",
+        "en": "5PRS pass rate ≥95%",
+        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+      },
+      "10": {
+        "ko": "5PRS 검사량 100족 이상",
+        "en": "5PRS inspection qty ≥100 pairs",
+        "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
+      }
     }
   },
   "common": {
@@ -2808,6 +2919,16 @@
       "ko": "데이터 없음",
       "en": "No data",
       "vi": "Không có dữ liệu"
+    },
+    "days": {
+      "ko": "일",
+      "en": "days",
+      "vi": "ngày"
+    },
+    "day": {
+      "ko": "일",
+      "en": "day",
+      "vi": "ngày"
     }
   },
   "status": {
@@ -3504,21 +3625,21 @@
             // 요약 통계 계산
             const totalEmployees = employees.length;
             const paidEmployees = employees.filter(e => parseInt(e.august_incentive) > 0).length;
-            const avgIncentive = employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees;
+            const avgIncentive = Math.round(employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees);
             const paidRate = Math.round(paidEmployees/totalEmployees*100);
             
             // 조건 ID를 번역 키로 매핑
             const conditionTranslationMap = {
-                '1': 'modal.conditionNames.attendance_88',
-                '2': 'modal.conditionNames.no_unexcused_2days',
-                '3': 'modal.conditionNames.accident_free',
-                '4': 'modal.conditionNames.min_days_12',
-                '5': 'modal.conditionNames.personal_aql_0',
-                '6': 'modal.conditionNames.continuous_aql_3months',
-                '7': 'modal.conditionNames.team_aql_3months',
-                '8': 'modal.conditionNames.reject_rate_3',
-                '9': 'modal.conditionNames.prs_rate_95',
-                '10': 'modal.conditionNames.prs_count_100'
+                '1': 'modal.tenConditions.1',
+                '2': 'modal.tenConditions.2',
+                '3': 'modal.tenConditions.3',
+                '4': 'modal.tenConditions.4',
+                '5': 'modal.tenConditions.5',
+                '6': 'modal.tenConditions.6',
+                '7': 'modal.tenConditions.7',
+                '8': 'modal.tenConditions.8',
+                '9': 'modal.tenConditions.9',
+                '10': 'modal.tenConditions.10'
             };
             
             // 각 직원의 조건 충족 통계 계산
@@ -3941,13 +4062,13 @@
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body text-center">
-                                <h6 class="card-title">조건 충족도</h6>
+                                <h6 class="card-title">` + getTranslation('modal.detailPopup.conditionFulfillment', currentLanguage) + `</h6>
                                 <div style="width: 200px; height: 200px; margin: 0 auto; position: relative;">
                                     <canvas id="conditionChart${empNo}"></canvas>
                                 </div>
                                 <div class="mt-3">
                                     <h4>${passRate}%</h4>
-                                    <p class="text-muted">${totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' 조건 충족' : '해당 조건 없음'}</p>
+                                    <p class="text-muted">${totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' ' + getTranslation('modal.detailPopup.conditionsFulfilled', currentLanguage) : getTranslation('modal.detailPopup.noConditions', currentLanguage)}</p>
                                 </div>
                             </div>
                         </div>
@@ -3955,22 +4076,22 @@
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body">
-                                <h6 class="card-title">지급 상태</h6>
+                                <h6 class="card-title">` + getTranslation('modal.detailPopup.paymentStatus', currentLanguage) + `</h6>
                                 <div class="payment-status ${parseInt(emp.august_incentive) > 0 ? 'paid' : 'unpaid'}">
                                     ${parseInt(emp.august_incentive) > 0 ? `
                                     <div>
                                         <i class="fas fa-check-circle"></i>
-                                        <h5>지급 완료</h5>
+                                        <h5>` + getTranslation('modal.payment.paid', currentLanguage) + `</h5>
                                         <p>${parseInt(emp.august_incentive).toLocaleString()} VND</p>
                                     </div>` : `
                                     <div>
                                         <i class="fas fa-times-circle"></i>
-                                        <h5>미지급</h5>
-                                        <p>조건 미충족</p>
+                                        <h5>` + getTranslation('status.unpaid', currentLanguage) + `</h5>
+                                        <p>` + getTranslation('modal.detailPopup.conditionNotMet', currentLanguage) + `</p>
                                     </div>`}
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">지난달 인센티브: ${parseInt(emp.july_incentive).toLocaleString()} VND</small>
+                                    <small class="text-muted">` + getTranslation('modal.detailPopup.lastMonthIncentive', currentLanguage) + `: ${parseInt(emp.july_incentive).toLocaleString()} VND</small>
                                 </div>
                             </div>
                         </div>
@@ -3980,15 +4101,15 @@
                 <!-- 조건 충족 상세 테이블 -->
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="card-title">조건 충족 상세</h6>
+                        <h6 class="card-title">` + getTranslation('modal.detailPopup.conditionDetails', currentLanguage) + `</h6>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
                                         <th width="5%">#</th>
-                                        <th width="50%">조건</th>
-                                        <th width="25%">실적</th>
-                                        <th width="20%">결과</th>
+                                        <th width="50%">` + getTranslation('modal.detailPopup.condition', currentLanguage) + `</th>
+                                        <th width="25%">` + getTranslation('modal.detailPopup.performance', currentLanguage) + `</th>
+                                        <th width="20%">` + getTranslation('modal.detailPopup.result', currentLanguage) + `</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -4003,14 +4124,37 @@
                                             badgeHtml = '<span class="badge" style="background-color: #999;">N/A</span>';
                                         } else {
                                             rowClass = cond.is_met ? 'table-success' : 'table-danger';
-                                            actualHtml = `<strong>${cond.actual}</strong>`;
-                                            badgeHtml = cond.is_met ? '<span class="badge bg-success">충족</span>' : '<span class="badge bg-danger">미충족</span>';
+                                            
+                                            // 실적 값의 단위 번역 처리
+                                            let actualValue = cond.actual;
+                                            if (actualValue && typeof actualValue === 'string') {
+                                                // "0일" -> "0 days" / "0 ngày"
+                                                actualValue = actualValue.replace(/(\d+)일/g, function(match, num) {
+                                                    const dayUnit = parseInt(num) <= 1 ? getTranslation('common.day', currentLanguage) : getTranslation('common.days', currentLanguage);
+                                                    return num + (currentLanguage === 'ko' ? dayUnit : ' ' + dayUnit);
+                                                });
+                                                // "0건" -> "0 cases" / "0 trường hợp"  
+                                                actualValue = actualValue.replace(/(\d+)건/g, function(match, num) {
+                                                    if (currentLanguage === 'en') return num + (parseInt(num) <= 1 ? ' case' : ' cases');
+                                                    if (currentLanguage === 'vi') return num + ' trường hợp';
+                                                    return match;
+                                                });
+                                            }
+                                            
+                                            actualHtml = `<strong>${actualValue}</strong>`;
+                                            badgeHtml = cond.is_met ? '<span class="badge bg-success">' + getTranslation('modal.conditions.met', currentLanguage) + '</span>' : '<span class="badge bg-danger">' + getTranslation('modal.conditions.notMet', currentLanguage) + '</span>';
+                                        }
+                                        
+                                        // 조건 이름 번역
+                                        let condName = cond.name;
+                                        if (cond.id && cond.id >= 1 && cond.id <= 10) {
+                                            condName = getTranslation('modal.tenConditions.' + cond.id, currentLanguage);
                                         }
                                         
                                         return `
                                         <tr class="${rowClass}">
                                             <td>${idx + 1}</td>
-                                            <td>${cond.name}</td>
+                                            <td>${condName}</td>
                                             <td>${actualHtml}</td>
                                             <td class="text-center">${badgeHtml}</td>
                                         </tr>
@@ -4044,7 +4188,7 @@
                     window[`chart_${empNo}`] = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
-                            labels: ['충족', '미충족'],
+                            labels: [getTranslation('modal.conditions.met', currentLanguage), getTranslation('modal.conditions.notMet', currentLanguage)],
                             datasets: [{
                                 data: [passedConditions, Math.max(0, totalConditions - passedConditions)],
                                 backgroundColor: ['#28a745', '#dc3545'],

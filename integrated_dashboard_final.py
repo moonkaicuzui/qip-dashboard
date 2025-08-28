@@ -847,6 +847,8 @@ def generate_dashboard_html(df, month='august', year=2025):
             border-radius: 20px;
             font-size: 0.875rem;
             font-weight: 600;
+            white-space: nowrap;
+            display: inline-block;
         }}
         
         .type-badge.type-1 {{
@@ -3021,21 +3023,21 @@ def generate_dashboard_html(df, month='august', year=2025):
             // 요약 통계 계산
             const totalEmployees = employees.length;
             const paidEmployees = employees.filter(e => parseInt(e.august_incentive) > 0).length;
-            const avgIncentive = employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees;
+            const avgIncentive = Math.round(employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees);
             const paidRate = Math.round(paidEmployees/totalEmployees*100);
             
             // 조건 ID를 번역 키로 매핑
             const conditionTranslationMap = {{
-                '1': 'modal.conditionNames.attendance_88',
-                '2': 'modal.conditionNames.no_unexcused_2days',
-                '3': 'modal.conditionNames.accident_free',
-                '4': 'modal.conditionNames.min_days_12',
-                '5': 'modal.conditionNames.personal_aql_0',
-                '6': 'modal.conditionNames.continuous_aql_3months',
-                '7': 'modal.conditionNames.team_aql_3months',
-                '8': 'modal.conditionNames.reject_rate_3',
-                '9': 'modal.conditionNames.prs_rate_95',
-                '10': 'modal.conditionNames.prs_count_100'
+                '1': 'modal.tenConditions.1',
+                '2': 'modal.tenConditions.2',
+                '3': 'modal.tenConditions.3',
+                '4': 'modal.tenConditions.4',
+                '5': 'modal.tenConditions.5',
+                '6': 'modal.tenConditions.6',
+                '7': 'modal.tenConditions.7',
+                '8': 'modal.tenConditions.8',
+                '9': 'modal.tenConditions.9',
+                '10': 'modal.tenConditions.10'
             }};
             
             // 각 직원의 조건 충족 통계 계산
@@ -3458,13 +3460,13 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body text-center">
-                                <h6 class="card-title">조건 충족도</h6>
+                                <h6 class="card-title">` + getTranslation('modal.detailPopup.conditionFulfillment', currentLanguage) + `</h6>
                                 <div style="width: 200px; height: 200px; margin: 0 auto; position: relative;">
                                     <canvas id="conditionChart${{empNo}}"></canvas>
                                 </div>
                                 <div class="mt-3">
                                     <h4>${{passRate}}%</h4>
-                                    <p class="text-muted">${{totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' 조건 충족' : '해당 조건 없음'}}</p>
+                                    <p class="text-muted">${{totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' ' + getTranslation('modal.detailPopup.conditionsFulfilled', currentLanguage) : getTranslation('modal.detailPopup.noConditions', currentLanguage)}}</p>
                                 </div>
                             </div>
                         </div>
@@ -3472,22 +3474,22 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body">
-                                <h6 class="card-title">지급 상태</h6>
+                                <h6 class="card-title">` + getTranslation('modal.detailPopup.paymentStatus', currentLanguage) + `</h6>
                                 <div class="payment-status ${{parseInt(emp.august_incentive) > 0 ? 'paid' : 'unpaid'}}">
                                     ${{parseInt(emp.august_incentive) > 0 ? `
                                     <div>
                                         <i class="fas fa-check-circle"></i>
-                                        <h5>지급 완료</h5>
+                                        <h5>` + getTranslation('modal.payment.paid', currentLanguage) + `</h5>
                                         <p>${{parseInt(emp.august_incentive).toLocaleString()}} VND</p>
                                     </div>` : `
                                     <div>
                                         <i class="fas fa-times-circle"></i>
-                                        <h5>미지급</h5>
-                                        <p>조건 미충족</p>
+                                        <h5>` + getTranslation('status.unpaid', currentLanguage) + `</h5>
+                                        <p>` + getTranslation('modal.detailPopup.conditionNotMet', currentLanguage) + `</p>
                                     </div>`}}
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">지난달 인센티브: ${{parseInt(emp.july_incentive).toLocaleString()}} VND</small>
+                                    <small class="text-muted">` + getTranslation('modal.detailPopup.lastMonthIncentive', currentLanguage) + `: ${{parseInt(emp.july_incentive).toLocaleString()}} VND</small>
                                 </div>
                             </div>
                         </div>
@@ -3497,15 +3499,15 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <!-- 조건 충족 상세 테이블 -->
                 <div class="card">
                     <div class="card-body">
-                        <h6 class="card-title">조건 충족 상세</h6>
+                        <h6 class="card-title">` + getTranslation('modal.detailPopup.conditionDetails', currentLanguage) + `</h6>
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
                                         <th width="5%">#</th>
-                                        <th width="50%">조건</th>
-                                        <th width="25%">실적</th>
-                                        <th width="20%">결과</th>
+                                        <th width="50%">` + getTranslation('modal.detailPopup.condition', currentLanguage) + `</th>
+                                        <th width="25%">` + getTranslation('modal.detailPopup.performance', currentLanguage) + `</th>
+                                        <th width="20%">` + getTranslation('modal.detailPopup.result', currentLanguage) + `</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -3520,14 +3522,37 @@ def generate_dashboard_html(df, month='august', year=2025):
                                             badgeHtml = '<span class="badge" style="background-color: #999;">N/A</span>';
                                         }} else {{
                                             rowClass = cond.is_met ? 'table-success' : 'table-danger';
-                                            actualHtml = `<strong>${{cond.actual}}</strong>`;
-                                            badgeHtml = cond.is_met ? '<span class="badge bg-success">충족</span>' : '<span class="badge bg-danger">미충족</span>';
+                                            
+                                            // 실적 값의 단위 번역 처리
+                                            let actualValue = cond.actual;
+                                            if (actualValue && typeof actualValue === 'string') {{
+                                                // "0일" -> "0 days" / "0 ngày"
+                                                actualValue = actualValue.replace(/(\\d+)일/g, function(match, num) {{
+                                                    const dayUnit = parseInt(num) <= 1 ? getTranslation('common.day', currentLanguage) : getTranslation('common.days', currentLanguage);
+                                                    return num + (currentLanguage === 'ko' ? dayUnit : ' ' + dayUnit);
+                                                }});
+                                                // "0건" -> "0 cases" / "0 trường hợp"  
+                                                actualValue = actualValue.replace(/(\\d+)건/g, function(match, num) {{
+                                                    if (currentLanguage === 'en') return num + (parseInt(num) <= 1 ? ' case' : ' cases');
+                                                    if (currentLanguage === 'vi') return num + ' trường hợp';
+                                                    return match;
+                                                }});
+                                            }}
+                                            
+                                            actualHtml = `<strong>${{actualValue}}</strong>`;
+                                            badgeHtml = cond.is_met ? '<span class="badge bg-success">' + getTranslation('modal.conditions.met', currentLanguage) + '</span>' : '<span class="badge bg-danger">' + getTranslation('modal.conditions.notMet', currentLanguage) + '</span>';
+                                        }}
+                                        
+                                        // 조건 이름 번역
+                                        let condName = cond.name;
+                                        if (cond.id && cond.id >= 1 && cond.id <= 10) {{
+                                            condName = getTranslation('modal.tenConditions.' + cond.id, currentLanguage);
                                         }}
                                         
                                         return `
                                         <tr class="${{rowClass}}">
                                             <td>${{idx + 1}}</td>
-                                            <td>${{cond.name}}</td>
+                                            <td>${{condName}}</td>
                                             <td>${{actualHtml}}</td>
                                             <td class="text-center">${{badgeHtml}}</td>
                                         </tr>
@@ -3561,7 +3586,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                     window[`chart_${{empNo}}`] = new Chart(ctx, {{
                         type: 'doughnut',
                         data: {{
-                            labels: ['충족', '미충족'],
+                            labels: [getTranslation('modal.conditions.met', currentLanguage), getTranslation('modal.conditions.notMet', currentLanguage)],
                             datasets: [{{
                                 data: [passedConditions, Math.max(0, totalConditions - passedConditions)],
                                 backgroundColor: ['#28a745', '#dc3545'],
