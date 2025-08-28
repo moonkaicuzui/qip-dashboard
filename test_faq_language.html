@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FAQ Language Switch Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .language-selector { margin-bottom: 20px; }
+        .faq-section { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; }
+        select { padding: 5px; font-size: 16px; }
+        h2 { color: #333; }
+        .test-status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>FAQ Language Switching Test</h1>
+    
+    <div class="language-selector">
+        <label>Select Language: </label>
+        <select id="languageSelector" onchange="testLanguageSwitch(this.value)">
+            <option value="ko">한국어 (Korean)</option>
+            <option value="en">English</option>
+            <option value="vi">Tiếng Việt (Vietnamese)</option>
+        </select>
+    </div>
+    
+    <div class="test-status" id="testStatus"></div>
+    
+    <div class="faq-section">
+        <h2 id="faqTitle">📐 실제 계산 예시</h2>
+        <p><strong id="employeeLabel">직원:</strong> <span id="employeeName">Test Employee</span></p>
+        <p><strong id="statusLabel">전월 상태:</strong> <span id="statusText">9개월 연속 근무</span></p>
+    </div>
+    
+    <script>
+        // Sample translations (mimicking the actual structure)
+        const translations = {
+            incentive: {
+                faq: {
+                    calculationExampleTitle: {
+                        ko: "📐 실제 계산 예시",
+                        en: "📐 Actual Calculation Examples",
+                        vi: "📐 Ví dụ tính toán thực tế"
+                    },
+                    employee: {
+                        ko: "직원:",
+                        en: "Employee:",
+                        vi: "Nhân viên:"
+                    },
+                    previousMonth: {
+                        ko: "전월 상태:",
+                        en: "Previous Month:",
+                        vi: "Tháng trước:"
+                    },
+                    consecutiveMonthsWorked: {
+                        ko: "개월 연속 근무",
+                        en: "consecutive months worked",
+                        vi: "tháng làm việc liên tục"
+                    }
+                }
+            }
+        };
+        
+        function testLanguageSwitch(lang) {
+            console.log('Testing language switch to:', lang);
+            
+            const statusDiv = document.getElementById('testStatus');
+            let testsPassed = 0;
+            let totalTests = 0;
+            
+            // Test 1: Update title
+            totalTests++;
+            const titleElement = document.getElementById('faqTitle');
+            const expectedTitle = translations.incentive?.faq?.calculationExampleTitle?.[lang];
+            if (expectedTitle) {
+                titleElement.textContent = expectedTitle;
+                console.log('✅ Title updated to:', expectedTitle);
+                testsPassed++;
+            } else {
+                console.log('❌ Title translation not found for language:', lang);
+            }
+            
+            // Test 2: Update employee label
+            totalTests++;
+            const employeeLabel = document.getElementById('employeeLabel');
+            const expectedEmployeeLabel = translations.incentive?.faq?.employee?.[lang];
+            if (expectedEmployeeLabel) {
+                employeeLabel.textContent = expectedEmployeeLabel;
+                console.log('✅ Employee label updated to:', expectedEmployeeLabel);
+                testsPassed++;
+            } else {
+                console.log('❌ Employee label translation not found for language:', lang);
+            }
+            
+            // Test 3: Update status label
+            totalTests++;
+            const statusLabel = document.getElementById('statusLabel');
+            const expectedStatusLabel = translations.incentive?.faq?.previousMonth?.[lang];
+            if (expectedStatusLabel) {
+                statusLabel.textContent = expectedStatusLabel;
+                console.log('✅ Status label updated to:', expectedStatusLabel);
+                testsPassed++;
+            } else {
+                console.log('❌ Status label translation not found for language:', lang);
+            }
+            
+            // Test 4: Update status text
+            totalTests++;
+            const statusText = document.getElementById('statusText');
+            const expectedStatusText = translations.incentive?.faq?.consecutiveMonthsWorked?.[lang];
+            if (expectedStatusText) {
+                statusText.textContent = '9 ' + expectedStatusText;
+                console.log('✅ Status text updated to:', '9 ' + expectedStatusText);
+                testsPassed++;
+            } else {
+                console.log('❌ Status text translation not found for language:', lang);
+            }
+            
+            // Update test status
+            if (testsPassed === totalTests) {
+                statusDiv.className = 'test-status success';
+                statusDiv.textContent = `✅ All tests passed! (${testsPassed}/${totalTests}) - Language switched to ${lang} successfully.`;
+            } else {
+                statusDiv.className = 'test-status error';
+                statusDiv.textContent = `⚠️ Some tests failed. (${testsPassed}/${totalTests} passed) - Check console for details.`;
+            }
+        }
+        
+        // Initialize with Korean
+        testLanguageSwitch('ko');
+    </script>
+</body>
+</html>

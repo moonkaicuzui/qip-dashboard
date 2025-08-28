@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Language Switch Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .demo-container { max-width: 800px; margin: 0 auto; }
+        .language-buttons { margin-bottom: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+        button.active { background-color: #007bff; color: white; }
+        .faq-example { border: 2px solid #ddd; padding: 20px; border-radius: 8px; }
+        h3 { color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>FAQ Language Switch Demonstration</h1>
+        
+        <div class="language-buttons">
+            <button id="btnKo" class="active" onclick="switchLanguage('ko')">한국어</button>
+            <button id="btnEn" onclick="switchLanguage('en')">English</button>
+            <button id="btnVi" onclick="switchLanguage('vi')">Tiếng Việt</button>
+        </div>
+        
+        <div class="faq-example">
+            <h3 id="title">📐 실제 계산 예시</h3>
+            <h4 id="case1Title">예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)</h4>
+            <p><strong id="employeeLabel">직원:</strong> BÙI THỊ KIỀU LY (619060201)</p>
+            <p><strong id="prevMonthLabel">전월 상태:</strong> <span id="prevMonthText">9개월 연속 → 750,000 VND 수령</span></p>
+            <p><strong id="conditionsLabel">당월 조건 충족:</strong></p>
+            <ul>
+                <li>✅ <span id="attendanceLabel">출근율:</span> 92% (≥88%)</li>
+                <li>✅ <span id="absenceLabel">무단결근:</span> <span id="absenceValue">0일</span> (≤<span id="absenceLimit">2일</span>)</li>
+                <li>✅ <span id="actualDaysLabel">실제 근무일:</span> <span id="actualDaysValue">20일</span> (>0일)</li>
+            </ul>
+            <p><strong id="resultLabel">결과:</strong> <span id="resultText">모든 조건 충족 → 10개월 연속 → 850,000 VND 지급</span></p>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 5px;">
+            <h4>Current Language: <span id="currentLang" style="color: #007bff;">Korean (한국어)</span></h4>
+            <p>Click the buttons above to see the FAQ example change languages dynamically!</p>
+        </div>
+    </div>
+    
+    <script>
+        const translations = {
+            ko: {
+                title: "📐 실제 계산 예시",
+                case1Title: "예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)",
+                employee: "직원:",
+                prevMonth: "전월 상태:",
+                prevMonthText: "9개월 연속 → 750,000 VND 수령",
+                conditions: "당월 조건 충족:",
+                attendance: "출근율:",
+                absence: "무단결근:",
+                actualDays: "실제 근무일:",
+                result: "결과:",
+                resultText: "모든 조건 충족 → 10개월 연속 → 850,000 VND 지급",
+                days: "일",
+                langName: "Korean (한국어)"
+            },
+            en: {
+                title: "📐 Actual Calculation Examples",
+                case1Title: "Example 1: TYPE-1 ASSEMBLY INSPECTOR (10 consecutive months)",
+                employee: "Employee:",
+                prevMonth: "Previous Month:",
+                prevMonthText: "9 consecutive months → 750,000 VND received",
+                conditions: "Current Month Conditions:",
+                attendance: "Attendance Rate:",
+                absence: "Unauthorized Absence:",
+                actualDays: "Actual Working Days:",
+                result: "Result:",
+                resultText: "All conditions met → 10 consecutive months → 850,000 VND payment",
+                days: "days",
+                langName: "English"
+            },
+            vi: {
+                title: "📐 Ví dụ tính toán thực tế",
+                case1Title: "Ví dụ 1: TYPE-1 ASSEMBLY INSPECTOR (10 tháng liên tục)",
+                employee: "Nhân viên:",
+                prevMonth: "Tháng trước:",
+                prevMonthText: "9 tháng liên tục → Nhận 750,000 VND",
+                conditions: "Điều kiện tháng này:",
+                attendance: "Tỷ lệ chuyên cần:",
+                absence: "Vắng không phép:",
+                actualDays: "Ngày làm việc thực tế:",
+                result: "Kết quả:",
+                resultText: "Đáp ứng tất cả điều kiện → 10 tháng liên tục → Thanh toán 850,000 VND",
+                days: "ngày",
+                langName: "Vietnamese (Tiếng Việt)"
+            }
+        };
+        
+        function switchLanguage(lang) {
+            // Update button states
+            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn' + lang.charAt(0).toUpperCase() + lang.slice(1)).classList.add('active');
+            
+            // Update texts
+            const t = translations[lang];
+            document.getElementById('title').textContent = t.title;
+            document.getElementById('case1Title').textContent = t.case1Title;
+            document.getElementById('employeeLabel').textContent = t.employee;
+            document.getElementById('prevMonthLabel').textContent = t.prevMonth;
+            document.getElementById('prevMonthText').textContent = t.prevMonthText;
+            document.getElementById('conditionsLabel').textContent = t.conditions;
+            document.getElementById('attendanceLabel').textContent = t.attendance;
+            document.getElementById('absenceLabel').textContent = t.absence;
+            document.getElementById('actualDaysLabel').textContent = t.actualDays;
+            document.getElementById('resultLabel').textContent = t.result;
+            document.getElementById('resultText').textContent = t.resultText;
+            
+            // Update day units
+            document.getElementById('absenceValue').textContent = '0' + t.days;
+            document.getElementById('absenceLimit').textContent = '2' + t.days;
+            document.getElementById('actualDaysValue').textContent = '20' + t.days;
+            
+            // Update current language display
+            document.getElementById('currentLang').textContent = t.langName;
+            
+            console.log('Language switched to:', lang);
+        }
+    </script>
+</body>
+</html>
