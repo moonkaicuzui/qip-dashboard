@@ -1070,7 +1070,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <option value="vi">Tiếng Việt</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v4.2</span></h1>
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.0</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
         </div>
@@ -3044,7 +3044,7 @@ def generate_dashboard_html(df, month='august', year=2025):
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
-                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v4.2</span>';
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v5.0</span>';
             }}
             
             // 날짜 관련 업데이트
