@@ -2655,6 +2655,101 @@
         "ko": "ASSEMBLY INSPECTOR의 경우 연속 개월수는 0으로 리셋",
         "en": "For ASSEMBLY INSPECTOR, consecutive months reset to 0",
         "vi": "Đối với ASSEMBLY INSPECTOR, số tháng liên tục được đặt lại về 0"
+      },
+      "question8": {
+        "ko": "Q8. 전월 인센티브와 차이가 나는 이유는 무엇인가요?",
+        "en": "Q8. Why is there a difference from last month's incentive?",
+        "vi": "Q8. Tại sao có sự khác biệt với thưởng tháng trước?"
+      },
+      "answer8Main": {
+        "ko": "인센티브 금액이 변동하는 주요 이유:",
+        "en": "Main reasons for incentive amount changes:",
+        "vi": "Lý do chính cho sự thay đổi số tiền thưởng:"
+      },
+      "answer8Reason1": {
+        "ko": "ASSEMBLY INSPECTOR: 연속 근무 개월 변화",
+        "en": "ASSEMBLY INSPECTOR: Change in consecutive working months",
+        "vi": "ASSEMBLY INSPECTOR: Thay đổi số tháng làm việc liên tục"
+      },
+      "answer8Reason2": {
+        "ko": "TYPE-2 직급: TYPE-1 평균값 변동",
+        "en": "TYPE-2 positions: TYPE-1 average value fluctuation",
+        "vi": "Vị trí TYPE-2: Biến động giá trị trung bình TYPE-1"
+      },
+      "answer8Reason3": {
+        "ko": "AQL INSPECTOR: Part1, Part2, Part3 조건 변화",
+        "en": "AQL INSPECTOR: Part1, Part2, Part3 condition changes",
+        "vi": "AQL INSPECTOR: Thay đổi điều kiện Part1, Part2, Part3"
+      },
+      "answer8Reason4": {
+        "ko": "조건 미충족: 하나라도 미충족시 0",
+        "en": "Unmet conditions: 0 if any condition is not met",
+        "vi": "Điều kiện không đạt: 0 nếu bất kỳ điều kiện nào không đạt"
+      },
+      "question9": {
+        "ko": "Q9. TYPE-3에서 TYPE-2로 승진하면 인센티브가 어떻게 변하나요?",
+        "en": "Q9. How does the incentive change when promoted from TYPE-3 to TYPE-2?",
+        "vi": "Q9. Thưởng thay đổi như thế nào khi thăng chức từ TYPE-3 lên TYPE-2?"
+      },
+      "answer9Detail1": {
+        "ko": "TYPE-3: 조건 없이 기본 150,000 VND (근무시 자동 지급)",
+        "en": "TYPE-3: Basic 150,000 VND without conditions (automatic payment when working)",
+        "vi": "TYPE-3: Cơ bản 150.000 VND không điều kiện (tự động thanh toán khi làm việc)"
+      },
+      "answer9Detail2": {
+        "ko": "TYPE-2: 조건 충족 필요, TYPE-1 평균 기준 계산",
+        "en": "TYPE-2: Conditions must be met, calculated based on TYPE-1 average",
+        "vi": "TYPE-2: Cần đáp ứng điều kiện, tính theo trung bình TYPE-1"
+      },
+      "answer9Detail3": {
+        "ko": "승진 후 조건 충족시 일반적으로 인센티브 증가",
+        "en": "Generally incentive increases after promotion if conditions are met",
+        "vi": "Thường thưởng tăng sau thăng chức nếu đáp ứng điều kiện"
+      },
+      "answer9Detail4": {
+        "ko": "하지만 조건 미충족시 0이 될 수 있으므로 주의 필요",
+        "en": "However, be careful as it can become 0 if conditions are not met",
+        "vi": "Tuy nhiên, cần cẩn thận vì có thể về 0 nếu không đáp ứng điều kiện"
+      },
+      "question10": {
+        "ko": "Q10. 조건을 모두 충족했는데도 인센티브가 0인 이유는 무엇인가요?",
+        "en": "Q10. Why is the incentive 0 even though all conditions are met?",
+        "vi": "Q10. Tại sao thưởng là 0 mặc dù đã đáp ứng tất cả điều kiện?"
+      },
+      "answer10Main": {
+        "ko": "다음 사항을 재확인해 보세요:",
+        "en": "Please double-check the following:",
+        "vi": "Vui lòng kiểm tra lại các mục sau:"
+      },
+      "answer10Reason1": {
+        "ko": "숨겨진 조건: 직급별로 적용되는 모든 조건 확인",
+        "en": "Hidden conditions: Check all conditions applied by position",
+        "vi": "Điều kiện ẩn: Kiểm tra tất cả điều kiện áp dụng theo vị trí"
+      },
+      "answer10Reason2": {
+        "ko": "데이터 업데이트: 최신 데이터 반영 여부",
+        "en": "Data update: Whether the latest data is reflected",
+        "vi": "Cập nhật dữ liệu: Dữ liệu mới nhất đã được phản ánh chưa"
+      },
+      "answer10Reason3": {
+        "ko": "특별한 사유: 징계, 경고 등 특별 사유",
+        "en": "Special reasons: Disciplinary action, warnings, etc.",
+        "vi": "Lý do đặc biệt: Kỷ luật, cảnh cáo, v.v."
+      },
+      "answer10Reason4": {
+        "ko": "시스템 오류: HR 부서에 문의",
+        "en": "System error: Contact HR department",
+        "vi": "Lỗi hệ thống: Liên hệ phòng nhân sự"
+      },
+      "answer10Conclusion": {
+        "ko": "개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.",
+        "en": "Please check the condition fulfillment details on the individual detail page.",
+        "vi": "Vui lòng kiểm tra chi tiết việc đáp ứng điều kiện trên trang chi tiết cá nhân."
+      },
+      "faqSectionTitle": {
+        "ko": "❓ 자주 묻는 질문 (FAQ)",
+        "en": "❓ Frequently Asked Questions (FAQ)",
+        "vi": "❓ Câu hỏi thường gặp (FAQ)"
       }
     }
   },
