@@ -1,0 +1,1233 @@
+{
+  "languages": {
+    "ko": "한국어",
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "tabs": {
+    "summary": {
+      "ko": "요약",
+      "en": "Summary",
+      "vi": "Tóm tắt"
+    },
+    "position": {
+      "ko": "직급별 상세",
+      "en": "Position Details",
+      "vi": "Chi tiết theo chức vụ"
+    },
+    "individual": {
+      "ko": "개인별 상세",
+      "en": "Individual Details",
+      "vi": "Chi tiết cá nhân"
+    },
+    "criteria": {
+      "ko": "인센티브 기준",
+      "en": "Incentive Criteria",
+      "vi": "Tiêu chí khen thưởng"
+    }
+  },
+  "headers": {
+    "title": {
+      "ko": "QIP 인센티브 대시보드",
+      "en": "QIP Incentive Dashboard",
+      "vi": "Bảng điều khiển khen thưởng QIP"
+    },
+    "mainTitle": {
+      "ko": "QIP 인센티브 계산 결과",
+      "en": "QIP Incentive Calculation Results",
+      "vi": "Kết quả tính khen thưởng QIP"
+    },
+    "incentiveStatus": {
+      "ko": "인센티브 지급 현황",
+      "en": "Incentive Payment Status",
+      "vi": "Tình trạng chi trả khen thưởng"
+    },
+    "reportDateLabel": {
+      "ko": "보고서 생성일:",
+      "en": "Report Generated:",
+      "vi": "Báo cáo tạo ngày:"
+    },
+    "month": {
+      "ko": "월",
+      "en": "Month",
+      "vi": "Tháng"
+    },
+    "year": {
+      "ko": "년",
+      "en": "Year",
+      "vi": "Năm"
+    },
+    "august": {
+      "ko": "8월",
+      "en": "August",
+      "vi": "Tháng 8"
+    }
+  },
+  "summary": {
+    "cards": {
+      "totalEmployees": {
+        "ko": "전체 직원",
+        "en": "Total Employees",
+        "vi": "Tổng nhân viên"
+      },
+      "eligibleEmployees": {
+        "ko": "지급 대상",
+        "en": "Eligible",
+        "vi": "Đủ điều kiện"
+      },
+      "paidEmployees": {
+        "ko": "수령 직원",
+        "en": "Paid Employees",
+        "vi": "Nhân viên đã nhận"
+      },
+      "totalAmount": {
+        "ko": "총 지급액",
+        "en": "Total Amount",
+        "vi": "Tổng tiền thưởng"
+      },
+      "avgAmount": {
+        "ko": "평균 지급액",
+        "en": "Average Amount",
+        "vi": "Trung bình"
+      },
+      "paymentRate": {
+        "ko": "지급률",
+        "en": "Payment Rate",
+        "vi": "Tỷ lệ chi trả"
+      }
+    },
+    "chartLabels": {
+      "recipientBased": {
+        "ko": "수령인원 기준",
+        "en": "Recipients Based",
+        "vi": "Dựa trên người nhận"
+      },
+      "totalBased": {
+        "ko": "총원 기준",
+        "en": "Total Based",
+        "vi": "Dựa trên tổng số"
+      }
+    },
+    "typeTable": {
+      "title": {
+        "ko": "Type별 요약",
+        "en": "Summary by Type",
+        "vi": "Tóm tắt theo loại"
+      },
+      "columns": {
+        "type": {
+          "ko": "Type",
+          "en": "Type",
+          "vi": "Loại"
+        },
+        "totalEmployees": {
+          "ko": "전체 인원",
+          "en": "Total",
+          "vi": "Tổng số"
+        },
+        "eligible": {
+          "ko": "지급 대상",
+          "en": "Eligible",
+          "vi": "Đủ điều kiện"
+        },
+        "paymentRate": {
+          "ko": "지급률",
+          "en": "Payment Rate",
+          "vi": "Tỷ lệ"
+        },
+        "totalAmount": {
+          "ko": "총 지급액",
+          "en": "Total Amount",
+          "vi": "Tổng tiền"
+        }
+      }
+    }
+  },
+  "position": {
+    "title": {
+      "ko": "직급별 상세 현황",
+      "en": "Position Details Status",
+      "vi": "Chi tiết theo chức vụ"
+    },
+    "sectionTitles": {
+      "type1": {
+        "ko": "TYPE-1 직급별 현황",
+        "en": "TYPE-1 Position Status",
+        "vi": "Tình trạng chức vụ TYPE-1"
+      },
+      "type2": {
+        "ko": "TYPE-2 직급별 현황",
+        "en": "TYPE-2 Position Status",
+        "vi": "Tình trạng chức vụ TYPE-2"
+      },
+      "type3": {
+        "ko": "TYPE-3 직급별 현황",
+        "en": "TYPE-3 Position Status",
+        "vi": "Tình trạng chức vụ TYPE-3"
+      },
+      "type1Total": {
+        "ko": "TYPE-1 합계",
+        "en": "TYPE-1 Total",
+        "vi": "Tổng TYPE-1"
+      },
+      "type2Total": {
+        "ko": "TYPE-2 합계",
+        "en": "TYPE-2 Total",
+        "vi": "Tổng TYPE-2"
+      },
+      "type3Total": {
+        "ko": "TYPE-3 합계",
+        "en": "TYPE-3 Total",
+        "vi": "Tổng TYPE-3"
+      }
+    },
+    "viewButton": {
+      "ko": "보기",
+      "en": "View",
+      "vi": "Xem"
+    },
+    "positionTable": {
+      "columns": {
+        "position": {
+          "ko": "직급",
+          "en": "Position",
+          "vi": "Chức vụ"
+        },
+        "type": {
+          "ko": "Type",
+          "en": "Type",
+          "vi": "Loại"
+        },
+        "total": {
+          "ko": "총 인원",
+          "en": "Total",
+          "vi": "Tổng"
+        },
+        "paid": {
+          "ko": "지급 대상",
+          "en": "Paid",
+          "vi": "Đã trả"
+        },
+        "totalEmployees": {
+          "ko": "총 인원",
+          "en": "Total",
+          "vi": "Tổng"
+        },
+        "eligible": {
+          "ko": "지급 대상",
+          "en": "Eligible",
+          "vi": "Đủ điều kiện"
+        },
+        "paymentRate": {
+          "ko": "지급률",
+          "en": "Rate",
+          "vi": "Tỷ lệ"
+        },
+        "avgAmount": {
+          "ko": "평균 지급액",
+          "en": "Avg Amount",
+          "vi": "Trung bình"
+        },
+        "totalAmount": {
+          "ko": "총 지급액",
+          "en": "Total Amount",
+          "vi": "Tổng tiền"
+        },
+        "details": {
+          "ko": "상세",
+          "en": "Details",
+          "vi": "Chi tiết"
+        }
+      }
+    }
+  },
+  "individual": {
+    "title": {
+      "ko": "개인별 상세 정보",
+      "en": "Individual Details",
+      "vi": "Chi tiết cá nhân"
+    },
+    "filters": {
+      "type": {
+        "ko": "Type 선택",
+        "en": "Select Type",
+        "vi": "Chọn loại"
+      },
+      "position": {
+        "ko": "직급 선택",
+        "en": "Select Position",
+        "vi": "Chọn chức vụ"
+      },
+      "payment": {
+        "ko": "지급 상태",
+        "en": "Payment Status",
+        "vi": "Trạng thái"
+      },
+      "search": {
+        "ko": "검색 (이름/ID)",
+        "en": "Search (Name/ID)",
+        "vi": "Tìm kiếm (Tên/ID)"
+      },
+      "allTypes": {
+        "ko": "모든 Type",
+        "en": "All Types",
+        "vi": "Tất cả loại"
+      },
+      "allPositions": {
+        "ko": "모든 직급",
+        "en": "All Positions",
+        "vi": "Tất cả chức vụ"
+      },
+      "allStatus": {
+        "ko": "전체",
+        "en": "All",
+        "vi": "Tất cả"
+      },
+      "paidOnly": {
+        "ko": "지급 대상만",
+        "en": "Paid Only",
+        "vi": "Được trả"
+      },
+      "unpaidOnly": {
+        "ko": "미지급만",
+        "en": "Unpaid Only",
+        "vi": "Chưa trả"
+      }
+    },
+    "table": {
+      "columns": {
+        "employeeId": {
+          "ko": "사원번호",
+          "en": "Employee ID",
+          "vi": "Mã NV"
+        },
+        "name": {
+          "ko": "이름",
+          "en": "Name",
+          "vi": "Họ tên"
+        },
+        "position": {
+          "ko": "직급",
+          "en": "Position",
+          "vi": "Chức vụ"
+        },
+        "type": {
+          "ko": "Type",
+          "en": "Type",
+          "vi": "Loại"
+        },
+        "incentiveAmount": {
+          "ko": "인센티브",
+          "en": "Incentive",
+          "vi": "Tiền thưởng"
+        },
+        "status": {
+          "ko": "상태",
+          "en": "Status",
+          "vi": "Trạng thái"
+        },
+        "details": {
+          "ko": "상세",
+          "en": "Details",
+          "vi": "Chi tiết"
+        }
+      },
+      "detailButton": {
+        "ko": "상세보기",
+        "en": "View Details",
+        "vi": "Xem chi tiết"
+      },
+      "noResults": {
+        "ko": "검색 결과가 없습니다",
+        "en": "No results found",
+        "vi": "Không tìm thấy kết quả"
+      }
+    }
+  },
+  "criteria": {
+    "mainTitle": {
+      "ko": "QIP 인센티브 정책 및 계산 기준",
+      "en": "QIP Incentive Policy and Calculation Standards",
+      "vi": "Chính sách và Tiêu chuẩn Tính toán Khen thưởng QIP"
+    },
+    "title": {
+      "ko": "인센티브 지급 기준",
+      "en": "Incentive Payment Criteria",
+      "vi": "Tiêu chí chi trả khen thưởng"
+    },
+    "corePrinciples": {
+      "title": {
+        "ko": "📌 핵심 원칙",
+        "en": "📌 Core Principles",
+        "vi": "📌 Nguyên tắc cốt lõi"
+      },
+      "description1": {
+        "ko": "모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.",
+        "en": "All employees must meet <strong>all conditions</strong> specified for their position to receive incentives.",
+        "vi": "Tất cả nhân viên phải đáp ứng <strong>tất cả điều kiện</strong> theo chức vụ để nhận thưởng."
+      },
+      "description2": {
+        "ko": "조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.",
+        "en": "Conditions consist of Attendance (4), AQL (4), and 5PRS (2), with different applications by position.",
+        "vi": "Điều kiện bao gồm Chấm công (4), AQL (4), và 5PRS (2), áp dụng khác nhau theo chức vụ."
+      }
+    },
+    "evaluationConditions": {
+      "title": {
+        "ko": "📊 10가지 평가 조건 상세",
+        "en": "📊 10 Evaluation Conditions Details",
+        "vi": "📊 Chi tiết 10 điều kiện đánh giá"
+      },
+      "tableHeaders": {
+        "number": {
+          "ko": "#",
+          "en": "#",
+          "vi": "#"
+        },
+        "conditionName": {
+          "ko": "조건명",
+          "en": "Condition Name",
+          "vi": "Tên điều kiện"
+        },
+        "criteria": {
+          "ko": "기준",
+          "en": "Criteria",
+          "vi": "Tiêu chí"
+        },
+        "description": {
+          "ko": "설명",
+          "en": "Description",
+          "vi": "Mô tả"
+        }
+      }
+    },
+    "policySummary": {
+      "title": {
+        "ko": "📌 인센티브 정책 개요",
+        "en": "📌 Incentive Policy Overview",
+        "vi": "📌 Tổng quan chính sách khen thưởng"
+      },
+      "description": {
+        "ko": "모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.",
+        "en": "All employees must meet <strong>all conditions</strong> specified for their position to receive incentives.",
+        "vi": "Tất cả nhân viên phải đáp ứng <strong>tất cả điều kiện</strong> theo chức vụ để nhận thưởng."
+      },
+      "conditionTypes": {
+        "ko": "조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.",
+        "en": "Conditions consist of Attendance (4), AQL (4), and 5PRS (2), with different applications by position.",
+        "vi": "Điều kiện bao gồm Chấm công (4), AQL (4), và 5PRS (2), áp dụng khác nhau theo chức vụ."
+      }
+    },
+    "conditions": {
+      "attendance": {
+        "title": {
+          "ko": "📅 출근 조건 (4개)",
+          "en": "📅 Attendance Conditions (4)",
+          "vi": "📅 Điều kiện chấm công (4)"
+        },
+        "items": {
+          "attendanceRate": {
+            "name": {
+              "ko": "출근율",
+              "en": "Attendance Rate",
+              "vi": "Tỷ lệ chấm công"
+            },
+            "criteria": {
+              "ko": "≥88%",
+              "en": "≥88%",
+              "vi": "≥88%"
+            },
+            "description": {
+              "ko": "월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)",
+              "en": "Monthly attendance rate must be 88% or higher (absence rate 12% or lower)",
+              "vi": "Tỷ lệ chấm công hàng tháng phải từ 88% trở lên (tỷ lệ vắng mặt dưới 12%)"
+            }
+          },
+          "unapprovedAbsence": {
+            "name": {
+              "ko": "무단결근",
+              "en": "Unapproved Absence",
+              "vi": "Vắng không phép"
+            },
+            "criteria": {
+              "ko": "≤2일",
+              "en": "≤2 days",
+              "vi": "≤2 ngày"
+            },
+            "description": {
+              "ko": "사전 승인 없는 결근이 월 2일 이하여야 합니다",
+              "en": "Unapproved absences must be 2 days or less per month",
+              "vi": "Vắng không phép phải dưới 2 ngày mỗi tháng"
+            }
+          },
+          "actualWorkingDays": {
+            "name": {
+              "ko": "실제 근무일",
+              "en": "Actual Working Days",
+              "vi": "Ngày làm thực tế"
+            },
+            "criteria": {
+              "ko": ">0일",
+              "en": ">0 days",
+              "vi": ">0 ngày"
+            },
+            "description": {
+              "ko": "실제 출근한 날이 1일 이상이어야 합니다",
+              "en": "Must have at least 1 day of actual work attendance",
+              "vi": "Phải có ít nhất 1 ngày làm việc thực tế"
+            }
+          },
+          "minimumWorkingDays": {
+            "name": {
+              "ko": "최소 근무일",
+              "en": "Minimum Working Days",
+              "vi": "Ngày làm tối thiểu"
+            },
+            "criteria": {
+              "ko": "≥12일",
+              "en": "≥12 days",
+              "vi": "≥12 ngày"
+            },
+            "description": {
+              "ko": "월간 최소 12일 이상 근무해야 합니다",
+              "en": "Must work at least 12 days per month",
+              "vi": "Phải làm việc ít nhất 12 ngày mỗi tháng"
+            }
+          }
+        }
+      },
+      "aql": {
+        "title": {
+          "ko": "🎯 AQL 조건 (4개)",
+          "en": "🎯 AQL Conditions (4)",
+          "vi": "🎯 Điều kiện AQL (4)"
+        },
+        "items": {
+          "personalFailure": {
+            "name": {
+              "ko": "개인 AQL (당월)",
+              "en": "Personal AQL (Current Month)",
+              "vi": "AQL cá nhân (Tháng hiện tại)"
+            },
+            "criteria": {
+              "ko": "실패 0건",
+              "en": "0 failures",
+              "vi": "0 thất bại"
+            },
+            "description": {
+              "ko": "당월 개인 AQL 검사 실패가 없어야 합니다",
+              "en": "Must have no personal AQL inspection failures this month",
+              "vi": "Không có thất bại kiểm tra AQL cá nhân trong tháng này"
+            }
+          },
+          "personalContinuous": {
+            "name": {
+              "ko": "개인 AQL (연속성)",
+              "en": "Personal AQL (Continuity)",
+              "vi": "AQL cá nhân (Liên tục)"
+            },
+            "criteria": {
+              "ko": "3개월 연속 실패 없음",
+              "en": "No 3-month consecutive failures",
+              "vi": "Không thất bại 3 tháng liên tiếp"
+            },
+            "description": {
+              "ko": "최근 3개월간 연속으로 AQL 실패가 없어야 합니다",
+              "en": "Must not have AQL failures for 3 consecutive months",
+              "vi": "Không có thất bại AQL trong 3 tháng liên tiếp"
+            }
+          },
+          "teamArea": {
+            "name": {
+              "ko": "팀/구역 AQL",
+              "en": "Team/Area AQL",
+              "vi": "AQL nhóm/khu vực"
+            },
+            "criteria": {
+              "ko": "3개월 연속 실패 없음",
+              "en": "No 3-month consecutive failures",
+              "vi": "Không thất bại 3 tháng liên tiếp"
+            },
+            "description": {
+              "ko": "관리하는 팀/구역에서 3개월 연속 실패자가 없어야 합니다",
+              "en": "Managed team/area must have no failures for 3 consecutive months",
+              "vi": "Nhóm/khu vực quản lý không có người thất bại trong 3 tháng liên tiếp"
+            }
+          },
+          "areaReject": {
+            "name": {
+              "ko": "담당구역 AQL Reject율",
+              "en": "Area AQL Reject Rate",
+              "vi": "Tỷ lệ từ chối AQL khu vực"
+            },
+            "criteria": {
+              "ko": "<3%",
+              "en": "<3%",
+              "vi": "<3%"
+            },
+            "description": {
+              "ko": "담당 구역의 AQL 리젝률이 3% 미만이어야 합니다",
+              "en": "Area AQL reject rate must be less than 3%",
+              "vi": "Tỷ lệ từ chối AQL khu vực phải dưới 3%"
+            }
+          }
+        }
+      },
+      "5prs": {
+        "title": {
+          "ko": "📊 5PRS 조건 (2개)",
+          "en": "📊 5PRS Conditions (2)",
+          "vi": "📊 Điều kiện 5PRS (2)"
+        },
+        "items": {
+          "passRate": {
+            "name": {
+              "ko": "5PRS 통과율",
+              "en": "5PRS Pass Rate",
+              "vi": "Tỷ lệ đạt 5PRS"
+            },
+            "criteria": {
+              "ko": "≥95%",
+              "en": "≥95%",
+              "vi": "≥95%"
+            },
+            "description": {
+              "ko": "5족 평가 시스템에서 95% 이상 통과해야 합니다",
+              "en": "Must pass 95% or more in 5-pair evaluation system",
+              "vi": "Phải đạt từ 95% trở lên trong hệ thống đánh giá 5 đôi"
+            }
+          },
+          "inspectionQty": {
+            "name": {
+              "ko": "5PRS 검사량",
+              "en": "5PRS Inspection Quantity",
+              "vi": "Số lượng kiểm tra 5PRS"
+            },
+            "criteria": {
+              "ko": "≥100개",
+              "en": "≥100 pairs",
+              "vi": "≥100 đôi"
+            },
+            "description": {
+              "ko": "월간 최소 100개 이상 검사를 수행해야 합니다",
+              "en": "Must perform at least 100 inspections per month",
+              "vi": "Phải thực hiện ít nhất 100 kiểm tra mỗi tháng"
+            }
+          }
+        }
+      }
+    },
+    "positionMatrix": {
+      "title": {
+        "ko": "🎖️ 직급별 적용 조건",
+        "en": "🎖️ Conditions by Position",
+        "vi": "🎖️ Điều kiện theo chức vụ"
+      },
+      "tableHeaders": {
+        "position": {
+          "ko": "직급",
+          "en": "Position",
+          "vi": "Chức vụ"
+        },
+        "appliedConditions": {
+          "ko": "적용 조건",
+          "en": "Applied Conditions",
+          "vi": "Điều kiện áp dụng"
+        },
+        "conditionCount": {
+          "ko": "조건 수",
+          "en": "Condition Count",
+          "vi": "Số điều kiện"
+        },
+        "notes": {
+          "ko": "특이사항",
+          "en": "Notes",
+          "vi": "Ghi chú"
+        }
+      },
+      "typeHeaders": {
+        "type1": {
+          "ko": "TYPE-1 직급별 조건",
+          "en": "TYPE-1 Position Conditions",
+          "vi": "Điều kiện chức vụ TYPE-1"
+        },
+        "type2": {
+          "ko": "TYPE-2 직급별 조건",
+          "en": "TYPE-2 Position Conditions",
+          "vi": "Điều kiện chức vụ TYPE-2"
+        },
+        "type3": {
+          "ko": "TYPE-3 직급별 조건",
+          "en": "TYPE-3 Position Conditions",
+          "vi": "Điều kiện chức vụ TYPE-3"
+        }
+      },
+      "notes": {
+        "attendanceOnly": {
+          "ko": "출근 조건만",
+          "en": "Attendance only",
+          "vi": "Chỉ điều kiện chấm công"
+        },
+        "attendanceTeamAql": {
+          "ko": "출근 + 팀/구역 AQL",
+          "en": "Attendance + Team/Area AQL",
+          "vi": "Chấm công + AQL nhóm/khu vực"
+        },
+        "attendanceMonthAql": {
+          "ko": "출근 + 당월 AQL (특별 계산)",
+          "en": "Attendance + Monthly AQL (Special calculation)",
+          "vi": "Chấm công + AQL tháng hiện tại (Đặc biệt)"
+        },
+        "attendancePersonalAql5prs": {
+          "ko": "출근 + 개인 AQL + 5PRS",
+          "en": "Attendance + Personal AQL + 5PRS",
+          "vi": "Chấm công + AQL cá nhân + 5PRS"
+        },
+        "attendanceTeamAreaReject": {
+          "ko": "출근 + 팀/구역 AQL + 담당구역 reject",
+          "en": "Attendance + Team/Area AQL + Area reject",
+          "vi": "Chấm công + AQL nhóm/khu vực + Từ chối khu vực"
+        },
+        "attendanceAreaReject": {
+          "ko": "출근 + 담당구역 reject",
+          "en": "Attendance + Area reject",
+          "vi": "Chấm công + Từ chối khu vực"
+        },
+        "allConditions": {
+          "ko": "모든 조건",
+          "en": "All conditions",
+          "vi": "Tất cả điều kiện"
+        },
+        "noConditions": {
+          "ko": "조건 없음 (신규 QIP)",
+          "en": "No conditions (New QIP)",
+          "vi": "Không có điều kiện (QIP mới)"
+        }
+      }
+    },
+    "incentiveAmount": {
+      "title": {
+        "ko": "💰 인센티브 금액 계산",
+        "en": "💰 Incentive Amount Calculation",
+        "vi": "💰 Tính toán số tiền khen thưởng"
+      },
+      "type1Range": {
+        "ko": "TYPE-1: 300,000 - 500,000 VND",
+        "en": "TYPE-1: 300,000 - 500,000 VND",
+        "vi": "TYPE-1: 300.000 - 500.000 VND"
+      },
+      "type2Range": {
+        "ko": "TYPE-2: 200,000 - 400,000 VND",
+        "en": "TYPE-2: 200,000 - 400,000 VND",
+        "vi": "TYPE-2: 200.000 - 400.000 VND"
+      },
+      "type3Range": {
+        "ko": "TYPE-3: 100,000 VND (고정)",
+        "en": "TYPE-3: 100,000 VND (Fixed)",
+        "vi": "TYPE-3: 100.000 VND (Cố định)"
+      },
+      "note": {
+        "ko": "* 금액은 성과와 직급에 따라 결정됩니다",
+        "en": "* Amount is determined by performance and position",
+        "vi": "* Số tiền được xác định theo hiệu suất và chức vụ"
+      }
+    },
+    "specialRules": {
+      "title": {
+        "ko": "📘 특별 규칙",
+        "en": "📘 Special Rules",
+        "vi": "📘 Quy tắc đặc biệt"
+      },
+      "rule1": {
+        "ko": "AQL INSPECTOR는 당월 AQL 조건만 평가 (연속성 조건 제외)",
+        "en": "AQL INSPECTOR is evaluated only on current month AQL (continuity excluded)",
+        "vi": "AQL INSPECTOR chỉ đánh giá AQL tháng hiện tại (không liên tục)"
+      },
+      "rule2": {
+        "ko": "TYPE-3 직급은 조건 충족 여부와 무관하게 고정 금액 지급",
+        "en": "TYPE-3 positions receive fixed amount regardless of condition fulfillment",
+        "vi": "Chức vụ TYPE-3 nhận số tiền cố định bất kể điều kiện"
+      },
+      "rule3": {
+        "ko": "3개월 연속 조건은 직전 2개월 데이터 포함 평가",
+        "en": "3-month continuity conditions include previous 2 months' data",
+        "vi": "Điều kiện liên tục 3 tháng bao gồm dữ liệu 2 tháng trước"
+      }
+    },
+    "goodToKnow": {
+      "title": {
+        "ko": "💡 알아두면 좋은 정보",
+        "en": "💡 Good to Know",
+        "vi": "💡 Thông tin hữu ích"
+      },
+      "corePrinciplesSubtitle": {
+        "ko": "인센티브 계산 핵심 원칙",
+        "en": "Core Principles of Incentive Calculation",
+        "vi": "Nguyên tắc cốt lõi tính khen thưởng"
+      }
+    },
+    "faq": {
+      "title": {
+        "ko": "❓ 자주 묻는 질문",
+        "en": "❓ Frequently Asked Questions",
+        "vi": "❓ Câu hỏi thường gặp"
+      },
+      "q1": {
+        "question": {
+          "ko": "Q: 조건을 하나라도 충족하지 못하면 인센티브를 못 받나요?",
+          "en": "Q: If I fail even one condition, do I not receive any incentive?",
+          "vi": "Q: Nếu tôi không đáp ứng một điều kiện, tôi có nhận được khen thưởng không?"
+        },
+        "answer": {
+          "ko": "A: 네, 모든 해당 조건을 충족해야 인센티브를 받을 수 있습니다.",
+          "en": "A: Yes, all applicable conditions must be met to receive incentive.",
+          "vi": "A: Đúng, tất cả điều kiện áp dụng phải được đáp ứng để nhận khen thưởng."
+        }
+      },
+      "q2": {
+        "question": {
+          "ko": "Q: TYPE-3 직급은 조건이 없나요?",
+          "en": "Q: Do TYPE-3 positions have no conditions?",
+          "vi": "Q: Chức vụ TYPE-3 không có điều kiện à?"
+        },
+        "answer": {
+          "ko": "A: TYPE-3는 신규 QIP 멤버로 기본 인센티브만 받으며 특별 조건이 없습니다.",
+          "en": "A: TYPE-3 are new QIP members who receive basic incentive without special conditions.",
+          "vi": "A: TYPE-3 là thành viên QIP mới nhận khen thưởng cơ bản không có điều kiện đặc biệt."
+        }
+      }
+    }
+  },
+  "modal": {
+    "title": {
+      "ko": "직원 상세 정보",
+      "en": "Employee Details",
+      "vi": "Chi tiết nhân viên"
+    },
+    "incentiveCalculationDetail": {
+      "ko": "인센티브 계산 상세",
+      "en": "Incentive Calculation Details",
+      "vi": "Chi tiết tính khen thưởng"
+    },
+    "incentiveStats": {
+      "ko": "인센티브 통계",
+      "en": "Incentive Statistics",
+      "vi": "Thống kê khen thưởng"
+    },
+    "totalPersonnel": {
+      "ko": "전체 인원",
+      "en": "Total Personnel",
+      "vi": "Tổng nhân sự"
+    },
+    "paidPersonnel": {
+      "ko": "지급 인원",
+      "en": "Paid Personnel",
+      "vi": "Nhân sự được trả"
+    },
+    "unpaidPersonnel": {
+      "ko": "미지급 인원",
+      "en": "Unpaid Personnel",
+      "vi": "Nhân sự chưa trả"
+    },
+    "avgIncentive": {
+      "ko": "평균 인센티브",
+      "en": "Average Incentive",
+      "vi": "Khen thưởng trung bình"
+    },
+    "maxIncentive": {
+      "ko": "최대 인센티브",
+      "en": "Maximum Incentive",
+      "vi": "Khen thưởng tối đa"
+    },
+    "minIncentive": {
+      "ko": "최소 인센티브",
+      "en": "Minimum Incentive",
+      "vi": "Khen thưởng tối thiểu"
+    },
+    "median": {
+      "ko": "중간값",
+      "en": "Median",
+      "vi": "Giá trị trung vị"
+    },
+    "modalTitle": {
+      "ko": "인센티브 계산 상세",
+      "en": "Incentive Calculation Details",
+      "vi": "Chi tiết tính khen thưởng"
+    },
+    "conditionFulfillmentDetails": {
+      "ko": "조건 충족 상세",
+      "en": "Condition Fulfillment Details",
+      "vi": "Chi tiết đáp ứng điều kiện"
+    },
+    "condition": {
+      "ko": "조건",
+      "en": "Condition",
+      "vi": "Điều kiện"
+    },
+    "evaluationTarget": {
+      "ko": "평가 대상",
+      "en": "Evaluation Target",
+      "vi": "Đối tượng đánh giá"
+    },
+    "fulfillmentRate": {
+      "ko": "충족률",
+      "en": "Fulfillment Rate",
+      "vi": "Tỷ lệ đạt"
+    },
+    "fulfilled": {
+      "ko": "충족",
+      "en": "Fulfilled",
+      "vi": "Đạt"
+    },
+    "notFulfilled": {
+      "ko": "미충족",
+      "en": "Not Fulfilled",
+      "vi": "Không đạt"
+    },
+    "paymentRate": {
+      "ko": "지급율",
+      "en": "Payment Rate",
+      "vi": "Tỷ lệ chi trả"
+    },
+    "employeeDetails": {
+      "ko": "직원별 상세 현황",
+      "en": "Employee Details Status",
+      "vi": "Tình trạng chi tiết nhân viên"
+    },
+    "all": {
+      "ko": "전체",
+      "en": "All",
+      "vi": "Tất cả"
+    },
+    "paidOnly": {
+      "ko": "지급자만",
+      "en": "Paid Only",
+      "vi": "Chỉ đã trả"
+    },
+    "unpaidOnly": {
+      "ko": "미지급자만",
+      "en": "Unpaid Only",
+      "vi": "Chỉ chưa trả"
+    },
+    "conditionStatus": {
+      "ko": "조건 충족 현황",
+      "en": "Condition Fulfillment Status",
+      "vi": "Tình trạng đáp ứng điều kiện"
+    },
+    "attendance": {
+      "ko": "출근",
+      "en": "Attendance",
+      "vi": "Chấm công"
+    },
+    "aql": {
+      "ko": "AQL",
+      "en": "AQL",
+      "vi": "AQL"
+    },
+    "prs": {
+      "ko": "5PRS",
+      "en": "5PRS",
+      "vi": "5PRS"
+    },
+    "conditionNames": {
+      "attendance_88": {
+        "ko": "출근율 88% 이상",
+        "en": "Attendance ≥88%",
+        "vi": "Chấm công ≥88%"
+      },
+      "no_unexcused_2days": {
+        "ko": "무단결근 2일 이하",
+        "en": "Unexcused absence ≤2 days",
+        "vi": "Vắng không phép ≤2 ngày"
+      },
+      "accident_free": {
+        "ko": "실제근무일 0일 초과",
+        "en": "Actual working days >0",
+        "vi": "Ngày làm việc thực tế >0"
+      },
+      "min_days_12": {
+        "ko": "최소 근무일 12일 이상",
+        "en": "Min. working days ≥12",
+        "vi": "Ngày làm việc tối thiểu ≥12"
+      },
+      "personal_aql_0": {
+        "ko": "개인AQL: 당월실패 0건",
+        "en": "Personal AQL: 0 failures",
+        "vi": "AQL cá nhân: 0 thất bại"
+      },
+      "continuous_aql_3months": {
+        "ko": "연속성 체크: 3개월 연속 실패 없음",
+        "en": "Continuity: No failures for 3 months",
+        "vi": "Liên tục: Không thất bại 3 tháng"
+      },
+      "team_aql_3months": {
+        "ko": "팀/구역 AQL: 3개월 연속 실패 없음",
+        "en": "Team/Area AQL: No failures for 3 months",
+        "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng"
+      },
+      "reject_rate_3": {
+        "ko": "담당구역 reject % < 3%",
+        "en": "Area reject rate <3%",
+        "vi": "Tỷ lệ từ chối khu vực <3%"
+      },
+      "prs_rate_95": {
+        "ko": "5PRS 통과율 95% 이상",
+        "en": "5PRS pass rate ≥95%",
+        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+      },
+      "prs_count_100": {
+        "ko": "5PRS 검사량 100족 이상",
+        "en": "5PRS inspection ≥100 pairs",
+        "vi": "Kiểm tra 5PRS ≥100 đôi"
+      }
+    },
+    "conditionCategories": {
+      "attendance": {
+        "ko": "출근",
+        "en": "Attendance",
+        "vi": "Chấm công"
+      },
+      "aql": {
+        "ko": "AQL",
+        "en": "AQL",
+        "vi": "AQL"
+      },
+      "prs": {
+        "ko": "5PRS",
+        "en": "5PRS",
+        "vi": "5PRS"
+      }
+    },
+    "close": {
+      "ko": "닫기",
+      "en": "Close",
+      "vi": "Đóng"
+    },
+    "basicInfo": {
+      "title": {
+        "ko": "기본 정보",
+        "en": "Basic Information",
+        "vi": "Thông tin cơ bản"
+      },
+      "employeeId": {
+        "ko": "사원번호",
+        "en": "Employee ID",
+        "vi": "Mã nhân viên"
+      },
+      "name": {
+        "ko": "이름",
+        "en": "Name",
+        "vi": "Họ tên"
+      },
+      "position": {
+        "ko": "직급",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "type": {
+        "ko": "Type",
+        "en": "Type",
+        "vi": "Loại"
+      }
+    },
+    "incentiveInfo": {
+      "title": {
+        "ko": "인센티브 정보",
+        "en": "Incentive Information",
+        "vi": "Thông tin khen thưởng"
+      },
+      "amount": {
+        "ko": "지급액",
+        "en": "Payment Amount",
+        "vi": "Số tiền"
+      },
+      "calculationBasis": {
+        "ko": "계산 근거",
+        "en": "Calculation Basis",
+        "vi": "Cơ sở tính toán"
+      }
+    },
+    "tableHeaders": {
+      "employeeNo": {
+        "ko": "직원번호",
+        "en": "Employee No",
+        "vi": "Mã nhân viên"
+      },
+      "name": {
+        "ko": "이름",
+        "en": "Name",
+        "vi": "Họ tên"
+      },
+      "incentive": {
+        "ko": "인센티브",
+        "en": "Incentive",
+        "vi": "Tiền thưởng"
+      },
+      "status": {
+        "ko": "상태",
+        "en": "Status",
+        "vi": "Trạng thái"
+      },
+      "conditionFulfillment": {
+        "ko": "조건 충족 현황",
+        "en": "Condition Fulfillment",
+        "vi": "Tình trạng điều kiện"
+      }
+    },
+    "paymentStatus": {
+      "paid": {
+        "ko": "지급",
+        "en": "Paid",
+        "vi": "Đã trả"
+      },
+      "unpaid": {
+        "ko": "미지급",
+        "en": "Unpaid",
+        "vi": "Chưa trả"
+      },
+      "completePaid": {
+        "ko": "지급 완료",
+        "en": "Payment Complete",
+        "vi": "Đã thanh toán"
+      }
+    },
+    "conditions": {
+      "title": {
+        "ko": "조건 충족 현황",
+        "en": "Condition Status",
+        "vi": "Tình trạng điều kiện"
+      },
+      "met": {
+        "ko": "충족",
+        "en": "Met",
+        "vi": "Đạt"
+      },
+      "notMet": {
+        "ko": "미충족",
+        "en": "Not Met",
+        "vi": "Không đạt"
+      },
+      "notApplicable": {
+        "ko": "해당없음",
+        "en": "N/A",
+        "vi": "Không áp dụng"
+      }
+    },
+    "conditionTexts": {
+      "attendanceRate": {
+        "ko": "출근율 88% 이상",
+        "en": "Attendance rate ≥88%",
+        "vi": "Tỷ lệ chấm công ≥88%"
+      },
+      "unapprovedAbsence": {
+        "ko": "무단결근 2일 이하",
+        "en": "Unapproved absence ≤2 days",
+        "vi": "Vắng không phép ≤2 ngày"
+      },
+      "actualWorkingDays": {
+        "ko": "실제근무일 0일 초과",
+        "en": "Actual working days >0",
+        "vi": "Ngày làm thực tế >0"
+      },
+      "minWorkingDays": {
+        "ko": "최소 근무일 12일 이상",
+        "en": "Minimum working days ≥12",
+        "vi": "Tối thiểu ≥12 ngày"
+      },
+      "personalAQLFail": {
+        "ko": "개인AQL: 당월실패 0건",
+        "en": "Personal AQL: 0 monthly failures",
+        "vi": "AQL cá nhân: 0 thất bại tháng"
+      },
+      "continuityCheck": {
+        "ko": "연속성 체크: 3개월 연속 실패 없음",
+        "en": "Continuity check: No 3-month consecutive failures",
+        "vi": "Kiểm tra liên tục: Không thất bại 3 tháng liên tiếp"
+      },
+      "teamAreaAQL": {
+        "ko": "팀/구역 AQL: 3개월 연속 실패 없음",
+        "en": "Team/Area AQL: No 3-month consecutive failures",
+        "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"
+      },
+      "areaRejectRate": {
+        "ko": "담당구역 reject % < 3%",
+        "en": "Area reject rate < 3%",
+        "vi": "Tỷ lệ từ chối khu vực < 3%"
+      },
+      "5prsPassRate": {
+        "ko": "5PRS 통과율 95% 이상",
+        "en": "5PRS pass rate ≥95%",
+        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+      },
+      "5prsInspectionQty": {
+        "ko": "5PRS 검사량 100족 이상",
+        "en": "5PRS inspection qty ≥100 pairs",
+        "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
+      }
+    }
+  },
+  "common": {
+    "currency": {
+      "ko": "VND",
+      "en": "VND",
+      "vi": "VND"
+    },
+    "people": {
+      "ko": "명",
+      "en": "people",
+      "vi": "người"
+    },
+    "july": {
+      "ko": "7월",
+      "en": "July",
+      "vi": "Tháng 7"
+    },
+    "august": {
+      "ko": "8월",
+      "en": "August",
+      "vi": "Tháng 8"
+    },
+    "person": {
+      "ko": "명",
+      "en": "person",
+      "vi": "người"
+    },
+    "loading": {
+      "ko": "로딩 중...",
+      "en": "Loading...",
+      "vi": "Đang tải..."
+    },
+    "error": {
+      "ko": "오류가 발생했습니다",
+      "en": "An error occurred",
+      "vi": "Đã xảy ra lỗi"
+    },
+    "noData": {
+      "ko": "데이터 없음",
+      "en": "No data",
+      "vi": "Không có dữ liệu"
+    }
+  },
+  "status": {
+    "paid": {
+      "ko": "지급",
+      "en": "Paid",
+      "vi": "Đã trả"
+    },
+    "unpaid": {
+      "ko": "미지급",
+      "en": "Unpaid",
+      "vi": "Chưa trả"
+    },
+    "eligible": {
+      "ko": "지급 대상",
+      "en": "Eligible",
+      "vi": "Đủ điều kiện"
+    },
+    "ineligible": {
+      "ko": "미지급 대상",
+      "en": "Ineligible",
+      "vi": "Không đủ điều kiện"
+    }
+  }
+}

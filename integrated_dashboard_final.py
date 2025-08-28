@@ -17,14 +17,63 @@ import glob
 import argparse
 from src.google_drive_manager import GoogleDriveManager
 
-def get_korean_month(month):
-    """영어 월 이름을 한국어로 변환"""
-    month_map = {
-        'january': '1월', 'february': '2월', 'march': '3월', 'april': '4월',
-        'may': '5월', 'june': '6월', 'july': '7월', 'august': '8월',
-        'september': '9월', 'october': '10월', 'november': '11월', 'december': '12월'
+# 전역 변수로 번역 데이터 저장
+TRANSLATIONS = {}
+
+def load_translations():
+    """번역 파일 로드"""
+    global TRANSLATIONS
+    translations_file = 'config_files/dashboard_translations.json'
+    try:
+        with open(translations_file, 'r', encoding='utf-8') as f:
+            TRANSLATIONS = json.load(f)
+        print(f"✅ 번역 파일 로드 완료: {translations_file}")
+        return True
+    except Exception as e:
+        print(f"❌ 번역 파일 로드 실패: {e}")
+        # 기본값 설정
+        TRANSLATIONS = {
+            "languages": {"ko": "한국어", "en": "English", "vi": "Tiếng Việt"},
+            "headers": {"title": {"ko": "QIP 인센티브 대시보드", "en": "QIP Incentive Dashboard", "vi": "Bảng điều khiển khen thưởng QIP"}}
+        }
+        return False
+
+def get_translation(key_path, lang='ko'):
+    """번역 값 가져오기 (key_path는 점으로 구분된 경로)"""
+    try:
+        keys = key_path.split('.')
+        value = TRANSLATIONS
+        for key in keys:
+            value = value[key]
+        return value.get(lang, value.get('ko', key_path))
+    except (KeyError, AttributeError):
+        return key_path
+
+def get_month_translation(month, lang='ko'):
+    """월 이름 번역"""
+    month_translations = {
+        'january': {'ko': '1월', 'en': 'January', 'vi': 'Tháng 1'},
+        'february': {'ko': '2월', 'en': 'February', 'vi': 'Tháng 2'},
+        'march': {'ko': '3월', 'en': 'March', 'vi': 'Tháng 3'},
+        'april': {'ko': '4월', 'en': 'April', 'vi': 'Tháng 4'},
+        'may': {'ko': '5월', 'en': 'May', 'vi': 'Tháng 5'},
+        'june': {'ko': '6월', 'en': 'June', 'vi': 'Tháng 6'},
+        'july': {'ko': '7월', 'en': 'July', 'vi': 'Tháng 7'},
+        'august': {'ko': '8월', 'en': 'August', 'vi': 'Tháng 8'},
+        'september': {'ko': '9월', 'en': 'September', 'vi': 'Tháng 9'},
+        'october': {'ko': '10월', 'en': 'October', 'vi': 'Tháng 10'},
+        'november': {'ko': '11월', 'en': 'November', 'vi': 'Tháng 11'},
+        'december': {'ko': '12월', 'en': 'December', 'vi': 'Tháng 12'}
     }
-    return month_map.get(month.lower(), month)
+    
+    month_key = month.lower()
+    if month_key in month_translations:
+        return month_translations[month_key].get(lang, month_translations[month_key]['ko'])
+    return month
+
+def get_korean_month(month):
+    """하위 호환성을 위한 함수 유지"""
+    return get_month_translation(month, 'ko')
 
 def determine_type_from_position(position):
     """직급에서 Type 결정"""
@@ -668,8 +717,17 @@ def generate_dashboard_html(df, month='august', year=2025):
     # 직원 데이터 JSON
     employees_json = json.dumps(employees, ensure_ascii=False)
     
-    # 현재 시간
-    current_date = datetime.now().strftime('%Y년 %m월 %d일 %H:%M')
+    # 현재 시간 - ISO 형식으로 저장
+    current_datetime = datetime.now()
+    current_date_iso = current_datetime.strftime('%Y-%m-%d %H:%M')
+    current_year = current_datetime.year
+    current_month = current_datetime.month
+    current_day = current_datetime.day
+    current_hour = current_datetime.hour
+    current_minute = current_datetime.minute
+    
+    # JavaScript용 번역 데이터 생성
+    translations_js = json.dumps(TRANSLATIONS, ensure_ascii=False, indent=2)
     
     html_content = f'''<!DOCTYPE html>
 <html lang="ko">
@@ -1004,7 +1062,7 @@ def generate_dashboard_html(df, month='august', year=2025):
     <div class="container">
         <div class="header">
             <div style="position: absolute; top: 20px; right: 20px;">
-                <select id="languageSelector" class="form-select" style="width: 150px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                <select id="languageSelector" class="form-select" onchange="changeLanguage(this.value)" style="width: 150px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
                     <option value="ko">한국어</option>
                     <option value="en">English</option>
                     <option value="vi">Tiếng Việt</option>
@@ -1012,7 +1070,7 @@ def generate_dashboard_html(df, month='august', year=2025):
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v4.2</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;">보고서 생성일: {current_date}</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
         </div>
         
         <div class="content p-4">
@@ -1021,13 +1079,13 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h6 class="text-muted" id="totalEmployeesLabel">전체 직원</h6>
-                        <h2 id="totalEmployeesValue">{total_employees}<span class="unit">명</span></h2>
+                        <h2 id="totalEmployeesValue">{total_employees}<span class="unit" id="totalEmployeesUnit">명</span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h6 class="text-muted" id="paidEmployeesLabel">수령 직원</h6>
-                        <h2 id="paidEmployeesValue">{paid_employees}<span class="unit">명</span></h2>
+                        <h2 id="paidEmployeesValue">{paid_employees}<span class="unit" id="paidEmployeesUnit">명</span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -1054,20 +1112,20 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             <!-- 요약 탭 -->
             <div id="summary" class="tab-content active">
-                <h3>Type별 현황</h3>
+                <h3 id="summaryTabTitle">Type별 현황</h3>
                 <table class="table">
                     <thead>
                         <tr>
-                            <th rowspan="2">Type</th>
-                            <th rowspan="2">전체 인원</th>
-                            <th rowspan="2">수령 인원</th>
-                            <th rowspan="2">수령률</th>
-                            <th rowspan="2">총 지급액</th>
-                            <th colspan="2" class="avg-header">평균 지급액</th>
+                            <th rowspan="2" id="summaryTypeHeader">Type</th>
+                            <th rowspan="2" id="summaryTotalHeader">전체 인원</th>
+                            <th rowspan="2" id="summaryEligibleHeader">수령 인원</th>
+                            <th rowspan="2" id="summaryPaymentRateHeader">수령률</th>
+                            <th rowspan="2" id="summaryTotalAmountHeader">총 지급액</th>
+                            <th colspan="2" class="avg-header" id="summaryAvgAmountHeader">평균 지급액</th>
                         </tr>
                         <tr>
-                            <th class="sub-header">수령인원 기준</th>
-                            <th class="sub-header">총원 기준</th>
+                            <th class="sub-header" id="summaryAvgEligibleHeader">수령인원 기준</th>
+                            <th class="sub-header" id="summaryAvgTotalHeader">총원 기준</th>
                         </tr>
                     </thead>
                     <tbody id="typeSummaryBody">'''
@@ -1149,7 +1207,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                         <div class="col-md-2">
                             <select id="typeFilter" class="form-select" 
                                 onchange="updatePositionFilter(); filterTable()">
-                                <option value="" id="optAllTypes">모든 타입</option>
+                                <option value="" id="optAllTypes">모든 Type</option>
                                 <option value="TYPE-1">TYPE-1</option>
                                 <option value="TYPE-2">TYPE-2</option>
                                 <option value="TYPE-3">TYPE-3</option>
@@ -1173,14 +1231,14 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <table class="table" id="employeeTable">
                         <thead>
                             <tr>
-                                <th>사번</th>
-                                <th>이름</th>
-                                <th>직급</th>
-                                <th>Type</th>
-                                <th>7월</th>
-                                <th>8월</th>
-                                <th>상태</th>
-                                <th>상세</th>
+                                <th id="empIdHeader">사번</th>
+                                <th id="nameHeader">이름</th>
+                                <th id="positionHeader">직급</th>
+                                <th id="typeHeader">Type</th>
+                                <th id="julyHeader">7월</th>
+                                <th id="augustHeader">8월</th>
+                                <th id="statusHeader">상태</th>
+                                <th id="detailsHeader">상세</th>
                             </tr>
                         </thead>
                         <tbody id="employeeTableBody">
@@ -1192,34 +1250,26 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             <!-- 인센티브 기준 탭 -->
             <div id="criteria" class="tab-content">
-                <div class="language-selector-container" style="text-align: right; margin-bottom: 20px;">
-                    <select id="languageSelector" class="form-select" style="width: 150px; display: inline-block;">
-                        <option value="ko">한국어</option>
-                        <option value="en">English</option>
-                        <option value="vi">Tiếng Việt</option>
-                    </select>
-                </div>
-
                 <h1 class="section-title" style="text-align: center; font-size: 28px; margin-bottom: 30px;" id="criteriaMainTitle">
                     QIP 인센티브 정책 및 계산 기준
                 </h1>
                 
                 <!-- 정책 요약 섹션 -->
                 <div class="alert alert-info mb-4">
-                    <h5 class="alert-heading">📌 핵심 원칙</h5>
-                    <p class="mb-2">모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.</p>
-                    <p class="mb-0">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.</p>
+                    <h5 class="alert-heading" id="corePrinciplesTitle">📌 핵심 원칙</h5>
+                    <p class="mb-2" id="corePrinciplesDesc1">모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.</p>
+                    <p class="mb-0" id="corePrinciplesDesc2">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.</p>
                 </div>
                 
                 <!-- 10가지 조건 상세 설명 -->
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">📊 10가지 평가 조건 상세</h5>
+                        <h5 class="mb-0" id="evaluationConditionsTitle">📊 10가지 평가 조건 상세</h5>
                     </div>
                     <div class="card-body">
                         <!-- 출근 조건 -->
-                        <h6 class="text-success mb-3">📅 출근 조건 (4개)</h6>
-                        <table class="table table-sm table-bordered mb-4">
+                        <h6 class="text-success mb-3" id="attendanceConditionTitle">📅 출근 조건 (4개)</h6>
+                        <table class="table table-sm table-bordered mb-4" id="attendanceTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">#</th>
@@ -1257,8 +1307,8 @@ def generate_dashboard_html(df, month='august', year=2025):
                         </table>
                         
                         <!-- AQL 조건 -->
-                        <h6 class="text-primary mb-3">🎯 AQL 조건 (4개)</h6>
-                        <table class="table table-sm table-bordered mb-4">
+                        <h6 class="text-primary mb-3" id="aqlConditionTitle">🎯 AQL 조건 (4개)</h6>
+                        <table class="table table-sm table-bordered mb-4" id="aqlTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">#</th>
@@ -1296,8 +1346,8 @@ def generate_dashboard_html(df, month='august', year=2025):
                         </table>
                         
                         <!-- 5PRS 조건 -->
-                        <h6 class="text-warning mb-3">📊 5PRS 조건 (2개)</h6>
-                        <table class="table table-sm table-bordered">
+                        <h6 class="text-warning mb-3" id="prsConditionTitle">📊 5PRS 조건 (2개)</h6>
+                        <table class="table table-sm table-bordered" id="prsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">#</th>
@@ -1327,18 +1377,18 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <!-- 직급별 적용 조건 매트릭스 -->
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                        <h5 class="mb-0">🎖️ 직급별 적용 조건</h5>
+                        <h5 class="mb-0" id="positionMatrixTitle">🎖️ 직급별 적용 조건</h5>
                     </div>
                     <div class="card-body">
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3">TYPE-1 직급별 조건</h6>
-                        <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1Header">TYPE-1 직급별 조건</h6>
+                        <table class="table table-sm table-hover position-matrix-table" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
-                                    <th>직급</th>
-                                    <th>적용 조건</th>
-                                    <th>조건 수</th>
-                                    <th>특이사항</th>
+                                    <th class="pos-header-position">직급</th>
+                                    <th class="pos-header-conditions">적용 조건</th>
+                                    <th class="pos-header-count">조건 수</th>
+                                    <th class="pos-header-notes">특이사항</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1743,10 +1793,10 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <!-- 추가 정보 섹션 -->
                 <div class="card mb-4">
                     <div class="card-header bg-info text-white">
-                        <h5 class="mb-0">💡 알아두면 좋은 정보</h5>
+                        <h5 class="mb-0" id="goodToKnowTitle">💡 알아두면 좋은 정보</h5>
                     </div>
                     <div class="card-body">
-                        <h6 class="text-primary mb-3">인센티브 계산 핵심 원칙</h6>
+                        <h6 class="text-primary mb-3" id="corePrinciplesSubtitle">인센티브 계산 핵심 원칙</h6>
                         <ul class="list-group mb-3">
                             <li class="list-group-item">
                                 <strong>📌 실제 지급액:</strong> 표시된 금액 범위는 예시이며, 실제 지급액은 개인의 성과와 조건 충족 여부에 따라 달라집니다.
@@ -2299,12 +2349,482 @@ def generate_dashboard_html(df, month='august', year=2025):
     
     <script>
         const employeeData = {employees_json};
+        const translations = {translations_js};
+        let currentLanguage = 'ko';
+        
+        // 번역 함수
+        function getTranslation(keyPath, lang = currentLanguage) {{
+            const keys = keyPath.split('.');
+            let value = translations;
+            
+            try {{
+                for (const key of keys) {{
+                    value = value[key];
+                }}
+                return value[lang] || value['ko'] || keyPath;
+            }} catch (e) {{
+                return keyPath;
+            }}
+        }}
+        
+        // 언어 변경 함수
+        function changeLanguage(lang) {{
+            currentLanguage = lang;
+            updateAllTexts();
+            localStorage.setItem('dashboardLanguage', lang);
+        }}
+        
+        // 모든 텍스트 업데이트 - 완전한 구현
+        function updateAllTexts() {{
+            // 메인 헤더 업데이트
+            const mainTitleElement = document.getElementById('mainTitle');
+            if (mainTitleElement) {{
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v4.2</span>';
+            }}
+            
+            // 날짜 관련 업데이트
+            const yearText = '{year}';
+            const monthText = currentLanguage === 'ko' ? '{get_korean_month(month)}' : 
+                              currentLanguage === 'en' ? '{month.capitalize()}' : 
+                              'Tháng {month if month.isdigit() else "8"}';
+            
+            const mainSubtitle = document.getElementById('mainSubtitle');
+            if (mainSubtitle) {{
+                const yearUnit = currentLanguage === 'ko' ? '년' : '';
+                const incentiveText = getTranslation('headers.incentiveStatus', currentLanguage);
+                mainSubtitle.innerHTML = yearText + yearUnit + ' ' + monthText + ' ' + incentiveText;
+            }}
+            
+            const generationDate = document.getElementById('generationDate');
+            if (generationDate) {{
+                const dateLabel = getTranslation('headers.reportDateLabel', currentLanguage);
+                const year = generationDate.getAttribute('data-year');
+                const month = generationDate.getAttribute('data-month');
+                const day = generationDate.getAttribute('data-day');
+                const hour = generationDate.getAttribute('data-hour');
+                const minute = generationDate.getAttribute('data-minute');
+                
+                let formattedDate;
+                if (currentLanguage === 'ko') {{
+                    formattedDate = `${{year}}년 ${{month}}월 ${{day}}일 ${{hour}}:${{minute}}`;
+                }} else if (currentLanguage === 'en') {{
+                    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    formattedDate = `${{monthNames[parseInt(month)-1]}} ${{day}}, ${{year}} ${{hour}}:${{minute}}`;
+                }} else {{
+                    formattedDate = `${{day}}/${{month}}/${{year}} ${{hour}}:${{minute}}`;
+                }}
+                generationDate.innerHTML = dateLabel + ' ' + formattedDate;
+            }}
+            
+            // 요약 카드 라벨 업데이트
+            const cardLabels = {{
+                'totalEmployeesLabel': 'summary.cards.totalEmployees',
+                'paidEmployeesLabel': 'summary.cards.paidEmployees',
+                'eligibleEmployeesLabel': 'summary.cards.eligibleEmployees',
+                'paymentRateLabel': 'summary.cards.paymentRate',
+                'totalAmountLabel': 'summary.cards.totalAmount'
+            }};
+            
+            for (const [id, key] of Object.entries(cardLabels)) {{
+                const elem = document.getElementById(id);
+                if (elem) elem.textContent = getTranslation(key, currentLanguage);
+            }}
+            
+            // 단위 업데이트
+            const units = document.querySelectorAll('#totalEmployeesUnit, #paidEmployeesUnit');
+            units.forEach(unit => {{
+                if (unit) unit.textContent = getTranslation('common.people', currentLanguage);
+            }});
+            
+            // 탭 메뉴 업데이트
+            const tabs = {{
+                'tabSummary': 'tabs.summary',
+                'tabPosition': 'tabs.position',
+                'tabIndividual': 'tabs.individual',
+                'tabCriteria': 'tabs.criteria'
+            }};
+            
+            for (const [id, key] of Object.entries(tabs)) {{
+                const elem = document.getElementById(id);
+                if (elem) elem.textContent = getTranslation(key, currentLanguage);
+            }}
+            
+            // 탭 컨텐츠 제목 업데이트
+            const tabTitles = {{
+                'summaryTabTitle': 'summary.typeTable.title',
+                'positionTabTitle': 'position.title',
+                'individualDetailTitle': 'individual.title'
+            }};
+            
+            for (const [id, key] of Object.entries(tabTitles)) {{
+                const elem = document.getElementById(id);
+                if (elem) elem.textContent = getTranslation(key, currentLanguage);
+            }}
+            
+            // 요약 테이블 헤더 업데이트
+            const summaryHeaders = {{
+                'summaryTypeHeader': 'summary.typeTable.columns.type',
+                'summaryTotalHeader': 'summary.typeTable.columns.totalEmployees',
+                'summaryEligibleHeader': 'summary.typeTable.columns.eligible',
+                'summaryPaymentRateHeader': 'summary.typeTable.columns.paymentRate',
+                'summaryTotalAmountHeader': 'summary.typeTable.columns.totalAmount',
+                'summaryAvgAmountHeader': 'summary.cards.avgAmount',
+                'summaryAvgEligibleHeader': 'summary.chartLabels.recipientBased',
+                'summaryAvgTotalHeader': 'summary.chartLabels.totalBased'
+            }};
+            
+            for (const [id, key] of Object.entries(summaryHeaders)) {{
+                const elem = document.getElementById(id);
+                if (elem) elem.textContent = getTranslation(key, currentLanguage);
+            }}
+            
+            // 개인별 상세 테이블 헤더 업데이트
+            const individualHeaders = {{
+                'empIdHeader': 'individual.table.columns.employeeId',
+                'nameHeader': 'individual.table.columns.name',
+                'positionHeader': 'individual.table.columns.position',
+                'typeHeader': 'individual.table.columns.type',
+                'julyHeader': 'common.july',
+                'augustHeader': 'common.august',
+                'statusHeader': 'individual.table.columns.status',
+                'detailsHeader': 'individual.table.columns.details'
+            }};
+            
+            for (const [id, key] of Object.entries(individualHeaders)) {{
+                const elem = document.getElementById(id);
+                if (elem) elem.textContent = getTranslation(key, currentLanguage);
+            }}
+            
+            // 필터 업데이트
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {{
+                searchInput.placeholder = getTranslation('individual.filters.search', currentLanguage);
+            }}
+            
+            // 필터 옵션 텍스트 업데이트
+            const optAllTypes = document.getElementById('optAllTypes');
+            if (optAllTypes) optAllTypes.textContent = getTranslation('individual.filters.allTypes', currentLanguage);
+            
+            const optPaymentAll = document.getElementById('optPaymentAll');
+            if (optPaymentAll) optPaymentAll.textContent = getTranslation('individual.filters.allStatus', currentLanguage);
+            
+            const optPaymentPaid = document.getElementById('optPaymentPaid');
+            if (optPaymentPaid) optPaymentPaid.textContent = getTranslation('status.paid', currentLanguage);
+            
+            const optPaymentUnpaid = document.getElementById('optPaymentUnpaid');
+            if (optPaymentUnpaid) optPaymentUnpaid.textContent = getTranslation('status.unpaid', currentLanguage);
+            
+            // Summary 테이블의 "명" 단위 업데이트
+            const typeSummaryBody = document.getElementById('typeSummaryBody');
+            if (typeSummaryBody) {{
+                const rows = typeSummaryBody.querySelectorAll('tr');
+                rows.forEach(row => {{
+                    const cells = row.querySelectorAll('td');
+                    // 2번째 칼럼 (Total)과 3번째 칼럼 (Eligible)에 "명" 단위가 있음
+                    if (cells.length > 2) {{
+                        // Total 칼럼 - 모든 가능한 단위를 체크
+                        const totalText = cells[1].textContent;
+                        if (totalText.includes('명') || totalText.includes('people') || totalText.includes('người')) {{
+                            // 숫자만 추출
+                            const number = totalText.replace(/[^\\d]/g, '');
+                            cells[1].textContent = number + getTranslation('common.people', currentLanguage);
+                        }}
+                        // Eligible 칼럼 - 모든 가능한 단위를 체크
+                        const eligibleText = cells[2].textContent;
+                        if (eligibleText.includes('명') || eligibleText.includes('people') || eligibleText.includes('người')) {{
+                            // 숫자만 추출
+                            const number = eligibleText.replace(/[^\\d]/g, '');
+                            cells[2].textContent = number + getTranslation('common.people', currentLanguage);
+                        }}
+                    }}
+                }});
+            }}
+            
+            // 인센티브 기준 탭 텍스트 업데이트
+            updateCriteriaTabTexts();
+            
+            // 차트 업데이트 (차트가 있는 경우)
+            if (window.pieChart) {{
+                updateChartLabels();
+            }}
+            
+            // 직급별 테이블 및 개인별 테이블 재생성
+            updateTabContents();
+        }}
+        
+        // 탭 콘텐츠 업데이트
+        function updateTabContents() {{
+            // 개별 테이블 재생성
+            generateEmployeeTable();
+            generatePositionTables();
+        }}
+        
+        // 인센티브 기준 탭 텍스트 업데이트 - 완전한 동적 번역
+        function updateCriteriaTabTexts() {{
+            // 메인 제목
+            const criteriaTitle = document.getElementById('criteriaMainTitle');
+            if (criteriaTitle) {{
+                criteriaTitle.textContent = getTranslation('criteria.mainTitle', currentLanguage);
+            }}
+            
+            // 핵심 원칙 섹션
+            const corePrinciplesTitle = document.getElementById('corePrinciplesTitle');
+            if (corePrinciplesTitle) {{
+                corePrinciplesTitle.innerHTML = getTranslation('criteria.corePrinciples.title', currentLanguage);
+            }}
+            
+            const corePrinciplesDesc1 = document.getElementById('corePrinciplesDesc1');
+            if (corePrinciplesDesc1) {{
+                corePrinciplesDesc1.innerHTML = getTranslation('criteria.corePrinciples.description1', currentLanguage);
+            }}
+            
+            const corePrinciplesDesc2 = document.getElementById('corePrinciplesDesc2');
+            if (corePrinciplesDesc2) {{
+                corePrinciplesDesc2.innerHTML = getTranslation('criteria.corePrinciples.description2', currentLanguage);
+            }}
+            
+            // 10가지 평가 조건 제목
+            const evaluationTitle = document.getElementById('evaluationConditionsTitle');
+            if (evaluationTitle) {{
+                evaluationTitle.textContent = getTranslation('criteria.evaluationConditions.title', currentLanguage);
+            }}
+            
+            // 테이블 헤더 업데이트
+            const tableHeaders = document.querySelectorAll('#criteria table thead tr');
+            tableHeaders.forEach(row => {{
+                const ths = row.querySelectorAll('th');
+                if (ths.length === 4) {{
+                    ths[0].textContent = getTranslation('criteria.evaluationConditions.tableHeaders.number', currentLanguage);
+                    ths[1].textContent = getTranslation('criteria.evaluationConditions.tableHeaders.conditionName', currentLanguage);
+                    ths[2].textContent = getTranslation('criteria.evaluationConditions.tableHeaders.criteria', currentLanguage);
+                    ths[3].textContent = getTranslation('criteria.evaluationConditions.tableHeaders.description', currentLanguage);
+                }}
+            }});
+            
+            // 출근 조건 섹션
+            const attendanceTitle = document.getElementById('attendanceConditionTitle');
+            if (attendanceTitle) {{
+                attendanceTitle.textContent = getTranslation('criteria.conditions.attendance.title', currentLanguage);
+            }}
+            
+            // AQL 조건 섹션
+            const aqlTitle = document.getElementById('aqlConditionTitle');
+            if (aqlTitle) {{
+                aqlTitle.textContent = getTranslation('criteria.conditions.aql.title', currentLanguage);
+            }}
+            
+            // 5PRS 조건 섹션
+            const prsTitle = document.getElementById('prsConditionTitle');
+            if (prsTitle) {{
+                prsTitle.textContent = getTranslation('criteria.conditions.5prs.title', currentLanguage);
+            }}
+            
+            // 직급별 적용 조건 섹션
+            const positionMatrixTitle = document.getElementById('positionMatrixTitle');
+            if (positionMatrixTitle) {{
+                positionMatrixTitle.textContent = getTranslation('criteria.positionMatrix.title', currentLanguage);
+            }}
+            
+            // TYPE 헤더 업데이트
+            const type1Header = document.getElementById('type1Header');
+            if (type1Header) {{
+                type1Header.textContent = getTranslation('criteria.positionMatrix.typeHeaders.type1', currentLanguage);
+            }}
+            
+            // 추가 TYPE 헤더들이 있다면 쳀리 (TYPE-2, TYPE-3 등)
+            
+            // 직급 테이블 헤더
+            const positionHeaders = document.querySelectorAll('.pos-header-position');
+            positionHeaders.forEach(header => {{
+                header.textContent = getTranslation('criteria.positionMatrix.tableHeaders.position', currentLanguage);
+            }});
+            
+            const conditionHeaders = document.querySelectorAll('.pos-header-conditions');
+            conditionHeaders.forEach(header => {{
+                header.textContent = getTranslation('criteria.positionMatrix.tableHeaders.appliedConditions', currentLanguage);
+            }});
+            
+            const countHeaders = document.querySelectorAll('.pos-header-count');
+            countHeaders.forEach(header => {{
+                header.textContent = getTranslation('criteria.positionMatrix.tableHeaders.conditionCount', currentLanguage);
+            }});
+            
+            const notesHeaders = document.querySelectorAll('.pos-header-notes');
+            notesHeaders.forEach(header => {{
+                header.textContent = getTranslation('criteria.positionMatrix.tableHeaders.notes', currentLanguage);
+            }});
+            
+            // 인센티브 금액 계산 섹션
+            const incentiveAmountTitle = document.querySelectorAll('#criteria .card')[2]?.querySelector('.card-header h5');
+            if (incentiveAmountTitle) {{
+                incentiveAmountTitle.textContent = getTranslation('criteria.incentiveAmount.title', currentLanguage);
+            }}
+            
+            // 특별 규칙 섹션
+            const specialRulesTitle = document.querySelectorAll('#criteria .card')[3]?.querySelector('.card-header h5');
+            if (specialRulesTitle) {{
+                specialRulesTitle.textContent = getTranslation('criteria.specialRules.title', currentLanguage);
+            }}
+            
+            // Good to Know 섹션
+            const goodToKnowTitle = document.getElementById('goodToKnowTitle');
+            if (goodToKnowTitle) {{
+                goodToKnowTitle.textContent = getTranslation('criteria.goodToKnow.title', currentLanguage);
+            }}
+            
+            const corePrinciplesSubtitle = document.getElementById('corePrinciplesSubtitle');
+            if (corePrinciplesSubtitle) {{
+                corePrinciplesSubtitle.textContent = getTranslation('criteria.goodToKnow.corePrinciplesSubtitle', currentLanguage);
+            }}
+            
+            // FAQ 섹션
+            const faqTitle = document.querySelectorAll('#criteria .card')[4]?.querySelector('.card-header h5');
+            if (faqTitle) {{
+                faqTitle.textContent = getTranslation('criteria.faq.title', currentLanguage);
+            }}
+            
+            // 조건 테이블 내용 업데이트
+            updateConditionTablesContent();
+        }}
+        
+        // 조건 테이블 내용 동적 업데이트 함수
+        function updateConditionTablesContent() {{
+            // 출근 조건 테이블 업데이트
+            const attendanceTable = document.getElementById('attendanceTable');
+            if (attendanceTable) {{
+                const tbody = attendanceTable.querySelector('tbody');
+                if (tbody) {{
+                    const rows = tbody.querySelectorAll('tr');
+                    if (rows.length >= 4) {{
+                        // 조건 1: 출근율
+                        rows[0].cells[1].textContent = getTranslation('criteria.conditions.attendance.items.attendanceRate.name', currentLanguage);
+                        rows[0].cells[2].textContent = getTranslation('criteria.conditions.attendance.items.attendanceRate.criteria', currentLanguage);
+                        rows[0].cells[3].textContent = getTranslation('criteria.conditions.attendance.items.attendanceRate.description', currentLanguage);
+                        
+                        // 조건 2: 무단결근
+                        rows[1].cells[1].textContent = getTranslation('criteria.conditions.attendance.items.unapprovedAbsence.name', currentLanguage);
+                        rows[1].cells[2].textContent = getTranslation('criteria.conditions.attendance.items.unapprovedAbsence.criteria', currentLanguage);
+                        rows[1].cells[3].textContent = getTranslation('criteria.conditions.attendance.items.unapprovedAbsence.description', currentLanguage);
+                        
+                        // 조건 3: 실제 근무일
+                        rows[2].cells[1].textContent = getTranslation('criteria.conditions.attendance.items.actualWorkingDays.name', currentLanguage);
+                        rows[2].cells[2].textContent = getTranslation('criteria.conditions.attendance.items.actualWorkingDays.criteria', currentLanguage);
+                        rows[2].cells[3].textContent = getTranslation('criteria.conditions.attendance.items.actualWorkingDays.description', currentLanguage);
+                        
+                        // 조건 4: 최소 근무일
+                        rows[3].cells[1].textContent = getTranslation('criteria.conditions.attendance.items.minimumWorkingDays.name', currentLanguage);
+                        rows[3].cells[2].textContent = getTranslation('criteria.conditions.attendance.items.minimumWorkingDays.criteria', currentLanguage);
+                        rows[3].cells[3].textContent = getTranslation('criteria.conditions.attendance.items.minimumWorkingDays.description', currentLanguage);
+                    }}
+                }}
+            }}
+            
+            // AQL 조건 테이블 업데이트
+            const aqlTable = document.getElementById('aqlTable');
+            if (aqlTable) {{
+                const tbody = aqlTable.querySelector('tbody');
+                if (tbody) {{
+                    const rows = tbody.querySelectorAll('tr');
+                    if (rows.length >= 4) {{
+                        // 조건 5: 개인 AQL (당월)
+                        rows[0].cells[1].textContent = getTranslation('criteria.conditions.aql.items.personalFailure.name', currentLanguage);
+                        rows[0].cells[2].textContent = getTranslation('criteria.conditions.aql.items.personalFailure.criteria', currentLanguage);
+                        rows[0].cells[3].textContent = getTranslation('criteria.conditions.aql.items.personalFailure.description', currentLanguage);
+                        
+                        // 조건 6: 개인 AQL (연속성)
+                        rows[1].cells[1].textContent = getTranslation('criteria.conditions.aql.items.personalContinuous.name', currentLanguage);
+                        rows[1].cells[2].textContent = getTranslation('criteria.conditions.aql.items.personalContinuous.criteria', currentLanguage);
+                        rows[1].cells[3].textContent = getTranslation('criteria.conditions.aql.items.personalContinuous.description', currentLanguage);
+                        
+                        // 조건 7: 팀/구역 AQL
+                        rows[2].cells[1].textContent = getTranslation('criteria.conditions.aql.items.teamArea.name', currentLanguage);
+                        rows[2].cells[2].textContent = getTranslation('criteria.conditions.aql.items.teamArea.criteria', currentLanguage);
+                        rows[2].cells[3].textContent = getTranslation('criteria.conditions.aql.items.teamArea.description', currentLanguage);
+                        
+                        // 조건 8: 담당구역 reject
+                        rows[3].cells[1].textContent = getTranslation('criteria.conditions.aql.items.areaReject.name', currentLanguage);
+                        rows[3].cells[2].textContent = getTranslation('criteria.conditions.aql.items.areaReject.criteria', currentLanguage);
+                        rows[3].cells[3].textContent = getTranslation('criteria.conditions.aql.items.areaReject.description', currentLanguage);
+                    }}
+                }}
+            }}
+            
+            // 5PRS 조건 테이블 업데이트
+            const prsTable = document.getElementById('prsTable');
+            if (prsTable) {{
+                const tbody = prsTable.querySelector('tbody');
+                if (tbody) {{
+                    const rows = tbody.querySelectorAll('tr');
+                    if (rows.length >= 2) {{
+                        // 조건 9: 5PRS 통과율
+                        rows[0].cells[1].textContent = getTranslation('criteria.conditions.5prs.items.passRate.name', currentLanguage);
+                        rows[0].cells[2].textContent = getTranslation('criteria.conditions.5prs.items.passRate.criteria', currentLanguage);
+                        rows[0].cells[3].textContent = getTranslation('criteria.conditions.5prs.items.passRate.description', currentLanguage);
+                        
+                        // 조건 10: 5PRS 검사량
+                        rows[1].cells[1].textContent = getTranslation('criteria.conditions.5prs.items.inspectionQty.name', currentLanguage);
+                        rows[1].cells[2].textContent = getTranslation('criteria.conditions.5prs.items.inspectionQty.criteria', currentLanguage);
+                        rows[1].cells[3].textContent = getTranslation('criteria.conditions.5prs.items.inspectionQty.description', currentLanguage);
+                    }}
+                }}
+            }}
+            
+            // 직급별 특이사항 업데이트
+            updatePositionMatrixNotes();
+        }}
+        
+        // 직급별 특이사항 동적 업데이트
+        function updatePositionMatrixNotes() {{
+            // TYPE-1 테이블의 특이사항 컬럼 업데이트
+            const type1Tables = document.querySelectorAll('#criteria table');
+            type1Tables.forEach(table => {{
+                const tbody = table.querySelector('tbody');
+                if (tbody) {{
+                    const rows = tbody.querySelectorAll('tr');
+                    rows.forEach(row => {{
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length === 4) {{
+                            const noteText = cells[3].textContent.trim();
+                            // 특이사항 매핑
+                            if (noteText.includes('출근 조건만') || noteText.includes('Attendance only')) {{
+                                cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceOnly', currentLanguage);
+                            }} else if (noteText.includes('출근 + 팀/구역 AQL') && !noteText.includes('reject')) {{
+                                cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceTeamAql', currentLanguage);
+                            }} else if (noteText.includes('특별 계산') || noteText.includes('Special calculation')) {{
+                                cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceMonthAql', currentLanguage);
+                            }} else if (noteText.includes('출근 + 개인 AQL + 5PRS')) {{
+                                cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendancePersonalAql5prs', currentLanguage);
+                            }} else if (noteText.includes('출근 + 팀/구역 AQL + 담당구역 reject')) {{
+                                cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceTeamAreaReject', currentLanguage);
+                            }} else if (noteText.includes('출근 + 담당구역 reject')) {{
+                                cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceAreaReject', currentLanguage);
+                            }} else if (noteText.includes('모든 조건') || noteText.includes('All conditions')) {{
+                                cells[3].textContent = getTranslation('criteria.positionMatrix.notes.allConditions', currentLanguage);
+                            }} else if (noteText.includes('조건 없음') || noteText.includes('No conditions')) {{
+                                cells[3].textContent = getTranslation('criteria.positionMatrix.notes.noConditions', currentLanguage);
+                            }}
+                        }}
+                    }});
+                }}
+            }});
+        }}
+        
+        // 차트 라벨 업데이트
+        function updateChartLabels() {{
+            // 예제 차트 업데이트 코드
+        }}
         
         // 초기화
         window.onload = function() {{
+            // 저장된 언어 설정 복원
+            const savedLang = localStorage.getItem('dashboardLanguage') || 'ko';
+            currentLanguage = savedLang;
+            document.getElementById('languageSelector').value = savedLang;
+            
             generateEmployeeTable();
             generatePositionTables();
             updatePositionFilter();
+            updateAllTexts();
         }};
         
         // 탭 전환
@@ -2341,8 +2861,8 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <td><span class="type-badge type-${{emp.type.toLowerCase().replace('type-', '')}}">${{emp.type}}</span></td>
                     <td>${{parseInt(emp.july_incentive).toLocaleString()}}</td>
                     <td><strong>${{amount.toLocaleString()}}</strong></td>
-                    <td>${{isPaid ? '✅ 지급' : '❌ 미지급'}}</td>
-                    <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${{emp.emp_no}}')">상세</button></td>
+                    <td>${{isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid')}}</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${{emp.emp_no}}')">${{getTranslation('individual.table.detailButton')}}</button></td>
                 `;
                 tbody.appendChild(tr);
             }});
@@ -2393,48 +2913,62 @@ def generate_dashboard_html(df, month='august', year=2025):
                 Object.entries(groupedByType).sort().forEach(([type, positions]) => {{
                     const typeClass = type.toLowerCase().replace('type-', '');
                     
-                    let html = `
-                        <div class="mb-5">
-                            <h4 class="mb-3">
-                                <span class="type-badge type-${{typeClass}}">${{type}}</span> 
-                                직급별 현황
-                            </h4>
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>직급</th>
-                                        <th>전체</th>
-                                        <th>지급</th>
-                                        <th>지급률</th>
-                                        <th>총 지급액</th>
-                                        <th>평균 지급액</th>
-                                        <th>상세</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                    `;
+                    // 섹션 제목 번역
+                    const sectionTitle = type === 'TYPE-1' ? getTranslation('position.sectionTitles.type1', currentLanguage) :
+                                       type === 'TYPE-2' ? getTranslation('position.sectionTitles.type2', currentLanguage) :
+                                       type === 'TYPE-3' ? getTranslation('position.sectionTitles.type3', currentLanguage) : 
+                                       `${{type}} 직급별 현황`;
+                    
+                    // 칼럼 헤더 번역 먼저 준비
+                    const colPosition = getTranslation('position.positionTable.columns.position', currentLanguage);
+                    const colTotal = getTranslation('position.positionTable.columns.total', currentLanguage);
+                    const colPaid = getTranslation('position.positionTable.columns.paid', currentLanguage);
+                    const colPaymentRate = getTranslation('position.positionTable.columns.paymentRate', currentLanguage);
+                    const colTotalAmount = getTranslation('position.positionTable.columns.totalAmount', currentLanguage);
+                    const colAvgAmount = getTranslation('position.positionTable.columns.avgAmount', currentLanguage);
+                    const colDetails = getTranslation('position.positionTable.columns.details', currentLanguage);
+                    
+                    let html = '';
+                    html += '<div class="mb-5">';
+                    html += '<h4 class="mb-3">';
+                    html += '<span class="type-badge type-' + typeClass + '">' + type + '</span> ';
+                    html += sectionTitle.replace(type + ' ', '');
+                    html += '</h4>';
+                    html += '<table class="table table-hover">';
+                    html += '<thead>';
+                    html += '<tr>';
+                    html += '<th>' + colPosition + '</th>';
+                    html += '<th>' + colTotal + '</th>';
+                    html += '<th>' + colPaid + '</th>';
+                    html += '<th>' + colPaymentRate + '</th>';
+                    html += '<th>' + colTotalAmount + '</th>';
+                    html += '<th>' + colAvgAmount + '</th>';
+                    html += '<th>' + colDetails + '</th>';
+                    html += '</tr>';
+                    html += '</thead>';
+                    html += '<tbody>';
                     
                     // 직급별 행 추가
                     positions.sort((a, b) => a.position.localeCompare(b.position)).forEach(posData => {{
                         const paymentRate = posData.total > 0 ? (posData.paid / posData.total * 100).toFixed(1) : '0.0';
                         const avgAmount = posData.paid > 0 ? Math.round(posData.totalAmount / posData.paid) : 0;
+                        const peopleUnit = getTranslation('common.people', currentLanguage);
+                        const viewBtnText = getTranslation('position.viewButton', currentLanguage);
                         
-                        html += `
-                            <tr>
-                                <td>${{posData.position}}</td>
-                                <td>${{posData.total}}명</td>
-                                <td>${{posData.paid}}명</td>
-                                <td>${{paymentRate}}%</td>
-                                <td>${{posData.totalAmount.toLocaleString()}} VND</td>
-                                <td>${{avgAmount.toLocaleString()}} VND</td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" 
-                                            onclick="showPositionDetail('${{type}}', '${{posData.position}}')">
-                                        보기
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
+                        html += '<tr>';
+                        html += '<td>' + posData.position + '</td>';
+                        html += '<td>' + posData.total + ' ' + peopleUnit + '</td>';
+                        html += '<td>' + posData.paid + ' ' + peopleUnit + '</td>';
+                        html += '<td>' + paymentRate + '%</td>';
+                        html += '<td>' + posData.totalAmount.toLocaleString() + ' VND</td>';
+                        html += '<td>' + avgAmount.toLocaleString() + ' VND</td>';
+                        html += '<td>';
+                        html += '<button class="btn btn-sm btn-outline-primary" ';
+                        html += 'onclick="showPositionDetail(\\'' + type + '\\', \\'' + posData.position + '\\')">';
+                        html += viewBtnText;
+                        html += '</button>';
+                        html += '</td>';
+                        html += '</tr>';
                     }});
                     
                     // Type별 소계
@@ -2444,22 +2978,27 @@ def generate_dashboard_html(df, month='august', year=2025):
                     const typeRate = typeTotal > 0 ? (typePaid / typeTotal * 100).toFixed(1) : '0.0';
                     const typeAvg = typePaid > 0 ? Math.round(typeAmount / typePaid) : 0;
                     
-                    html += `
-                                </tbody>
-                                <tfoot>
-                                    <tr style="font-weight: bold; background-color: #f8f9fa;">
-                                        <td>${{type}} 합계</td>
-                                        <td>${{typeTotal}}명</td>
-                                        <td>${{typePaid}}명</td>
-                                        <td>${{typeRate}}%</td>
-                                        <td>${{typeAmount.toLocaleString()}} VND</td>
-                                        <td>${{typeAvg.toLocaleString()}} VND</td>
-                                        <td></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    `;
+                    // 푸터 텍스트 준비
+                    const footerTitle = type === 'TYPE-1' ? getTranslation('position.sectionTitles.type1Total', currentLanguage) :
+                                      type === 'TYPE-2' ? getTranslation('position.sectionTitles.type2Total', currentLanguage) :
+                                      type === 'TYPE-3' ? getTranslation('position.sectionTitles.type3Total', currentLanguage) :
+                                      type + ' 합계';
+                    const peopleUnit2 = getTranslation('common.people', currentLanguage);
+                    
+                    html += '</tbody>';
+                    html += '<tfoot>';
+                    html += '<tr style="font-weight: bold; background-color: #f8f9fa;">';
+                    html += '<td>' + footerTitle + '</td>';
+                    html += '<td>' + typeTotal + ' ' + peopleUnit2 + '</td>';
+                    html += '<td>' + typePaid + ' ' + peopleUnit2 + '</td>';
+                    html += '<td>' + typeRate + '%</td>';
+                    html += '<td>' + typeAmount.toLocaleString() + ' VND</td>';
+                    html += '<td>' + typeAvg.toLocaleString() + ' VND</td>';
+                    html += '<td></td>';
+                    html += '</tr>';
+                    html += '</tfoot>';
+                    html += '</table>';
+                    html += '</div>';
                     
                     const div = document.createElement('div');
                     div.innerHTML = html;
@@ -2477,7 +3016,7 @@ def generate_dashboard_html(df, month='august', year=2025):
             const modalBody = document.getElementById('modalBody');
             const modalTitle = document.getElementById('modalTitle');
             
-            modalTitle.innerHTML = `${{type}} - ${{position}} 인센티브 계산 상세`;
+            modalTitle.innerHTML = `${{type}} - ${{position}} ` + getTranslation('modal.modalTitle', currentLanguage);
             
             // 요약 통계 계산
             const totalEmployees = employees.length;
@@ -2485,12 +3024,28 @@ def generate_dashboard_html(df, month='august', year=2025):
             const avgIncentive = employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees;
             const paidRate = Math.round(paidEmployees/totalEmployees*100);
             
+            // 조건 ID를 번역 키로 매핑
+            const conditionTranslationMap = {{
+                '1': 'modal.conditionNames.attendance_88',
+                '2': 'modal.conditionNames.no_unexcused_2days',
+                '3': 'modal.conditionNames.accident_free',
+                '4': 'modal.conditionNames.min_days_12',
+                '5': 'modal.conditionNames.personal_aql_0',
+                '6': 'modal.conditionNames.continuous_aql_3months',
+                '7': 'modal.conditionNames.team_aql_3months',
+                '8': 'modal.conditionNames.reject_rate_3',
+                '9': 'modal.conditionNames.prs_rate_95',
+                '10': 'modal.conditionNames.prs_count_100'
+            }};
+            
             // 각 직원의 조건 충족 통계 계산
             const conditionStats = {{}};
             if (employees[0] && employees[0].condition_results) {{
                 employees[0].condition_results.forEach(cond => {{
+                    const translationKey = conditionTranslationMap[cond.id] || null;
+                    const translatedName = translationKey ? getTranslation(translationKey, currentLanguage) : cond.name;
                     conditionStats[cond.id] = {{
-                        name: cond.name,
+                        name: translatedName,
                         met: 0,
                         total: 0,
                         na_count: 0
@@ -2526,42 +3081,42 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <div style="display: grid; grid-template-columns: 1fr; gap: 20px; padding: 20px;">
                     <!-- 인센티브 통계 (1행 4열 배치) -->
                     <div>
-                        <h6 style="color: #666; margin-bottom: 15px;">📊 인센티브 통계</h6>
+                        <h6 style="color: #666; margin-bottom: 15px;">📊 ${{getTranslation('modal.incentiveStats', currentLanguage)}}</h6>
                         <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
                                 <div style="padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                                    <div style="color: #666; font-size: 0.85rem;">전체 인원</div>
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #333;">${{totalEmployees}}명</div>
+                                    <div style="color: #666; font-size: 0.85rem;">${{getTranslation('modal.totalPersonnel', currentLanguage)}}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #333;">${{totalEmployees}}${{getTranslation('common.people', currentLanguage)}}</div>
                                 </div>
                                 <div style="padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                                    <div style="color: #666; font-size: 0.85rem;">지급 인원</div>
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${{paidEmployees}}명</div>
+                                    <div style="color: #666; font-size: 0.85rem;">${{getTranslation('modal.paidPersonnel', currentLanguage)}}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #28a745;">${{paidEmployees}}${{getTranslation('common.people', currentLanguage)}}</div>
                                 </div>
                                 <div style="padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                                    <div style="color: #666; font-size: 0.85rem;">미지급 인원</div>
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #dc3545;">${{totalEmployees - paidEmployees}}명</div>
+                                    <div style="color: #666; font-size: 0.85rem;">${{getTranslation('modal.unpaidPersonnel', currentLanguage)}}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #dc3545;">${{totalEmployees - paidEmployees}}${{getTranslation('common.people', currentLanguage)}}</div>
                                 </div>
                                 <div style="padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                                    <div style="color: #666; font-size: 0.85rem;">지급율</div>
+                                    <div style="color: #666; font-size: 0.85rem;">${{getTranslation('modal.paymentRate', currentLanguage)}}</div>
                                     <div style="font-size: 1.5rem; font-weight: bold; color: #007bff;">${{paidRate}}%</div>
                                 </div>
                             </div>
                             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
                                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;">
                                     <div>
-                                        <div style="color: #666; font-size: 0.8rem;">평균 인센티브</div>
+                                        <div style="color: #666; font-size: 0.8rem;">${{getTranslation('modal.avgIncentive', currentLanguage)}}</div>
                                         <div style="font-weight: bold;">${{avgIncentive.toLocaleString()}} VND</div>
                                     </div>
                                     <div>
-                                        <div style="color: #666; font-size: 0.8rem;">최대 인센티브</div>
+                                        <div style="color: #666; font-size: 0.8rem;">${{getTranslation('modal.maxIncentive', currentLanguage)}}</div>
                                         <div style="font-weight: bold;">${{maxIncentive.toLocaleString()}} VND</div>
                                     </div>
                                     <div>
-                                        <div style="color: #666; font-size: 0.8rem;">최소 인센티브</div>
+                                        <div style="color: #666; font-size: 0.8rem;">${{getTranslation('modal.minIncentive', currentLanguage)}}</div>
                                         <div style="font-weight: bold;">${{minIncentive.toLocaleString()}} VND</div>
                                     </div>
                                     <div>
-                                        <div style="color: #666; font-size: 0.8rem;">중간값</div>
+                                        <div style="color: #666; font-size: 0.8rem;">${{getTranslation('modal.median', currentLanguage)}}</div>
                                         <div style="font-weight: bold;">${{medianIncentive.toLocaleString()}} VND</div>
                                     </div>
                                 </div>
@@ -2571,17 +3126,17 @@ def generate_dashboard_html(df, month='august', year=2025):
                     
                     <!-- 조건 충족 상세 테이블 (동적 생성) -->
                     <div style="margin-bottom: 20px;">
-                        <h6 style="color: #666; margin-bottom: 10px;">📋 조건 충족 상세</h6>
+                        <h6 style="color: #666; margin-bottom: 10px;">📋 ${{getTranslation('modal.conditionFulfillmentDetails', currentLanguage)}}</h6>
                         <div style="overflow-x: auto;">
                             <table class="table table-sm" style="font-size: 0.9rem;">
                                 <thead style="background: #f8f9fa;">
                                     <tr>
                                         <th width="5%">#</th>
-                                        <th width="40%">조건</th>
-                                        <th width="20%">평가 대상</th>
-                                        <th width="15%">충족</th>
-                                        <th width="15%">미충족</th>
-                                        <th width="15%">충족율</th>
+                                        <th width="40%">${{getTranslation('modal.condition', currentLanguage)}}</th>
+                                        <th width="20%">${{getTranslation('modal.evaluationTarget', currentLanguage)}}</th>
+                                        <th width="15%">${{getTranslation('modal.fulfilled', currentLanguage)}}</th>
+                                        <th width="15%">${{getTranslation('modal.notFulfilled', currentLanguage)}}</th>
+                                        <th width="15%">${{getTranslation('modal.fulfillmentRate', currentLanguage)}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2595,12 +3150,12 @@ def generate_dashboard_html(df, month='august', year=2025):
                                         <tr>
                                             <td style="color: ${{isNA ? '#999' : '#000'}};">${{index + 1}}</td>
                                             <td style="color: ${{isNA ? '#999' : '#000'}};">${{stat.name}}</td>
-                                            <td>${{isNA ? `<span style="color: #999;">N/A</span>` : `${{evaluatedCount}}명`}}</td>
+                                            <td>${{isNA ? `<span style="color: #999;">N/A</span>` : `${{evaluatedCount}}${{getTranslation('common.people', currentLanguage)}}`}}</td>
                                             <td style="color: ${{isNA ? '#999' : '#28a745'}}; font-weight: bold;">
-                                                ${{isNA ? 'N/A' : `${{stat.met}}명`}}
+                                                ${{isNA ? 'N/A' : `${{stat.met}}${{getTranslation('common.people', currentLanguage)}}`}}
                                             </td>
                                             <td style="color: ${{isNA ? '#999' : '#dc3545'}};">
-                                                ${{isNA ? 'N/A' : `${{unmet}}명`}}
+                                                ${{isNA ? 'N/A' : `${{unmet}}${{getTranslation('common.people', currentLanguage)}}`}}
                                             </td>
                                             <td>
                                                 ${{isNA ? `<span style="color: #999;">N/A</span>` : `
@@ -2622,21 +3177,21 @@ def generate_dashboard_html(df, month='august', year=2025):
                     
                     <!-- 직원별 상세 현황 -->
                     <div>
-                        <h6 style="color: #666; margin-bottom: 10px;">직원별 상세 현황</h6>
+                        <h6 style="color: #666; margin-bottom: 10px;">${{getTranslation('modal.employeeDetails', currentLanguage)}}</h6>
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                            <button class="btn btn-sm btn-outline-primary" onclick="filterPositionTable('all')">전체</button>
-                            <button class="btn btn-sm btn-outline-success" onclick="filterPositionTable('paid')">지급자만</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="filterPositionTable('unpaid')">미지급자만</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="filterPositionTable('all')">${{getTranslation('modal.all', currentLanguage)}}</button>
+                            <button class="btn btn-sm btn-outline-success" onclick="filterPositionTable('paid')">${{getTranslation('modal.paidOnly', currentLanguage)}}</button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="filterPositionTable('unpaid')">${{getTranslation('modal.unpaidOnly', currentLanguage)}}</button>
                         </div>
                         <div style="overflow-x: auto;">
                             <table class="table table-sm" id="positionEmployeeTable" style="font-size: 0.9rem;">
                                 <thead style="background: #f8f9fa;">
                                     <tr>
-                                        <th>직원번호</th>
-                                        <th>이름</th>
-                                        <th>인센티브</th>
-                                        <th>상태</th>
-                                        <th>조건 충족 현황</th>
+                                        <th>${{getTranslation('modal.tableHeaders.employeeNo', currentLanguage)}}</th>
+                                        <th>${{getTranslation('modal.tableHeaders.name', currentLanguage)}}</th>
+                                        <th>${{getTranslation('modal.tableHeaders.incentive', currentLanguage)}}</th>
+                                        <th>${{getTranslation('modal.tableHeaders.status', currentLanguage)}}</th>
+                                        <th>${{getTranslation('modal.tableHeaders.conditionFulfillment', currentLanguage)}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2652,7 +3207,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                         <td><strong style="color: ${{isPaid ? '#28a745' : '#dc3545'}};">${{amount.toLocaleString()}} VND</strong></td>
                         <td>
                             <span class="badge ${{isPaid ? 'bg-success' : 'bg-danger'}}">
-                                ${{isPaid ? '지급' : '미지급'}}
+                                ${{isPaid ? getTranslation('modal.paymentStatus.paid', currentLanguage) : getTranslation('modal.paymentStatus.unpaid', currentLanguage)}}
                             </span>
                         </td>
                         <td>
@@ -2674,11 +3229,11 @@ def generate_dashboard_html(df, month='august', year=2025):
                                         const applicableAttendance = attendance.filter(c => !c.is_na && c.actual !== 'N/A');
                                         const attendanceMet = applicableAttendance.length > 0 && applicableAttendance.every(c => c.is_met);
                                         if (attendanceNA) {{
-                                            badges.push('<span class="badge" style="background-color: #999;" title="출근 조건">출근: N/A</span>');
+                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ': N/A</span>');
                                         }} else if (attendanceMet) {{
-                                            badges.push('<span class="badge bg-success" title="출근 조건 충족">출근 ✓</span>');
+                                            badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✓</span>');
                                         }} else {{
-                                            badges.push('<span class="badge bg-danger" title="출근 조건 미충족">출근 ✗</span>');
+                                            badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✗</span>');
                                         }}
                                     }}
                                     
@@ -2689,11 +3244,11 @@ def generate_dashboard_html(df, month='august', year=2025):
                                         const applicableAql = aql.filter(c => !c.is_na && c.actual !== 'N/A');
                                         const aqlMet = applicableAql.length > 0 && applicableAql.every(c => c.is_met);
                                         if (aqlNA) {{
-                                            badges.push('<span class="badge" style="background-color: #999;" title="AQL 조건">AQL: N/A</span>');
+                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ': N/A</span>');
                                         }} else if (aqlMet) {{
-                                            badges.push('<span class="badge bg-success" title="AQL 조건 충족">AQL ✓</span>');
+                                            badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ' ✓</span>');
                                         }} else {{
-                                            badges.push('<span class="badge bg-danger" title="AQL 조건 미충족">AQL ✗</span>');
+                                            badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ' ✗</span>');
                                         }}
                                     }} else {{
                                         badges.push('<span class="badge" style="background-color: #999;" title="AQL 조건">AQL: N/A</span>');
@@ -2706,11 +3261,11 @@ def generate_dashboard_html(df, month='august', year=2025):
                                         const applicablePrs = prs.filter(c => !c.is_na && c.actual !== 'N/A');
                                         const prsMet = applicablePrs.length > 0 && applicablePrs.every(c => c.is_met);
                                         if (prsNA) {{
-                                            badges.push('<span class="badge" style="background-color: #999;" title="5PRS 조건">5PRS: N/A</span>');
+                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ': N/A</span>');
                                         }} else if (prsMet) {{
-                                            badges.push('<span class="badge bg-success" title="5PRS 조건 충족">5PRS ✓</span>');
+                                            badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ' ✓</span>');
                                         }} else {{
-                                            badges.push('<span class="badge bg-danger" title="5PRS 조건 미충족">5PRS ✗</span>');
+                                            badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ' ✗</span>');
                                         }}
                                     }} else {{
                                         badges.push('<span class="badge" style="background-color: #999;" title="5PRS 조건">5PRS: N/A</span>');
@@ -2866,7 +3421,7 @@ def generate_dashboard_html(df, month='august', year=2025):
             const modalBody = document.getElementById('modalBody');
             const modalTitle = document.getElementById('modalTitle');
             
-            modalTitle.textContent = `${{emp.name}} (${{emp.emp_no}}) - 상세 정보`;
+            modalTitle.textContent = `${{emp.name}} (${{emp.emp_no}}) - ${{getTranslation('modal.title')}}`;
             
             // 조건 충족 통계 계산 - N/A 제외
             const conditions = emp.condition_results || [];
@@ -2881,19 +3436,19 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <div class="col-md-4">
                         <div class="stat-card">
                             <div class="stat-value">${{emp.type}}</div>
-                            <div class="stat-label">Type 분류</div>
+                            <div class="stat-label">${{getTranslation('modal.basicInfo.type')}}</div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
                             <div class="stat-value">${{emp.position}}</div>
-                            <div class="stat-label">직급</div>
+                            <div class="stat-label">${{getTranslation('modal.basicInfo.position')}}</div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
                             <div class="stat-value">${{parseInt(emp.august_incentive).toLocaleString()}} VND</div>
-                            <div class="stat-label">8월 인센티브</div>
+                            <div class="stat-label">${{getTranslation('modal.incentiveInfo.amount')}}</div>
                         </div>
                     </div>
                 </div>
@@ -3089,8 +3644,8 @@ def generate_dashboard_html(df, month='august', year=2025):
                     <td><span class="type-badge type-${{emp.type.toLowerCase().replace('type-', '')}}">${{emp.type}}</span></td>
                     <td>${{parseInt(emp.july_incentive).toLocaleString()}}</td>
                     <td><strong>${{amount.toLocaleString()}}</strong></td>
-                    <td>${{isPaid ? '✅ 지급' : '❌ 미지급'}}</td>
-                    <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${{emp.emp_no}}')">상세</button></td>
+                    <td>${{isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid')}}</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${{emp.emp_no}}')">${{getTranslation('individual.table.detailButton')}}</button></td>
                 `;
                 tbody.appendChild(tr);
             }});
@@ -3111,7 +3666,7 @@ def generate_dashboard_html(df, month='august', year=2025):
             }});
             
             // 옵션 업데이트
-            positionSelect.innerHTML = '<option value="">모든 직급</option>';
+            positionSelect.innerHTML = '<option value="" id="optAllPositionsInner">' + getTranslation('individual.filters.allPositions', currentLanguage) + '</option>';
             Array.from(positions).sort().forEach(position => {{
                 const option = document.createElement('option');
                 option.value = position;
@@ -3152,6 +3707,9 @@ def sync_google_drive_data(month_num, year):
 
 def main():
     """메인 실행 함수"""
+    # 번역 파일 로드
+    load_translations()
+    
     parser = argparse.ArgumentParser(description='통합 인센티브 대시보드 생성')
     parser.add_argument('--month', type=int, default=8, help='월 (1-12)')
     parser.add_argument('--year', type=int, default=2025, help='연도')
