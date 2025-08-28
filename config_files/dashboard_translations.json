@@ -1111,6 +1111,63 @@
         "ko": "해당없음",
         "en": "N/A",
         "vi": "Không áp dụng"
+      },
+      "metUnmet": {
+        "ko": "충족/미충족",
+        "en": "Met/Unmet",
+        "vi": "Đạt/Không đạt"
+      }
+    },
+    "detailPopup": {
+      "conditionFulfillment": {
+        "ko": "조건 충족도",
+        "en": "Condition Fulfillment",
+        "vi": "Mức độ đáp ứng điều kiện"
+      },
+      "paymentStatus": {
+        "ko": "지급 상태",
+        "en": "Payment Status",
+        "vi": "Trạng thái thanh toán"
+      },
+      "lastMonthIncentive": {
+        "ko": "지난달 인센티브",
+        "en": "Last Month's Incentive",
+        "vi": "Tiền thưởng tháng trước"
+      },
+      "conditionsFulfilled": {
+        "ko": "조건 충족",
+        "en": "conditions fulfilled",
+        "vi": "điều kiện đã đáp ứng"
+      },
+      "conditionNotMet": {
+        "ko": "조건 미충족",
+        "en": "Conditions not met",
+        "vi": "Không đủ điều kiện"
+      },
+      "noConditions": {
+        "ko": "해당 조건 없음",
+        "en": "No applicable conditions",
+        "vi": "Không có điều kiện áp dụng"
+      },
+      "conditionDetails": {
+        "ko": "조건 충족 상세",
+        "en": "Condition Fulfillment Details",
+        "vi": "Chi tiết điều kiện đáp ứng"
+      },
+      "condition": {
+        "ko": "조건",
+        "en": "Condition",
+        "vi": "Điều kiện"
+      },
+      "performance": {
+        "ko": "실적",
+        "en": "Performance",
+        "vi": "Hiệu suất"
+      },
+      "result": {
+        "ko": "결과",
+        "en": "Result",
+        "vi": "Kết quả"
       }
     },
     "conditionTexts": {
@@ -1164,6 +1221,58 @@
         "en": "5PRS inspection qty ≥100 pairs",
         "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
       }
+    },
+    "tenConditions": {
+      "1": {
+        "ko": "출근율 88% 이상",
+        "en": "Attendance rate ≥88%",
+        "vi": "Tỷ lệ chấm công ≥88%"
+      },
+      "2": {
+        "ko": "무단결근 2일 이하",
+        "en": "Unapproved absence ≤2 days",
+        "vi": "Vắng không phép ≤2 ngày"
+      },
+      "3": {
+        "ko": "실제근무일 0일 초과",
+        "en": "Actual working days >0",
+        "vi": "Ngày làm thực tế >0"
+      },
+      "4": {
+        "ko": "최소 근무일 12일 이상",
+        "en": "Min working days ≥12",
+        "vi": "Tối thiểu ≥12 ngày"
+      },
+      "5": {
+        "ko": "개인AQL: 당월실패 0건",
+        "en": "Personal AQL: 0 monthly failures",
+        "vi": "AQL cá nhân: 0 thất bại tháng"
+      },
+      "6": {
+        "ko": "연속성 체크: 3개월 연속 실패 없음",
+        "en": "Continuity: No 3-month consecutive failures",
+        "vi": "Liên tục: Không thất bại 3 tháng liên tiếp"
+      },
+      "7": {
+        "ko": "팀/구역 AQL: 3개월 연속 실패 없음",
+        "en": "Team/Area AQL: No 3-month consecutive failures",
+        "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"
+      },
+      "8": {
+        "ko": "담당구역 reject % < 3%",
+        "en": "Area reject rate < 3%",
+        "vi": "Tỷ lệ từ chối khu vực < 3%"
+      },
+      "9": {
+        "ko": "5PRS 통과율 95% 이상",
+        "en": "5PRS pass rate ≥95%",
+        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+      },
+      "10": {
+        "ko": "5PRS 검사량 100족 이상",
+        "en": "5PRS inspection qty ≥100 pairs",
+        "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
+      }
     }
   },
   "common": {
@@ -1206,6 +1315,16 @@
       "ko": "데이터 없음",
       "en": "No data",
       "vi": "Không có dữ liệu"
+    },
+    "days": {
+      "ko": "일",
+      "en": "days",
+      "vi": "ngày"
+    },
+    "day": {
+      "ko": "일",
+      "en": "day",
+      "vi": "ngày"
     }
   },
   "status": {
