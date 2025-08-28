@@ -2091,7 +2091,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <!-- FAQ 섹션 -->
                 <div class="card">
                     <div class="card-header bg-info text-white">
-                        <h5 class="mb-0">❓ 자주 묻는 질문 (FAQ)</h5>
+                        <h5 class="mb-0" id="faqSectionTitle">❓ 자주 묻는 질문 (FAQ)</h5>
                     </div>
                     <div class="card-body">
                         <style>
@@ -2132,143 +2132,142 @@ def generate_dashboard_html(df, month='august', year=2025):
                         
                         <div class="faq-container">
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion1">
                                     Q1. 왜 나는 인센티브를 못 받았나요? 조건을 확인하는 방법은?
                                 </div>
                                 <div class="faq-answer">
-                                    <strong>인센티브를 받지 못한 주요 이유:</strong>
+                                    <strong id="faqAnswer1Main">인센티브를 받지 못한 주요 이유:</strong>
                                     <ul>
-                                        <li>최소 근무일 12일 미충족</li>
-                                        <li>출근율 88% 미만</li>
-                                        <li>무단결근 3일 이상</li>
-                                        <li>AQL 실패 (해당 직급)</li>
-                                        <li>5PRS 통과율 95% 미만 (해당 직급)</li>
+                                        <li id="faqAnswer1Reason1">최소 근무일 12일 미충족</li>
+                                        <li id="faqAnswer1Reason2">출근율 88% 미만</li>
+                                        <li id="faqAnswer1Reason3">무단결근 3일 이상</li>
+                                        <li id="faqAnswer1Reason4">AQL 실패 (해당 직급)</li>
+                                        <li id="faqAnswer1Reason5">5PRS 통과율 95% 미만 (해당 직급)</li>
                                     </ul>
-                                    개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 수 있습니다.
+                                    <span id="faqAnswer1CheckMethod">개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 수 있습니다.</span>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion2">
                                     Q2. 무단결근이 며칠까지 허용되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <strong>무단결근은 최대 2일까지 허용됩니다.</strong> 3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 
-                                    사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.
+                                    <strong id="faqAnswer2Main">무단결근은 최대 2일까지 허용됩니다.</strong> <span id="faqAnswer2Detail">3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.</span>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion3">
                                     Q3. TYPE-2 직급의 인센티브는 어떻게 계산되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    TYPE-2 직급의 인센티브는 <strong>해당하는 TYPE-1 직급의 평균 인센티브</strong>를 기준으로 계산됩니다.
-                                    예를 들어:
+                                    <span id="faqAnswer3Main">TYPE-2 직급의 인센티브는 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.</span>
+                                    <span id="faqAnswer3Example">예를 들어:</span>
                                     <ul>
-                                        <li>TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 인센티브</li>
-                                        <li>TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 인센티브</li>
+                                        <li id="faqAnswer3Example1">TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 인센티브</li>
+                                        <li id="faqAnswer3Example2">TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 인센티브</li>
                                     </ul>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion4">
                                     Q4. ASSEMBLY INSPECTOR의 연속 근무 개월은 어떻게 계산되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    TYPE-1 ASSEMBLY INSPECTOR만 해당되며, <strong>조건을 충족하며 인센티브를 받은 개월수</strong>가 누적됩니다.
+                                    <span id="faqAnswer4Main">TYPE-1 ASSEMBLY INSPECTOR만 해당되며, 조건을 충족하며 인센티브를 받은 개월수가 누적됩니다.</span>
                                     <ul>
-                                        <li>조건 미충족으로 인센티브를 못 받으면 0개월로 리셋</li>
-                                        <li>12개월 이상 연속시 최대 인센티브 1,000,000 VND</li>
+                                        <li id="faqAnswer4Detail1">조건 미충족으로 인센티브를 못 받으면 0개월로 리셋</li>
+                                        <li id="faqAnswer4Detail2">12개월 이상 연속시 최대 인센티브 1,000,000 VND</li>
                                     </ul>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion5">
                                     Q5. AQL 실패가 무엇이고 어떤 영향을 미치나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <strong>AQL(Acceptable Quality Limit)</strong>은 품질 검사 기준입니다.
+                                    <span id="faqAnswer5Main">AQL(Acceptable Quality Limit)은 품질 검사 기준입니다.</span>
                                     <ul>
-                                        <li>개인 AQL 실패: 해당 월에 품질 검사 실패한 경우</li>
-                                        <li>3개월 연속 실패: 지난 3개월 동안 연속으로 실패한 경우</li>
-                                        <li>AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)</li>
+                                        <li id="faqAnswer5Detail1">개인 AQL 실패: 해당 월에 품질 검사 실패한 경우</li>
+                                        <li id="faqAnswer5Detail2">3개월 연속 실패: 지난 3개월 동안 연속으로 실패한 경우</li>
+                                        <li id="faqAnswer5Detail3">AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)</li>
                                     </ul>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion6">
                                     Q6. 5PRS 검사량이 부족하면 어떻게 되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    5PRS 관련 직급은 다음 조건을 충족해야 합니다:
+                                    <span id="faqAnswer6Main">5PRS 관련 직급은 다음 조건을 충족해야 합니다:</span>
                                     <ul>
-                                        <li>검사량 100족 이상</li>
-                                        <li>통과율 95% 이상</li>
+                                        <li id="faqAnswer6Detail1">검사량 100족 이상</li>
+                                        <li id="faqAnswer6Detail2">통과율 95% 이상</li>
                                     </ul>
-                                    <strong>둘 중 하나라도 미충족시 인센티브를 받을 수 없습니다.</strong>
+                                    <strong id="faqAnswer6Conclusion">둘 중 하나라도 미충족시 인센티브를 받을 수 없습니다.</strong>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion7">
                                     Q7. 출산휴가나 병가 중에도 인센티브를 받을 수 있나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <strong>출산휴가나 장기 병가 중에는 인센티브가 지급되지 않습니다.</strong>
+                                    <strong id="faqAnswer7Main">출산휴가나 장기 병가 중에는 인센티브가 지급되지 않습니다.</strong>
                                     <ul>
-                                        <li>최소 근무일 12일 조건을 충족할 수 없기 때문</li>
-                                        <li>복귀 후 조건 충족시 다시 인센티브 수령 가능</li>
-                                        <li>ASSEMBLY INSPECTOR의 경우 연속 개월수는 0으로 리셋</li>
+                                        <li id="faqAnswer7Detail1">최소 근무일 12일 조건을 충족할 수 없기 때문</li>
+                                        <li id="faqAnswer7Detail2">복귀 후 조건 충족시 다시 인센티브 수령 가능</li>
+                                        <li id="faqAnswer7Detail3">ASSEMBLY INSPECTOR의 경우 연속 개월수는 0으로 리셋</li>
                                     </ul>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion8">
                                     Q8. 전월 인센티브와 차이가 나는 이유는 무엇인가요?
                                 </div>
                                 <div class="faq-answer">
-                                    인센티브 금액이 변동하는 주요 이유:
+                                    <span id="faqAnswer8Main">인센티브 금액이 변동하는 주요 이유:</span>
                                     <ul>
-                                        <li><strong>ASSEMBLY INSPECTOR</strong>: 연속 근무 개월 변화</li>
-                                        <li><strong>TYPE-2 직급</strong>: TYPE-1 평균값 변동</li>
-                                        <li><strong>AQL INSPECTOR</strong>: Part1, Part2, Part3 조건 변화</li>
-                                        <li><strong>조건 미충족</strong>: 하나라도 미충족시 0</li>
+                                        <li id="faqAnswer8Reason1"><strong>ASSEMBLY INSPECTOR</strong>: 연속 근무 개월 변화</li>
+                                        <li id="faqAnswer8Reason2"><strong>TYPE-2 직급</strong>: TYPE-1 평균값 변동</li>
+                                        <li id="faqAnswer8Reason3"><strong>AQL INSPECTOR</strong>: Part1, Part2, Part3 조건 변화</li>
+                                        <li id="faqAnswer8Reason4"><strong>조건 미충족</strong>: 하나라도 미충족시 0</li>
                                     </ul>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion9">
                                     Q9. TYPE-3에서 TYPE-2로 승진하면 인센티브가 어떻게 변하나요?
                                 </div>
                                 <div class="faq-answer">
                                     <ul>
-                                        <li><strong>TYPE-3</strong>: 조건 없이 기본 150,000 VND (근무시 자동 지급)</li>
-                                        <li><strong>TYPE-2</strong>: 조건 충족 필요, TYPE-1 평균 기준 계산</li>
-                                        <li>승진 후 조건 충족시 일반적으로 인센티브 증가</li>
-                                        <li>하지만 조건 미충족시 0이 될 수 있으므로 주의 필요</li>
+                                        <li id="faqAnswer9Detail1"><strong>TYPE-3</strong>: 조건 없이 기본 150,000 VND (근무시 자동 지급)</li>
+                                        <li id="faqAnswer9Detail2"><strong>TYPE-2</strong>: 조건 충족 필요, TYPE-1 평균 기준 계산</li>
+                                        <li id="faqAnswer9Detail3">승진 후 조건 충족시 일반적으로 인센티브 증가</li>
+                                        <li id="faqAnswer9Detail4">하지만 조건 미충족시 0이 될 수 있으므로 주의 필요</li>
                                     </ul>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
-                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion10">
                                     Q10. 조건을 모두 충족했는데도 인센티브가 0인 이유는 무엇인가요?
                                 </div>
                                 <div class="faq-answer">
-                                    다음 사항을 재확인해 보세요:
+                                    <span id="faqAnswer10Main">다음 사항을 재확인해 보세요:</span>
                                     <ul>
-                                        <li><strong>숨겨진 조건</strong>: 직급별로 적용되는 모든 조건 확인</li>
-                                        <li><strong>데이터 업데이트</strong>: 최신 데이터 반영 여부</li>
-                                        <li><strong>특별한 사유</strong>: 징계, 경고 등 특별 사유</li>
-                                        <li><strong>시스템 오류</strong>: HR 부서에 문의</li>
+                                        <li id="faqAnswer10Reason1"><strong>숨겨진 조건</strong>: 직급별로 적용되는 모든 조건 확인</li>
+                                        <li id="faqAnswer10Reason2"><strong>데이터 업데이트</strong>: 최신 데이터 반영 여부</li>
+                                        <li id="faqAnswer10Reason3"><strong>특별한 사유</strong>: 징계, 경고 등 특별 사유</li>
+                                        <li id="faqAnswer10Reason4"><strong>시스템 오류</strong>: HR 부서에 문의</li>
                                     </ul>
-                                    개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.
+                                    <span id="faqAnswer10Conclusion">개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.</span>
                                 </div>
                             </div>
                         </div>
@@ -2345,66 +2344,66 @@ def generate_dashboard_html(df, month='august', year=2025):
             // FAQ 계산 예시 타이틀
             const calcTitle = document.getElementById('faqCalculationExampleTitle');
             if (calcTitle) {{
-                calcTitle.textContent = translations.incentive?.faq?.calculationExampleTitle?.[lang] || '📐 실제 계산 예시';
+                calcTitle.textContent = translations.incentiveCalculation?.faq?.calculationExampleTitle?.[lang] || '📐 실제 계산 예시';
             }}
             
             // Case 1 - TYPE-1 ASSEMBLY INSPECTOR
             const case1Title = document.getElementById('faqCase1Title');
             if (case1Title) {{
-                case1Title.textContent = translations.incentive?.faq?.case1Title?.[lang] || '예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)';
+                case1Title.textContent = translations.incentiveCalculation?.faq?.case1Title?.[lang] || '예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)';
             }}
             
             const case1EmployeeLabel = document.getElementById('faqCase1EmployeeLabel');
             if (case1EmployeeLabel) {{
-                case1EmployeeLabel.textContent = translations.incentive?.faq?.employee?.[lang] || '직원:';
+                case1EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
             }}
             
             const case1PrevMonthLabel = document.getElementById('faqCase1PrevMonthLabel');
             if (case1PrevMonthLabel) {{
-                case1PrevMonthLabel.textContent = translations.incentive?.faq?.previousMonth?.[lang] || '전월 상태:';
+                case1PrevMonthLabel.textContent = translations.incentiveCalculation?.faq?.previousMonth?.[lang] || '전월 상태:';
             }}
             
             const case1PrevMonthText = document.getElementById('faqCase1PrevMonthText');
             if (case1PrevMonthText) {{
-                const months = translations.incentive?.faq?.consecutiveMonthsWorked?.[lang] || '개월 연속 →';
-                const received = translations.incentive?.faq?.incentiveReceived?.[lang] || 'VND 수령';
+                const months = translations.incentiveCalculation?.faq?.consecutiveMonthsWorked?.[lang] || '개월 연속 →';
+                const received = translations.incentiveCalculation?.faq?.incentiveReceived?.[lang] || 'VND 수령';
                 case1PrevMonthText.textContent = `9${{months}} 750,000 ${{received}}`;
             }}
             
             const case1ConditionsLabel = document.getElementById('faqCase1ConditionsLabel');
             if (case1ConditionsLabel) {{
-                case1ConditionsLabel.textContent = translations.incentive?.faq?.conditionEvaluation?.[lang] || '당월 조건 충족:';
+                case1ConditionsLabel.textContent = translations.incentiveCalculation?.faq?.conditionEvaluation?.[lang] || '당월 조건 충족:';
             }}
             
             // Case 1 조건들 업데이트
             document.querySelectorAll('.faq-attendance-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.attendanceRateMet?.[lang] || '출근율:';
+                el.textContent = translations.incentiveCalculation?.faq?.attendanceRateMet?.[lang] || '출근율:';
             }});
             document.querySelectorAll('.faq-absence-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.unauthorizedAbsenceMet?.[lang] || '무단결근:';
+                el.textContent = translations.incentiveCalculation?.faq?.unauthorizedAbsenceMet?.[lang] || '무단결근:';
             }});
             document.querySelectorAll('.faq-actual-days-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.actualWorkingDays?.[lang] || '실제 근무일:';
+                el.textContent = translations.incentiveCalculation?.faq?.actualWorkingDays?.[lang] || '실제 근무일:';
             }});
             document.querySelectorAll('.faq-min-days-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.minimumWorkingDays?.[lang] || '최소 근무일:';
+                el.textContent = translations.incentiveCalculation?.faq?.minimumWorkingDays?.[lang] || '최소 근무일:';
             }});
             document.querySelectorAll('.faq-aql-current-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.personalAql?.[lang] || '개인 AQL (당월):';
+                el.textContent = translations.incentiveCalculation?.faq?.personalAql?.[lang] || '개인 AQL (당월):';
             }});
             document.querySelectorAll('.faq-aql-consecutive-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.personalAqlContinuous?.[lang] || '개인 AQL (연속):';
+                el.textContent = translations.incentiveCalculation?.faq?.personalAqlContinuous?.[lang] || '개인 AQL (연속):';
             }});
             document.querySelectorAll('.faq-fprs-rate-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.fprsPassRate?.[lang] || '5PRS 통과율:';
+                el.textContent = translations.incentiveCalculation?.faq?.fprsPassRate?.[lang] || '5PRS 통과율:';
             }});
             document.querySelectorAll('.faq-fprs-qty-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.fprsInspection?.[lang] || '5PRS 검사량:';
+                el.textContent = translations.incentiveCalculation?.faq?.fprsInspection?.[lang] || '5PRS 검사량:';
             }});
             
             // 값들 업데이트
-            const days = translations.incentive?.faq?.days?.[lang] || '일';
-            const items = translations.incentive?.faq?.items?.[lang] || '개';
+            const days = translations.incentiveCalculation?.faq?.days?.[lang] || '일';
+            const items = translations.incentiveCalculation?.faq?.items?.[lang] || '개';
             
             document.querySelectorAll('.faq-absence-value').forEach(el => {{
                 el.textContent = '0' + days;
@@ -2425,10 +2424,10 @@ def generate_dashboard_html(df, month='august', year=2025):
                 el.textContent = '12' + days;
             }});
             document.querySelectorAll('.faq-aql-current-value').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.failureText?.[lang] || '실패 0건';
+                el.textContent = translations.incentiveCalculation?.faq?.failureText?.[lang] || '실패 0건';
             }});
             document.querySelectorAll('.faq-aql-consecutive-value').forEach(el => {{
-                el.textContent = '3' + (translations.incentive?.faq?.monthsConsecutiveNoFailure?.[lang] || '개월 연속 실패 없음');
+                el.textContent = '3' + (translations.incentiveCalculation?.faq?.monthsConsecutiveNoFailure?.[lang] || '개월 연속 실패 없음');
             }});
             document.querySelectorAll('.faq-fprs-qty-value').forEach(el => {{
                 el.textContent = '150' + items;
@@ -2439,36 +2438,36 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             const case1ResultLabel = document.getElementById('faqCase1ResultLabel');
             if (case1ResultLabel) {{
-                case1ResultLabel.textContent = translations.incentive?.faq?.result?.[lang] || '결과:';
+                case1ResultLabel.textContent = translations.incentiveCalculation?.faq?.result?.[lang] || '결과:';
             }}
             
             const case1ResultText = document.getElementById('faqCase1ResultText');
             if (case1ResultText) {{
-                const allMet = translations.incentive?.faq?.allConditionsMet?.[lang] || '모든 조건 충족';
-                const consecutive = translations.incentive?.faq?.consecutiveMonthsWorked?.[lang] || '개월 연속 →';
-                const payment = translations.incentive?.faq?.incentivePayment?.[lang] || 'VND 지급';
+                const allMet = translations.incentiveCalculation?.faq?.allConditionsMet?.[lang] || '모든 조건 충족';
+                const consecutive = translations.incentiveCalculation?.faq?.consecutiveMonthsWorked?.[lang] || '개월 연속 →';
+                const payment = translations.incentiveCalculation?.faq?.incentivePayment?.[lang] || 'VND 지급';
                 case1ResultText.innerHTML = `${{allMet}} → <span class="badge bg-success">10${{consecutive}} 850,000 ${{payment}}</span>`;
             }}
             
             // Case 2 - AUDIT & TRAINING TEAM
             const case2Title = document.getElementById('faqCase2Title');
             if (case2Title) {{
-                case2Title.textContent = translations.incentive?.faq?.case2Title?.[lang] || '예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 계산)';
+                case2Title.textContent = translations.incentiveCalculation?.faq?.case2Title?.[lang] || '예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 계산)';
             }}
             
             const case2EmployeeLabel = document.getElementById('faqCase2EmployeeLabel');
             if (case2EmployeeLabel) {{
-                case2EmployeeLabel.textContent = translations.incentive?.faq?.employee?.[lang] || '직원:';
+                case2EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
             }}
             
             const case2AreaLabel = document.getElementById('faqCase2AreaLabel');
             if (case2AreaLabel) {{
-                case2AreaLabel.textContent = translations.incentive?.faq?.teamLeader?.[lang] || '담당 구역:';
+                case2AreaLabel.textContent = translations.incentiveCalculation?.faq?.teamLeader?.[lang] || '담당 구역:';
             }}
             
             const case2InspectionLabel = document.getElementById('faqCase2InspectionLabel');
             if (case2InspectionLabel) {{
-                const label = translations.incentive?.faq?.aqlInspectionPassed?.[lang] || '구역 생산 총 AQL 검사 PO 수량:';
+                const label = translations.incentiveCalculation?.faq?.aqlInspectionPassed?.[lang] || '구역 생산 총 AQL 검사 PO 수량:';
                 case2InspectionLabel.textContent = 'Building B ' + label;
             }}
             
@@ -2479,7 +2478,7 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             const case2RejectLabel = document.getElementById('faqCase2RejectLabel');
             if (case2RejectLabel) {{
-                const label = translations.incentive?.faq?.aqlRejectPo?.[lang] || '구역 생산 총 AQL 리젝 PO 수량:';
+                const label = translations.incentiveCalculation?.faq?.aqlRejectPo?.[lang] || '구역 생산 총 AQL 리젝 PO 수량:';
                 case2RejectLabel.textContent = 'Building B ' + label;
             }}
             
@@ -2490,107 +2489,107 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             const case2CalcLabel = document.getElementById('faqCase2CalcLabel');
             if (case2CalcLabel) {{
-                case2CalcLabel.textContent = translations.incentive?.faq?.calculation?.[lang] || '계산:';
+                case2CalcLabel.textContent = translations.incentiveCalculation?.faq?.calculation?.[lang] || '계산:';
             }}
             
             const case2ResultLabel = document.getElementById('faqCase2ResultLabel');
             if (case2ResultLabel) {{
-                case2ResultLabel.textContent = translations.incentive?.faq?.resultCondition?.[lang] || '결과:';
+                case2ResultLabel.textContent = translations.incentiveCalculation?.faq?.resultCondition?.[lang] || '결과:';
             }}
             
             const case2ResultBadge = document.getElementById('faqCase2ResultBadge');
             if (case2ResultBadge) {{
-                case2ResultBadge.textContent = translations.incentive?.faq?.conditionMet?.[lang] || '조건 충족';
+                case2ResultBadge.textContent = translations.incentiveCalculation?.faq?.conditionMet?.[lang] || '조건 충족';
             }}
             
             // 멤버 테이블 타이틀
             const memberTableTitle = document.getElementById('faqMemberTableTitle');
             if (memberTableTitle) {{
-                memberTableTitle.textContent = translations.incentive?.faq?.memberTable?.[lang] || 'AUDIT & TRAINING TEAM 멤버별 담당 구역';
+                memberTableTitle.textContent = translations.incentiveCalculation?.faq?.memberTable?.[lang] || 'AUDIT & TRAINING TEAM 멤버별 담당 구역';
             }}
             
             // 테이블 헤더
             const headerName = document.getElementById('faqTableHeaderName');
             if (headerName) {{
-                headerName.textContent = translations.incentive?.faq?.employeeNameLabel?.[lang] || '직원명';
+                headerName.textContent = translations.incentiveCalculation?.faq?.employeeNameLabel?.[lang] || '직원명';
             }}
             
             const headerBuilding = document.getElementById('faqTableHeaderBuilding');
             if (headerBuilding) {{
-                headerBuilding.textContent = translations.incentive?.faq?.assignedBuilding?.[lang] || '담당 Building';
+                headerBuilding.textContent = translations.incentiveCalculation?.faq?.assignedBuilding?.[lang] || '담당 Building';
             }}
             
             const headerDesc = document.getElementById('faqTableHeaderDesc');
             if (headerDesc) {{
-                headerDesc.textContent = translations.incentive?.faq?.buildingDescription?.[lang] || '설명';
+                headerDesc.textContent = translations.incentiveCalculation?.faq?.buildingDescription?.[lang] || '설명';
             }}
             
             const headerReject = document.getElementById('faqTableHeaderReject');
             if (headerReject) {{
-                headerReject.textContent = translations.incentive?.faq?.rejectRate?.[lang] || 'Reject율';
+                headerReject.textContent = translations.incentiveCalculation?.faq?.rejectRate?.[lang] || 'Reject율';
             }}
             
             // 테이블 내용
             document.querySelectorAll('.faq-building-whole').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.buildingWhole?.[lang] || '전체';
+                el.textContent = translations.incentiveCalculation?.faq?.buildingWhole?.[lang] || '전체';
             }});
             
             document.querySelectorAll('.faq-team-leader-desc').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.teamLeaderDescription?.[lang] || 'Team Leader - 전체 Building 총괄';
+                el.textContent = translations.incentiveCalculation?.faq?.teamLeaderDescription?.[lang] || 'Team Leader - 전체 Building 총괄';
             }});
             
             document.querySelectorAll('.faq-other-conditions').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.noMissingData?.[lang] || '기타 조건 미충족';
+                el.textContent = translations.incentiveCalculation?.faq?.noMissingData?.[lang] || '기타 조건 미충족';
             }});
             
             const rejectRateNote = document.getElementById('faqRejectRateNote');
             if (rejectRateNote) {{
-                rejectRateNote.textContent = translations.incentive?.faq?.rejectRateNote?.[lang] || '* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)';
+                rejectRateNote.textContent = translations.incentiveCalculation?.faq?.rejectRateNote?.[lang] || '* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)';
             }}
             
             const memberNote = document.getElementById('faqMemberNote');
             if (memberNote) {{
-                memberNote.textContent = translations.incentive?.faq?.memberNote?.[lang] || '* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원';
+                memberNote.textContent = translations.incentiveCalculation?.faq?.memberNote?.[lang] || '* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원';
             }}
             
             // Case 3 - TYPE-2 STITCHING INSPECTOR
             const case3Title = document.getElementById('faqCase3Title');
             if (case3Title) {{
-                case3Title.textContent = translations.incentive?.faq?.case3Title?.[lang] || '예시 3: TYPE-2 STITCHING INSPECTOR';
+                case3Title.textContent = translations.incentiveCalculation?.faq?.case3Title?.[lang] || '예시 3: TYPE-2 STITCHING INSPECTOR';
             }}
             
             const case3EmployeeLabel = document.getElementById('faqCase3EmployeeLabel');
             if (case3EmployeeLabel) {{
-                case3EmployeeLabel.textContent = translations.incentive?.faq?.employee?.[lang] || '직원:';
+                case3EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
             }}
             
             const case3TypeLabel = document.getElementById('faqCase3TypeLabel');
             if (case3TypeLabel) {{
-                case3TypeLabel.textContent = translations.incentive?.faq?.positionType?.[lang] || '직급 타입:';
+                case3TypeLabel.textContent = translations.incentiveCalculation?.faq?.positionType?.[lang] || '직급 타입:';
             }}
             
             const case3StatusLabel = document.getElementById('faqCase3StatusLabel');
             if (case3StatusLabel) {{
-                case3StatusLabel.textContent = translations.incentive?.faq?.conditionStatus?.[lang] || '조건 충족 현황:';
+                case3StatusLabel.textContent = translations.incentiveCalculation?.faq?.conditionStatus?.[lang] || '조건 충족 현황:';
             }}
             
             // Case 3 조건들
             document.querySelectorAll('.faq-case3-attendance-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.attendanceRateMet?.[lang] || '출근율:';
+                el.textContent = translations.incentiveCalculation?.faq?.attendanceRateMet?.[lang] || '출근율:';
             }});
             document.querySelectorAll('.faq-case3-absence-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.unauthorizedAbsenceMet?.[lang] || '무단결근:';
+                el.textContent = translations.incentiveCalculation?.faq?.unauthorizedAbsenceMet?.[lang] || '무단결근:';
             }});
             document.querySelectorAll('.faq-case3-actual-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.actualWorkingDays?.[lang] || '실제근무일:';
+                el.textContent = translations.incentiveCalculation?.faq?.actualWorkingDays?.[lang] || '실제근무일:';
             }});
             document.querySelectorAll('.faq-case3-min-label').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.minimumWorkingDays?.[lang] || '최소근무일:';
+                el.textContent = translations.incentiveCalculation?.faq?.minimumWorkingDays?.[lang] || '최소근무일:';
             }});
             
             // Case 3 값들
             document.querySelectorAll('.faq-case3-met').forEach(el => {{
-                el.textContent = translations.incentive?.faq?.conditionsMet?.[lang] || '충족';
+                el.textContent = translations.incentiveCalculation?.faq?.conditionsMet?.[lang] || '충족';
             }});
             document.querySelectorAll('.faq-case3-absence-value').forEach(el => {{
                 el.textContent = '0' + days;
@@ -2613,27 +2612,27 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             const case3CalcLabel = document.getElementById('faqCase3CalcLabel');
             if (case3CalcLabel) {{
-                case3CalcLabel.textContent = translations.incentive?.faq?.incentiveCalculation?.[lang] || '인센티브 계산:';
+                case3CalcLabel.textContent = translations.incentiveCalculation?.faq?.incentiveCalculation?.[lang] || '인센티브 계산:';
             }}
             
             const case3Explanation = document.getElementById('faqCase3Explanation');
             if (case3Explanation) {{
-                case3Explanation.textContent = translations.incentive?.faq?.type2Explanation?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 인센티브를 받습니다.';
+                case3Explanation.textContent = translations.incentiveCalculation?.faq?.type2Explanation?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 인센티브를 받습니다.';
             }}
             
             const case3PaymentLabel = document.getElementById('faqCase3PaymentLabel');
             if (case3PaymentLabel) {{
-                case3PaymentLabel.textContent = translations.incentive?.faq?.paymentAmount?.[lang] || '지급액:';
+                case3PaymentLabel.textContent = translations.incentiveCalculation?.faq?.paymentAmount?.[lang] || '지급액:';
             }}
             
             const case3BasicText = document.getElementById('faqCase3BasicText');
             if (case3BasicText) {{
-                case3BasicText.textContent = translations.incentive?.faq?.type2BasicIncentive?.[lang] || 'TYPE-2 기본 인센티브';
+                case3BasicText.textContent = translations.incentiveCalculation?.faq?.type2BasicIncentive?.[lang] || 'TYPE-2 기본 인센티브';
             }}
             
             const case3Note = document.getElementById('faqCase3Note');
             if (case3Note) {{
-                case3Note.textContent = translations.incentive?.faq?.type2Note?.[lang] || '* TYPE-2는 AQL이나 5PRS 조건 없이 출근 조건만으로 인센티브가 결정됩니다.';
+                case3Note.textContent = translations.incentiveCalculation?.faq?.type2Note?.[lang] || '* TYPE-2는 AQL이나 5PRS 조건 없이 출근 조건만으로 인센티브가 결정됩니다.';
             }}
         }}
         
@@ -2865,6 +2864,171 @@ def generate_dashboard_html(df, month='august', year=2025):
             const unapproved4 = document.getElementById('attendanceUnapproved4');
             if (unapproved4) {{
                 unapproved4.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation4?.[lang] || '인센티브 조건: ≤2일 (개인별 최대 허용치)';
+            }}
+        }}
+        
+        // FAQ Q&A 섹션 업데이트 함수
+        function updateFAQQASection() {{
+            const lang = currentLanguage;
+            console.log('Updating FAQ Q&A section for language:', lang);
+            console.log('FAQ translations available:', translations.incentive?.faq);
+            console.log('Question1 translations:', translations.incentiveCalculation?.faq?.question1);
+            
+            // FAQ 섹션 제목
+            const faqTitle = document.getElementById('faqSectionTitle');
+            if (faqTitle) {{
+                faqTitle.textContent = translations.incentiveCalculation?.faq?.faqSectionTitle?.[lang] || '❓ 자주 묻는 질문 (FAQ)';
+            }}
+            
+            // Q1
+            const q1 = document.getElementById('faqQuestion1');
+            if (q1) {{
+                console.log('Updating Q1, current text:', q1.textContent);
+                const newText = translations.incentiveCalculation?.faq?.question1?.[lang] || 'Q1. 왜 나는 인센티브를 못 받았나요? 조건을 확인하는 방법은?';
+                console.log('New text for Q1:', newText);
+                q1.textContent = newText;
+            }}
+            document.getElementById('faqAnswer1Main').textContent = translations.incentiveCalculation?.faq?.answer1Main?.[lang] || '인센티브를 받지 못한 주요 이유:';
+            document.getElementById('faqAnswer1Reason1').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.minDays?.[lang] || '최소 근무일 12일 미충족';
+            document.getElementById('faqAnswer1Reason2').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.attendance?.[lang] || '출근율 88% 미만';
+            document.getElementById('faqAnswer1Reason3').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.absence?.[lang] || '무단결근 3일 이상';
+            document.getElementById('faqAnswer1Reason4').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.aql?.[lang] || 'AQL 실패 (해당 직급)';
+            document.getElementById('faqAnswer1Reason5').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.fprs?.[lang] || '5PRS 통과율 95% 미만 (해당 직급)';
+            document.getElementById('faqAnswer1CheckMethod').textContent = translations.incentiveCalculation?.faq?.answer1CheckMethod?.[lang] || '개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 수 있습니다.';
+            
+            // Q2
+            const q2 = document.getElementById('faqQuestion2');
+            if (q2) {{
+                q2.textContent = translations.incentiveCalculation?.faq?.question2?.[lang] || 'Q2. 무단결근이 며칠까지 허용되나요?';
+            }}
+            document.getElementById('faqAnswer2Main').textContent = translations.incentiveCalculation?.faq?.answer2Main?.[lang] || '무단결근은 최대 2일까지 허용됩니다.';
+            document.getElementById('faqAnswer2Detail').textContent = translations.incentiveCalculation?.faq?.answer2Detail?.[lang] || '3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.';
+            
+            // Q3
+            const q3 = document.getElementById('faqQuestion3');
+            if (q3) {{
+                q3.textContent = translations.incentiveCalculation?.faq?.question3?.[lang] || 'Q3. TYPE-2 직급의 인센티브는 어떻게 계산되나요?';
+            }}
+            document.getElementById('faqAnswer3Main').textContent = translations.incentiveCalculation?.faq?.answer3Main?.[lang] || 'TYPE-2 직급의 인센티브는 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.';
+            document.getElementById('faqAnswer3Example').textContent = translations.incentiveCalculation?.faq?.answer3Example?.[lang] || '예를 들어:';
+            document.getElementById('faqAnswer3Example1').textContent = translations.incentiveCalculation?.faq?.answer3Example1?.[lang] || 'TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 인센티브';
+            document.getElementById('faqAnswer3Example2').textContent = translations.incentiveCalculation?.faq?.answer3Example2?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 인센티브';
+            
+            // Q4
+            const q4 = document.getElementById('faqQuestion4');
+            if (q4) {{
+                q4.textContent = translations.incentiveCalculation?.faq?.question4?.[lang] || 'Q4. ASSEMBLY INSPECTOR의 연속 근무 개월은 어떻게 계산되나요?';
+            }}
+            document.getElementById('faqAnswer4Main').textContent = translations.incentiveCalculation?.faq?.answer4Main?.[lang] || 'TYPE-1 ASSEMBLY INSPECTOR만 해당되며, 조건을 충족하며 인센티브를 받은 개월수가 누적됩니다.';
+            document.getElementById('faqAnswer4Detail1').textContent = translations.incentiveCalculation?.faq?.answer4Detail1?.[lang] || '조건 미충족으로 인센티브를 못 받으면 0개월로 리셋';
+            document.getElementById('faqAnswer4Detail2').textContent = translations.incentiveCalculation?.faq?.answer4Detail2?.[lang] || '12개월 이상 연속시 최대 인센티브 1,000,000 VND';
+            
+            // Q5
+            const q5 = document.getElementById('faqQuestion5');
+            if (q5) {{
+                q5.textContent = translations.incentiveCalculation?.faq?.question5?.[lang] || 'Q5. AQL 실패가 무엇이고 어떤 영향을 미치나요?';
+            }}
+            document.getElementById('faqAnswer5Main').textContent = translations.incentiveCalculation?.faq?.answer5Main?.[lang] || 'AQL(Acceptable Quality Limit)은 품질 검사 기준입니다.';
+            document.getElementById('faqAnswer5Detail1').textContent = translations.incentiveCalculation?.faq?.answer5Detail1?.[lang] || '개인 AQL 실패: 해당 월에 품질 검사 실패한 경우';
+            document.getElementById('faqAnswer5Detail2').textContent = translations.incentiveCalculation?.faq?.answer5Detail2?.[lang] || '3개월 연속 실패: 지난 3개월 동안 연속으로 실패한 경우';
+            document.getElementById('faqAnswer5Detail3').textContent = translations.incentiveCalculation?.faq?.answer5Detail3?.[lang] || 'AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)';
+            
+            // Q6
+            const q6 = document.getElementById('faqQuestion6');
+            if (q6) {{
+                q6.textContent = translations.incentiveCalculation?.faq?.question6?.[lang] || 'Q6. 5PRS 검사량이 부족하면 어떻게 되나요?';
+            }}
+            document.getElementById('faqAnswer6Main').textContent = translations.incentiveCalculation?.faq?.answer6Main?.[lang] || '5PRS 관련 직급은 다음 조건을 충족해야 합니다:';
+            document.getElementById('faqAnswer6Detail1').textContent = translations.incentiveCalculation?.faq?.answer6Detail1?.[lang] || '검사량 100족 이상';
+            document.getElementById('faqAnswer6Detail2').textContent = translations.incentiveCalculation?.faq?.answer6Detail2?.[lang] || '통과율 95% 이상';
+            document.getElementById('faqAnswer6Conclusion').textContent = translations.incentiveCalculation?.faq?.answer6Conclusion?.[lang] || '둘 중 하나라도 미충족시 인센티브를 받을 수 없습니다.';
+            
+            // Q7
+            const q7 = document.getElementById('faqQuestion7');
+            if (q7) {{
+                q7.textContent = translations.incentiveCalculation?.faq?.question7?.[lang] || 'Q7. 출산휴가나 병가 중에도 인센티브를 받을 수 있나요?';
+            }}
+            document.getElementById('faqAnswer7Main').textContent = translations.incentiveCalculation?.faq?.answer7Main?.[lang] || '출산휴가나 장기 병가 중에는 인센티브가 지급되지 않습니다.';
+            document.getElementById('faqAnswer7Detail1').textContent = translations.incentiveCalculation?.faq?.answer7Detail1?.[lang] || '최소 근무일 12일 조건을 충족할 수 없기 때문';
+            document.getElementById('faqAnswer7Detail2').textContent = translations.incentiveCalculation?.faq?.answer7Detail2?.[lang] || '복귀 후 조건 충족시 다시 인센티브 수령 가능';
+            document.getElementById('faqAnswer7Detail3').textContent = translations.incentiveCalculation?.faq?.answer7Detail3?.[lang] || 'ASSEMBLY INSPECTOR의 경우 연속 개월수는 0으로 리셋';
+            
+            // Q8
+            const q8 = document.getElementById('faqQuestion8');
+            if (q8) {{
+                q8.textContent = translations.incentiveCalculation?.faq?.question8?.[lang] || 'Q8. 전월 인센티브와 차이가 나는 이유는 무엇인가요?';
+            }}
+            const answer8Main = document.getElementById('faqAnswer8Main');
+            if (answer8Main) {{
+                answer8Main.textContent = translations.incentiveCalculation?.faq?.answer8Main?.[lang] || '인센티브 금액이 변동하는 주요 이유:';
+            }}
+            const answer8Reason1 = document.getElementById('faqAnswer8Reason1');
+            if (answer8Reason1) {{
+                answer8Reason1.innerHTML = `<strong>ASSEMBLY INSPECTOR</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason1?.[lang] || '연속 근무 개월 변화'}}`;
+            }}
+            const answer8Reason2 = document.getElementById('faqAnswer8Reason2');
+            if (answer8Reason2) {{
+                answer8Reason2.innerHTML = `<strong>TYPE-2 ${{lang === 'ko' ? '직급' : lang === 'en' ? 'positions' : 'vị trí'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason2?.[lang] || 'TYPE-1 평균값 변동'}}`;
+            }}
+            const answer8Reason3 = document.getElementById('faqAnswer8Reason3');
+            if (answer8Reason3) {{
+                answer8Reason3.innerHTML = `<strong>AQL INSPECTOR</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason3?.[lang] || 'Part1, Part2, Part3 조건 변화'}}`;
+            }}
+            const answer8Reason4 = document.getElementById('faqAnswer8Reason4');
+            if (answer8Reason4) {{
+                answer8Reason4.innerHTML = `<strong>${{lang === 'ko' ? '조건 미충족' : lang === 'en' ? 'Unmet conditions' : 'Điều kiện không đạt'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason4?.[lang] || '하나라도 미충족시 0'}}`;
+            }}
+            
+            // Q9
+            const q9 = document.getElementById('faqQuestion9');
+            if (q9) {{
+                q9.textContent = translations.incentiveCalculation?.faq?.question9?.[lang] || 'Q9. TYPE-3에서 TYPE-2로 승진하면 인센티브가 어떻게 변하나요?';
+            }}
+            const answer9Detail1 = document.getElementById('faqAnswer9Detail1');
+            if (answer9Detail1) {{
+                answer9Detail1.innerHTML = `<strong>TYPE-3</strong>: ${{translations.incentiveCalculation?.faq?.answer9Detail1?.[lang] || '조건 없이 기본 150,000 VND (근무시 자동 지급)'}}`;
+            }}
+            const answer9Detail2 = document.getElementById('faqAnswer9Detail2');
+            if (answer9Detail2) {{
+                answer9Detail2.innerHTML = `<strong>TYPE-2</strong>: ${{translations.incentiveCalculation?.faq?.answer9Detail2?.[lang] || '조건 충족 필요, TYPE-1 평균 기준 계산'}}`;
+            }}
+            const answer9Detail3 = document.getElementById('faqAnswer9Detail3');
+            if (answer9Detail3) {{
+                answer9Detail3.textContent = translations.incentiveCalculation?.faq?.answer9Detail3?.[lang] || '승진 후 조건 충족시 일반적으로 인센티브 증가';
+            }}
+            const answer9Detail4 = document.getElementById('faqAnswer9Detail4');
+            if (answer9Detail4) {{
+                answer9Detail4.textContent = translations.incentiveCalculation?.faq?.answer9Detail4?.[lang] || '하지만 조건 미충족시 0이 될 수 있으므로 주의 필요';
+            }}
+            
+            // Q10
+            const q10 = document.getElementById('faqQuestion10');
+            if (q10) {{
+                q10.textContent = translations.incentiveCalculation?.faq?.question10?.[lang] || 'Q10. 조건을 모두 충족했는데도 인센티브가 0인 이유는 무엇인가요?';
+            }}
+            const answer10Main = document.getElementById('faqAnswer10Main');
+            if (answer10Main) {{
+                answer10Main.textContent = translations.incentiveCalculation?.faq?.answer10Main?.[lang] || '다음 사항을 재확인해 보세요:';
+            }}
+            const answer10Reason1 = document.getElementById('faqAnswer10Reason1');
+            if (answer10Reason1) {{
+                answer10Reason1.innerHTML = `<strong>${{lang === 'ko' ? '숨겨진 조건' : lang === 'en' ? 'Hidden conditions' : 'Điều kiện ẩn'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason1?.[lang]?.replace(/.*: (.*)/, '$1') || '직급별로 적용되는 모든 조건 확인'}}`;
+            }}
+            const answer10Reason2 = document.getElementById('faqAnswer10Reason2');
+            if (answer10Reason2) {{
+                answer10Reason2.innerHTML = `<strong>${{lang === 'ko' ? '데이터 업데이트' : lang === 'en' ? 'Data update' : 'Cập nhật dữ liệu'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason2?.[lang]?.replace(/.*: (.*)/, '$1') || '최신 데이터 반영 여부'}}`;
+            }}
+            const answer10Reason3 = document.getElementById('faqAnswer10Reason3');
+            if (answer10Reason3) {{
+                answer10Reason3.innerHTML = `<strong>${{lang === 'ko' ? '특별한 사유' : lang === 'en' ? 'Special reasons' : 'Lý do đặc biệt'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason3?.[lang]?.replace(/.*: (.*)/, '$1') || '징계, 경고 등 특별 사유'}}`;
+            }}
+            const answer10Reason4 = document.getElementById('faqAnswer10Reason4');
+            if (answer10Reason4) {{
+                answer10Reason4.innerHTML = `<strong>${{lang === 'ko' ? '시스템 오류' : lang === 'en' ? 'System error' : 'Lỗi hệ thống'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason4?.[lang]?.replace(/.*: (.*)/, '$1') || 'HR 부서에 문의'}}`;
+            }}
+            const answer10Conclusion = document.getElementById('faqAnswer10Conclusion');
+            if (answer10Conclusion) {{
+                answer10Conclusion.textContent = translations.incentiveCalculation?.faq?.answer10Conclusion?.[lang] || '개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.';
             }}
         }}
         
@@ -3597,6 +3761,9 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             // 출근율 계산 방식 섹션 번역
             updateAttendanceSection();
+            
+            // FAQ Q&A 섹션 번역
+            updateFAQQASection();
             
             // TYPE-3 섹션 번역
             const type3SectionTitle = document.getElementById('type3SectionTitle');
