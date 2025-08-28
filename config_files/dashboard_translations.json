@@ -645,6 +645,45 @@
           "vi": "Ghi chú"
         }
       },
+      "type2Table": {
+        "allType2": {
+          "ko": "모든 TYPE-2 직급",
+          "en": "All TYPE-2 Positions",
+          "vi": "Tất cả chức vụ TYPE-2"
+        },
+        "fourConditions": {
+          "ko": "4개",
+          "en": "4",
+          "vi": "4"
+        },
+        "attendanceOnly": {
+          "ko": "출근 조건만 적용",
+          "en": "Attendance only",
+          "vi": "Chỉ điều kiện chấm công"
+        }
+      },
+      "type3Table": {
+        "newMember": {
+          "ko": "NEW QIP MEMBER",
+          "en": "NEW QIP MEMBER",
+          "vi": "THÀNH VIÊN QIP MỚI"
+        },
+        "noConditions": {
+          "ko": "없음",
+          "en": "None",
+          "vi": "Không có"
+        },
+        "zeroConditions": {
+          "ko": "0개",
+          "en": "0",
+          "vi": "0"
+        },
+        "newMemberNote": {
+          "ko": "신입직원 - 인센티브 없음",
+          "en": "New employee - No incentive",
+          "vi": "Nhân viên mới - Không có thưởng"
+        }
+      },
       "typeHeaders": {
         "type1": {
           "ko": "TYPE-1 직급별 조건",
@@ -1347,6 +1386,1787 @@
       "ko": "미지급 대상",
       "en": "Ineligible",
       "vi": "Không đủ điều kiện"
+    }
+  },
+  "incentiveCalculation": {
+    "type1Title": {
+      "ko": "TYPE-1 직급별 인센티브 계산 방법 및 실제 예시",
+      "en": "TYPE-1 Position Incentive Calculation Method and Examples",
+      "vi": "Phương pháp tính thưởng và ví dụ thực tế cho TYPE-1"
+    },
+    "tableHeaders": {
+      "position": {
+        "ko": "직급",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "calculationMethod": {
+        "ko": "계산 방법",
+        "en": "Calculation Method",
+        "vi": "Phương pháp tính"
+      },
+      "actualExample": {
+        "ko": "실제 예시",
+        "en": "Actual Example",
+        "vi": "Ví dụ thực tế"
+      }
+    },
+    "conditionsMet": {
+      "ko": "조건 충족시 TYPE-1 평균 인센티브",
+      "en": "TYPE-1 average incentive when conditions met",
+      "vi": "Thưởng trung bình TYPE-1 khi đáp ứng điều kiện"
+    },
+    "conditionsNotMet": {
+      "ko": "조건 미충족",
+      "en": "Conditions not met",
+      "vi": "Không đáp ứng điều kiện"
+    },
+    "incentive": {
+      "ko": "인센티브",
+      "en": "Incentive",
+      "vi": "Thưởng"
+    },
+    "appliedConditions": {
+      "ko": "적용 조건",
+      "en": "Applied Conditions",
+      "vi": "Điều kiện áp dụng"
+    },
+    "attendanceConditions": {
+      "ko": "출근(1-4) = 4개 조건",
+      "en": "Attendance(1-4) = 4 conditions",
+      "vi": "Chấm công(1-4) = 4 điều kiện"
+    },
+    "lineLeaderAverage": {
+      "ko": "Line Leader 평균",
+      "en": "Line Leader Average",
+      "vi": "Trung bình Line Leader"
+    },
+    "calculation": {
+      "ko": "계산",
+      "en": "Calculation",
+      "vi": "Tính toán"
+    },
+    "example": {
+      "ko": "예시",
+      "en": "Example",
+      "vi": "Ví dụ"
+    },
+    "employee": {
+      "ko": "직원",
+      "en": "Employee",
+      "vi": "Nhân viên"
+    },
+    "workingDays": {
+      "ko": "근무일",
+      "en": "Working days",
+      "vi": "Ngày làm việc"
+    },
+    "days": {
+      "ko": "일",
+      "en": "days",
+      "vi": "ngày"
+    },
+    "conditionsNotMetZero": {
+      "ko": "조건 미충족 → 0 VND",
+      "en": "Conditions not met → 0 VND",
+      "vi": "Không đáp ứng điều kiện → 0 VND"
+    },
+    "conditionsNotMetReset": {
+      "ko": "예시: 조건 미충족 → 리셋",
+      "en": "Example: Conditions not met → Reset",
+      "vi": "Ví dụ: Không đáp ứng điều kiện → Đặt lại"
+    },
+    "positions": {
+      "manager": {
+        "ko": "1. MANAGER",
+        "en": "1. MANAGER",
+        "vi": "1. MANAGER"
+      },
+      "aManager": {
+        "ko": "2. A.MANAGER",
+        "en": "2. A.MANAGER",
+        "vi": "2. A.MANAGER"
+      },
+      "vSupervisor": {
+        "ko": "3. (V) SUPERVISOR",
+        "en": "3. (V) SUPERVISOR",
+        "vi": "3. (V) SUPERVISOR"
+      },
+      "groupLeader": {
+        "ko": "4. GROUP LEADER",
+        "en": "4. GROUP LEADER",
+        "vi": "4. GROUP LEADER"
+      },
+      "lineLeader": {
+        "ko": "5. LINE LEADER",
+        "en": "5. LINE LEADER",
+        "vi": "5. LINE LEADER"
+      },
+      "aqlInspector": {
+        "ko": "6. AQL INSPECTOR",
+        "en": "6. AQL INSPECTOR",
+        "vi": "6. AQL INSPECTOR"
+      },
+      "assemblyInspector": {
+        "ko": "7. ASSEMBLY INSPECTOR",
+        "en": "7. ASSEMBLY INSPECTOR",
+        "vi": "7. ASSEMBLY INSPECTOR"
+      },
+      "auditTraining": {
+        "ko": "8. AUDIT & TRAINING",
+        "en": "8. AUDIT & TRAINING",
+        "vi": "8. AUDIT & TRAINING"
+      },
+      "modelMaster": {
+        "ko": "9. MODEL MASTER",
+        "en": "9. MODEL MASTER",
+        "vi": "9. MODEL MASTER"
+      }
+    },
+    "subordinateIncentive": {
+      "ko": "부하직원 인센티브 기반 계산",
+      "en": "Subordinate Incentive Based Calculation",
+      "vi": "Tính toán dựa trên thưởng nhân viên cấp dưới"
+    },
+    "subordinateTotal": {
+      "ko": "부하직원 총",
+      "en": "Subordinate Total",
+      "vi": "Tổng nhân viên cấp dưới"
+    },
+    "receivingRatio": {
+      "ko": "수령 비율",
+      "en": "Receiving Ratio",
+      "vi": "Tỷ lệ nhận"
+    },
+    "specialCalculation": {
+      "ko": "Part1 + Part2 + Part3 특별 계산",
+      "en": "Part1 + Part2 + Part3 Special Calculation",
+      "vi": "Tính toán đặc biệt Part1 + Part2 + Part3"
+    },
+    "aqlEvaluation": {
+      "ko": "Part 1: AQL 평가 결과",
+      "en": "Part 1: AQL Evaluation Result",
+      "vi": "Part 1: Kết quả đánh giá AQL"
+    },
+    "cfaCertificate": {
+      "ko": "Part 2: CFA 자격증",
+      "en": "Part 2: CFA Certificate",
+      "vi": "Part 2: Chứng chỉ CFA"
+    },
+    "cfaHolderBonus": {
+      "ko": "CFA 자격증 보유시",
+      "en": "CFA Certificate Holder",
+      "vi": "Người có chứng chỉ CFA"
+    },
+    "hwkClaim": {
+      "ko": "Part 3: HWK 클레임 방지",
+      "en": "Part 3: HWK Claim Prevention",
+      "vi": "Part 3: Ngăn ngừa khiếu nại HWK"
+    },
+    "consecutiveMonthIncentive": {
+      "ko": "연속 충족 개월 기준 인센티브",
+      "en": "Consecutive Month Fulfillment Incentive",
+      "vi": "Thưởng theo số tháng đáp ứng liên tục"
+    },
+    "months": {
+      "ko": "개월",
+      "en": "months",
+      "vi": "tháng"
+    },
+    "month": {
+      "ko": "개월",
+      "en": "month",
+      "vi": "tháng"
+    },
+    "consecutiveFulfillment": {
+      "ko": "연속 충족",
+      "en": "consecutive fulfillment",
+      "vi": "đáp ứng liên tục"
+    },
+    "previousMonth": {
+      "ko": "전월",
+      "en": "Previous month",
+      "vi": "Tháng trước"
+    },
+    "currentMonthEvaluation": {
+      "ko": "당월 평가",
+      "en": "Current month evaluation",
+      "vi": "Đánh giá tháng hiện tại"
+    },
+    "attendanceRate": {
+      "ko": "출근율",
+      "en": "Attendance rate",
+      "vi": "Tỷ lệ chấm công"
+    },
+    "unauthorizedAbsence": {
+      "ko": "무단결근",
+      "en": "Unauthorized absence",
+      "vi": "Vắng mặt không phép"
+    },
+    "allAttendanceConditionsMet": {
+      "ko": "출근 조건 모두 충족",
+      "en": "All attendance conditions met",
+      "vi": "Đáp ứng tất cả điều kiện chấm công"
+    },
+    "teamAqlNoConsecutiveFail": {
+      "ko": "팀AQL 연속실패 없음",
+      "en": "No team AQL consecutive failures",
+      "vi": "Không có thất bại liên tục AQL nhóm"
+    },
+    "rejectRate": {
+      "ko": "reject율",
+      "en": "Reject rate",
+      "vi": "Tỷ lệ từ chối"
+    },
+    "resetToZeroMonths": {
+      "ko": "연속개월 0으로 리셋",
+      "en": "Reset to 0 consecutive months",
+      "vi": "Đặt lại về 0 tháng liên tục"
+    },
+    "maxAchieved": {
+      "ko": "이상 최대",
+      "en": "or more (maximum)",
+      "vi": "trở lên (tối đa)"
+    },
+    "passRate": {
+      "ko": "통과율",
+      "en": "Pass rate",
+      "vi": "Tỷ lệ đạt"
+    },
+    "inspectionQuantity": {
+      "ko": "검사량",
+      "en": "Inspection quantity",
+      "vi": "Số lượng kiểm tra"
+    },
+    "personalAqlFailures": {
+      "ko": "개인AQL 실패",
+      "en": "Personal AQL failures",
+      "vi": "Thất bại AQL cá nhân"
+    },
+    "pieces": {
+      "ko": "족",
+      "en": "pcs",
+      "vi": "đôi"
+    },
+    "cases": {
+      "ko": "건",
+      "en": "cases",
+      "vi": "trường hợp"
+    },
+    "total": {
+      "ko": "합계",
+      "en": "Total",
+      "vi": "Tổng cộng"
+    },
+    "exampleEmployee": {
+      "ko": "예시: {{employeeId}} 직원",
+      "en": "Example: Employee {{employeeId}}",
+      "vi": "Ví dụ: Nhân viên {{employeeId}}"
+    },
+    "conditionNotMetDays": {
+      "ko": "조건 미충족(근무일 {{days}}일)",
+      "en": "Condition not met ({{days}} working days)",
+      "vi": "Không đáp ứng điều kiện ({{days}} ngày làm việc)"
+    },
+    "cfaHolder": {
+      "ko": "CFA 보유",
+      "en": "CFA holder",
+      "vi": "Có CFA"
+    },
+    "applyConditionAttendance": {
+      "ko": "적용 조건: 출근(1-4) = 4개 조건",
+      "en": "Applied conditions: Attendance(1-4) = 4 conditions",
+      "vi": "Điều kiện áp dụng: Chấm công(1-4) = 4 điều kiện"
+    },
+    "applyConditionLineLeader": {
+      "ko": "적용 조건: 출근(1-4) + 팀/구역 AQL(7) = 5개 조건",
+      "en": "Applied conditions: Attendance(1-4) + Team/Area AQL(7) = 5 conditions",
+      "vi": "Điều kiện áp dụng: Chấm công(1-4) + AQL nhóm/khu vực(7) = 5 điều kiện"
+    },
+    "applyConditionAssembly": {
+      "ko": "적용 조건: 1-4(출근), 5-6(개인AQL), 9-10(5PRS)",
+      "en": "Applied conditions: 1-4(Attendance), 5-6(Personal AQL), 9-10(5PRS)",
+      "vi": "Điều kiện áp dụng: 1-4(Chấm công), 5-6(AQL cá nhân), 9-10(5PRS)"
+    },
+    "applyConditionAudit": {
+      "ko": "적용 조건: 1-4(출근), 7(팀AQL), 8(reject율)",
+      "en": "Applied conditions: 1-4(Attendance), 7(Team AQL), 8(Reject rate)",
+      "vi": "Điều kiện áp dụng: 1-4(Chấm công), 7(AQL nhóm), 8(Tỷ lệ từ chối)"
+    },
+    "applyConditionModel": {
+      "ko": "적용 조건: 1-4(출근), 8(reject율 <3%)",
+      "en": "Applied conditions: 1-4(Attendance), 8(Reject rate <3%)",
+      "vi": "Điều kiện áp dụng: 1-4(Chấm công), 8(Tỷ lệ từ chối <3%)"
+    },
+    "levelA": {
+      "ko": "Level-A",
+      "en": "Level-A",
+      "vi": "Level-A"
+    },
+    "exampleConditionsNotMetReset": {
+      "ko": "예시: 조건 미충족 → 리셋",
+      "en": "Example: Conditions not met → Reset",
+      "vi": "Ví dụ: Không đáp ứng điều kiện → Đặt lại"
+    },
+    "exampleConsecutiveFulfillment": {
+      "ko": "예시: {{months}}개월 연속 충족",
+      "en": "Example: {{months}} months consecutive fulfillment",
+      "vi": "Ví dụ: {{months}} tháng đáp ứng liên tục"
+    },
+    "exampleMaxAchieved": {
+      "ko": "예시: {{months}}개월 이상 최대",
+      "en": "Example: {{months}} months or more (maximum)",
+      "vi": "Ví dụ: {{months}} tháng trở lên (tối đa)"
+    },
+    "calculationMethod": {
+      "ko": "계산",
+      "en": "Calculation",
+      "vi": "Tính toán"
+    },
+    "consecutiveMonths": {
+      "ko": "{{months}}개월 연속 충족",
+      "en": "{{months}} months consecutive fulfillment",
+      "vi": "{{months}} tháng đáp ứng liên tục"
+    },
+    "monthRanges": {
+      "month0to1": {
+        "ko": "0-1개월",
+        "en": "0-1 month",
+        "vi": "0-1 tháng"
+      },
+      "month1": {
+        "ko": "1개월",
+        "en": "1 month",
+        "vi": "1 tháng"
+      },
+      "month2": {
+        "ko": "2개월",
+        "en": "2 months",
+        "vi": "2 tháng"
+      },
+      "month3": {
+        "ko": "3개월",
+        "en": "3 months",
+        "vi": "3 tháng"
+      },
+      "month4": {
+        "ko": "4개월",
+        "en": "4 months",
+        "vi": "4 tháng"
+      },
+      "month5": {
+        "ko": "5개월",
+        "en": "5 months",
+        "vi": "5 tháng"
+      },
+      "month6": {
+        "ko": "6개월",
+        "en": "6 months",
+        "vi": "6 tháng"
+      },
+      "month7": {
+        "ko": "7개월",
+        "en": "7 months",
+        "vi": "7 tháng"
+      },
+      "month8": {
+        "ko": "8개월",
+        "en": "8 months",
+        "vi": "8 tháng"
+      },
+      "month9": {
+        "ko": "9개월",
+        "en": "9 months",
+        "vi": "9 tháng"
+      },
+      "month9plus": {
+        "ko": "9개월+",
+        "en": "9 months+",
+        "vi": "9 tháng+"
+      },
+      "month10": {
+        "ko": "10개월",
+        "en": "10 months",
+        "vi": "10 tháng"
+      },
+      "month11": {
+        "ko": "11개월",
+        "en": "11 months",
+        "vi": "11 tháng"
+      },
+      "month12plus": {
+        "ko": "12개월+",
+        "en": "12 months+",
+        "vi": "12 tháng+"
+      }
+    },
+    "levelA": {
+      "ko": "Level-A",
+      "en": "Level-A",
+      "vi": "Level-A"
+    },
+    "assemblyInspectorIncentiveTitle": {
+      "ko": "TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브",
+      "en": "TYPE-1 ASSEMBLY INSPECTOR Consecutive Service Incentive",
+      "vi": "Thưởng phục vụ liên tục TYPE-1 ASSEMBLY INSPECTOR"
+    },
+    "consecutiveAchievementMonths": {
+      "ko": "연속 목표 달성 개월",
+      "en": "Consecutive Achievement Months",
+      "vi": "Tháng đạt mục tiêu liên tục"
+    },
+    "incentiveAmountVND": {
+      "ko": "인센티브 금액 (VND)",
+      "en": "Incentive Amount (VND)",
+      "vi": "Số tiền thưởng (VND)"
+    },
+    "type2CalculationTitle": {
+      "ko": "TYPE-2 전체 직급 인센티브 계산 방법",
+      "en": "TYPE-2 All Position Incentive Calculation Method",
+      "vi": "Phương pháp tính thưởng tất cả chức vụ TYPE-2"
+    },
+    "type2CalculationPrincipleLabel": {
+      "ko": "TYPE-2 계산 원칙:",
+      "en": "TYPE-2 Calculation Principle:",
+      "vi": "Nguyên tắc tính TYPE-2:"
+    },
+    "type2CalculationPrincipleText": {
+      "ko": "TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.",
+      "en": "TYPE-2 positions are calculated based on the average incentive of corresponding TYPE-1 positions.",
+      "vi": "Chức vụ TYPE-2 được tính dựa trên thưởng trung bình của chức vụ TYPE-1 tương ứng."
+    },
+    "average": {
+      "ko": "평균",
+      "en": "Average",
+      "vi": "Trung bình"
+    },
+    "orMore": {
+      "ko": "이상",
+      "en": "or more",
+      "vi": "trở lên"
+    },
+    "simpleMonths": {
+      "month1": {
+        "ko": "1개월",
+        "en": "1 month",
+        "vi": "1 tháng"
+      },
+      "month2": {
+        "ko": "2개월",
+        "en": "2 months",
+        "vi": "2 tháng"
+      },
+      "month3": {
+        "ko": "3개월",
+        "en": "3 months",
+        "vi": "3 tháng"
+      },
+      "month4": {
+        "ko": "4개월",
+        "en": "4 months",
+        "vi": "4 tháng"
+      },
+      "month5": {
+        "ko": "5개월",
+        "en": "5 months",
+        "vi": "5 tháng"
+      },
+      "month6": {
+        "ko": "6개월",
+        "en": "6 months",
+        "vi": "6 tháng"
+      },
+      "month7": {
+        "ko": "7개월",
+        "en": "7 months",
+        "vi": "7 tháng"
+      },
+      "month8": {
+        "ko": "8개월",
+        "en": "8 months",
+        "vi": "8 tháng"
+      },
+      "month9": {
+        "ko": "9개월",
+        "en": "9 months",
+        "vi": "9 tháng"
+      },
+      "month10": {
+        "ko": "10개월",
+        "en": "10 months",
+        "vi": "10 tháng"
+      },
+      "month11": {
+        "ko": "11개월",
+        "en": "11 months",
+        "vi": "11 tháng"
+      },
+      "month12": {
+        "ko": "12개월",
+        "en": "12 months",
+        "vi": "12 tháng"
+      }
+    },
+    "type3Section": {
+      "title": {
+        "ko": "TYPE-3 신입 직원 인센티브",
+        "en": "TYPE-3 New Employee Incentive",
+        "vi": "Thưởng nhân viên mới TYPE-3"
+      },
+      "position": {
+        "ko": "구분",
+        "en": "Category",
+        "vi": "Phân loại"
+      },
+      "standardIncentive": {
+        "ko": "기준 인센티브",
+        "en": "Standard Incentive",
+        "vi": "Thưởng chuẩn"
+      },
+      "calculationMethod": {
+        "ko": "계산 방법",
+        "en": "Calculation Method",
+        "vi": "Phương pháp tính"
+      },
+      "newQipMember": {
+        "ko": "NEW QIP MEMBER",
+        "en": "NEW QIP MEMBER",
+        "vi": "THÀNH VIÊN QIP MỚI"
+      },
+      "noIncentive": {
+        "ko": "신입 직원은 인센티브 지급 없음",
+        "en": "No incentive for new employees",
+        "vi": "Không có thưởng cho nhân viên mới"
+      },
+      "oneMonthTraining": {
+        "ko": "단, 1달 후 근무지 배치한 다음부터",
+        "en": "However, after 1 month training and assignment",
+        "vi": "Tuy nhiên, sau 1 tháng đào tạo và phân công"
+      },
+      "typeReclassification": {
+        "ko": "TYPE을 변경하며, 인센티브 지급 조건 부여됨",
+        "en": "TYPE will be changed and incentive conditions applied",
+        "vi": "Loại sẽ được thay đổi và áp dụng điều kiện thưởng"
+      }
+    },
+    "goodToKnow": {
+      "title": {
+        "ko": "Good to Know",
+        "en": "Good to Know",
+        "vi": "Điều cần biết"
+      },
+      "corePrinciples": {
+        "ko": "Core Principles of Incentive Calculation",
+        "en": "Core Principles of Incentive Calculation",
+        "vi": "Nguyên tắc cơ bản tính thưởng"
+      },
+      "failurePrinciple": {
+        "ko": "실제 지급액: 표시된 금액 범위는 예시이며, 실제 지급액은 개인의 성과와 조건 충족 여부에 따라 달라집니다.",
+        "en": "Actual Payment: The displayed amount range is for reference, actual payment depends on individual performance and condition fulfillment.",
+        "vi": "Thanh toán thực tế: Phạm vi số tiền hiển thị chỉ để tham khảo, thanh toán thực tế phụ thuộc vào hiệu suất cá nhân và việc đáp ứng điều kiện."
+      },
+      "type2Principle": {
+        "ko": "TYPE-2 동적 계산: TYPE-2 직원의 인센티브는 매월 해당 TYPE-1 직급의 실제 평균값으로 자동 계산됩니다.",
+        "en": "TYPE-2 Dynamic Calculation: TYPE-2 employee incentives are automatically calculated based on the actual monthly average of corresponding TYPE-1 positions.",
+        "vi": "Tính toán động TYPE-2: Thưởng nhân viên TYPE-2 được tính tự động dựa trên mức trung bình hàng tháng thực tế của các vị trí TYPE-1 tương ứng."
+      },
+      "consecutiveBonus": {
+        "ko": "연속성 보상: ASSEMBLY INSPECTOR는 연속 근무 개월이 증가할수록 인센티브가 단계적으로 상승합니다.",
+        "en": "Consecutive Bonus: ASSEMBLY INSPECTOR incentives increase progressively with consecutive months of service.",
+        "vi": "Thưởng liên tục: Thưởng ASSEMBLY INSPECTOR tăng dần theo số tháng làm việc liên tục."
+      },
+      "specialCalculation": {
+        "ko": "특별 계산 직급: AQL INSPECTOR(3단계 합산: Part1 + Part2 + Part3)",
+        "en": "Special Calculation Position: AQL INSPECTOR (3-tier sum: Part1 + Part2 + Part3)",
+        "vi": "Vị trí tính toán đặc biệt: AQL INSPECTOR (Tổng 3 cấp: Part1 + Part2 + Part3)"
+      },
+      "conditionFailure": {
+        "ko": "조건 미충족시: 하나라도 필수 조건을 충족하지 못하면 인센티브가 0이 됩니다.",
+        "en": "Condition Failure: If any required condition is not met, incentive becomes 0.",
+        "vi": "Không đáp ứng điều kiện: Nếu bất kỳ điều kiện bắt buộc nào không được đáp ứng, thưởng sẽ là 0."
+      },
+      "monthlyIncentiveChangeReasons": {
+        "ko": "월별 인센티브 변동 요인",
+        "en": "Monthly Incentive Change Factors",
+        "vi": "Yếu tố thay đổi thưởng hàng tháng"
+      },
+      "changeFactors": {
+        "ko": "변동 요인",
+        "en": "Change Factors",
+        "vi": "Yếu tố thay đổi"
+      },
+      "impact": {
+        "ko": "영향",
+        "en": "Impact",
+        "vi": "Tác động"
+      },
+      "example": {
+        "ko": "예시",
+        "en": "Example",
+        "vi": "Ví dụ"
+      },
+      "minimumDays": {
+        "ko": "근무일수",
+        "en": "Working Days",
+        "vi": "Ngày làm việc"
+      },
+      "lessThan12Days": {
+        "ko": "12일 미만시 미지급",
+        "en": "No payment if less than 12 days",
+        "vi": "Không thanh toán nếu ít hơn 12 ngày"
+      },
+      "november11Days": {
+        "ko": "11월 근무 → 0 VND",
+        "en": "November working → 0 VND",
+        "vi": "Làm việc tháng 11 → 0 VND"
+      },
+      "attendanceRate": {
+        "ko": "출근율",
+        "en": "Attendance Rate",
+        "vi": "Tỷ lệ chuyên cần"
+      },
+      "lessThan88Percent": {
+        "ko": "88% 미만시 미지급",
+        "en": "No payment if less than 88%",
+        "vi": "Không thanh toán nếu dưới 88%"
+      },
+      "attendanceExample": {
+        "ko": "87% 출근율 → 0 VND",
+        "en": "87% attendance → 0 VND",
+        "vi": "87% chuyên cần → 0 VND"
+      },
+      "unauthorizedAbsence": {
+        "ko": "무단결근",
+        "en": "Unauthorized Absence",
+        "vi": "Vắng mặt không phép"
+      },
+      "moreThan3Days": {
+        "ko": "3일 이상시 미지급",
+        "en": "No payment if 3 days or more",
+        "vi": "Không thanh toán nếu 3 ngày trở lên"
+      },
+      "unauthorizedExample": {
+        "ko": "3일 무단결근 → 0 VND",
+        "en": "3 days unauthorized absence → 0 VND",
+        "vi": "3 ngày vắng không phép → 0 VND"
+      },
+      "aqlFailure": {
+        "ko": "AQL 실패",
+        "en": "AQL Failure",
+        "vi": "Thất bại AQL"
+      },
+      "currentMonthFailure": {
+        "ko": "해당 직급만 영향",
+        "en": "Affects specific positions only",
+        "vi": "Chỉ ảnh hưởng vị trí cụ thể"
+      },
+      "aqlFailureExample": {
+        "ko": "AQL 실패 → 조건 미충족",
+        "en": "AQL failure → Condition not met",
+        "vi": "Thất bại AQL → Không đáp ứng điều kiện"
+      },
+      "fprsPassRate": {
+        "ko": "5PRS 통과율",
+        "en": "5PRS Pass Rate",
+        "vi": "Tỷ lệ đạt 5PRS"
+      },
+      "lessThan95Percent": {
+        "ko": "95% 미만시 미지급 (해당자)",
+        "en": "No payment if less than 95% (applicable)",
+        "vi": "Không thanh toán nếu dưới 95% (áp dụng)"
+      },
+      "fprsExample": {
+        "ko": "94% → 0 VND",
+        "en": "94% → 0 VND",
+        "vi": "94% → 0 VND"
+      }
+    },
+    "attendanceCalculation": {
+      "title": {
+        "ko": "출근율 계산 방식",
+        "en": "Attendance Rate Calculation Method",
+        "vi": "Phương pháp tính tỷ lệ chuyên cần"
+      },
+      "actualFormula": {
+        "ko": "실제 계산 공식 (시스템 구현):",
+        "en": "Actual Calculation Formula (System Implementation):",
+        "vi": "Công thức tính thực tế (Triển khai hệ thống):"
+      },
+      "attendanceRateFormula": {
+        "ko": "출근율(%) = 100 - 결근율(%)",
+        "en": "Attendance Rate(%) = 100 - Absence Rate(%)",
+        "vi": "Tỷ lệ chuyên cần(%) = 100 - Tỷ lệ vắng mặt(%)"
+      },
+      "absenceRateFormula": {
+        "ko": "결근율(%) = (결근 일수 / 총 근무일) × 100",
+        "en": "Absence Rate(%) = (Absence Days / Total Working Days) × 100",
+        "vi": "Tỷ lệ vắng(%) = (Số ngày vắng / Tổng ngày làm việc) × 100"
+      },
+      "absenceDaysNote": {
+        "ko": "* 결근 일수 = 총 근무일 - 실제 근무일 - 승인된 휴가",
+        "en": "* Absence Days = Total Working Days - Actual Working Days - Approved Leave",
+        "vi": "* Số ngày vắng = Tổng ngày làm việc - Ngày làm việc thực tế - Nghỉ phép được duyệt"
+      },
+      "calculationExample": {
+        "ko": "결근율 계산 예시:",
+        "en": "Absence Rate Calculation Examples:",
+        "vi": "Ví dụ tính tỷ lệ vắng mặt:"
+      },
+      "example1Title": {
+        "ko": "예시 1: 정상 근무자",
+        "en": "Example 1: Normal Worker",
+        "vi": "Ví dụ 1: Nhân viên bình thường"
+      },
+      "example2Title": {
+        "ko": "예시 2: 무단결근 포함",
+        "en": "Example 2: Including Unauthorized Absence",
+        "vi": "Ví dụ 2: Bao gồm vắng không phép"
+      },
+      "example3Title": {
+        "ko": "예시 3: 조건 충족 경계선",
+        "en": "Example 3: Borderline Case",
+        "vi": "Ví dụ 3: Trường hợp giới hạn"
+      },
+      "totalWorkingDays": {
+        "ko": "총 근무일",
+        "en": "Total Working Days",
+        "vi": "Tổng ngày làm việc"
+      },
+      "actualWorkingDays": {
+        "ko": "실제 근무일",
+        "en": "Actual Working Days",
+        "vi": "Ngày làm việc thực tế"
+      },
+      "approvedLeave": {
+        "ko": "승인된 휴가",
+        "en": "Approved Leave",
+        "vi": "Nghỉ phép được duyệt"
+      },
+      "annualLeave": {
+        "ko": "연차",
+        "en": "Annual Leave",
+        "vi": "Nghỉ phép năm"
+      },
+      "sickLeave": {
+        "ko": "병가",
+        "en": "Sick Leave",
+        "vi": "Nghỉ ốm"
+      },
+      "unauthorizedAbsence": {
+        "ko": "무단결근",
+        "en": "Unauthorized Absence",
+        "vi": "Vắng không phép"
+      },
+      "absenceDays": {
+        "ko": "결근 일수",
+        "en": "Absence Days",
+        "vi": "Số ngày vắng"
+      },
+      "absenceRate": {
+        "ko": "결근율",
+        "en": "Absence Rate",
+        "vi": "Tỷ lệ vắng"
+      },
+      "attendanceRate": {
+        "ko": "출근율",
+        "en": "Attendance Rate",
+        "vi": "Tỷ lệ chuyên cần"
+      },
+      "days": {
+        "ko": "일",
+        "en": "days",
+        "vi": "ngày"
+      },
+      "lessThan88": {
+        "ko": "88% 미만",
+        "en": "Less than 88%",
+        "vi": "Dưới 88%"
+      }
+    },
+    "faq": {
+      "title": {
+        "ko": "자주 묻는 질문",
+        "en": "Frequently Asked Questions",
+        "vi": "Câu hỏi thường gặp"
+      },
+      "case1Title": {
+        "ko": "예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)",
+        "en": "Example 1: TYPE-1 ASSEMBLY INSPECTOR (10 consecutive months)",
+        "vi": "Ví dụ 1: TYPE-1 ASSEMBLY INSPECTOR (10 tháng liên tục)"
+      },
+      "employee": {
+        "ko": "직원:",
+        "en": "Employee:",
+        "vi": "Nhân viên:"
+      },
+      "previousMonth": {
+        "ko": "전월 상태:",
+        "en": "Previous Month:",
+        "vi": "Tháng trước:"
+      },
+      "consecutiveMonths": {
+        "ko": "개월 연속 근무",
+        "en": "consecutive months",
+        "vi": "tháng liên tục"
+      },
+      "conditionEvaluation": {
+        "ko": "당월 조건 충족:",
+        "en": "Current Month Conditions:",
+        "vi": "Điều kiện tháng này:"
+      },
+      "attendanceRateMet": {
+        "ko": "출근율:",
+        "en": "Attendance Rate:",
+        "vi": "Tỷ lệ chuyên cần:"
+      },
+      "unauthorizedAbsenceMet": {
+        "ko": "무단결근:",
+        "en": "Unauthorized Absence:",
+        "vi": "Vắng không phép:"
+      },
+      "actualWorkingDays": {
+        "ko": "실제 근무일:",
+        "en": "Actual Working Days:",
+        "vi": "Ngày làm việc thực tế:"
+      },
+      "minimumWorkingDays": {
+        "ko": "최소 근무일:",
+        "en": "Minimum Working Days:",
+        "vi": "Ngày làm việc tối thiểu:"
+      },
+      "personalAql": {
+        "ko": "개인 AQL (당월):",
+        "en": "Personal AQL (Current):",
+        "vi": "AQL cá nhân (hiện tại):"
+      },
+      "personalAqlContinuous": {
+        "ko": "개인 AQL (연속):",
+        "en": "Personal AQL (Consecutive):",
+        "vi": "AQL cá nhân (liên tục):"
+      },
+      "fprsPassRate": {
+        "ko": "5PRS 통과율:",
+        "en": "5PRS Pass Rate:",
+        "vi": "Tỷ lệ đạt 5PRS:"
+      },
+      "fprsInspection": {
+        "ko": "5PRS 검사량:",
+        "en": "5PRS Inspection:",
+        "vi": "Kiểm tra 5PRS:"
+      },
+      "result": {
+        "ko": "결과:",
+        "en": "Result:",
+        "vi": "Kết quả:"
+      },
+      "allConditionsMet": {
+        "ko": "모든 조건 충족",
+        "en": "All conditions met",
+        "vi": "Đáp ứng tất cả điều kiện"
+      },
+      "failureText": {
+        "ko": "실패 0건",
+        "en": "0 failures",
+        "vi": "0 thất bại"
+      },
+      "consecutiveFailure": {
+        "ko": "3개월 연속 실패 없음",
+        "en": "No 3-month consecutive failures",
+        "vi": "Không có 3 tháng thất bại liên tiếp"
+      },
+      "pairs": {
+        "ko": "켤레",
+        "en": "pairs",
+        "vi": "đôi"
+      },
+      "case2Title": {
+        "ko": "예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 계산)",
+        "en": "Example 2: AUDIT & TRAINING TEAM (Area reject rate calculation)",
+        "vi": "Ví dụ 2: AUDIT & TRAINING TEAM (Tính tỷ lệ từ chối khu vực)"
+      },
+      "teamLeader": {
+        "ko": "담당 구역:",
+        "en": "Assigned Area:",
+        "vi": "Khu vực phụ trách:"
+      },
+      "aqlInspectionPassed": {
+        "ko": "구역 생산 총 AQL 검사 PO 수량:",
+        "en": "Area Total AQL Inspection PO Quantity:",
+        "vi": "Số lượng PO kiểm tra AQL tổng khu vực:"
+      },
+      "aqlRejectPo": {
+        "ko": "구역 생산 총 AQL 리젝 PO 수량:",
+        "en": "Area Total AQL Reject PO Quantity:",
+        "vi": "Số lượng PO từ chối AQL tổng khu vực:"
+      },
+      "calculation": {
+        "ko": "계산:",
+        "en": "Calculation:",
+        "vi": "Tính toán:"
+      },
+      "resultCondition": {
+        "ko": "결과:",
+        "en": "Result:",
+        "vi": "Kết quả:"
+      },
+      "conditionMet": {
+        "ko": "조건 충족",
+        "en": "Condition met",
+        "vi": "Đáp ứng điều kiện"
+      },
+      "conditionNotMet": {
+        "ko": "미충족",
+        "en": "Not met",
+        "vi": "Không đáp ứng"
+      },
+      "memberTable": {
+        "ko": "AUDIT & TRAINING TEAM 멤버별 담당 구역",
+        "en": "AUDIT & TRAINING TEAM Member Area Assignment",
+        "vi": "Phân công khu vực thành viên AUDIT & TRAINING TEAM"
+      },
+      "conditionName": {
+        "ko": "Condition Name",
+        "en": "Condition Name",
+        "vi": "Tên điều kiện"
+      },
+      "criteria": {
+        "ko": "Criteria",
+        "en": "Criteria",
+        "vi": "Tiêu chí"
+      },
+      "description": {
+        "ko": "Description",
+        "en": "Description",
+        "vi": "Mô tả"
+      },
+      "wholeArea": {
+        "ko": "전체",
+        "en": "Overall",
+        "vi": "Tổng thể"
+      },
+      "areaTotal": {
+        "ko": "전체 Building 총괄",
+        "en": "All Buildings Total",
+        "vi": "Tổng tất cả tòa nhà"
+      },
+      "noMissingData": {
+        "ko": "기타 조건 미충족",
+        "en": "Other conditions not met",
+        "vi": "Các điều kiện khác không đạt"
+      },
+      "rejectRateNote": {
+        "ko": "* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)",
+        "en": "* Reject rate criteria: Less than 3% (✅ Met, ❌ Not met)",
+        "vi": "* Tiêu chí tỷ lệ từ chối: Dưới 3% (✅ Đạt, ❌ Không đạt)"
+      },
+      "memberNote": {
+        "ko": "* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원",
+        "en": "* As of August, all AUDIT & TRAINING TEAM members receive 0 incentive due to reject rate condition failure",
+        "vi": "* Tính đến tháng 8, tất cả thành viên AUDIT & TRAINING TEAM nhận 0 thưởng do không đạt điều kiện tỷ lệ từ chối"
+      },
+      "case3Title": {
+        "ko": "예시 3: TYPE-2 STITCHING INSPECTOR",
+        "en": "Example 3: TYPE-2 STITCHING INSPECTOR",
+        "vi": "Ví dụ 3: TYPE-2 STITCHING INSPECTOR"
+      },
+      "positionType": {
+        "ko": "직급 타입:",
+        "en": "Position Type:",
+        "vi": "Loại chức vụ:"
+      },
+      "conditionStatus": {
+        "ko": "조건 충족 현황:",
+        "en": "Condition Status:",
+        "vi": "Trạng thái điều kiện:"
+      },
+      "incentiveCalculation": {
+        "ko": "인센티브 계산:",
+        "en": "Incentive Calculation:",
+        "vi": "Tính toán thưởng:"
+      },
+      "type2Explanation": {
+        "ko": "TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 인센티브를 받습니다.",
+        "en": "TYPE-2 STITCHING INSPECTOR only checks attendance conditions (1-4), and receives basic incentive when all conditions are met.",
+        "vi": "TYPE-2 STITCHING INSPECTOR chỉ kiểm tra điều kiện chuyên cần (1-4), và nhận thưởng cơ bản khi đáp ứng tất cả điều kiện."
+      },
+      "paymentAmount": {
+        "ko": "지급액:",
+        "en": "Payment Amount:",
+        "vi": "Số tiền thanh toán:"
+      },
+      "type2BasicIncentive": {
+        "ko": "TYPE-2 기본 인센티브",
+        "en": "TYPE-2 Basic Incentive",
+        "vi": "Thưởng cơ bản TYPE-2"
+      },
+      "type2Note": {
+        "ko": "* TYPE-2는 AQL이나 5PRS 조건 없이 출근 조건만으로 인센티브가 결정됩니다.",
+        "en": "* TYPE-2 incentive is determined only by attendance conditions without AQL or 5PRS requirements.",
+        "vi": "* Thưởng TYPE-2 được xác định chỉ bằng điều kiện chuyên cần mà không có yêu cầu AQL hoặc 5PRS."
+      },
+      "calculationExampleTitle": {
+        "ko": "📐 실제 계산 예시",
+        "en": "📐 Actual Calculation Examples",
+        "vi": "📐 Ví dụ tính toán thực tế"
+      },
+      "employeeNameLabel": {
+        "ko": "직원명",
+        "en": "Employee Name",
+        "vi": "Tên nhân viên"
+      },
+      "assignedBuilding": {
+        "ko": "담당 Building",
+        "en": "Assigned Building",
+        "vi": "Tòa nhà phụ trách"
+      },
+      "buildingDescription": {
+        "ko": "설명",
+        "en": "Description",
+        "vi": "Mô tả"
+      },
+      "rejectRate": {
+        "ko": "Reject율",
+        "en": "Reject Rate",
+        "vi": "Tỷ lệ từ chối"
+      },
+      "teamLeaderDescription": {
+        "ko": "Team Leader - 전체 Building 총괄",
+        "en": "Team Leader - All Buildings Overall",
+        "vi": "Trưởng nhóm - Tổng thể tất cả tòa nhà"
+      },
+      "buildingWhole": {
+        "ko": "전체",
+        "en": "Overall",
+        "vi": "Tổng thể"
+      },
+      "incentiveReceived": {
+        "ko": "VND 수령",
+        "en": "VND received",
+        "vi": "VND nhận được"
+      },
+      "conditionsMet": {
+        "ko": "충족",
+        "en": "Met",
+        "vi": "Đạt"
+      },
+      "consecutiveMonthsWorked": {
+        "ko": "개월 연속 → ",
+        "en": "consecutive months → ",
+        "vi": "tháng liên tục → "
+      },
+      "incentivePayment": {
+        "ko": "VND 지급",
+        "en": "VND payment",
+        "vi": "VND thanh toán"
+      },
+      "days": {
+        "ko": "일",
+        "en": "days",
+        "vi": "ngày"
+      },
+      "items": {
+        "ko": "개",
+        "en": "items",
+        "vi": "mục"
+      },
+      "failures": {
+        "ko": "실패",
+        "en": "failures",
+        "vi": "thất bại"
+      },
+      "monthsConsecutiveNoFailure": {
+        "ko": "개월 연속 실패 없음",
+        "en": "consecutive months without failure",
+        "vi": "tháng liên tục không thất bại"
+      },
+      "question1": {
+        "ko": "Q1. 왜 나는 인센티브를 못 받았나요? 조건을 확인하는 방법은?",
+        "en": "Q1. Why didn't I receive an incentive? How can I check the conditions?",
+        "vi": "Q1. Tại sao tôi không nhận được thưởng? Làm thế nào để kiểm tra điều kiện?"
+      },
+      "question2": {
+        "ko": "Q2. 무단결근이 며칠까지 허용되나요?",
+        "en": "Q2. How many unauthorized absence days are allowed?",
+        "vi": "Q2. Được phép vắng mặt không phép bao nhiêu ngày?"
+      },
+      "question3": {
+        "ko": "Q3. TYPE-2 직급의 인센티브는 어떻게 계산되나요?",
+        "en": "Q3. How is the incentive calculated for TYPE-2 positions?",
+        "vi": "Q3. Thưởng cho vị trí TYPE-2 được tính như thế nào?"
+      },
+      "question4": {
+        "ko": "Q4. ASSEMBLY INSPECTOR의 연속 근무 개월은 어떻게 계산되나요?",
+        "en": "Q4. How are consecutive working months calculated for ASSEMBLY INSPECTOR?",
+        "vi": "Q4. Các tháng làm việc liên tục của ASSEMBLY INSPECTOR được tính như thế nào?"
+      },
+      "question5": {
+        "ko": "Q5. AQL 실패가 무엇이고 어떤 영향을 미치나요?",
+        "en": "Q5. What is AQL failure and how does it affect incentives?",
+        "vi": "Q5. Thất bại AQL là gì và nó ảnh hưởng như thế nào đến thưởng?"
+      },
+      "question6": {
+        "ko": "Q6. 5PRS 검사량이 부족하면 어떻게 되나요?",
+        "en": "Q6. What happens if the 5PRS inspection quantity is insufficient?",
+        "vi": "Q6. Điều gì xảy ra nếu số lượng kiểm tra 5PRS không đủ?"
+      },
+      "question7": {
+        "ko": "Q7. 출산휴가나 병가 중에도 인센티브를 받을 수 있나요?",
+        "en": "Q7. Can I receive incentives during maternity leave or sick leave?",
+        "vi": "Q7. Tôi có thể nhận thưởng trong thời gian nghỉ thai sản hoặc nghỉ ốm không?"
+      },
+      "answer1Main": {
+        "ko": "인센티브를 받지 못한 주요 이유:",
+        "en": "Main reasons for not receiving incentive:",
+        "vi": "Lý do chính không nhận được thưởng:"
+      },
+      "answer1Reasons": {
+        "minDays": {
+          "ko": "최소 근무일 12일 미충족",
+          "en": "Less than 12 minimum working days",
+          "vi": "Ít hơn 12 ngày làm việc tối thiểu"
+        },
+        "attendance": {
+          "ko": "출근율 88% 미만",
+          "en": "Attendance rate less than 88%",
+          "vi": "Tỷ lệ chuyên cần dưới 88%"
+        },
+        "absence": {
+          "ko": "무단결근 3일 이상",
+          "en": "3 or more unauthorized absence days",
+          "vi": "3 ngày trở lên vắng không phép"
+        },
+        "aql": {
+          "ko": "AQL 실패 (해당 직급)",
+          "en": "AQL failure (applicable positions)",
+          "vi": "Thất bại AQL (vị trí áp dụng)"
+        },
+        "fprs": {
+          "ko": "5PRS 통과율 95% 미만 (해당 직급)",
+          "en": "5PRS pass rate less than 95% (applicable positions)",
+          "vi": "Tỷ lệ đạt 5PRS dưới 95% (vị trí áp dụng)"
+        }
+      },
+      "answer1CheckMethod": {
+        "ko": "개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 수 있습니다.",
+        "en": "You can check your condition fulfillment on the individual detail page.",
+        "vi": "Bạn có thể kiểm tra việc đáp ứng điều kiện của mình trên trang chi tiết cá nhân."
+      },
+      "answer2Main": {
+        "ko": "무단결근은 최대 2일까지 허용됩니다.",
+        "en": "Up to 2 unauthorized absence days are allowed.",
+        "vi": "Cho phép tối đa 2 ngày vắng không phép."
+      },
+      "answer2Detail": {
+        "ko": "3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.",
+        "en": "With 3 or more unauthorized absence days, you cannot receive incentives for that month. Pre-approved vacation or sick leave is not counted as unauthorized absence.",
+        "vi": "Với 3 ngày trở lên vắng không phép, bạn không thể nhận thưởng trong tháng đó. Nghỉ phép hoặc nghỉ ốm được phê duyệt trước không được tính là vắng không phép."
+      },
+      "answer3Main": {
+        "ko": "TYPE-2 직급의 인센티브는 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.",
+        "en": "TYPE-2 position incentives are calculated based on the average incentive of corresponding TYPE-1 positions.",
+        "vi": "Thưởng vị trí TYPE-2 được tính dựa trên thưởng trung bình của các vị trí TYPE-1 tương ứng."
+      },
+      "answer3Example": {
+        "ko": "예를 들어:",
+        "en": "For example:",
+        "vi": "Ví dụ:"
+      },
+      "answer3Example1": {
+        "ko": "TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 인센티브",
+        "en": "TYPE-2 GROUP LEADER uses the average incentive of TYPE-1 GROUP LEADERs",
+        "vi": "TYPE-2 GROUP LEADER sử dụng thưởng trung bình của TYPE-1 GROUP LEADER"
+      },
+      "answer3Example2": {
+        "ko": "TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 인센티브",
+        "en": "TYPE-2 STITCHING INSPECTOR uses the average incentive of TYPE-1 ASSEMBLY INSPECTORs",
+        "vi": "TYPE-2 STITCHING INSPECTOR sử dụng thưởng trung bình của TYPE-1 ASSEMBLY INSPECTOR"
+      },
+      "answer4Main": {
+        "ko": "TYPE-1 ASSEMBLY INSPECTOR만 해당되며, 조건을 충족하며 인센티브를 받은 개월수가 누적됩니다.",
+        "en": "Only applies to TYPE-1 ASSEMBLY INSPECTOR, accumulating months where conditions are met and incentive is received.",
+        "vi": "Chỉ áp dụng cho TYPE-1 ASSEMBLY INSPECTOR, tích lũy các tháng đáp ứng điều kiện và nhận thưởng."
+      },
+      "answer4Detail1": {
+        "ko": "조건 미충족으로 인센티브를 못 받으면 0개월로 리셋",
+        "en": "Reset to 0 months if incentive is not received due to unmet conditions",
+        "vi": "Đặt lại về 0 tháng nếu không nhận được thưởng do không đáp ứng điều kiện"
+      },
+      "answer4Detail2": {
+        "ko": "12개월 이상 연속시 최대 인센티브 1,000,000 VND",
+        "en": "Maximum incentive of 1,000,000 VND for 12 or more consecutive months",
+        "vi": "Thưởng tối đa 1.000.000 VND cho 12 tháng liên tục trở lên"
+      },
+      "answer5Main": {
+        "ko": "AQL(Acceptable Quality Limit)은 품질 검사 기준입니다.",
+        "en": "AQL (Acceptable Quality Limit) is a quality inspection standard.",
+        "vi": "AQL (Giới hạn chất lượng chấp nhận được) là tiêu chuẩn kiểm tra chất lượng."
+      },
+      "answer5Detail1": {
+        "ko": "개인 AQL 실패: 해당 월에 품질 검사 실패한 경우",
+        "en": "Personal AQL failure: Failed quality inspection in the current month",
+        "vi": "Thất bại AQL cá nhân: Không đạt kiểm tra chất lượng trong tháng hiện tại"
+      },
+      "answer5Detail2": {
+        "ko": "3개월 연속 실패: 지난 3개월 동안 연속으로 실패한 경우",
+        "en": "3-month consecutive failure: Consecutive failures over the past 3 months",
+        "vi": "Thất bại 3 tháng liên tiếp: Thất bại liên tục trong 3 tháng qua"
+      },
+      "answer5Detail3": {
+        "ko": "AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)",
+        "en": "Only AQL-related positions are affected (INSPECTOR series, etc.)",
+        "vi": "Chỉ các vị trí liên quan AQL bị ảnh hưởng (dòng INSPECTOR, v.v.)"
+      },
+      "answer6Main": {
+        "ko": "5PRS 관련 직급은 다음 조건을 충족해야 합니다:",
+        "en": "5PRS-related positions must meet the following conditions:",
+        "vi": "Các vị trí liên quan 5PRS phải đáp ứng các điều kiện sau:"
+      },
+      "answer6Detail1": {
+        "ko": "검사량 100족 이상",
+        "en": "Inspection quantity of 100 pairs or more",
+        "vi": "Số lượng kiểm tra từ 100 đôi trở lên"
+      },
+      "answer6Detail2": {
+        "ko": "통과율 95% 이상",
+        "en": "Pass rate of 95% or higher",
+        "vi": "Tỷ lệ đạt từ 95% trở lên"
+      },
+      "answer6Conclusion": {
+        "ko": "둘 중 하나라도 미충족시 인센티브를 받을 수 없습니다.",
+        "en": "If either condition is not met, you cannot receive the incentive.",
+        "vi": "Nếu không đáp ứng một trong hai điều kiện, bạn không thể nhận thưởng."
+      },
+      "answer7Main": {
+        "ko": "출산휴가나 장기 병가 중에는 인센티브가 지급되지 않습니다.",
+        "en": "Incentives are not paid during maternity leave or long-term sick leave.",
+        "vi": "Thưởng không được trả trong thời gian nghỉ thai sản hoặc nghỉ ốm dài hạn."
+      },
+      "answer7Detail1": {
+        "ko": "최소 근무일 12일 조건을 충족할 수 없기 때문",
+        "en": "Because the minimum 12 working days condition cannot be met",
+        "vi": "Vì không thể đáp ứng điều kiện tối thiểu 12 ngày làm việc"
+      },
+      "answer7Detail2": {
+        "ko": "복귀 후 조건 충족시 다시 인센티브 수령 가능",
+        "en": "Incentives can be received again after returning when conditions are met",
+        "vi": "Có thể nhận lại thưởng sau khi trở lại khi đáp ứng điều kiện"
+      },
+      "answer7Detail3": {
+        "ko": "ASSEMBLY INSPECTOR의 경우 연속 개월수는 0으로 리셋",
+        "en": "For ASSEMBLY INSPECTOR, consecutive months reset to 0",
+        "vi": "Đối với ASSEMBLY INSPECTOR, số tháng liên tục được đặt lại về 0"
+      }
+    }
+  },
+  "incentive": {
+    "faq": {
+      "calculationExampleTitle": {
+        "ko": "📐 실제 계산 예시",
+        "en": "📐 Actual Calculation Examples",
+        "vi": "📐 Ví dụ tính toán thực tế"
+      },
+      "case1Title": {
+        "ko": "예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)",
+        "en": "Example 1: TYPE-1 ASSEMBLY INSPECTOR (10 consecutive months)",
+        "vi": "Ví dụ 1: TYPE-1 ASSEMBLY INSPECTOR (10 tháng liên tục)"
+      },
+      "case2Title": {
+        "ko": "예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 계산)",
+        "en": "Example 2: AUDIT & TRAINING TEAM (Area reject rate calculation)",
+        "vi": "Ví dụ 2: AUDIT & TRAINING TEAM (Tính tỷ lệ từ chối khu vực)"
+      },
+      "case3Title": {
+        "ko": "예시 3: TYPE-2 STITCHING INSPECTOR",
+        "en": "Example 3: TYPE-2 STITCHING INSPECTOR",
+        "vi": "Ví dụ 3: TYPE-2 STITCHING INSPECTOR"
+      },
+      "employee": {
+        "ko": "직원:",
+        "en": "Employee:",
+        "vi": "Nhân viên:"
+      },
+      "previousMonth": {
+        "ko": "전월 상태:",
+        "en": "Previous Month:",
+        "vi": "Tháng trước:"
+      },
+      "consecutiveMonthsWorked": {
+        "ko": "개월 연속 → ",
+        "en": "consecutive months → ",
+        "vi": "tháng liên tục → "
+      },
+      "incentiveReceived": {
+        "ko": "VND 수령",
+        "en": "VND received",
+        "vi": "VND nhận được"
+      },
+      "conditionEvaluation": {
+        "ko": "당월 조건 충족:",
+        "en": "Current Month Conditions:",
+        "vi": "Điều kiện tháng này:"
+      },
+      "attendanceRateMet": {
+        "ko": "출근율:",
+        "en": "Attendance Rate:",
+        "vi": "Tỷ lệ chuyên cần:"
+      },
+      "unauthorizedAbsenceMet": {
+        "ko": "무단결근:",
+        "en": "Unauthorized Absence:",
+        "vi": "Vắng không phép:"
+      },
+      "actualWorkingDays": {
+        "ko": "실제 근무일:",
+        "en": "Actual Working Days:",
+        "vi": "Ngày làm việc thực tế:"
+      },
+      "minimumWorkingDays": {
+        "ko": "최소 근무일:",
+        "en": "Minimum Working Days:",
+        "vi": "Ngày làm việc tối thiểu:"
+      },
+      "personalAql": {
+        "ko": "개인 AQL (당월):",
+        "en": "Personal AQL (Current):",
+        "vi": "AQL cá nhân (hiện tại):"
+      },
+      "personalAqlContinuous": {
+        "ko": "개인 AQL (연속):",
+        "en": "Personal AQL (Consecutive):",
+        "vi": "AQL cá nhân (liên tục):"
+      },
+      "fprsPassRate": {
+        "ko": "5PRS 통과율:",
+        "en": "5PRS Pass Rate:",
+        "vi": "Tỷ lệ đạt 5PRS:"
+      },
+      "fprsInspection": {
+        "ko": "5PRS 검사량:",
+        "en": "5PRS Inspection:",
+        "vi": "Kiểm tra 5PRS:"
+      },
+      "days": {
+        "ko": "일",
+        "en": "days",
+        "vi": "ngày"
+      },
+      "items": {
+        "ko": "개",
+        "en": "items",
+        "vi": "mục"
+      },
+      "failureText": {
+        "ko": "실패 0건",
+        "en": "0 failures",
+        "vi": "0 thất bại"
+      },
+      "monthsConsecutiveNoFailure": {
+        "ko": "개월 연속 실패 없음",
+        "en": "consecutive months without failure",
+        "vi": "tháng liên tục không thất bại"
+      },
+      "result": {
+        "ko": "결과:",
+        "en": "Result:",
+        "vi": "Kết quả:"
+      },
+      "allConditionsMet": {
+        "ko": "모든 조건 충족",
+        "en": "All conditions met",
+        "vi": "Đáp ứng tất cả điều kiện"
+      },
+      "incentivePayment": {
+        "ko": "VND 지급",
+        "en": "VND payment",
+        "vi": "VND thanh toán"
+      },
+      "teamLeader": {
+        "ko": "담당 구역:",
+        "en": "Area Leader:",
+        "vi": "Người phụ trách khu vực:"
+      },
+      "aqlInspectionPassed": {
+        "ko": "구역 생산 총 AQL 검사 PO 수량:",
+        "en": "Area Production Total AQL Inspection PO Quantity:",
+        "vi": "Số lượng PO kiểm tra AQL tổng sản xuất khu vực:"
+      },
+      "aqlRejectPo": {
+        "ko": "구역 생산 총 AQL 리젝 PO 수량:",
+        "en": "Area Production Total AQL Reject PO Quantity:",
+        "vi": "Số lượng PO từ chối AQL tổng sản xuất khu vực:"
+      },
+      "calculation": {
+        "ko": "계산:",
+        "en": "Calculation:",
+        "vi": "Tính toán:"
+      },
+      "resultCondition": {
+        "ko": "결과:",
+        "en": "Result:",
+        "vi": "Kết quả:"
+      },
+      "conditionMet": {
+        "ko": "조건 충족",
+        "en": "Condition Met",
+        "vi": "Đáp ứng điều kiện"
+      },
+      "memberTable": {
+        "ko": "AUDIT & TRAINING TEAM 멤버별 담당 구역",
+        "en": "AUDIT & TRAINING TEAM Member Assigned Areas",
+        "vi": "Khu vực phân công thành viên AUDIT & TRAINING TEAM"
+      },
+      "employeeNameLabel": {
+        "ko": "직원명",
+        "en": "Employee Name",
+        "vi": "Tên nhân viên"
+      },
+      "assignedBuilding": {
+        "ko": "담당 Building",
+        "en": "Assigned Building",
+        "vi": "Tòa nhà phụ trách"
+      },
+      "buildingDescription": {
+        "ko": "설명",
+        "en": "Description",
+        "vi": "Mô tả"
+      },
+      "rejectRate": {
+        "ko": "Reject율",
+        "en": "Reject Rate",
+        "vi": "Tỷ lệ từ chối"
+      },
+      "buildingWhole": {
+        "ko": "전체",
+        "en": "Overall",
+        "vi": "Tổng thể"
+      },
+      "teamLeaderDescription": {
+        "ko": "Team Leader - 전체 Building 총괄",
+        "en": "Team Leader - All Buildings Overall",
+        "vi": "Trưởng nhóm - Tổng thể tất cả tòa nhà"
+      },
+      "noMissingData": {
+        "ko": "기타 조건 미충족",
+        "en": "Other conditions not met",
+        "vi": "Các điều kiện khác không đạt"
+      },
+      "rejectRateNote": {
+        "ko": "* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)",
+        "en": "* Reject rate standard: Less than 3% (✅ Met, ❌ Not met)",
+        "vi": "* Tiêu chuẩn tỷ lệ từ chối: Dưới 3% (✅ Đạt, ❌ Không đạt)"
+      },
+      "memberNote": {
+        "ko": "* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원",
+        "en": "* As of August, all AUDIT & TRAINING TEAM members receive 0 incentive due to reject rate condition failure",
+        "vi": "* Tính đến tháng 8, tất cả thành viên AUDIT & TRAINING TEAM nhận 0 thưởng do không đạt điều kiện tỷ lệ từ chối"
+      },
+      "positionType": {
+        "ko": "직급 타입:",
+        "en": "Position Type:",
+        "vi": "Loại chức vụ:"
+      },
+      "conditionStatus": {
+        "ko": "조건 충족 현황:",
+        "en": "Condition Status:",
+        "vi": "Tình trạng điều kiện:"
+      },
+      "conditionsMet": {
+        "ko": "충족",
+        "en": "Met",
+        "vi": "Đạt"
+      },
+      "incentiveCalculation": {
+        "ko": "인센티브 계산:",
+        "en": "Incentive Calculation:",
+        "vi": "Tính thưởng:"
+      },
+      "type2Explanation": {
+        "ko": "TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 인센티브를 받습니다.",
+        "en": "TYPE-2 STITCHING INSPECTOR only checks attendance conditions (1-4), and receives basic incentive when all conditions are met.",
+        "vi": "TYPE-2 STITCHING INSPECTOR chỉ kiểm tra điều kiện chuyên cần (1-4), và nhận thưởng cơ bản khi đáp ứng tất cả điều kiện."
+      },
+      "paymentAmount": {
+        "ko": "지급액:",
+        "en": "Payment Amount:",
+        "vi": "Số tiền thanh toán:"
+      },
+      "type2BasicIncentive": {
+        "ko": "TYPE-2 기본 인센티브",
+        "en": "TYPE-2 Basic Incentive",
+        "vi": "Thưởng cơ bản TYPE-2"
+      },
+      "type2Note": {
+        "ko": "* TYPE-2는 AQL이나 5PRS 조건 없이 출근 조건만으로 인센티브가 결정됩니다.",
+        "en": "* TYPE-2 incentive is determined only by attendance conditions without AQL or 5PRS requirements.",
+        "vi": "* Thưởng TYPE-2 được xác định chỉ bằng điều kiện chuyên cần mà không có yêu cầu AQL hoặc 5PRS."
+      }
+    },
+    "attendance": {
+      "title": {
+        "ko": "📊 출근율 계산 방식",
+        "en": "📊 Attendance Rate Calculation Method",
+        "vi": "📊 Phương pháp tính tỷ lệ chuyên cần"
+      },
+      "formulaTitle": {
+        "ko": "실제 계산 공식 (시스템 구현):",
+        "en": "Actual Calculation Formula (System Implementation):",
+        "vi": "Công thức tính thực tế (Triển khai hệ thống):"
+      },
+      "attendanceFormula": {
+        "ko": "출근율(%) = 100 - 결근율(%)",
+        "en": "Attendance Rate(%) = 100 - Absence Rate(%)",
+        "vi": "Tỷ lệ chuyên cần(%) = 100 - Tỷ lệ vắng mặt(%)"
+      },
+      "absenceFormula": {
+        "ko": "결근율(%) = (결근 일수 / 총 근무일) × 100",
+        "en": "Absence Rate(%) = (Absence Days / Total Working Days) × 100",
+        "vi": "Tỷ lệ vắng mặt(%) = (Số ngày vắng / Tổng ngày làm việc) × 100"
+      },
+      "absenceDaysNote": {
+        "ko": "* 결근 일수 = 총 근무일 - 실제 근무일 - 승인된 휴가",
+        "en": "* Absence Days = Total Working Days - Actual Working Days - Approved Leave",
+        "vi": "* Số ngày vắng = Tổng ngày làm việc - Ngày làm việc thực tế - Nghỉ phép được duyệt"
+      },
+      "examplesTitle": {
+        "ko": "결근율 계산 예시:",
+        "en": "Absence Rate Calculation Examples:",
+        "vi": "Ví dụ tính tỷ lệ vắng mặt:"
+      },
+      "example1Title": {
+        "ko": "예시 1: 정상 근무자",
+        "en": "Example 1: Normal Worker",
+        "vi": "Ví dụ 1: Người làm việc bình thường"
+      },
+      "example2Title": {
+        "ko": "예시 2: 무단결근 포함",
+        "en": "Example 2: Including Unauthorized Absence",
+        "vi": "Ví dụ 2: Bao gồm vắng không phép"
+      },
+      "example3Title": {
+        "ko": "예시 3: 조건 충족 경계선",
+        "en": "Example 3: Condition Boundary",
+        "vi": "Ví dụ 3: Ranh giới điều kiện"
+      },
+      "totalWorkingDays": {
+        "ko": "총 근무일",
+        "en": "Total Working Days",
+        "vi": "Tổng ngày làm việc"
+      },
+      "actualWorkingDays": {
+        "ko": "실제 근무일",
+        "en": "Actual Working Days",
+        "vi": "Ngày làm việc thực tế"
+      },
+      "approvedLeave": {
+        "ko": "승인된 휴가",
+        "en": "Approved Leave",
+        "vi": "Nghỉ phép được duyệt"
+      },
+      "annualLeave": {
+        "ko": "연차",
+        "en": "Annual Leave",
+        "vi": "Nghỉ phép năm"
+      },
+      "sickLeave": {
+        "ko": "병가",
+        "en": "Sick Leave",
+        "vi": "Nghỉ ốm"
+      },
+      "unauthorizedAbsence": {
+        "ko": "무단결근",
+        "en": "Unauthorized Absence",
+        "vi": "Vắng không phép"
+      },
+      "absenceDays": {
+        "ko": "결근 일수",
+        "en": "Absence Days",
+        "vi": "Số ngày vắng"
+      },
+      "absenceRate": {
+        "ko": "결근율",
+        "en": "Absence Rate",
+        "vi": "Tỷ lệ vắng mặt"
+      },
+      "attendanceRate": {
+        "ko": "출근율",
+        "en": "Attendance Rate",
+        "vi": "Tỷ lệ chuyên cần"
+      },
+      "lessThan88": {
+        "ko": "88% 미만",
+        "en": "Less than 88%",
+        "vi": "Dưới 88%"
+      },
+      "moreThan88": {
+        "ko": "88% 이상",
+        "en": "88% or more",
+        "vi": "88% trở lên"
+      },
+      "condition2NotMet": {
+        "ko": "단, 무단결근 3일로 조건 2 미충족 → 인센티브 0원",
+        "en": "However, condition 2 not met with 3 days unauthorized absence → Incentive 0",
+        "vi": "Tuy nhiên, điều kiện 2 không đạt với 3 ngày vắng không phép → Thưởng 0"
+      },
+      "absenceClassificationTitle": {
+        "ko": "결근 사유별 분류:",
+        "en": "Absence Classification by Reason:",
+        "vi": "Phân loại vắng mặt theo lý do:"
+      },
+      "notIncludedInAbsence": {
+        "ko": "✅ 결근율에 포함 안됨 (승인된 휴가):",
+        "en": "✅ Not Included in Absence Rate (Approved Leave):",
+        "vi": "✅ Không tính vào tỷ lệ vắng mặt (Nghỉ phép được duyệt):"
+      },
+      "includedInAbsence": {
+        "ko": "❌ 결근율에 포함됨 (무단결근):",
+        "en": "❌ Included in Absence Rate (Unauthorized Absence):",
+        "vi": "❌ Tính vào tỷ lệ vắng mặt (Vắng không phép):"
+      },
+      "maternityLeave": {
+        "ko": "출산휴가",
+        "en": "Maternity Leave",
+        "vi": "Nghỉ thai sản"
+      },
+      "annualLeaveVn": {
+        "ko": "연차휴가",
+        "en": "Annual Leave",
+        "vi": "Nghỉ phép năm"
+      },
+      "approvedAbsence": {
+        "ko": "승인된 휴가",
+        "en": "Approved Leave",
+        "vi": "Vắng có phép"
+      },
+      "postpartumRest": {
+        "ko": "출산 후 요양",
+        "en": "Postpartum Rest",
+        "vi": "Dưỡng sức sinh thường"
+      },
+      "prenatalCheckup": {
+        "ko": "산전검진",
+        "en": "Prenatal Checkup",
+        "vi": "Khám thai bình thường"
+      },
+      "childcareLeave": {
+        "ko": "육아휴가",
+        "en": "Childcare Leave",
+        "vi": "Con dưới 3 tuổi bị bệnh"
+      },
+      "shortSickLeave": {
+        "ko": "병가",
+        "en": "Sick Leave",
+        "vi": "ốm ngắn ngày"
+      },
+      "businessTrip": {
+        "ko": "출장",
+        "en": "Business Trip",
+        "vi": "Đi công tác"
+      },
+      "militaryService": {
+        "ko": "군복무",
+        "en": "Military Service",
+        "vi": "Nghĩa vụ quân sự"
+      },
+      "cardNotSwiped": {
+        "ko": "출퇴근 체크 누락",
+        "en": "Card Not Swiped",
+        "vi": "Đi làm không quẹt thẻ"
+      },
+      "newEmployee": {
+        "ko": "신규입사 특례",
+        "en": "New Employee Exception",
+        "vi": "Công nhân viên mới"
+      },
+      "compensatoryLeave": {
+        "ko": "대체휴무",
+        "en": "Compensatory Leave",
+        "vi": "Nghỉ bù"
+      },
+      "unauthorizedAbsenceAR1": {
+        "ko": "무단결근",
+        "en": "Unauthorized Absence",
+        "vi": "Vắng không phép"
+      },
+      "writtenNoticeAbsence": {
+        "ko": "서면통지 결근",
+        "en": "Written Notice Absence",
+        "vi": "Gửi thư"
+      },
+      "countingRulesTitle": {
+        "ko": "📢 무단결근 카운팅 규칙:",
+        "en": "📢 Unauthorized Absence Counting Rules:",
+        "vi": "📢 Quy tắc đếm vắng không phép:"
+      },
+      "countingRule1": {
+        "ko": "AR1 카테고리만 무단결근으로 카운트",
+        "en": "Only AR1 category counted as unauthorized absence",
+        "vi": "Chỉ danh mục AR1 được tính là vắng không phép"
+      },
+      "countingRule2": {
+        "ko": "2일까지는 인센티브 지급 가능",
+        "en": "Up to 2 days eligible for incentive",
+        "vi": "Tối đa 2 ngày vẫn đủ điều kiện nhận thưởng"
+      },
+      "countingRule3": {
+        "ko": "3일 이상 → 인센티브 0원",
+        "en": "3 days or more → Incentive 0",
+        "vi": "3 ngày trở lên → Thưởng 0"
+      },
+      "conditionCriteriaTitle": {
+        "ko": "조건 충족 기준:",
+        "en": "Condition Fulfillment Criteria:",
+        "vi": "Tiêu chí đáp ứng điều kiện:"
+      },
+      "attendanceCriteria": {
+        "ko": "출근율: ≥ 88% (결근율 ≤ 12%)",
+        "en": "Attendance Rate: ≥ 88% (Absence Rate ≤ 12%)",
+        "vi": "Tỷ lệ chuyên cần: ≥ 88% (Tỷ lệ vắng mặt ≤ 12%)"
+      },
+      "unauthorizedAbsenceCriteria": {
+        "ko": "무단결근: ≤ 2일 (AR1 카테고리만 해당)",
+        "en": "Unauthorized Absence: ≤ 2 days (AR1 category only)",
+        "vi": "Vắng không phép: ≤ 2 ngày (chỉ danh mục AR1)"
+      },
+      "actualWorkingDaysCriteria": {
+        "ko": "실제 근무일: > 0일",
+        "en": "Actual Working Days: > 0 days",
+        "vi": "Ngày làm việc thực tế: > 0 ngày"
+      },
+      "minimumWorkingDaysCriteria": {
+        "ko": "최소 근무일: ≥ 12일",
+        "en": "Minimum Working Days: ≥ 12 days",
+        "vi": "Ngày làm việc tối thiểu: ≥ 12 ngày"
+      },
+      "unapprovedAbsenceExplanationTitle": {
+        "ko": "📊 Unapproved Absence Days 설명:",
+        "en": "📊 Unapproved Absence Days Explanation:",
+        "vi": "📊 Giải thích ngày vắng không được duyệt:"
+      },
+      "unapprovedAbsenceExplanation1": {
+        "ko": "HR 시스템에서 제공하는 무단결근 일수 데이터",
+        "en": "Unauthorized absence days data provided by HR system",
+        "vi": "Dữ liệu ngày vắng không phép được cung cấp bởi hệ thống HR"
+      },
+      "unapprovedAbsenceExplanation2": {
+        "ko": "AR1 (Vắng không phép) 카테고리만 집계",
+        "en": "Only AR1 (Unauthorized Absence) category counted",
+        "vi": "Chỉ tính danh mục AR1 (Vắng không phép)"
+      },
+      "unapprovedAbsenceExplanation3": {
+        "ko": "서면통지 결근(Gửi thư)도 AR1에 포함",
+        "en": "Written notice absence (Gửi thư) also included in AR1",
+        "vi": "Vắng có thông báo bằng văn bản (Gửi thư) cũng thuộc AR1"
+      },
+      "unapprovedAbsenceExplanation4": {
+        "ko": "인센티브 조건: ≤2일 (개인별 최대 허용치)",
+        "en": "Incentive condition: ≤2 days (maximum allowed per person)",
+        "vi": "Điều kiện thưởng: ≤2 ngày (tối đa cho phép mỗi người)"
+      },
+      "days": {
+        "ko": "일",
+        "en": "days",
+        "vi": "ngày"
+      }
     }
   }
 }

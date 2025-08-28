@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FAQ Translation Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-container { max-width: 1000px; margin: 0 auto; }
+        .language-buttons { margin-bottom: 20px; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+        button.active { background-color: #007bff; color: white; }
+        .test-section { border: 2px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+        h3 { color: #007bff; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>FAQ Translation Structure Test</h1>
+        
+        <div class="language-buttons">
+            <button id="btnKo" class="active" onclick="testTranslation('ko')">한국어</button>
+            <button id="btnEn" onclick="testTranslation('en')">English</button>
+            <button id="btnVi" onclick="testTranslation('vi')">Tiếng Việt</button>
+        </div>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="test-section">
+            <h3>Translation Path Test Results:</h3>
+            <div id="testResults"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Sample Translation Output:</h3>
+            <div id="sampleOutput"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Load the actual translations from the JSON file
+        fetch('/Users/ksmoon/Downloads/대시보드 인센티브 테스트8.3_구글 연동 완료_by Macbook pro_조건 매트릭스 JSON 파일 도입/config_files/dashboard_translations.json')
+            .then(response => response.json())
+            .then(translations => {
+                window.translations = translations;
+                console.log('Translations loaded:', translations);
+                testTranslation('ko');
+            })
+            .catch(error => {
+                console.error('Error loading translations:', error);
+                document.getElementById('status').className = 'status error';
+                document.getElementById('status').textContent = 'Error loading translations file';
+            });
+        
+        function testTranslation(lang) {
+            // Update button states
+            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn' + lang.charAt(0).toUpperCase() + lang.slice(1)).classList.add('active');
+            
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('testResults');
+            const sampleDiv = document.getElementById('sampleOutput');
+            
+            // Test if incentive.faq structure exists
+            const hasIncentive = translations.hasOwnProperty('incentive');
+            const hasFaq = hasIncentive && translations.incentive.hasOwnProperty('faq');
+            
+            let html = '<ul>';
+            html += `<li>translations.incentive exists: <strong>${hasIncentive ? '✅ YES' : '❌ NO'}</strong></li>`;
+            html += `<li>translations.incentive.faq exists: <strong>${hasFaq ? '✅ YES' : '❌ NO'}</strong></li>`;
+            
+            if (hasFaq) {
+                // Test specific translation paths
+                const testPaths = [
+                    'calculationExampleTitle',
+                    'case1Title',
+                    'employee',
+                    'previousMonth',
+                    'conditionEvaluation',
+                    'attendanceRateMet',
+                    'unauthorizedAbsenceMet',
+                    'result'
+                ];
+                
+                testPaths.forEach(path => {
+                    const exists = translations.incentive.faq.hasOwnProperty(path);
+                    const hasLang = exists && translations.incentive.faq[path].hasOwnProperty(lang);
+                    html += `<li>translations.incentive.faq.${path}[${lang}]: `;
+                    if (hasLang) {
+                        html += `<strong>✅ "${translations.incentive.faq[path][lang]}"</strong>`;
+                    } else {
+                        html += `<strong>❌ NOT FOUND</strong>`;
+                    }
+                    html += '</li>';
+                });
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = `✅ Translation structure is correct! Testing language: ${lang}`;
+                
+                // Show sample output
+                let sampleHtml = '<h4>실제 계산 예시 Section (Good to Know):</h4>';
+                sampleHtml += `<p><strong>${translations.incentive.faq.calculationExampleTitle?.[lang] || '📐 실제 계산 예시'}</strong></p>`;
+                sampleHtml += `<p>${translations.incentive.faq.case1Title?.[lang] || '예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)'}</p>`;
+                sampleHtml += `<p>${translations.incentive.faq.employee?.[lang] || '직원:'} BÙI THỊ KIỀU LY (619060201)</p>`;
+                sampleHtml += `<p>${translations.incentive.faq.previousMonth?.[lang] || '전월 상태:'} 9${translations.incentive.faq.consecutiveMonthsWorked?.[lang] || '개월 연속 →'} 750,000 ${translations.incentive.faq.incentiveReceived?.[lang] || 'VND 수령'}</p>`;
+                sampleHtml += `<p>${translations.incentive.faq.conditionEvaluation?.[lang] || '당월 조건 충족:'}</p>`;
+                sampleHtml += `<ul>`;
+                sampleHtml += `<li>✅ ${translations.incentive.faq.attendanceRateMet?.[lang] || '출근율:'} 92% (≥88%)</li>`;
+                sampleHtml += `<li>✅ ${translations.incentive.faq.unauthorizedAbsenceMet?.[lang] || '무단결근:'} 0${translations.incentive.faq.days?.[lang] || '일'} (≤2${translations.incentive.faq.days?.[lang] || '일'})</li>`;
+                sampleHtml += `</ul>`;
+                sampleHtml += `<p>${translations.incentive.faq.result?.[lang] || '결과:'} ${translations.incentive.faq.allConditionsMet?.[lang] || '모든 조건 충족'} → 10${translations.incentive.faq.consecutiveMonthsWorked?.[lang] || '개월 연속 →'} 850,000 ${translations.incentive.faq.incentivePayment?.[lang] || 'VND 지급'}</p>`;
+                
+                sampleDiv.innerHTML = sampleHtml;
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '❌ Translation structure is incorrect! Missing incentive.faq path';
+                sampleDiv.innerHTML = '<p>Cannot display sample - structure is missing</p>';
+            }
+            
+            html += '</ul>';
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
