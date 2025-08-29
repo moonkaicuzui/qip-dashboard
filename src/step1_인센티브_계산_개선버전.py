@@ -1813,6 +1813,9 @@ class CompleteQIPCalculator:
         # 7. Type-3 계산
         self.calculate_type3_incentive()
         
+        # 8. QIP Talent Pool 보너스 적용
+        self.apply_talent_pool_bonus()
+        
         print(f"\n✅ {self.config.get_month_str('korean')} 인센티브 계산 완료!")
     
     def handle_special_cases(self):
@@ -3011,6 +3014,115 @@ class CompleteQIPCalculator:
             self.month_data.loc[idx, incentive_col] = 0
         
         print(f"  → Type-3 직원들은 인센티브를 받지 않습니다.")
+    
+    def apply_talent_pool_bonus(self):
+        """QIP Talent Pool 보너스 적용 - JSON 설정 기반"""
+        print("\n🌟 QIP Talent Pool 보너스 적용 중...")
+        
+        # Talent Pool JSON 파일 로드
+        talent_pool_file = Path(self.base_path) / 'config_files' / 'qip_talent_pool.json'
+        
+        if not talent_pool_file.exists():
+            print("  → Talent Pool 설정 파일이 없습니다. 스킵합니다.")
+            return
+        
+        try:
+            with open(talent_pool_file, 'r', encoding='utf-8') as f:
+                talent_pool_config = json.load(f)
+            
+            # 현재 월 확인
+            current_year = self.config.year
+            current_month = self.config.month.number
+            
+            # Talent Pool 멤버 처리
+            members = talent_pool_config.get('talent_pool', {}).get('members', [])
+            settings = talent_pool_config.get('talent_pool', {}).get('settings', {})
+            
+            applied_count = 0
+            total_bonus = 0
+            
+            incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
+            
+            # 새로운 컬럼 추가 (없으면)
+            if 'Talent_Pool_Bonus' not in self.month_data.columns:
+                self.month_data['Talent_Pool_Bonus'] = 0
+            if 'Talent_Pool_Member' not in self.month_data.columns:
+                self.month_data['Talent_Pool_Member'] = 'N'
+            
+            for member in members:
+                # 상태 확인
+                if member.get('status') != 'active':
+                    continue
+                
+                # 기간 확인
+                start_date = pd.to_datetime(member.get('start_date'))
+                end_date = pd.to_datetime(member.get('end_date'))
+                current_date = pd.to_datetime(f"{current_year}-{current_month:02d}-01")
+                
+                if not (start_date <= current_date <= end_date):
+                    continue
+                
+                # 직원 찾기 (여러 컬럼 체크)
+                emp_id = str(member.get('employee_id'))
+                
+                # Employee No, Personnel Number_manpower, Personnel Number 중 하나라도 매칭되는지 확인
+                mask = (
+                    (self.month_data['Employee No'].astype(str) == emp_id) |
+                    (self.month_data.get('Personnel Number_manpower', pd.Series()).astype(str) == emp_id) |
+                    (self.month_data.get('Personnel Number', pd.Series()).astype(str) == emp_id)
+                )
+                
+                matching_rows = self.month_data[mask]
+                
+                if len(matching_rows) == 0:
+                    print(f"  ⚠️ 직원 {emp_id}를 찾을 수 없습니다.")
+                    continue
+                
+                # 보너스 적용
+                for idx in matching_rows.index:
+                    # 퇴사자 체크
+                    if 'Stop working Date' in self.month_data.columns:
+                        stop_date = pd.to_datetime(self.month_data.loc[idx, 'Stop working Date'], errors='coerce')
+                        if pd.notna(stop_date) and stop_date < current_date:
+                            print(f"  → 직원 {emp_id}는 퇴사했습니다. 스킵합니다.")
+                            continue
+                    
+                    bonus_amount = member.get('monthly_bonus', 0)
+                    
+                    # Talent Pool 보너스 컬럼에 저장
+                    self.month_data.loc[idx, 'Talent_Pool_Bonus'] = bonus_amount
+                    self.month_data.loc[idx, 'Talent_Pool_Member'] = 'Y'
+                    
+                    # 기존 인센티브와 합산 (settings에 따라)
+                    if settings.get('stack_with_regular', True):
+                        current_incentive = self.month_data.loc[idx, incentive_col]
+                        if pd.isna(current_incentive):
+                            current_incentive = 0
+                        self.month_data.loc[idx, incentive_col] = current_incentive + bonus_amount
+                        
+                        emp_name = self.month_data.loc[idx, 'Full Name']
+                        print(f"  ✅ {emp_name} ({emp_id}): +{bonus_amount:,} VND (Talent Pool 보너스)")
+                        print(f"     → 기존: {current_incentive:,.0f} VND → 최종: {current_incentive + bonus_amount:,.0f} VND")
+                    else:
+                        # 보너스만 별도 지급
+                        self.month_data.loc[idx, incentive_col] = bonus_amount
+                        emp_name = self.month_data.loc[idx, 'Full Name']
+                        print(f"  ✅ {emp_name} ({emp_id}): {bonus_amount:,} VND (Talent Pool 보너스 단독)")
+                    
+                    applied_count += 1
+                    total_bonus += bonus_amount
+            
+            if applied_count > 0:
+                print(f"\n📊 Talent Pool 보너스 적용 완료:")
+                print(f"  • 적용 인원: {applied_count}명")
+                print(f"  • 총 보너스: {total_bonus:,} VND")
+            else:
+                print("  → 이번 달 적용 대상자가 없습니다.")
+                
+        except Exception as e:
+            print(f"  ❌ Talent Pool 보너스 적용 중 오류: {e}")
+            import traceback
+            traceback.print_exc()
     
     def generate_summary(self):
         """계산 결과 요약"""

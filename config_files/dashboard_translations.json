@@ -888,6 +888,18 @@
       "en": "Median",
       "vi": "Giá trị trung vị"
     },
+    "payment": {
+      "paid": {
+        "ko": "지급 완료",
+        "en": "Payment Complete",
+        "vi": "Đã thanh toán"
+      },
+      "unpaid": {
+        "ko": "미지급",
+        "en": "Unpaid",
+        "vi": "Chưa thanh toán"
+      }
+    },
     "modalTitle": {
       "ko": "인센티브 계산 상세",
       "en": "Incentive Calculation Details",
@@ -3262,6 +3274,120 @@
         "en": "days",
         "vi": "ngày"
       }
+    }
+  },
+  "talentPool": {
+    "sectionTitle": {
+      "ko": "🌟 QIP Talent Pool 특별 인센티브",
+      "en": "🌟 QIP Talent Pool Special Incentive",
+      "vi": "🌟 Khen thưởng đặc biệt QIP Talent Pool"
+    },
+    "memberCount": {
+      "ko": "Talent Pool 인원",
+      "en": "Talent Pool Members",
+      "vi": "Số thành viên Talent Pool"
+    },
+    "monthlyBonus": {
+      "ko": "월 보너스 금액",
+      "en": "Monthly Bonus Amount",
+      "vi": "Số tiền thưởng hàng tháng"
+    },
+    "totalBonus": {
+      "ko": "총 보너스 지급액",
+      "en": "Total Bonus Payment",
+      "vi": "Tổng tiền thưởng chi trả"
+    },
+    "paymentPeriod": {
+      "ko": "지급 기간",
+      "en": "Payment Period",
+      "vi": "Thời gian chi trả"
+    },
+    "membersList": {
+      "ko": "Talent Pool 멤버:",
+      "en": "Talent Pool Members:",
+      "vi": "Thành viên Talent Pool:"
+    },
+    "special": {
+      "ko": "QIP Talent Pool 특별 보너스",
+      "en": "QIP Talent Pool Special Bonus",
+      "vi": "Thưởng đặc biệt QIP Talent Pool"
+    },
+    "period": {
+      "ko": "지급 기간",
+      "en": "Payment Period",
+      "vi": "Thời gian chi trả"
+    },
+    "bonusIncluded": {
+      "ko": "Talent Pool 보너스 포함",
+      "en": "Talent Pool Bonus Included",
+      "vi": "Bao gồm thưởng Talent Pool"
+    },
+    "baseAmount": {
+      "ko": "기본",
+      "en": "Base",
+      "vi": "Cơ bản"
+    },
+    "bonusAmount": {
+      "ko": "보너스",
+      "en": "Bonus",
+      "vi": "Thưởng"
+    },
+    "badgeText": {
+      "ko": "TALENT",
+      "en": "TALENT",
+      "vi": "TALENT"
+    }
+  },
+  "talentProgram": {
+    "title": {
+      "ko": "🌟 QIP Talent Pool 인센티브 프로그램",
+      "en": "🌟 QIP Talent Pool Incentive Program",
+      "vi": "🌟 Chương trình khen thưởng QIP Talent Pool"
+    },
+    "intro": {
+      "ko": "QIP Talent Pool은 우수한 성과를 보이는 인원들을 대상으로 하는 특별 인센티브 프로그램입니다. 선정된 인원은 6개월간 매월 추가 보너스를 받게 됩니다.",
+      "en": "QIP Talent Pool is a special incentive program for high-performing individuals. Selected members receive additional monthly bonuses for 6 months.",
+      "vi": "QIP Talent Pool là chương trình khen thưởng đặc biệt dành cho những người có thành tích xuất sắc. Thành viên được chọn sẽ nhận thưởng bổ sung hàng tháng trong 6 tháng."
+    },
+    "qualificationTitle": {
+      "ko": "🎯 선정 기준",
+      "en": "🎯 Selection Criteria",
+      "vi": "🎯 Tiêu chí lựa chọn"
+    },
+    "benefitsTitle": {
+      "ko": "💰 혜택",
+      "en": "💰 Benefits",
+      "vi": "💰 Quyền lợi"
+    },
+    "monthlyBonusTitle": {
+      "ko": "월 특별 보너스",
+      "en": "Monthly Special Bonus",
+      "vi": "Thưởng đặc biệt hàng tháng"
+    },
+    "totalBonusTitle": {
+      "ko": "총 지급 예정액 (6개월)",
+      "en": "Total Expected Payment (6 months)",
+      "vi": "Tổng thanh toán dự kiến (6 tháng)"
+    },
+    "processTitle": {
+      "ko": "📋 평가 프로세스 (6개월 주기)",
+      "en": "📋 Evaluation Process (6-month cycle)",
+      "vi": "📋 Quy trình đánh giá (chu kỳ 6 tháng)"
+    },
+    "importantTitle": {
+      "ko": "⚠️ 중요 사항",
+      "en": "⚠️ Important Notes",
+      "vi": "⚠️ Lưu ý quan trọng"
+    },
+    "currentTitle": {
+      "ko": "🎉 현재 Talent Pool 멤버",
+      "en": "🎉 Current Talent Pool Members",
+      "vi": "🎉 Thành viên Talent Pool hiện tại"
+    },
+    "noMembers": {
+      "ko": "현재 Talent Pool 멤버가 없습니다.",
+      "en": "There are currently no Talent Pool members.",
+      "vi": "Hiện tại không có thành viên Talent Pool."
     }
   }
 }
