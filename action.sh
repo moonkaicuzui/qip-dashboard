@@ -181,8 +181,8 @@ if [ $STEP1_RESULT -ne 0 ]; then
     exit 1
 fi
 
-# Step 2: Dashboard 생성
-run_step "Step 2: HTML Dashboard 생성" "python3 src/step2_dashboard_version4.py --month $MONTH --year $YEAR"
+# Step 2: Dashboard 생성 (최신 v5.0 버전)
+run_step "Step 2: HTML Dashboard 생성 (v5.0)" "python3 integrated_dashboard_final.py --month $month_choice --year $YEAR"
 
 # 완료 메시지
 echo ""
@@ -193,7 +193,11 @@ echo ""
 echo -e "${WHITE}📁 생성된 파일:${NC}"
 echo -e "  ${BLUE}• Excel: output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.xlsx${NC}"
 echo -e "  ${BLUE}• CSV: output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.csv${NC}"
-echo -e "  ${BLUE}• HTML Dashboard: output_files/dashboard_version4.html${NC}"
+if [ "$month_choice" -lt 10 ]; then
+    echo -e "  ${BLUE}• HTML Dashboard: output_files/dashboard_${YEAR}_0${month_choice}.html (v5.0)${NC}"
+else
+    echo -e "  ${BLUE}• HTML Dashboard: output_files/dashboard_${YEAR}_${month_choice}.html (v5.0)${NC}"
+fi
 echo ""
 echo -e "${YELLOW}💡 HTML 파일을 브라우저에서 열어 결과를 확인하세요.${NC}"
 echo ""
@@ -203,26 +207,23 @@ echo -e "${CYAN}HTML 파일을 지금 열어보시겠습니까? (y/n): ${NC}\c"
 read open_html
 
 if [ "$open_html" = "y" ] || [ "$open_html" = "Y" ]; then
-    # macOS에서 HTML 파일 열기
-    # 먼저 dashboard_version4.html 파일 확인 (실제 생성되는 파일)
-    HTML_FILE="output_files/dashboard_version4.html"
-    
-    # dashboard_version4.html이 없으면 월별 파일명 시도
-    if [ ! -f "$HTML_FILE" ]; then
-        if [ "$month_choice" -lt 10 ]; then
-            HTML_FILE="output_files/${YEAR}_0${month_choice}_HWK_QIP_INCENTIVE_Version_4.html"
-        else
-            HTML_FILE="output_files/${YEAR}_${month_choice}_HWK_QIP_INCENTIVE_Version_4.html"
-        fi
+    # macOS에서 HTML 파일 열기 (v5.0 대시보드)
+    # 월 번호를 두 자리로 포맷
+    if [ "$month_choice" -lt 10 ]; then
+        MONTH_PADDED="0${month_choice}"
+    else
+        MONTH_PADDED="${month_choice}"
     fi
+    
+    # 새로운 v5.0 대시보드 파일명
+    HTML_FILE="output_files/dashboard_${YEAR}_${MONTH_PADDED}.html"
     
     if [ -f "$HTML_FILE" ]; then
         open "$HTML_FILE"
-        echo -e "${GREEN}✅ 브라우저에서 열렸습니다!${NC}"
+        echo -e "${GREEN}✅ v5.0 대시보드가 브라우저에서 열렸습니다!${NC}"
     else
         echo -e "${YELLOW}⚠️ HTML 파일을 찾을 수 없습니다: $HTML_FILE${NC}"
-        echo -e "${YELLOW}   다음 파일을 확인해보세요:${NC}"
-        echo -e "${YELLOW}   - output_files/dashboard_version4.html${NC}"
+        echo -e "${YELLOW}   output_files/ 디렉토리를 확인해보세요.${NC}"
     fi
 fi
 
