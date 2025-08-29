@@ -198,6 +198,10 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     column_mapping[col] = 'attendance_rate'
                 elif 'actual' in col_lower and 'working' in col_lower:
                     column_mapping[col] = 'actual_working_days'
+                elif 'talent_pool_member' in col_lower:
+                    column_mapping[col] = 'Talent_Pool_Member'
+                elif 'talent_pool_bonus' in col_lower:
+                    column_mapping[col] = 'Talent_Pool_Bonus'
             
             df = df.rename(columns=column_mapping)
             
@@ -674,7 +678,9 @@ def generate_dashboard_html(df, month='august', year=2025):
             'area_reject_rate': float(row.get('area_reject_rate', 0)),  # 이 값은 metadata에서 덮어씌워짐
             'area_consecutive_fail': str(row.get('area_consecutive_fail', 'NO')),
             'pass_rate': float(row.get('pass_rate', 0)),
-            'validation_qty': int(row.get('validation_qty', 0))
+            'validation_qty': int(row.get('validation_qty', 0)),
+            'Talent_Pool_Member': str(row.get('Talent_Pool_Member', 'N')),
+            'Talent_Pool_Bonus': int(row.get('Talent_Pool_Bonus', 0))
         }
         
         # metadata에서 area_reject_rate 가져오기
@@ -864,6 +870,91 @@ def generate_dashboard_html(df, month='august', year=2025):
         .type-badge.type-3 {{
             background: #d1fae5;
             color: #047857;
+        }}
+        
+        /* Talent Pool 강조 스타일 */
+        @keyframes starPulse {{
+            0% {{ transform: scale(1); opacity: 1; }}
+            50% {{ transform: scale(1.2); opacity: 0.8; }}
+            100% {{ transform: scale(1); opacity: 1; }}
+        }}
+        
+        .talent-pool-row {{
+            background: linear-gradient(90deg, #fff9e6 0%, #fffdf5 50%, #fff9e6 100%);
+            animation: goldShimmer 3s ease-in-out infinite;
+            position: relative;
+        }}
+        
+        @keyframes goldShimmer {{
+            0% {{ background: linear-gradient(90deg, #fff9e6 0%, #fffdf5 50%, #fff9e6 100%); }}
+            50% {{ background: linear-gradient(90deg, #fffdf5 0%, #fff9e6 50%, #fffdf5 100%); }}
+            100% {{ background: linear-gradient(90deg, #fff9e6 0%, #fffdf5 50%, #fff9e6 100%); }}
+        }}
+        
+        .talent-pool-row:hover {{
+            background: linear-gradient(90deg, #fff3cc 0%, #fff9e6 50%, #fff3cc 100%);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            transform: translateX(2px);
+            transition: all 0.3s ease;
+        }}
+        
+        .talent-pool-star {{
+            display: inline-block;
+            animation: starPulse 2s ease-in-out infinite;
+            font-size: 1.2em;
+        }}
+        
+        .talent-pool-badge {{
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 8px;
+            box-shadow: 0 2px 4px rgba(255, 165, 0, 0.3);
+        }}
+        
+        .talent-pool-tooltip {{
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }}
+        
+        .talent-pool-tooltip .tooltiptext {{
+            visibility: hidden;
+            width: 250px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1001;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }}
+        
+        .talent-pool-tooltip:hover .tooltiptext {{
+            visibility: visible;
+            opacity: 1;
+        }}
+        
+        .talent-pool-tooltip .tooltiptext::after {{
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #FFA500 transparent transparent transparent;
         }}
         
         .modal {{
@@ -1104,6 +1195,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                 </div>
             </div>
             
+            
             <!-- 탭 메뉴 -->
             <div class="tabs">
                 <div class="tab active" data-tab="summary" onclick="showTab('summary')" id="tabSummary">요약</div>
@@ -1195,6 +1287,46 @@ def generate_dashboard_html(df, month='august', year=2025):
                 <div id="positionTables">
                     <!-- JavaScript로 채워질 예정 -->
                 </div>
+                
+                <!-- Talent Pool 시각화 섹션 -->
+                <div class="row mb-4" id="talentPoolSection" style="display: none;">
+                    <div class="col-12">
+                        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <div class="card-body">
+                                <h4 class="mb-3" id="talentPoolTitle">🌟 QIP Talent Pool 특별 인센티브</h4>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                                            <h6 style="opacity: 0.9;" id="talentPoolMemberCountLabel">Talent Pool 인원</h6>
+                                            <h3 id="talentPoolCount">0명</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                                            <h6 style="opacity: 0.9;" id="talentPoolMonthlyBonusLabel">월 보너스 금액</h6>
+                                            <h3 id="talentPoolMonthlyBonus">0 VND</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                                            <h6 style="opacity: 0.9;" id="talentPoolTotalBonusLabel">총 보너스 지급액</h6>
+                                            <h3 id="talentPoolTotalBonus">0 VND</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+                                            <h6 style="opacity: 0.9;" id="talentPoolPaymentPeriodLabel">지급 기간</h6>
+                                            <h3 id="talentPoolPeriod">-</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3" id="talentPoolMembers">
+                                    <!-- Talent Pool 멤버 목록이 여기에 표시됩니다 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- 개인별 상세 탭 -->
@@ -1239,6 +1371,7 @@ def generate_dashboard_html(df, month='august', year=2025):
                                 <th id="typeHeader">Type</th>
                                 <th id="julyHeader">7월</th>
                                 <th id="augustHeader">8월</th>
+                                <th id="talentPoolHeader">Talent Pool</th>
                                 <th id="statusHeader">상태</th>
                                 <th id="detailsHeader">상세</th>
                             </tr>
@@ -2083,6 +2216,160 @@ def generate_dashboard_html(df, month='august', year=2025):
                                     <li id="attendanceUnapproved3">서면통지 결근(Gửi thư)도 AR1에 포함</li>
                                     <li id="attendanceUnapproved4">인센티브 조건: ≤2일 (개인별 최대 허용치)</li>
                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- QIP Talent Pool 프로그램 설명 섹션 -->
+                <div class="card mb-4">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <h5 class="mb-0" id="talentProgramTitle">🌟 QIP Talent Pool 인센티브 프로그램</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-4">
+                            <p class="mb-0" id="talentProgramIntro">
+                                <strong>QIP Talent Pool</strong>은 우수한 성과를 보이는 인원들을 대상으로 하는 특별 인센티브 프로그램입니다.
+                                선정된 인원은 6개월간 매월 추가 보너스를 받게 됩니다.
+                            </p>
+                        </div>
+                        
+                        <h6 class="mb-3" id="talentProgramQualificationTitle">🎯 선정 기준</h6>
+                        <ul id="talentProgramQualifications">
+                            <li>업무 성과 우수자</li>
+                            <li>품질 목표 달성률 상위 10%</li>
+                            <li>팀워크 및 리더십 발휘</li>
+                            <li>지속적인 개선 활동 참여</li>
+                        </ul>
+                        
+                        <h6 class="mb-3 mt-4" id="talentProgramBenefitsTitle">💰 혜택</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 id="talentProgramMonthlyBonusTitle">월 특별 보너스</h6>
+                                        <h4 class="text-primary">150,000 VND</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 id="talentProgramTotalBonusTitle">총 지급 예정액 (6개월)</h6>
+                                        <h4 class="text-success">900,000 VND</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mb-3" id="talentProgramProcessTitle">📋 평가 프로세스 (6개월 주기)</h6>
+                        <div class="timeline-container">
+                            <style>
+                                .timeline-container {{
+                                    position: relative;
+                                    padding: 20px 0;
+                                }}
+                                .timeline-step {{
+                                    display: flex;
+                                    align-items: center;
+                                    margin-bottom: 20px;
+                                    position: relative;
+                                }}
+                                .timeline-step:not(:last-child)::before {{
+                                    content: '';
+                                    position: absolute;
+                                    left: 20px;
+                                    top: 40px;
+                                    width: 2px;
+                                    height: calc(100% + 20px);
+                                    background: #dee2e6;
+                                }}
+                                .timeline-number {{
+                                    width: 40px;
+                                    height: 40px;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-weight: bold;
+                                    flex-shrink: 0;
+                                    margin-right: 15px;
+                                }}
+                                .timeline-content {{
+                                    background: #f8f9fa;
+                                    padding: 10px 15px;
+                                    border-radius: 8px;
+                                    flex: 1;
+                                }}
+                            </style>
+                            
+                            <div class="timeline-step">
+                                <div class="timeline-number">1</div>
+                                <div class="timeline-content">
+                                    <strong id="talentStep1Title">후보자 추천</strong>
+                                    <p class="mb-0 text-muted small" id="talentStep1Desc">각 부서에서 우수 인원 추천</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-step">
+                                <div class="timeline-number">2</div>
+                                <div class="timeline-content">
+                                    <strong id="talentStep2Title">성과 평가</strong>
+                                    <p class="mb-0 text-muted small" id="talentStep2Desc">최근 3개월간 성과 데이터 분석</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-step">
+                                <div class="timeline-number">3</div>
+                                <div class="timeline-content">
+                                    <strong id="talentStep3Title">위원회 심사</strong>
+                                    <p class="mb-0 text-muted small" id="talentStep3Desc">QIP 운영위원회 최종 심사</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-step">
+                                <div class="timeline-number">4</div>
+                                <div class="timeline-content">
+                                    <strong id="talentStep4Title">최종 선정</strong>
+                                    <p class="mb-0 text-muted small" id="talentStep4Desc">Talent Pool 멤버 확정 및 공지</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-step">
+                                <div class="timeline-number">5</div>
+                                <div class="timeline-content">
+                                    <strong id="talentStep5Title">보너스 지급</strong>
+                                    <p class="mb-0 text-muted small" id="talentStep5Desc">매월 정기 인센티브와 함께 지급</p>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-step">
+                                <div class="timeline-number">6</div>
+                                <div class="timeline-content">
+                                    <strong id="talentStep6Title">재평가</strong>
+                                    <p class="mb-0 text-muted small" id="talentStep6Desc">6개월 후 재평가 실시</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-4">
+                            <h6 id="talentProgramImportantTitle">⚠️ 중요 사항</h6>
+                            <ul class="mb-0" id="talentProgramImportantNotes">
+                                <li>Talent Pool 보너스는 기본 인센티브와 별도로 지급됩니다</li>
+                                <li>지급 기간 중 퇴사 시 자격이 자동 상실됩니다</li>
+                                <li>성과 미달 시 조기 종료될 수 있습니다</li>
+                                <li>매 6개월마다 재평가를 통해 갱신 여부가 결정됩니다</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card mt-4" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                            <div class="card-body text-center">
+                                <h5 id="talentProgramCurrentTitle">🎉 현재 Talent Pool 멤버</h5>
+                                <div id="talentProgramCurrentMembers" class="mt-3">
+                                    <!-- JavaScript로 현재 멤버 표시 -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3030,6 +3317,36 @@ def generate_dashboard_html(df, month='august', year=2025):
             if (answer10Conclusion) {{
                 answer10Conclusion.textContent = translations.incentiveCalculation?.faq?.answer10Conclusion?.[lang] || '개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.';
             }}
+            
+            // Talent Pool 섹션 번역 업데이트
+            const talentPoolTitle = document.getElementById('talentPoolTitle');
+            if (talentPoolTitle) {{
+                talentPoolTitle.textContent = getTranslation('talentPool.sectionTitle', lang);
+            }}
+            
+            const talentPoolMemberCountLabel = document.getElementById('talentPoolMemberCountLabel');
+            if (talentPoolMemberCountLabel) {{
+                talentPoolMemberCountLabel.textContent = getTranslation('talentPool.memberCount', lang);
+            }}
+            
+            const talentPoolMonthlyBonusLabel = document.getElementById('talentPoolMonthlyBonusLabel');
+            if (talentPoolMonthlyBonusLabel) {{
+                talentPoolMonthlyBonusLabel.textContent = getTranslation('talentPool.monthlyBonus', lang);
+            }}
+            
+            const talentPoolTotalBonusLabel = document.getElementById('talentPoolTotalBonusLabel');
+            if (talentPoolTotalBonusLabel) {{
+                talentPoolTotalBonusLabel.textContent = getTranslation('talentPool.totalBonus', lang);
+            }}
+            
+            const talentPoolPaymentPeriodLabel = document.getElementById('talentPoolPaymentPeriodLabel');
+            if (talentPoolPaymentPeriodLabel) {{
+                talentPoolPaymentPeriodLabel.textContent = getTranslation('talentPool.paymentPeriod', lang);
+            }}
+            
+            // 테이블 재생성하여 툴팁 번역 적용
+            generateEmployeeTable();
+            updatePositionFilter();
         }}
         
         // 언어 변경 함수
@@ -3207,6 +3524,9 @@ def generate_dashboard_html(df, month='august', year=2025):
             
             // 인센티브 기준 탭 텍스트 업데이트
             updateCriteriaTabTexts();
+            
+            // Talent Program 섹션 텍스트 업데이트
+            updateTalentProgramTexts();
             
             // 차트 업데이트 (차트가 있는 경우)
             if (window.pieChart) {{
@@ -4047,7 +4367,245 @@ def generate_dashboard_html(df, month='august', year=2025):
             generatePositionTables();
             updatePositionFilter();
             updateAllTexts();
+            updateTalentPoolSection();
         }};
+        
+        // Talent Program 텍스트 업데이트 함수
+        function updateTalentProgramTexts() {{
+            const lang = currentLanguage;
+            
+            // 메인 제목
+            const programTitle = document.getElementById('talentProgramTitle');
+            if (programTitle) {{
+                programTitle.innerHTML = getTranslation('talentProgram.title', lang) || '🌟 QIP Talent Pool 인센티브 프로그램';
+            }}
+            
+            // 소개 텍스트
+            const programIntro = document.getElementById('talentProgramIntro');
+            if (programIntro) {{
+                programIntro.innerHTML = `<strong>QIP Talent Pool</strong> ${{getTranslation('talentProgram.intro', lang) || 'QIP Talent Pool은 우수한 성과를 보이는 인원들을 대상으로 하는 특별 인센티브 프로그램입니다. 선정된 인원은 6개월간 매월 추가 보너스를 받게 됩니다.'}}`;
+            }}
+            
+            // 선정 기준 제목
+            const qualificationTitle = document.getElementById('talentProgramQualificationTitle');
+            if (qualificationTitle) {{
+                qualificationTitle.textContent = getTranslation('talentProgram.qualificationTitle', lang) || '🎯 선정 기준';
+            }}
+            
+            // 선정 기준 목록
+            const qualifications = document.getElementById('talentProgramQualifications');
+            if (qualifications) {{
+                const items = [
+                    lang === 'en' ? 'Outstanding work performance' : 
+                    lang === 'vi' ? 'Hiệu suất làm việc xuất sắc' : '업무 성과 우수자',
+                    
+                    lang === 'en' ? 'Top 10% in quality target achievement' :
+                    lang === 'vi' ? 'Top 10% đạt mục tiêu chất lượng' : '품질 목표 달성률 상위 10%',
+                    
+                    lang === 'en' ? 'Demonstrated teamwork and leadership' :
+                    lang === 'vi' ? 'Thể hiện tinh thần đồng đội và lãnh đạo' : '팀워크 및 리더십 발휘',
+                    
+                    lang === 'en' ? 'Active participation in continuous improvement' :
+                    lang === 'vi' ? 'Tham gia tích cực vào hoạt động cải tiến liên tục' : '지속적인 개선 활동 참여'
+                ];
+                qualifications.innerHTML = items.map(item => `<li>${{item}}</li>`).join('');
+            }}
+            
+            // 혜택 제목
+            const benefitsTitle = document.getElementById('talentProgramBenefitsTitle');
+            if (benefitsTitle) {{
+                benefitsTitle.textContent = getTranslation('talentProgram.benefitsTitle', lang) || '💰 혜택';
+            }}
+            
+            // 월 보너스 제목
+            const monthlyBonusTitle = document.getElementById('talentProgramMonthlyBonusTitle');
+            if (monthlyBonusTitle) {{
+                monthlyBonusTitle.textContent = getTranslation('talentProgram.monthlyBonusTitle', lang) || '월 특별 보너스';
+            }}
+            
+            // 총 보너스 제목
+            const totalBonusTitle = document.getElementById('talentProgramTotalBonusTitle');
+            if (totalBonusTitle) {{
+                totalBonusTitle.textContent = getTranslation('talentProgram.totalBonusTitle', lang) || '총 지급 예정액 (6개월)';
+            }}
+            
+            // 프로세스 제목
+            const processTitle = document.getElementById('talentProgramProcessTitle');
+            if (processTitle) {{
+                processTitle.textContent = getTranslation('talentProgram.processTitle', lang) || '📋 평가 프로세스 (6개월 주기)';
+            }}
+            
+            // 6단계 프로세스 업데이트
+            const steps = [
+                {{
+                    titleId: 'talentStep1Title',
+                    descId: 'talentStep1Desc',
+                    titleKo: '후보자 추천',
+                    titleEn: 'Candidate Nomination',
+                    titleVi: 'Đề cử ứng viên',
+                    descKo: '각 부서에서 우수 인원 추천',
+                    descEn: 'Departments nominate outstanding employees',
+                    descVi: 'Các phòng ban đề cử nhân viên xuất sắc'
+                }},
+                {{
+                    titleId: 'talentStep2Title',
+                    descId: 'talentStep2Desc',
+                    titleKo: '성과 평가',
+                    titleEn: 'Performance Evaluation',
+                    titleVi: 'Đánh giá hiệu suất',
+                    descKo: '최근 3개월간 성과 데이터 분석',
+                    descEn: 'Analysis of last 3 months performance data',
+                    descVi: 'Phân tích dữ liệu hiệu suất 3 tháng gần nhất'
+                }},
+                {{
+                    titleId: 'talentStep3Title',
+                    descId: 'talentStep3Desc',
+                    titleKo: '위원회 심사',
+                    titleEn: 'Committee Review',
+                    titleVi: 'Xét duyệt của ủy ban',
+                    descKo: 'QIP 운영위원회 최종 심사',
+                    descEn: 'Final review by QIP committee',
+                    descVi: 'Xét duyệt cuối cùng bởi ủy ban QIP'
+                }},
+                {{
+                    titleId: 'talentStep4Title',
+                    descId: 'talentStep4Desc',
+                    titleKo: '최종 선정',
+                    titleEn: 'Final Selection',
+                    titleVi: 'Lựa chọn cuối cùng',
+                    descKo: 'Talent Pool 멤버 확정 및 공지',
+                    descEn: 'Confirmation and announcement of Talent Pool members',
+                    descVi: 'Xác nhận và thông báo thành viên Talent Pool'
+                }},
+                {{
+                    titleId: 'talentStep5Title',
+                    descId: 'talentStep5Desc',
+                    titleKo: '보너스 지급',
+                    titleEn: 'Bonus Payment',
+                    titleVi: 'Thanh toán thưởng',
+                    descKo: '매월 정기 인센티브와 함께 지급',
+                    descEn: 'Paid together with regular monthly incentives',
+                    descVi: 'Thanh toán cùng với khen thưởng định kỳ hàng tháng'
+                }},
+                {{
+                    titleId: 'talentStep6Title',
+                    descId: 'talentStep6Desc',
+                    titleKo: '재평가',
+                    titleEn: 'Re-evaluation',
+                    titleVi: 'Đánh giá lại',
+                    descKo: '6개월 후 재평가 실시',
+                    descEn: 'Re-evaluation after 6 months',
+                    descVi: 'Đánh giá lại sau 6 tháng'
+                }}
+            ];
+            
+            steps.forEach(step => {{
+                const titleEl = document.getElementById(step.titleId);
+                if (titleEl) {{
+                    titleEl.textContent = lang === 'en' ? step.titleEn : lang === 'vi' ? step.titleVi : step.titleKo;
+                }}
+                const descEl = document.getElementById(step.descId);
+                if (descEl) {{
+                    descEl.textContent = lang === 'en' ? step.descEn : lang === 'vi' ? step.descVi : step.descKo;
+                }}
+            }});
+            
+            // 중요 사항 제목
+            const importantTitle = document.getElementById('talentProgramImportantTitle');
+            if (importantTitle) {{
+                importantTitle.textContent = getTranslation('talentProgram.importantTitle', lang) || '⚠️ 중요 사항';
+            }}
+            
+            // 중요 사항 목록
+            const importantNotes = document.getElementById('talentProgramImportantNotes');
+            if (importantNotes) {{
+                const notes = [
+                    lang === 'en' ? 'Talent Pool bonus is paid separately from regular incentives' :
+                    lang === 'vi' ? 'Thưởng Talent Pool được thanh toán riêng biệt với khen thưởng thường xuyên' :
+                    'Talent Pool 보너스는 기본 인센티브와 별도로 지급됩니다',
+                    
+                    lang === 'en' ? 'Eligibility is automatically lost upon resignation during the payment period' :
+                    lang === 'vi' ? 'Tư cách sẽ tự động mất khi nghỉ việc trong thời gian thanh toán' :
+                    '지급 기간 중 퇴사 시 자격이 자동 상실됩니다',
+                    
+                    lang === 'en' ? 'May be terminated early if performance is insufficient' :
+                    lang === 'vi' ? 'Có thể kết thúc sớm nếu hiệu suất không đủ' :
+                    '성과 미달 시 조기 종료될 수 있습니다',
+                    
+                    lang === 'en' ? 'Renewal is determined through re-evaluation every 6 months' :
+                    lang === 'vi' ? 'Việc gia hạn được quyết định thông qua đánh giá lại mỗi 6 tháng' :
+                    '매 6개월마다 재평가를 통해 갱신 여부가 결정됩니다'
+                ];
+                importantNotes.innerHTML = notes.map(note => `<li>${{note}}</li>`).join('');
+            }}
+            
+            // 현재 멤버 제목
+            const currentTitle = document.getElementById('talentProgramCurrentTitle');
+            if (currentTitle) {{
+                currentTitle.textContent = getTranslation('talentProgram.currentTitle', lang) || '🎉 현재 Talent Pool 멤버';
+            }}
+            
+            // 멤버가 없을 때 메시지 업데이트
+            const currentMembersDiv = document.getElementById('talentProgramCurrentMembers');
+            if (currentMembersDiv && currentMembersDiv.innerHTML.includes('현재 Talent Pool 멤버가 없습니다')) {{
+                currentMembersDiv.innerHTML = `<p>${{getTranslation('talentProgram.noMembers', lang) || '현재 Talent Pool 멤버가 없습니다.'}}</p>`;
+            }}
+        }}
+        
+        // Talent Pool 섹션 업데이트
+        function updateTalentPoolSection() {{
+            const talentPoolMembers = employeeData.filter(emp => emp.Talent_Pool_Member === 'Y' || emp.Talent_Pool_Member === true);
+            
+            if (talentPoolMembers.length > 0) {{
+                // Talent Pool 섹션 표시
+                document.getElementById('talentPoolSection').style.display = 'block';
+                
+                // 통계 업데이트
+                const totalBonus = talentPoolMembers.reduce((sum, emp) => sum + parseInt(emp.Talent_Pool_Bonus || 0), 0);
+                const monthlyBonus = talentPoolMembers[0]?.Talent_Pool_Bonus || 0; // 첫 번째 멤버의 월 보너스
+                
+                document.getElementById('talentPoolCount').textContent = talentPoolMembers.length + '명';
+                document.getElementById('talentPoolMonthlyBonus').textContent = parseInt(monthlyBonus).toLocaleString() + ' VND';
+                document.getElementById('talentPoolTotalBonus').textContent = totalBonus.toLocaleString() + ' VND';
+                document.getElementById('talentPoolPeriod').textContent = '2025.07 - 2025.12';
+                
+                // 멤버 목록 생성
+                const membersLabel = getTranslation('talentPool.membersList', currentLanguage) || 'Talent Pool 멤버:';
+                let membersHtml = `<div class="mt-2"><small style="opacity: 0.9;">${{membersLabel}}</small><br>`;
+                talentPoolMembers.forEach(emp => {{
+                    membersHtml += `
+                        <span class="badge" style="background: rgba(255,255,255,0.3); margin: 2px; padding: 5px 10px;">
+                            ${{emp.name}} (${{emp.emp_no}}) - ${{emp.position}}
+                        </span>
+                    `;
+                }});
+                membersHtml += '</div>';
+                document.getElementById('talentPoolMembers').innerHTML = membersHtml;
+                
+                // 인센티브 기준 탭의 Talent Program 현재 멤버 섹션도 업데이트
+                const currentMembersDiv = document.getElementById('talentProgramCurrentMembers');
+                if (currentMembersDiv) {{
+                    let currentMembersHtml = '';
+                    talentPoolMembers.forEach(emp => {{
+                        currentMembersHtml += `
+                            <div class="badge" style="background: rgba(255,255,255,0.3); font-size: 1.1em; margin: 5px; padding: 8px 15px;">
+                                <i class="fas fa-star"></i> ${{emp.name}} (${{emp.emp_no}}) - ${{emp.position}}
+                            </div>
+                        `;
+                    }});
+                    if (currentMembersHtml === '') {{
+                        currentMembersHtml = '<p>현재 Talent Pool 멤버가 없습니다.</p>';
+                    }}
+                    currentMembersDiv.innerHTML = currentMembersHtml;
+                }}
+            }} else {{
+                // Talent Pool 멤버가 없는 경우
+                const currentMembersDiv = document.getElementById('talentProgramCurrentMembers');
+                if (currentMembersDiv) {{
+                    currentMembersDiv.innerHTML = '<p>현재 Talent Pool 멤버가 없습니다.</p>';
+                }}
+            }}
+        }}
         
         // 탭 전환
         function showTab(tabName) {{
@@ -4076,13 +4634,35 @@ def generate_dashboard_html(df, month='august', year=2025):
                 tr.style.cursor = 'pointer';
                 tr.onclick = () => showEmployeeDetail(emp.emp_no);
                 
+                // Talent Pool 멤버인 경우 특별 스타일 적용
+                if (emp.Talent_Pool_Member === 'Y') {{
+                    tr.className = 'talent-pool-row';
+                }}
+                
+                // Talent Pool 정보 HTML 생성
+                let talentPoolHTML = '-';
+                if (emp.Talent_Pool_Member === 'Y') {{
+                    talentPoolHTML = `
+                        <div class="talent-pool-tooltip">
+                            <span class="talent-pool-star">🌟</span>
+                            <strong>${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND</strong>
+                            <span class="tooltiptext">
+                                <strong>${{getTranslation('talentPool.special', currentLanguage) || 'QIP Talent Pool'}}</strong><br>
+                                ${{getTranslation('talentPool.monthlyBonus', currentLanguage) || '월 특별 보너스'}}: ${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND<br>
+                                ${{getTranslation('talentPool.period', currentLanguage) || '지급 기간'}}: 2025.07 - 2025.12
+                            </span>
+                        </div>
+                    `;
+                }}
+                
                 tr.innerHTML = `
                     <td>${{emp.emp_no}}</td>
-                    <td>${{emp.name}}</td>
+                    <td>${{emp.name}}${{emp.Talent_Pool_Member === 'Y' ? '<span class="talent-pool-badge">TALENT</span>' : ''}}</td>
                     <td>${{emp.position}}</td>
                     <td><span class="type-badge type-${{emp.type.toLowerCase().replace('type-', '')}}">${{emp.type}}</span></td>
                     <td>${{parseInt(emp.july_incentive).toLocaleString()}}</td>
                     <td><strong>${{amount.toLocaleString()}}</strong></td>
+                    <td>${{talentPoolHTML}}</td>
                     <td>${{isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid')}}</td>
                     <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${{emp.emp_no}}')">${{getTranslation('individual.table.detailButton')}}</button></td>
                 `;
@@ -4700,7 +5280,15 @@ def generate_dashboard_html(df, month='august', year=2025):
                                     <div>
                                         <i class="fas fa-check-circle"></i>
                                         <h5>` + getTranslation('modal.payment.paid', currentLanguage) + `</h5>
-                                        <p>${{parseInt(emp.august_incentive).toLocaleString()}} VND</p>
+                                        <p class="mb-1">${{parseInt(emp.august_incentive).toLocaleString()}} VND</p>
+                                        ${{emp.Talent_Pool_Member === 'Y' ? `
+                                        <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px; border-radius: 8px; margin-top: 10px;">
+                                            <small style="color: white; font-weight: bold;">
+                                                🌟 Talent Pool 보너스 포함<br>
+                                                기본: ${{(parseInt(emp.august_incentive) - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()}} VND<br>
+                                                보너스: +${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND
+                                            </small>
+                                        </div>` : ''}}
                                     </div>` : `
                                     <div>
                                         <i class="fas fa-times-circle"></i>
@@ -4882,13 +5470,35 @@ def generate_dashboard_html(df, month='august', year=2025):
                 tr.style.cursor = 'pointer';
                 tr.onclick = () => showEmployeeDetail(emp.emp_no);
                 
+                // Talent Pool 멤버인 경우 특별 스타일 적용
+                if (emp.Talent_Pool_Member === 'Y') {{
+                    tr.className = 'talent-pool-row';
+                }}
+                
+                // Talent Pool 정보 HTML 생성
+                let talentPoolHTML = '-';
+                if (emp.Talent_Pool_Member === 'Y') {{
+                    talentPoolHTML = `
+                        <div class="talent-pool-tooltip">
+                            <span class="talent-pool-star">🌟</span>
+                            <strong>${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND</strong>
+                            <span class="tooltiptext">
+                                <strong>${{getTranslation('talentPool.special', currentLanguage) || 'QIP Talent Pool'}}</strong><br>
+                                ${{getTranslation('talentPool.monthlyBonus', currentLanguage) || '월 특별 보너스'}}: ${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND<br>
+                                ${{getTranslation('talentPool.period', currentLanguage) || '지급 기간'}}: 2025.07 - 2025.12
+                            </span>
+                        </div>
+                    `;
+                }}
+                
                 tr.innerHTML = `
                     <td>${{emp.emp_no}}</td>
-                    <td>${{emp.name}}</td>
+                    <td>${{emp.name}}${{emp.Talent_Pool_Member === 'Y' ? '<span class="talent-pool-badge">TALENT</span>' : ''}}</td>
                     <td>${{emp.position}}</td>
                     <td><span class="type-badge type-${{emp.type.toLowerCase().replace('type-', '')}}">${{emp.type}}</span></td>
                     <td>${{parseInt(emp.july_incentive).toLocaleString()}}</td>
                     <td><strong>${{amount.toLocaleString()}}</strong></td>
+                    <td>${{talentPoolHTML}}</td>
                     <td>${{isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid')}}</td>
                     <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${{emp.emp_no}}')">${{getTranslation('individual.table.detailButton')}}</button></td>
                 `;
