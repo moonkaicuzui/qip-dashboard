@@ -638,7 +638,7 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
     
     return emp_stats
 
-def generate_dashboard_html(df, month='august', year=2025):
+def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     """dashboard_version4.html과 완전히 동일한 대시보드 생성"""
     
     # 조건 매트릭스 로드
@@ -751,7 +751,7 @@ def generate_dashboard_html(df, month='august', year=2025):
         }}
         
         .container {{
-            max-width: 1400px;
+            max-width: 1800px;
             margin: 0 auto;
             padding: 20px;
         }}
@@ -1154,11 +1154,16 @@ def generate_dashboard_html(df, month='august', year=2025):
 <body>
     <div class="container">
         <div class="header">
-            <div style="position: absolute; top: 20px; right: 20px;">
+            <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
                 <select id="languageSelector" class="form-select" onchange="changeLanguage(this.value)" style="width: 150px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
                     <option value="ko">한국어</option>
                     <option value="en">English</option>
                     <option value="vi">Tiếng Việt</option>
+                </select>
+                <select id="dashboardSelector" class="form-select" onchange="changeDashboard(this.value)" style="width: 200px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <option value="incentive">💰 Incentive Dashboard</option>
+                    <option value="management">📊 Management Dashboard</option>
+                    <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.0</span></h1>
@@ -3354,6 +3359,28 @@ def generate_dashboard_html(df, month='august', year=2025):
             currentLanguage = lang;
             updateAllTexts();
             localStorage.setItem('dashboardLanguage', lang);
+        }}
+        
+        // 대시보드 변경 함수
+        function changeDashboard(type) {{
+            const currentMonth = '{str(month_num).zfill(2)}';  // 월 번호를 2자리로 패딩
+            const currentYear = '{year}';
+            
+            switch(type) {{
+                case 'management':
+                    // Management Dashboard로 이동
+                    window.location.href = `management_dashboard_${{currentYear}}_${{currentMonth}}.html`;
+                    break;
+                case 'statistics':
+                    // Statistics Dashboard로 이동 (향후 구현)
+                    alert('Statistics Dashboard는 준비 중입니다.');
+                    document.getElementById('dashboardSelector').value = 'incentive';
+                    break;
+                case 'incentive':
+                default:
+                    // 현재 페이지 유지
+                    break;
+            }}
         }}
         
         // 모든 텍스트 업데이트 - 완전한 구현
@@ -5594,7 +5621,7 @@ def main():
         return
     
     # 대시보드 생성
-    html_content = generate_dashboard_html(df, month_name, args.year)
+    html_content = generate_dashboard_html(df, month_name, args.year, args.month)
     
     # 파일 저장
     output_file = f'output_files/dashboard_{args.year}_{args.month:02d}.html'

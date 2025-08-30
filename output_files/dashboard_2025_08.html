@@ -14,7 +14,7 @@
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1800px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -417,16 +417,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <div style="position: absolute; top: 20px; right: 20px;">
+            <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
                 <select id="languageSelector" class="form-select" onchange="changeLanguage(this.value)" style="width: 150px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
                     <option value="ko">한국어</option>
                     <option value="en">English</option>
                     <option value="vi">Tiếng Việt</option>
                 </select>
+                <select id="dashboardSelector" class="form-select" onchange="changeDashboard(this.value)" style="width: 200px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                    <option value="incentive">💰 Incentive Dashboard</option>
+                    <option value="management">📊 Management Dashboard</option>
+                    <option value="statistics">📈 Statistics Dashboard</option>
+                </select>
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.0</span></h1>
             <p id="mainSubtitle">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="08" data-day="30" data-hour="05" data-minute="28">보고서 생성일: 2025년 08월 30일 05:28</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="08" data-day="30" data-hour="14" data-minute="32">보고서 생성일: 2025년 08월 30일 14:32</p>
         </div>
         
         <div class="content p-4">
@@ -5236,6 +5241,189 @@
       "en": "There are currently no Talent Pool members.",
       "vi": "Hiện tại không có thành viên Talent Pool."
     }
+  },
+  "management": {
+    "title": {
+      "ko": "QIP 관리 대시보드",
+      "en": "QIP Management Dashboard",
+      "vi": "Bảng điều khiển quản lý QIP"
+    },
+    "tabs": {
+      "issues": {
+        "ko": "🚨 이슈 트래킹",
+        "en": "🚨 Issue Tracking",
+        "vi": "🚨 Theo dõi vấn đề"
+      },
+      "organization": {
+        "ko": "🏢 조직도",
+        "en": "🏢 Organization",
+        "vi": "🏢 Tổ chức"
+      },
+      "hr": {
+        "ko": "👥 HR 분석",
+        "en": "👥 HR Analytics",
+        "vi": "👥 Phân tích nhân sự"
+      },
+      "performance": {
+        "ko": "📈 성과 분석",
+        "en": "📈 Performance",
+        "vi": "📈 Hiệu suất"
+      },
+      "predictions": {
+        "ko": "🔮 예측 분석",
+        "en": "🔮 Predictions",
+        "vi": "🔮 Dự báo"
+      }
+    },
+    "stats": {
+      "critical": {
+        "ko": "긴급 이슈",
+        "en": "Critical Issues",
+        "vi": "Vấn đề nghiêm trọng"
+      },
+      "warning": {
+        "ko": "경고 사항",
+        "en": "Warnings",
+        "vi": "Cảnh báo"
+      },
+      "total": {
+        "ko": "전체 직원",
+        "en": "Total Employees",
+        "vi": "Tổng số nhân viên"
+      },
+      "new_hires": {
+        "ko": "신규 입사",
+        "en": "New Hires",
+        "vi": "Nhân viên mới"
+      }
+    },
+    "consecutive_failures": {
+      "title": {
+        "ko": "3개월 연속 인센티브 미수령자",
+        "en": "3-Month Consecutive Incentive Non-Recipients",
+        "vi": "Không nhận thưởng khuyến khích 3 tháng liên tiếp"
+      },
+      "no_data": {
+        "ko": "연속 실패자가 없습니다.",
+        "en": "No consecutive failures.",
+        "vi": "Không có thất bại liên tiếp."
+      }
+    },
+    "attendance_issues": {
+      "title": {
+        "ko": "출근율 이슈 (90% 미만)",
+        "en": "Attendance Issues (Below 90%)",
+        "vi": "Vấn đề chuyên cần (Dưới 90%)"
+      },
+      "no_data": {
+        "ko": "출근율 이슈가 없습니다.",
+        "en": "No attendance issues.",
+        "vi": "Không có vấn đề chuyên cần."
+      }
+    },
+    "org_structure": {
+      "title": {
+        "ko": "조직 구조",
+        "en": "Organization Structure",
+        "vi": "Cơ cấu tổ chức"
+      },
+      "managers": {
+        "ko": "매니저",
+        "en": "Managers",
+        "vi": "Quản lý"
+      },
+      "supervisors": {
+        "ko": "슈퍼바이저",
+        "en": "Supervisors",
+        "vi": "Giám sát"
+      },
+      "group_leaders": {
+        "ko": "그룹 리더",
+        "en": "Group Leaders",
+        "vi": "Trưởng nhóm"
+      },
+      "line_leaders": {
+        "ko": "라인 리더",
+        "en": "Line Leaders",
+        "vi": "Trưởng dây chuyền"
+      },
+      "workers": {
+        "ko": "작업자",
+        "en": "Workers",
+        "vi": "Công nhân"
+      }
+    },
+    "hr_changes": {
+      "title": {
+        "ko": "인력 변동 현황",
+        "en": "HR Changes Status",
+        "vi": "Tình trạng thay đổi nhân sự"
+      },
+      "new_hires": {
+        "ko": "최근 입사자",
+        "en": "Recent Hires",
+        "vi": "Nhân viên mới gần đây"
+      },
+      "resignations": {
+        "ko": "최근 퇴사자",
+        "en": "Recent Resignations",
+        "vi": "Nhân viên nghỉ việc gần đây"
+      },
+      "type_changes": {
+        "ko": "TYPE 전환 현황",
+        "en": "TYPE Change Status",
+        "vi": "Tình trạng chuyển đổi TYPE"
+      }
+    },
+    "performance_metrics": {
+      "prs_title": {
+        "ko": "5PRS 실적",
+        "en": "5PRS Performance",
+        "vi": "Hiệu suất 5PRS"
+      },
+      "aql_title": {
+        "ko": "AQL 달성률",
+        "en": "AQL Achievement Rate",
+        "vi": "Tỷ lệ đạt AQL"
+      },
+      "trainer_effectiveness": {
+        "ko": "Auditor/Trainer 효과성",
+        "en": "Auditor/Trainer Effectiveness",
+        "vi": "Hiệu quả Kiểm toán/Đào tạo"
+      }
+    },
+    "predictions": {
+      "title": {
+        "ko": "다음 달 예측",
+        "en": "Next Month Predictions",
+        "vi": "Dự báo tháng tới"
+      },
+      "high_risk": {
+        "ko": "위험군 예측",
+        "en": "High Risk Predictions",
+        "vi": "Dự báo rủi ro cao"
+      },
+      "improvement": {
+        "ko": "개선 예상",
+        "en": "Expected Improvements",
+        "vi": "Cải thiện dự kiến"
+      }
+    },
+    "tab_overview": {
+      "ko": "개요",
+      "en": "Overview",
+      "vi": "Tổng quan"
+    },
+    "tab_attendance": {
+      "ko": "출결",
+      "en": "Attendance",
+      "vi": "Chấm công"
+    },
+    "attendance_overview": {
+      "ko": "출결 현황",
+      "en": "Attendance Overview",
+      "vi": "Tổng quan chấm công"
+    }
   }
 };
         let currentLanguage = 'ko';
@@ -5986,6 +6174,28 @@
             currentLanguage = lang;
             updateAllTexts();
             localStorage.setItem('dashboardLanguage', lang);
+        }
+        
+        // 대시보드 변경 함수
+        function changeDashboard(type) {
+            const currentMonth = '08';  // 월 번호를 2자리로 패딩
+            const currentYear = '2025';
+            
+            switch(type) {
+                case 'management':
+                    // Management Dashboard로 이동
+                    window.location.href = `management_dashboard_${currentYear}_${currentMonth}.html`;
+                    break;
+                case 'statistics':
+                    // Statistics Dashboard로 이동 (향후 구현)
+                    alert('Statistics Dashboard는 준비 중입니다.');
+                    document.getElementById('dashboardSelector').value = 'incentive';
+                    break;
+                case 'incentive':
+                default:
+                    // 현재 페이지 유지
+                    break;
+            }
         }
         
         // 모든 텍스트 업데이트 - 완전한 구현
