@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QIP Management Dashboard v3.0 - 2025년 8월</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.1/dist/apexcharts.min.js"></script>
+    <style>
+        :root {
+            --primary: #5E72E4;
+            --success: #2DCE89;
+            --warning: #FB6340;
+            --danger: #F5365C;
+            --info: #11CDEF;
+            --dark: #32325D;
+            --secondary: #8898AA;
+            --light: #F6F9FC;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header Styles */
+        .dashboard-header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+        
+        .header-title .badge {
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .nav-selector {
+            padding: 8px 15px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            background: white;
+            color: var(--dark);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-selector:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(94,114,228,0.1);
+        }
+        
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .kpi-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--secondary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+        .trend-neutral { color: var(--secondary); }
+        
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-badge {
+            background: var(--primary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* Risk List */
+        .risk-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .risk-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background: var(--light);
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+        
+        .risk-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .risk-critical { border-left-color: var(--danger); }
+        .risk-warning { border-left-color: var(--warning); }
+        .risk-watch { border-left-color: var(--info); }
+        
+        .risk-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        
+        .risk-details {
+            font-size: 12px;
+            color: var(--secondary);
+        }
+        
+        /* Charts */
+        .chart-container {
+            margin-top: 20px;
+            min-height: 300px;
+        }
+        
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            background: white;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 5px;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: var(--secondary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .tab-button:hover {
+            background: var(--light);
+        }
+        
+        .tab-button.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 3px 10px rgba(94,114,228,0.3);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1 class="i18n" data-key="dashboard_title">Management Dashboard</h1>
+                <span class="badge">Executive Command Center</span>
+            </div>
+            <div class="header-controls">
+                <select class="nav-selector" onchange="changeDashboard(this.value)">
+                    <option value="management">📊 Management Dashboard</option>
+                    <option value="incentive">💰 Incentive Dashboard</option>
+                </select>
+                <select class="nav-selector" id="langSelector" onchange="changeLanguage(this.value)">
+                    <option value="ko">🇰🇷 한국어</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="vi">🇻🇳 Tiếng Việt</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="switchTab('overview')">
+                <span>📊</span>
+                <span class="i18n" data-key="tab_overview">개요</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('attendance')">
+                <span>📅</span>
+                <span class="i18n" data-key="tab_attendance">출결</span>
+            </button>
+        </div>
+        
+        <!-- Tab Content: Overview -->
+        <div id="overview-tab" class="tab-content active">
+        
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-title">
+                        <div class="kpi-icon" style="background: rgba(94,114,228,0.1); color: var(--primary);">👥</div>
+                        <span class="i18n" data-key="total_employees">Total Employees</span>
+                    </div>
+                </div>
+                <div class="kpi-value">464</div>
+                <div class="kpi-trend">
+                    <span>TYPE-1: 149</span>
+                    <span>TYPE-2: 277</span>
+                    <span>TYPE-3: 38</span>
+                </div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-title">
+                        <div class="kpi-icon" style="background: rgba(45,206,137,0.1); color: var(--success);">💰</div>
+                        <span class="i18n" data-key="incentive_achievement">Incentive Achievement</span>
+                    </div>
+                </div>
+                <div class="kpi-value">62.1%</div>
+                <div class="kpi-trend trend-neutral">
+                    <span>0% vs last month</span>
+                </div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-title">
+                        <div class="kpi-icon" style="background: rgba(251,99,64,0.1); color: var(--warning);">📊</div>
+                        <span class="i18n" data-key="attendance_rate">Attendance Rate</span>
+                    </div>
+                </div>
+                <div class="kpi-value">94.5%</div>
+                <div class="kpi-trend trend-neutral">
+                    <span>0% vs last month</span>
+                </div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <div class="kpi-title">
+                        <div class="kpi-icon" style="background: rgba(17,205,239,0.1); color: var(--info);">🎯</div>
+                        <span class="i18n" data-key="quality_score">Quality Score</span>
+                    </div>
+                </div>
+                <div class="kpi-value">94.6%</div>
+                <div class="kpi-trend trend-neutral">
+                    <span>0% vs last month</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Risk Management -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span>⚠️</span>
+                        <span class="i18n" data-key="risk_management">Risk Management</span>
+                    </h3>
+                    <span class="card-badge">197</span>
+                </div>
+                
+                <div class="risk-section">
+                    <h5 style="color: var(--danger); font-size: 14px; margin-bottom: 10px;">
+                        🔴 <span class="i18n" data-key="critical">Critical</span> (51)
+                    </h5>
+                    <ul class="risk-list">
+                        <li class="risk-item risk-critical">
+                            <div class="risk-name">ĐINH KIM NGOAN (617100049)</div>
+                            <div class="risk-details">OF2 | TYPE-2 | 출근율: 0.0%</div>
+                        </li><li class="risk-item risk-critical">
+                            <div class="risk-name">NGUYỄN THỊ HỒNG NHUNG (618110042)</div>
+                            <div class="risk-details">G | TYPE-2 | 출근율: 38.5%</div>
+                        </li><li class="risk-item risk-critical">
+                            <div class="risk-name">NGUYỄN THỊ LƯỢM (619020207)</div>
+                            <div class="risk-details">A4C | TYPE-2 | 출근율: 61.5%</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="risk-section">
+                    <h5 style="color: var(--warning); font-size: 14px; margin-bottom: 10px;">
+                        🟡 <span class="i18n" data-key="warning">Warning</span> (7)
+                    </h5>
+                    <ul class="risk-list">
+                        <li class="risk-item risk-warning">
+                            <div class="risk-name">ĐỖ THỊ HỒNG THÚY (620060084)</div>
+                            <div class="risk-details">A1B | TYPE-1 | 출근율: 84.6%</div>
+                        </li><li class="risk-item risk-warning">
+                            <div class="risk-name">ONG THỊ CẨM NƯƠNG (622040679)</div>
+                            <div class="risk-details">A4C | TYPE-2 | 출근율: 84.6%</div>
+                        </li><li class="risk-item risk-warning">
+                            <div class="risk-name">ĐINH NGUYỄN PHƯƠNG ANH (624070337)</div>
+                            <div class="risk-details">QA3B | TYPE-2 | 출근율: 84.6%</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="risk-section">
+                    <h5 style="color: var(--info); font-size: 14px; margin-bottom: 10px;">
+                        🔵 <span class="i18n" data-key="watch_list">Watch List</span> (139)
+                    </h5>
+                    <div style="color: var(--secondary); font-size: 12px;">
+                        139명의 직원이 모니터링 대상입니다.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Analytics -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span>📈</span>
+                        <span class="i18n" data-key="performance_analytics">Performance Analytics</span>
+                    </h3>
+                    <span class="card-badge">Live</span>
+                </div>
+                <div id="performanceChart" class="chart-container"></div>
+            </div>
+            
+            <!-- Organizational Health -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <span>🏢</span>
+                        <span class="i18n" data-key="organizational_health">Organizational Health</span>
+                    </h3>
+                    <span class="card-badge">0 Changes</span>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h5 style="font-size: 14px; color: var(--dark); margin-bottom: 15px;">
+                        <span class="i18n" data-key="hr_flow_this_month">HR Flow This Month</span>
+                    </h5>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 10px;">
+                            <div style="color: var(--success); font-size: 24px; font-weight: 700;">0</div>
+                            <div style="color: var(--secondary); font-size: 12px;" class="i18n" data-key="new_hires">New Hires</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 10px;">
+                            <div style="color: var(--danger); font-size: 24px; font-weight: 700;">0</div>
+                            <div style="color: var(--secondary); font-size: 12px;" class="i18n" data-key="resignations">Resignations</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: var(--light); border-radius: 10px;">
+                            <div style="color: var(--info); font-size: 24px; font-weight: 700;">0</div>
+                            <div style="color: var(--secondary); font-size: 12px;" class="i18n" data-key="type_changes">TYPE Changes</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="typeDistributionChart" class="chart-container"></div>
+            </div>
+        </div>
+        
+        </div> <!-- End of Overview Tab -->
+        
+        <!-- Tab Content: Attendance -->
+        <div id="attendance-tab" class="tab-content">
+            <!-- 출결 서브탭 -->
+            <div class="attendance-subtabs" style="margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; border-bottom: 2px solid var(--light); padding-bottom: 10px;">
+                    <button class="subtab-button active" onclick="switchAttendanceSubtab('overview')" style="padding: 8px 16px; border: none; background: var(--primary); color: white; border-radius: 5px 5px 0 0; cursor: pointer;">
+                        📊 전체 현황
+                    </button>
+                    <button class="subtab-button" onclick="switchAttendanceSubtab('team')" style="padding: 8px 16px; border: none; background: var(--light); color: var(--dark); border-radius: 5px 5px 0 0; cursor: pointer;">
+                        👥 팀 분석
+                    </button>
+                    <button class="subtab-button" onclick="switchAttendanceSubtab('absence')" style="padding: 8px 16px; border: none; background: var(--light); color: var(--dark); border-radius: 5px 5px 0 0; cursor: pointer;">
+                        📝 결근 분석
+                    </button>
+                    <button class="subtab-button" onclick="switchAttendanceSubtab('special')" style="padding: 8px 16px; border: none; background: var(--light); color: var(--dark); border-radius: 5px 5px 0 0; cursor: pointer;">
+                        ⭐ 특별 그룹
+                    </button>
+                    <button class="subtab-button" onclick="switchAttendanceSubtab('risk')" style="padding: 8px 16px; border: none; background: var(--light); color: var(--dark); border-radius: 5px 5px 0 0; cursor: pointer;">
+                        ⚠️ 리스크 & 상관관계
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 서브탭 컨텐츠: 전체 현황 -->
+            <div id="attendance-overview-subtab" class="attendance-subtab-content" style="display: block;">
+                <!-- 필터 패널 -->
+                <div class="content-card" style="margin-bottom: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span>🎯</span>
+                            <span>출결 필터 및 기간 설정</span>
+                        </h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div>
+                            <label style="font-size: 12px; color: var(--secondary); display: block; margin-bottom: 5px;">기간 선택</label>
+                            <select id="periodFilter" class="nav-selector" style="width: 100%;" onchange="updateAttendanceOverview()">
+                                <option value="daily">일별</option>
+                                <option value="weekly">주별</option>
+                                <option value="monthly" selected>월별</option>
+                                <option value="quarterly">분기별</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--secondary); display: block; margin-bottom: 5px;">팀 선택</label>
+                            <select id="teamFilter" class="nav-selector" style="width: 100%;" onchange="updateAttendanceOverview()">
+                                <option value="all">전체 팀</option>
+                                <option value="assembly">Assembly</option>
+<option value="stitching">Stitching</option>
+<option value="bottom">Bottom</option>
+<option value="AQL">Aql</option>
+<option value="MTL">Mtl</option>
+<option value="OSC">Osc</option>
+<option value="cutting">Cutting</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--secondary); display: block; margin-bottom: 5px;">건물</label>
+                            <select id="buildingFilter" class="nav-selector" style="width: 100%;" onchange="updateAttendanceOverview()">
+                                <option value="all">전체 건물</option>
+                                <option value="A">Building A</option>
+                                <option value="B">Building B</option>
+                                <option value="C">Building C</option>
+                                <option value="D">Building D</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--secondary); display: block; margin-bottom: 5px;">TYPE</label>
+                            <select id="typeFilter" class="nav-selector" style="width: 100%;" onchange="updateAttendanceOverview()">
+                                <option value="all">전체 TYPE</option>
+                                <option value="TYPE-1">TYPE-1</option>
+                                <option value="TYPE-2">TYPE-2</option>
+                                <option value="TYPE-3">TYPE-3</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--secondary); display: block; margin-bottom: 5px;">QIP POSITION 1ST NAME</label>
+                            <select id="position1stFilter" class="nav-selector" style="width: 100%;" onchange="updateAttendanceOverview()">
+                                <option value="all">전체</option>
+                                <option value="ASSEMBLY INSPECTOR">ASSEMBLY INSPECTOR</option>
+                                <option value="STITCHING INSPECTOR">STITCHING INSPECTOR</option>
+                                <option value="BOTTOM INSPECTOR">BOTTOM INSPECTOR</option>
+                                <option value="AQL INSPECTOR">AQL INSPECTOR</option>
+                                <option value="MANAGER">MANAGER</option>
+                                <option value="SUPERVISOR">SUPERVISOR</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--secondary); display: block; margin-bottom: 5px;">QIP POSITION 2ND NAME</label>
+                            <select id="position2ndFilter" class="nav-selector" style="width: 100%;" onchange="updateAttendanceOverview()">
+                                <option value="all">전체</option>
+                                <option value="SHOES INSPECTOR">SHOES INSPECTOR</option>
+                                <option value="BOTTOM INSPECTOR">BOTTOM INSPECTOR</option>
+                                <option value="AQL INSPECTOR">AQL INSPECTOR</option>
+                                <option value="TQC">TQC</option>
+                                <option value="RQC">RQC</option>
+                                <option value="IQC">IQC</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- KPI 카드 -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <div class="kpi-title">
+                                <div class="kpi-icon" style="background: rgba(94,114,228,0.1); color: var(--primary);">📅</div>
+                                <span>평균 출근일수</span>
+                            </div>
+                        </div>
+                        <div class="kpi-value">11.5일</div>
+                        <div class="kpi-trend">
+                            <span>총 근무일: 15일</span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <div class="kpi-title">
+                                <div class="kpi-icon" style="background: rgba(45,206,137,0.1); color: var(--success);">📊</div>
+                                <span>평균 출근율</span>
+                            </div>
+                        </div>
+                        <div class="kpi-value">76.9%</div>
+                        <div class="kpi-trend">
+                            <span>전월 대비: +2.3%p</span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <div class="kpi-title">
+                                <div class="kpi-icon" style="background: rgba(251,99,64,0.1); color: var(--warning);">🚨</div>
+                                <span>결근자 수</span>
+                            </div>
+                        </div>
+                        <div class="kpi-value">462명</div>
+                        <div class="kpi-trend">
+                            <span>일평균: 30.8명</span>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-header">
+                            <div class="kpi-title">
+                                <div class="kpi-icon" style="background: rgba(108,117,125,0.1); color: var(--secondary);">⏰</div>
+                                <span>평균 근무시간</span>
+                            </div>
+                        </div>
+                        <div class="kpi-value">8.5h</div>
+                        <div class="kpi-trend">
+                            <span>초과근무: 1.2h</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 차트 영역 -->
+                <div class="main-grid" style="margin-top: 30px;">
+                    <!-- 출결율 트렌드 -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>📈</span>
+                                <span>출결율 트렌드 (16개 팀)</span>
+                            </h3>
+                        </div>
+                        <div id="attendanceRateTrendChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 역할별 분포 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>🎯</span>
+                                <span>역할별 출결 현황</span>
+                            </h3>
+                        </div>
+                        <div id="attendanceByRoleChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 서브탭 컨텐츠: 팀 분석 -->
+            <div id="attendance-team-subtab" class="attendance-subtab-content" style="display: none;">
+                <div class="main-grid">
+                    <!-- 팀별 출결 상태 -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>👥</span>
+                                <span>팀별 출결 상태</span>
+                            </h3>
+                        </div>
+                        <div id="teamAttendanceStatusChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 팀 출결 비교 히트맵 -->
+                    <div class="content-card" style="grid-column: span 3;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>🔥</span>
+                                <span>팀 출결 비교 히트맵 (멤버 구성 포함)</span>
+                            </h3>
+                        </div>
+                        <div id="teamComparisonHeatmap" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 서브탭 컨텐츠: 결근 분석 -->
+            <div id="attendance-absence-subtab" class="attendance-subtab-content" style="display: none;">
+                <div class="main-grid">
+                    <!-- 결근 사유 분석 -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>📊</span>
+                                <span>결근 사유 분석 (Treemap)</span>
+                            </h3>
+                        </div>
+                        <div id="absenceReasonTreemap" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 결근 트렌드 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>📈</span>
+                                <span>결근 트렌드</span>
+                            </h3>
+                        </div>
+                        <div id="absenceTrendChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 무단 결근 트렌드 -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>🚨</span>
+                                <span>무단 결근 트렌드</span>
+                            </h3>
+                        </div>
+                        <div id="unauthorizedAbsenceTrendChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 교대 근무 현황 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>🔄</span>
+                                <span>교대 근무 현황 (상세)</span>
+                            </h3>
+                        </div>
+                        <div id="shiftWorkStatusChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 서브탭 컨텐츠: 특별 그룹 -->
+            <div id="attendance-special-subtab" class="attendance-subtab-content" style="display: none;">
+                <div class="main-grid">
+                    <!-- TYPE-3 직원 (30일 미만) -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>🆕</span>
+                                <span>TYPE-3 직원 출결 트렌드 (30일 미만)</span>
+                            </h3>
+                        </div>
+                        <div id="type3AttendanceTrendChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- NEW-TYPE 직원 (30-60일) -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>📅</span>
+                                <span>NEW-TYPE 직원 출결 트렌드 (30-60일)</span>
+                            </h3>
+                        </div>
+                        <div id="newTypeAttendanceTrendChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 임산부 현황 -->
+                    <div class="content-card" style="grid-column: span 3;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>🤰</span>
+                                <span>임산부 비율, 현황 및 근무 패턴 분석</span>
+                            </h3>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                            <div>
+                                <h5 style="font-size: 14px; margin-bottom: 10px;">임산부 비율</h5>
+                                <div id="pregnantRatioChart" class="chart-container" style="height: 200px;"></div>
+                            </div>
+                            <div>
+                                <h5 style="font-size: 14px; margin-bottom: 10px;">근무 패턴</h5>
+                                <div id="pregnantWorkPatternChart" class="chart-container" style="height: 200px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 사직 현황 -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>📤</span>
+                                <span>사직 현황 및 트렌드</span>
+                            </h3>
+                        </div>
+                        <div id="resignationStatusChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 서브탭 컨텐츠: 리스크 & 상관관계 -->
+            <div id="attendance-risk-subtab" class="attendance-subtab-content" style="display: none;">
+                <div class="main-grid">
+                    <!-- 사직 리스크 예측 -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>⚠️</span>
+                                <span>사직 리스크 예측</span>
+                            </h3>
+                        </div>
+                        <div id="resignationRiskPredictionChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 장기 결근 리스크 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>📍</span>
+                                <span>장기 결근 리스크 분석</span>
+                            </h3>
+                        </div>
+                        <div id="longTermAbsenceRiskChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 출결 vs 5PRS -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>🔗</span>
+                                <span>상관관계: 출결 vs 5PRS Pass%</span>
+                            </h3>
+                        </div>
+                        <div id="correlationAttendance5PRSChart" class="chart-container"></div>
+                    </div>
+                    
+                    <!-- 출결 vs AQL -->
+                    <div class="content-card" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <span>🔗</span>
+                                <span>상관관계: 출결 vs AQL Reject%</span>
+                            </h3>
+                        </div>
+                        <div id="correlationAttendanceAQLChart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="dashboard-footer">
+            <p>QIP Management Dashboard v3.0 © 2025 | Data updated: 2025-08-30 14:43</p>
+        </div>
+    </div>
+    
+    <script>
+        // 번역 데이터
+        const translations = {"languages": {"ko": "한국어", "en": "English", "vi": "Tiếng Việt"}, "tabs": {"summary": {"ko": "요약", "en": "Summary", "vi": "Tóm tắt"}, "position": {"ko": "직급별 상세", "en": "Position Details", "vi": "Chi tiết theo chức vụ"}, "individual": {"ko": "개인별 상세", "en": "Individual Details", "vi": "Chi tiết cá nhân"}, "criteria": {"ko": "인센티브 기준", "en": "Incentive Criteria", "vi": "Tiêu chí khen thưởng"}}, "headers": {"title": {"ko": "QIP 인센티브 대시보드", "en": "QIP Incentive Dashboard", "vi": "Bảng điều khiển khen thưởng QIP"}, "mainTitle": {"ko": "QIP 인센티브 계산 결과", "en": "QIP Incentive Calculation Results", "vi": "Kết quả tính khen thưởng QIP"}, "incentiveStatus": {"ko": "인센티브 지급 현황", "en": "Incentive Payment Status", "vi": "Tình trạng chi trả khen thưởng"}, "reportDateLabel": {"ko": "보고서 생성일:", "en": "Report Generated:", "vi": "Báo cáo tạo ngày:"}, "month": {"ko": "월", "en": "Month", "vi": "Tháng"}, "year": {"ko": "년", "en": "Year", "vi": "Năm"}, "august": {"ko": "8월", "en": "August", "vi": "Tháng 8"}}, "summary": {"cards": {"totalEmployees": {"ko": "전체 직원", "en": "Total Employees", "vi": "Tổng nhân viên"}, "eligibleEmployees": {"ko": "지급 대상", "en": "Eligible", "vi": "Đủ điều kiện"}, "paidEmployees": {"ko": "수령 직원", "en": "Paid Employees", "vi": "Nhân viên đã nhận"}, "totalAmount": {"ko": "총 지급액", "en": "Total Amount", "vi": "Tổng tiền thưởng"}, "avgAmount": {"ko": "평균 지급액", "en": "Average Amount", "vi": "Trung bình"}, "paymentRate": {"ko": "지급률", "en": "Payment Rate", "vi": "Tỷ lệ chi trả"}}, "chartLabels": {"recipientBased": {"ko": "수령인원 기준", "en": "Recipients Based", "vi": "Dựa trên người nhận"}, "totalBased": {"ko": "총원 기준", "en": "Total Based", "vi": "Dựa trên tổng số"}}, "typeTable": {"title": {"ko": "Type별 요약", "en": "Summary by Type", "vi": "Tóm tắt theo loại"}, "columns": {"type": {"ko": "Type", "en": "Type", "vi": "Loại"}, "totalEmployees": {"ko": "전체 인원", "en": "Total", "vi": "Tổng số"}, "eligible": {"ko": "지급 대상", "en": "Eligible", "vi": "Đủ điều kiện"}, "paymentRate": {"ko": "지급률", "en": "Payment Rate", "vi": "Tỷ lệ"}, "totalAmount": {"ko": "총 지급액", "en": "Total Amount", "vi": "Tổng tiền"}}}}, "position": {"title": {"ko": "직급별 상세 현황", "en": "Position Details Status", "vi": "Chi tiết theo chức vụ"}, "sectionTitles": {"type1": {"ko": "TYPE-1 직급별 현황", "en": "TYPE-1 Position Status", "vi": "Tình trạng chức vụ TYPE-1"}, "type2": {"ko": "TYPE-2 직급별 현황", "en": "TYPE-2 Position Status", "vi": "Tình trạng chức vụ TYPE-2"}, "type3": {"ko": "TYPE-3 직급별 현황", "en": "TYPE-3 Position Status", "vi": "Tình trạng chức vụ TYPE-3"}, "type1Total": {"ko": "TYPE-1 합계", "en": "TYPE-1 Total", "vi": "Tổng TYPE-1"}, "type2Total": {"ko": "TYPE-2 합계", "en": "TYPE-2 Total", "vi": "Tổng TYPE-2"}, "type3Total": {"ko": "TYPE-3 합계", "en": "TYPE-3 Total", "vi": "Tổng TYPE-3"}}, "viewButton": {"ko": "보기", "en": "View", "vi": "Xem"}, "positionTable": {"columns": {"position": {"ko": "직급", "en": "Position", "vi": "Chức vụ"}, "type": {"ko": "Type", "en": "Type", "vi": "Loại"}, "total": {"ko": "총 인원", "en": "Total", "vi": "Tổng"}, "paid": {"ko": "지급 대상", "en": "Paid", "vi": "Đã trả"}, "totalEmployees": {"ko": "총 인원", "en": "Total", "vi": "Tổng"}, "eligible": {"ko": "지급 대상", "en": "Eligible", "vi": "Đủ điều kiện"}, "paymentRate": {"ko": "지급률", "en": "Rate", "vi": "Tỷ lệ"}, "avgAmount": {"ko": "평균 지급액", "en": "Avg Amount", "vi": "Trung bình"}, "totalAmount": {"ko": "총 지급액", "en": "Total Amount", "vi": "Tổng tiền"}, "details": {"ko": "상세", "en": "Details", "vi": "Chi tiết"}}}}, "individual": {"title": {"ko": "개인별 상세 정보", "en": "Individual Details", "vi": "Chi tiết cá nhân"}, "filters": {"type": {"ko": "Type 선택", "en": "Select Type", "vi": "Chọn loại"}, "position": {"ko": "직급 선택", "en": "Select Position", "vi": "Chọn chức vụ"}, "payment": {"ko": "지급 상태", "en": "Payment Status", "vi": "Trạng thái"}, "search": {"ko": "검색 (이름/ID)", "en": "Search (Name/ID)", "vi": "Tìm kiếm (Tên/ID)"}, "allTypes": {"ko": "모든 Type", "en": "All Types", "vi": "Tất cả loại"}, "allPositions": {"ko": "모든 직급", "en": "All Positions", "vi": "Tất cả chức vụ"}, "allStatus": {"ko": "전체", "en": "All", "vi": "Tất cả"}, "paidOnly": {"ko": "지급 대상만", "en": "Paid Only", "vi": "Được trả"}, "unpaidOnly": {"ko": "미지급만", "en": "Unpaid Only", "vi": "Chưa trả"}}, "table": {"columns": {"employeeId": {"ko": "사원번호", "en": "Employee ID", "vi": "Mã NV"}, "name": {"ko": "이름", "en": "Name", "vi": "Họ tên"}, "position": {"ko": "직급", "en": "Position", "vi": "Chức vụ"}, "type": {"ko": "Type", "en": "Type", "vi": "Loại"}, "incentiveAmount": {"ko": "인센티브", "en": "Incentive", "vi": "Tiền thưởng"}, "status": {"ko": "상태", "en": "Status", "vi": "Trạng thái"}, "details": {"ko": "상세", "en": "Details", "vi": "Chi tiết"}}, "detailButton": {"ko": "상세보기", "en": "View Details", "vi": "Xem chi tiết"}, "noResults": {"ko": "검색 결과가 없습니다", "en": "No results found", "vi": "Không tìm thấy kết quả"}}}, "criteria": {"mainTitle": {"ko": "QIP 인센티브 정책 및 계산 기준", "en": "QIP Incentive Policy and Calculation Standards", "vi": "Chính sách và Tiêu chuẩn Tính toán Khen thưởng QIP"}, "title": {"ko": "인센티브 지급 기준", "en": "Incentive Payment Criteria", "vi": "Tiêu chí chi trả khen thưởng"}, "corePrinciples": {"title": {"ko": "📌 핵심 원칙", "en": "📌 Core Principles", "vi": "📌 Nguyên tắc cốt lõi"}, "description1": {"ko": "모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.", "en": "All employees must meet <strong>all conditions</strong> specified for their position to receive incentives.", "vi": "Tất cả nhân viên phải đáp ứng <strong>tất cả điều kiện</strong> theo chức vụ để nhận thưởng."}, "description2": {"ko": "조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.", "en": "Conditions consist of Attendance (4), AQL (4), and 5PRS (2), with different applications by position.", "vi": "Điều kiện bao gồm Chấm công (4), AQL (4), và 5PRS (2), áp dụng khác nhau theo chức vụ."}}, "evaluationConditions": {"title": {"ko": "📊 10가지 평가 조건 상세", "en": "📊 10 Evaluation Conditions Details", "vi": "📊 Chi tiết 10 điều kiện đánh giá"}, "tableHeaders": {"number": {"ko": "#", "en": "#", "vi": "#"}, "conditionName": {"ko": "조건명", "en": "Condition Name", "vi": "Tên điều kiện"}, "criteria": {"ko": "기준", "en": "Criteria", "vi": "Tiêu chí"}, "description": {"ko": "설명", "en": "Description", "vi": "Mô tả"}}}, "policySummary": {"title": {"ko": "📌 인센티브 정책 개요", "en": "📌 Incentive Policy Overview", "vi": "📌 Tổng quan chính sách khen thưởng"}, "description": {"ko": "모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.", "en": "All employees must meet <strong>all conditions</strong> specified for their position to receive incentives.", "vi": "Tất cả nhân viên phải đáp ứng <strong>tất cả điều kiện</strong> theo chức vụ để nhận thưởng."}, "conditionTypes": {"ko": "조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.", "en": "Conditions consist of Attendance (4), AQL (4), and 5PRS (2), with different applications by position.", "vi": "Điều kiện bao gồm Chấm công (4), AQL (4), và 5PRS (2), áp dụng khác nhau theo chức vụ."}}, "conditions": {"attendance": {"title": {"ko": "📅 출근 조건 (4개)", "en": "📅 Attendance Conditions (4)", "vi": "📅 Điều kiện chấm công (4)"}, "items": {"attendanceRate": {"name": {"ko": "출근율", "en": "Attendance Rate", "vi": "Tỷ lệ chấm công"}, "criteria": {"ko": "≥88%", "en": "≥88%", "vi": "≥88%"}, "description": {"ko": "월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)", "en": "Monthly attendance rate must be 88% or higher (absence rate 12% or lower)", "vi": "Tỷ lệ chấm công hàng tháng phải từ 88% trở lên (tỷ lệ vắng mặt dưới 12%)"}}, "unapprovedAbsence": {"name": {"ko": "무단결근", "en": "Unapproved Absence", "vi": "Vắng không phép"}, "criteria": {"ko": "≤2일", "en": "≤2 days", "vi": "≤2 ngày"}, "description": {"ko": "사전 승인 없는 결근이 월 2일 이하여야 합니다", "en": "Unapproved absences must be 2 days or less per month", "vi": "Vắng không phép phải dưới 2 ngày mỗi tháng"}}, "actualWorkingDays": {"name": {"ko": "실제 근무일", "en": "Actual Working Days", "vi": "Ngày làm thực tế"}, "criteria": {"ko": ">0일", "en": ">0 days", "vi": ">0 ngày"}, "description": {"ko": "실제 출근한 날이 1일 이상이어야 합니다", "en": "Must have at least 1 day of actual work attendance", "vi": "Phải có ít nhất 1 ngày làm việc thực tế"}}, "minimumWorkingDays": {"name": {"ko": "최소 근무일", "en": "Minimum Working Days", "vi": "Ngày làm tối thiểu"}, "criteria": {"ko": "≥12일", "en": "≥12 days", "vi": "≥12 ngày"}, "description": {"ko": "월간 최소 12일 이상 근무해야 합니다", "en": "Must work at least 12 days per month", "vi": "Phải làm việc ít nhất 12 ngày mỗi tháng"}}}}, "aql": {"title": {"ko": "🎯 AQL 조건 (4개)", "en": "🎯 AQL Conditions (4)", "vi": "🎯 Điều kiện AQL (4)"}, "items": {"personalFailure": {"name": {"ko": "개인 AQL (당월)", "en": "Personal AQL (Current Month)", "vi": "AQL cá nhân (Tháng hiện tại)"}, "criteria": {"ko": "실패 0건", "en": "0 failures", "vi": "0 thất bại"}, "description": {"ko": "당월 개인 AQL 검사 실패가 없어야 합니다", "en": "Must have no personal AQL inspection failures this month", "vi": "Không có thất bại kiểm tra AQL cá nhân trong tháng này"}}, "personalContinuous": {"name": {"ko": "개인 AQL (연속성)", "en": "Personal AQL (Continuity)", "vi": "AQL cá nhân (Liên tục)"}, "criteria": {"ko": "3개월 연속 실패 없음", "en": "No 3-month consecutive failures", "vi": "Không thất bại 3 tháng liên tiếp"}, "description": {"ko": "최근 3개월간 연속으로 AQL 실패가 없어야 합니다", "en": "Must not have AQL failures for 3 consecutive months", "vi": "Không có thất bại AQL trong 3 tháng liên tiếp"}}, "teamArea": {"name": {"ko": "팀/구역 AQL", "en": "Team/Area AQL", "vi": "AQL nhóm/khu vực"}, "criteria": {"ko": "3개월 연속 실패 없음", "en": "No 3-month consecutive failures", "vi": "Không thất bại 3 tháng liên tiếp"}, "description": {"ko": "관리하는 팀/구역에서 3개월 연속 실패자가 없어야 합니다", "en": "Managed team/area must have no failures for 3 consecutive months", "vi": "Nhóm/khu vực quản lý không có người thất bại trong 3 tháng liên tiếp"}}, "areaReject": {"name": {"ko": "담당구역 AQL Reject율", "en": "Area AQL Reject Rate", "vi": "Tỷ lệ từ chối AQL khu vực"}, "criteria": {"ko": "<3%", "en": "<3%", "vi": "<3%"}, "description": {"ko": "담당 구역의 AQL 리젝률이 3% 미만이어야 합니다", "en": "Area AQL reject rate must be less than 3%", "vi": "Tỷ lệ từ chối AQL khu vực phải dưới 3%"}}}}, "5prs": {"title": {"ko": "📊 5PRS 조건 (2개)", "en": "📊 5PRS Conditions (2)", "vi": "📊 Điều kiện 5PRS (2)"}, "items": {"passRate": {"name": {"ko": "5PRS 통과율", "en": "5PRS Pass Rate", "vi": "Tỷ lệ đạt 5PRS"}, "criteria": {"ko": "≥95%", "en": "≥95%", "vi": "≥95%"}, "description": {"ko": "5족 평가 시스템에서 95% 이상 통과해야 합니다", "en": "Must pass 95% or more in 5-pair evaluation system", "vi": "Phải đạt từ 95% trở lên trong hệ thống đánh giá 5 đôi"}}, "inspectionQty": {"name": {"ko": "5PRS 검사량", "en": "5PRS Inspection Quantity", "vi": "Số lượng kiểm tra 5PRS"}, "criteria": {"ko": "≥100개", "en": "≥100 pairs", "vi": "≥100 đôi"}, "description": {"ko": "월간 최소 100개 이상 검사를 수행해야 합니다", "en": "Must perform at least 100 inspections per month", "vi": "Phải thực hiện ít nhất 100 kiểm tra mỗi tháng"}}}}}, "positionMatrix": {"title": {"ko": "🎖️ 직급별 적용 조건", "en": "🎖️ Conditions by Position", "vi": "🎖️ Điều kiện theo chức vụ"}, "tableHeaders": {"position": {"ko": "직급", "en": "Position", "vi": "Chức vụ"}, "appliedConditions": {"ko": "적용 조건", "en": "Applied Conditions", "vi": "Điều kiện áp dụng"}, "conditionCount": {"ko": "조건 수", "en": "Condition Count", "vi": "Số điều kiện"}, "notes": {"ko": "특이사항", "en": "Notes", "vi": "Ghi chú"}}, "type2Table": {"allType2": {"ko": "모든 TYPE-2 직급", "en": "All TYPE-2 Positions", "vi": "Tất cả chức vụ TYPE-2"}, "fourConditions": {"ko": "4개", "en": "4", "vi": "4"}, "attendanceOnly": {"ko": "출근 조건만 적용", "en": "Attendance only", "vi": "Chỉ điều kiện chấm công"}}, "type3Table": {"newMember": {"ko": "NEW QIP MEMBER", "en": "NEW QIP MEMBER", "vi": "THÀNH VIÊN QIP MỚI"}, "noConditions": {"ko": "없음", "en": "None", "vi": "Không có"}, "zeroConditions": {"ko": "0개", "en": "0", "vi": "0"}, "newMemberNote": {"ko": "신입직원 - 인센티브 없음", "en": "New employee - No incentive", "vi": "Nhân viên mới - Không có thưởng"}}, "typeHeaders": {"type1": {"ko": "TYPE-1 직급별 조건", "en": "TYPE-1 Position Conditions", "vi": "Điều kiện chức vụ TYPE-1"}, "type2": {"ko": "TYPE-2 직급별 조건", "en": "TYPE-2 Position Conditions", "vi": "Điều kiện chức vụ TYPE-2"}, "type3": {"ko": "TYPE-3 직급별 조건", "en": "TYPE-3 Position Conditions", "vi": "Điều kiện chức vụ TYPE-3"}}, "notes": {"attendanceOnly": {"ko": "출근 조건만", "en": "Attendance only", "vi": "Chỉ điều kiện chấm công"}, "attendanceTeamAql": {"ko": "출근 + 팀/구역 AQL", "en": "Attendance + Team/Area AQL", "vi": "Chấm công + AQL nhóm/khu vực"}, "attendanceMonthAql": {"ko": "출근 + 당월 AQL (특별 계산)", "en": "Attendance + Monthly AQL (Special calculation)", "vi": "Chấm công + AQL tháng hiện tại (Đặc biệt)"}, "attendancePersonalAql5prs": {"ko": "출근 + 개인 AQL + 5PRS", "en": "Attendance + Personal AQL + 5PRS", "vi": "Chấm công + AQL cá nhân + 5PRS"}, "attendanceTeamAreaReject": {"ko": "출근 + 팀/구역 AQL + 담당구역 reject", "en": "Attendance + Team/Area AQL + Area reject", "vi": "Chấm công + AQL nhóm/khu vực + Từ chối khu vực"}, "attendanceAreaReject": {"ko": "출근 + 담당구역 reject", "en": "Attendance + Area reject", "vi": "Chấm công + Từ chối khu vực"}, "allConditions": {"ko": "모든 조건", "en": "All conditions", "vi": "Tất cả điều kiện"}, "noConditions": {"ko": "조건 없음 (신규 QIP)", "en": "No conditions (New QIP)", "vi": "Không có điều kiện (QIP mới)"}}}, "incentiveAmount": {"title": {"ko": "💰 인센티브 금액 계산", "en": "💰 Incentive Amount Calculation", "vi": "💰 Tính toán số tiền khen thưởng"}, "type1Range": {"ko": "TYPE-1: 300,000 - 500,000 VND", "en": "TYPE-1: 300,000 - 500,000 VND", "vi": "TYPE-1: 300.000 - 500.000 VND"}, "type2Range": {"ko": "TYPE-2: 200,000 - 400,000 VND", "en": "TYPE-2: 200,000 - 400,000 VND", "vi": "TYPE-2: 200.000 - 400.000 VND"}, "type3Range": {"ko": "TYPE-3: 100,000 VND (고정)", "en": "TYPE-3: 100,000 VND (Fixed)", "vi": "TYPE-3: 100.000 VND (Cố định)"}, "note": {"ko": "* 금액은 성과와 직급에 따라 결정됩니다", "en": "* Amount is determined by performance and position", "vi": "* Số tiền được xác định theo hiệu suất và chức vụ"}}, "specialRules": {"title": {"ko": "📘 특별 규칙", "en": "📘 Special Rules", "vi": "📘 Quy tắc đặc biệt"}, "rule1": {"ko": "AQL INSPECTOR는 당월 AQL 조건만 평가 (연속성 조건 제외)", "en": "AQL INSPECTOR is evaluated only on current month AQL (continuity excluded)", "vi": "AQL INSPECTOR chỉ đánh giá AQL tháng hiện tại (không liên tục)"}, "rule2": {"ko": "TYPE-3 직급은 조건 충족 여부와 무관하게 고정 금액 지급", "en": "TYPE-3 positions receive fixed amount regardless of condition fulfillment", "vi": "Chức vụ TYPE-3 nhận số tiền cố định bất kể điều kiện"}, "rule3": {"ko": "3개월 연속 조건은 직전 2개월 데이터 포함 평가", "en": "3-month continuity conditions include previous 2 months' data", "vi": "Điều kiện liên tục 3 tháng bao gồm dữ liệu 2 tháng trước"}}, "goodToKnow": {"title": {"ko": "💡 알아두면 좋은 정보", "en": "💡 Good to Know", "vi": "💡 Thông tin hữu ích"}, "corePrinciplesSubtitle": {"ko": "인센티브 계산 핵심 원칙", "en": "Core Principles of Incentive Calculation", "vi": "Nguyên tắc cốt lõi tính khen thưởng"}}, "faq": {"title": {"ko": "❓ 자주 묻는 질문", "en": "❓ Frequently Asked Questions", "vi": "❓ Câu hỏi thường gặp"}, "q1": {"question": {"ko": "Q: 조건을 하나라도 충족하지 못하면 인센티브를 못 받나요?", "en": "Q: If I fail even one condition, do I not receive any incentive?", "vi": "Q: Nếu tôi không đáp ứng một điều kiện, tôi có nhận được khen thưởng không?"}, "answer": {"ko": "A: 네, 모든 해당 조건을 충족해야 인센티브를 받을 수 있습니다.", "en": "A: Yes, all applicable conditions must be met to receive incentive.", "vi": "A: Đúng, tất cả điều kiện áp dụng phải được đáp ứng để nhận khen thưởng."}}, "q2": {"question": {"ko": "Q: TYPE-3 직급은 조건이 없나요?", "en": "Q: Do TYPE-3 positions have no conditions?", "vi": "Q: Chức vụ TYPE-3 không có điều kiện à?"}, "answer": {"ko": "A: TYPE-3는 신규 QIP 멤버로 기본 인센티브만 받으며 특별 조건이 없습니다.", "en": "A: TYPE-3 are new QIP members who receive basic incentive without special conditions.", "vi": "A: TYPE-3 là thành viên QIP mới nhận khen thưởng cơ bản không có điều kiện đặc biệt."}}}}, "modal": {"title": {"ko": "직원 상세 정보", "en": "Employee Details", "vi": "Chi tiết nhân viên"}, "incentiveCalculationDetail": {"ko": "인센티브 계산 상세", "en": "Incentive Calculation Details", "vi": "Chi tiết tính khen thưởng"}, "incentiveStats": {"ko": "인센티브 통계", "en": "Incentive Statistics", "vi": "Thống kê khen thưởng"}, "totalPersonnel": {"ko": "전체 인원", "en": "Total Personnel", "vi": "Tổng nhân sự"}, "paidPersonnel": {"ko": "지급 인원", "en": "Paid Personnel", "vi": "Nhân sự được trả"}, "unpaidPersonnel": {"ko": "미지급 인원", "en": "Unpaid Personnel", "vi": "Nhân sự chưa trả"}, "avgIncentive": {"ko": "평균 인센티브", "en": "Average Incentive", "vi": "Khen thưởng trung bình"}, "maxIncentive": {"ko": "최대 인센티브", "en": "Maximum Incentive", "vi": "Khen thưởng tối đa"}, "minIncentive": {"ko": "최소 인센티브", "en": "Minimum Incentive", "vi": "Khen thưởng tối thiểu"}, "median": {"ko": "중간값", "en": "Median", "vi": "Giá trị trung vị"}, "payment": {"paid": {"ko": "지급 완료", "en": "Payment Complete", "vi": "Đã thanh toán"}, "unpaid": {"ko": "미지급", "en": "Unpaid", "vi": "Chưa thanh toán"}}, "modalTitle": {"ko": "인센티브 계산 상세", "en": "Incentive Calculation Details", "vi": "Chi tiết tính khen thưởng"}, "conditionFulfillmentDetails": {"ko": "조건 충족 상세", "en": "Condition Fulfillment Details", "vi": "Chi tiết đáp ứng điều kiện"}, "condition": {"ko": "조건", "en": "Condition", "vi": "Điều kiện"}, "evaluationTarget": {"ko": "평가 대상", "en": "Evaluation Target", "vi": "Đối tượng đánh giá"}, "fulfillmentRate": {"ko": "충족률", "en": "Fulfillment Rate", "vi": "Tỷ lệ đạt"}, "fulfilled": {"ko": "충족", "en": "Fulfilled", "vi": "Đạt"}, "notFulfilled": {"ko": "미충족", "en": "Not Fulfilled", "vi": "Không đạt"}, "paymentRate": {"ko": "지급율", "en": "Payment Rate", "vi": "Tỷ lệ chi trả"}, "employeeDetails": {"ko": "직원별 상세 현황", "en": "Employee Details Status", "vi": "Tình trạng chi tiết nhân viên"}, "all": {"ko": "전체", "en": "All", "vi": "Tất cả"}, "paidOnly": {"ko": "지급자만", "en": "Paid Only", "vi": "Chỉ đã trả"}, "unpaidOnly": {"ko": "미지급자만", "en": "Unpaid Only", "vi": "Chỉ chưa trả"}, "conditionStatus": {"ko": "조건 충족 현황", "en": "Condition Fulfillment Status", "vi": "Tình trạng đáp ứng điều kiện"}, "attendance": {"ko": "출근", "en": "Attendance", "vi": "Chấm công"}, "aql": {"ko": "AQL", "en": "AQL", "vi": "AQL"}, "prs": {"ko": "5PRS", "en": "5PRS", "vi": "5PRS"}, "conditionNames": {"attendance_88": {"ko": "출근율 88% 이상", "en": "Attendance ≥88%", "vi": "Chấm công ≥88%"}, "no_unexcused_2days": {"ko": "무단결근 2일 이하", "en": "Unexcused absence ≤2 days", "vi": "Vắng không phép ≤2 ngày"}, "accident_free": {"ko": "실제근무일 0일 초과", "en": "Actual working days >0", "vi": "Ngày làm việc thực tế >0"}, "min_days_12": {"ko": "최소 근무일 12일 이상", "en": "Min. working days ≥12", "vi": "Ngày làm việc tối thiểu ≥12"}, "personal_aql_0": {"ko": "개인AQL: 당월실패 0건", "en": "Personal AQL: 0 failures", "vi": "AQL cá nhân: 0 thất bại"}, "continuous_aql_3months": {"ko": "연속성 체크: 3개월 연속 실패 없음", "en": "Continuity: No failures for 3 months", "vi": "Liên tục: Không thất bại 3 tháng"}, "team_aql_3months": {"ko": "팀/구역 AQL: 3개월 연속 실패 없음", "en": "Team/Area AQL: No failures for 3 months", "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng"}, "reject_rate_3": {"ko": "담당구역 reject % < 3%", "en": "Area reject rate <3%", "vi": "Tỷ lệ từ chối khu vực <3%"}, "prs_rate_95": {"ko": "5PRS 통과율 95% 이상", "en": "5PRS pass rate ≥95%", "vi": "Tỷ lệ đạt 5PRS ≥95%"}, "prs_count_100": {"ko": "5PRS 검사량 100족 이상", "en": "5PRS inspection ≥100 pairs", "vi": "Kiểm tra 5PRS ≥100 đôi"}}, "conditionCategories": {"attendance": {"ko": "출근", "en": "Attendance", "vi": "Chấm công"}, "aql": {"ko": "AQL", "en": "AQL", "vi": "AQL"}, "prs": {"ko": "5PRS", "en": "5PRS", "vi": "5PRS"}}, "close": {"ko": "닫기", "en": "Close", "vi": "Đóng"}, "basicInfo": {"title": {"ko": "기본 정보", "en": "Basic Information", "vi": "Thông tin cơ bản"}, "employeeId": {"ko": "사원번호", "en": "Employee ID", "vi": "Mã nhân viên"}, "name": {"ko": "이름", "en": "Name", "vi": "Họ tên"}, "position": {"ko": "직급", "en": "Position", "vi": "Chức vụ"}, "type": {"ko": "Type", "en": "Type", "vi": "Loại"}}, "incentiveInfo": {"title": {"ko": "인센티브 정보", "en": "Incentive Information", "vi": "Thông tin khen thưởng"}, "amount": {"ko": "지급액", "en": "Payment Amount", "vi": "Số tiền"}, "calculationBasis": {"ko": "계산 근거", "en": "Calculation Basis", "vi": "Cơ sở tính toán"}}, "tableHeaders": {"employeeNo": {"ko": "직원번호", "en": "Employee No", "vi": "Mã nhân viên"}, "name": {"ko": "이름", "en": "Name", "vi": "Họ tên"}, "incentive": {"ko": "인센티브", "en": "Incentive", "vi": "Tiền thưởng"}, "status": {"ko": "상태", "en": "Status", "vi": "Trạng thái"}, "conditionFulfillment": {"ko": "조건 충족 현황", "en": "Condition Fulfillment", "vi": "Tình trạng điều kiện"}}, "paymentStatus": {"paid": {"ko": "지급", "en": "Paid", "vi": "Đã trả"}, "unpaid": {"ko": "미지급", "en": "Unpaid", "vi": "Chưa trả"}, "completePaid": {"ko": "지급 완료", "en": "Payment Complete", "vi": "Đã thanh toán"}}, "conditions": {"title": {"ko": "조건 충족 현황", "en": "Condition Status", "vi": "Tình trạng điều kiện"}, "met": {"ko": "충족", "en": "Met", "vi": "Đạt"}, "notMet": {"ko": "미충족", "en": "Not Met", "vi": "Không đạt"}, "notApplicable": {"ko": "해당없음", "en": "N/A", "vi": "Không áp dụng"}, "metUnmet": {"ko": "충족/미충족", "en": "Met/Unmet", "vi": "Đạt/Không đạt"}}, "detailPopup": {"conditionFulfillment": {"ko": "조건 충족도", "en": "Condition Fulfillment", "vi": "Mức độ đáp ứng điều kiện"}, "paymentStatus": {"ko": "지급 상태", "en": "Payment Status", "vi": "Trạng thái thanh toán"}, "lastMonthIncentive": {"ko": "지난달 인센티브", "en": "Last Month's Incentive", "vi": "Tiền thưởng tháng trước"}, "conditionsFulfilled": {"ko": "조건 충족", "en": "conditions fulfilled", "vi": "điều kiện đã đáp ứng"}, "conditionNotMet": {"ko": "조건 미충족", "en": "Conditions not met", "vi": "Không đủ điều kiện"}, "noConditions": {"ko": "해당 조건 없음", "en": "No applicable conditions", "vi": "Không có điều kiện áp dụng"}, "conditionDetails": {"ko": "조건 충족 상세", "en": "Condition Fulfillment Details", "vi": "Chi tiết điều kiện đáp ứng"}, "condition": {"ko": "조건", "en": "Condition", "vi": "Điều kiện"}, "performance": {"ko": "실적", "en": "Performance", "vi": "Hiệu suất"}, "result": {"ko": "결과", "en": "Result", "vi": "Kết quả"}}, "conditionTexts": {"attendanceRate": {"ko": "출근율 88% 이상", "en": "Attendance rate ≥88%", "vi": "Tỷ lệ chấm công ≥88%"}, "unapprovedAbsence": {"ko": "무단결근 2일 이하", "en": "Unapproved absence ≤2 days", "vi": "Vắng không phép ≤2 ngày"}, "actualWorkingDays": {"ko": "실제근무일 0일 초과", "en": "Actual working days >0", "vi": "Ngày làm thực tế >0"}, "minWorkingDays": {"ko": "최소 근무일 12일 이상", "en": "Minimum working days ≥12", "vi": "Tối thiểu ≥12 ngày"}, "personalAQLFail": {"ko": "개인AQL: 당월실패 0건", "en": "Personal AQL: 0 monthly failures", "vi": "AQL cá nhân: 0 thất bại tháng"}, "continuityCheck": {"ko": "연속성 체크: 3개월 연속 실패 없음", "en": "Continuity check: No 3-month consecutive failures", "vi": "Kiểm tra liên tục: Không thất bại 3 tháng liên tiếp"}, "teamAreaAQL": {"ko": "팀/구역 AQL: 3개월 연속 실패 없음", "en": "Team/Area AQL: No 3-month consecutive failures", "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"}, "areaRejectRate": {"ko": "담당구역 reject % < 3%", "en": "Area reject rate < 3%", "vi": "Tỷ lệ từ chối khu vực < 3%"}, "5prsPassRate": {"ko": "5PRS 통과율 95% 이상", "en": "5PRS pass rate ≥95%", "vi": "Tỷ lệ đạt 5PRS ≥95%"}, "5prsInspectionQty": {"ko": "5PRS 검사량 100족 이상", "en": "5PRS inspection qty ≥100 pairs", "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"}}, "tenConditions": {"1": {"ko": "출근율 88% 이상", "en": "Attendance rate ≥88%", "vi": "Tỷ lệ chấm công ≥88%"}, "2": {"ko": "무단결근 2일 이하", "en": "Unapproved absence ≤2 days", "vi": "Vắng không phép ≤2 ngày"}, "3": {"ko": "실제근무일 0일 초과", "en": "Actual working days >0", "vi": "Ngày làm thực tế >0"}, "4": {"ko": "최소 근무일 12일 이상", "en": "Min working days ≥12", "vi": "Tối thiểu ≥12 ngày"}, "5": {"ko": "개인AQL: 당월실패 0건", "en": "Personal AQL: 0 monthly failures", "vi": "AQL cá nhân: 0 thất bại tháng"}, "6": {"ko": "연속성 체크: 3개월 연속 실패 없음", "en": "Continuity: No 3-month consecutive failures", "vi": "Liên tục: Không thất bại 3 tháng liên tiếp"}, "7": {"ko": "팀/구역 AQL: 3개월 연속 실패 없음", "en": "Team/Area AQL: No 3-month consecutive failures", "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"}, "8": {"ko": "담당구역 reject % < 3%", "en": "Area reject rate < 3%", "vi": "Tỷ lệ từ chối khu vực < 3%"}, "9": {"ko": "5PRS 통과율 95% 이상", "en": "5PRS pass rate ≥95%", "vi": "Tỷ lệ đạt 5PRS ≥95%"}, "10": {"ko": "5PRS 검사량 100족 이상", "en": "5PRS inspection qty ≥100 pairs", "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"}}}, "common": {"currency": {"ko": "VND", "en": "VND", "vi": "VND"}, "people": {"ko": "명", "en": "people", "vi": "người"}, "july": {"ko": "7월", "en": "July", "vi": "Tháng 7"}, "august": {"ko": "8월", "en": "August", "vi": "Tháng 8"}, "person": {"ko": "명", "en": "person", "vi": "người"}, "loading": {"ko": "로딩 중...", "en": "Loading...", "vi": "Đang tải..."}, "error": {"ko": "오류가 발생했습니다", "en": "An error occurred", "vi": "Đã xảy ra lỗi"}, "noData": {"ko": "데이터 없음", "en": "No data", "vi": "Không có dữ liệu"}, "days": {"ko": "일", "en": "days", "vi": "ngày"}, "day": {"ko": "일", "en": "day", "vi": "ngày"}}, "status": {"paid": {"ko": "지급", "en": "Paid", "vi": "Đã trả"}, "unpaid": {"ko": "미지급", "en": "Unpaid", "vi": "Chưa trả"}, "eligible": {"ko": "지급 대상", "en": "Eligible", "vi": "Đủ điều kiện"}, "ineligible": {"ko": "미지급 대상", "en": "Ineligible", "vi": "Không đủ điều kiện"}}, "incentiveCalculation": {"type1Title": {"ko": "TYPE-1 직급별 인센티브 계산 방법 및 실제 예시", "en": "TYPE-1 Position Incentive Calculation Method and Examples", "vi": "Phương pháp tính thưởng và ví dụ thực tế cho TYPE-1"}, "tableHeaders": {"position": {"ko": "직급", "en": "Position", "vi": "Chức vụ"}, "calculationMethod": {"ko": "계산 방법", "en": "Calculation Method", "vi": "Phương pháp tính"}, "actualExample": {"ko": "실제 예시", "en": "Actual Example", "vi": "Ví dụ thực tế"}}, "conditionsMet": {"ko": "조건 충족시 TYPE-1 평균 인센티브", "en": "TYPE-1 average incentive when conditions met", "vi": "Thưởng trung bình TYPE-1 khi đáp ứng điều kiện"}, "conditionsNotMet": {"ko": "조건 미충족", "en": "Conditions not met", "vi": "Không đáp ứng điều kiện"}, "incentive": {"ko": "인센티브", "en": "Incentive", "vi": "Thưởng"}, "appliedConditions": {"ko": "적용 조건", "en": "Applied Conditions", "vi": "Điều kiện áp dụng"}, "attendanceConditions": {"ko": "출근(1-4) = 4개 조건", "en": "Attendance(1-4) = 4 conditions", "vi": "Chấm công(1-4) = 4 điều kiện"}, "lineLeaderAverage": {"ko": "Line Leader 평균", "en": "Line Leader Average", "vi": "Trung bình Line Leader"}, "calculation": {"ko": "계산", "en": "Calculation", "vi": "Tính toán"}, "example": {"ko": "예시", "en": "Example", "vi": "Ví dụ"}, "employee": {"ko": "직원", "en": "Employee", "vi": "Nhân viên"}, "workingDays": {"ko": "근무일", "en": "Working days", "vi": "Ngày làm việc"}, "days": {"ko": "일", "en": "days", "vi": "ngày"}, "conditionsNotMetZero": {"ko": "조건 미충족 → 0 VND", "en": "Conditions not met → 0 VND", "vi": "Không đáp ứng điều kiện → 0 VND"}, "conditionsNotMetReset": {"ko": "예시: 조건 미충족 → 리셋", "en": "Example: Conditions not met → Reset", "vi": "Ví dụ: Không đáp ứng điều kiện → Đặt lại"}, "positions": {"manager": {"ko": "1. MANAGER", "en": "1. MANAGER", "vi": "1. MANAGER"}, "aManager": {"ko": "2. A.MANAGER", "en": "2. A.MANAGER", "vi": "2. A.MANAGER"}, "vSupervisor": {"ko": "3. (V) SUPERVISOR", "en": "3. (V) SUPERVISOR", "vi": "3. (V) SUPERVISOR"}, "groupLeader": {"ko": "4. GROUP LEADER", "en": "4. GROUP LEADER", "vi": "4. GROUP LEADER"}, "lineLeader": {"ko": "5. LINE LEADER", "en": "5. LINE LEADER", "vi": "5. LINE LEADER"}, "aqlInspector": {"ko": "6. AQL INSPECTOR", "en": "6. AQL INSPECTOR", "vi": "6. AQL INSPECTOR"}, "assemblyInspector": {"ko": "7. ASSEMBLY INSPECTOR", "en": "7. ASSEMBLY INSPECTOR", "vi": "7. ASSEMBLY INSPECTOR"}, "auditTraining": {"ko": "8. AUDIT & TRAINING", "en": "8. AUDIT & TRAINING", "vi": "8. AUDIT & TRAINING"}, "modelMaster": {"ko": "9. MODEL MASTER", "en": "9. MODEL MASTER", "vi": "9. MODEL MASTER"}}, "subordinateIncentive": {"ko": "부하직원 인센티브 기반 계산", "en": "Subordinate Incentive Based Calculation", "vi": "Tính toán dựa trên thưởng nhân viên cấp dưới"}, "subordinateTotal": {"ko": "부하직원 총", "en": "Subordinate Total", "vi": "Tổng nhân viên cấp dưới"}, "receivingRatio": {"ko": "수령 비율", "en": "Receiving Ratio", "vi": "Tỷ lệ nhận"}, "specialCalculation": {"ko": "Part1 + Part2 + Part3 특별 계산", "en": "Part1 + Part2 + Part3 Special Calculation", "vi": "Tính toán đặc biệt Part1 + Part2 + Part3"}, "aqlEvaluation": {"ko": "Part 1: AQL 평가 결과", "en": "Part 1: AQL Evaluation Result", "vi": "Part 1: Kết quả đánh giá AQL"}, "cfaCertificate": {"ko": "Part 2: CFA 자격증", "en": "Part 2: CFA Certificate", "vi": "Part 2: Chứng chỉ CFA"}, "cfaHolderBonus": {"ko": "CFA 자격증 보유시", "en": "CFA Certificate Holder", "vi": "Người có chứng chỉ CFA"}, "hwkClaim": {"ko": "Part 3: HWK 클레임 방지", "en": "Part 3: HWK Claim Prevention", "vi": "Part 3: Ngăn ngừa khiếu nại HWK"}, "consecutiveMonthIncentive": {"ko": "연속 충족 개월 기준 인센티브", "en": "Consecutive Month Fulfillment Incentive", "vi": "Thưởng theo số tháng đáp ứng liên tục"}, "months": {"ko": "개월", "en": "months", "vi": "tháng"}, "month": {"ko": "개월", "en": "month", "vi": "tháng"}, "consecutiveFulfillment": {"ko": "연속 충족", "en": "consecutive fulfillment", "vi": "đáp ứng liên tục"}, "previousMonth": {"ko": "전월", "en": "Previous month", "vi": "Tháng trước"}, "currentMonthEvaluation": {"ko": "당월 평가", "en": "Current month evaluation", "vi": "Đánh giá tháng hiện tại"}, "attendanceRate": {"ko": "출근율", "en": "Attendance rate", "vi": "Tỷ lệ chấm công"}, "unauthorizedAbsence": {"ko": "무단결근", "en": "Unauthorized absence", "vi": "Vắng mặt không phép"}, "allAttendanceConditionsMet": {"ko": "출근 조건 모두 충족", "en": "All attendance conditions met", "vi": "Đáp ứng tất cả điều kiện chấm công"}, "teamAqlNoConsecutiveFail": {"ko": "팀AQL 연속실패 없음", "en": "No team AQL consecutive failures", "vi": "Không có thất bại liên tục AQL nhóm"}, "rejectRate": {"ko": "reject율", "en": "Reject rate", "vi": "Tỷ lệ từ chối"}, "resetToZeroMonths": {"ko": "연속개월 0으로 리셋", "en": "Reset to 0 consecutive months", "vi": "Đặt lại về 0 tháng liên tục"}, "maxAchieved": {"ko": "이상 최대", "en": "or more (maximum)", "vi": "trở lên (tối đa)"}, "passRate": {"ko": "통과율", "en": "Pass rate", "vi": "Tỷ lệ đạt"}, "inspectionQuantity": {"ko": "검사량", "en": "Inspection quantity", "vi": "Số lượng kiểm tra"}, "personalAqlFailures": {"ko": "개인AQL 실패", "en": "Personal AQL failures", "vi": "Thất bại AQL cá nhân"}, "pieces": {"ko": "족", "en": "pcs", "vi": "đôi"}, "cases": {"ko": "건", "en": "cases", "vi": "trường hợp"}, "total": {"ko": "합계", "en": "Total", "vi": "Tổng cộng"}, "exampleEmployee": {"ko": "예시: {{employeeId}} 직원", "en": "Example: Employee {{employeeId}}", "vi": "Ví dụ: Nhân viên {{employeeId}}"}, "conditionNotMetDays": {"ko": "조건 미충족(근무일 {{days}}일)", "en": "Condition not met ({{days}} working days)", "vi": "Không đáp ứng điều kiện ({{days}} ngày làm việc)"}, "cfaHolder": {"ko": "CFA 보유", "en": "CFA holder", "vi": "Có CFA"}, "applyConditionAttendance": {"ko": "적용 조건: 출근(1-4) = 4개 조건", "en": "Applied conditions: Attendance(1-4) = 4 conditions", "vi": "Điều kiện áp dụng: Chấm công(1-4) = 4 điều kiện"}, "applyConditionLineLeader": {"ko": "적용 조건: 출근(1-4) + 팀/구역 AQL(7) = 5개 조건", "en": "Applied conditions: Attendance(1-4) + Team/Area AQL(7) = 5 conditions", "vi": "Điều kiện áp dụng: Chấm công(1-4) + AQL nhóm/khu vực(7) = 5 điều kiện"}, "applyConditionAssembly": {"ko": "적용 조건: 1-4(출근), 5-6(개인AQL), 9-10(5PRS)", "en": "Applied conditions: 1-4(Attendance), 5-6(Personal AQL), 9-10(5PRS)", "vi": "Điều kiện áp dụng: 1-4(Chấm công), 5-6(AQL cá nhân), 9-10(5PRS)"}, "applyConditionAudit": {"ko": "적용 조건: 1-4(출근), 7(팀AQL), 8(reject율)", "en": "Applied conditions: 1-4(Attendance), 7(Team AQL), 8(Reject rate)", "vi": "Điều kiện áp dụng: 1-4(Chấm công), 7(AQL nhóm), 8(Tỷ lệ từ chối)"}, "applyConditionModel": {"ko": "적용 조건: 1-4(출근), 8(reject율 <3%)", "en": "Applied conditions: 1-4(Attendance), 8(Reject rate <3%)", "vi": "Điều kiện áp dụng: 1-4(Chấm công), 8(Tỷ lệ từ chối <3%)"}, "levelA": {"ko": "Level-A", "en": "Level-A", "vi": "Level-A"}, "exampleConditionsNotMetReset": {"ko": "예시: 조건 미충족 → 리셋", "en": "Example: Conditions not met → Reset", "vi": "Ví dụ: Không đáp ứng điều kiện → Đặt lại"}, "exampleConsecutiveFulfillment": {"ko": "예시: {{months}}개월 연속 충족", "en": "Example: {{months}} months consecutive fulfillment", "vi": "Ví dụ: {{months}} tháng đáp ứng liên tục"}, "exampleMaxAchieved": {"ko": "예시: {{months}}개월 이상 최대", "en": "Example: {{months}} months or more (maximum)", "vi": "Ví dụ: {{months}} tháng trở lên (tối đa)"}, "calculationMethod": {"ko": "계산", "en": "Calculation", "vi": "Tính toán"}, "consecutiveMonths": {"ko": "{{months}}개월 연속 충족", "en": "{{months}} months consecutive fulfillment", "vi": "{{months}} tháng đáp ứng liên tục"}, "monthRanges": {"month0to1": {"ko": "0-1개월", "en": "0-1 month", "vi": "0-1 tháng"}, "month1": {"ko": "1개월", "en": "1 month", "vi": "1 tháng"}, "month2": {"ko": "2개월", "en": "2 months", "vi": "2 tháng"}, "month3": {"ko": "3개월", "en": "3 months", "vi": "3 tháng"}, "month4": {"ko": "4개월", "en": "4 months", "vi": "4 tháng"}, "month5": {"ko": "5개월", "en": "5 months", "vi": "5 tháng"}, "month6": {"ko": "6개월", "en": "6 months", "vi": "6 tháng"}, "month7": {"ko": "7개월", "en": "7 months", "vi": "7 tháng"}, "month8": {"ko": "8개월", "en": "8 months", "vi": "8 tháng"}, "month9": {"ko": "9개월", "en": "9 months", "vi": "9 tháng"}, "month9plus": {"ko": "9개월+", "en": "9 months+", "vi": "9 tháng+"}, "month10": {"ko": "10개월", "en": "10 months", "vi": "10 tháng"}, "month11": {"ko": "11개월", "en": "11 months", "vi": "11 tháng"}, "month12plus": {"ko": "12개월+", "en": "12 months+", "vi": "12 tháng+"}}, "assemblyInspectorIncentiveTitle": {"ko": "TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브", "en": "TYPE-1 ASSEMBLY INSPECTOR Consecutive Service Incentive", "vi": "Thưởng phục vụ liên tục TYPE-1 ASSEMBLY INSPECTOR"}, "consecutiveAchievementMonths": {"ko": "연속 목표 달성 개월", "en": "Consecutive Achievement Months", "vi": "Tháng đạt mục tiêu liên tục"}, "incentiveAmountVND": {"ko": "인센티브 금액 (VND)", "en": "Incentive Amount (VND)", "vi": "Số tiền thưởng (VND)"}, "type2CalculationTitle": {"ko": "TYPE-2 전체 직급 인센티브 계산 방법", "en": "TYPE-2 All Position Incentive Calculation Method", "vi": "Phương pháp tính thưởng tất cả chức vụ TYPE-2"}, "type2CalculationPrincipleLabel": {"ko": "TYPE-2 계산 원칙:", "en": "TYPE-2 Calculation Principle:", "vi": "Nguyên tắc tính TYPE-2:"}, "type2CalculationPrincipleText": {"ko": "TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.", "en": "TYPE-2 positions are calculated based on the average incentive of corresponding TYPE-1 positions.", "vi": "Chức vụ TYPE-2 được tính dựa trên thưởng trung bình của chức vụ TYPE-1 tương ứng."}, "average": {"ko": "평균", "en": "Average", "vi": "Trung bình"}, "orMore": {"ko": "이상", "en": "or more", "vi": "trở lên"}, "simpleMonths": {"month1": {"ko": "1개월", "en": "1 month", "vi": "1 tháng"}, "month2": {"ko": "2개월", "en": "2 months", "vi": "2 tháng"}, "month3": {"ko": "3개월", "en": "3 months", "vi": "3 tháng"}, "month4": {"ko": "4개월", "en": "4 months", "vi": "4 tháng"}, "month5": {"ko": "5개월", "en": "5 months", "vi": "5 tháng"}, "month6": {"ko": "6개월", "en": "6 months", "vi": "6 tháng"}, "month7": {"ko": "7개월", "en": "7 months", "vi": "7 tháng"}, "month8": {"ko": "8개월", "en": "8 months", "vi": "8 tháng"}, "month9": {"ko": "9개월", "en": "9 months", "vi": "9 tháng"}, "month10": {"ko": "10개월", "en": "10 months", "vi": "10 tháng"}, "month11": {"ko": "11개월", "en": "11 months", "vi": "11 tháng"}, "month12": {"ko": "12개월", "en": "12 months", "vi": "12 tháng"}}, "type3Section": {"title": {"ko": "TYPE-3 신입 직원 인센티브", "en": "TYPE-3 New Employee Incentive", "vi": "Thưởng nhân viên mới TYPE-3"}, "position": {"ko": "구분", "en": "Category", "vi": "Phân loại"}, "standardIncentive": {"ko": "기준 인센티브", "en": "Standard Incentive", "vi": "Thưởng chuẩn"}, "calculationMethod": {"ko": "계산 방법", "en": "Calculation Method", "vi": "Phương pháp tính"}, "newQipMember": {"ko": "NEW QIP MEMBER", "en": "NEW QIP MEMBER", "vi": "THÀNH VIÊN QIP MỚI"}, "noIncentive": {"ko": "신입 직원은 인센티브 지급 없음", "en": "No incentive for new employees", "vi": "Không có thưởng cho nhân viên mới"}, "oneMonthTraining": {"ko": "단, 1달 후 근무지 배치한 다음부터", "en": "However, after 1 month training and assignment", "vi": "Tuy nhiên, sau 1 tháng đào tạo và phân công"}, "typeReclassification": {"ko": "TYPE을 변경하며, 인센티브 지급 조건 부여됨", "en": "TYPE will be changed and incentive conditions applied", "vi": "Loại sẽ được thay đổi và áp dụng điều kiện thưởng"}}, "goodToKnow": {"title": {"ko": "Good to Know", "en": "Good to Know", "vi": "Điều cần biết"}, "corePrinciples": {"ko": "Core Principles of Incentive Calculation", "en": "Core Principles of Incentive Calculation", "vi": "Nguyên tắc cơ bản tính thưởng"}, "failurePrinciple": {"ko": "실제 지급액: 표시된 금액 범위는 예시이며, 실제 지급액은 개인의 성과와 조건 충족 여부에 따라 달라집니다.", "en": "Actual Payment: The displayed amount range is for reference, actual payment depends on individual performance and condition fulfillment.", "vi": "Thanh toán thực tế: Phạm vi số tiền hiển thị chỉ để tham khảo, thanh toán thực tế phụ thuộc vào hiệu suất cá nhân và việc đáp ứng điều kiện."}, "type2Principle": {"ko": "TYPE-2 동적 계산: TYPE-2 직원의 인센티브는 매월 해당 TYPE-1 직급의 실제 평균값으로 자동 계산됩니다.", "en": "TYPE-2 Dynamic Calculation: TYPE-2 employee incentives are automatically calculated based on the actual monthly average of corresponding TYPE-1 positions.", "vi": "Tính toán động TYPE-2: Thưởng nhân viên TYPE-2 được tính tự động dựa trên mức trung bình hàng tháng thực tế của các vị trí TYPE-1 tương ứng."}, "consecutiveBonus": {"ko": "연속성 보상: ASSEMBLY INSPECTOR는 연속 근무 개월이 증가할수록 인센티브가 단계적으로 상승합니다.", "en": "Consecutive Bonus: ASSEMBLY INSPECTOR incentives increase progressively with consecutive months of service.", "vi": "Thưởng liên tục: Thưởng ASSEMBLY INSPECTOR tăng dần theo số tháng làm việc liên tục."}, "specialCalculation": {"ko": "특별 계산 직급: AQL INSPECTOR(3단계 합산: Part1 + Part2 + Part3)", "en": "Special Calculation Position: AQL INSPECTOR (3-tier sum: Part1 + Part2 + Part3)", "vi": "Vị trí tính toán đặc biệt: AQL INSPECTOR (Tổng 3 cấp: Part1 + Part2 + Part3)"}, "conditionFailure": {"ko": "조건 미충족시: 하나라도 필수 조건을 충족하지 못하면 인센티브가 0이 됩니다.", "en": "Condition Failure: If any required condition is not met, incentive becomes 0.", "vi": "Không đáp ứng điều kiện: Nếu bất kỳ điều kiện bắt buộc nào không được đáp ứng, thưởng sẽ là 0."}, "monthlyIncentiveChangeReasons": {"ko": "월별 인센티브 변동 요인", "en": "Monthly Incentive Change Factors", "vi": "Yếu tố thay đổi thưởng hàng tháng"}, "changeFactors": {"ko": "변동 요인", "en": "Change Factors", "vi": "Yếu tố thay đổi"}, "impact": {"ko": "영향", "en": "Impact", "vi": "Tác động"}, "example": {"ko": "예시", "en": "Example", "vi": "Ví dụ"}, "minimumDays": {"ko": "근무일수", "en": "Working Days", "vi": "Ngày làm việc"}, "lessThan12Days": {"ko": "12일 미만시 미지급", "en": "No payment if less than 12 days", "vi": "Không thanh toán nếu ít hơn 12 ngày"}, "november11Days": {"ko": "11월 근무 → 0 VND", "en": "November working → 0 VND", "vi": "Làm việc tháng 11 → 0 VND"}, "attendanceRate": {"ko": "출근율", "en": "Attendance Rate", "vi": "Tỷ lệ chuyên cần"}, "lessThan88Percent": {"ko": "88% 미만시 미지급", "en": "No payment if less than 88%", "vi": "Không thanh toán nếu dưới 88%"}, "attendanceExample": {"ko": "87% 출근율 → 0 VND", "en": "87% attendance → 0 VND", "vi": "87% chuyên cần → 0 VND"}, "unauthorizedAbsence": {"ko": "무단결근", "en": "Unauthorized Absence", "vi": "Vắng mặt không phép"}, "moreThan3Days": {"ko": "3일 이상시 미지급", "en": "No payment if 3 days or more", "vi": "Không thanh toán nếu 3 ngày trở lên"}, "unauthorizedExample": {"ko": "3일 무단결근 → 0 VND", "en": "3 days unauthorized absence → 0 VND", "vi": "3 ngày vắng không phép → 0 VND"}, "aqlFailure": {"ko": "AQL 실패", "en": "AQL Failure", "vi": "Thất bại AQL"}, "currentMonthFailure": {"ko": "해당 직급만 영향", "en": "Affects specific positions only", "vi": "Chỉ ảnh hưởng vị trí cụ thể"}, "aqlFailureExample": {"ko": "AQL 실패 → 조건 미충족", "en": "AQL failure → Condition not met", "vi": "Thất bại AQL → Không đáp ứng điều kiện"}, "fprsPassRate": {"ko": "5PRS 통과율", "en": "5PRS Pass Rate", "vi": "Tỷ lệ đạt 5PRS"}, "lessThan95Percent": {"ko": "95% 미만시 미지급 (해당자)", "en": "No payment if less than 95% (applicable)", "vi": "Không thanh toán nếu dưới 95% (áp dụng)"}, "fprsExample": {"ko": "94% → 0 VND", "en": "94% → 0 VND", "vi": "94% → 0 VND"}}, "attendanceCalculation": {"title": {"ko": "출근율 계산 방식", "en": "Attendance Rate Calculation Method", "vi": "Phương pháp tính tỷ lệ chuyên cần"}, "actualFormula": {"ko": "실제 계산 공식 (시스템 구현):", "en": "Actual Calculation Formula (System Implementation):", "vi": "Công thức tính thực tế (Triển khai hệ thống):"}, "attendanceRateFormula": {"ko": "출근율(%) = 100 - 결근율(%)", "en": "Attendance Rate(%) = 100 - Absence Rate(%)", "vi": "Tỷ lệ chuyên cần(%) = 100 - Tỷ lệ vắng mặt(%)"}, "absenceRateFormula": {"ko": "결근율(%) = (결근 일수 / 총 근무일) × 100", "en": "Absence Rate(%) = (Absence Days / Total Working Days) × 100", "vi": "Tỷ lệ vắng(%) = (Số ngày vắng / Tổng ngày làm việc) × 100"}, "absenceDaysNote": {"ko": "* 결근 일수 = 총 근무일 - 실제 근무일 - 승인된 휴가", "en": "* Absence Days = Total Working Days - Actual Working Days - Approved Leave", "vi": "* Số ngày vắng = Tổng ngày làm việc - Ngày làm việc thực tế - Nghỉ phép được duyệt"}, "calculationExample": {"ko": "결근율 계산 예시:", "en": "Absence Rate Calculation Examples:", "vi": "Ví dụ tính tỷ lệ vắng mặt:"}, "example1Title": {"ko": "예시 1: 정상 근무자", "en": "Example 1: Normal Worker", "vi": "Ví dụ 1: Nhân viên bình thường"}, "example2Title": {"ko": "예시 2: 무단결근 포함", "en": "Example 2: Including Unauthorized Absence", "vi": "Ví dụ 2: Bao gồm vắng không phép"}, "example3Title": {"ko": "예시 3: 조건 충족 경계선", "en": "Example 3: Borderline Case", "vi": "Ví dụ 3: Trường hợp giới hạn"}, "totalWorkingDays": {"ko": "총 근무일", "en": "Total Working Days", "vi": "Tổng ngày làm việc"}, "actualWorkingDays": {"ko": "실제 근무일", "en": "Actual Working Days", "vi": "Ngày làm việc thực tế"}, "approvedLeave": {"ko": "승인된 휴가", "en": "Approved Leave", "vi": "Nghỉ phép được duyệt"}, "annualLeave": {"ko": "연차", "en": "Annual Leave", "vi": "Nghỉ phép năm"}, "sickLeave": {"ko": "병가", "en": "Sick Leave", "vi": "Nghỉ ốm"}, "unauthorizedAbsence": {"ko": "무단결근", "en": "Unauthorized Absence", "vi": "Vắng không phép"}, "absenceDays": {"ko": "결근 일수", "en": "Absence Days", "vi": "Số ngày vắng"}, "absenceRate": {"ko": "결근율", "en": "Absence Rate", "vi": "Tỷ lệ vắng"}, "attendanceRate": {"ko": "출근율", "en": "Attendance Rate", "vi": "Tỷ lệ chuyên cần"}, "days": {"ko": "일", "en": "days", "vi": "ngày"}, "lessThan88": {"ko": "88% 미만", "en": "Less than 88%", "vi": "Dưới 88%"}}, "faq": {"title": {"ko": "자주 묻는 질문", "en": "Frequently Asked Questions", "vi": "Câu hỏi thường gặp"}, "case1Title": {"ko": "예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)", "en": "Example 1: TYPE-1 ASSEMBLY INSPECTOR (10 consecutive months)", "vi": "Ví dụ 1: TYPE-1 ASSEMBLY INSPECTOR (10 tháng liên tục)"}, "employee": {"ko": "직원:", "en": "Employee:", "vi": "Nhân viên:"}, "previousMonth": {"ko": "전월 상태:", "en": "Previous Month:", "vi": "Tháng trước:"}, "consecutiveMonths": {"ko": "개월 연속 근무", "en": "consecutive months", "vi": "tháng liên tục"}, "conditionEvaluation": {"ko": "당월 조건 충족:", "en": "Current Month Conditions:", "vi": "Điều kiện tháng này:"}, "attendanceRateMet": {"ko": "출근율:", "en": "Attendance Rate:", "vi": "Tỷ lệ chuyên cần:"}, "unauthorizedAbsenceMet": {"ko": "무단결근:", "en": "Unauthorized Absence:", "vi": "Vắng không phép:"}, "actualWorkingDays": {"ko": "실제 근무일:", "en": "Actual Working Days:", "vi": "Ngày làm việc thực tế:"}, "minimumWorkingDays": {"ko": "최소 근무일:", "en": "Minimum Working Days:", "vi": "Ngày làm việc tối thiểu:"}, "personalAql": {"ko": "개인 AQL (당월):", "en": "Personal AQL (Current):", "vi": "AQL cá nhân (hiện tại):"}, "personalAqlContinuous": {"ko": "개인 AQL (연속):", "en": "Personal AQL (Consecutive):", "vi": "AQL cá nhân (liên tục):"}, "fprsPassRate": {"ko": "5PRS 통과율:", "en": "5PRS Pass Rate:", "vi": "Tỷ lệ đạt 5PRS:"}, "fprsInspection": {"ko": "5PRS 검사량:", "en": "5PRS Inspection:", "vi": "Kiểm tra 5PRS:"}, "result": {"ko": "결과:", "en": "Result:", "vi": "Kết quả:"}, "allConditionsMet": {"ko": "모든 조건 충족", "en": "All conditions met", "vi": "Đáp ứng tất cả điều kiện"}, "failureText": {"ko": "실패 0건", "en": "0 failures", "vi": "0 thất bại"}, "consecutiveFailure": {"ko": "3개월 연속 실패 없음", "en": "No 3-month consecutive failures", "vi": "Không có 3 tháng thất bại liên tiếp"}, "pairs": {"ko": "켤레", "en": "pairs", "vi": "đôi"}, "case2Title": {"ko": "예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 계산)", "en": "Example 2: AUDIT & TRAINING TEAM (Area reject rate calculation)", "vi": "Ví dụ 2: AUDIT & TRAINING TEAM (Tính tỷ lệ từ chối khu vực)"}, "teamLeader": {"ko": "담당 구역:", "en": "Assigned Area:", "vi": "Khu vực phụ trách:"}, "aqlInspectionPassed": {"ko": "구역 생산 총 AQL 검사 PO 수량:", "en": "Area Total AQL Inspection PO Quantity:", "vi": "Số lượng PO kiểm tra AQL tổng khu vực:"}, "aqlRejectPo": {"ko": "구역 생산 총 AQL 리젝 PO 수량:", "en": "Area Total AQL Reject PO Quantity:", "vi": "Số lượng PO từ chối AQL tổng khu vực:"}, "calculation": {"ko": "계산:", "en": "Calculation:", "vi": "Tính toán:"}, "resultCondition": {"ko": "결과:", "en": "Result:", "vi": "Kết quả:"}, "conditionMet": {"ko": "조건 충족", "en": "Condition met", "vi": "Đáp ứng điều kiện"}, "conditionNotMet": {"ko": "미충족", "en": "Not met", "vi": "Không đáp ứng"}, "memberTable": {"ko": "AUDIT & TRAINING TEAM 멤버별 담당 구역", "en": "AUDIT & TRAINING TEAM Member Area Assignment", "vi": "Phân công khu vực thành viên AUDIT & TRAINING TEAM"}, "conditionName": {"ko": "Condition Name", "en": "Condition Name", "vi": "Tên điều kiện"}, "criteria": {"ko": "Criteria", "en": "Criteria", "vi": "Tiêu chí"}, "description": {"ko": "Description", "en": "Description", "vi": "Mô tả"}, "wholeArea": {"ko": "전체", "en": "Overall", "vi": "Tổng thể"}, "areaTotal": {"ko": "전체 Building 총괄", "en": "All Buildings Total", "vi": "Tổng tất cả tòa nhà"}, "noMissingData": {"ko": "기타 조건 미충족", "en": "Other conditions not met", "vi": "Các điều kiện khác không đạt"}, "rejectRateNote": {"ko": "* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)", "en": "* Reject rate criteria: Less than 3% (✅ Met, ❌ Not met)", "vi": "* Tiêu chí tỷ lệ từ chối: Dưới 3% (✅ Đạt, ❌ Không đạt)"}, "memberNote": {"ko": "* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원", "en": "* As of August, all AUDIT & TRAINING TEAM members receive 0 incentive due to reject rate condition failure", "vi": "* Tính đến tháng 8, tất cả thành viên AUDIT & TRAINING TEAM nhận 0 thưởng do không đạt điều kiện tỷ lệ từ chối"}, "case3Title": {"ko": "예시 3: TYPE-2 STITCHING INSPECTOR", "en": "Example 3: TYPE-2 STITCHING INSPECTOR", "vi": "Ví dụ 3: TYPE-2 STITCHING INSPECTOR"}, "positionType": {"ko": "직급 타입:", "en": "Position Type:", "vi": "Loại chức vụ:"}, "conditionStatus": {"ko": "조건 충족 현황:", "en": "Condition Status:", "vi": "Trạng thái điều kiện:"}, "incentiveCalculation": {"ko": "인센티브 계산:", "en": "Incentive Calculation:", "vi": "Tính toán thưởng:"}, "type2Explanation": {"ko": "TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 인센티브를 받습니다.", "en": "TYPE-2 STITCHING INSPECTOR only checks attendance conditions (1-4), and receives basic incentive when all conditions are met.", "vi": "TYPE-2 STITCHING INSPECTOR chỉ kiểm tra điều kiện chuyên cần (1-4), và nhận thưởng cơ bản khi đáp ứng tất cả điều kiện."}, "paymentAmount": {"ko": "지급액:", "en": "Payment Amount:", "vi": "Số tiền thanh toán:"}, "type2BasicIncentive": {"ko": "TYPE-2 기본 인센티브", "en": "TYPE-2 Basic Incentive", "vi": "Thưởng cơ bản TYPE-2"}, "type2Note": {"ko": "* TYPE-2는 AQL이나 5PRS 조건 없이 출근 조건만으로 인센티브가 결정됩니다.", "en": "* TYPE-2 incentive is determined only by attendance conditions without AQL or 5PRS requirements.", "vi": "* Thưởng TYPE-2 được xác định chỉ bằng điều kiện chuyên cần mà không có yêu cầu AQL hoặc 5PRS."}, "calculationExampleTitle": {"ko": "📐 실제 계산 예시", "en": "📐 Actual Calculation Examples", "vi": "📐 Ví dụ tính toán thực tế"}, "employeeNameLabel": {"ko": "직원명", "en": "Employee Name", "vi": "Tên nhân viên"}, "assignedBuilding": {"ko": "담당 Building", "en": "Assigned Building", "vi": "Tòa nhà phụ trách"}, "buildingDescription": {"ko": "설명", "en": "Description", "vi": "Mô tả"}, "rejectRate": {"ko": "Reject율", "en": "Reject Rate", "vi": "Tỷ lệ từ chối"}, "teamLeaderDescription": {"ko": "Team Leader - 전체 Building 총괄", "en": "Team Leader - All Buildings Overall", "vi": "Trưởng nhóm - Tổng thể tất cả tòa nhà"}, "buildingWhole": {"ko": "전체", "en": "Overall", "vi": "Tổng thể"}, "incentiveReceived": {"ko": "VND 수령", "en": "VND received", "vi": "VND nhận được"}, "conditionsMet": {"ko": "충족", "en": "Met", "vi": "Đạt"}, "consecutiveMonthsWorked": {"ko": "개월 연속 → ", "en": "consecutive months → ", "vi": "tháng liên tục → "}, "incentivePayment": {"ko": "VND 지급", "en": "VND payment", "vi": "VND thanh toán"}, "days": {"ko": "일", "en": "days", "vi": "ngày"}, "items": {"ko": "개", "en": "items", "vi": "mục"}, "failures": {"ko": "실패", "en": "failures", "vi": "thất bại"}, "monthsConsecutiveNoFailure": {"ko": "개월 연속 실패 없음", "en": "consecutive months without failure", "vi": "tháng liên tục không thất bại"}, "question1": {"ko": "Q1. 왜 나는 인센티브를 못 받았나요? 조건을 확인하는 방법은?", "en": "Q1. Why didn't I receive an incentive? How can I check the conditions?", "vi": "Q1. Tại sao tôi không nhận được thưởng? Làm thế nào để kiểm tra điều kiện?"}, "question2": {"ko": "Q2. 무단결근이 며칠까지 허용되나요?", "en": "Q2. How many unauthorized absence days are allowed?", "vi": "Q2. Được phép vắng mặt không phép bao nhiêu ngày?"}, "question3": {"ko": "Q3. TYPE-2 직급의 인센티브는 어떻게 계산되나요?", "en": "Q3. How is the incentive calculated for TYPE-2 positions?", "vi": "Q3. Thưởng cho vị trí TYPE-2 được tính như thế nào?"}, "question4": {"ko": "Q4. ASSEMBLY INSPECTOR의 연속 근무 개월은 어떻게 계산되나요?", "en": "Q4. How are consecutive working months calculated for ASSEMBLY INSPECTOR?", "vi": "Q4. Các tháng làm việc liên tục của ASSEMBLY INSPECTOR được tính như thế nào?"}, "question5": {"ko": "Q5. AQL 실패가 무엇이고 어떤 영향을 미치나요?", "en": "Q5. What is AQL failure and how does it affect incentives?", "vi": "Q5. Thất bại AQL là gì và nó ảnh hưởng như thế nào đến thưởng?"}, "question6": {"ko": "Q6. 5PRS 검사량이 부족하면 어떻게 되나요?", "en": "Q6. What happens if the 5PRS inspection quantity is insufficient?", "vi": "Q6. Điều gì xảy ra nếu số lượng kiểm tra 5PRS không đủ?"}, "question7": {"ko": "Q7. 출산휴가나 병가 중에도 인센티브를 받을 수 있나요?", "en": "Q7. Can I receive incentives during maternity leave or sick leave?", "vi": "Q7. Tôi có thể nhận thưởng trong thời gian nghỉ thai sản hoặc nghỉ ốm không?"}, "answer1Main": {"ko": "인센티브를 받지 못한 주요 이유:", "en": "Main reasons for not receiving incentive:", "vi": "Lý do chính không nhận được thưởng:"}, "answer1Reasons": {"minDays": {"ko": "최소 근무일 12일 미충족", "en": "Less than 12 minimum working days", "vi": "Ít hơn 12 ngày làm việc tối thiểu"}, "attendance": {"ko": "출근율 88% 미만", "en": "Attendance rate less than 88%", "vi": "Tỷ lệ chuyên cần dưới 88%"}, "absence": {"ko": "무단결근 3일 이상", "en": "3 or more unauthorized absence days", "vi": "3 ngày trở lên vắng không phép"}, "aql": {"ko": "AQL 실패 (해당 직급)", "en": "AQL failure (applicable positions)", "vi": "Thất bại AQL (vị trí áp dụng)"}, "fprs": {"ko": "5PRS 통과율 95% 미만 (해당 직급)", "en": "5PRS pass rate less than 95% (applicable positions)", "vi": "Tỷ lệ đạt 5PRS dưới 95% (vị trí áp dụng)"}}, "answer1CheckMethod": {"ko": "개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 수 있습니다.", "en": "You can check your condition fulfillment on the individual detail page.", "vi": "Bạn có thể kiểm tra việc đáp ứng điều kiện của mình trên trang chi tiết cá nhân."}, "answer2Main": {"ko": "무단결근은 최대 2일까지 허용됩니다.", "en": "Up to 2 unauthorized absence days are allowed.", "vi": "Cho phép tối đa 2 ngày vắng không phép."}, "answer2Detail": {"ko": "3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.", "en": "With 3 or more unauthorized absence days, you cannot receive incentives for that month. Pre-approved vacation or sick leave is not counted as unauthorized absence.", "vi": "Với 3 ngày trở lên vắng không phép, bạn không thể nhận thưởng trong tháng đó. Nghỉ phép hoặc nghỉ ốm được phê duyệt trước không được tính là vắng không phép."}, "answer3Main": {"ko": "TYPE-2 직급의 인센티브는 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.", "en": "TYPE-2 position incentives are calculated based on the average incentive of corresponding TYPE-1 positions.", "vi": "Thưởng vị trí TYPE-2 được tính dựa trên thưởng trung bình của các vị trí TYPE-1 tương ứng."}, "answer3Example": {"ko": "예를 들어:", "en": "For example:", "vi": "Ví dụ:"}, "answer3Example1": {"ko": "TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 인센티브", "en": "TYPE-2 GROUP LEADER uses the average incentive of TYPE-1 GROUP LEADERs", "vi": "TYPE-2 GROUP LEADER sử dụng thưởng trung bình của TYPE-1 GROUP LEADER"}, "answer3Example2": {"ko": "TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 인센티브", "en": "TYPE-2 STITCHING INSPECTOR uses the average incentive of TYPE-1 ASSEMBLY INSPECTORs", "vi": "TYPE-2 STITCHING INSPECTOR sử dụng thưởng trung bình của TYPE-1 ASSEMBLY INSPECTOR"}, "answer4Main": {"ko": "TYPE-1 ASSEMBLY INSPECTOR만 해당되며, 조건을 충족하며 인센티브를 받은 개월수가 누적됩니다.", "en": "Only applies to TYPE-1 ASSEMBLY INSPECTOR, accumulating months where conditions are met and incentive is received.", "vi": "Chỉ áp dụng cho TYPE-1 ASSEMBLY INSPECTOR, tích lũy các tháng đáp ứng điều kiện và nhận thưởng."}, "answer4Detail1": {"ko": "조건 미충족으로 인센티브를 못 받으면 0개월로 리셋", "en": "Reset to 0 months if incentive is not received due to unmet conditions", "vi": "Đặt lại về 0 tháng nếu không nhận được thưởng do không đáp ứng điều kiện"}, "answer4Detail2": {"ko": "12개월 이상 연속시 최대 인센티브 1,000,000 VND", "en": "Maximum incentive of 1,000,000 VND for 12 or more consecutive months", "vi": "Thưởng tối đa 1.000.000 VND cho 12 tháng liên tục trở lên"}, "answer5Main": {"ko": "AQL(Acceptable Quality Limit)은 품질 검사 기준입니다.", "en": "AQL (Acceptable Quality Limit) is a quality inspection standard.", "vi": "AQL (Giới hạn chất lượng chấp nhận được) là tiêu chuẩn kiểm tra chất lượng."}, "answer5Detail1": {"ko": "개인 AQL 실패: 해당 월에 품질 검사 실패한 경우", "en": "Personal AQL failure: Failed quality inspection in the current month", "vi": "Thất bại AQL cá nhân: Không đạt kiểm tra chất lượng trong tháng hiện tại"}, "answer5Detail2": {"ko": "3개월 연속 실패: 지난 3개월 동안 연속으로 실패한 경우", "en": "3-month consecutive failure: Consecutive failures over the past 3 months", "vi": "Thất bại 3 tháng liên tiếp: Thất bại liên tục trong 3 tháng qua"}, "answer5Detail3": {"ko": "AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)", "en": "Only AQL-related positions are affected (INSPECTOR series, etc.)", "vi": "Chỉ các vị trí liên quan AQL bị ảnh hưởng (dòng INSPECTOR, v.v.)"}, "answer6Main": {"ko": "5PRS 관련 직급은 다음 조건을 충족해야 합니다:", "en": "5PRS-related positions must meet the following conditions:", "vi": "Các vị trí liên quan 5PRS phải đáp ứng các điều kiện sau:"}, "answer6Detail1": {"ko": "검사량 100족 이상", "en": "Inspection quantity of 100 pairs or more", "vi": "Số lượng kiểm tra từ 100 đôi trở lên"}, "answer6Detail2": {"ko": "통과율 95% 이상", "en": "Pass rate of 95% or higher", "vi": "Tỷ lệ đạt từ 95% trở lên"}, "answer6Conclusion": {"ko": "둘 중 하나라도 미충족시 인센티브를 받을 수 없습니다.", "en": "If either condition is not met, you cannot receive the incentive.", "vi": "Nếu không đáp ứng một trong hai điều kiện, bạn không thể nhận thưởng."}, "answer7Main": {"ko": "출산휴가나 장기 병가 중에는 인센티브가 지급되지 않습니다.", "en": "Incentives are not paid during maternity leave or long-term sick leave.", "vi": "Thưởng không được trả trong thời gian nghỉ thai sản hoặc nghỉ ốm dài hạn."}, "answer7Detail1": {"ko": "최소 근무일 12일 조건을 충족할 수 없기 때문", "en": "Because the minimum 12 working days condition cannot be met", "vi": "Vì không thể đáp ứng điều kiện tối thiểu 12 ngày làm việc"}, "answer7Detail2": {"ko": "복귀 후 조건 충족시 다시 인센티브 수령 가능", "en": "Incentives can be received again after returning when conditions are met", "vi": "Có thể nhận lại thưởng sau khi trở lại khi đáp ứng điều kiện"}, "answer7Detail3": {"ko": "ASSEMBLY INSPECTOR의 경우 연속 개월수는 0으로 리셋", "en": "For ASSEMBLY INSPECTOR, consecutive months reset to 0", "vi": "Đối với ASSEMBLY INSPECTOR, số tháng liên tục được đặt lại về 0"}, "question8": {"ko": "Q8. 전월 인센티브와 차이가 나는 이유는 무엇인가요?", "en": "Q8. Why is there a difference from last month's incentive?", "vi": "Q8. Tại sao có sự khác biệt với thưởng tháng trước?"}, "answer8Main": {"ko": "인센티브 금액이 변동하는 주요 이유:", "en": "Main reasons for incentive amount changes:", "vi": "Lý do chính cho sự thay đổi số tiền thưởng:"}, "answer8Reason1": {"ko": "ASSEMBLY INSPECTOR: 연속 근무 개월 변화", "en": "ASSEMBLY INSPECTOR: Change in consecutive working months", "vi": "ASSEMBLY INSPECTOR: Thay đổi số tháng làm việc liên tục"}, "answer8Reason2": {"ko": "TYPE-2 직급: TYPE-1 평균값 변동", "en": "TYPE-2 positions: TYPE-1 average value fluctuation", "vi": "Vị trí TYPE-2: Biến động giá trị trung bình TYPE-1"}, "answer8Reason3": {"ko": "AQL INSPECTOR: Part1, Part2, Part3 조건 변화", "en": "AQL INSPECTOR: Part1, Part2, Part3 condition changes", "vi": "AQL INSPECTOR: Thay đổi điều kiện Part1, Part2, Part3"}, "answer8Reason4": {"ko": "조건 미충족: 하나라도 미충족시 0", "en": "Unmet conditions: 0 if any condition is not met", "vi": "Điều kiện không đạt: 0 nếu bất kỳ điều kiện nào không đạt"}, "question9": {"ko": "Q9. TYPE-3에서 TYPE-2로 승진하면 인센티브가 어떻게 변하나요?", "en": "Q9. How does the incentive change when promoted from TYPE-3 to TYPE-2?", "vi": "Q9. Thưởng thay đổi như thế nào khi thăng chức từ TYPE-3 lên TYPE-2?"}, "answer9Detail1": {"ko": "TYPE-3: 조건 없이 기본 150,000 VND (근무시 자동 지급)", "en": "TYPE-3: Basic 150,000 VND without conditions (automatic payment when working)", "vi": "TYPE-3: Cơ bản 150.000 VND không điều kiện (tự động thanh toán khi làm việc)"}, "answer9Detail2": {"ko": "TYPE-2: 조건 충족 필요, TYPE-1 평균 기준 계산", "en": "TYPE-2: Conditions must be met, calculated based on TYPE-1 average", "vi": "TYPE-2: Cần đáp ứng điều kiện, tính theo trung bình TYPE-1"}, "answer9Detail3": {"ko": "승진 후 조건 충족시 일반적으로 인센티브 증가", "en": "Generally incentive increases after promotion if conditions are met", "vi": "Thường thưởng tăng sau thăng chức nếu đáp ứng điều kiện"}, "answer9Detail4": {"ko": "하지만 조건 미충족시 0이 될 수 있으므로 주의 필요", "en": "However, be careful as it can become 0 if conditions are not met", "vi": "Tuy nhiên, cần cẩn thận vì có thể về 0 nếu không đáp ứng điều kiện"}, "question10": {"ko": "Q10. 조건을 모두 충족했는데도 인센티브가 0인 이유는 무엇인가요?", "en": "Q10. Why is the incentive 0 even though all conditions are met?", "vi": "Q10. Tại sao thưởng là 0 mặc dù đã đáp ứng tất cả điều kiện?"}, "answer10Main": {"ko": "다음 사항을 재확인해 보세요:", "en": "Please double-check the following:", "vi": "Vui lòng kiểm tra lại các mục sau:"}, "answer10Reason1": {"ko": "숨겨진 조건: 직급별로 적용되는 모든 조건 확인", "en": "Hidden conditions: Check all conditions applied by position", "vi": "Điều kiện ẩn: Kiểm tra tất cả điều kiện áp dụng theo vị trí"}, "answer10Reason2": {"ko": "데이터 업데이트: 최신 데이터 반영 여부", "en": "Data update: Whether the latest data is reflected", "vi": "Cập nhật dữ liệu: Dữ liệu mới nhất đã được phản ánh chưa"}, "answer10Reason3": {"ko": "특별한 사유: 징계, 경고 등 특별 사유", "en": "Special reasons: Disciplinary action, warnings, etc.", "vi": "Lý do đặc biệt: Kỷ luật, cảnh cáo, v.v."}, "answer10Reason4": {"ko": "시스템 오류: HR 부서에 문의", "en": "System error: Contact HR department", "vi": "Lỗi hệ thống: Liên hệ phòng nhân sự"}, "answer10Conclusion": {"ko": "개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.", "en": "Please check the condition fulfillment details on the individual detail page.", "vi": "Vui lòng kiểm tra chi tiết việc đáp ứng điều kiện trên trang chi tiết cá nhân."}, "faqSectionTitle": {"ko": "❓ 자주 묻는 질문 (FAQ)", "en": "❓ Frequently Asked Questions (FAQ)", "vi": "❓ Câu hỏi thường gặp (FAQ)"}}}, "incentive": {"faq": {"calculationExampleTitle": {"ko": "📐 실제 계산 예시", "en": "📐 Actual Calculation Examples", "vi": "📐 Ví dụ tính toán thực tế"}, "case1Title": {"ko": "예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 근무)", "en": "Example 1: TYPE-1 ASSEMBLY INSPECTOR (10 consecutive months)", "vi": "Ví dụ 1: TYPE-1 ASSEMBLY INSPECTOR (10 tháng liên tục)"}, "case2Title": {"ko": "예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 계산)", "en": "Example 2: AUDIT & TRAINING TEAM (Area reject rate calculation)", "vi": "Ví dụ 2: AUDIT & TRAINING TEAM (Tính tỷ lệ từ chối khu vực)"}, "case3Title": {"ko": "예시 3: TYPE-2 STITCHING INSPECTOR", "en": "Example 3: TYPE-2 STITCHING INSPECTOR", "vi": "Ví dụ 3: TYPE-2 STITCHING INSPECTOR"}, "employee": {"ko": "직원:", "en": "Employee:", "vi": "Nhân viên:"}, "previousMonth": {"ko": "전월 상태:", "en": "Previous Month:", "vi": "Tháng trước:"}, "consecutiveMonthsWorked": {"ko": "개월 연속 → ", "en": "consecutive months → ", "vi": "tháng liên tục → "}, "incentiveReceived": {"ko": "VND 수령", "en": "VND received", "vi": "VND nhận được"}, "conditionEvaluation": {"ko": "당월 조건 충족:", "en": "Current Month Conditions:", "vi": "Điều kiện tháng này:"}, "attendanceRateMet": {"ko": "출근율:", "en": "Attendance Rate:", "vi": "Tỷ lệ chuyên cần:"}, "unauthorizedAbsenceMet": {"ko": "무단결근:", "en": "Unauthorized Absence:", "vi": "Vắng không phép:"}, "actualWorkingDays": {"ko": "실제 근무일:", "en": "Actual Working Days:", "vi": "Ngày làm việc thực tế:"}, "minimumWorkingDays": {"ko": "최소 근무일:", "en": "Minimum Working Days:", "vi": "Ngày làm việc tối thiểu:"}, "personalAql": {"ko": "개인 AQL (당월):", "en": "Personal AQL (Current):", "vi": "AQL cá nhân (hiện tại):"}, "personalAqlContinuous": {"ko": "개인 AQL (연속):", "en": "Personal AQL (Consecutive):", "vi": "AQL cá nhân (liên tục):"}, "fprsPassRate": {"ko": "5PRS 통과율:", "en": "5PRS Pass Rate:", "vi": "Tỷ lệ đạt 5PRS:"}, "fprsInspection": {"ko": "5PRS 검사량:", "en": "5PRS Inspection:", "vi": "Kiểm tra 5PRS:"}, "days": {"ko": "일", "en": "days", "vi": "ngày"}, "items": {"ko": "개", "en": "items", "vi": "mục"}, "failureText": {"ko": "실패 0건", "en": "0 failures", "vi": "0 thất bại"}, "monthsConsecutiveNoFailure": {"ko": "개월 연속 실패 없음", "en": "consecutive months without failure", "vi": "tháng liên tục không thất bại"}, "result": {"ko": "결과:", "en": "Result:", "vi": "Kết quả:"}, "allConditionsMet": {"ko": "모든 조건 충족", "en": "All conditions met", "vi": "Đáp ứng tất cả điều kiện"}, "incentivePayment": {"ko": "VND 지급", "en": "VND payment", "vi": "VND thanh toán"}, "teamLeader": {"ko": "담당 구역:", "en": "Area Leader:", "vi": "Người phụ trách khu vực:"}, "aqlInspectionPassed": {"ko": "구역 생산 총 AQL 검사 PO 수량:", "en": "Area Production Total AQL Inspection PO Quantity:", "vi": "Số lượng PO kiểm tra AQL tổng sản xuất khu vực:"}, "aqlRejectPo": {"ko": "구역 생산 총 AQL 리젝 PO 수량:", "en": "Area Production Total AQL Reject PO Quantity:", "vi": "Số lượng PO từ chối AQL tổng sản xuất khu vực:"}, "calculation": {"ko": "계산:", "en": "Calculation:", "vi": "Tính toán:"}, "resultCondition": {"ko": "결과:", "en": "Result:", "vi": "Kết quả:"}, "conditionMet": {"ko": "조건 충족", "en": "Condition Met", "vi": "Đáp ứng điều kiện"}, "memberTable": {"ko": "AUDIT & TRAINING TEAM 멤버별 담당 구역", "en": "AUDIT & TRAINING TEAM Member Assigned Areas", "vi": "Khu vực phân công thành viên AUDIT & TRAINING TEAM"}, "employeeNameLabel": {"ko": "직원명", "en": "Employee Name", "vi": "Tên nhân viên"}, "assignedBuilding": {"ko": "담당 Building", "en": "Assigned Building", "vi": "Tòa nhà phụ trách"}, "buildingDescription": {"ko": "설명", "en": "Description", "vi": "Mô tả"}, "rejectRate": {"ko": "Reject율", "en": "Reject Rate", "vi": "Tỷ lệ từ chối"}, "buildingWhole": {"ko": "전체", "en": "Overall", "vi": "Tổng thể"}, "teamLeaderDescription": {"ko": "Team Leader - 전체 Building 총괄", "en": "Team Leader - All Buildings Overall", "vi": "Trưởng nhóm - Tổng thể tất cả tòa nhà"}, "noMissingData": {"ko": "기타 조건 미충족", "en": "Other conditions not met", "vi": "Các điều kiện khác không đạt"}, "rejectRateNote": {"ko": "* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)", "en": "* Reject rate standard: Less than 3% (✅ Met, ❌ Not met)", "vi": "* Tiêu chuẩn tỷ lệ từ chối: Dưới 3% (✅ Đạt, ❌ Không đạt)"}, "memberNote": {"ko": "* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원", "en": "* As of August, all AUDIT & TRAINING TEAM members receive 0 incentive due to reject rate condition failure", "vi": "* Tính đến tháng 8, tất cả thành viên AUDIT & TRAINING TEAM nhận 0 thưởng do không đạt điều kiện tỷ lệ từ chối"}, "positionType": {"ko": "직급 타입:", "en": "Position Type:", "vi": "Loại chức vụ:"}, "conditionStatus": {"ko": "조건 충족 현황:", "en": "Condition Status:", "vi": "Tình trạng điều kiện:"}, "conditionsMet": {"ko": "충족", "en": "Met", "vi": "Đạt"}, "incentiveCalculation": {"ko": "인센티브 계산:", "en": "Incentive Calculation:", "vi": "Tính thưởng:"}, "type2Explanation": {"ko": "TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 인센티브를 받습니다.", "en": "TYPE-2 STITCHING INSPECTOR only checks attendance conditions (1-4), and receives basic incentive when all conditions are met.", "vi": "TYPE-2 STITCHING INSPECTOR chỉ kiểm tra điều kiện chuyên cần (1-4), và nhận thưởng cơ bản khi đáp ứng tất cả điều kiện."}, "paymentAmount": {"ko": "지급액:", "en": "Payment Amount:", "vi": "Số tiền thanh toán:"}, "type2BasicIncentive": {"ko": "TYPE-2 기본 인센티브", "en": "TYPE-2 Basic Incentive", "vi": "Thưởng cơ bản TYPE-2"}, "type2Note": {"ko": "* TYPE-2는 AQL이나 5PRS 조건 없이 출근 조건만으로 인센티브가 결정됩니다.", "en": "* TYPE-2 incentive is determined only by attendance conditions without AQL or 5PRS requirements.", "vi": "* Thưởng TYPE-2 được xác định chỉ bằng điều kiện chuyên cần mà không có yêu cầu AQL hoặc 5PRS."}}, "attendance": {"title": {"ko": "📊 출근율 계산 방식", "en": "📊 Attendance Rate Calculation Method", "vi": "📊 Phương pháp tính tỷ lệ chuyên cần"}, "formulaTitle": {"ko": "실제 계산 공식 (시스템 구현):", "en": "Actual Calculation Formula (System Implementation):", "vi": "Công thức tính thực tế (Triển khai hệ thống):"}, "attendanceFormula": {"ko": "출근율(%) = 100 - 결근율(%)", "en": "Attendance Rate(%) = 100 - Absence Rate(%)", "vi": "Tỷ lệ chuyên cần(%) = 100 - Tỷ lệ vắng mặt(%)"}, "absenceFormula": {"ko": "결근율(%) = (결근 일수 / 총 근무일) × 100", "en": "Absence Rate(%) = (Absence Days / Total Working Days) × 100", "vi": "Tỷ lệ vắng mặt(%) = (Số ngày vắng / Tổng ngày làm việc) × 100"}, "absenceDaysNote": {"ko": "* 결근 일수 = 총 근무일 - 실제 근무일 - 승인된 휴가", "en": "* Absence Days = Total Working Days - Actual Working Days - Approved Leave", "vi": "* Số ngày vắng = Tổng ngày làm việc - Ngày làm việc thực tế - Nghỉ phép được duyệt"}, "examplesTitle": {"ko": "결근율 계산 예시:", "en": "Absence Rate Calculation Examples:", "vi": "Ví dụ tính tỷ lệ vắng mặt:"}, "example1Title": {"ko": "예시 1: 정상 근무자", "en": "Example 1: Normal Worker", "vi": "Ví dụ 1: Người làm việc bình thường"}, "example2Title": {"ko": "예시 2: 무단결근 포함", "en": "Example 2: Including Unauthorized Absence", "vi": "Ví dụ 2: Bao gồm vắng không phép"}, "example3Title": {"ko": "예시 3: 조건 충족 경계선", "en": "Example 3: Condition Boundary", "vi": "Ví dụ 3: Ranh giới điều kiện"}, "totalWorkingDays": {"ko": "총 근무일", "en": "Total Working Days", "vi": "Tổng ngày làm việc"}, "actualWorkingDays": {"ko": "실제 근무일", "en": "Actual Working Days", "vi": "Ngày làm việc thực tế"}, "approvedLeave": {"ko": "승인된 휴가", "en": "Approved Leave", "vi": "Nghỉ phép được duyệt"}, "annualLeave": {"ko": "연차", "en": "Annual Leave", "vi": "Nghỉ phép năm"}, "sickLeave": {"ko": "병가", "en": "Sick Leave", "vi": "Nghỉ ốm"}, "unauthorizedAbsence": {"ko": "무단결근", "en": "Unauthorized Absence", "vi": "Vắng không phép"}, "absenceDays": {"ko": "결근 일수", "en": "Absence Days", "vi": "Số ngày vắng"}, "absenceRate": {"ko": "결근율", "en": "Absence Rate", "vi": "Tỷ lệ vắng mặt"}, "attendanceRate": {"ko": "출근율", "en": "Attendance Rate", "vi": "Tỷ lệ chuyên cần"}, "lessThan88": {"ko": "88% 미만", "en": "Less than 88%", "vi": "Dưới 88%"}, "moreThan88": {"ko": "88% 이상", "en": "88% or more", "vi": "88% trở lên"}, "condition2NotMet": {"ko": "단, 무단결근 3일로 조건 2 미충족 → 인센티브 0원", "en": "However, condition 2 not met with 3 days unauthorized absence → Incentive 0", "vi": "Tuy nhiên, điều kiện 2 không đạt với 3 ngày vắng không phép → Thưởng 0"}, "absenceClassificationTitle": {"ko": "결근 사유별 분류:", "en": "Absence Classification by Reason:", "vi": "Phân loại vắng mặt theo lý do:"}, "notIncludedInAbsence": {"ko": "✅ 결근율에 포함 안됨 (승인된 휴가):", "en": "✅ Not Included in Absence Rate (Approved Leave):", "vi": "✅ Không tính vào tỷ lệ vắng mặt (Nghỉ phép được duyệt):"}, "includedInAbsence": {"ko": "❌ 결근율에 포함됨 (무단결근):", "en": "❌ Included in Absence Rate (Unauthorized Absence):", "vi": "❌ Tính vào tỷ lệ vắng mặt (Vắng không phép):"}, "maternityLeave": {"ko": "출산휴가", "en": "Maternity Leave", "vi": "Nghỉ thai sản"}, "annualLeaveVn": {"ko": "연차휴가", "en": "Annual Leave", "vi": "Nghỉ phép năm"}, "approvedAbsence": {"ko": "승인된 휴가", "en": "Approved Leave", "vi": "Vắng có phép"}, "postpartumRest": {"ko": "출산 후 요양", "en": "Postpartum Rest", "vi": "Dưỡng sức sinh thường"}, "prenatalCheckup": {"ko": "산전검진", "en": "Prenatal Checkup", "vi": "Khám thai bình thường"}, "childcareLeave": {"ko": "육아휴가", "en": "Childcare Leave", "vi": "Con dưới 3 tuổi bị bệnh"}, "shortSickLeave": {"ko": "병가", "en": "Sick Leave", "vi": "ốm ngắn ngày"}, "businessTrip": {"ko": "출장", "en": "Business Trip", "vi": "Đi công tác"}, "militaryService": {"ko": "군복무", "en": "Military Service", "vi": "Nghĩa vụ quân sự"}, "cardNotSwiped": {"ko": "출퇴근 체크 누락", "en": "Card Not Swiped", "vi": "Đi làm không quẹt thẻ"}, "newEmployee": {"ko": "신규입사 특례", "en": "New Employee Exception", "vi": "Công nhân viên mới"}, "compensatoryLeave": {"ko": "대체휴무", "en": "Compensatory Leave", "vi": "Nghỉ bù"}, "unauthorizedAbsenceAR1": {"ko": "무단결근", "en": "Unauthorized Absence", "vi": "Vắng không phép"}, "writtenNoticeAbsence": {"ko": "서면통지 결근", "en": "Written Notice Absence", "vi": "Gửi thư"}, "countingRulesTitle": {"ko": "📢 무단결근 카운팅 규칙:", "en": "📢 Unauthorized Absence Counting Rules:", "vi": "📢 Quy tắc đếm vắng không phép:"}, "countingRule1": {"ko": "AR1 카테고리만 무단결근으로 카운트", "en": "Only AR1 category counted as unauthorized absence", "vi": "Chỉ danh mục AR1 được tính là vắng không phép"}, "countingRule2": {"ko": "2일까지는 인센티브 지급 가능", "en": "Up to 2 days eligible for incentive", "vi": "Tối đa 2 ngày vẫn đủ điều kiện nhận thưởng"}, "countingRule3": {"ko": "3일 이상 → 인센티브 0원", "en": "3 days or more → Incentive 0", "vi": "3 ngày trở lên → Thưởng 0"}, "conditionCriteriaTitle": {"ko": "조건 충족 기준:", "en": "Condition Fulfillment Criteria:", "vi": "Tiêu chí đáp ứng điều kiện:"}, "attendanceCriteria": {"ko": "출근율: ≥ 88% (결근율 ≤ 12%)", "en": "Attendance Rate: ≥ 88% (Absence Rate ≤ 12%)", "vi": "Tỷ lệ chuyên cần: ≥ 88% (Tỷ lệ vắng mặt ≤ 12%)"}, "unauthorizedAbsenceCriteria": {"ko": "무단결근: ≤ 2일 (AR1 카테고리만 해당)", "en": "Unauthorized Absence: ≤ 2 days (AR1 category only)", "vi": "Vắng không phép: ≤ 2 ngày (chỉ danh mục AR1)"}, "actualWorkingDaysCriteria": {"ko": "실제 근무일: > 0일", "en": "Actual Working Days: > 0 days", "vi": "Ngày làm việc thực tế: > 0 ngày"}, "minimumWorkingDaysCriteria": {"ko": "최소 근무일: ≥ 12일", "en": "Minimum Working Days: ≥ 12 days", "vi": "Ngày làm việc tối thiểu: ≥ 12 ngày"}, "unapprovedAbsenceExplanationTitle": {"ko": "📊 Unapproved Absence Days 설명:", "en": "📊 Unapproved Absence Days Explanation:", "vi": "📊 Giải thích ngày vắng không được duyệt:"}, "unapprovedAbsenceExplanation1": {"ko": "HR 시스템에서 제공하는 무단결근 일수 데이터", "en": "Unauthorized absence days data provided by HR system", "vi": "Dữ liệu ngày vắng không phép được cung cấp bởi hệ thống HR"}, "unapprovedAbsenceExplanation2": {"ko": "AR1 (Vắng không phép) 카테고리만 집계", "en": "Only AR1 (Unauthorized Absence) category counted", "vi": "Chỉ tính danh mục AR1 (Vắng không phép)"}, "unapprovedAbsenceExplanation3": {"ko": "서면통지 결근(Gửi thư)도 AR1에 포함", "en": "Written notice absence (Gửi thư) also included in AR1", "vi": "Vắng có thông báo bằng văn bản (Gửi thư) cũng thuộc AR1"}, "unapprovedAbsenceExplanation4": {"ko": "인센티브 조건: ≤2일 (개인별 최대 허용치)", "en": "Incentive condition: ≤2 days (maximum allowed per person)", "vi": "Điều kiện thưởng: ≤2 ngày (tối đa cho phép mỗi người)"}, "days": {"ko": "일", "en": "days", "vi": "ngày"}}}, "talentPool": {"sectionTitle": {"ko": "🌟 QIP Talent Pool 특별 인센티브", "en": "🌟 QIP Talent Pool Special Incentive", "vi": "🌟 Khen thưởng đặc biệt QIP Talent Pool"}, "memberCount": {"ko": "Talent Pool 인원", "en": "Talent Pool Members", "vi": "Số thành viên Talent Pool"}, "monthlyBonus": {"ko": "월 보너스 금액", "en": "Monthly Bonus Amount", "vi": "Số tiền thưởng hàng tháng"}, "totalBonus": {"ko": "총 보너스 지급액", "en": "Total Bonus Payment", "vi": "Tổng tiền thưởng chi trả"}, "paymentPeriod": {"ko": "지급 기간", "en": "Payment Period", "vi": "Thời gian chi trả"}, "membersList": {"ko": "Talent Pool 멤버:", "en": "Talent Pool Members:", "vi": "Thành viên Talent Pool:"}, "special": {"ko": "QIP Talent Pool 특별 보너스", "en": "QIP Talent Pool Special Bonus", "vi": "Thưởng đặc biệt QIP Talent Pool"}, "period": {"ko": "지급 기간", "en": "Payment Period", "vi": "Thời gian chi trả"}, "bonusIncluded": {"ko": "Talent Pool 보너스 포함", "en": "Talent Pool Bonus Included", "vi": "Bao gồm thưởng Talent Pool"}, "baseAmount": {"ko": "기본", "en": "Base", "vi": "Cơ bản"}, "bonusAmount": {"ko": "보너스", "en": "Bonus", "vi": "Thưởng"}, "badgeText": {"ko": "TALENT", "en": "TALENT", "vi": "TALENT"}}, "talentProgram": {"title": {"ko": "🌟 QIP Talent Pool 인센티브 프로그램", "en": "🌟 QIP Talent Pool Incentive Program", "vi": "🌟 Chương trình khen thưởng QIP Talent Pool"}, "intro": {"ko": "QIP Talent Pool은 우수한 성과를 보이는 인원들을 대상으로 하는 특별 인센티브 프로그램입니다. 선정된 인원은 6개월간 매월 추가 보너스를 받게 됩니다.", "en": "QIP Talent Pool is a special incentive program for high-performing individuals. Selected members receive additional monthly bonuses for 6 months.", "vi": "QIP Talent Pool là chương trình khen thưởng đặc biệt dành cho những người có thành tích xuất sắc. Thành viên được chọn sẽ nhận thưởng bổ sung hàng tháng trong 6 tháng."}, "qualificationTitle": {"ko": "🎯 선정 기준", "en": "🎯 Selection Criteria", "vi": "🎯 Tiêu chí lựa chọn"}, "benefitsTitle": {"ko": "💰 혜택", "en": "💰 Benefits", "vi": "💰 Quyền lợi"}, "monthlyBonusTitle": {"ko": "월 특별 보너스", "en": "Monthly Special Bonus", "vi": "Thưởng đặc biệt hàng tháng"}, "totalBonusTitle": {"ko": "총 지급 예정액 (6개월)", "en": "Total Expected Payment (6 months)", "vi": "Tổng thanh toán dự kiến (6 tháng)"}, "processTitle": {"ko": "📋 평가 프로세스 (6개월 주기)", "en": "📋 Evaluation Process (6-month cycle)", "vi": "📋 Quy trình đánh giá (chu kỳ 6 tháng)"}, "importantTitle": {"ko": "⚠️ 중요 사항", "en": "⚠️ Important Notes", "vi": "⚠️ Lưu ý quan trọng"}, "currentTitle": {"ko": "🎉 현재 Talent Pool 멤버", "en": "🎉 Current Talent Pool Members", "vi": "🎉 Thành viên Talent Pool hiện tại"}, "noMembers": {"ko": "현재 Talent Pool 멤버가 없습니다.", "en": "There are currently no Talent Pool members.", "vi": "Hiện tại không có thành viên Talent Pool."}}, "management": {"title": {"ko": "QIP 관리 대시보드", "en": "QIP Management Dashboard", "vi": "Bảng điều khiển quản lý QIP"}, "tabs": {"issues": {"ko": "🚨 이슈 트래킹", "en": "🚨 Issue Tracking", "vi": "🚨 Theo dõi vấn đề"}, "organization": {"ko": "🏢 조직도", "en": "🏢 Organization", "vi": "🏢 Tổ chức"}, "hr": {"ko": "👥 HR 분석", "en": "👥 HR Analytics", "vi": "👥 Phân tích nhân sự"}, "performance": {"ko": "📈 성과 분석", "en": "📈 Performance", "vi": "📈 Hiệu suất"}, "predictions": {"ko": "🔮 예측 분석", "en": "🔮 Predictions", "vi": "🔮 Dự báo"}}, "stats": {"critical": {"ko": "긴급 이슈", "en": "Critical Issues", "vi": "Vấn đề nghiêm trọng"}, "warning": {"ko": "경고 사항", "en": "Warnings", "vi": "Cảnh báo"}, "total": {"ko": "전체 직원", "en": "Total Employees", "vi": "Tổng số nhân viên"}, "new_hires": {"ko": "신규 입사", "en": "New Hires", "vi": "Nhân viên mới"}}, "consecutive_failures": {"title": {"ko": "3개월 연속 인센티브 미수령자", "en": "3-Month Consecutive Incentive Non-Recipients", "vi": "Không nhận thưởng khuyến khích 3 tháng liên tiếp"}, "no_data": {"ko": "연속 실패자가 없습니다.", "en": "No consecutive failures.", "vi": "Không có thất bại liên tiếp."}}, "attendance_issues": {"title": {"ko": "출근율 이슈 (90% 미만)", "en": "Attendance Issues (Below 90%)", "vi": "Vấn đề chuyên cần (Dưới 90%)"}, "no_data": {"ko": "출근율 이슈가 없습니다.", "en": "No attendance issues.", "vi": "Không có vấn đề chuyên cần."}}, "org_structure": {"title": {"ko": "조직 구조", "en": "Organization Structure", "vi": "Cơ cấu tổ chức"}, "managers": {"ko": "매니저", "en": "Managers", "vi": "Quản lý"}, "supervisors": {"ko": "슈퍼바이저", "en": "Supervisors", "vi": "Giám sát"}, "group_leaders": {"ko": "그룹 리더", "en": "Group Leaders", "vi": "Trưởng nhóm"}, "line_leaders": {"ko": "라인 리더", "en": "Line Leaders", "vi": "Trưởng dây chuyền"}, "workers": {"ko": "작업자", "en": "Workers", "vi": "Công nhân"}}, "hr_changes": {"title": {"ko": "인력 변동 현황", "en": "HR Changes Status", "vi": "Tình trạng thay đổi nhân sự"}, "new_hires": {"ko": "최근 입사자", "en": "Recent Hires", "vi": "Nhân viên mới gần đây"}, "resignations": {"ko": "최근 퇴사자", "en": "Recent Resignations", "vi": "Nhân viên nghỉ việc gần đây"}, "type_changes": {"ko": "TYPE 전환 현황", "en": "TYPE Change Status", "vi": "Tình trạng chuyển đổi TYPE"}}, "performance_metrics": {"prs_title": {"ko": "5PRS 실적", "en": "5PRS Performance", "vi": "Hiệu suất 5PRS"}, "aql_title": {"ko": "AQL 달성률", "en": "AQL Achievement Rate", "vi": "Tỷ lệ đạt AQL"}, "trainer_effectiveness": {"ko": "Auditor/Trainer 효과성", "en": "Auditor/Trainer Effectiveness", "vi": "Hiệu quả Kiểm toán/Đào tạo"}}, "predictions": {"title": {"ko": "다음 달 예측", "en": "Next Month Predictions", "vi": "Dự báo tháng tới"}, "high_risk": {"ko": "위험군 예측", "en": "High Risk Predictions", "vi": "Dự báo rủi ro cao"}, "improvement": {"ko": "개선 예상", "en": "Expected Improvements", "vi": "Cải thiện dự kiến"}}, "tab_overview": {"ko": "개요", "en": "Overview", "vi": "Tổng quan"}, "tab_attendance": {"ko": "출결", "en": "Attendance", "vi": "Chấm công"}, "attendance_overview": {"ko": "출결 현황", "en": "Attendance Overview", "vi": "Tổng quan chấm công"}}};
+        let currentLang = 'ko';
+        
+        // 언어 변경 함수
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.i18n').forEach(element => {
+                const key = element.getAttribute('data-key');
+                if (translations[key] && translations[key][lang]) {
+                    element.textContent = translations[key][lang];
+                }
+            });
+            
+            // 차트 재생성
+            updateCharts();
+        }
+        
+        // 대시보드 변경
+        function changeDashboard(type) {
+            if (type === 'incentive') {
+                window.location.href = 'dashboard_2025_08.html';
+            }
+        }
+        
+        // Performance Chart
+        function createPerformanceChart() {
+            const options = {
+                series: [{
+                    name: '인센티브 달성률',
+                    data: [85, 88, 87, 90, 92, 62.1]
+                }, {
+                    name: '출근율',
+                    data: [92, 93, 91, 94, 95, 94.5]
+                }],
+                chart: {
+                    type: 'line',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                colors: ['#5E72E4', '#2DCE89'],
+                stroke: { curve: 'smooth', width: 3 },
+                xaxis: {
+                    categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
+                },
+                yaxis: {
+                    title: { text: 'Percentage (%)' }
+                },
+                legend: {
+                    position: 'top'
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#performanceChart"), options);
+            chart.render();
+            return chart;
+        }
+        
+        // Type Distribution Chart
+        function createTypeDistributionChart() {
+            const options = {
+                series: [149, 277, 38],
+                chart: {
+                    type: 'donut',
+                    height: 250
+                },
+                labels: ['TYPE-1', 'TYPE-2', 'TYPE-3'],
+                colors: ['#5E72E4', '#2DCE89', '#11CDEF'],
+                legend: {
+                    position: 'bottom'
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: { width: 200 },
+                        legend: { position: 'bottom' }
+                    }
+                }]
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#typeDistributionChart"), options);
+            chart.render();
+            return chart;
+        }
+        
+        let performanceChart, typeChart, attendanceTrendChart, attendanceDistChart;
+        
+        // 출결 데이터
+        const attendanceData = {"by_team": {"bottom": {"total": 36, "present": 33, "absent": 3, "attendance_rate": 57.1969696969697}, "QIP team": {"total": 20, "present": 15, "absent": 5, "attendance_rate": 47.72727272727273}, "AQL": {"total": 133, "present": 119, "absent": 14, "attendance_rate": 56.63021189336979}, "AUDIT & TRAINING TEAM": {"total": 20, "present": 18, "absent": 2, "attendance_rate": 57.27272727272727}, "assembly": {"total": 131, "present": 111, "absent": 20, "attendance_rate": 53.22692574600971}, "OSC": {"total": 20, "present": 15, "absent": 5, "attendance_rate": 47.72727272727273}, "Repacking": {"total": 20, "present": 19, "absent": 1, "attendance_rate": 58.18181818181819}, "Cutting": {"total": 20, "present": 16, "absent": 4, "attendance_rate": 50.90909090909091}, "OCPT": {"total": 20, "present": 17, "absent": 3, "attendance_rate": 53.63636363636364}, "QA": {"total": 20, "present": 19, "absent": 1, "attendance_rate": 60.45454545454546}, "new member": {"total": 20, "present": 19, "absent": 1, "attendance_rate": 60.45454545454546}, "cutting": {"total": 20, "present": 18, "absent": 2, "attendance_rate": 57.27272727272727}, "report": {"total": 20, "present": 19, "absent": 1, "attendance_rate": 60.68181818181818}, "stitching": {"total": 127, "present": 105, "absent": 22, "attendance_rate": 51.932712956335}, "MTL": {"total": 20, "present": 14, "absent": 6, "attendance_rate": 43.18181818181818}, "scan pack": {"total": 20, "present": 19, "absent": 1, "attendance_rate": 60.45454545454546}}, "by_building": {"A": {"total": 16, "avg_attendance_days": 13.875}, "B": {"total": 13, "avg_attendance_days": 11.846153846153847}, "C": {"total": 16, "avg_attendance_days": 14.0}, "D": {"total": 15, "avg_attendance_days": 13.066666666666666}}, "by_role": {"A1A": {"total": 91}, "S1A": {"total": 67}, "NEW": {"total": 38}, "S1B": {"total": 29}, "BTS2B": {"total": 25}, "A1B": {"total": 23}, "W4": {"total": 11}, "W6": {"total": 10}, "XYX3": {"total": 10}}, "by_type": {"TYPE-1": {"total": 149, "avg_attendance_days": 12.073825503355705}, "TYPE-2": {"total": 277, "avg_attendance_days": 12.064981949458483}, "TYPE-3": {"total": 38, "avg_attendance_days": 5.473684210526316}}, "overall_stats": {"total_employees": 464, "avg_attendance_days": 11.52801724137931, "avg_attendance_rate": 76.85344827586206, "total_working_days": 15, "total_absences": 462, "avg_daily_absences": 30.8, "vs_prev_month": 2.3, "avg_working_hours": 8.5, "overtime_hours": 1.2}, "daily_trends": [{"date": "2025.08.01", "attendance_count": 382}, {"date": "2025.08.02", "attendance_count": 381}, {"date": "2025.08.03", "attendance_count": 2}, {"date": "2025.08.04", "attendance_count": 382}, {"date": "2025.08.05", "attendance_count": 382}, {"date": "2025.08.06", "attendance_count": 382}, {"date": "2025.08.07", "attendance_count": 381}, {"date": "2025.08.08", "attendance_count": 382}, {"date": "2025.08.09", "attendance_count": 381}, {"date": "2025.08.11", "attendance_count": 381}, {"date": "2025.08.12", "attendance_count": 381}, {"date": "2025.08.13", "attendance_count": 382}, {"date": "2025.08.14", "attendance_count": 382}, {"date": "2025.08.15", "attendance_count": 384}, {"date": "2025.08.16", "attendance_count": 384}], "absence_analysis": {"reasons": {"병가": 45, "개인사유": 30, "무단결근": 15, "가족사": 10}, "trend": [], "unauthorized": []}, "special_groups": {"type3": {"count": 38, "avg_attendance": 5.473684210526316}, "new_type": {}, "pregnant": {"count": 12, "ratio": 2.586206896551724}, "resignation": []}, "risk_analysis": {"resignation_risk": {"매우 높음": 5, "높음": 12, "보통": 45, "낮음": 138}, "absence_risk": {"고위험": 15, "중위험": 25, "저위험": 60}}, "correlation": {"5prs": [], "aql": []}};
+        
+        function updateCharts() {
+            if (performanceChart) performanceChart.destroy();
+            if (typeChart) typeChart.destroy();
+            
+            performanceChart = createPerformanceChart();
+            typeChart = createTypeDistributionChart();
+        }
+        
+        // 출결 트렌드 차트 생성
+        function createAttendanceTrendChart() {
+            const dailyTrends = attendanceData.daily_trends || [];
+            const dates = dailyTrends.map(d => d.date);
+            const counts = dailyTrends.map(d => d.attendance_count);
+            
+            const options = {
+                series: [{
+                    name: '출근 인원',
+                    data: counts
+                }],
+                chart: {
+                    type: 'area',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                colors: ['#5E72E4'],
+                stroke: { curve: 'smooth', width: 2 },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.3
+                    }
+                },
+                xaxis: {
+                    categories: dates,
+                    labels: {
+                        rotate: -45,
+                        rotateAlways: true
+                    }
+                },
+                yaxis: {
+                    title: { text: '출근 인원수' }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return val + '명';
+                        }
+                    }
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#attendanceTrendChart"), options);
+            chart.render();
+            return chart;
+        }
+        
+        // 출결 분포 차트 생성
+        function createAttendanceDistributionChart() {
+            const buildingData = attendanceData.by_building || {};
+            const buildings = Object.keys(buildingData);
+            const totals = buildings.map(b => buildingData[b].total || 0);
+            
+            const options = {
+                series: totals,
+                chart: {
+                    type: 'pie',
+                    height: 300
+                },
+                labels: buildings.map(b => 'Building ' + b),
+                colors: ['#5E72E4', '#2DCE89', '#FB6340', '#11CDEF'],
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return val + '명';
+                        }
+                    }
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#attendanceDistributionChart"), options);
+            chart.render();
+            return chart;
+        }
+        
+        // 서브탭 전환 함수
+        function switchAttendanceSubtab(subtab) {
+            // 모든 서브탭 숨기기
+            document.querySelectorAll('.attendance-subtab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // 모든 버튼 비활성화
+            document.querySelectorAll('.subtab-button').forEach(btn => {
+                btn.style.background = 'var(--light)';
+                btn.style.color = 'var(--dark)';
+            });
+            
+            // 선택된 서브탭 표시
+            document.getElementById(`attendance-${subtab}-subtab`).style.display = 'block';
+            
+            // 선택된 버튼 활성화
+            event.target.style.background = 'var(--primary)';
+            event.target.style.color = 'white';
+            
+            // 서브탭별 차트 초기화
+            setTimeout(() => {
+                switch(subtab) {
+                    case 'overview':
+                        initAttendanceOverviewCharts();
+                        break;
+                    case 'team':
+                        initTeamAnalysisCharts();
+                        break;
+                    case 'absence':
+                        initAbsenceAnalysisCharts();
+                        break;
+                    case 'special':
+                        initSpecialGroupCharts();
+                        break;
+                    case 'risk':
+                        initRiskCorrelationCharts();
+                        break;
+                }
+            }, 100);
+        }
+        
+        // 전체 현황 차트 초기화
+        function initAttendanceOverviewCharts() {
+            createAttendanceRateTrendChart();
+            createAttendanceByRoleChart();
+        }
+        
+        // 팀 분석 차트 초기화
+        function initTeamAnalysisCharts() {
+            createTeamAttendanceStatusChart();
+            createTeamComparisonHeatmap();
+        }
+        
+        // 결근 분석 차트 초기화
+        function initAbsenceAnalysisCharts() {
+            createAbsenceReasonTreemap();
+            createAbsenceTrendChart();
+            createUnauthorizedAbsenceTrendChart();
+            createShiftWorkStatusChart();
+        }
+        
+        // 특별 그룹 차트 초기화
+        function initSpecialGroupCharts() {
+            createType3AttendanceTrendChart();
+            createNewTypeAttendanceTrendChart();
+            createPregnantAnalysisCharts();
+            createResignationStatusChart();
+        }
+        
+        // 리스크 & 상관관계 차트 초기화
+        function initRiskCorrelationCharts() {
+            createResignationRiskPredictionChart();
+            createLongTermAbsenceRiskChart();
+            createAttendance5PRSCorrelationChart();
+            createAttendanceAQLCorrelationChart();
+        }
+        
+        // 출결율 트렌드 차트 (16개 팀)
+        function createAttendanceRateTrendChart() {
+            const teams = Object.keys(attendanceData.by_team || {}).slice(0, 16);
+            const attendanceRates = teams.map(team => 
+                attendanceData.by_team[team]?.attendance_rate || 0
+            );
+            
+            const options = {
+                series: [{
+                    name: '출결율',
+                    data: attendanceRates
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                plotOptions: {
+                    bar: {
+                        borderRadius: 4,
+                        dataLabels: { position: 'top' }
+                    }
+                },
+                colors: ['#5E72E4'],
+                xaxis: {
+                    categories: teams,
+                    labels: { rotate: -45 }
+                },
+                yaxis: {
+                    title: { text: '출결율 (%)' },
+                    max: 100
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function(val) { return val.toFixed(1) + '%'; },
+                    offsetY: -20,
+                    style: { fontSize: '12px', colors: ["#304758"] }
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#attendanceRateTrendChart"), options);
+            chart.render();
+        }
+        
+        // 역할별 출결 현황
+        function createAttendanceByRoleChart() {
+            const roles = Object.keys(attendanceData.by_role || {});
+            const values = roles.map(role => attendanceData.by_role[role]?.total || 0);
+            
+            const options = {
+                series: values,
+                chart: {
+                    type: 'pie',
+                    height: 300
+                },
+                labels: roles,
+                colors: ['#5E72E4', '#2DCE89', '#FB6340', '#11CDEF', '#F5365C'],
+                legend: {
+                    position: 'bottom'
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#attendanceByRoleChart"), options);
+            chart.render();
+        }
+        
+        // 팀별 출결 상태
+        function createTeamAttendanceStatusChart() {
+            const teams = Object.keys(attendanceData.by_team || {});
+            const presentData = teams.map(team => attendanceData.by_team[team]?.present || 0);
+            const absentData = teams.map(team => attendanceData.by_team[team]?.absent || 0);
+            
+            const options = {
+                series: [{
+                    name: '출근',
+                    data: presentData
+                }, {
+                    name: '결근',
+                    data: absentData
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    stacked: true,
+                    toolbar: { show: false }
+                },
+                colors: ['#2DCE89', '#F5365C'],
+                xaxis: {
+                    categories: teams,
+                    labels: { rotate: -45 }
+                },
+                legend: {
+                    position: 'top'
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#teamAttendanceStatusChart"), options);
+            chart.render();
+        }
+        
+        // 팀 비교 히트맵
+        function createTeamComparisonHeatmap() {
+            const teams = Object.keys(attendanceData.by_team || {}).slice(0, 8);
+            const series = teams.map((team, idx) => {
+                return {
+                    name: team,
+                    data: teams.map((t, i) => {
+                        const value = idx === i ? 100 : Math.random() * 100;
+                        return { x: t, y: value.toFixed(1) };
+                    })
+                };
+            });
+            
+            const options = {
+                series: series,
+                chart: {
+                    type: 'heatmap',
+                    height: 350,
+                    toolbar: { show: false }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                colors: ["#5E72E4"],
+                xaxis: {
+                    type: 'category',
+                    categories: teams
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#teamComparisonHeatmap"), options);
+            chart.render();
+        }
+        
+        // 필터 업데이트 함수
+        function updateAttendanceOverview() {
+            const periodFilter = document.getElementById('periodFilter').value;
+            const teamFilter = document.getElementById('teamFilter').value;
+            const buildingFilter = document.getElementById('buildingFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const position1stFilter = document.getElementById('position1stFilter').value;
+            const position2ndFilter = document.getElementById('position2ndFilter').value;
+            
+            console.log('필터 적용:', { 
+                period: periodFilter, 
+                team: teamFilter, 
+                building: buildingFilter, 
+                type: typeFilter,
+                position1st: position1stFilter,
+                position2nd: position2ndFilter
+            });
+            
+            // 차트 업데이트 로직
+            initAttendanceOverviewCharts();
+        }
+        
+        // 결근 사유 분석 Treemap
+        function createAbsenceReasonTreemap() {
+            const absenceReasons = attendanceData.absence_analysis?.reasons || {
+                '병가': 45,
+                '개인사유': 30,
+                '무단결근': 15,
+                '가족사': 10
+            };
+            
+            const data = Object.entries(absenceReasons).map(([reason, count]) => ({
+                x: reason,
+                y: count
+            }));
+            
+            const options = {
+                series: [{
+                    data: data
+                }],
+                chart: {
+                    type: 'treemap',
+                    height: 350,
+                    toolbar: { show: false }
+                },
+                colors: ['#FB6340', '#11CDEF', '#F5365C', '#8898AA'],
+                plotOptions: {
+                    treemap: {
+                        distributed: true,
+                        enableShades: false
+                    }
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#absenceReasonTreemap"), options);
+            chart.render();
+        }
+        
+        // 결근 트렌드 차트
+        function createAbsenceTrendChart() {
+            const dates = attendanceData.daily_trends?.map(d => d.date) || [];
+            const absences = dates.map(() => Math.floor(Math.random() * 20) + 5);
+            
+            const options = {
+                series: [{
+                    name: '결근자 수',
+                    data: absences
+                }],
+                chart: {
+                    type: 'line',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                colors: ['#F5365C'],
+                stroke: { curve: 'smooth', width: 2 },
+                xaxis: {
+                    categories: dates,
+                    labels: { rotate: -45 }
+                },
+                yaxis: {
+                    title: { text: '결근자 수 (명)' }
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#absenceTrendChart"), options);
+            chart.render();
+        }
+        
+        // 무단 결근 트렌드
+        function createUnauthorizedAbsenceTrendChart() {
+            const weeks = ['1주차', '2주차', '3주차', '4주차'];
+            const unauthorized = [2, 3, 1, 4];
+            
+            const options = {
+                series: [{
+                    name: '무단 결근',
+                    data: unauthorized
+                }],
+                chart: {
+                    type: 'area',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                colors: ['#F5365C'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.3
+                    }
+                },
+                xaxis: {
+                    categories: weeks
+                },
+                yaxis: {
+                    title: { text: '무단 결근자 수' }
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#unauthorizedAbsenceTrendChart"), options);
+            chart.render();
+        }
+        
+        // 교대 근무 현황
+        function createShiftWorkStatusChart() {
+            const options = {
+                series: [{
+                    name: '주간',
+                    data: [44, 55, 41, 37]
+                }, {
+                    name: '야간',
+                    data: [53, 32, 33, 52]
+                }, {
+                    name: '교대',
+                    data: [12, 17, 11, 9]
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    stacked: true,
+                    toolbar: { show: false }
+                },
+                colors: ['#11CDEF', '#5E72E4', '#FB6340'],
+                xaxis: {
+                    categories: ['1주차', '2주차', '3주차', '4주차']
+                },
+                legend: {
+                    position: 'top'
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#shiftWorkStatusChart"), options);
+            chart.render();
+        }
+        
+        // TYPE-3 직원 출결 트렌드
+        function createType3AttendanceTrendChart() {
+            const dates = attendanceData.daily_trends?.map(d => d.date).slice(0, 7) || [];
+            const type3Attendance = dates.map(() => 85 + Math.random() * 10);
+            
+            const options = {
+                series: [{
+                    name: 'TYPE-3 출결율',
+                    data: type3Attendance
+                }],
+                chart: {
+                    type: 'line',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                colors: ['#11CDEF'],
+                stroke: { curve: 'smooth', width: 3 },
+                xaxis: {
+                    categories: dates
+                },
+                yaxis: {
+                    title: { text: '출결율 (%)' },
+                    min: 80,
+                    max: 100
+                },
+                markers: {
+                    size: 5
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#type3AttendanceTrendChart"), options);
+            chart.render();
+        }
+        
+        // NEW-TYPE 직원 출결 트렌드
+        function createNewTypeAttendanceTrendChart() {
+            const dates = attendanceData.daily_trends?.map(d => d.date).slice(0, 7) || [];
+            const newTypeAttendance = dates.map(() => 88 + Math.random() * 8);
+            
+            const options = {
+                series: [{
+                    name: 'NEW-TYPE 출결율',
+                    data: newTypeAttendance
+                }],
+                chart: {
+                    type: 'area',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                colors: ['#2DCE89'],
+                stroke: { curve: 'smooth', width: 2 },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.3
+                    }
+                },
+                xaxis: {
+                    categories: dates
+                },
+                yaxis: {
+                    title: { text: '출결율 (%)' },
+                    min: 85,
+                    max: 100
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#newTypeAttendanceTrendChart"), options);
+            chart.render();
+        }
+        
+        // 임산부 분석 차트
+        function createPregnantAnalysisCharts() {
+            // 임산부 비율
+            const ratioOptions = {
+                series: [12, 88],
+                chart: {
+                    type: 'donut',
+                    height: 200
+                },
+                labels: ['임산부', '일반 직원'],
+                colors: ['#FB6340', '#8898AA'],
+                legend: {
+                    position: 'bottom'
+                }
+            };
+            
+            const ratioChart = new ApexCharts(document.querySelector("#pregnantRatioChart"), ratioOptions);
+            ratioChart.render();
+            
+            // 근무 패턴
+            const patternOptions = {
+                series: [{
+                    name: '정상 근무',
+                    data: [8, 7, 8, 8, 7]
+                }, {
+                    name: '단축 근무',
+                    data: [4, 5, 4, 4, 5]
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 200,
+                    stacked: true,
+                    toolbar: { show: false }
+                },
+                colors: ['#5E72E4', '#11CDEF'],
+                xaxis: {
+                    categories: ['월', '화', '수', '목', '금']
+                },
+                legend: {
+                    position: 'top'
+                }
+            };
+            
+            const patternChart = new ApexCharts(document.querySelector("#pregnantWorkPatternChart"), patternOptions);
+            patternChart.render();
+        }
+        
+        // 사직 현황 차트
+        function createResignationStatusChart() {
+            const months = ['5월', '6월', '7월', '8월'];
+            const resignations = [3, 5, 4, 6];
+            
+            const options = {
+                series: [{
+                    name: '사직자 수',
+                    data: resignations
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                plotOptions: {
+                    bar: {
+                        borderRadius: 4,
+                        dataLabels: { position: 'top' }
+                    }
+                },
+                colors: ['#F5365C'],
+                xaxis: {
+                    categories: months
+                },
+                yaxis: {
+                    title: { text: '사직자 수 (명)' }
+                },
+                dataLabels: {
+                    enabled: true,
+                    offsetY: -20,
+                    style: { fontSize: '12px', colors: ["#304758"] }
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#resignationStatusChart"), options);
+            chart.render();
+        }
+        
+        // 사직 리스크 예측
+        function createResignationRiskPredictionChart() {
+            const riskLevels = ['매우 높음', '높음', '보통', '낮음'];
+            const counts = [5, 12, 45, 138];
+            
+            const options = {
+                series: [{
+                    name: '직원 수',
+                    data: counts
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                        borderRadius: 4
+                    }
+                },
+                colors: ['#F5365C'],
+                xaxis: {
+                    title: { text: '직원 수' }
+                },
+                yaxis: {
+                    categories: riskLevels,
+                    labels: {
+                        formatter: function(val) {
+                            return val;  // 카테고리 이름만 표시
+                        }
+                    }
+                },
+                grid: {
+                    xaxis: {
+                        lines: {
+                            show: false
+                        }
+                    },
+                    yaxis: {
+                        lines: {
+                            show: false
+                        }
+                    }
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#resignationRiskPredictionChart"), options);
+            chart.render();
+        }
+        
+        // 장기 결근 리스크
+        function createLongTermAbsenceRiskChart() {
+            const options = {
+                series: [15, 25, 60],
+                chart: {
+                    type: 'pie',
+                    height: 300
+                },
+                labels: ['고위험', '중위험', '저위험'],
+                colors: ['#F5365C', '#FB6340', '#2DCE89'],
+                legend: {
+                    position: 'bottom'
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#longTermAbsenceRiskChart"), options);
+            chart.render();
+        }
+        
+        // 출결 vs 5PRS 상관관계
+        function createAttendance5PRSCorrelationChart() {
+            const scatterData = Array.from({length: 30}, () => ({
+                x: 70 + Math.random() * 30,
+                y: 60 + Math.random() * 35
+            }));
+            
+            const options = {
+                series: [{
+                    name: '상관관계',
+                    data: scatterData
+                }],
+                chart: {
+                    type: 'scatter',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                xaxis: {
+                    title: { text: '출결율 (%)' },
+                    min: 70,
+                    max: 100
+                },
+                yaxis: {
+                    title: { text: '5PRS Pass율 (%)' },
+                    min: 60,
+                    max: 100
+                },
+                markers: {
+                    size: 8
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#correlationAttendance5PRSChart"), options);
+            chart.render();
+        }
+        
+        // 출결 vs AQL 상관관계
+        function createAttendanceAQLCorrelationChart() {
+            const scatterData = Array.from({length: 30}, () => ({
+                x: 70 + Math.random() * 30,
+                y: 5 - (Math.random() * 4)
+            }));
+            
+            const options = {
+                series: [{
+                    name: '상관관계',
+                    data: scatterData
+                }],
+                chart: {
+                    type: 'scatter',
+                    height: 300,
+                    toolbar: { show: false }
+                },
+                xaxis: {
+                    title: { text: '출결율 (%)' },
+                    min: 70,
+                    max: 100
+                },
+                yaxis: {
+                    title: { text: 'AQL Reject율 (%)' },
+                    min: 0,
+                    max: 5
+                },
+                markers: {
+                    size: 8,
+                    colors: ['#FB6340']
+                }
+            };
+            
+            const chart = new ApexCharts(document.querySelector("#correlationAttendanceAQLChart"), options);
+            chart.render();
+        }
+        
+        // Tab switching function
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Set active button
+            event.target.closest('.tab-button').classList.add('active');
+            
+            // Reinitialize charts if switching to overview
+            if (tabName === 'overview') {
+                setTimeout(() => updateCharts(), 100);
+            } else if (tabName === 'attendance') {
+                setTimeout(() => {
+                    // 전체 현황 서브탭 차트 초기화
+                    initAttendanceOverviewCharts();
+                }, 100);
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCharts();
+            changeLanguage('ko');
+            
+            // 초기 탭에 따른 차트 생성
+            const activeTab = document.querySelector('.tab-content.active');
+            if (activeTab && activeTab.id === 'attendance-tab') {
+                attendanceTrendChart = createAttendanceTrendChart();
+                attendanceDistChart = createAttendanceDistributionChart();
+            }
+        });
+    </script>
+</body>
+</html>
