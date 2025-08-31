@@ -1,0 +1,768 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QIP 출석 현황 대시보드 v4.0</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .dashboard-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .insight-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ffc107;
+            color: #000;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .insight-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            z-index: 1000;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .lifecycle-card {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .tab-content {
+            margin-top: 20px;
+        }
+        .filter-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container dashboard-container">
+        <h1 class="text-center mb-4">QIP 출석 현황 대시보드 <span class="badge bg-success">v4.0</span></h1>
+        
+        <!-- Filters -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="periodFilter">기간 선택:</label>
+                    <select id="periodFilter" class="form-select">
+                        <option value="daily">일별</option>
+                        <option value="weekly">주별</option>
+                        <option value="monthly">월별</option>
+                        <option value="quarterly">분기별</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="departmentFilter">부서:</label>
+                    <select id="departmentFilter" class="form-select" multiple>
+                        <option value="all" selected>전체</option>
+                        <option value="PRGMRQI1">PRGMRQI1</option>
+<option value="PRGOFQI1">PRGOFQI1</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="roleFilter">역할:</label>
+                    <select id="roleFilter" class="form-select">
+                        <option value="all" selected>전체</option>
+                        <option value="management team">management team</option>
+<option value="CFA">CFA</option>
+<option value="RQC">RQC</option>
+<option value="TQC">TQC</option>
+<option value="LEADER">LEADER</option>
+<option value="AUDIT & TRAINER">AUDIT & TRAINER</option>
+<option value="support team">support team</option>
+<option value="staff">staff</option>
+<option value="new member">new member</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card" onclick="showPopup('attendance')">
+                    <h3>출석률</h3>
+                    <p class="stat-number">0.0%</p>
+                    <small>현재 출석률은 0.0%입니다.</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" onclick="showPopup('employees')">
+                    <h3>전체 직원</h3>
+                    <p class="stat-number">392명</p>
+                    <small>총 392명의 직원이 등록되어 있습니다.</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" onclick="showPopup('workhours')">
+                    <h3>평균 근무시간</h3>
+                    <p class="stat-number">0.0시간</p>
+                    <small>평균 근무시간은 0.0시간입니다.</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" onclick="showPopup('lifecycle')">
+                    <h3>인력 변동</h3>
+                    <p class="stat-number">
+                        +14 / -15
+                    </p>
+                    <small>입사/퇴사</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#overview">개요</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#trends">트렌드</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#lifecycle">생애주기</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#departments">부서별</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#insights">인사이트</a>
+            </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-pane fade show active">
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <span class="insight-badge" onclick="showInsight('attendance_trend')">💡 인사이트</span>
+                            <h4>출석 현황</h4>
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <span class="insight-badge" onclick="showInsight('work_distribution')">💡 인사이트</span>
+                            <h4>근무시간 분포</h4>
+                            <canvas id="workHoursChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trends Tab -->
+            <div id="trends" class="tab-pane fade">
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="chart-container">
+                            <span class="insight-badge" onclick="showInsight('monthly_trend')">💡 인사이트</span>
+                            <h4>월별 출석 트렌드</h4>
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <span class="insight-badge" onclick="showInsight('prediction')">💡 인사이트</span>
+                            <h4>출석률 예측</h4>
+                            <canvas id="predictionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <span class="insight-badge" onclick="showInsight('pattern')">💡 인사이트</span>
+                            <h4>요일별 패턴</h4>
+                            <canvas id="patternChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Lifecycle Tab -->
+            <div id="lifecycle" class="tab-pane fade">
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <span class="insight-badge" onclick="showInsight('lifecycle_overview')">💡 인사이트</span>
+                            <h4>직원 생애주기</h4>
+                            <canvas id="lifecycleChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <span class="insight-badge" onclick="showInsight('turnover')">💡 인사이트</span>
+                            <h4>입사/퇴사 분석</h4>
+                            <canvas id="turnoverChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h4>상세 정보</h4>
+                        <div id="lifecycleDetails">
+                            <div class="lifecycle-card"><h5>신입 직원 (14명)</h5><ul><li>LÝ THỊ THU HỒNG - PRGOFQI1 (첫 출근: 2025-08-15)</li><li>DƯƠNG THỊ HOÀNG DUY - PRGOFQI1 (첫 출근: 2025-08-15)</li><li>PHAN THỊ ÁI NHƯ - PRGOFQI1 (첫 출근: 2025-08-01)</li><li>LÊ NHƯ Ý - PRGOFQI1 (첫 출근: 2025-08-01)</li><li>ĐOÀN THỊ THU TRANG - PRGOFQI1 (첫 출근: 2025-08-01)</li><li>NGUYỄN THỊ NHƯ Ý - PRGOFQI1 (첫 출근: 2025-08-01)</li><li>ĐOÀN THẢO NHI - PRGOFQI1 (첫 출근: 2025-08-11)</li><li>HỒ THỊ HỒNG ÂN - PRGOFQI1 (첫 출근: 2025-08-15)</li><li>ĐINH THỊ KIM THOA - PRGOFQI1 (첫 출근: 2025-08-13)</li><li>NGUYỄN THỊ KHẢ DUY - PRGOFQI1 (첫 출근: 2025-08-13)</li></ul></div><div class="lifecycle-card"><h5>퇴사자 (15명)</h5><ul><li>DANH THỊ NHƯ Ý - PRGOFQI1</li><li>PHẠM TẤN ĐẠT - PRGOFQI1</li><li>TRẦN TIẾN NAM - PRGOFQI1</li><li>PHAN MINH ANH - PRGMRQI1</li><li>NGUYỄN QUỐC HUY - PRGOFQI1</li><li>VÕ THỊ BẢO HIỀN - PRGOFQI1</li><li>THỊ BÍCH KIỀU - PRGOFQI1</li><li>CAO KIM CÁC - PRGOFQI1</li><li>DANH PHẠM HỒNG TIỀN - PRGOFQI1</li><li>NGÔ THANH NHƯ - PRGOFQI1</li></ul></div><div class="lifecycle-card"><h5>임산부/출산휴가 (13명)</h5><ul><li>NGUYỄN THỊ HỒNG NHUNG - PRGMRQI1 (Pregnant)</li><li>NGUYỄN THỊ NGỌC ÁNH - PRGMRQI1 (Pregnant)</li><li>NGUYỄN THỊ BÍCH CHƯƠNG - PRGMRQI1 (Con dưới 3 tuổi bị bệnh)</li><li>NGUYỄN THỊ MỸ TIÊN - PRGMRQI1 (Pregnant)</li><li>THỊ HỒNG NGA - PRGMRQI1 (Pregnant)</li><li>TRẦN THỊ NGỌC ÂN - PRGMRQI1 (Pregnant)</li><li>THỊ THANH THẢO - PRGOFQI1 (Pregnant)</li><li>ĐINH KIM NGOAN - PRGMRQI1 (Sinh thường 1 con (6 tháng))</li><li>DANH THỊ NGỌC THƯ - PRGMRQI1 (Sinh thường 1 con (6 tháng))</li><li>NGUYỄN THỊ NGỌC QUYÊN - PRGMRQI1 (Sinh thường 1 con (6 tháng))</li></ul></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Departments Tab -->
+            <div id="departments" class="tab-pane fade">
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="chart-container">
+                            <span class="insight-badge" onclick="showInsight('dept_performance')">💡 인사이트</span>
+                            <h4>부서별 출석률</h4>
+                            <canvas id="departmentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h4>부서별 상세 테이블</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped"><thead><tr><th>부서</th><th>전체</th><th>출근</th><th>출석률</th><th>상태</th></tr></thead><tbody><tr><td>PRGMRQI1</td><td>1752</td><td>0</td><td>0.0%</td><td><span class="badge bg-danger">개선필요</span></td></tr><tr><td>PRGOFQI1</td><td>3597</td><td>0</td><td>0.0%</td><td><span class="badge bg-danger">개선필요</span></td></tr></tbody></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Insights Tab -->
+            <div id="insights" class="tab-pane fade">
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h3>종합 인사이트</h3>
+                        <div class="row"><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-primary text-white">출석 인사이트</div><div class="card-body"><ul><li>현재 출석률은 0.0%입니다.</li><li>총 392명의 직원이 등록되어 있습니다.</li><li>평균 근무시간은 0.0시간입니다.</li></ul></div></div></div><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-info text-white">부서 인사이트</div><div class="card-body"><ul><li>PRGMRQI1 부서가 0.0%로 최고 출석률을 기록했습니다.</li><li>총 2개 부서가 운영 중입니다.</li></ul></div></div></div><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-warning">인력 변동 인사이트</div><div class="card-body"><ul><li>출석률이 하락 추세를 보이고 있습니다.</li><li>이번 달 14명 입사, 15명 퇴사했습니다.</li></ul></div></div></div><div class="col-md-6"><div class="card mb-3"><div class="card-header bg-success text-white">권장 사항</div><div class="card-body"><ol><li>출석률 90% 미만 부서에 대한 집중 관리</li><li>신입 직원 온보딩 프로그램 강화</li><li>임산부 직원을 위한 유연근무제 검토</li><li>월요일 출석률 개선 방안 수립</li></ol></div></div></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popup Overlay -->
+    <div class="popup-overlay" onclick="closeAllPopups()"></div>
+    
+    <!-- Popup Container -->
+    <div id="insightPopup" class="insight-popup">
+        <button type="button" class="btn-close float-end" onclick="closeAllPopups()"></button>
+        <h4 id="popupTitle">인사이트</h4>
+        <div id="popupContent"></div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Data from Python
+        const dashboardConfig = {"dashboard": {"title": "QIP \ucd9c\uc11d \ud604\ud669 \ub300\uc2dc\ubcf4\ub4dc", "version": "4.0", "language": "ko", "theme": {"primary_color": "#007bff", "success_color": "#28a745", "warning_color": "#ffc107", "danger_color": "#dc3545", "info_color": "#17a2b8"}}, "data_sources": {"attendance_files": {"pattern": "attendance data {month}.csv", "encoding": "utf-8-sig", "date_format": "%Y.%m.%d"}, "google_drive": {"enabled": true, "folders": {"attendance": "1234567890abcdef", "hr_info": "0987654321fedcba"}, "sync_interval": 60}}, "charts": {"overview": {"enabled": true, "charts": [{"id": "attendanceRate", "type": "gauge", "title": "\ucd9c\uc11d\ub960", "insight_template": "\ud604\uc7ac \ucd9c\uc11d\ub960\uc740 {value}%\ub85c {trend} \ucd94\uc138\uc785\ub2c8\ub2e4"}, {"id": "totalEmployees", "type": "stat", "title": "\uc804\uccb4 \uc9c1\uc6d0", "insight_template": "\ucd1d {value}\uba85\uc758 \uc9c1\uc6d0\uc774 \ub4f1\ub85d\ub418\uc5b4 \uc788\uc2b5\ub2c8\ub2e4"}]}, "trends": {"enabled": true, "charts": [{"id": "dailyTrend", "type": "line", "title": "\uc77c\ubcc4 \ucd9c\uc11d \ud2b8\ub80c\ub4dc", "insight_template": "\uc774\ubc88 \ub2ec \ud3c9\uade0 \ucd9c\uc11d\ub960\uc740 {avg}%\uc774\uba70, \ucd5c\uace0 {max}%, \ucd5c\uc800 {min}%\ub97c \uae30\ub85d\ud588\uc2b5\ub2c8\ub2e4"}, {"id": "lifecycle", "type": "doughnut", "title": "\uc9c1\uc6d0 \uc0dd\uc560\uc8fc\uae30", "categories": ["\uc2e0\uc785", "\ud1f4\uc0ac", "\uc784\uc0b0\ubd80", "\ucd9c\uc0b0\ud734\uac00", "60\uc77c \ubbf8\ub9cc"], "insight_template": "\uc774\ubc88 \ub2ec {new_hires}\uba85 \uc785\uc0ac, {resignations}\uba85 \ud1f4\uc0ac\ud588\uc2b5\ub2c8\ub2e4"}]}, "detailed": {"enabled": true, "charts": [{"id": "roleAnalysis", "type": "bar", "title": "\uc5ed\ud560\ubcc4 \ucd9c\uc11d \ud604\ud669", "insight_template": "{top_role} \ud300\uc774 \uac00\uc7a5 \ub192\uc740 \ucd9c\uc11d\ub960 {rate}%\ub97c \ubcf4\uc774\uace0 \uc788\uc2b5\ub2c8\ub2e4"}, {"id": "departmentAnalysis", "type": "horizontalBar", "title": "\ubd80\uc11c\ubcc4 \ucd9c\uc11d \ud604\ud669", "insight_template": "{dept_count}\uac1c \ubd80\uc11c \uc911 {high_count}\uac1c \ubd80\uc11c\uac00 90% \uc774\uc0c1\uc758 \ucd9c\uc11d\ub960\uc744 \uc720\uc9c0\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4"}]}}, "lifecycle": {"pregnancy_codes": ["5N", "7T", "5T", "7N"], "maternity_keywords": ["Sinh", "maternity", "\ucd9c\uc0b0", "\uc0b0\ud6c4"], "new_hire_threshold_days": 60, "tracking": {"resignations": true, "new_hires": true, "pregnant": true, "less_than_60_days": true}}, "insights": {"auto_generate": true, "categories": [{"id": "attendance_quality", "title": "\ucd9c\uc11d \ud488\uc9c8", "thresholds": {"excellent": 95, "good": 90, "average": 85, "poor": 80}}, {"id": "team_performance", "title": "\ud300 \uc131\uacfc", "metrics": ["attendance_rate", "consistency", "improvement"]}, {"id": "lifecycle_trends", "title": "\uc778\ub825 \ubcc0\ub3d9", "metrics": ["turnover_rate", "new_hire_retention", "maternity_impact"]}]}, "popups": {"enabled": true, "features": {"employee_details": true, "team_breakdown": true, "historical_comparison": true, "export_data": true}}, "filters": {"period": {"options": ["daily", "weekly", "monthly", "quarterly"], "default": "daily"}, "department": {"enabled": true, "multi_select": true}, "role": {"enabled": true, "categories": ["management team", "CFA", "RQC", "TQC", "LEADER", "AUDIT & TRAINER", "support team", "staff", "new member"]}}, "work_hours": {"codes": {"9J": 9.0, "9U": 9.0, "9T": 9.0, "9S": 9.0, "9X": 9.0, "7T": 8.0, "5N": 8.9, "5T": 8.9, "7N": 8.0, "8M": 8.0, "8N": 8.0, "8S": 8.0, "0": 0.0, "1": 0.0, "D": 0.0}, "default": 9.0}};
+        const lifecycleInfo = {"resignations": [{"id": "623080378", "name": "DANH TH\u1eca NH\u01af \u00dd", "department": "PRGOFQI1"}, {"id": "625020481", "name": "PH\u1ea0M T\u1ea4N \u0110\u1ea0T", "department": "PRGOFQI1"}, {"id": "625020386", "name": "TR\u1ea6N TI\u1ebeN NAM", "department": "PRGOFQI1"}, {"id": "621050282", "name": "PHAN MINH ANH", "department": "PRGMRQI1"}, {"id": "624090346", "name": "NGUY\u1ec4N QU\u1ed0C HUY", "department": "PRGOFQI1"}, {"id": "625040238", "name": "V\u00d5 TH\u1eca B\u1ea2O HI\u1ec0N", "department": "PRGOFQI1"}, {"id": "624090222", "name": "TH\u1eca B\u00cdCH KI\u1ec0U", "department": "PRGOFQI1"}, {"id": "624030257", "name": "CAO KIM C\u00c1C", "department": "PRGOFQI1"}, {"id": "624030609", "name": "DANH PH\u1ea0M H\u1ed2NG TI\u1ec0N", "department": "PRGOFQI1"}, {"id": "624090322", "name": "NG\u00d4 THANH NH\u01af", "department": "PRGOFQI1"}, {"id": "623090325", "name": "V\u00d5 L\u00dd H\u1ea2I", "department": "PRGOFQI1"}, {"id": "625030006", "name": "D\u01af\u01a0NG TH\u1eca MINH TH\u01af", "department": "PRGOFQI1"}, {"id": "620120056", "name": "NGUY\u1ec4N TH\u1eca ANH NH\u01af", "department": "PRGOFQI1"}, {"id": "623090362", "name": "DANH TH\u1eca C\u1ea8M TH\u00d9Y", "department": "PRGOFQI1"}, {"id": "625050110", "name": "NGUY\u1ec4N H\u1ed2NG TH\u00daY", "department": "PRGOFQI1"}], "new_hires": [{"id": "625080164", "name": "L\u00dd TH\u1eca THU H\u1ed2NG", "department": "PRGOFQI1", "first_date": "2025-08-15"}, {"id": "625080165", "name": "D\u01af\u01a0NG TH\u1eca HO\u00c0NG DUY", "department": "PRGOFQI1", "first_date": "2025-08-15"}, {"id": "625080006", "name": "PHAN TH\u1eca \u00c1I NH\u01af", "department": "PRGOFQI1", "first_date": "2025-08-01"}, {"id": "625080007", "name": "L\u00ca NH\u01af \u00dd", "department": "PRGOFQI1", "first_date": "2025-08-01"}, {"id": "625080008", "name": "\u0110O\u00c0N TH\u1eca THU TRANG", "department": "PRGOFQI1", "first_date": "2025-08-01"}, {"id": "625080009", "name": "NGUY\u1ec4N TH\u1eca NH\u01af \u00dd", "department": "PRGOFQI1", "first_date": "2025-08-01"}, {"id": "625080102", "name": "\u0110O\u00c0N TH\u1ea2O NHI", "department": "PRGOFQI1", "first_date": "2025-08-11"}, {"id": "625080166", "name": "H\u1ed2 TH\u1eca H\u1ed2NG \u00c2N", "department": "PRGOFQI1", "first_date": "2025-08-15"}, {"id": "625080140", "name": "\u0110INH TH\u1eca KIM THOA", "department": "PRGOFQI1", "first_date": "2025-08-13"}, {"id": "625080141", "name": "NGUY\u1ec4N TH\u1eca KH\u1ea2 DUY", "department": "PRGOFQI1", "first_date": "2025-08-13"}, {"id": "625080082", "name": "C\u00d4 NG\u1eccC GI\u00c0U", "department": "PRGOFQI1", "first_date": "2025-08-08"}, {"id": "625080083", "name": "TH\u1eca H\u1ed2NG XU\u00c2N", "department": "PRGOFQI1", "first_date": "2025-08-08"}, {"id": "625080057", "name": "L\u00ca TH\u1eca CHINH", "department": "PRGOFQI1", "first_date": "2025-08-06"}, {"id": "625080028", "name": "PH\u1ea0M TR\u01af\u1edcNG PH\u01af\u1ee2NG ANH", "department": "PRGOFQI1", "first_date": "2025-08-04"}], "less_than_60_days": [{"id": "625080164", "name": "L\u00dd TH\u1eca THU H\u1ed2NG", "department": "PRGOFQI1", "first_date": "2025-08-15"}, {"id": "625080165", "name": "D\u01af\u01a0NG TH\u1eca HO\u00c0NG DUY", "department": "PRGOFQI1", "first_date": "2025-08-15"}, {"id": "625080006", "name": "PHAN TH\u1eca \u00c1I NH\u01af", "department": "PRGOFQI1", "first_date": "2025-08-01"}, {"id": "625080007", "name": "L\u00ca NH\u01af \u00dd", "department": "PRGOFQI1", "first_date": "2025-08-01"}, {"id": "625080008", "name": "\u0110O\u00c0N TH\u1eca THU TRANG", "department": "PRGOFQI1", "first_date": "2025-08-01"}, {"id": "625080009", "name": "NGUY\u1ec4N TH\u1eca NH\u01af \u00dd", "department": "PRGOFQI1", "first_date": "2025-08-01"}, {"id": "625080102", "name": "\u0110O\u00c0N TH\u1ea2O NHI", "department": "PRGOFQI1", "first_date": "2025-08-11"}, {"id": "625080166", "name": "H\u1ed2 TH\u1eca H\u1ed2NG \u00c2N", "department": "PRGOFQI1", "first_date": "2025-08-15"}, {"id": "625080140", "name": "\u0110INH TH\u1eca KIM THOA", "department": "PRGOFQI1", "first_date": "2025-08-13"}, {"id": "625080141", "name": "NGUY\u1ec4N TH\u1eca KH\u1ea2 DUY", "department": "PRGOFQI1", "first_date": "2025-08-13"}, {"id": "625080082", "name": "C\u00d4 NG\u1eccC GI\u00c0U", "department": "PRGOFQI1", "first_date": "2025-08-08"}, {"id": "625080083", "name": "TH\u1eca H\u1ed2NG XU\u00c2N", "department": "PRGOFQI1", "first_date": "2025-08-08"}, {"id": "625080057", "name": "L\u00ca TH\u1eca CHINH", "department": "PRGOFQI1", "first_date": "2025-08-06"}, {"id": "625080028", "name": "PH\u1ea0M TR\u01af\u1edcNG PH\u01af\u1ee2NG ANH", "department": "PRGOFQI1", "first_date": "2025-08-04"}], "pregnant": [{"id": "618110042", "name": "NGUY\u1ec4N TH\u1eca H\u1ed2NG NHUNG", "department": "PRGMRQI1", "status": "Pregnant", "days_count": 14}, {"id": "619020320", "name": "NGUY\u1ec4N TH\u1eca NG\u1eccC \u00c1NH", "department": "PRGMRQI1", "status": "Pregnant", "days_count": 14}, {"id": "619030390", "name": "NGUY\u1ec4N TH\u1eca B\u00cdCH CH\u01af\u01a0NG", "department": "PRGMRQI1", "status": "Con d\u01b0\u1edbi 3 tu\u1ed5i b\u1ecb b\u1ec7nh", "days_count": 14}, {"id": "620030340", "name": "NGUY\u1ec4N TH\u1eca M\u1ef8 TI\u00caN", "department": "PRGMRQI1", "status": "Pregnant", "days_count": 14}, {"id": "622060369", "name": "TH\u1eca H\u1ed2NG NGA", "department": "PRGMRQI1", "status": "Pregnant", "days_count": 14}, {"id": "624060087", "name": "TR\u1ea6N TH\u1eca NG\u1eccC \u00c2N", "department": "PRGMRQI1", "status": "Pregnant", "days_count": 14}, {"id": "622021338", "name": "TH\u1eca THANH TH\u1ea2O", "department": "PRGOFQI1", "status": "Pregnant", "days_count": 14}], "maternity_leave": [{"id": "617100049", "name": "\u0110INH KIM NGOAN", "department": "PRGMRQI1", "status": "Sinh th\u01b0\u1eddng 1 con (6 th\u00e1ng)", "days_count": 14}, {"id": "619070186", "name": "DANH TH\u1eca NG\u1eccC TH\u01af", "department": "PRGMRQI1", "status": "Sinh th\u01b0\u1eddng 1 con (6 th\u00e1ng)", "days_count": 14}, {"id": "621060451", "name": "NGUY\u1ec4N TH\u1eca NG\u1eccC QUY\u00caN", "department": "PRGMRQI1", "status": "Sinh th\u01b0\u1eddng 1 con (6 th\u00e1ng)", "days_count": 14}, {"id": "622030504", "name": "NGUY\u1ec4N TH\u1eca T\u00da TRINH", "department": "PRGMRQI1", "status": "Sinh th\u01b0\u1eddng 1 con (6 th\u00e1ng)", "days_count": 14}, {"id": "622050158", "name": "TR\u1ea6N TH\u1eca C\u1ea8M TI\u00caN", "department": "PRGOFQI1", "status": "Sinh th\u01b0\u1eddng 1 con (6 th\u00e1ng)", "days_count": 14}, {"id": "624070393", "name": "L\u00ca TH\u1eca CHI", "department": "PRGOFQI1", "status": "Sinh th\u01b0\u1eddng 1 con (6 th\u00e1ng)", "days_count": 14}]};
+        const insights = {"overview": {"attendance_rate": "\ud604\uc7ac \ucd9c\uc11d\ub960\uc740 0.0%\uc785\ub2c8\ub2e4.", "total_employees": "\ucd1d 392\uba85\uc758 \uc9c1\uc6d0\uc774 \ub4f1\ub85d\ub418\uc5b4 \uc788\uc2b5\ub2c8\ub2e4.", "avg_work_hours": "\ud3c9\uade0 \uadfc\ubb34\uc2dc\uac04\uc740 0.0\uc2dc\uac04\uc785\ub2c8\ub2e4."}, "trends": {"monthly": "\ucd9c\uc11d\ub960\uc774 \ud558\ub77d \ucd94\uc138\ub97c \ubcf4\uc774\uace0 \uc788\uc2b5\ub2c8\ub2e4.", "lifecycle": "\uc774\ubc88 \ub2ec 14\uba85 \uc785\uc0ac, 15\uba85 \ud1f4\uc0ac\ud588\uc2b5\ub2c8\ub2e4."}, "departments": {"top_performer": "PRGMRQI1 \ubd80\uc11c\uac00 0.0%\ub85c \ucd5c\uace0 \ucd9c\uc11d\ub960\uc744 \uae30\ub85d\ud588\uc2b5\ub2c8\ub2e4.", "total": "\ucd1d 2\uac1c \ubd80\uc11c\uac00 \uc6b4\uc601 \uc911\uc785\ub2c8\ub2e4."}, "roles": {"top_role": "management team \uc5ed\ud560\uc774 93.7%\uc758 \ucd9c\uc11d\ub960\uc744 \ubcf4\uc785\ub2c8\ub2e4.", "categories": "9\uac1c \uc5ed\ud560 \uce74\ud14c\uace0\ub9ac\uac00 \uc788\uc2b5\ub2c8\ub2e4."}};
+        const deptStats = {"PRGMRQI1": {"present": 0, "total": 1752, "rate": 0.0}, "PRGOFQI1": {"present": 0, "total": 3597, "rate": 0.0}};
+        
+        // Chart instances
+        let charts = {};
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            setupEventListeners();
+        });
+        
+        function initializeCharts() {
+            // Attendance Chart
+            createAttendanceChart();
+            createWorkHoursChart();
+            createTrendChart();
+            createLifecycleChart();
+            createTurnoverChart();
+            createDepartmentChart();
+            createPredictionChart();
+            createPatternChart();
+        }
+        
+        function createAttendanceChart() {
+            const ctx = document.getElementById('attendanceChart');
+            if (!ctx) return;
+            
+            destroyChart('attendance');
+            charts.attendance = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['출근', '결근'],
+                    datasets: [{
+                        data: [0, 5349],
+                        backgroundColor: ['#28a745', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: {
+                            display: true,
+                            text: '출석 현황'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createWorkHoursChart() {
+            const ctx = document.getElementById('workHoursChart');
+            if (!ctx) return;
+            
+            // Calculate work hours distribution
+            const distribution = {
+                '8시간 미만': 0,
+                '8-9시간': 0,
+                '9시간 초과': 0
+            };
+            
+            // This would be calculated from actual data
+            distribution['8-9시간'] = Math.floor(392 * 0.7);
+            distribution['9시간 초과'] = Math.floor(392 * 0.2);
+            distribution['8시간 미만'] = Math.floor(392 * 0.1);
+            
+            destroyChart('workHours');
+            charts.workHours = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(distribution),
+                    datasets: [{
+                        label: '직원 수',
+                        data: Object.values(distribution),
+                        backgroundColor: '#17a2b8'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        function createTrendChart() {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+            
+            // Generate sample trend data
+            const labels = [];
+            const data = [];
+            for (let i = 1; i <= 31; i++) {
+                labels.push(`8/${i}`);
+                data.push(85 + Math.random() * 10);
+            }
+            
+            destroyChart('trend');
+            charts.trend = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '일별 출석률 (%)',
+                        data: data,
+                        borderColor: '#007bff',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createLifecycleChart() {
+            const ctx = document.getElementById('lifecycleChart');
+            if (!ctx) return;
+            
+            destroyChart('lifecycle');
+            charts.lifecycle = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['신입', '퇴사', '임산부', '출산휴가', '60일 미만'],
+                    datasets: [{
+                        data: [
+                            lifecycleInfo.new_hires.length,
+                            lifecycleInfo.resignations.length,
+                            lifecycleInfo.pregnant.length,
+                            lifecycleInfo.maternity_leave.length,
+                            lifecycleInfo.less_than_60_days.length
+                        ],
+                        backgroundColor: [
+                            '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6c757d'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+        
+        function createTurnoverChart() {
+            const ctx = document.getElementById('turnoverChart');
+            if (!ctx) return;
+            
+            // Department turnover analysis
+            const deptTurnover = {};
+            lifecycleInfo.new_hires.forEach(emp => {
+                if (!deptTurnover[emp.department]) {
+                    deptTurnover[emp.department] = {new: 0, resigned: 0};
+                }
+                deptTurnover[emp.department].new++;
+            });
+            
+            lifecycleInfo.resignations.forEach(emp => {
+                if (!deptTurnover[emp.department]) {
+                    deptTurnover[emp.department] = {new: 0, resigned: 0};
+                }
+                deptTurnover[emp.department].resigned++;
+            });
+            
+            const labels = Object.keys(deptTurnover);
+            
+            destroyChart('turnover');
+            charts.turnover = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels.length > 0 ? labels : ['No Data'],
+                    datasets: [
+                        {
+                            label: '신입',
+                            data: labels.map(d => deptTurnover[d]?.new || 0),
+                            backgroundColor: '#28a745'
+                        },
+                        {
+                            label: '퇴사',
+                            data: labels.map(d => deptTurnover[d]?.resigned || 0),
+                            backgroundColor: '#dc3545'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        function createDepartmentChart() {
+            const ctx = document.getElementById('departmentChart');
+            if (!ctx) return;
+            
+            const labels = Object.keys(deptStats);
+            const data = labels.map(dept => deptStats[dept].rate);
+            
+            destroyChart('department');
+            charts.department = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '출석률 (%)',
+                        data: data,
+                        backgroundColor: '#007bff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createPredictionChart() {
+            const ctx = document.getElementById('predictionChart');
+            if (!ctx) return;
+            
+            // Generate prediction data
+            const labels = ['9월', '10월', '11월', '12월'];
+            const actual = [0.0];
+            const predicted = [88, 89, 90, 91];
+            
+            destroyChart('prediction');
+            charts.prediction = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['8월'].concat(labels),
+                    datasets: [
+                        {
+                            label: '실제',
+                            data: actual.concat(Array(4).fill(null)),
+                            borderColor: '#007bff',
+                            backgroundColor: '#007bff'
+                        },
+                        {
+                            label: '예측',
+                            data: [actual[0]].concat(predicted),
+                            borderColor: '#28a745',
+                            borderDash: [5, 5],
+                            backgroundColor: '#28a745'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createPatternChart() {
+            const ctx = document.getElementById('patternChart');
+            if (!ctx) return;
+            
+            // Day of week pattern
+            const days = ['월', '화', '수', '목', '금'];
+            const avgRates = [88, 90, 91, 89, 85];
+            
+            destroyChart('pattern');
+            charts.pattern = new Chart(ctx.getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: '평균 출석률',
+                        data: avgRates,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        function destroyChart(name) {
+            if (charts[name]) {
+                charts[name].destroy();
+            }
+        }
+        
+        function setupEventListeners() {
+            // Filter change listeners
+            document.getElementById('periodFilter').addEventListener('change', updateDashboard);
+            document.getElementById('departmentFilter').addEventListener('change', updateDashboard);
+            document.getElementById('roleFilter').addEventListener('change', updateDashboard);
+        }
+        
+        function updateDashboard() {
+            // Refresh charts based on filters
+            initializeCharts();
+        }
+        
+        function showPopup(type) {
+            const popup = document.getElementById('insightPopup');
+            const overlay = document.querySelector('.popup-overlay');
+            const title = document.getElementById('popupTitle');
+            const content = document.getElementById('popupContent');
+            
+            let html = '';
+            
+            switch(type) {
+                case 'attendance':
+                    title.textContent = '출석률 상세 정보';
+                    html = `
+                        <p>전체 기록: 5349건</p>
+                        <p>출근 기록: 0건</p>
+                        <p>결근 기록: 5349건</p>
+                        <p>출석률: 0.00%</p>
+                        <hr>
+                        <p><strong>분석:</strong> 현재 출석률은 0.0%입니다.</p>
+                    `;
+                    break;
+                    
+                case 'employees':
+                    title.textContent = '직원 현황';
+                    html = `
+                        <p>총 직원 수: 392명</p>
+                        <p>신규 입사: 14명</p>
+                        <p>퇴사자: 15명</p>
+                        <hr>
+                        <p><strong>부서별 분포:</strong></p>
+                        <ul>
+                            ${Object.entries(deptStats).slice(0, 5).map(([dept, stat]) => 
+                                `<li>${dept}: ${stat.total}명</li>`
+                            ).join('')}
+                        </ul>
+                    `;
+                    break;
+                    
+                case 'lifecycle':
+                    title.textContent = '인력 변동 상세';
+                    html = `
+                        <h5>신입 직원 (14명)</h5>
+                        <ul>
+                            ${lifecycleInfo.new_hires.slice(0, 5).map(emp => 
+                                `<li>${emp.name} (${emp.department})</li>`
+                            ).join('')}
+                        </ul>
+                        <h5>퇴사자 (15명)</h5>
+                        <ul>
+                            ${lifecycleInfo.resignations.slice(0, 5).map(emp => 
+                                `<li>${emp.name} (${emp.department})</li>`
+                            ).join('')}
+                        </ul>
+                    `;
+                    break;
+            }
+            
+            content.innerHTML = html;
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+        
+        function showInsight(chartType) {
+            const popup = document.getElementById('insightPopup');
+            const overlay = document.querySelector('.popup-overlay');
+            const title = document.getElementById('popupTitle');
+            const content = document.getElementById('popupContent');
+            
+            title.textContent = '차트 인사이트';
+            
+            let insightText = '';
+            switch(chartType) {
+                case 'attendance_trend':
+                    insightText = '출석률이 안정적으로 유지되고 있습니다. 목표 출석률 90%를 달성하기 위해 추가 개선이 필요합니다.';
+                    break;
+                case 'monthly_trend':
+                    insightText = '월별 추세를 보면 주말 이후 월요일 출석률이 다소 낮은 경향을 보입니다.';
+                    break;
+                case 'dept_performance':
+                    insightText = insights.departments?.top_performer || '부서별 출석률 분석 중입니다.';
+                    break;
+                case 'lifecycle_overview':
+                    insightText = insights.trends?.lifecycle || '인력 변동 분석 중입니다.';
+                    break;
+                default:
+                    insightText = '추가 분석이 필요합니다.';
+            }
+            
+            content.innerHTML = `
+                <div class="alert alert-info">
+                    <strong>핵심 인사이트:</strong><br>
+                    ${insightText}
+                </div>
+                <div class="mt-3">
+                    <strong>권장 조치:</strong>
+                    <ul>
+                        <li>정기적인 모니터링 계속</li>
+                        <li>부서별 맞춤 개선 방안 수립</li>
+                        <li>신입 직원 온보딩 프로그램 강화</li>
+                    </ul>
+                </div>
+            `;
+            
+            popup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+        
+        function closeAllPopups() {
+            document.getElementById('insightPopup').style.display = 'none';
+            document.querySelector('.popup-overlay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
