@@ -1,0 +1,172 @@
+{
+  "dashboard": {
+    "title": "QIP 출석 현황 대시보드",
+    "version": "4.0",
+    "language": "ko",
+    "theme": {
+      "primary_color": "#007bff",
+      "success_color": "#28a745",
+      "warning_color": "#ffc107",
+      "danger_color": "#dc3545",
+      "info_color": "#17a2b8"
+    }
+  },
+  "data_sources": {
+    "attendance_files": {
+      "pattern": "attendance data {month}.csv",
+      "encoding": "utf-8-sig",
+      "date_format": "%Y.%m.%d"
+    },
+    "google_drive": {
+      "enabled": true,
+      "folders": {
+        "attendance": "1234567890abcdef",
+        "hr_info": "0987654321fedcba"
+      },
+      "sync_interval": 60
+    }
+  },
+  "charts": {
+    "overview": {
+      "enabled": true,
+      "charts": [
+        {
+          "id": "attendanceRate",
+          "type": "gauge",
+          "title": "출석률",
+          "insight_template": "현재 출석률은 {value}%로 {trend} 추세입니다"
+        },
+        {
+          "id": "totalEmployees",
+          "type": "stat",
+          "title": "전체 직원",
+          "insight_template": "총 {value}명의 직원이 등록되어 있습니다"
+        }
+      ]
+    },
+    "trends": {
+      "enabled": true,
+      "charts": [
+        {
+          "id": "dailyTrend",
+          "type": "line",
+          "title": "일별 출석 트렌드",
+          "insight_template": "이번 달 평균 출석률은 {avg}%이며, 최고 {max}%, 최저 {min}%를 기록했습니다"
+        },
+        {
+          "id": "lifecycle",
+          "type": "doughnut",
+          "title": "직원 생애주기",
+          "categories": ["신입", "퇴사", "임산부", "출산휴가", "60일 미만"],
+          "insight_template": "이번 달 {new_hires}명 입사, {resignations}명 퇴사했습니다"
+        }
+      ]
+    },
+    "detailed": {
+      "enabled": true,
+      "charts": [
+        {
+          "id": "roleAnalysis",
+          "type": "bar",
+          "title": "역할별 출석 현황",
+          "insight_template": "{top_role} 팀이 가장 높은 출석률 {rate}%를 보이고 있습니다"
+        },
+        {
+          "id": "departmentAnalysis",
+          "type": "horizontalBar",
+          "title": "부서별 출석 현황",
+          "insight_template": "{dept_count}개 부서 중 {high_count}개 부서가 90% 이상의 출석률을 유지하고 있습니다"
+        }
+      ]
+    }
+  },
+  "lifecycle": {
+    "pregnancy_codes": ["5N", "7T", "5T", "7N"],
+    "maternity_keywords": ["Sinh", "maternity", "출산", "산후"],
+    "new_hire_threshold_days": 60,
+    "tracking": {
+      "resignations": true,
+      "new_hires": true,
+      "pregnant": true,
+      "less_than_60_days": true
+    }
+  },
+  "insights": {
+    "auto_generate": true,
+    "categories": [
+      {
+        "id": "attendance_quality",
+        "title": "출석 품질",
+        "thresholds": {
+          "excellent": 95,
+          "good": 90,
+          "average": 85,
+          "poor": 80
+        }
+      },
+      {
+        "id": "team_performance",
+        "title": "팀 성과",
+        "metrics": ["attendance_rate", "consistency", "improvement"]
+      },
+      {
+        "id": "lifecycle_trends",
+        "title": "인력 변동",
+        "metrics": ["turnover_rate", "new_hire_retention", "maternity_impact"]
+      }
+    ]
+  },
+  "popups": {
+    "enabled": true,
+    "features": {
+      "employee_details": true,
+      "team_breakdown": true,
+      "historical_comparison": true,
+      "export_data": true
+    }
+  },
+  "filters": {
+    "period": {
+      "options": ["daily", "weekly", "monthly", "quarterly"],
+      "default": "daily"
+    },
+    "department": {
+      "enabled": true,
+      "multi_select": true
+    },
+    "role": {
+      "enabled": true,
+      "categories": [
+        "management team",
+        "CFA",
+        "RQC",
+        "TQC",
+        "LEADER",
+        "AUDIT & TRAINER",
+        "support team",
+        "staff",
+        "new member"
+      ]
+    }
+  },
+  "work_hours": {
+    "codes": {
+      "9J": 9.0,
+      "9U": 9.0,
+      "9T": 9.0,
+      "9S": 9.0,
+      "9X": 9.0,
+      "7T": 8.0,
+      "5N": 8.9,
+      "5T": 8.9,
+      "7N": 8.0,
+      "8M": 8.0,
+      "8N": 8.0,
+      "8S": 8.0,
+      "0": 0.0,
+      "1": 0.0,
+      "D": 0.0
+    },
+    "default": 9.0
+  }
+}

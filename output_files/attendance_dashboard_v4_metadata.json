@@ -1,0 +1,15 @@
+{
+  "generated_at": "2025-08-30T21:33:19.365846",
+  "version": "4.0",
+  "total_employees": 392,
+  "months_loaded": [
+    "august",
+    "july"
+  ],
+  "lifecycle_summary": {
+    "new_hires": 14,
+    "resignations": 15,
+    "pregnant": 7,
+    "maternity_leave": 6
+  }
+}
