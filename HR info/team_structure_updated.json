@@ -1,0 +1,636 @@
+{
+  "positions": [
+    {
+      "position_1st": "(V) SUPERVISOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "1 ASSEMBLY BUILDING QUALITY IN CHARGE",
+      "final_code": "GG",
+      "team_name": "assembly",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "(V) SUPERVISOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "2 ASSEMBLY BUILDING QUALITY IN CHARGE",
+      "final_code": "G",
+      "team_name": "assembly",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "A.MANAGER",
+      "position_2nd": "A.MANAGER",
+      "position_3rd": "ALL ASSEMBLY QUALITY IN CHARGE",
+      "final_code": "H",
+      "team_name": "assembly",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "AQL INSPECTOR",
+      "position_2nd": "AQL INSPECTOR",
+      "position_3rd": "AQL INSPECTOR",
+      "final_code": "B",
+      "team_name": "AQL",
+      "role_category": "CFA",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "SHOES INSPECTOR",
+      "position_3rd": "ASSEMBLY LINE RQC",
+      "final_code": "A1B",
+      "team_name": "assembly",
+      "role_category": "RQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "SHOES INSPECTOR",
+      "position_3rd": "ASSEMBLY LINE TQC",
+      "final_code": "A1A",
+      "team_name": "assembly",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "SHOES INSPECTOR",
+      "position_3rd": "REPACKING LINE TQC",
+      "final_code": "A1C",
+      "team_name": "Repacking",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "AUDIT & TRAINING TEAM",
+      "position_2nd": "AUDIT & TRAINING TEAM",
+      "position_3rd": "AUDIT & TRAINING TEAM LEADER",
+      "final_code": "QA2A",
+      "team_name": "AUDIT & TRAINING TEAM",
+      "role_category": "LEADER",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "AUDIT & TRAINING TEAM",
+      "position_2nd": "AUDIT & TRAINING TEAM",
+      "position_3rd": "AUDITOR & TRAINER",
+      "final_code": "QA2B",
+      "team_name": "AUDIT & TRAINING TEAM",
+      "role_category": "AUDIT & TRAINER",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "GROUP LEADER",
+      "position_2nd": "GROUP LEADER",
+      "position_3rd": "1 ASSEMBLY BUILDING QUALITY IN CHARGE",
+      "final_code": "F",
+      "team_name": "assembly",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "LINE LEADER (GROUP LEADER SUCCESSOR)",
+      "position_3rd": "12 ASSEMBLY LINE QUALITY IN CHARGE",
+      "final_code": "E",
+      "team_name": "assembly",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "A.MANAGER",
+      "position_2nd": "MANAGER",
+      "position_3rd": "HWK QUALITY IN CHARGE",
+      "final_code": "Z",
+      "team_name": "QIP team",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "MODEL MASTER",
+      "position_2nd": "MODEL MASTER",
+      "position_3rd": "MODEL MASTER",
+      "final_code": "D",
+      "team_name": "QA",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "(V) SUPERVISOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "1 STITCHING BUILDING QUALITY IN CHARGE",
+      "final_code": "P",
+      "team_name": "stitching",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "(V) SUPERVISOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "ALL CUTTING BUILDING QUALITY IN CHARGE",
+      "final_code": "CC",
+      "team_name": "stitching",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "(V) SUPERVISOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "HWK OSC/MTL QUALITY IN CHARGE",
+      "final_code": "T",
+      "team_name": "Cutting",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "(V) SUPERVISOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "OCPT AND OFFICE TEAM LEADER",
+      "final_code": "OCPT1",
+      "team_name": "OCPT",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "(V) SUPERVISOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "QA TEAM IN CHARGE",
+      "final_code": "QA1",
+      "team_name": "QA",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "A.MANAGER",
+      "position_2nd": "A.MANAGER",
+      "position_3rd": "ALL STITCHING BUILDING QUALITY IN CHARGE",
+      "final_code": "O",
+      "team_name": "stitching",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "AQL INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "AQL INPUT CARTON TQC",
+      "final_code": "B2D",
+      "team_name": "AQL",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "AQL INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "AQL ROOM PACKING TQC",
+      "final_code": "B2E",
+      "team_name": "AQL",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "AQL INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "FG WH CARTON PACKING TQC",
+      "final_code": "B2C",
+      "team_name": "AQL",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "AQL INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "FG WH INPUT-OUTPUT CARTON RQC",
+      "final_code": "B2A",
+      "team_name": "AQL",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "AQL INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "FG WH INPUT-OUTPUT CARTON TQC",
+      "final_code": "B2B",
+      "team_name": "AQL",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "B-GRADE TEAM / TEST SAMPLE HANDING TEAM",
+      "position_3rd": "ALL B-GRADE CONTROL & PACKING",
+      "final_code": "A3B",
+      "team_name": "assembly",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "B-GRADE TEAM / TEST SAMPLE HANDING TEAM",
+      "position_3rd": "ASSEMBLY LINE RQC",
+      "final_code": "A3A",
+      "team_name": "assembly",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "REPACKING AREA INPUT-OUTPUT CARTON RQC",
+      "final_code": "A4B",
+      "team_name": "Repacking",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "REPACKING AREA INPUT-OUTPUT CARTON TQC",
+      "final_code": "A4B",
+      "team_name": "Repacking",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "REPACKING LINE PACKING TQC",
+      "final_code": "A4C",
+      "team_name": "Repacking",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "SCAN PACK AREA TQC",
+      "final_code": "A4A",
+      "team_name": "scan pack",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP PO COMPLETION TEAM",
+      "position_3rd": "ASSEMBLY LINE PO COMPLETION QUALITY",
+      "final_code": "A2A",
+      "team_name": "assembly",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP PO COMPLETION TEAM",
+      "position_3rd": "ASSEMBLY LINE PO COMPLETION QUALITY",
+      "final_code": "A3A",
+      "team_name": "assembly",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP PO COMPLETION TEAM",
+      "position_3rd": "REPACKING LINE PO COMPLETION QUALITY",
+      "final_code": "A2B",
+      "team_name": "assembly",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP REPAIRING TEAM",
+      "position_3rd": "REPACKING LINE REPAIRING TQC",
+      "final_code": "A4X",
+      "team_name": "Repacking",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "BOTTOM INSPECTOR",
+      "position_2nd": "BOTTOM INSPECTOR",
+      "position_3rd": "BOTTOM INSPECTION RQC",
+      "final_code": "BTS2A",
+      "team_name": "bottom",
+      "role_category": "RQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "BOTTOM INSPECTOR",
+      "position_2nd": "BOTTOM INSPECTOR",
+      "position_3rd": "BOTTOM INSPECTION TQC",
+      "final_code": "BTS2B",
+      "team_name": "bottom",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "BOTTOM INSPECTOR",
+      "position_2nd": "QIP REPAIRING TEAM",
+      "position_3rd": "BOTTOM REPAIRING & PACKING TQC",
+      "final_code": "BTS3A",
+      "team_name": "bottom",
+      "role_category": "support team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "CUTTING INSPECTOR",
+      "position_2nd": "CUTTING INSPECTOR",
+      "position_3rd": "CUTTING INSPECTOR",
+      "final_code": "CCCC",
+      "team_name": "cutting",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "GROUP LEADER",
+      "position_2nd": "GROUP LEADER",
+      "position_3rd": "MTL QUALITY IN CHARGE",
+      "final_code": "X",
+      "team_name": "MTL",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "GROUP LEADER",
+      "position_2nd": "HEAD/ GROUP LEADER",
+      "position_3rd": "1 STITCHING BUILDING QIP LEADER'S SUCCESSOR",
+      "final_code": "Q",
+      "team_name": "stitching",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "GROUP LEADER",
+      "position_2nd": "HEAD/ GROUP LEADER",
+      "position_3rd": "ALL BUILDING BOTTOM QUALITY IN CHARGE",
+      "final_code": "BTS",
+      "team_name": "bottom",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "GROUP LEADER",
+      "position_2nd": "REPORT TEAM",
+      "position_3rd": "AQL REPORT TEAM",
+      "final_code": "B4A",
+      "team_name": "AQL",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "GROUP LEADER",
+      "position_2nd": "REPORT TEAM",
+      "position_3rd": "QIP SAP & INCOMING QUALITY REPORT",
+      "final_code": "OF3",
+      "team_name": "report",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "GROUP LEADER",
+      "position_2nd": "REPORT TEAM",
+      "position_3rd": "TEAM OPERATION MANAGEMENT",
+      "final_code": "OF2",
+      "team_name": "report",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "HAPPO MTL TEAM LEADER",
+      "position_3rd": "HAPPO MTL TEAM LEADER",
+      "final_code": "XY4",
+      "team_name": "MTL",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "LINE LEADER",
+      "position_3rd": "INCOMING OSC WH QUALITY IN CHARGE",
+      "final_code": "V",
+      "team_name": "OSC",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "LINE LEADER (GROUP LEADER SUCCESSOR)",
+      "position_3rd": "1 BUILDING BOTTOM QUALITY IN CHARGE",
+      "final_code": "BTS2A",
+      "team_name": "bottom",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "LINE LEADER (GROUP LEADER SUCCESSOR)",
+      "position_3rd": "1 STITCHING BUILDING QIP LEADER'S SUCCESSOR",
+      "final_code": "R",
+      "team_name": "stitching",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "LINE LEADER(SUPERVISOR SUCCESSOR)",
+      "position_3rd": "LINE LEADER(SUPERVISOR SUCCESSOR)",
+      "final_code": "CCC",
+      "team_name": "stitching",
+      "role_category": "management team",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "MTL INSPECTOR",
+      "position_2nd": "HAPPO TQC",
+      "position_3rd": "HAPPO TQC",
+      "final_code": "XYX4",
+      "team_name": "MTL",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "MTL INSPECTOR",
+      "position_2nd": "LEATHER TQC",
+      "position_3rd": "LEATHER TQC",
+      "final_code": "XYX1",
+      "team_name": "MTL",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "MTL INSPECTOR",
+      "position_2nd": "SUBSI TQC",
+      "position_3rd": "SUBSI TQC",
+      "final_code": "XYX2",
+      "team_name": "MTL",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "MTL INSPECTOR",
+      "position_2nd": "TEXTILE TQC",
+      "position_3rd": "TEXTILE TQC",
+      "final_code": "XYX3",
+      "team_name": "MTL",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "OCPT STIFF",
+      "position_2nd": "OCPT STFF",
+      "position_3rd": "OCPT TEAM STAFF",
+      "final_code": "OCPT2",
+      "team_name": "OCPT",
+      "role_category": "staff",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "OSC INSPECTOR",
+      "position_2nd": "OSC INSPECTOR",
+      "position_3rd": "INCOMING WH OSC INSPECTION TQC",
+      "final_code": "W6",
+      "team_name": "OSC",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "OSC INSPECTOR",
+      "position_2nd": "OSC INSPECTOR",
+      "position_3rd": "INHOUSE HF/ NO-SEW INSPECTION RQC",
+      "final_code": "W3",
+      "team_name": "OSC",
+      "role_category": "RQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "OSC INSPECTOR",
+      "position_2nd": "OSC INSPECTOR",
+      "position_3rd": "INHOUSE HF/ NO-SEW INSPECTION TQC",
+      "final_code": "W4",
+      "team_name": "OSC",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "OSC INSPECTOR",
+      "position_2nd": "OSC INSPECTOR",
+      "position_3rd": "INHOUSE PRINTING INSPECTION RQC",
+      "final_code": "W1",
+      "team_name": "OSC",
+      "role_category": "RQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "OSC INSPECTOR",
+      "position_2nd": "OSC INSPECTOR",
+      "position_3rd": "INHOUSE PRINTING INSPECTION TQC",
+      "final_code": "W2",
+      "team_name": "OSC",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "QA TEAM",
+      "position_2nd": "QA TEAM",
+      "position_3rd": "QA TEAM HEAD",
+      "final_code": "QA3A",
+      "team_name": "QA",
+      "role_category": "management team",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "QA TEAM",
+      "position_2nd": "QA TEAM",
+      "position_3rd": "QA TEAM STAFF",
+      "final_code": "QA3B",
+      "team_name": "QA",
+      "role_category": "staff",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "RQC",
+      "position_2nd": "LEATHER MTL TEAM LEADER",
+      "position_3rd": "LEATHER MTL TEAM LEADER",
+      "final_code": "XY1",
+      "team_name": "MTL",
+      "role_category": "RQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "RQC",
+      "position_2nd": "SUBSI MTL TEAM LEADER",
+      "position_3rd": "SUBSI MTL TEAM LEADER",
+      "final_code": "XY2",
+      "team_name": "MTL",
+      "role_category": "RQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "RQC",
+      "position_2nd": "TEXTILE MTL TEAM LEADER",
+      "position_3rd": "TEXTILE MTL TEAM LEADER",
+      "final_code": "XY3",
+      "team_name": "MTL",
+      "role_category": "RQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "STITCHING INSPECTOR",
+      "position_2nd": "UPPER INSPECTOR",
+      "position_3rd": "STITCHING LINE RQC",
+      "final_code": "S1B",
+      "team_name": "stitching",
+      "role_category": "RQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "STITCHING INSPECTOR",
+      "position_2nd": "UPPER INSPECTOR",
+      "position_3rd": "STITCHING LINE TQC",
+      "final_code": "S1A",
+      "team_name": "stitching",
+      "role_category": "TQC",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "NEW QIP MEMBER",
+      "position_2nd": "NEW QIP MEMBER",
+      "position_3rd": "NEW QIP MEMBER",
+      "final_code": "NEW",
+      "team_name": "new member",
+      "role_category": "new member",
+      "role_type": "TYPE-3"
+    }
+  ],
+  "teams": [
+    "assembly",
+    "AQL",
+    "Repacking",
+    "AUDIT & TRAINING TEAM",
+    "QIP team",
+    "QA",
+    "stitching",
+    "Cutting",
+    "OCPT",
+    "scan pack",
+    "bottom",
+    "cutting",
+    "MTL",
+    "report",
+    "OSC",
+    "new member"
+  ],
+  "role_categories": [
+    "management team",
+    "CFA",
+    "RQC",
+    "TQC",
+    "LEADER",
+    "AUDIT & TRAINER",
+    "support team",
+    "staff",
+    "new member"
+  ]
+}
