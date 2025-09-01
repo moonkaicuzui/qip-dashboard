@@ -168,6 +168,16 @@ python3 src/sync_previous_incentive.py $MONTH $YEAR
 # Step 0.7: 출근 데이터 변환
 run_step "Step 0.7: 출근 데이터 변환" "python3 src/convert_attendance_data.py $MONTH"
 
+# Step 0.8: HR 데이터 검증
+echo ""
+echo -e "${YELLOW}🔍 HR 데이터 정합성 검증 중...${NC}"
+python3 src/validate_hr_data.py $month_choice $YEAR
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ HR 데이터 검증 완료 (결과는 error_review 폴더 확인)${NC}"
+else
+    echo -e "${YELLOW}⚠️ HR 데이터 검증 중 문제 발견 (error_review 폴더 확인)${NC}"
+fi
+
 # Step 1: 인센티브 계산
 run_step "Step 1: 인센티브 계산" "python3 src/step1_인센티브_계산_개선버전.py --config $CONFIG_FILE"
 STEP1_RESULT=$?
