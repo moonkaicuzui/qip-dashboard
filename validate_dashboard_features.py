@@ -6,6 +6,7 @@ Validates that all requested features are properly implemented
 
 import os
 import json
+import re
 from datetime import datetime
 
 def validate_dashboard():
@@ -24,7 +25,27 @@ def validate_dashboard():
     with open(dashboard_path, 'r', encoding='utf-8') as f:
         content = f.read()
     
+    # Critical fixes checklist
+    print("\n🔧 Critical Fixes:")
+    critical_fixes = {
+        "Deep copy for readonly fix": "JSON.parse(JSON.stringify(teamData))" in content or "const mutableTeamData = teamData.map(team =>" in content,
+        "Date shows Aug 29th": re.search(r'2025년 8월 29일', content) is not None,
+        "Treemap function exists": "createTreemap(mainContainer, mutableTeamData)" in content,
+        "JSON config embedded": "UI_CONFIG" in content,
+        "Small teams handling": "smallTeamsContainer" in content or "// Small teams" in content or "소규모 팀 목록" in content,
+        "Position initialization": "x: 0," in content and "y: 0," in content and "width: 0," in content and "height: 0" in content,
+    }
+    
+    critical_passed = True
+    for fix, check in critical_fixes.items():
+        if check:
+            print(f"  ✅ {fix}")
+        else:
+            print(f"  ❌ {fix}")
+            critical_passed = False
+    
     # Feature checklist
+    print("\n📋 Feature Checklist:")
     features = {
         "Data freshness indicator": "최신 데이터:" in content,
         "Treemap gradient colors": "gradient" in content.lower() or "rgb(" in content,
@@ -44,7 +65,6 @@ def validate_dashboard():
     }
     
     # Check each feature
-    print("\n📋 Feature Checklist:")
     all_passed = True
     for feature, check in features.items():
         if check:
@@ -64,18 +84,35 @@ def validate_dashboard():
         print(f"  • Previous month records: {metadata.get('previous_month', {}).get('total_count', 0)}")
         print(f"  • Number of teams: {len(metadata.get('current_month', {}).get('by_team', {}))}")
         print(f"  • Data timestamp: {metadata.get('generation_timestamp', 'N/A')}")
+        
+        # Check for specific teams that were reported missing
+        print(f"\n👥 Team Inclusion Check:")
+        critical_teams = ["OFFICE & OCPT", "CUTTING", "HWK QIP"]
+        teams_in_data = metadata.get('team_stats', {}).get('2025_08', {}).keys()
+        
+        for team in critical_teams:
+            if team in teams_in_data:
+                team_data = metadata['team_stats']['2025_08'][team]
+                print(f"  ✅ {team}: {team_data.get('total', 0)} members")
+            else:
+                print(f"  ⚠️  {team}: Not in current data")
+        
+        # Check all teams
+        print(f"\n  All teams in data: {', '.join(teams_in_data)}")
     
     # Size check
     file_size = os.path.getsize(dashboard_path) / 1024 / 1024  # MB
     print(f"\n📁 Dashboard file size: {file_size:.2f} MB")
     
-    if all_passed:
-        print("\n✅ All features validated successfully!")
+    if all_passed and critical_passed:
+        print("\n✅ All features and critical fixes validated successfully!")
+    elif critical_passed:
+        print("\n⚠️ Critical fixes OK but some features need attention")
     else:
-        print("\n⚠️ Some features need attention")
+        print("\n❌ Critical fixes need immediate attention!")
     
     print("="*60)
-    return all_passed
+    return all_passed and critical_passed
 
 if __name__ == "__main__":
     validate_dashboard()

@@ -1,0 +1,160 @@
+{
+  "colors": {
+    "primary": "#007bff",
+    "secondary": "#6c757d",
+    "success": "#28a745",
+    "danger": "#dc3545",
+    "warning": "#ffc107",
+    "info": "#17a2b8",
+    "background": "#ffffff",
+    "text": "#212529",
+    "text_secondary": "#6c757d",
+    "border": "#dee2e6",
+    "chart_colors": [
+      "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7",
+      "#DDA0DD", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2",
+      "#FF9FF3", "#54A0FF", "#48DBFB", "#00D2D3", "#1ABC9C"
+    ]
+  },
+  "typography": {
+    "header": {
+      "title_size": 32,
+      "subtitle_size": 14
+    },
+    "card": {
+      "title_size": 14,
+      "value_size": 24,
+      "subtitle_size": 12,
+      "change_size": 12
+    },
+    "modal": {
+      "title_size": 24,
+      "section_title_size": 16,
+      "label_size": 12,
+      "value_size": 18,
+      "table_header_size": 12,
+      "table_cell_size": 11
+    },
+    "treemap": {
+      "large_box": {
+        "min_area": 10000,
+        "name_size": 16,
+        "count_size": 14,
+        "percent_size": 12
+      },
+      "medium_box": {
+        "min_area": 5000,
+        "name_size": 14,
+        "count_size": 12,
+        "percent_size": 11
+      },
+      "small_box": {
+        "min_area": 3000,
+        "name_size": 12,
+        "count_size": 11,
+        "percent_size": 10
+      },
+      "tiny_box": {
+        "min_area": 0,
+        "name_size": 10,
+        "count_size": 9,
+        "show_percent": false
+      }
+    }
+  },
+  "layout": {
+    "dashboard": {
+      "max_width": 1400,
+      "card_columns": 3,
+      "card_gap": 20
+    },
+    "modal": {
+      "max_width": 1200,
+      "width_percent": 90,
+      "max_height_vh": 90
+    },
+    "treemap": {
+      "container_height": 500,
+      "min_box_width": 90,
+      "min_box_height": 70,
+      "padding": 10,
+      "text_padding": 5,
+      "border_radius": 4
+    },
+    "chart": {
+      "container_height": 350,
+      "aspect_ratio": false
+    }
+  },
+  "thresholds": {
+    "attendance": {
+      "excellent": 95,
+      "good": 90,
+      "warning": 85,
+      "danger": 80
+    },
+    "change_rate": {
+      "significant_increase": 10,
+      "significant_decrease": -10,
+      "neutral_range": [-2, 2]
+    },
+    "team_size": {
+      "large": 50,
+      "medium": 20,
+      "small": 10,
+      "tiny": 5
+    }
+  },
+  "animation": {
+    "transition_duration": "0.3s",
+    "hover_scale": 1.02,
+    "hover_translate_y": -5,
+    "pulse_duration": "2s",
+    "slide_duration": "0.5s"
+  },
+  "treemap_algorithm": {
+    "type": "adaptive",
+    "strategies": {
+      "large_teams_first": {
+        "description": "큰 팀을 먼저 배치하여 공간 활용 최적화",
+        "min_team_count": 5
+      },
+      "grid_layout": {
+        "description": "작은 팀들을 격자 형태로 배치",
+        "max_team_size": 10,
+        "grid_columns": 3
+      },
+      "overflow_handling": {
+        "description": "공간이 부족한 팀을 별도 영역에 표시",
+        "overflow_container": true,
+        "overflow_max_items": 5
+      }
+    },
+    "text_visibility": {
+      "priority_order": ["team_name", "count", "percentage", "change"],
+      "abbreviation_rules": {
+        "max_length": 10,
+        "ellipsis": "..."
+      },
+      "dynamic_sizing": true,
+      "min_font_size": 9,
+      "max_font_size": 18
+    }
+  },
+  "date_calculation": {
+    "use_last_business_day": true,
+    "weekend_days": [0, 6],
+    "holidays": []
+  },
+  "data_display": {
+    "empty_data_text": "데이터 없음",
+    "zero_value": "0",
+    "no_change_text": "변화 없음",
+    "new_team_text": "신규",
+    "percentage_decimals": 1,
+    "number_format": {
+      "thousands_separator": ",",
+      "decimal_separator": "."
+    }
+  }
+}
