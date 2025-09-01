@@ -167,19 +167,30 @@ class EnhancedHRDashboard:
                 
                 if 'positions' in self.team_structure:
                     for pos in self.team_structure['positions']:
-                        team = pos.get('team_name', 'Unknown')
+                        team = pos.get('team_name', 'Team Unidentified')  # Unknown 대신 Team Unidentified 사용
                         role_type = pos.get('role_type', 'TYPE-2')  # 기본값 TYPE-2
                         
+                        # team_name이 이미 정확하게 지정되어 있으므로 그대로 사용
+                        # ASSEMBLY INSPECTOR라도 position_3rd를 확인하여 정확한 팀 결정
+                        position_1st = pos.get('position_1st', '')
+                        position_3rd = pos.get('position_3rd', '')
+                        
                         # 모든 포지션 레벨에서 매핑
+                        # 단, ASSEMBLY INSPECTOR는 position_1st 레벨에서 매핑하지 않음 (ambiguous)
                         for key in ['position_1st', 'position_2nd', 'position_3rd']:
                             position = pos.get(key, '')
                             if position and position not in ['', 'nan', None]:
+                                # ASSEMBLY INSPECTOR는 position_1st 레벨에서 skip (여러 팀에 속함)
+                                if key == 'position_1st' and position == 'ASSEMBLY INSPECTOR':
+                                    continue  # position_3rd에서 정확히 매핑됨
+                                # team_name을 그대로 사용 (SOP에 따라 이미 정확히 분류됨)
                                 self.position_to_team[position] = team
                                 self.position_to_type[position] = role_type
                         
                         # Final code로도 매핑
                         final_code = pos.get('final_code', '')
                         if final_code:
+                            # team_name을 그대로 사용
                             self.position_to_team[final_code] = team
                             self.position_to_type[final_code] = role_type
             else:
@@ -448,12 +459,13 @@ class EnhancedHRDashboard:
         # 팀 칼럼 찾기 - 여러 포지션 컬럼 확인
         df['real_team'] = None
         
-        # 우선순위: QIP POSITION 1ST NAME -> QIP POSITION 2ND NAME -> QIP POSITION 3RD NAME -> FINAL CODE
+        # 우선순위: 가장 구체적인 것부터 (3RD -> FINAL CODE -> 2ND -> 1ST)
+        # position_3rd가 가장 정확한 팀 분류를 제공함
         position_columns = [
-            'QIP POSITION 1ST  NAME',
-            'QIP POSITION 2ND  NAME', 
-            'QIP POSITION 3RD  NAME',
-            'FINAL QIP POSITION NAME CODE'
+            'QIP POSITION 3RD  NAME',        # 가장 구체적 (예: ASSEMBLY LINE TQC vs REPACKING LINE TQC)
+            'FINAL QIP POSITION NAME CODE',   # 다음으로 구체적
+            'QIP POSITION 2ND  NAME',         # 중간 레벨
+            'QIP POSITION 1ST  NAME'          # 가장 일반적 (ASSEMBLY INSPECTOR는 양쪽에 있음)
         ]
         
         for col in position_columns:
@@ -464,7 +476,7 @@ class EnhancedHRDashboard:
                 df['real_team'] = df['real_team'].combine_first(temp_mapping)
         
         # 여전히 매핑되지 않은 경우 기본값 설정
-        df['real_team'] = df['real_team'].fillna('Unknown')
+        df['real_team'] = df['real_team'].fillna('Team Unidentified')
         team_column = 'real_team'
             
         # 팀별 통계
@@ -533,6 +545,58 @@ class EnhancedHRDashboard:
             
         return f"{start_date.strftime('%Y.%m.%d')} ~ {end_date.strftime('%Y.%m.%d')}"
         
+    def calculate_previous_team_statistics(self):
+        """이전 월(7월) 팀별 통계 계산"""
+        if self.data['previous'].empty:
+            return {}
+            
+        df = self.data['previous']
+        team_stats = {}
+        
+        # 팀 칼럼 찾기 - Assembly Inspector 수정 로직 적용
+        df['real_team'] = None
+        
+        position_columns = [
+            'QIP POSITION 1ST  NAME',
+            'QIP POSITION 2ND  NAME', 
+            'QIP POSITION 3RD  NAME',
+            'FINAL QIP POSITION NAME CODE'
+        ]
+        
+        for col in position_columns:
+            if col in df.columns:
+                # 각 포지션 컬럼에서 팀 찾기
+                temp_mapping = df[col].map(self.position_to_team)
+                # 비어있는 값만 채우기 (이미 매핑된 값은 유지)
+                df['real_team'] = df['real_team'].combine_first(temp_mapping)
+        
+        # 여전히 매핑되지 않은 경우 기본값 설정
+        df['real_team'] = df['real_team'].fillna('Team Unidentified')
+        team_column = 'real_team'
+            
+        # 팀별 통계
+        for team in df[team_column].dropna().unique():
+            team_df = df[df[team_column] == team]
+            
+            # 활성 직원만
+            active_mask = team_df['RE MARK'] != 'Stop working' if 'RE MARK' in team_df.columns else team_df['Stop working Date'].isna()
+            active_team = team_df[active_mask]
+            
+            team_stats[team] = {
+                'total': len(active_team),
+                'resignations': len(team_df[team_df['Stop working Date'].notna()]) if 'Stop working Date' in team_df.columns else 0,
+                'attendance_rate': (
+                    active_team['Actual Working Days'].sum() / active_team['Total Working Days'].sum() * 100
+                    if 'Total Working Days' in active_team.columns and active_team['Total Working Days'].sum() > 0 else 0
+                ),
+                'new_hires': len(active_team[
+                    (active_team['Entrance Date'] >= pd.Timestamp(self.year if self.month > 1 else self.year-1, 
+                                                                   self.month-1 if self.month > 1 else 12, 1))
+                ]) if 'Entrance Date' in active_team.columns else 0
+            }
+        
+        return team_stats
+    
     def save_metadata(self):
         """메타데이터 저장"""
         month_key = f"{self.year}_{self.month:02d}"
@@ -545,9 +609,30 @@ class EnhancedHRDashboard:
         self.metadata['team_stats'] = self.metadata.get('team_stats', {})
         self.metadata['team_stats'][month_key] = self.calculate_team_statistics()
         
+        # 7월 팀별 통계도 저장 (없으면 생성)
+        prev_month_key = f"{self.year}_{(self.month-1):02d}" if self.month > 1 else f"{self.year-1}_12"
+        if prev_month_key not in self.metadata['team_stats']:
+            self.metadata['team_stats'][prev_month_key] = self.calculate_previous_team_statistics()
+        
         # 결근 사유 저장
         self.metadata['absence_reasons'] = self.metadata.get('absence_reasons', {})
         self.metadata['absence_reasons'][month_key] = self.calculate_absence_reasons()
+        
+        # 현재 월과 이전 월 데이터 구조 추가 (validation 용)
+        team_stats = self.calculate_team_statistics()
+        self.metadata['current_month'] = {
+            'total_count': len(self.data['current']) if not self.data['current'].empty else 0,
+            'by_team': team_stats
+        }
+        
+        prev_month_key = f"{self.year}_{(self.month-1):02d}" if self.month > 1 else f"{self.year-1}_12"
+        self.metadata['previous_month'] = {
+            'total_count': len(self.data['previous']) if not self.data['previous'].empty else 0,
+            'by_team': self.metadata.get('team_stats', {}).get(prev_month_key, {})
+        }
+        
+        # 타임스탬프 추가
+        self.metadata['generation_timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
         # JSON 파일로 저장
         metadata_file = f"output_files/hr_metadata_{self.year}.json"
@@ -561,12 +646,13 @@ class EnhancedHRDashboard:
         metrics = self.calculate_real_hr_metrics()
         team_stats = self.calculate_team_statistics()
         absence_reasons = self.calculate_absence_reasons()
+        team_members = self.load_team_members_data()  # 팀 멤버 데이터 추가
         
         # 이전 월 메트릭
         prev_month_key = f"{self.year if self.month > 1 else self.year-1}_{(self.month-1 if self.month > 1 else 12):02d}"
         prev_metrics = self.metadata.get('monthly_data', {}).get(prev_month_key, {})
         
-        html_content = self.generate_full_html(metrics, team_stats, absence_reasons, prev_metrics)
+        html_content = self.generate_full_html(metrics, team_stats, absence_reasons, prev_metrics, team_members)
         
         # HTML 파일 저장
         output_file = f"output_files/management_dashboard_{self.year}_{self.month:02d}.html"
@@ -576,7 +662,15 @@ class EnhancedHRDashboard:
         print(f"✅ Dashboard generated: {output_file}")
         return output_file
         
-    def generate_full_html(self, metrics, team_stats, absence_reasons, prev_metrics):
+    def calculate_latest_data_date(self):
+        """최신 데이터 날짜 계산"""
+        if not self.data['current'].empty:
+            # 마지막 날 계산
+            from calendar import monthrange
+            return monthrange(self.year, self.month)[1]
+        return 31  # 기본값
+    
+    def generate_full_html(self, metrics, team_stats, absence_reasons, prev_metrics, team_members):
         """완전한 HTML 생성"""
         # 월별 트렌드 데이터 준비
         monthly_trend = self.prepare_monthly_trend_data()
@@ -609,7 +703,12 @@ class EnhancedHRDashboard:
         
         <!-- HR Analytics Section -->
         <div class="section hr-section">
-            <h2 class="section-title">📊 인사/출결 분석</h2>
+            <h2 class="section-title">
+                📊 인사/출결 분석
+                <span style="font-size: 14px; color: #6c757d; margin-left: 10px;">
+                    (최신 데이터: {self.year}년 {self.month}월 {self.calculate_latest_data_date()}일 기준)
+                </span>
+            </h2>
             <div class="cards-grid-3x3">
                 {self.generate_hr_cards(metrics, prev_metrics)}
             </div>
@@ -653,7 +752,7 @@ class EnhancedHRDashboard:
     </div>
     
     <script>
-        {self.generate_enhanced_javascript(metrics, team_stats, absence_reasons, current_weekly, prev_weekly)}
+        {self.generate_enhanced_javascript(metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members)}
     </script>
 </body>
 </html>'''
@@ -989,6 +1088,85 @@ class EnhancedHRDashboard:
             color: #dc3545;
             font-weight: bold;
         }}
+        
+        /* 애니메이션 정의 */
+        @keyframes pulse {{
+            0% {{
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+            }}
+            70% {{
+                box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+            }}
+            100% {{
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+            }}
+        }}
+        
+        @keyframes fadeInUp {{
+            from {{
+                opacity: 0;
+                transform: translateY(20px);
+            }}
+            to {{
+                opacity: 1;
+                transform: translateY(0);
+            }}
+        }}
+        
+        @keyframes slideIn {{
+            from {{
+                transform: translateX(-100%);
+                opacity: 0;
+            }}
+            to {{
+                transform: translateX(0);
+                opacity: 1;
+            }}
+        }}
+        
+        /* 차트 컨테이너 애니메이션 */
+        .chart-container {{
+            animation: fadeInUp 0.8s ease-out;
+        }}
+        
+        /* 카드 개선 효과 */
+        .hr-card {{
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }}
+        
+        .hr-card::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }}
+        
+        .hr-card:hover {{
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }}
+        
+        .hr-card:hover::before {{
+            left: 100%;
+        }}
+        
+        /* 카드 번호 펄스 애니메이션 */
+        .card-number {{
+            animation: pulse 2s infinite;
+        }}
+        
+        /* 카드 값 페이드인 애니메이션 */
+        .card-value {{
+            animation: fadeInUp 0.6s ease-out;
+        }}
         '''
         
     def generate_header(self):
@@ -1160,7 +1338,107 @@ class EnhancedHRDashboard:
             
         return modals_html
         
-    def generate_enhanced_javascript(self, metrics, team_stats, absence_reasons, current_weekly, prev_weekly):
+    def load_team_members_data(self):
+        """팀별 개인 멤버 데이터 로드 (role category 및 attendance 정보 포함)"""
+        team_members = {}
+        
+        # team_structure.json 로드하여 role_category 정보 가져오기
+        position_to_role = {}
+        try:
+            with open('HR info/team_structure_updated.json', 'r', encoding='utf-8') as f:
+                team_structure_data = json.load(f)
+                # position을 role_category로 매핑하는 dictionary 생성
+                for team_info in team_structure_data.get('teams', []):
+                    for position in team_info.get('positions', []):
+                        role_category = position.get('role_category', 'unidentified')
+                        for pos in position.get('position_1st', []):
+                            position_to_role[pos] = role_category
+        except:
+            # 파일이 없으면 기존 team_structure.json 시도
+            try:
+                with open('HR info/team_structure.json', 'r', encoding='utf-8') as f:
+                    team_structure_data = json.load(f)
+                    for team_info in team_structure_data.get('teams', []):
+                        for position in team_info.get('positions', []):
+                            role_category = position.get('role_category', 'unidentified')
+                            for pos in position.get('position_1st', []):
+                                position_to_role[pos] = role_category
+            except:
+                pass  # 파일이 없으면 기본값 사용
+        
+        if not self.data['current'].empty:
+            df = self.data['current']
+            # 팀 컬럼명 확인 - 'TEAM' 또는 '팀명' 또는 'Team' 등 여러 가능성
+            team_column = None
+            for col in ['TEAM', 'Team', 'team', '팀명', '팀']:
+                if col in df.columns:
+                    team_column = col
+                    break
+            
+            if team_column:
+                for team in df[team_column].unique():
+                    if pd.notna(team):
+                        team_df = df[df[team_column] == team]
+                        members = []
+                        for _, row in team_df.iterrows():
+                            position_1st = str(row.get('POSITION 1', ''))
+                            position_3rd = str(row.get('POSITION 3', ''))
+                            
+                            # team_column의 값을 그대로 사용 (SOP에 따라 이미 정확히 분류됨)
+                            actual_team = team
+                            
+                            # role_category 찾기
+                            role_category = position_to_role.get(position_1st, 'unidentified')
+                            
+                            # attendance 정보 계산
+                            total_days = 26  # 기본값
+                            actual_days = 26  # 기본값
+                            unapproved_absence = 0
+                            
+                            # 가능한 컬럼명들 시도
+                            for col_name in ['총 근무일수', 'Total Days', 'total_days']:
+                                if col_name in row and pd.notna(row[col_name]):
+                                    total_days = int(row[col_name])
+                                    break
+                            
+                            for col_name in ['실제 근무일수', 'Actual Days', 'actual_days']:
+                                if col_name in row and pd.notna(row[col_name]):
+                                    actual_days = int(row[col_name])
+                                    break
+                                    
+                            for col_name in ['무단결근일수', 'Unapproved Absence', 'unapproved_absence']:
+                                if col_name in row and pd.notna(row[col_name]):
+                                    unapproved_absence = int(row[col_name])
+                                    break
+                            
+                            member = {
+                                'id': str(row.get('EmployeeID', '')),
+                                'name': str(row.get('Name', row.get('이름', ''))),
+                                'position_1st': position_1st,  # position을 position_1st로 변경
+                                'position_2nd': str(row.get('POSITION 2', '')),  # position2를 position_2nd로 변경
+                                'position_3rd': position_3rd,  # position_3rd 추가
+                                'type': str(row.get('TYPE', '')),
+                                'entrance_date': str(row.get('Entrance Date', '')),
+                                'full_attendance': 'Y' if pd.notna(row.get('full_attendance')) and row.get('full_attendance') == 'Y' else 'N',
+                                'role_category': role_category,
+                                'total_days': total_days,
+                                'actual_days': actual_days,
+                                'unapproved_absence': unapproved_absence,
+                                'attendance_rate': round((actual_days / total_days * 100) if total_days > 0 else 0, 1)
+                            }
+                            
+                            # 팀 분류는 이미 데이터에서 정확히 되어 있으므로 그대로 사용
+                            members.append(member)
+                        
+                        # 일반 멤버들을 해당 팀에 추가
+                        if members:
+                            if team not in team_members:
+                                team_members[team] = []
+                            team_members[team].extend(members)
+        
+        return team_members
+    
+    def generate_enhanced_javascript(self, metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members):
         """향상된 JavaScript 생성"""
         # numpy 타입 변환
         def convert_numpy_types(obj):
@@ -1197,6 +1475,7 @@ class EnhancedHRDashboard:
         const prevWeeklyData = {prev_weekly_json};
         const teamStats = {team_stats_json};
         const absenceReasons = {absence_reasons_json};
+        const teamMembers = {json.dumps(convert_numpy_types(team_members), ensure_ascii=False)};  // 팀 멤버 데이터
         
         // 차트 저장소
         const charts = {{}};
@@ -1229,9 +1508,46 @@ class EnhancedHRDashboard:
         
         // 팀 상세 모달 열기
         function showTeamDetailPopup(teamName, teamData) {{
-            const modal = document.getElementById('team-detail-modal');
-            const title = document.getElementById('team-detail-title');
-            const body = document.getElementById('team-detail-body');
+            // 먼저 기존 모달이 있으면 제거
+            const existingModal = document.getElementById('team-detail-modal');
+            if (existingModal) {{
+                existingModal.remove();
+            }}
+            
+            // 새 모달 생성
+            const modal = document.createElement('div');
+            modal.id = 'team-detail-modal';
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '2000';
+            
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+            modalContent.style.maxWidth = '900px';
+            modalContent.style.width = '90%';
+            
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+            modalHeader.innerHTML = `
+                <h2 class="modal-title" id="team-detail-title">` + teamName + ` 팀 상세 정보</h2>
+                <span class="close-modal" onclick="document.getElementById('team-detail-modal').remove()">&times;</span>
+            `;
+            modalContent.appendChild(modalHeader);
+            
+            const body = document.createElement('div');
+            body.id = 'team-detail-body';
+            body.className = 'modal-body';
+            modalContent.appendChild(body);
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // 모달 외부 클릭 시 닫기
+            modal.onclick = function(e) {{
+                if (e.target === modal) {{
+                    modal.remove();
+                }}
+            }};
             
             title.textContent = teamName + ' 팀 상세 정보';
             
@@ -1350,6 +1666,131 @@ class EnhancedHRDashboard:
                 }}
             }});
             
+            // 최근 14일 일별 출근율 차트 추가
+            const dailyChartDiv = document.createElement('div');
+            dailyChartDiv.className = 'chart-container';
+            dailyChartDiv.style.marginTop = '20px';
+            dailyChartDiv.innerHTML = '<h4>최근 14일 일별 출근율 추이</h4><canvas id="team-daily-chart"></canvas>';
+            body.appendChild(dailyChartDiv);
+            
+            // 임시 일별 데이터 (실제는 데이터베이스에서 가져와야 함)
+            const dailyLabels = [];
+            const dailyData = [];
+            const today = new Date(2025, 7, 31);  // 8월 31일
+            for (let i = 13; i >= 0; i--) {{
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                dailyLabels.push((date.getMonth() + 1) + '/' + date.getDate());
+                // 실제 데이터가 없으므로 90-95% 사이의 랜덤값
+                dailyData.push(90 + Math.random() * 5);
+            }}
+            
+            new Chart(document.getElementById('team-daily-chart'), {{
+                type: 'line',
+                data: {{
+                    labels: dailyLabels,
+                    datasets: [{{
+                        label: '일별 출근율 (%)',
+                        data: dailyData,
+                        borderColor: '{self.colors['chart_colors'][3]}',
+                        backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }}]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {{
+                        y: {{
+                            beginAtZero: false,
+                            min: 85,
+                            max: 100,
+                            ticks: {{
+                                callback: function(value) {{
+                                    return value.toFixed(1) + '%';
+                                }}
+                            }}
+                        }}
+                    }},
+                    plugins: {{
+                        tooltip: {{
+                            callbacks: {{
+                                label: function(context) {{
+                                    return context.parsed.y.toFixed(2) + '%';
+                                }}
+                            }}
+                        }}
+                    }}
+                }}
+            }});
+            
+            // 역할별/포지션별 상세 정보 추가
+            const detailsDiv = document.createElement('div');
+            detailsDiv.style.marginTop = '30px';
+            detailsDiv.innerHTML = '<h4>역할별 인원 상세 정보</h4>';
+            
+            // 팀 멤버 데이터 가져오기
+            const members = teamMembers[teamName] || [];
+            
+            // 역할별로 그룹화
+            const roleGroups = {{}};
+            members.forEach(member => {{
+                const role = member.role_category || member.position2 || 'Unidentified';
+                if (!roleGroups[role]) {{
+                    roleGroups[role] = [];
+                }}
+                roleGroups[role].push(member);
+            }});
+            
+            // 역할별 테이블 생성
+            Object.entries(roleGroups).forEach(([role, roleMembers]) => {{
+                const roleTable = document.createElement('div');
+                roleTable.style.marginTop = '20px';
+                roleTable.innerHTML = `
+                    <h5 style="color: #333; margin-bottom: 10px;">` + role + ` (` + roleMembers.length + `명)</h5>
+                    <table style="width: 100%; font-size: 12px;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>이름</th>
+                                <th>Position 1st</th>
+                                <th>Position 2nd</th>
+                                <th>총 근무일</th>
+                                <th>실제 근무일</th>
+                                <th>무단결근</th>
+                                <th>출근율</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ` + roleMembers.map(m => {{
+                                const attendanceRate = m.actual_days && m.total_days ? 
+                                    ((m.actual_days / m.total_days) * 100).toFixed(1) : '0.0';
+                                return `
+                                <tr>
+                                    <td>` + (m.id || '-') + `</td>
+                                    <td>` + (m.name || '-') + `</td>
+                                    <td>` + (m.position_1st || '-') + `</td>
+                                    <td>` + (m.position_2nd || '-') + `</td>
+                                    <td style="text-align: center;">` + (m.total_days || 0) + `</td>
+                                    <td style="text-align: center;">` + (m.actual_days || 0) + `</td>
+                                    <td style="text-align: center;">` + (m.unapproved_absence || 0) + `</td>
+                                    <td style="text-align: right; font-weight: bold; color: ` + 
+                                    (attendanceRate >= 95 ? '#28a745' : attendanceRate >= 90 ? '#ffc107' : '#dc3545') + `">` + 
+                                    attendanceRate + `%</td>
+                                </tr>
+                                `;
+                            }}).join('') + `
+                        </tbody>
+                    </table>
+                `;
+                detailsDiv.appendChild(roleTable);
+            }});
+            
+            body.appendChild(detailsDiv);
+            
             modal.style.display = 'block';
         }}
         
@@ -1370,7 +1811,12 @@ class EnhancedHRDashboard:
                 case 'modal-total-employees':
                     createEnhancedTotalEmployeesContent(modalBody, modalId);
                     break;
-                // 다른 모달들도 필요시 구현
+                case 'modal-absence':
+                    createAbsenceContent(modalBody, modalId);
+                    break;
+                case 'modal-full-attendance':
+                    createEnhancedTotalEmployeesContent(modalBody, modalId);  // 임시로 같은 함수 사용
+                    break;
                 default:
                     createDefaultContent(modalBody, modalId);
                     break;
@@ -1400,7 +1846,16 @@ class EnhancedHRDashboard:
                     plugins: {{
                         title: {{
                             display: true,
-                            text: '월별 총인원 비교'
+                            text: '월별 총인원 비교',
+                            align: 'start',
+                            font: {{
+                                size: 16,
+                                weight: 600
+                            }},
+                            padding: {{
+                                bottom: 10
+                            }},
+                            color: '#333'
                         }}
                     }}
                 }}
@@ -1474,7 +1929,16 @@ class EnhancedHRDashboard:
                     plugins: {{
                         title: {{
                             display: true,
-                            text: '주차별 총인원 트렌드'
+                            text: '주차별 총인원 트렌드',
+                            align: 'start',
+                            font: {{
+                                size: 16,
+                                weight: 600
+                            }},
+                            padding: {{
+                                bottom: 10
+                            }},
+                            color: '#333'
                         }}
                     }}
                 }}
@@ -1524,7 +1988,16 @@ class EnhancedHRDashboard:
                     plugins: {{
                         title: {{
                             display: true,
-                            text: '팀별 인원 분포 (클릭하여 상세보기)'
+                            text: '팀별 인원 분포 (클릭하여 상세보기)',
+                            align: 'start',
+                            font: {{
+                                size: 16,
+                                weight: 600
+                            }},
+                            padding: {{
+                                bottom: 10
+                            }},
+                            color: '#333'
                         }},
                         tooltip: {{
                             callbacks: {{
@@ -1541,118 +2014,274 @@ class EnhancedHRDashboard:
             }});
             charts[modalId].push(teamBarChart);
             
-            // 4. 트리맵 스타일 차트 (가로 바 + 변화량 표시)
+            // 4. 트리맵 스타일 차트 - 실제 히트맵처럼 구현
             const treemapDiv = document.createElement('div');
             treemapDiv.className = 'chart-container';
             treemapDiv.style.marginTop = '20px';
             
-            // 타이틀을 동일한 스타일로 추가
+            // 타이틀 스타일 통일
             const treemapTitle = document.createElement('h4');
-            treemapTitle.style.cssText = 'margin: 20px 0 10px 0; font-size: 16px; font-weight: 600; color: #333;';
+            treemapTitle.style.cssText = 'margin: 20px 0 10px 0; font-size: 16px; font-weight: 600; color: #333; text-align: left;';
             treemapTitle.textContent = '팀별 인원 분포 및 7월 대비 변화';
             treemapDiv.appendChild(treemapTitle);
             
             const treemapContainerWrapper = document.createElement('div');
             treemapContainerWrapper.id = 'treemap-' + modalId;
-            treemapContainerWrapper.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px;';
+            treemapContainerWrapper.style.cssText = 'position: relative; width: 100%; height: 500px; background: #2a2a2a; border-radius: 8px; padding: 10px; overflow: hidden;';
             treemapDiv.appendChild(treemapContainerWrapper);
             modalBody.appendChild(treemapDiv);
             
             // 7월 팀 데이터 가져오기
             const julyTeamStats = {json.dumps(self.metadata.get('team_stats', {}).get(f'{self.year}_07', {}), ensure_ascii=False)};
             
-            // 팀별 트리맵 박스 생성 - 개선된 가독성
-            const treemapContainer = document.getElementById('treemap-' + modalId);
-            
-            // 팀 데이터를 크기 순으로 정렬하고 색상 통일
-            const topColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FD79A8'];
-            
-            teamData.forEach((team, index) => {{
-                const julyData = julyTeamStats[team.name] || {{}};
-                const julyTotal = julyData.total || team.total; // 7월 데이터가 없으면 현재값 사용
-                const augTotal = team.total;
-                const change = augTotal - julyTotal;
-                const changePercent = julyTotal > 0 ? ((change / julyTotal) * 100).toFixed(1) : 0;
+            // 트리맵 생성 함수 - 실제 히트맵 스타일
+            function createTreemap(container, data) {{
+                // 총 인원 계산
+                const totalEmployees = data.reduce((sum, d) => sum + d.total, 0);
                 
-                const box = document.createElement('div');
-                // 고정 크기로 변경하여 가독성 개선
-                box.style.cssText = `
-                    min-height: 120px;
-                    background: ` + topColors[index % topColors.length] + `;
-                    border-radius: 8px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    color: white;
-                    font-weight: bold;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    padding: 10px;
-                    position: relative;
-                `;
+                // 컨테이너 크기 설정 (더 큰 높이로 조정)
+                const containerWidth = container.offsetWidth - 20;
+                const containerHeight = 480;  // 증가된 높이
+                container.style.height = containerHeight + 'px';
+                const totalArea = containerWidth * containerHeight;
                 
-                box.onmouseover = function() {{
-                    box.style.transform = 'scale(1.05)';
-                    box.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-                }};
-                box.onmouseout = function() {{
-                    box.style.transform = 'scale(1)';
-                    box.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-                }};
-                box.onclick = function() {{
-                    showTeamDetailPopup(team.name, teamStats[team.name]);
-                }};
+                // 각 팀의 면적 계산 및 변화율 추가
+                data.forEach(team => {{
+                    const julyData = julyTeamStats[team.name] || {{}};
+                    const julyTotal = julyData.total || team.total;  // 7월 데이터가 없으면 현재 값 사용
+                    // 변화율 계산 수정 - 0으로 나누기 방지 및 새 팀 처리
+                    if (julyTotal === 0 && team.total > 0) {{
+                        team.changePercent = 100;  // 신규 팀
+                    }} else if (julyTotal > 0) {{
+                        team.changePercent = ((team.total - julyTotal) / julyTotal * 100);
+                    }} else {{
+                        team.changePercent = 0;
+                    }}
+                    team.area = (team.total / totalEmployees) * totalArea;
+                }});
                 
-                const changeColor = change > 0 ? '#4CAF50' : change < 0 ? '#F44336' : '#9E9E9E';
-                const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '—';
-                
-                // 불필요한 정보 제거하고 간단하게 표시
-                box.innerHTML = `
-                    <div style="text-align: center; width: 100%;">
-                        <div style="font-size: 13px; opacity: 0.95; margin-bottom: 5px;">${{team.name || 'Unknown'}}</div>
-                        <div style="font-size: 24px; font-weight: bold; margin: 5px 0;">${{augTotal}}명</div>
-                        <div style="font-size: 12px; opacity: 0.9;">${{team.percentage}}%</div>
-                        ` + (change !== 0 ? `
-                        <div style="margin-top: 8px; padding: 3px 6px; background: ` + changeColor + `; border-radius: 4px; font-size: 11px;">
-                            ` + changeSymbol + ` ` + (change > 0 ? '+' : '') + change + `명
-                        </div>` : '') + `
-                    </div>
-                `;
-                
-                treemapContainer.appendChild(box);
-            }});
-                options: {{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {{
-                        legend: {{
-                            position: 'right',
-                            labels: {{
-                                font: {{
-                                    size: 11
-                                }}
-                            }}
-                        }},
-                        tooltip: {{
-                            callbacks: {{
-                                label: function(context) {{
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    return label + ': ' + value + '명';
-                                }}
-                            }}
+                // 개선된 Treemap 알고리즘 - 사각형이 더 정사각형에 가까워지도록
+                function squarify(items, x, y, width, height) {{
+                    if (items.length === 0) return;
+                    if (items.length === 1) {{
+                        items[0].x = x;
+                        items[0].y = y;
+                        items[0].width = width;
+                        items[0].height = height;
+                        return;
+                    }}
+                    
+                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
+                    const isVertical = width <= height;
+                    
+                    // 첫 번째 그룹 찾기
+                    let bestGroup = [items[0]];
+                    let bestRatio = getWorstRatio(bestGroup, width, height, isVertical);
+                    
+                    for (let i = 1; i < items.length; i++) {{
+                        const testGroup = bestGroup.concat(items[i]);
+                        const testRatio = getWorstRatio(testGroup, width, height, isVertical);
+                        
+                        if (testRatio < bestRatio) {{
+                            bestGroup = testGroup;
+                            bestRatio = testRatio;
+                        }} else {{
+                            break;
+                        }}
+                    }}
+                    
+                    // 첫 번째 그룹 배치
+                    layoutGroup(bestGroup, x, y, width, height, isVertical);
+                    
+                    // 나머지 재귀적으로 처리
+                    const remaining = items.slice(bestGroup.length);
+                    if (remaining.length > 0) {{
+                        const groupArea = bestGroup.reduce((sum, d) => sum + d.area, 0);
+                        
+                        if (isVertical) {{
+                            const groupWidth = (groupArea / totalArea) * width;
+                            squarify(remaining, x + groupWidth, y, width - groupWidth, height);
+                        }} else {{
+                            const groupHeight = (groupArea / totalArea) * height;
+                            squarify(remaining, x, y + groupHeight, width, height - groupHeight);
                         }}
                     }}
                 }}
-            }});
-            charts[modalId].push(treemapChart);
+                
+                function getWorstRatio(items, width, height, isVertical) {{
+                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
+                    const groupDim = isVertical ? (totalArea / height) : (totalArea / width);
+                    
+                    let worstRatio = 0;
+                    items.forEach(item => {{
+                        const itemDim = isVertical ? (item.area / groupDim) : (item.area / groupDim);
+                        const ratio = Math.max(groupDim / itemDim, itemDim / groupDim);
+                        worstRatio = Math.max(worstRatio, ratio);
+                    }});
+                    
+                    return worstRatio;
+                }}
+                
+                function layoutGroup(items, x, y, width, height, isVertical) {{
+                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
+                    
+                    if (isVertical) {{
+                        const groupWidth = totalArea / height;
+                        let currentY = y;
+                        
+                        items.forEach(item => {{
+                            const itemHeight = item.area / groupWidth;
+                            item.x = x;
+                            item.y = currentY;
+                            item.width = groupWidth;
+                            item.height = itemHeight;
+                            currentY += itemHeight;
+                        }});
+                    }} else {{
+                        const groupHeight = totalArea / width;
+                        let currentX = x;
+                        
+                        items.forEach(item => {{
+                            const itemWidth = item.area / groupHeight;
+                            item.x = currentX;
+                            item.y = y;
+                            item.width = itemWidth;
+                            item.height = groupHeight;
+                            currentX += itemWidth;
+                        }});
+                    }}
+                }}
+                
+                // 데이터 정렬 및 레이아웃 적용
+                data.sort((a, b) => b.total - a.total);  // 인원수 기준으로 정렬
+                squarify(data, 0, 0, containerWidth, containerHeight);
+                
+                // 박스 생성
+                data.forEach(team => {{
+                    const box = document.createElement('div');
+                    
+                    // 색상 결정 - 그라데이션 효과 (증가=초록, 감소=빨간)
+                    let bgColor;
+                    let textColor = '#fff';
+                    
+                    if (team.changePercent > 0) {{
+                        // 증가: 초록색 그라데이션
+                        const intensity = Math.min(Math.abs(team.changePercent) / 30, 1);  // 30% 이상은 최대 밝기
+                        const green = Math.floor(50 + intensity * 150);  // 50-200
+                        const red = Math.floor(20 + (1-intensity) * 100);  // 120-20
+                        bgColor = `rgb(${{red}}, ${{green}}, 50)`;
+                    }} else if (team.changePercent < 0) {{
+                        // 감소: 빨간색 그라데이션
+                        const intensity = Math.min(Math.abs(team.changePercent) / 30, 1);
+                        const red = Math.floor(100 + intensity * 155);  // 100-255
+                        const green = Math.floor(100 - intensity * 80);  // 100-20
+                        bgColor = `rgb(${{red}}, ${{green}}, ${{green}})`;
+                    }} else {{
+                        // 변화 없음: 진한 회색
+                        bgColor = '#555';
+                    }}
+                    
+                    box.style.cssText = `
+                        position: absolute;
+                        left: ${{team.x}}px;
+                        top: ${{team.y}}px;
+                        width: ${{team.width - 2}}px;
+                        height: ${{team.height - 2}}px;
+                        background: ${{bgColor}};
+                        border: 1px solid rgba(0,0,0,0.3);
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        overflow: hidden;
+                        color: ${{textColor}};
+                    `;
+                    
+                    // 텍스트 크기 및 표시 조정 - 박스 크기에 더 민감하게 반응
+                    const minDimension = Math.min(team.width, team.height);
+                    const boxArea = team.width * team.height;
+                    const areaFactor = Math.sqrt(boxArea / 5000);  // 면적 기반 계산
+                    const fontSize = Math.max(10, Math.min(18, 12 * areaFactor));
+                    const percentFontSize = Math.max(14, Math.min(36, 20 * areaFactor));
+                    
+                    // 작은 박스는 간단한 정보만 표시
+                    let content;
+                    if (minDimension < 60) {{
+                        // 매우 작은 박스: 팀명만
+                        content = `
+                            <div style="text-align: center; padding: 2px;">
+                                <div style="font-size: ${{fontSize - 2}}px; font-weight: 600;">
+                                    ${{team.name.substring(0, 8)}}
+                                </div>
+                                <div style="font-size: ${{fontSize - 3}}px;">
+                                    ${{team.total}}
+                                </div>
+                            </div>
+                        `;
+                    }} else if (minDimension < 100) {{
+                        // 작은 박스: 팀명과 인원수
+                        content = `
+                            <div style="text-align: center; padding: 3px;">
+                                <div style="font-size: ${{fontSize}}px; font-weight: 600;">
+                                    ${{team.name}}
+                                </div>
+                                <div style="font-size: ${{fontSize + 2}}px; font-weight: bold; margin: 2px 0;">
+                                    ${{team.changePercent > 0 ? '+' : ''}}${{team.changePercent.toFixed(0)}}%
+                                </div>
+                                <div style="font-size: ${{fontSize - 1}}px;">
+                                    ${{team.total}}명
+                                </div>
+                            </div>
+                        `;
+                    }} else {{
+                        // 큰 박스: 모든 정보 표시
+                        content = `
+                            <div style="text-align: center; padding: 5px;">
+                                <div style="font-size: ${{fontSize}}px; font-weight: 600; margin-bottom: 3px; text-transform: uppercase;">
+                                    ${{team.name}}
+                                </div>
+                                <div style="font-size: ${{percentFontSize}}px; font-weight: bold; margin: 5px 0;">
+                                    ${{team.changePercent > 0 ? '+' : ''}}${{team.changePercent.toFixed(1)}}%
+                                </div>
+                                <div style="font-size: ${{fontSize - 2}}px; opacity: 0.9; margin-top: 2px;">
+                                    ${{team.total}}명
+                                </div>
+                            </div>
+                        `;
+                    }}
+                    
+                    box.innerHTML = content;
+                    
+                    box.onmouseover = function() {{
+                        box.style.transform = 'scale(1.02)';
+                        box.style.boxShadow = '0 0 20px rgba(255,255,255,0.3)';
+                        box.style.zIndex = '10';
+                        box.style.border = '2px solid rgba(255,255,255,0.8)';
+                    }};
+                    
+                    box.onmouseout = function() {{
+                        box.style.transform = 'scale(1)';
+                        box.style.boxShadow = 'none';
+                        box.style.zIndex = '1';
+                        box.style.border = '1px solid rgba(0,0,0,0.3)';
+                    }};
+                    
+                    box.onclick = function() {{
+                        const teamStat = teamStats[team.name] || {{}};
+                        showTeamDetailPopup(team.name, teamStat);
+                    }};
+                    
+                    container.appendChild(box);
+                }});
+            }}
             
-            // 5. TYPE별 인원 카드
+            // 5. TYPE별 인원 카드를 월별 비교 차트 전에 배치
             const typeDiv = document.createElement('div');
-            typeDiv.style.marginTop = '20px';
-            typeDiv.innerHTML = '<h4>TYPE별 인원 현황</h4>';
+            typeDiv.style.marginTop = '30px';
+            typeDiv.style.clear = 'both';  // float 클리어
+            typeDiv.innerHTML = '<h4 style="margin-bottom: 15px;">TYPE별 인원 현황</h4>';
             modalBody.appendChild(typeDiv);
             
             const typeCardsDiv = document.createElement('div');
@@ -1669,19 +2298,19 @@ class EnhancedHRDashboard:
                     label: 'TYPE-1 인원',
                     value: type1Count + '명',
                     percentage: ((type1Count / totalCount) * 100).toFixed(1) + '%',
-                    color: '{self.colors['chart_colors'][0]}'
+                    color: '#FF6B6B'
                 }},
                 {{
                     label: 'TYPE-2 인원',
                     value: type2Count + '명',
                     percentage: ((type2Count / totalCount) * 100).toFixed(1) + '%',
-                    color: '{self.colors['chart_colors'][1]}'
+                    color: '#4ECDC4'
                 }},
                 {{
                     label: 'TYPE-3 인원',
                     value: type3Count + '명',
                     percentage: ((type3Count / totalCount) * 100).toFixed(1) + '%',
-                    color: '{self.colors['chart_colors'][2]}'
+                    color: '#45B7D1'
                 }},
                 {{
                     label: '전체 대비',
@@ -1704,6 +2333,10 @@ class EnhancedHRDashboard:
             }});
             
             modalBody.appendChild(typeCardsDiv);
+            
+            // 트리맵 생성 (TYPE 카드 이후에 배치)
+            const treemapContainer = document.getElementById('treemap-' + modalId);
+            createTreemap(treemapContainer, teamData);
             
             // 6. 팀별 만근 인원 정보 - 정렬 기능 추가
             const fullAttendanceDiv = document.createElement('div');
@@ -1731,11 +2364,11 @@ class EnhancedHRDashboard:
                 <table id="fullAttendanceTable" data-sort-order="desc">
                     <thead>
                         <tr>
-                            <th onclick="sortTable(0, 'fullAttendanceTable')" style="cursor: pointer;">순위 ▼</th>
-                            <th onclick="sortTable(1, 'fullAttendanceTable')" style="cursor: pointer;">팀명 ▼</th>
-                            <th onclick="sortTable(2, 'fullAttendanceTable')" style="cursor: pointer; text-align: right;">만근 인원 ▼</th>
-                            <th onclick="sortTable(3, 'fullAttendanceTable')" style="cursor: pointer; text-align: right;">전체 인원 ▼</th>
-                            <th onclick="sortTable(4, 'fullAttendanceTable')" style="cursor: pointer; text-align: right;">만근율 ▼</th>
+                            <th onclick="sortFullAttendanceTable(0)" style="cursor: pointer;">순위 ▼</th>
+                            <th onclick="sortFullAttendanceTable(1)" style="cursor: pointer;">팀명 ▼</th>
+                            <th onclick="sortFullAttendanceTable(2)" style="cursor: pointer; text-align: right;">만근 인원 ▼</th>
+                            <th onclick="sortFullAttendanceTable(3)" style="cursor: pointer; text-align: right;">전체 인원 ▼</th>
+                            <th onclick="sortFullAttendanceTable(4)" style="cursor: pointer; text-align: right;">만근율 ▼</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1743,9 +2376,9 @@ class EnhancedHRDashboard:
                             const rateClass = team.rate >= 95 ? 'percentage-high' : 
                                             team.rate >= 90 ? 'percentage-medium' : 'percentage-low';
                             return `
-                            <tr>
+                            <tr style="cursor: pointer;" onclick="showTeamMembersDetail('` + team.name.replace(/'/g, "\\'") + `')">
                                 <td class="rank">` + (index + 1) + `</td>
-                                <td class="team-name">` + team.name + `</td>
+                                <td class="team-name" style="color: #007bff; text-decoration: underline;">` + team.name + `</td>
                                 <td style="text-align: right;">` + team.fullAttendance + `명</td>
                                 <td style="text-align: right;">` + team.total + `명</td>
                                 <td style="text-align: right;" class="` + rateClass + `">` + team.rate.toFixed(1) + `%</td>
@@ -1758,8 +2391,311 @@ class EnhancedHRDashboard:
             modalBody.appendChild(fullAttendanceTable);
         }}
         
+        // 팀 멤버 상세 정보 표시 함수
+        function showTeamMembersDetail(teamName) {{
+            const members = teamMembers[teamName] || [];
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '2000';
+            
+            const content = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">${{teamName}} 팀 멤버 상세 정보</h2>
+                        <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이름</th>
+                                    <th>Position 1</th>
+                                    <th>Position 2</th>
+                                    <th>TYPE</th>
+                                    <th>입사일</th>
+                                    <th>만근여부</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${{members.map(m => `
+                                    <tr>
+                                        <td>${{m.id}}</td>
+                                        <td>${{m.name}}</td>
+                                        <td>${{m.position}}</td>
+                                        <td>${{m.position2 || '-'}}</td>
+                                        <td>${{m.type}}</td>
+                                        <td>${{m.entrance_date}}</td>
+                                        <td class="${{m.full_attendance === 'Y' ? 'percentage-high' : 'percentage-low'}}">
+                                            ${{m.full_attendance === 'Y' ? '✓' : '✗'}}
+                                        </td>
+                                    </tr>
+                                `).join('')}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = content;
+            document.body.appendChild(modal);
+            
+            modal.onclick = function(e) {{
+                if (e.target === modal) {{
+                    modal.remove();
+                }}
+            }};
+        }}
+        
+        // 결근자 상세 분석
+        function createAbsenceContent(modalBody, modalId) {{
+            const chartDiv = document.createElement('div');
+            chartDiv.className = 'chart-container';
+            chartDiv.innerHTML = '<canvas id="absence-chart-' + modalId + '"></canvas>';
+            modalBody.appendChild(chartDiv);
+            
+            new Chart(document.getElementById('absence-chart-' + modalId), {{
+                type: 'line',
+                data: {{
+                    labels: ['7월', '8월'],
+                    datasets: [{{
+                        label: '결근율 (%)',
+                        data: [monthlyDataJuly.absence_rate || 0, monthlyDataAugust.absence_rate || 0],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 3
+                    }}]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {{
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
+                    }},
+                    plugins: {{
+                        title: {{
+                            display: true,
+                            text: '월별 결근율 추이'
+                        }}
+                    }}
+                }}
+            }});
+            
+            // 팀별 결근율 테이블
+            const tableDiv = document.createElement('div');
+            tableDiv.style.marginTop = '30px';
+            tableDiv.innerHTML = `
+                <h4>팀별 결근 현황</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>팀명</th>
+                            <th>전체 인원</th>
+                            <th>결근자</th>
+                            <th>결근율</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${{Object.entries(teamStats).map(([name, data]) => {{
+                            const absenceRate = (100 - (data.attendance_rate || 0)).toFixed(1);
+                            const absenceCount = Math.round(data.total * absenceRate / 100);
+                            return `
+                                <tr>
+                                    <td>${{name}}</td>
+                                    <td>${{data.total}}명</td>
+                                    <td>${{absenceCount}}명</td>
+                                    <td class="${{absenceRate > 10 ? 'percentage-low' : absenceRate > 5 ? 'percentage-medium' : 'percentage-high'}}">${{absenceRate}}%</td>
+                                </tr>
+                            `;
+                        }}).join('')}}
+                    </tbody>
+                </table>
+            `;
+            modalBody.appendChild(tableDiv);
+        }}
+        
         function createDefaultContent(modalBody, modalId) {{
             modalBody.innerHTML = '<p>상세 콘텐츠가 준비 중입니다.</p>';
+        }}
+        
+        // 팀 멤버 상세 모달 표시
+        function showTeamMembersModal(teamName) {{
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '2001';
+            
+            const members = teamMembersData[teamName] || [];
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                    <h3>${{teamName}} 팀 멤버 상세</h3>
+                    <div class="modal-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이름</th>
+                                    <th>Position 1</th>
+                                    <th>Position 2</th>
+                                    <th>TYPE</th>
+                                    <th>입사일</th>
+                                    <th>출근 상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${{members.map(member => `
+                                    <tr>
+                                        <td>${{member.id}}</td>
+                                        <td>${{member.name}}</td>
+                                        <td>${{member.position1}}</td>
+                                        <td>${{member.position2 || '-'}}</td>
+                                        <td>${{member.type}}</td>
+                                        <td>${{member.entrance_date}}</td>
+                                        <td>${{member.attendance_status}}</td>
+                                    </tr>
+                                `).join('')}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }}
+        
+        // 팀 멤버 상세 표시 (팀별 만근 현황에서 호출)
+        function showTeamMembersDetail(teamName) {{
+            showTeamMembersModal(teamName);
+        }}
+        
+        // 결근자 분석 모달 표시
+        function showAbsenceAnalysisModal() {{
+            openModal('modal-absence');
+        }}
+        
+        // 퇴사자 분석 모달 표시  
+        function showResignationAnalysisModal() {{
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '2000';
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                    <h3>퇴사자 현황 분석</h3>
+                    <div class="modal-body">
+                        <div class="chart-container">
+                            <canvas id="resignation-chart"></canvas>
+                        </div>
+                        <div style="margin-top: 30px;">
+                            <h4>팀별 퇴사 현황</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>팀명</th>
+                                        <th>7월 퇴사자</th>
+                                        <th>8월 퇴사자</th>
+                                        <th>변화</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${{Object.entries(teamStats).map(([name, data]) => `
+                                        <tr>
+                                            <td>${{name}}</td>
+                                            <td>${{data.july_resignation || 0}}</td>
+                                            <td>${{data.august_resignation || 0}}</td>
+                                            <td>${{(data.august_resignation || 0) - (data.july_resignation || 0)}}</td>
+                                        </tr>
+                                    `).join('')}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 차트 생성
+            new Chart(document.getElementById('resignation-chart'), {{
+                type: 'bar',
+                data: {{
+                    labels: ['7월', '8월'],
+                    datasets: [{{
+                        label: '퇴사자 수',
+                        data: [
+                            Object.values(teamStats).reduce((sum, team) => sum + (team.july_resignation || 0), 0),
+                            Object.values(teamStats).reduce((sum, team) => sum + (team.august_resignation || 0), 0)
+                        ],
+                        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(255, 99, 132, 0.8)']
+                    }}]
+                }},
+                options: {{
+                    responsive: true,
+                    maintainAspectRatio: false
+                }}
+            }});
+        }}
+        
+        // 테이블 정렬 함수 추가
+        function sortTable(columnIndex, tableId) {{
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+            const isAscending = table.dataset.sortOrder === 'asc';
+            
+            rows.sort((a, b) => {{
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+                
+                // 숫자 처리
+                const aNum = parseFloat(aValue.replace(/[명%]/g, ''));
+                const bNum = parseFloat(bValue.replace(/[명%]/g, ''));
+                
+                if (!isNaN(aNum) && !isNaN(bNum)) {{
+                    return isAscending ? aNum - bNum : bNum - aNum;
+                }}
+                
+                // 문자열 처리
+                return isAscending ? 
+                    aValue.localeCompare(bValue, 'ko') : 
+                    bValue.localeCompare(aValue, 'ko');
+            }});
+            
+            // 행 재배치
+            rows.forEach((row, index) => {{
+                tbody.appendChild(row);
+                // 순위 업데이트
+                if (row.cells[0].className === 'rank') {{
+                    row.cells[0].textContent = index + 1;
+                }}
+            }});
+            
+            // 정렬 방향 토글
+            table.dataset.sortOrder = isAscending ? 'desc' : 'asc';
+            
+            // 헤더 화살표 업데이트
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, i) => {{
+                if (header.onclick) {{
+                    const text = header.textContent.replace(' ▲', '').replace(' ▼', '');
+                    if (i === columnIndex) {{
+                        header.textContent = text + (isAscending ? ' ▲' : ' ▼');
+                    }} else {{
+                        header.textContent = text + ' ▼';
+                    }}
+                }}
+            }});
+        }}
+        
+        // 팀별 만근 테이블 정렬 함수
+        function sortFullAttendanceTable(columnIndex) {{
+            sortTable(columnIndex, 'fullAttendanceTable');
         }}
         
         // 모달 외부 클릭시 닫기

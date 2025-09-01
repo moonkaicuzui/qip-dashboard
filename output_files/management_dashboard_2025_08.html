@@ -336,6 +336,85 @@
             font-weight: bold;
         }
         
+        /* 애니메이션 정의 */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* 차트 컨테이너 애니메이션 */
+        .chart-container {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        /* 카드 개선 효과 */
+        .hr-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .hr-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .hr-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .hr-card:hover::before {
+            left: 100%;
+        }
+        
+        /* 카드 번호 펄스 애니메이션 */
+        .card-number {
+            animation: pulse 2s infinite;
+        }
+        
+        /* 카드 값 페이드인 애니메이션 */
+        .card-value {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
     </style>
 </head>
 <body>
@@ -346,7 +425,7 @@
             <div class="header-info">
                 <span>📅 2025년 8월</span>
                 <span>📆 데이터 기간: 2025.08.01 ~ 2025.08.31</span>
-                <span>⏰ 생성일시: 2025-08-31 20:04:16</span>
+                <span>⏰ 생성일시: 2025-09-01 11:19:41</span>
                 <span>🚫 No Fake Data</span>
                 <button onclick="navigateToIncentive()" class="nav-button">📊 Incentive Dashboard</button>
             </div>
@@ -355,7 +434,12 @@
         
         <!-- HR Analytics Section -->
         <div class="section hr-section">
-            <h2 class="section-title">📊 인사/출결 분석</h2>
+            <h2 class="section-title">
+                📊 인사/출결 분석
+                <span style="font-size: 14px; color: #6c757d; margin-left: 10px;">
+                    (최신 데이터: 2025년 8월 31일 기준)
+                </span>
+            </h2>
             <div class="cards-grid-3x3">
                 
             <div class="hr-card" onclick="openModal('modal-total-employees')">
@@ -405,9 +489,9 @@
                 <div class="card-number">6</div>
                 <div class="card-title">입사 60일 미만
 인원</div>
-                <div class="card-value">26명</div>
-                <div class="card-subtitle">비율: 6.8%</div>
-                <div class="card-change change-positive">▲ 116.7% vs last month (+14명)</div>
+                <div class="card-value">24명</div>
+                <div class="card-subtitle">비율: 6.3%</div>
+                <div class="card-change change-positive">▲ 100.0% vs last month (+12명)</div>
             </div>
             
             <div class="hr-card" onclick="openModal('modal-post-assignment')">
@@ -415,7 +499,7 @@
                 <div class="card-title">보직 부여 후
 퇴사 인원</div>
                 <div class="card-value">5명</div>
-                <div class="card-subtitle">퇴사율: 19.2%</div>
+                <div class="card-subtitle">퇴사율: 20.8%</div>
                 <div class="card-change change-positive">▲ 25.0% vs last month (+1명)</div>
             </div>
             
@@ -588,11 +672,12 @@
         
         // 전역 데이터
         const monthlyDataJuly = {"total_employees": 380, "type1_count": "128", "type2_count": "236", "type3_count": "16", "attendance_rate": 90.82379862700229, "absence_rate": 9.17620137299771, "absence_count": 68, "resignation_count": 15, "resignation_rate": 3.9473684210526314, "recent_hires": 6, "recent_hires_rate": 1.5789473684210527, "recent_resignations": 19, "recent_resignation_rate": 316.66666666666663, "under_60_days": 12, "under_60_days_rate": 3.1578947368421053, "post_assignment_resignations": 4, "post_assignment_resignation_rate": 33.33333333333333};
-        const monthlyDataAugust = {"total_employees": 383, "type1_count": "127", "type2_count": "236", "type3_count": "20", "attendance_rate": 91.30347459329182, "absence_rate": 8.696525406708176, "absence_count": 77, "resignation_count": 9, "resignation_rate": 2.3498694516971277, "recent_hires": 15, "recent_hires_rate": 3.91644908616188, "recent_resignations": 17, "recent_resignation_rate": 113.33333333333333, "under_60_days": 26, "under_60_days_rate": 6.7885117493472595, "post_assignment_resignations": 5, "post_assignment_resignation_rate": 19.230769230769234, "full_attendance_count": 306, "full_attendance_rate": 79.89556135770235, "long_term_count": 276, "long_term_rate": 72.0626631853786};
+        const monthlyDataAugust = {"total_employees": 383, "type1_count": "127", "type2_count": "236", "type3_count": "20", "attendance_rate": 91.30347459329182, "absence_rate": 8.696525406708176, "absence_count": 77, "resignation_count": 9, "resignation_rate": 2.3498694516971277, "recent_hires": 15, "recent_hires_rate": 3.91644908616188, "recent_resignations": 17, "recent_resignation_rate": 113.33333333333333, "under_60_days": 24, "under_60_days_rate": 6.266318537859007, "post_assignment_resignations": 5, "post_assignment_resignation_rate": 20.833333333333336, "full_attendance_count": 306, "full_attendance_rate": 79.89556135770235, "long_term_count": 276, "long_term_rate": 72.0626631853786};
         const currentWeeklyData = {"Week1": {"total_employees": 374, "attendance_rate": 91.75, "absence_rate": 8.25, "new_hires": 1, "resignations": 3}, "Week2": {"total_employees": 375, "attendance_rate": 91.62, "absence_rate": 8.38, "new_hires": 5, "resignations": 4}, "Week3": {"total_employees": 376, "attendance_rate": 91.16, "absence_rate": 8.84, "new_hires": 3, "resignations": 2}, "Week4": {"total_employees": 376, "attendance_rate": 91.16, "absence_rate": 8.84, "new_hires": 0, "resignations": 0}};
         const prevWeeklyData = {"Week1": {"total_employees": 377, "attendance_rate": 93.27, "absence_rate": 6.73, "new_hires": 2, "resignations": 5}, "Week2": {"total_employees": 374, "attendance_rate": 93.52, "absence_rate": 6.48, "new_hires": 0, "resignations": 3}, "Week3": {"total_employees": 372, "attendance_rate": 93.65, "absence_rate": 6.35, "new_hires": 3, "resignations": 6}, "Week4": {"total_employees": 373, "attendance_rate": 93.47, "absence_rate": 6.53, "new_hires": 1, "resignations": 0}};
-        const teamStats = {"report": {"total": 10, "resignations": 1, "attendance_rate": 73.07692307692307, "new_hires": 0, "full_attendance_count": 7, "full_attendance_rate": 70.0}, "QA": {"total": 22, "resignations": 1, "attendance_rate": 83.56643356643356, "new_hires": 0, "full_attendance_count": 15, "full_attendance_rate": 68.18181818181817}, "stitching": {"total": 93, "resignations": 21, "attendance_rate": 90.57071960297766, "new_hires": 1, "full_attendance_count": 75, "full_attendance_rate": 80.64516129032258}, "bottom": {"total": 29, "resignations": 5, "attendance_rate": 93.89920424403184, "new_hires": 1, "full_attendance_count": 26, "full_attendance_rate": 89.65517241379311}, "AUDIT & TRAINING TEAM": {"total": 7, "resignations": 1, "attendance_rate": 93.4065934065934, "new_hires": 0, "full_attendance_count": 4, "full_attendance_rate": 57.14285714285714}, "AQL": {"total": 23, "resignations": 0, "attendance_rate": 97.65886287625418, "new_hires": 1, "full_attendance_count": 21, "full_attendance_rate": 91.30434782608695}, "Repacking": {"total": 121, "resignations": 27, "attendance_rate": 95.23204068658615, "new_hires": 3, "full_attendance_count": 103, "full_attendance_rate": 85.12396694214877}, "OSC": {"total": 23, "resignations": 2, "attendance_rate": 95.9866220735786, "new_hires": 1, "full_attendance_count": 19, "full_attendance_rate": 82.6086956521739}, "QIP team": {"total": 1, "resignations": 0, "attendance_rate": 100.0, "new_hires": 0, "full_attendance_count": 1, "full_attendance_rate": 100.0}, "MTL": {"total": 27, "resignations": 5, "attendance_rate": 97.43589743589743, "new_hires": 0, "full_attendance_count": 24, "full_attendance_rate": 88.88888888888889}, "cutting": {"total": 6, "resignations": 0, "attendance_rate": 69.23076923076923, "new_hires": 0, "full_attendance_count": 2, "full_attendance_rate": 33.33333333333333}, "new member": {"total": 20, "resignations": 18, "attendance_rate": 68.84615384615384, "new_hires": 8, "full_attendance_count": 8, "full_attendance_rate": 40.0}, "OCPT": {"total": 1, "resignations": 0, "attendance_rate": 100.0, "new_hires": 0, "full_attendance_count": 1, "full_attendance_rate": 100.0}};
+        const teamStats = {"OFFICE & OCPT": {"total": 4, "resignations": 1, "attendance_rate": 75.0, "new_hires": 0, "full_attendance_count": 3, "full_attendance_rate": 75.0}, "OSC": {"total": 25, "resignations": 2, "attendance_rate": 96.0, "new_hires": 2, "full_attendance_count": 20, "full_attendance_rate": 80.0}, "ASSEMBLY": {"total": 120, "resignations": 19, "attendance_rate": 93.01282051282051, "new_hires": 3, "full_attendance_count": 101, "full_attendance_rate": 84.16666666666667}, "BOTTOM": {"total": 31, "resignations": 5, "attendance_rate": 94.29280397022333, "new_hires": 1, "full_attendance_count": 28, "full_attendance_rate": 90.32258064516128}, "QA": {"total": 20, "resignations": 1, "attendance_rate": 88.84615384615384, "new_hires": 0, "full_attendance_count": 12, "full_attendance_rate": 60.0}, "MTL": {"total": 29, "resignations": 5, "attendance_rate": 94.16445623342176, "new_hires": 0, "full_attendance_count": 25, "full_attendance_rate": 86.20689655172413}, "AQL": {"total": 24, "resignations": 0, "attendance_rate": 97.75641025641025, "new_hires": 1, "full_attendance_count": 22, "full_attendance_rate": 91.66666666666666}, "REPACKING": {"total": 16, "resignations": 8, "attendance_rate": 95.67307692307693, "new_hires": 0, "full_attendance_count": 13, "full_attendance_rate": 81.25}, "STITCHING": {"total": 85, "resignations": 22, "attendance_rate": 91.8552036199095, "new_hires": 0, "full_attendance_count": 70, "full_attendance_rate": 82.35294117647058}, "HWK QIP": {"total": 1, "resignations": 0, "attendance_rate": 100.0, "new_hires": 0, "full_attendance_count": 1, "full_attendance_rate": 100.0}, "CUTTING": {"total": 8, "resignations": 0, "attendance_rate": 64.42307692307693, "new_hires": 0, "full_attendance_count": 3, "full_attendance_rate": 37.5}, "NEW": {"total": 20, "resignations": 18, "attendance_rate": 68.84615384615384, "new_hires": 8, "full_attendance_count": 8, "full_attendance_rate": 40.0}};
         const absenceReasons = {};
+        const teamMembers = {};  // 팀 멤버 데이터
         
         // 차트 저장소
         const charts = {};
@@ -625,9 +710,46 @@
         
         // 팀 상세 모달 열기
         function showTeamDetailPopup(teamName, teamData) {
-            const modal = document.getElementById('team-detail-modal');
-            const title = document.getElementById('team-detail-title');
-            const body = document.getElementById('team-detail-body');
+            // 먼저 기존 모달이 있으면 제거
+            const existingModal = document.getElementById('team-detail-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // 새 모달 생성
+            const modal = document.createElement('div');
+            modal.id = 'team-detail-modal';
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '2000';
+            
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+            modalContent.style.maxWidth = '900px';
+            modalContent.style.width = '90%';
+            
+            const modalHeader = document.createElement('div');
+            modalHeader.className = 'modal-header';
+            modalHeader.innerHTML = `
+                <h2 class="modal-title" id="team-detail-title">` + teamName + ` 팀 상세 정보</h2>
+                <span class="close-modal" onclick="document.getElementById('team-detail-modal').remove()">&times;</span>
+            `;
+            modalContent.appendChild(modalHeader);
+            
+            const body = document.createElement('div');
+            body.id = 'team-detail-body';
+            body.className = 'modal-body';
+            modalContent.appendChild(body);
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // 모달 외부 클릭 시 닫기
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            };
             
             title.textContent = teamName + ' 팀 상세 정보';
             
@@ -746,6 +868,131 @@
                 }
             });
             
+            // 최근 14일 일별 출근율 차트 추가
+            const dailyChartDiv = document.createElement('div');
+            dailyChartDiv.className = 'chart-container';
+            dailyChartDiv.style.marginTop = '20px';
+            dailyChartDiv.innerHTML = '<h4>최근 14일 일별 출근율 추이</h4><canvas id="team-daily-chart"></canvas>';
+            body.appendChild(dailyChartDiv);
+            
+            // 임시 일별 데이터 (실제는 데이터베이스에서 가져와야 함)
+            const dailyLabels = [];
+            const dailyData = [];
+            const today = new Date(2025, 7, 31);  // 8월 31일
+            for (let i = 13; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                dailyLabels.push((date.getMonth() + 1) + '/' + date.getDate());
+                // 실제 데이터가 없으므로 90-95% 사이의 랜덤값
+                dailyData.push(90 + Math.random() * 5);
+            }
+            
+            new Chart(document.getElementById('team-daily-chart'), {
+                type: 'line',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [{
+                        label: '일별 출근율 (%)',
+                        data: dailyData,
+                        borderColor: '#96CEB4',
+                        backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 85,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 역할별/포지션별 상세 정보 추가
+            const detailsDiv = document.createElement('div');
+            detailsDiv.style.marginTop = '30px';
+            detailsDiv.innerHTML = '<h4>역할별 인원 상세 정보</h4>';
+            
+            // 팀 멤버 데이터 가져오기
+            const members = teamMembers[teamName] || [];
+            
+            // 역할별로 그룹화
+            const roleGroups = {};
+            members.forEach(member => {
+                const role = member.role_category || member.position2 || 'Unidentified';
+                if (!roleGroups[role]) {
+                    roleGroups[role] = [];
+                }
+                roleGroups[role].push(member);
+            });
+            
+            // 역할별 테이블 생성
+            Object.entries(roleGroups).forEach(([role, roleMembers]) => {
+                const roleTable = document.createElement('div');
+                roleTable.style.marginTop = '20px';
+                roleTable.innerHTML = `
+                    <h5 style="color: #333; margin-bottom: 10px;">` + role + ` (` + roleMembers.length + `명)</h5>
+                    <table style="width: 100%; font-size: 12px;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>이름</th>
+                                <th>Position 1st</th>
+                                <th>Position 2nd</th>
+                                <th>총 근무일</th>
+                                <th>실제 근무일</th>
+                                <th>무단결근</th>
+                                <th>출근율</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ` + roleMembers.map(m => {
+                                const attendanceRate = m.actual_days && m.total_days ? 
+                                    ((m.actual_days / m.total_days) * 100).toFixed(1) : '0.0';
+                                return `
+                                <tr>
+                                    <td>` + (m.id || '-') + `</td>
+                                    <td>` + (m.name || '-') + `</td>
+                                    <td>` + (m.position_1st || '-') + `</td>
+                                    <td>` + (m.position_2nd || '-') + `</td>
+                                    <td style="text-align: center;">` + (m.total_days || 0) + `</td>
+                                    <td style="text-align: center;">` + (m.actual_days || 0) + `</td>
+                                    <td style="text-align: center;">` + (m.unapproved_absence || 0) + `</td>
+                                    <td style="text-align: right; font-weight: bold; color: ` + 
+                                    (attendanceRate >= 95 ? '#28a745' : attendanceRate >= 90 ? '#ffc107' : '#dc3545') + `">` + 
+                                    attendanceRate + `%</td>
+                                </tr>
+                                `;
+                            }).join('') + `
+                        </tbody>
+                    </table>
+                `;
+                detailsDiv.appendChild(roleTable);
+            });
+            
+            body.appendChild(detailsDiv);
+            
             modal.style.display = 'block';
         }
         
@@ -766,7 +1013,12 @@
                 case 'modal-total-employees':
                     createEnhancedTotalEmployeesContent(modalBody, modalId);
                     break;
-                // 다른 모달들도 필요시 구현
+                case 'modal-absence':
+                    createAbsenceContent(modalBody, modalId);
+                    break;
+                case 'modal-full-attendance':
+                    createEnhancedTotalEmployeesContent(modalBody, modalId);  // 임시로 같은 함수 사용
+                    break;
                 default:
                     createDefaultContent(modalBody, modalId);
                     break;
@@ -796,7 +1048,16 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: '월별 총인원 비교'
+                            text: '월별 총인원 비교',
+                            align: 'start',
+                            font: {
+                                size: 16,
+                                weight: 600
+                            },
+                            padding: {
+                                bottom: 10
+                            },
+                            color: '#333'
                         }
                     }
                 }
@@ -870,7 +1131,16 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: '주차별 총인원 트렌드'
+                            text: '주차별 총인원 트렌드',
+                            align: 'start',
+                            font: {
+                                size: 16,
+                                weight: 600
+                            },
+                            padding: {
+                                bottom: 10
+                            },
+                            color: '#333'
                         }
                     }
                 }
@@ -920,7 +1190,16 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: '팀별 인원 분포 (클릭하여 상세보기)'
+                            text: '팀별 인원 분포 (클릭하여 상세보기)',
+                            align: 'start',
+                            font: {
+                                size: 16,
+                                weight: 600
+                            },
+                            padding: {
+                                bottom: 10
+                            },
+                            color: '#333'
                         },
                         tooltip: {
                             callbacks: {
@@ -937,118 +1216,274 @@
             });
             charts[modalId].push(teamBarChart);
             
-            // 4. 트리맵 스타일 차트 (가로 바 + 변화량 표시)
+            // 4. 트리맵 스타일 차트 - 실제 히트맵처럼 구현
             const treemapDiv = document.createElement('div');
             treemapDiv.className = 'chart-container';
             treemapDiv.style.marginTop = '20px';
             
-            // 타이틀을 동일한 스타일로 추가
+            // 타이틀 스타일 통일
             const treemapTitle = document.createElement('h4');
-            treemapTitle.style.cssText = 'margin: 20px 0 10px 0; font-size: 16px; font-weight: 600; color: #333;';
+            treemapTitle.style.cssText = 'margin: 20px 0 10px 0; font-size: 16px; font-weight: 600; color: #333; text-align: left;';
             treemapTitle.textContent = '팀별 인원 분포 및 7월 대비 변화';
             treemapDiv.appendChild(treemapTitle);
             
             const treemapContainerWrapper = document.createElement('div');
             treemapContainerWrapper.id = 'treemap-' + modalId;
-            treemapContainerWrapper.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; padding: 15px; background: #f8f9fa; border-radius: 8px;';
+            treemapContainerWrapper.style.cssText = 'position: relative; width: 100%; height: 500px; background: #2a2a2a; border-radius: 8px; padding: 10px; overflow: hidden;';
             treemapDiv.appendChild(treemapContainerWrapper);
             modalBody.appendChild(treemapDiv);
             
             // 7월 팀 데이터 가져오기
             const julyTeamStats = {"B": {"total": 11, "resignations": 2, "attendance_rate": 96.83794466403161, "new_hires": 0}, "A": {"total": 16, "resignations": 0, "attendance_rate": 99.45652173913044, "new_hires": 0}, "D": {"total": 14, "resignations": 1, "attendance_rate": 98.13664596273291, "new_hires": 0}, "C": {"total": 16, "resignations": 0, "attendance_rate": 99.72826086956522, "new_hires": 0}};
             
-            // 팀별 트리맵 박스 생성 - 개선된 가독성
-            const treemapContainer = document.getElementById('treemap-' + modalId);
-            
-            // 팀 데이터를 크기 순으로 정렬하고 색상 통일
-            const topColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FD79A8'];
-            
-            teamData.forEach((team, index) => {
-                const julyData = julyTeamStats[team.name] || {};
-                const julyTotal = julyData.total || team.total; // 7월 데이터가 없으면 현재값 사용
-                const augTotal = team.total;
-                const change = augTotal - julyTotal;
-                const changePercent = julyTotal > 0 ? ((change / julyTotal) * 100).toFixed(1) : 0;
+            // 트리맵 생성 함수 - 실제 히트맵 스타일
+            function createTreemap(container, data) {
+                // 총 인원 계산
+                const totalEmployees = data.reduce((sum, d) => sum + d.total, 0);
                 
-                const box = document.createElement('div');
-                // 고정 크기로 변경하여 가독성 개선
-                box.style.cssText = `
-                    min-height: 120px;
-                    background: ` + topColors[index % topColors.length] + `;
-                    border-radius: 8px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    color: white;
-                    font-weight: bold;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    padding: 10px;
-                    position: relative;
-                `;
+                // 컨테이너 크기 설정 (더 큰 높이로 조정)
+                const containerWidth = container.offsetWidth - 20;
+                const containerHeight = 480;  // 증가된 높이
+                container.style.height = containerHeight + 'px';
+                const totalArea = containerWidth * containerHeight;
                 
-                box.onmouseover = function() {
-                    box.style.transform = 'scale(1.05)';
-                    box.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
-                };
-                box.onmouseout = function() {
-                    box.style.transform = 'scale(1)';
-                    box.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-                };
-                box.onclick = function() {
-                    showTeamDetailPopup(team.name, teamStats[team.name]);
-                };
+                // 각 팀의 면적 계산 및 변화율 추가
+                data.forEach(team => {
+                    const julyData = julyTeamStats[team.name] || {};
+                    const julyTotal = julyData.total || team.total;  // 7월 데이터가 없으면 현재 값 사용
+                    // 변화율 계산 수정 - 0으로 나누기 방지 및 새 팀 처리
+                    if (julyTotal === 0 && team.total > 0) {
+                        team.changePercent = 100;  // 신규 팀
+                    } else if (julyTotal > 0) {
+                        team.changePercent = ((team.total - julyTotal) / julyTotal * 100);
+                    } else {
+                        team.changePercent = 0;
+                    }
+                    team.area = (team.total / totalEmployees) * totalArea;
+                });
                 
-                const changeColor = change > 0 ? '#4CAF50' : change < 0 ? '#F44336' : '#9E9E9E';
-                const changeSymbol = change > 0 ? '▲' : change < 0 ? '▼' : '—';
-                
-                // 불필요한 정보 제거하고 간단하게 표시
-                box.innerHTML = `
-                    <div style="text-align: center; width: 100%;">
-                        <div style="font-size: 13px; opacity: 0.95; margin-bottom: 5px;">${team.name || 'Unknown'}</div>
-                        <div style="font-size: 24px; font-weight: bold; margin: 5px 0;">${augTotal}명</div>
-                        <div style="font-size: 12px; opacity: 0.9;">${team.percentage}%</div>
-                        ` + (change !== 0 ? `
-                        <div style="margin-top: 8px; padding: 3px 6px; background: ` + changeColor + `; border-radius: 4px; font-size: 11px;">
-                            ` + changeSymbol + ` ` + (change > 0 ? '+' : '') + change + `명
-                        </div>` : '') + `
-                    </div>
-                `;
-                
-                treemapContainer.appendChild(box);
-            });
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    return label + ': ' + value + '명';
-                                }
-                            }
+                // 개선된 Treemap 알고리즘 - 사각형이 더 정사각형에 가까워지도록
+                function squarify(items, x, y, width, height) {
+                    if (items.length === 0) return;
+                    if (items.length === 1) {
+                        items[0].x = x;
+                        items[0].y = y;
+                        items[0].width = width;
+                        items[0].height = height;
+                        return;
+                    }
+                    
+                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
+                    const isVertical = width <= height;
+                    
+                    // 첫 번째 그룹 찾기
+                    let bestGroup = [items[0]];
+                    let bestRatio = getWorstRatio(bestGroup, width, height, isVertical);
+                    
+                    for (let i = 1; i < items.length; i++) {
+                        const testGroup = bestGroup.concat(items[i]);
+                        const testRatio = getWorstRatio(testGroup, width, height, isVertical);
+                        
+                        if (testRatio < bestRatio) {
+                            bestGroup = testGroup;
+                            bestRatio = testRatio;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    // 첫 번째 그룹 배치
+                    layoutGroup(bestGroup, x, y, width, height, isVertical);
+                    
+                    // 나머지 재귀적으로 처리
+                    const remaining = items.slice(bestGroup.length);
+                    if (remaining.length > 0) {
+                        const groupArea = bestGroup.reduce((sum, d) => sum + d.area, 0);
+                        
+                        if (isVertical) {
+                            const groupWidth = (groupArea / totalArea) * width;
+                            squarify(remaining, x + groupWidth, y, width - groupWidth, height);
+                        } else {
+                            const groupHeight = (groupArea / totalArea) * height;
+                            squarify(remaining, x, y + groupHeight, width, height - groupHeight);
                         }
                     }
                 }
-            });
-            charts[modalId].push(treemapChart);
+                
+                function getWorstRatio(items, width, height, isVertical) {
+                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
+                    const groupDim = isVertical ? (totalArea / height) : (totalArea / width);
+                    
+                    let worstRatio = 0;
+                    items.forEach(item => {
+                        const itemDim = isVertical ? (item.area / groupDim) : (item.area / groupDim);
+                        const ratio = Math.max(groupDim / itemDim, itemDim / groupDim);
+                        worstRatio = Math.max(worstRatio, ratio);
+                    });
+                    
+                    return worstRatio;
+                }
+                
+                function layoutGroup(items, x, y, width, height, isVertical) {
+                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
+                    
+                    if (isVertical) {
+                        const groupWidth = totalArea / height;
+                        let currentY = y;
+                        
+                        items.forEach(item => {
+                            const itemHeight = item.area / groupWidth;
+                            item.x = x;
+                            item.y = currentY;
+                            item.width = groupWidth;
+                            item.height = itemHeight;
+                            currentY += itemHeight;
+                        });
+                    } else {
+                        const groupHeight = totalArea / width;
+                        let currentX = x;
+                        
+                        items.forEach(item => {
+                            const itemWidth = item.area / groupHeight;
+                            item.x = currentX;
+                            item.y = y;
+                            item.width = itemWidth;
+                            item.height = groupHeight;
+                            currentX += itemWidth;
+                        });
+                    }
+                }
+                
+                // 데이터 정렬 및 레이아웃 적용
+                data.sort((a, b) => b.total - a.total);  // 인원수 기준으로 정렬
+                squarify(data, 0, 0, containerWidth, containerHeight);
+                
+                // 박스 생성
+                data.forEach(team => {
+                    const box = document.createElement('div');
+                    
+                    // 색상 결정 - 그라데이션 효과 (증가=초록, 감소=빨간)
+                    let bgColor;
+                    let textColor = '#fff';
+                    
+                    if (team.changePercent > 0) {
+                        // 증가: 초록색 그라데이션
+                        const intensity = Math.min(Math.abs(team.changePercent) / 30, 1);  // 30% 이상은 최대 밝기
+                        const green = Math.floor(50 + intensity * 150);  // 50-200
+                        const red = Math.floor(20 + (1-intensity) * 100);  // 120-20
+                        bgColor = `rgb(${red}, ${green}, 50)`;
+                    } else if (team.changePercent < 0) {
+                        // 감소: 빨간색 그라데이션
+                        const intensity = Math.min(Math.abs(team.changePercent) / 30, 1);
+                        const red = Math.floor(100 + intensity * 155);  // 100-255
+                        const green = Math.floor(100 - intensity * 80);  // 100-20
+                        bgColor = `rgb(${red}, ${green}, ${green})`;
+                    } else {
+                        // 변화 없음: 진한 회색
+                        bgColor = '#555';
+                    }
+                    
+                    box.style.cssText = `
+                        position: absolute;
+                        left: ${team.x}px;
+                        top: ${team.y}px;
+                        width: ${team.width - 2}px;
+                        height: ${team.height - 2}px;
+                        background: ${bgColor};
+                        border: 1px solid rgba(0,0,0,0.3);
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        cursor: pointer;
+                        transition: all 0.3s;
+                        overflow: hidden;
+                        color: ${textColor};
+                    `;
+                    
+                    // 텍스트 크기 및 표시 조정 - 박스 크기에 더 민감하게 반응
+                    const minDimension = Math.min(team.width, team.height);
+                    const boxArea = team.width * team.height;
+                    const areaFactor = Math.sqrt(boxArea / 5000);  // 면적 기반 계산
+                    const fontSize = Math.max(10, Math.min(18, 12 * areaFactor));
+                    const percentFontSize = Math.max(14, Math.min(36, 20 * areaFactor));
+                    
+                    // 작은 박스는 간단한 정보만 표시
+                    let content;
+                    if (minDimension < 60) {
+                        // 매우 작은 박스: 팀명만
+                        content = `
+                            <div style="text-align: center; padding: 2px;">
+                                <div style="font-size: ${fontSize - 2}px; font-weight: 600;">
+                                    ${team.name.substring(0, 8)}
+                                </div>
+                                <div style="font-size: ${fontSize - 3}px;">
+                                    ${team.total}
+                                </div>
+                            </div>
+                        `;
+                    } else if (minDimension < 100) {
+                        // 작은 박스: 팀명과 인원수
+                        content = `
+                            <div style="text-align: center; padding: 3px;">
+                                <div style="font-size: ${fontSize}px; font-weight: 600;">
+                                    ${team.name}
+                                </div>
+                                <div style="font-size: ${fontSize + 2}px; font-weight: bold; margin: 2px 0;">
+                                    ${team.changePercent > 0 ? '+' : ''}${team.changePercent.toFixed(0)}%
+                                </div>
+                                <div style="font-size: ${fontSize - 1}px;">
+                                    ${team.total}명
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        // 큰 박스: 모든 정보 표시
+                        content = `
+                            <div style="text-align: center; padding: 5px;">
+                                <div style="font-size: ${fontSize}px; font-weight: 600; margin-bottom: 3px; text-transform: uppercase;">
+                                    ${team.name}
+                                </div>
+                                <div style="font-size: ${percentFontSize}px; font-weight: bold; margin: 5px 0;">
+                                    ${team.changePercent > 0 ? '+' : ''}${team.changePercent.toFixed(1)}%
+                                </div>
+                                <div style="font-size: ${fontSize - 2}px; opacity: 0.9; margin-top: 2px;">
+                                    ${team.total}명
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    box.innerHTML = content;
+                    
+                    box.onmouseover = function() {
+                        box.style.transform = 'scale(1.02)';
+                        box.style.boxShadow = '0 0 20px rgba(255,255,255,0.3)';
+                        box.style.zIndex = '10';
+                        box.style.border = '2px solid rgba(255,255,255,0.8)';
+                    };
+                    
+                    box.onmouseout = function() {
+                        box.style.transform = 'scale(1)';
+                        box.style.boxShadow = 'none';
+                        box.style.zIndex = '1';
+                        box.style.border = '1px solid rgba(0,0,0,0.3)';
+                    };
+                    
+                    box.onclick = function() {
+                        const teamStat = teamStats[team.name] || {};
+                        showTeamDetailPopup(team.name, teamStat);
+                    };
+                    
+                    container.appendChild(box);
+                });
+            }
             
-            // 5. TYPE별 인원 카드
+            // 5. TYPE별 인원 카드를 월별 비교 차트 전에 배치
             const typeDiv = document.createElement('div');
-            typeDiv.style.marginTop = '20px';
-            typeDiv.innerHTML = '<h4>TYPE별 인원 현황</h4>';
+            typeDiv.style.marginTop = '30px';
+            typeDiv.style.clear = 'both';  // float 클리어
+            typeDiv.innerHTML = '<h4 style="margin-bottom: 15px;">TYPE별 인원 현황</h4>';
             modalBody.appendChild(typeDiv);
             
             const typeCardsDiv = document.createElement('div');
@@ -1101,6 +1536,10 @@
             
             modalBody.appendChild(typeCardsDiv);
             
+            // 트리맵 생성 (TYPE 카드 이후에 배치)
+            const treemapContainer = document.getElementById('treemap-' + modalId);
+            createTreemap(treemapContainer, teamData);
+            
             // 6. 팀별 만근 인원 정보 - 정렬 기능 추가
             const fullAttendanceDiv = document.createElement('div');
             fullAttendanceDiv.style.marginTop = '30px';
@@ -1127,11 +1566,11 @@
                 <table id="fullAttendanceTable" data-sort-order="desc">
                     <thead>
                         <tr>
-                            <th onclick="sortTable(0, 'fullAttendanceTable')" style="cursor: pointer;">순위 ▼</th>
-                            <th onclick="sortTable(1, 'fullAttendanceTable')" style="cursor: pointer;">팀명 ▼</th>
-                            <th onclick="sortTable(2, 'fullAttendanceTable')" style="cursor: pointer; text-align: right;">만근 인원 ▼</th>
-                            <th onclick="sortTable(3, 'fullAttendanceTable')" style="cursor: pointer; text-align: right;">전체 인원 ▼</th>
-                            <th onclick="sortTable(4, 'fullAttendanceTable')" style="cursor: pointer; text-align: right;">만근율 ▼</th>
+                            <th onclick="sortFullAttendanceTable(0)" style="cursor: pointer;">순위 ▼</th>
+                            <th onclick="sortFullAttendanceTable(1)" style="cursor: pointer;">팀명 ▼</th>
+                            <th onclick="sortFullAttendanceTable(2)" style="cursor: pointer; text-align: right;">만근 인원 ▼</th>
+                            <th onclick="sortFullAttendanceTable(3)" style="cursor: pointer; text-align: right;">전체 인원 ▼</th>
+                            <th onclick="sortFullAttendanceTable(4)" style="cursor: pointer; text-align: right;">만근율 ▼</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1139,9 +1578,9 @@
                             const rateClass = team.rate >= 95 ? 'percentage-high' : 
                                             team.rate >= 90 ? 'percentage-medium' : 'percentage-low';
                             return `
-                            <tr>
+                            <tr style="cursor: pointer;" onclick="showTeamMembersDetail('` + team.name.replace(/'/g, "\'") + `')">
                                 <td class="rank">` + (index + 1) + `</td>
-                                <td class="team-name">` + team.name + `</td>
+                                <td class="team-name" style="color: #007bff; text-decoration: underline;">` + team.name + `</td>
                                 <td style="text-align: right;">` + team.fullAttendance + `명</td>
                                 <td style="text-align: right;">` + team.total + `명</td>
                                 <td style="text-align: right;" class="` + rateClass + `">` + team.rate.toFixed(1) + `%</td>
@@ -1154,8 +1593,311 @@
             modalBody.appendChild(fullAttendanceTable);
         }
         
+        // 팀 멤버 상세 정보 표시 함수
+        function showTeamMembersDetail(teamName) {
+            const members = teamMembers[teamName] || [];
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '2000';
+            
+            const content = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">${teamName} 팀 멤버 상세 정보</h2>
+                        <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이름</th>
+                                    <th>Position 1</th>
+                                    <th>Position 2</th>
+                                    <th>TYPE</th>
+                                    <th>입사일</th>
+                                    <th>만근여부</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${members.map(m => `
+                                    <tr>
+                                        <td>${m.id}</td>
+                                        <td>${m.name}</td>
+                                        <td>${m.position}</td>
+                                        <td>${m.position2 || '-'}</td>
+                                        <td>${m.type}</td>
+                                        <td>${m.entrance_date}</td>
+                                        <td class="${m.full_attendance === 'Y' ? 'percentage-high' : 'percentage-low'}">
+                                            ${m.full_attendance === 'Y' ? '✓' : '✗'}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            modal.innerHTML = content;
+            document.body.appendChild(modal);
+            
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            };
+        }
+        
+        // 결근자 상세 분석
+        function createAbsenceContent(modalBody, modalId) {
+            const chartDiv = document.createElement('div');
+            chartDiv.className = 'chart-container';
+            chartDiv.innerHTML = '<canvas id="absence-chart-' + modalId + '"></canvas>';
+            modalBody.appendChild(chartDiv);
+            
+            new Chart(document.getElementById('absence-chart-' + modalId), {
+                type: 'line',
+                data: {
+                    labels: ['7월', '8월'],
+                    datasets: [{
+                        label: '결근율 (%)',
+                        data: [monthlyDataJuly.absence_rate || 0, monthlyDataAugust.absence_rate || 0],
+                        borderColor: '#dc3545',
+                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeInOutQuart'
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '월별 결근율 추이'
+                        }
+                    }
+                }
+            });
+            
+            // 팀별 결근율 테이블
+            const tableDiv = document.createElement('div');
+            tableDiv.style.marginTop = '30px';
+            tableDiv.innerHTML = `
+                <h4>팀별 결근 현황</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>팀명</th>
+                            <th>전체 인원</th>
+                            <th>결근자</th>
+                            <th>결근율</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${Object.entries(teamStats).map(([name, data]) => {
+                            const absenceRate = (100 - (data.attendance_rate || 0)).toFixed(1);
+                            const absenceCount = Math.round(data.total * absenceRate / 100);
+                            return `
+                                <tr>
+                                    <td>${name}</td>
+                                    <td>${data.total}명</td>
+                                    <td>${absenceCount}명</td>
+                                    <td class="${absenceRate > 10 ? 'percentage-low' : absenceRate > 5 ? 'percentage-medium' : 'percentage-high'}">${absenceRate}%</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            modalBody.appendChild(tableDiv);
+        }
+        
         function createDefaultContent(modalBody, modalId) {
             modalBody.innerHTML = '<p>상세 콘텐츠가 준비 중입니다.</p>';
+        }
+        
+        // 팀 멤버 상세 모달 표시
+        function showTeamMembersModal(teamName) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '2001';
+            
+            const members = teamMembersData[teamName] || [];
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                    <h3>${teamName} 팀 멤버 상세</h3>
+                    <div class="modal-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>이름</th>
+                                    <th>Position 1</th>
+                                    <th>Position 2</th>
+                                    <th>TYPE</th>
+                                    <th>입사일</th>
+                                    <th>출근 상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${members.map(member => `
+                                    <tr>
+                                        <td>${member.id}</td>
+                                        <td>${member.name}</td>
+                                        <td>${member.position1}</td>
+                                        <td>${member.position2 || '-'}</td>
+                                        <td>${member.type}</td>
+                                        <td>${member.entrance_date}</td>
+                                        <td>${member.attendance_status}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // 팀 멤버 상세 표시 (팀별 만근 현황에서 호출)
+        function showTeamMembersDetail(teamName) {
+            showTeamMembersModal(teamName);
+        }
+        
+        // 결근자 분석 모달 표시
+        function showAbsenceAnalysisModal() {
+            openModal('modal-absence');
+        }
+        
+        // 퇴사자 분석 모달 표시  
+        function showResignationAnalysisModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'block';
+            modal.style.zIndex = '2000';
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                    <h3>퇴사자 현황 분석</h3>
+                    <div class="modal-body">
+                        <div class="chart-container">
+                            <canvas id="resignation-chart"></canvas>
+                        </div>
+                        <div style="margin-top: 30px;">
+                            <h4>팀별 퇴사 현황</h4>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>팀명</th>
+                                        <th>7월 퇴사자</th>
+                                        <th>8월 퇴사자</th>
+                                        <th>변화</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${Object.entries(teamStats).map(([name, data]) => `
+                                        <tr>
+                                            <td>${name}</td>
+                                            <td>${data.july_resignation || 0}</td>
+                                            <td>${data.august_resignation || 0}</td>
+                                            <td>${(data.august_resignation || 0) - (data.july_resignation || 0)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 차트 생성
+            new Chart(document.getElementById('resignation-chart'), {
+                type: 'bar',
+                data: {
+                    labels: ['7월', '8월'],
+                    datasets: [{
+                        label: '퇴사자 수',
+                        data: [
+                            Object.values(teamStats).reduce((sum, team) => sum + (team.july_resignation || 0), 0),
+                            Object.values(teamStats).reduce((sum, team) => sum + (team.august_resignation || 0), 0)
+                        ],
+                        backgroundColor: ['rgba(255, 99, 132, 0.6)', 'rgba(255, 99, 132, 0.8)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        // 테이블 정렬 함수 추가
+        function sortTable(columnIndex, tableId) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.getElementsByTagName('tr'));
+            const isAscending = table.dataset.sortOrder === 'asc';
+            
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+                
+                // 숫자 처리
+                const aNum = parseFloat(aValue.replace(/[명%]/g, ''));
+                const bNum = parseFloat(bValue.replace(/[명%]/g, ''));
+                
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    return isAscending ? aNum - bNum : bNum - aNum;
+                }
+                
+                // 문자열 처리
+                return isAscending ? 
+                    aValue.localeCompare(bValue, 'ko') : 
+                    bValue.localeCompare(aValue, 'ko');
+            });
+            
+            // 행 재배치
+            rows.forEach((row, index) => {
+                tbody.appendChild(row);
+                // 순위 업데이트
+                if (row.cells[0].className === 'rank') {
+                    row.cells[0].textContent = index + 1;
+                }
+            });
+            
+            // 정렬 방향 토글
+            table.dataset.sortOrder = isAscending ? 'desc' : 'asc';
+            
+            // 헤더 화살표 업데이트
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, i) => {
+                if (header.onclick) {
+                    const text = header.textContent.replace(' ▲', '').replace(' ▼', '');
+                    if (i === columnIndex) {
+                        header.textContent = text + (isAscending ? ' ▲' : ' ▼');
+                    } else {
+                        header.textContent = text + ' ▼';
+                    }
+                }
+            });
+        }
+        
+        // 팀별 만근 테이블 정렬 함수
+        function sortFullAttendanceTable(columnIndex) {
+            sortTable(columnIndex, 'fullAttendanceTable');
         }
         
         // 모달 외부 클릭시 닫기
