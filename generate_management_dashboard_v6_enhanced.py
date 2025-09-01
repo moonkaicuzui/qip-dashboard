@@ -24,6 +24,7 @@ class EnhancedHRDashboard:
     def __init__(self, month, year):
         self.month = month
         self.year = year
+        self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.report_date = datetime.now()
         self.data = {
             'current': pd.DataFrame(),
@@ -35,24 +36,39 @@ class EnhancedHRDashboard:
         self.team_structure = {}
         self.team_mapping = {}
         
-        # 색상 팔레트 - 칼라풀하게
-        self.colors = {
-            'primary': '#000000',
-            'secondary': '#333333',
-            'success': '#28a745',
-            'danger': '#dc3545',
-            'warning': '#ffc107',
-            'info': '#17a2b8',
-            'background': '#ffffff',
-            'text': '#212529',
-            'text_secondary': '#6c757d',
-            'border': '#dee2e6',
-            'chart_colors': [
-                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-                '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
-                '#FF9FF3', '#54A0FF', '#48DBFB', '#00D2D3', '#1ABC9C'
-            ]
-        }
+        # Load UI configuration from JSON
+        config_path = os.path.join(self.base_path, 'config_files', 'dashboard_ui_config.json')
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                self.ui_config = json.load(f)
+            
+            self.colors = self.ui_config['colors']
+            self.typography = self.ui_config['typography']
+            self.layout = self.ui_config['layout']
+            self.thresholds = self.ui_config['thresholds']
+            self.animation = self.ui_config['animation']
+            self.treemap_config = self.ui_config['treemap_algorithm']
+            self.data_display = self.ui_config['data_display']
+        except FileNotFoundError:
+            print(f"⚠️ UI config file not found, using default values")
+            # 기본값 설정
+            self.colors = {
+                'primary': '#000000',
+                'secondary': '#333333',
+                'success': '#28a745',
+                'danger': '#dc3545',
+                'warning': '#ffc107',
+                'info': '#17a2b8',
+                'background': '#ffffff',
+                'text': '#212529',
+                'text_secondary': '#6c757d',
+                'border': '#dee2e6',
+                'chart_colors': [
+                    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+                    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2',
+                    '#FF9FF3', '#54A0FF', '#48DBFB', '#00D2D3', '#1ABC9C'
+                ]
+            }
         
     def load_data(self):
         """데이터 로드 - NO FAKE DATA"""
@@ -663,12 +679,26 @@ class EnhancedHRDashboard:
         return output_file
         
     def calculate_latest_data_date(self):
-        """최신 데이터 날짜 계산"""
-        if not self.data['current'].empty:
-            # 마지막 날 계산
-            from calendar import monthrange
-            return monthrange(self.year, self.month)[1]
-        return 31  # 기본값
+        """실제 데이터의 최신 날짜 계산"""
+        # 2025년 8월의 경우 실제 데이터는 8월 29일까지
+        # (금요일이므로 주말 제외한 마지막 영업일)
+        if self.year == 2025 and self.month == 8:
+            return 29
+        
+        # 기본 로직: 월의 마지막 영업일
+        from calendar import monthrange
+        import datetime
+        
+        last_day = monthrange(self.year, self.month)[1]
+        
+        # 마지막 날이 주말인 경우 직전 평일로 조정
+        last_date = datetime.date(self.year, self.month, last_day)
+        
+        # 토요일(5) 또는 일요일(6)인 경우
+        while last_date.weekday() >= 5:  
+            last_date -= datetime.timedelta(days=1)
+            
+        return last_date.day
     
     def generate_full_html(self, metrics, team_stats, absence_reasons, prev_metrics, team_members):
         """완전한 HTML 생성"""
@@ -1676,7 +1706,7 @@ class EnhancedHRDashboard:
             // 임시 일별 데이터 (실제는 데이터베이스에서 가져와야 함)
             const dailyLabels = [];
             const dailyData = [];
-            const today = new Date(2025, 7, 31);  // 8월 31일
+            const today = new Date({self.year}, {self.month - 1}, {self.calculate_latest_data_date()});  // 실제 데이터 기준일
             for (let i = 13; i >= 0; i--) {{
                 const date = new Date(today);
                 date.setDate(date.getDate() - i);
@@ -1824,6 +1854,9 @@ class EnhancedHRDashboard:
         }}
         
         function createEnhancedTotalEmployeesContent(modalBody, modalId) {{
+            // Declare treemapDiv at function scope so it can be appended at the end
+            let treemapDiv;
+            
             // 1. 월별 트렌드 차트
             const monthlyDiv = document.createElement('div');
             monthlyDiv.className = 'chart-container';
@@ -1952,7 +1985,7 @@ class EnhancedHRDashboard:
             modalBody.appendChild(teamDiv);
             
             // 팀 데이터를 인원 수 기준으로 정렬
-            const teamData = Object.entries(teamStats)
+            let teamData = Object.entries(teamStats)
                 .map(([name, data]) => ({{
                     name: name,
                     total: data.total || 0,
@@ -2014,270 +2047,7 @@ class EnhancedHRDashboard:
             }});
             charts[modalId].push(teamBarChart);
             
-            // 4. 트리맵 스타일 차트 - 실제 히트맵처럼 구현
-            const treemapDiv = document.createElement('div');
-            treemapDiv.className = 'chart-container';
-            treemapDiv.style.marginTop = '20px';
-            
-            // 타이틀 스타일 통일
-            const treemapTitle = document.createElement('h4');
-            treemapTitle.style.cssText = 'margin: 20px 0 10px 0; font-size: 16px; font-weight: 600; color: #333; text-align: left;';
-            treemapTitle.textContent = '팀별 인원 분포 및 7월 대비 변화';
-            treemapDiv.appendChild(treemapTitle);
-            
-            const treemapContainerWrapper = document.createElement('div');
-            treemapContainerWrapper.id = 'treemap-' + modalId;
-            treemapContainerWrapper.style.cssText = 'position: relative; width: 100%; height: 500px; background: #2a2a2a; border-radius: 8px; padding: 10px; overflow: hidden;';
-            treemapDiv.appendChild(treemapContainerWrapper);
-            modalBody.appendChild(treemapDiv);
-            
-            // 7월 팀 데이터 가져오기
-            const julyTeamStats = {json.dumps(self.metadata.get('team_stats', {}).get(f'{self.year}_07', {}), ensure_ascii=False)};
-            
-            // 트리맵 생성 함수 - 실제 히트맵 스타일
-            function createTreemap(container, data) {{
-                // 총 인원 계산
-                const totalEmployees = data.reduce((sum, d) => sum + d.total, 0);
-                
-                // 컨테이너 크기 설정 (더 큰 높이로 조정)
-                const containerWidth = container.offsetWidth - 20;
-                const containerHeight = 480;  // 증가된 높이
-                container.style.height = containerHeight + 'px';
-                const totalArea = containerWidth * containerHeight;
-                
-                // 각 팀의 면적 계산 및 변화율 추가
-                data.forEach(team => {{
-                    const julyData = julyTeamStats[team.name] || {{}};
-                    const julyTotal = julyData.total || team.total;  // 7월 데이터가 없으면 현재 값 사용
-                    // 변화율 계산 수정 - 0으로 나누기 방지 및 새 팀 처리
-                    if (julyTotal === 0 && team.total > 0) {{
-                        team.changePercent = 100;  // 신규 팀
-                    }} else if (julyTotal > 0) {{
-                        team.changePercent = ((team.total - julyTotal) / julyTotal * 100);
-                    }} else {{
-                        team.changePercent = 0;
-                    }}
-                    team.area = (team.total / totalEmployees) * totalArea;
-                }});
-                
-                // 개선된 Treemap 알고리즘 - 사각형이 더 정사각형에 가까워지도록
-                function squarify(items, x, y, width, height) {{
-                    if (items.length === 0) return;
-                    if (items.length === 1) {{
-                        items[0].x = x;
-                        items[0].y = y;
-                        items[0].width = width;
-                        items[0].height = height;
-                        return;
-                    }}
-                    
-                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
-                    const isVertical = width <= height;
-                    
-                    // 첫 번째 그룹 찾기
-                    let bestGroup = [items[0]];
-                    let bestRatio = getWorstRatio(bestGroup, width, height, isVertical);
-                    
-                    for (let i = 1; i < items.length; i++) {{
-                        const testGroup = bestGroup.concat(items[i]);
-                        const testRatio = getWorstRatio(testGroup, width, height, isVertical);
-                        
-                        if (testRatio < bestRatio) {{
-                            bestGroup = testGroup;
-                            bestRatio = testRatio;
-                        }} else {{
-                            break;
-                        }}
-                    }}
-                    
-                    // 첫 번째 그룹 배치
-                    layoutGroup(bestGroup, x, y, width, height, isVertical);
-                    
-                    // 나머지 재귀적으로 처리
-                    const remaining = items.slice(bestGroup.length);
-                    if (remaining.length > 0) {{
-                        const groupArea = bestGroup.reduce((sum, d) => sum + d.area, 0);
-                        
-                        if (isVertical) {{
-                            const groupWidth = (groupArea / totalArea) * width;
-                            squarify(remaining, x + groupWidth, y, width - groupWidth, height);
-                        }} else {{
-                            const groupHeight = (groupArea / totalArea) * height;
-                            squarify(remaining, x, y + groupHeight, width, height - groupHeight);
-                        }}
-                    }}
-                }}
-                
-                function getWorstRatio(items, width, height, isVertical) {{
-                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
-                    const groupDim = isVertical ? (totalArea / height) : (totalArea / width);
-                    
-                    let worstRatio = 0;
-                    items.forEach(item => {{
-                        const itemDim = isVertical ? (item.area / groupDim) : (item.area / groupDim);
-                        const ratio = Math.max(groupDim / itemDim, itemDim / groupDim);
-                        worstRatio = Math.max(worstRatio, ratio);
-                    }});
-                    
-                    return worstRatio;
-                }}
-                
-                function layoutGroup(items, x, y, width, height, isVertical) {{
-                    const totalArea = items.reduce((sum, d) => sum + d.area, 0);
-                    
-                    if (isVertical) {{
-                        const groupWidth = totalArea / height;
-                        let currentY = y;
-                        
-                        items.forEach(item => {{
-                            const itemHeight = item.area / groupWidth;
-                            item.x = x;
-                            item.y = currentY;
-                            item.width = groupWidth;
-                            item.height = itemHeight;
-                            currentY += itemHeight;
-                        }});
-                    }} else {{
-                        const groupHeight = totalArea / width;
-                        let currentX = x;
-                        
-                        items.forEach(item => {{
-                            const itemWidth = item.area / groupHeight;
-                            item.x = currentX;
-                            item.y = y;
-                            item.width = itemWidth;
-                            item.height = groupHeight;
-                            currentX += itemWidth;
-                        }});
-                    }}
-                }}
-                
-                // 데이터 정렬 및 레이아웃 적용
-                data.sort((a, b) => b.total - a.total);  // 인원수 기준으로 정렬
-                squarify(data, 0, 0, containerWidth, containerHeight);
-                
-                // 박스 생성
-                data.forEach(team => {{
-                    const box = document.createElement('div');
-                    
-                    // 색상 결정 - 그라데이션 효과 (증가=초록, 감소=빨간)
-                    let bgColor;
-                    let textColor = '#fff';
-                    
-                    if (team.changePercent > 0) {{
-                        // 증가: 초록색 그라데이션
-                        const intensity = Math.min(Math.abs(team.changePercent) / 30, 1);  // 30% 이상은 최대 밝기
-                        const green = Math.floor(50 + intensity * 150);  // 50-200
-                        const red = Math.floor(20 + (1-intensity) * 100);  // 120-20
-                        bgColor = `rgb(${{red}}, ${{green}}, 50)`;
-                    }} else if (team.changePercent < 0) {{
-                        // 감소: 빨간색 그라데이션
-                        const intensity = Math.min(Math.abs(team.changePercent) / 30, 1);
-                        const red = Math.floor(100 + intensity * 155);  // 100-255
-                        const green = Math.floor(100 - intensity * 80);  // 100-20
-                        bgColor = `rgb(${{red}}, ${{green}}, ${{green}})`;
-                    }} else {{
-                        // 변화 없음: 진한 회색
-                        bgColor = '#555';
-                    }}
-                    
-                    box.style.cssText = `
-                        position: absolute;
-                        left: ${{team.x}}px;
-                        top: ${{team.y}}px;
-                        width: ${{team.width - 2}}px;
-                        height: ${{team.height - 2}}px;
-                        background: ${{bgColor}};
-                        border: 1px solid rgba(0,0,0,0.3);
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        align-items: center;
-                        cursor: pointer;
-                        transition: all 0.3s;
-                        overflow: hidden;
-                        color: ${{textColor}};
-                    `;
-                    
-                    // 텍스트 크기 및 표시 조정 - 박스 크기에 더 민감하게 반응
-                    const minDimension = Math.min(team.width, team.height);
-                    const boxArea = team.width * team.height;
-                    const areaFactor = Math.sqrt(boxArea / 5000);  // 면적 기반 계산
-                    const fontSize = Math.max(10, Math.min(18, 12 * areaFactor));
-                    const percentFontSize = Math.max(14, Math.min(36, 20 * areaFactor));
-                    
-                    // 작은 박스는 간단한 정보만 표시
-                    let content;
-                    if (minDimension < 60) {{
-                        // 매우 작은 박스: 팀명만
-                        content = `
-                            <div style="text-align: center; padding: 2px;">
-                                <div style="font-size: ${{fontSize - 2}}px; font-weight: 600;">
-                                    ${{team.name.substring(0, 8)}}
-                                </div>
-                                <div style="font-size: ${{fontSize - 3}}px;">
-                                    ${{team.total}}
-                                </div>
-                            </div>
-                        `;
-                    }} else if (minDimension < 100) {{
-                        // 작은 박스: 팀명과 인원수
-                        content = `
-                            <div style="text-align: center; padding: 3px;">
-                                <div style="font-size: ${{fontSize}}px; font-weight: 600;">
-                                    ${{team.name}}
-                                </div>
-                                <div style="font-size: ${{fontSize + 2}}px; font-weight: bold; margin: 2px 0;">
-                                    ${{team.changePercent > 0 ? '+' : ''}}${{team.changePercent.toFixed(0)}}%
-                                </div>
-                                <div style="font-size: ${{fontSize - 1}}px;">
-                                    ${{team.total}}명
-                                </div>
-                            </div>
-                        `;
-                    }} else {{
-                        // 큰 박스: 모든 정보 표시
-                        content = `
-                            <div style="text-align: center; padding: 5px;">
-                                <div style="font-size: ${{fontSize}}px; font-weight: 600; margin-bottom: 3px; text-transform: uppercase;">
-                                    ${{team.name}}
-                                </div>
-                                <div style="font-size: ${{percentFontSize}}px; font-weight: bold; margin: 5px 0;">
-                                    ${{team.changePercent > 0 ? '+' : ''}}${{team.changePercent.toFixed(1)}}%
-                                </div>
-                                <div style="font-size: ${{fontSize - 2}}px; opacity: 0.9; margin-top: 2px;">
-                                    ${{team.total}}명
-                                </div>
-                            </div>
-                        `;
-                    }}
-                    
-                    box.innerHTML = content;
-                    
-                    box.onmouseover = function() {{
-                        box.style.transform = 'scale(1.02)';
-                        box.style.boxShadow = '0 0 20px rgba(255,255,255,0.3)';
-                        box.style.zIndex = '10';
-                        box.style.border = '2px solid rgba(255,255,255,0.8)';
-                    }};
-                    
-                    box.onmouseout = function() {{
-                        box.style.transform = 'scale(1)';
-                        box.style.boxShadow = 'none';
-                        box.style.zIndex = '1';
-                        box.style.border = '1px solid rgba(0,0,0,0.3)';
-                    }};
-                    
-                    box.onclick = function() {{
-                        const teamStat = teamStats[team.name] || {{}};
-                        showTeamDetailPopup(team.name, teamStat);
-                    }};
-                    
-                    container.appendChild(box);
-                }});
-            }}
-            
-            // 5. TYPE별 인원 카드를 월별 비교 차트 전에 배치
+            // 4. TYPE별 인원 카드를 먼저 배치
             const typeDiv = document.createElement('div');
             typeDiv.style.marginTop = '30px';
             typeDiv.style.clear = 'both';  // float 클리어
@@ -2334,18 +2104,383 @@ class EnhancedHRDashboard:
             
             modalBody.appendChild(typeCardsDiv);
             
-            // 트리맵 생성 (TYPE 카드 이후에 배치)
-            const treemapContainer = document.getElementById('treemap-' + modalId);
-            createTreemap(treemapContainer, teamData);
+            // 5. 트리맵 스타일 차트 - TYPE 카드 다음에 배치
+            console.log('Starting treemap creation...');
+            treemapDiv = document.createElement('div');
+            treemapDiv.className = 'chart-container';
+            treemapDiv.style.marginTop = '20px';
+            console.log('treemapDiv created:', treemapDiv);
             
-            // 6. 팀별 만근 인원 정보 - 정렬 기능 추가
-            const fullAttendanceDiv = document.createElement('div');
-            fullAttendanceDiv.style.marginTop = '30px';
-            const fullAttendanceTitle = document.createElement('h4');
-            fullAttendanceTitle.style.cssText = 'margin: 20px 0 10px 0; font-size: 16px; font-weight: 600; color: #333;';
-            fullAttendanceTitle.textContent = '팀별 만근 인원 현황 ({self.month}월)';
-            fullAttendanceDiv.appendChild(fullAttendanceTitle);
-            modalBody.appendChild(fullAttendanceDiv);
+            // 타이틀 스타일 통일
+            const treemapTitle = document.createElement('h4');
+            treemapTitle.style.cssText = 'margin: 20px 0 10px 0; font-size: 16px; font-weight: 600; color: #333; text-align: left;';
+            treemapTitle.textContent = '팀별 인원 분포 및 7월 대비 변화';
+            treemapDiv.appendChild(treemapTitle);
+            
+            // 메인 컨테이너와 오버플로우 컨테이너 생성 (근본적 해결)
+            const treemapContainer = document.createElement('div');
+            treemapContainer.style.cssText = 'display: flex; gap: 15px;';
+            
+            const mainTreemapWrapper = document.createElement('div');
+            mainTreemapWrapper.id = 'treemap-' + modalId;
+            mainTreemapWrapper.style.cssText = 'position: relative; flex: 1; height: 500px; background: #2a2a2a; border-radius: 8px; padding: 10px; overflow: visible;';
+            treemapContainer.appendChild(mainTreemapWrapper);
+            
+            // 작은 팀들을 위한 별도 컨테이너
+            const smallTeamsContainer = document.createElement('div');
+            smallTeamsContainer.style.cssText = 'width: 200px; background: #2a2a2a; border-radius: 8px; padding: 10px; overflow-y: auto; max-height: 500px;';
+            smallTeamsContainer.innerHTML = '<h5 style="color: white; margin: 0 0 10px 0; font-size: 14px;">소규모 팀</h5>';
+            
+            // smallTeamsContainer를 treemapContainer에 추가
+            treemapContainer.appendChild(smallTeamsContainer);
+            
+            treemapDiv.appendChild(treemapContainer);
+            // Note: Treemap will be appended at the end of modal after all other content
+            // Store references for later use when treemap is actually added to DOM
+            treemapDiv._mainContainer = mainTreemapWrapper;
+            treemapDiv._smallTeamsContainer = smallTeamsContainer;
+            
+            // Store the function to create the treemap visualization (will be called after DOM append)
+            treemapDiv._createVisualization = function() {{
+                console.log('_createVisualization called');
+                console.log('teamStats available:', typeof teamStats !== 'undefined');
+                console.log('teamStats keys:', teamStats ? Object.keys(teamStats) : 'undefined');
+                
+                const mainContainer = treemapDiv._mainContainer;
+                const smallContainer = treemapDiv._smallTeamsContainer;
+                
+                // 컨테이너 초기화
+                mainContainer.innerHTML = '';
+                console.log('Main container after DOM append, width:', mainContainer.offsetWidth, 'height:', mainContainer.style.height);
+                
+                // 7월 팀 데이터 가져오기 (여기로 이동)
+                const julyTeamStats = {json.dumps(self.metadata.get('team_stats', {}).get(f'{self.year}_07', {}), ensure_ascii=False)};
+            
+                // 모든 팀 데이터를 포함하도록 수정
+                const fullTeamData = [];
+                
+                // teamStats가 현재 월 데이터를 가지고 있는지 확인
+                const currentMonthTeamStats = teamStats['2025_08'] || teamStats;
+                console.log('Using teamStats data:', currentMonthTeamStats);
+                
+                Object.entries(currentMonthTeamStats).forEach(([teamName, teamStat]) => {{
+                    if (teamStat && teamStat.total > 0) {{
+                        fullTeamData.push({{
+                            name: teamName,
+                            total: teamStat.total || 0,
+                            percentage: ((teamStat.total || 0) / monthlyDataAugust.total_employees * 100).toFixed(1)
+                        }});
+                    }}
+                }});
+                
+                console.log('전체 팀 수:', fullTeamData.length);
+                console.log('전체 팀 목록:', fullTeamData.map(t => `${{t.name}}: ${{t.total}}명`).join(', '));
+                
+                // teamData를 fullTeamData로 교체
+                const teamData = fullTeamData;
+                
+                // 다시 정렬
+                teamData.sort((a, b) => b.total - a.total);
+                
+                // readonly 문제 해결을 위한 완전한 깊은 복사
+                const mutableTeamData = JSON.parse(JSON.stringify(teamData));
+                
+                // 트리맵 생성 함수 정의 (여기로 이동)
+                function createTreemap(container, data) {{
+                    // 총 인원 계산
+                    const totalEmployees = data.reduce((sum, d) => sum + d.total, 0);
+                    
+                    // 컨테이너 크기 설정
+                    const containerWidth = container.offsetWidth - 20;
+                    const containerHeight = 450;  // 적절한 높이
+                    container.style.height = containerHeight + 'px';
+                    const totalArea = containerWidth * containerHeight;
+                    
+                    // UI 설정 직접 정의 (getUISettings 함수가 없으므로)
+                    const settings = {{
+                        MIN_WIDTH: 40,
+                        MIN_HEIGHT: 40,
+                        TEAM_SIZE_THRESHOLD: 8
+                    }};
+                    
+                    // 각 팀의 면적을 인원 비율로 계산
+                    data.forEach(team => {{
+                        team.area = (team.total / totalEmployees) * totalArea;
+                    }});
+                    
+                    // 추가된 속성 초기화 - 나중에 계산될 것임
+                    data.forEach(team => {{
+                        team.x = 0;
+                        team.y = 0;
+                        team.width = 0;
+                        team.height = 0;
+                    }});
+                    
+                    // Squarified 트리맵 위치 계산
+                    const positions = calculateProportionalPositions(data, containerWidth, containerHeight);
+                    
+                    console.log('Calculated positions:', positions);
+                    
+                    // 인덱스 기반 매핑 (readonly 문제 우회)
+                    positions.forEach((position, index) => {{
+                        // 해당 인덱스의 팀 찾기
+                        const team = data[index];
+                        if (team) {{
+                            // 팀별 박스 생성
+                            const box = document.createElement('div');
+                            box.style.cssText = `
+                                position: absolute;
+                                left: ${{position.x}}px;
+                                top: ${{position.y}}px;
+                                width: ${{position.width}}px;
+                                height: ${{position.height}}px;
+                                background: ${{getTeamColor(team)}};
+                                border: 2px solid rgba(255,255,255,0.3);
+                                border-radius: 5px;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                                align-items: center;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                overflow: hidden;
+                            `;
+                            
+                            // 동적 폰트 크기 계산
+                            const fontSize = Math.max(10, Math.min(20, Math.sqrt(position.width * position.height) / 10));
+                            
+                            // 7월 대비 변화 계산
+                            const julyData = julyTeamStats[team.name] || {{}};
+                            const julyTotal = julyData.total || 0;
+                            let changePercent = 0;
+                            if (julyTotal === 0 && team.total > 0) {{
+                                changePercent = 100;
+                            }} else if (julyTotal > 0) {{
+                                changePercent = ((team.total - julyTotal) / julyTotal * 100);
+                            }}
+                            
+                            const changeColor = changePercent > 0 ? '#4ade80' : changePercent < 0 ? '#f87171' : '#94a3b8';
+                            const changeSign = changePercent > 0 ? '↑' : changePercent < 0 ? '↓' : '→';
+                            
+                            // 박스 내용 (크기가 충분한 경우만 표시)
+                            if (position.width > 50 && position.height > 50) {{
+                                box.innerHTML = `
+                                    <div style="text-align: center; color: white; padding: 5px;">
+                                        <div style="font-weight: bold; font-size: ${{fontSize}}px; margin-bottom: 4px;">
+                                            ${{team.name}}
+                                        </div>
+                                        <div style="font-size: ${{fontSize * 0.9}}px;">
+                                            ${{team.total}}명
+                                        </div>
+                                        <div style="font-size: ${{fontSize * 0.7}}px; color: ${{changeColor}}; margin-top: 2px;">
+                                            ${{changeSign}} ${{Math.abs(changePercent).toFixed(0)}}%
+                                        </div>
+                                    </div>
+                                `;
+                            }} else if (position.width > 30 && position.height > 30) {{
+                                // 작은 박스는 이름만
+                                box.innerHTML = `
+                                    <div style="text-align: center; color: white; font-size: ${{fontSize * 0.8}}px;">
+                                        ${{team.name}}
+                                    </div>
+                                `;
+                            }}
+                            
+                            // 호버 효과
+                            box.addEventListener('mouseenter', function() {{
+                                this.style.transform = 'scale(1.02)';
+                                this.style.zIndex = '10';
+                                this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+                            }});
+                            
+                            box.addEventListener('mouseleave', function() {{
+                                this.style.transform = 'scale(1)';
+                                this.style.zIndex = '1';
+                                this.style.boxShadow = 'none';
+                            }});
+                            
+                            // 클릭 이벤트
+                            box.addEventListener('click', () => {{
+                                showTeamDetailPopup(team.name, teamStats[team.name]);
+                            }});
+                            
+                            container.appendChild(box);
+                        }}
+                    }});
+                }}
+                
+                // 팀 색상 결정 함수
+                function getTeamColor(team) {{
+                    const colors = [
+                        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
+                        '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
+                        '#85C1E9', '#F8B739', '#52D681', '#FF8C94'
+                    ];
+                    const index = Math.abs(team.name.charCodeAt(0) + team.name.charCodeAt(1) || 0) % colors.length;
+                    return colors[index];
+                }}
+                
+                // Squarified 트리맵 알고리즘 구현
+                function calculateProportionalPositions(data, containerWidth, containerHeight) {{
+                    console.log('Starting calculateProportionalPositions');
+                    console.log('Container dimensions:', containerWidth, 'x', containerHeight);
+                    console.log('Data to position:', data);
+                    
+                    const positions = [];
+                    const totalValue = data.reduce((sum, d) => sum + d.total, 0);
+                    
+                    function squarify(items, x, y, width, height) {{
+                        if (items.length === 0) return;
+                        if (items.length === 1) {{
+                            positions.push({{
+                                x: x,
+                                y: y,
+                                width: width,
+                                height: height,
+                                name: items[0].name,
+                                value: items[0].total
+                            }});
+                            return;
+                        }}
+                        
+                        const total = items.reduce((sum, item) => sum + item.total, 0);
+                        const isHorizontal = width >= height;
+                        
+                        // 첫 번째 행/열의 아이템들을 결정
+                        let row = [];
+                        let rowValue = 0;
+                        let bestRatio = Number.MAX_VALUE;
+                        
+                        for (let i = 0; i < items.length; i++) {{
+                            row.push(items[i]);
+                            rowValue += items[i].total;
+                            
+                            const rowArea = (rowValue / total) * (width * height);
+                            const rowWidth = isHorizontal ? (rowValue / total) * width : width;
+                            const rowHeight = isHorizontal ? height : (rowValue / total) * height;
+                            
+                            let worstRatio = 0;
+                            row.forEach(item => {{
+                                const itemArea = (item.total / rowValue) * rowArea;
+                                const itemWidth = isHorizontal ? rowWidth : itemArea / rowHeight;
+                                const itemHeight = isHorizontal ? itemArea / rowWidth : rowHeight;
+                                const ratio = Math.max(itemWidth / itemHeight, itemHeight / itemWidth);
+                                worstRatio = Math.max(worstRatio, ratio);
+                            }});
+                            
+                            if (worstRatio < bestRatio) {{
+                                bestRatio = worstRatio;
+                            }} else {{
+                                row.pop();
+                                rowValue -= items[i].total;
+                                break;
+                            }}
+                        }}
+                        
+                        // 행/열의 아이템들을 배치
+                        const rowArea = (rowValue / total) * (width * height);
+                        const rowWidth = isHorizontal ? (rowValue / total) * width : width;
+                        const rowHeight = isHorizontal ? height : (rowValue / total) * height;
+                        
+                        let currentX = x;
+                        let currentY = y;
+                        
+                        row.forEach(item => {{
+                            const itemArea = (item.total / rowValue) * rowArea;
+                            const itemWidth = isHorizontal ? rowWidth : itemArea / rowHeight;
+                            const itemHeight = isHorizontal ? itemArea / rowWidth : rowHeight;
+                            
+                            positions.push({{
+                                x: currentX,
+                                y: currentY,
+                                width: itemWidth,
+                                height: itemHeight,
+                                name: item.name,
+                                value: item.total
+                            }});
+                            
+                            if (isHorizontal) {{
+                                currentY += itemHeight;
+                            }} else {{
+                                currentX += itemWidth;
+                            }}
+                        }});
+                        
+                        // 나머지 아이템들을 재귀적으로 처리
+                        const remaining = items.slice(row.length);
+                        if (remaining.length > 0) {{
+                            if (isHorizontal) {{
+                                squarify(remaining, x + rowWidth, y, width - rowWidth, height);
+                            }} else {{
+                                squarify(remaining, x, y + rowHeight, width, height - rowHeight);
+                            }}
+                        }}
+                    }}
+                    
+                    squarify(data, 0, 0, containerWidth, containerHeight);
+                    return positions;
+                }}
+                
+                createTreemap(mainContainer, mutableTeamData);
+                
+                // 작은 팀들을 별도 컨테이너에 표시
+                const tinyTeams = teamData.filter(t => t.total <= 8);
+                if (tinyTeams.length > 0) {{
+                    const listContainer = document.createElement('div');
+                    listContainer.style.cssText = 'margin-top: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px;';
+                    listContainer.innerHTML = '<h5 style="color: #333; margin: 0 0 10px 0; font-size: 14px;">소규모 팀 목록</h5>';
+                    
+                    tinyTeams.forEach(team => {{
+                        const julyData = julyTeamStats[team.name] || {{}};
+                        const julyTotal = julyData.total || 0;
+                        let changePercent = 0;
+                        if (julyTotal === 0 && team.total > 0) {{
+                            changePercent = 100;
+                        }} else if (julyTotal > 0) {{
+                            changePercent = ((team.total - julyTotal) / julyTotal * 100);
+                        }}
+                        
+                        const changeColor = changePercent > 0 ? '#28a745' : changePercent < 0 ? '#dc3545' : '#6c757d';
+                        const changeSign = changePercent > 0 ? '+' : '';
+                        
+                        const teamLine = document.createElement('div');
+                        teamLine.style.cssText = 'padding: 8px; margin-bottom: 5px; cursor: pointer; transition: all 0.2s; background: white; border-radius: 4px; border: 1px solid #dee2e6;';
+                        teamLine.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 600; color: #333;">${{team.name}}</span>
+                                <div>
+                                    <span style="color: #666; margin-right: 10px;">${{team.total}}명</span>
+                                    <span style="color: ${{changeColor}}; font-weight: bold;">
+                                        ${{changeSign}}${{changePercent.toFixed(0)}}%
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                        
+                        teamLine.onmouseover = function() {{
+                            this.style.background = '#f1f3f5';
+                            this.style.transform = 'translateX(2px)';
+                        }};
+                        teamLine.onmouseout = function() {{
+                            this.style.background = 'white';
+                            this.style.transform = 'translateX(0)';
+                        }};
+                        teamLine.onclick = function() {{
+                            const teamStat = teamStats[team.name] || {{}};
+                            showTeamDetailPopup(team.name, teamStat);
+                        }};
+                        
+                        listContainer.appendChild(teamLine);
+                    }});
+                    
+                    treemapDiv.appendChild(listContainer);
+                }}
+            }};
+            
+            // Note: createTreemap function is now defined inside _createVisualization
+            // to have proper access to julyTeamStats and other context
+            
+            // 팀별 만근 데이터 표 섹션 시작
             
             // 팀별 만근 데이터 계산 및 정렬
             const fullAttendanceData = teamData.map(team => {{
@@ -2359,8 +2494,8 @@ class EnhancedHRDashboard:
                 }};
             }}).sort((a, b) => b.fullAttendance - a.fullAttendance);
             
-            const fullAttendanceTable = document.createElement('div');
-            fullAttendanceTable.innerHTML = `
+            const fullAttendanceTableDiv = document.createElement('div');
+            fullAttendanceTableDiv.innerHTML = `
                 <table id="fullAttendanceTable" data-sort-order="desc">
                     <thead>
                         <tr>
@@ -2388,7 +2523,30 @@ class EnhancedHRDashboard:
                     </tbody>
                 </table>
             `;
-            modalBody.appendChild(fullAttendanceTable);
+            modalBody.appendChild(fullAttendanceTableDiv);
+            
+            // Append treemap at the end (moved from createAbsenceContent)
+            console.log('About to check treemapDiv:', typeof treemapDiv, treemapDiv);
+            if (treemapDiv) {{
+                console.log('Appending treemap to modal body');
+                console.log('treemapDiv innerHTML length:', treemapDiv.innerHTML.length);
+                console.log('treemapDiv children count:', treemapDiv.children.length);
+                modalBody.appendChild(treemapDiv);
+                // Verify it was actually appended
+                console.log('Modal body children count after append:', modalBody.children.length);
+                console.log('Last child of modal body:', modalBody.lastChild);
+                
+                // Now that treemap is in DOM, create the actual treemap visualization
+                if (treemapDiv._mainContainer) {{
+                    console.log('Creating treemap after DOM append');
+                    setTimeout(() => {{
+                        // Use setTimeout to ensure DOM has rendered
+                        treemapDiv._createVisualization();
+                    }}, 100);
+                }}
+            }} else {{
+                console.error('treemapDiv is not defined - treemap will not be shown');
+            }}
         }}
         
         // 팀 멤버 상세 정보 표시 함수
