@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>실제 Position 계층 구조 분석</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f0f2f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .analysis-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .problem-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .solution-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .recommendation-box {
+            background: #cce5ff;
+            border-left: 4px solid #004085;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #fafbfc;
+            border-radius: 8px;
+            border: 1px solid #e1e4e8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th {
+            background: #6c757d;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .empty-cell {
+            color: #999;
+            font-style: italic;
+        }
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Position 3단계 계층 구조 실제 데이터 분석</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">Position_1st → Position_2nd → Position_3rd 구조의 실제 사용 패턴과 시각화 방법</p>
+    </div>
+
+    <div class="analysis-section">
+        <h2>📊 실제 데이터 구조 분석</h2>
+        <p>귀하의 HR 데이터를 분석한 결과:</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Position_1st (1단계)</th>
+                    <th>Position_2nd (2단계)</th>
+                    <th>Position_3rd (3단계)</th>
+                    <th>인원</th>
+                    <th>팀 매핑</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>ASSEMBLY INSPECTOR</strong></td>
+                    <td class="empty-cell">비어있음</td>
+                    <td class="empty-cell">비어있음</td>
+                    <td>148명</td>
+                    <td>ASSEMBLY (125), REPACKING (23)</td>
+                </tr>
+                <tr>
+                    <td><strong>BOTTOM INSPECTOR</strong></td>
+                    <td class="empty-cell">비어있음</td>
+                    <td class="empty-cell">비어있음</td>
+                    <td>31명</td>
+                    <td>BOTTOM</td>
+                </tr>
+                <tr>
+                    <td><strong>QA MANAGER</strong></td>
+                    <td class="empty-cell">비어있음</td>
+                    <td class="empty-cell">비어있음</td>
+                    <td>1명</td>
+                    <td>QA</td>
+                </tr>
+                <tr>
+                    <td><strong>STITCHING INSPECTOR</strong></td>
+                    <td class="empty-cell">비어있음</td>
+                    <td class="empty-cell">비어있음</td>
+                    <td>86명</td>
+                    <td>STITCHING</td>
+                </tr>
+                <tr style="background: #e8f5e9;">
+                    <td><strong>HWK-QIP</strong></td>
+                    <td><strong>QA-AUDITOR</strong></td>
+                    <td class="empty-cell">비어있음</td>
+                    <td>1명</td>
+                    <td>HWK QIP</td>
+                </tr>
+                <tr style="background: #fff9c4;">
+                    <td><strong>OCPT BUYER</strong></td>
+                    <td><strong>HWK</strong></td>
+                    <td><strong>OCPT BUYER</strong></td>
+                    <td>1명</td>
+                    <td>OFFICE & OCPT</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="problem-box">
+            <h3>⚠️ 발견된 문제점</h3>
+            <ol>
+                <li><strong>대부분의 데이터가 Position_1st만 사용:</strong> 464명 중 462명(99.6%)이 Position_1st만 채워져 있음</li>
+                <li><strong>Position_2nd 사용률:</strong> 단 2개 케이스(0.4%)만 사용</li>
+                <li><strong>Position_3rd 사용률:</strong> 단 1개 케이스(0.2%)만 사용</li>
+                <li><strong>데이터 불균형:</strong> 3단계 계층 구조가 실제로는 거의 활용되지 않음</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="analysis-section">
+        <h2>🎨 시각화 방법별 적합성 평가</h2>
+        
+        <div class="chart-container">
+            <h3>현재 데이터 구조 (99.6%가 1단계만 사용)</h3>
+            <div id="current-structure"></div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>시각화 방법</th>
+                    <th>현재 데이터 적합도</th>
+                    <th>3단계 데이터 적합도</th>
+                    <th>평가</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>3단계 중첩 트리맵</strong></td>
+                    <td>❌ 부적합</td>
+                    <td>⚠️ 보통</td>
+                    <td>현재는 과도한 복잡성, 데이터가 없는 레벨이 많음</td>
+                </tr>
+                <tr>
+                    <td><strong>Sunburst Chart</strong></td>
+                    <td>❌ 부적합</td>
+                    <td>✅ 적합</td>
+                    <td>현재는 중앙이 비어 보임, 3단계 데이터에는 최적</td>
+                </tr>
+                <tr>
+                    <td><strong>단순 트리맵</strong></td>
+                    <td>✅ 매우 적합</td>
+                    <td>❌ 부적합</td>
+                    <td>현재 데이터에 최적, 3단계는 표현 불가</td>
+                </tr>
+                <tr>
+                    <td><strong>그룹화된 막대 차트</strong></td>
+                    <td>✅ 적합</td>
+                    <td>⚠️ 보통</td>
+                    <td>명확한 비교 가능, 하지만 공간 효율성 낮음</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="analysis-section">
+        <h2>💡 권장 솔루션</h2>
+        
+        <div class="solution-box">
+            <h3>✅ 현재 데이터 구조에 최적화된 접근법</h3>
+            <ol>
+                <li>
+                    <strong>메인 시각화: 2단계 트리맵</strong>
+                    <ul>
+                        <li>1단계: 팀별 그룹화 (현재 구현된 방식)</li>
+                        <li>2단계: Position_1st별 표시</li>
+                        <li>Position_2nd/3rd는 툴팁이나 상세 정보로 표시</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>보조 시각화: 상세 테이블</strong>
+                    <ul>
+                        <li>Position_2nd/3rd가 있는 특수 케이스만 별도 표시</li>
+                        <li>필터링 기능으로 깊은 계층 탐색</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="solution-box">
+            <h3>🔮 미래 대비 (3단계 데이터가 충실해질 경우)</h3>
+            <ol>
+                <li>
+                    <strong>적응형 시각화 시스템 구축</strong>
+                    <ul>
+                        <li>데이터 깊이를 자동 감지</li>
+                        <li>1단계만: 단순 트리맵</li>
+                        <li>2단계: 중첩 트리맵</li>
+                        <li>3단계: Sunburst 또는 Icicle Chart</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>하이브리드 접근법</strong>
+                    <ul>
+                        <li>Overview: 트리맵 (Position_1st 레벨)</li>
+                        <li>Detail on Demand: 클릭 시 Sunburst로 세부 계층 표시</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="recommendation-box">
+        <h2>🎯 최종 권장사항</h2>
+        <p style="font-size: 18px; margin-bottom: 15px;">
+            <strong>현재 데이터 구조상 3단계 중첩 트리맵은 권장하지 않습니다.</strong>
+        </p>
+        <h3>이유:</h3>
+        <ol>
+            <li>99.6%의 데이터가 Position_1st만 사용하여 빈 공간이 많아짐</li>
+            <li>불필요한 시각적 복잡성 증가</li>
+            <li>사용자 혼란 가능성</li>
+        </ol>
+        
+        <h3>대신 추천하는 방법:</h3>
+        <div style="background: white; padding: 15px; border-radius: 5px; margin-top: 15px;">
+            <p><strong>1. 현재 구현된 2단계 트리맵 유지</strong></p>
+            <p style="margin-left: 20px;">팀 → Position_1st 구조가 현재 데이터에 가장 적합</p>
+            
+            <p><strong>2. Position_2nd/3rd 정보는 다음과 같이 처리:</strong></p>
+            <ul style="margin-left: 20px;">
+                <li>마우스 호버 시 툴팁으로 표시</li>
+                <li>클릭 시 상세 정보 패널에 표시</li>
+                <li>별도의 "상세 Position 구조" 테이블 추가</li>
+            </ul>
+            
+            <p><strong>3. 데이터 품질 개선 대시보드 추가:</strong></p>
+            <ul style="margin-left: 20px;">
+                <li>Position_2nd/3rd 입력률 모니터링</li>
+                <li>데이터 완성도가 높아지면 자동으로 3단계 시각화 활성화</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 현재 데이터 구조 시각화
+        const data = [{
+            type: "sunburst",
+            labels: ["전체", "Position_1st만", "Position_1st+2nd", "Position_1st+2nd+3rd", 
+                     "ASSEMBLY INSPECTOR", "BOTTOM INSPECTOR", "STITCHING INSPECTOR", "기타",
+                     "HWK-QIP + QA-AUDITOR", "OCPT BUYER + HWK + OCPT BUYER"],
+            parents: ["", "전체", "전체", "전체",
+                      "Position_1st만", "Position_1st만", "Position_1st만", "Position_1st만",
+                      "Position_1st+2nd", "Position_1st+2nd+3rd"],
+            values: [464, 462, 1, 1, 148, 31, 86, 197, 1, 1],
+            marker: {
+                colors: ['#6c757d', '#dc3545', '#ffc107', '#28a745',
+                         '#e57373', '#e57373', '#e57373', '#e57373',
+                         '#ffeb3b', '#4caf50']
+            },
+            textinfo: "label+value+percent parent",
+            hovertemplate: '%{label}<br>인원: %{value}명<br>비율: %{percentParent}<extra></extra>'
+        }];
+        
+        const layout = {
+            title: "Position 계층 사용 현황",
+            width: 600,
+            height: 500,
+            margin: {t: 50, l: 0, r: 0, b: 0}
+        };
+        
+        Plotly.newPlot('current-structure', data, layout);
+    </script>
+</body>
+</html>

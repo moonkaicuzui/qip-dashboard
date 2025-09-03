@@ -742,8 +742,8 @@ class EnhancedHRDashboard:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR Management Dashboard - {self.year}년 {self.month}월</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         {self.generate_enhanced_css()}
     </style>
@@ -762,6 +762,27 @@ class EnhancedHRDashboard:
             </h2>
             <div class="cards-grid-3x3">
                 {self.generate_hr_cards(metrics, prev_metrics)}
+            </div>
+        </div>
+        
+        <!-- Quality Section -->
+        <div class="section quality-section">
+            <h2 class="section-title">📈 품질 분석</h2>
+            <div class="quality-grid">
+                <div class="quality-card">
+                    <h3>🎯 5PRS 분석</h3>
+                    <div class="quality-content">
+                        <p>5 Point Rating System</p>
+                        <p>데이터 준비 중...</p>
+                    </div>
+                </div>
+                <div class="quality-card">
+                    <h3>✅ AQL 분석</h3>
+                    <div class="quality-content">
+                        <p>Acceptable Quality Level</p>
+                        <p>데이터 준비 중...</p>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1573,7 +1594,7 @@ class EnhancedHRDashboard:
             safe_team_name = team_name.replace("'", "\\'").replace('"', '\\"')
             js_code.append(f'        teamMembers["{safe_team_name}"] = [];')
             
-            for member in members:  # No limit - show all team members
+            for member in members[:100]:  # Limit to 100 members per team to avoid issues
                 # Create a simplified member object with only essential fields
                 safe_member = {
                     'id': str(member.get('id', ''))[:20],  # Limit ID length
@@ -1595,17 +1616,6 @@ class EnhancedHRDashboard:
                 js_code.append(f'        teamMembers["{safe_team_name}"].push({member_json});')
         
         return '\n'.join(js_code)
-    
-
-    def validate_team_data(self, team_name, team_stats_count, members_list_count):
-        """팀 데이터 일관성 검증"""
-        if team_stats_count != members_list_count:
-            print(f"⚠️ Data inconsistency for {team_name}:")
-            print(f"   - team_stats shows: {team_stats_count}")
-            print(f"   - members list has: {members_list_count}")
-            # 실제 멤버 리스트 수를 우선으로 사용
-            return members_list_count
-        return team_stats_count
     
     def load_team_members_data(self):
         """팀별 개인 멤버 데이터 로드 (role category 및 attendance 정보 포함)"""
@@ -1692,8 +1702,6 @@ class EnhancedHRDashboard:
                         'position_1st': row.get('QIP POSITION 1ST  NAME', ''),
                         'position_2nd': row.get('QIP POSITION 2ND  NAME', ''),
                         'position2': row.get('QIP POSITION 2ND  NAME', ''),
-                        'position_3rd': row.get('QIP POSITION 3RD  NAME', ''),  # position_3rd 추가
-                        'position3': row.get('QIP POSITION 3RD  NAME', ''),  # position3 추가
                         'role': self.get_role_category(row, position_combo_to_role, position_to_role),  # 팀 내 역할
                         'role_category': self.get_role_category(row, position_combo_to_role, position_to_role),
                         'join_date': str(row.get('Entrance Date', ''))[:10] if pd.notna(row.get('Entrance Date')) else '',
@@ -3176,12 +3184,6 @@ class EnhancedHRDashboard:
             }}
         }}
         
-        // Chart instances storage for team detail modals
-        const teamDetailCharts = {{}};
-        
-        // 테이블 정렬 상태 저장
-        window.teamTableSortState = {{}};
-        
         // 팀별 상세 정보 팝업 표시 함수 (FIXED VERSION)
         function showTeamDetails(teamName) {{
             // Get team data from the global teamStats object
@@ -3191,45 +3193,13 @@ class EnhancedHRDashboard:
                 return;
             }}
             
-            // Clean up any existing charts for this team
-            const cleanName = teamName.replace(/[^a-zA-Z0-9]/g, '_');
-            if (teamDetailCharts[cleanName]) {{
-                teamDetailCharts[cleanName].forEach(chart => {{
-                    if (chart && typeof chart.destroy === 'function') {{
-                        chart.destroy();
-                    }}
-                }});
-                teamDetailCharts[cleanName] = [];
-            }}
-            
-            // Check if modal already exists
-            let modal = document.getElementById(`team-modal-${{cleanName}}`);
-            if (modal) {{
-                // Remove existing modal to rebuild fresh
-                modal.remove();
-            }}
-            
-            // Create new modal
-            modal = document.createElement('div');
-            modal.id = `team-modal-${{cleanName}}`;
+            const modal = document.createElement('div');
             modal.className = 'modal';
             modal.style.display = 'block';
             modal.style.zIndex = '2000';
             const monthlyData = {json.dumps(self.metadata.get('monthly_data', {}), ensure_ascii=False)};
             const weeklyData = {json.dumps(self.metadata.get('weekly_data', {}), ensure_ascii=False)};
             const teamMembersList = teamMembers[teamName] || [];
-            // 데이터 일관성 보장 - teamStats와 teamMembers 동기화
-            const members = teamMembersList;
-            const actualMemberCount = members.length;
-            
-            // teamStats의 total을 실제 멤버 수로 업데이트
-            if (teamStats[teamName]) {{
-                if (teamStats[teamName].total !== actualMemberCount) {{
-                    console.warn(`Correcting ${{teamName}} count: ${{teamStats[teamName].total}} -> ${{actualMemberCount}}`);
-                    teamStats[teamName].total = actualMemberCount;
-                }}
-            }}
-    
             
             // 팀 멤버를 역할별로 그룹화
             const roleGroups = {{}};
@@ -3250,7 +3220,7 @@ class EnhancedHRDashboard:
                 <div class="modal-content" style="max-width: 1400px; width: 90%;">
                     <div class="modal-header">
                         <h2 class="modal-title">${{teamName}} 팀 상세 정보</h2>
-                        <span class="close-modal" onclick="closeTeamDetailModalByName('${{teamName}}')">&times;</span>
+                        <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
                     </div>
                     <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
                         <!-- 1. 월별 총인원 트렌드 -->
@@ -3298,16 +3268,16 @@ class EnhancedHRDashboard:
                                 <table id="team-member-detail-${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}" style="width: 100%; border-collapse: collapse; font-size: 12px;">
                                     <thead style="position: sticky; top: 0; background: #f1f3f5; z-index: 10;">
                                         <tr>
-                                            <th style="padding: 8px; text-align: left; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 0, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">Role<br>Category <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: left; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 1, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">직급 1<br>(Position 1st) <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: left; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 2, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">직급 2<br>(Position 2nd) <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: left; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 3, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">Full<br>Name <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 4, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">Employee<br>No <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 5, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">Entrance<br>Date <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 6, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">Years of<br>Service <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 7, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">Working<br>Days <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 8, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">Absent<br>Days <span style="font-size: 10px; color: #666;">▼</span></th>
-                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word; user-select: none; transition: background-color 0.2s;" onclick="sortTeamTable(this, 9, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')" onmouseover="this.style.backgroundColor='#e1e5e8'" onmouseout="this.style.backgroundColor=''">Absence<br>Rate (%) <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: left; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 0, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">Role<br>Category <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: left; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 1, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">직급 1<br>(Position 1st) <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: left; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 2, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">직급 2<br>(Position 2nd) <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: left; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 3, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">Full<br>Name <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 4, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">Employee<br>No <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 5, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">Entrance<br>Date <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 6, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">Years of<br>Service <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 7, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">Working<br>Days <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 8, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">Absent<br>Days <span style="font-size: 10px; color: #666;">▼</span></th>
+                                            <th style="padding: 8px; text-align: center; cursor: pointer; white-space: normal; word-break: break-word;" onclick="sortTeamTable(this, 9, '${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}')">Absence<br>Rate (%) <span style="font-size: 10px; color: #666;">▼</span></th>
                                         </tr>
                                     </thead>
                                     <tbody id="team-member-tbody-${{teamName.replace(/[^a-zA-Z0-9]/g, '_')}}"></tbody>
@@ -3348,51 +3318,19 @@ class EnhancedHRDashboard:
             }}, 200);
         }}
         
-        // 팀 상세 모달 닫기 함수 수정
-        function closeTeamDetailModalByName(teamName) {{
-            const cleanName = teamName.replace(/[^a-zA-Z0-9]/g, '_');
-            
-            // Properly destroy charts first
-            if (teamDetailCharts[cleanName]) {{
-                teamDetailCharts[cleanName].forEach(chart => {{
-                    if (chart && typeof chart.destroy === 'function') {{
-                        chart.destroy();
-                    }}
-                }});
-                delete teamDetailCharts[cleanName];
-            }}
-            
-            // Remove modal
-            const modal = document.getElementById(`team-modal-${{cleanName}}`);
-            if (modal) {{
-                modal.remove();
-            }}
-        }}
-        
         // 팀 상세 차트 초기화 함수
         function initializeTeamDetailCharts(teamName, teamData, roleGroups, monthlyData, weeklyData, members) {{
             const cleanName = teamName.replace(/[^a-zA-Z0-9]/g, '_');
-            
-            // Initialize chart storage for this team
-            if (!teamDetailCharts[cleanName]) {{
-                teamDetailCharts[cleanName] = [];
-            }}
             
             // 1. 월별 팀 인원 트렌드
             const monthlyCtx = document.getElementById(`team-monthly-trend-${{cleanName}}`);
             console.log('Monthly chart canvas:', monthlyCtx);
             if (monthlyCtx) {{
-                // Clear any existing chart instance
-                const existingChart = Chart.getChart(monthlyCtx);
-                if (existingChart) {{
-                    existingChart.destroy();
-                }}
-                
                 // Get July data for this team
                 const julyTeamData = {json.dumps(self.metadata.get('team_stats', {}).get(f'{self.year}_07', {}), ensure_ascii=False)};
                 const julyTotal = julyTeamData[teamName]?.total || Math.round(teamData.total * (0.8 + Math.random() * 0.4));
                 
-                const monthlyChart = new Chart(monthlyCtx, {{
+                new Chart(monthlyCtx, {{
                     type: 'line',
                     data: {{
                         labels: ['7월', '8월'],
@@ -3430,7 +3368,6 @@ class EnhancedHRDashboard:
                         }}
                     }}
                 }});
-                teamDetailCharts[cleanName].push(monthlyChart);
             }} else {{
                 console.error('Monthly chart canvas not found');
             }}
@@ -3438,12 +3375,6 @@ class EnhancedHRDashboard:
             // 2. 주차별 팀 인원 트렌드 (실제 팀 데이터 사용)
             const weeklyCtx = document.getElementById(`team-weekly-trend-${{cleanName}}`);
             if (weeklyCtx) {{
-                // Clear any existing chart instance
-                const existingChart = Chart.getChart(weeklyCtx);
-                if (existingChart) {{
-                    existingChart.destroy();
-                }}
-                
                 // 현재 팀의 실제 인원수 사용
                 const currentTeamSize = teamStats[teamName]?.total || members.length;
                 const weekLabels = ['1주차', '2주차', '3주차', '4주차'];
@@ -3464,7 +3395,7 @@ class EnhancedHRDashboard:
                     ];
                 }}
                 
-                const weeklyChart = new Chart(weeklyCtx, {{
+                new Chart(weeklyCtx, {{
                     type: 'line',
                     data: {{
                         labels: weekLabels,
@@ -3509,24 +3440,18 @@ class EnhancedHRDashboard:
                         }}
                     }}
                 }});
-                teamDetailCharts[cleanName].push(weeklyChart);
             }}
             
             // 3. Multi-Level Donut 차트 - 팀내 역할별 인원 분포  
             const roleDistCtx = document.getElementById(`team-role-dist-${{cleanName}}`);
             console.log('Creating Multi-Level Donut chart');
             if (roleDistCtx) {{
-                // Clear any existing chart instance
-                const existingChart = Chart.getChart(roleDistCtx);
-                if (existingChart) {{
-                    existingChart.destroy();
-                }}
                 const roleLabels = Object.keys(roleGroups);
                 
                 if (roleLabels.length > 0) {{
                     // 계층별 데이터 준비
-                    const innerData = {{}}; // 역할 카테고리 (내부 링)
-                    const outerData = []; // Position 1st (외부 링)
+                    const innerData = {{}}; // 역할 카테고리
+                    const outerData = []; // Position 1st
                     
                     // 색상 맵핑
                     const roleColors = {{
@@ -3559,7 +3484,7 @@ class EnhancedHRDashboard:
                         // Position 1st 별로 그룹핑
                         const pos1Groups = {{}};
                         roleMembers.forEach(member => {{
-                            const pos1 = member.position_1st || member.position || 'UNDEFINED';
+                            const pos1 = member.position_1st || 'UNDEFINED';
                             pos1Groups[pos1] = (pos1Groups[pos1] || 0) + 1;
                         }});
                         
@@ -3626,12 +3551,12 @@ class EnhancedHRDashboard:
                         return '#' + ((1 << 24) + (newR << 16) + (newG << 8) + newB).toString(16).slice(1);
                     }}
                     
-                    const roleChart = new Chart(roleDistCtx, {{
+                    new Chart(roleDistCtx, {{
                         type: 'doughnut',
                         data: {{
                             datasets: [
                                 {{
-                                    // 내부 링 - 역할 카테고리
+                                    // 내부 링 - 역할
                                     data: innerValues,
                                     backgroundColor: innerColors,
                                     label: '역할 카테고리',
@@ -3772,8 +3697,6 @@ class EnhancedHRDashboard:
                     }});
                     legendDiv.innerHTML = legendHTML;
                     roleDistCtx.parentElement.appendChild(legendDiv);
-                    
-                    teamDetailCharts[cleanName].push(roleChart);
                 }} else {{
                     // No role data available
                     roleDistCtx.parentElement.innerHTML = '<p style="text-align: center; color: #999;">역할 데이터가 없습니다</p>';
@@ -3785,12 +3708,6 @@ class EnhancedHRDashboard:
             // 4. 팀내 역할별 만근율
             const roleAttendanceCtx = document.getElementById(`team-role-attendance-${{cleanName}}`);
             if (roleAttendanceCtx) {{
-                // Clear any existing chart instance
-                const existingChart = Chart.getChart(roleAttendanceCtx);
-                if (existingChart) {{
-                    existingChart.destroy();
-                }}
-                
                 const roleLabels = Object.keys(roleGroups);
                 const attendanceRates = roleLabels.map(role => {{
                     const roleMembers = roleGroups[role];
@@ -3798,7 +3715,7 @@ class EnhancedHRDashboard:
                     return roleMembers.length > 0 ? (fullAttendance / roleMembers.length * 100) : 0;
                 }});
                 
-                const attendanceChart = new Chart(roleAttendanceCtx, {{
+                new Chart(roleAttendanceCtx, {{
                     type: 'bar',
                     data: {{
                         labels: roleLabels,
@@ -3819,7 +3736,6 @@ class EnhancedHRDashboard:
                         }}
                     }}
                 }});
-                teamDetailCharts[cleanName].push(attendanceChart);
             }}
             
             // 5. 5단계 계층 구조 Sunburst 차트
@@ -3831,31 +3747,15 @@ class EnhancedHRDashboard:
         
         // 5단계 계층 구조 Sunburst 차트 생성 함수
         function createRoleSunburstChart(teamName, roleGroups, members) {{
-            console.log('=== createRoleSunburstChart START ===');
-            console.log('Team:', teamName, 'Members count:', members.length);
-            console.log('Role groups:', Object.keys(roleGroups));
-            console.log('Plotly loaded?', typeof Plotly !== 'undefined');
-            
-            // 첫 번째 멤버의 구조 확인
-            if (members.length > 0) {{
-                console.log('Sample member structure:', members[0]);
-                console.log('Member keys:', Object.keys(members[0]));
-            }}
+            console.log('Creating 5-level hierarchy Sunburst chart for team:', teamName, 'with', members.length, 'members');
             
             const cleanName = teamName.replace(/[^a-zA-Z0-9]/g, '_');
-            const containerId = 'team-role-sunburst-' + cleanName;
-            const container = document.getElementById(containerId);
+            const container = document.getElementById('team-role-sunburst-' + cleanName);
             
             if (!container) {{
-                console.error('Sunburst container not found for team:', teamName, 'ID:', containerId);
+                console.error('Sunburst container not found for team:', teamName);
                 return;
             }}
-            
-            console.log('Container found:', containerId);
-            
-            // 컨테이너를 보이게 설정
-            container.style.display = 'block';
-            container.style.visibility = 'visible';
             
             // Plotly Sunburst 데이터 준비
             const labels = [];
@@ -3912,10 +3812,9 @@ class EnhancedHRDashboard:
                     position1Groups[pos1].push(member);
                 }});
                 
-                // Level 3: Position_1st 추가 - Role과 조합하여 완전히 유니크하게 만들기
+                // Level 3: Position_1st 추가
                 Object.entries(position1Groups).forEach(([pos1, pos1Members]) => {{
-                    const uniquePos1 = `${{role}} > ${{pos1}}`;  // Role과 Position_1st 조합으로 유니크하게
-                    labels.push(uniquePos1);
+                    labels.push(pos1);
                     parents.push(role);
                     values.push(pos1Members.length);
                     colors.push(roleColors[role] || '#CCCCCC');
@@ -3923,7 +3822,7 @@ class EnhancedHRDashboard:
                     // Level 4: Position_2nd 그룹화 및 추가
                     const position2Groups = {{}};
                     pos1Members.forEach(member => {{
-                        const pos2 = member.position_2nd || member.position2 || pos1;
+                        const pos2 = member.position_2nd || pos1;
                         if (!position2Groups[pos2]) {{
                             position2Groups[pos2] = [];
                         }}
@@ -3931,67 +3830,27 @@ class EnhancedHRDashboard:
                     }});
                     
                     Object.entries(position2Groups).forEach(([pos2, pos2Members]) => {{
-                        // Position_2nd 추가 - 부모와 조합하여 유니크하게
-                        const uniquePos2 = `${{uniquePos1}} > ${{pos2}}`;
-                        labels.push(uniquePos2);
-                        parents.push(uniquePos1);
-                        values.push(pos2Members.length);
-                        colors.push(roleColors[role] || '#CCCCCC');
+                        if (pos2 !== pos1) {{ // Position_2nd가 Position_1st와 다른 경우만 추가
+                            labels.push(pos2);
+                            parents.push(pos1);
+                            values.push(pos2Members.length);
+                            colors.push(roleColors[role] || '#CCCCCC');
+                        }}
                         
-                        // Level 5: Position_3rd 그룹화 및 추가 (옵션)
-                        const position3Groups = {{}};
-                        let hasPosition3 = false;
-                        
+                        // Level 5: 개별 멤버 추가
                         pos2Members.forEach(member => {{
-                            // position_3rd가 실제로 있는지 체크
-                            const pos3 = member.position_3rd || member.position3;
-                            if (pos3 && pos3 !== '' && pos3 !== pos2) {{
-                                hasPosition3 = true;
-                                if (!position3Groups[pos3]) {{
-                                    position3Groups[pos3] = [];
-                                }}
-                                position3Groups[pos3].push(member);
-                            }}
+                            const memberName = member.name || member.employee_no || 'Unknown';
+                            labels.push(memberName);
+                            parents.push(pos2 !== pos1 ? pos2 : pos1);
+                            values.push(1);
+                            colors.push(roleColors[role] || '#CCCCCC');
                         }});
-                        
-                        // Position_3rd가 있는 경우에만 추가
-                        if (hasPosition3) {{
-                            Object.entries(position3Groups).forEach(([pos3, pos3Members]) => {{
-                                const uniquePos3 = `${{uniquePos2}} > ${{pos3}}`;  // 부모와 조합하여 유니크하게
-                                labels.push(uniquePos3);
-                                parents.push(uniquePos2);
-                                values.push(pos3Members.length);
-                                colors.push(roleColors[role] || '#CCCCCC');
-                            }});
-                        }}
-                        
-                        // Position_3rd가 없으면 로그
-                        if (!hasPosition3) {{
-                            console.log(`No Position_3rd data for ${{pos2}} in ${{teamName}}`);
-                        }}
                     }});
                 }});
             }});
             
             // Plotly Sunburst 차트 생성
             console.log('Creating Plotly Sunburst with', labels.length, 'nodes');
-            console.log('First 5 labels:', labels.slice(0, 5));
-            console.log('First 5 parents:', parents.slice(0, 5));
-            console.log('First 5 values:', values.slice(0, 5));
-            
-            // 데이터가 없으면 메시지 표시
-            if (labels.length === 0) {{
-                console.error('No data for Sunburst chart - labels array is empty');
-                container.innerHTML = '<p style="text-align: center; padding: 50px; color: #666;">팀 멤버 데이터가 없습니다.</p>';
-                return;
-            }}
-            
-            // 데이터가 너무 적으면 경고
-            if (labels.length === 1) {{
-                console.warn('Only root node in Sunburst chart - check data structure');
-                container.innerHTML = '<p style="text-align: center; padding: 50px; color: #666;">데이터 구조에 문제가 있습니다.</p>';
-                return;
-            }}
             
             const data = [{{
                 type: 'sunburst',
@@ -4007,7 +3866,7 @@ class EnhancedHRDashboard:
             
             const layout = {{
                 title: {{
-                    text: teamName + ' 팀 5단계 계층 구조<br><sub>Team → Role → Position1 → Position2 → Position3</sub>',
+                    text: teamName + ' 팀 5단계 계층 구조<br><sub>클릭하면 하위 레벨이 표시됩니다</sub>',
                     font: {{ size: 14 }}
                 }},
                 margin: {{ l: 0, r: 0, b: 0, t: 50 }},
@@ -4032,29 +3891,15 @@ class EnhancedHRDashboard:
             
             // Plotly 차트 렌더링 및 이벤트 처리
             try {{
-                // Plotly가 로드되었는지 확인
-                if (typeof Plotly === 'undefined') {{
-                    console.error('Plotly library not loaded');
-                    container.innerHTML = '<p style="text-align: center; padding: 20px;">Sunburst 차트를 로드할 수 없습니다.</p>';
-                    return;
-                }}
-                
-                // 이미 차트가 있으면 제거
-                Plotly.purge(container.id);
-                
-                // 새 차트 생성
-                Plotly.newPlot(container.id, data, layout, config).then(function(gd) {{
-                    console.log('Sunburst chart created successfully for', teamName);
-                    
+                Plotly.newPlot(container.id, data, layout, config).then(function() {{
                     // 클릭 이벤트 처리 - 클릭하면 하위 레벨 표시/숨기기
-                    // Plotly 이벤트는 생성된 그래프 객체에서 처리
-                    gd.on('plotly_click', function(eventData) {{
+                    container.on('plotly_click', function(eventData) {{
                         if (eventData && eventData.points && eventData.points.length > 0) {{
                             const point = eventData.points[0];
                             console.log('Clicked on:', point.label, 'Level:', point.level);
                             
                             // 현재 maxdepth 가져오기
-                            const currentMaxDepth = gd.data[0].maxdepth || 2;
+                            const currentMaxDepth = container.data[0].maxdepth || 2;
                             
                             // 클릭한 레벨에 따라 maxdepth 조정
                             let newMaxDepth;
@@ -4075,14 +3920,10 @@ class EnhancedHRDashboard:
                             }});
                         }}
                     }});
-                }}).catch(function(err) {{
-                    console.error('Plotly.newPlot error:', err);
-                    container.innerHTML = '<p style="text-align: center; padding: 20px; color: red;">차트 생성 실패: ' + err.message + '</p>';
                 }});
-                console.log('Sunburst chart rendering completed');
+                console.log('Sunburst chart created successfully with click interaction');
             }} catch (error) {{
                 console.error('Error creating Sunburst chart:', error);
-                container.innerHTML = '<p style="text-align: center; padding: 20px; color: red;">차트 생성 중 오류 발생</p>';
             }}
         }}
         
@@ -4258,90 +4099,35 @@ class EnhancedHRDashboard:
             const table = header.closest('table');
             const tbody = table.querySelector('tbody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
+            const isAscending = header.innerHTML.includes('▼');
             
-            // 현재 정렬 상태 확인
-            const currentIcon = header.querySelector('span');
-            const isAscending = currentIcon.innerHTML.includes('▼');
-            
-            // 모든 헤더 아이콘 초기화
+            // 정렬 아이콘 업데이트
             table.querySelectorAll('th span').forEach(span => {{
                 span.innerHTML = '▼';
-                span.style.color = '#666';
             }});
+            header.querySelector('span').innerHTML = isAscending ? '▲' : '▼';
             
-            // 클릭한 헤더 아이콘 업데이트
-            currentIcon.innerHTML = isAscending ? '▲' : '▼';
-            currentIcon.style.color = '#007bff';
-            
-            // 정렬 함수
+            // 정렬
             rows.sort((a, b) => {{
-                const aCell = a.cells[columnIndex];
-                const bCell = b.cells[columnIndex];
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
                 
-                if (!aCell || !bCell) return 0;
-                
-                const aText = aCell.textContent.trim();
-                const bText = bCell.textContent.trim();
-                
-                let compareResult = 0;
-                
-                // Employee No (column 4) - 숫자로 정렬
-                if (columnIndex === 4) {{
-                    const aNum = parseInt(aText.replace(/\\D/g, '')) || 0;
-                    const bNum = parseInt(bText.replace(/\\D/g, '')) || 0;
-                    compareResult = aNum - bNum;
-                }}
-                // Entrance Date (column 5) - 날짜로 정렬
-                else if (columnIndex === 5) {{
-                    const aDate = new Date(aText);
-                    const bDate = new Date(bText);
-                    compareResult = aDate - bDate;
-                }}
-                // Years of Service (column 6) - 년/월 파싱
-                else if (columnIndex === 6) {{
-                    const parseServiceTime = (text) => {{
-                        const yearMatch = text.match(/(\\d+)년/);
-                        const monthMatch = text.match(/(\\d+)개월/);
-                        const years = yearMatch ? parseInt(yearMatch[1]) : 0;
-                        const months = monthMatch ? parseInt(monthMatch[1]) : 0;
-                        return years * 12 + months;
-                    }};
-                    const aMonths = parseServiceTime(aText);
-                    const bMonths = parseServiceTime(bText);
-                    compareResult = aMonths - bMonths;
-                }}
-                // Working Days, Absent Days (columns 7, 8) - 숫자로 정렬
-                else if (columnIndex === 7 || columnIndex === 8) {{
-                    const aNum = parseInt(aText) || 0;
-                    const bNum = parseInt(bText) || 0;
-                    compareResult = aNum - bNum;
-                }}
-                // Absence Rate (column 9) - 퍼센트로 정렬
-                else if (columnIndex === 9) {{
-                    const aNum = parseFloat(aText.replace('%', '')) || 0;
-                    const bNum = parseFloat(bText.replace('%', '')) || 0;
-                    compareResult = aNum - bNum;
-                }}
-                // 텍스트 정렬 (Role Category, Position 1st, Position 2nd, Full Name)
-                else {{
-                    compareResult = aText.localeCompare(bText, 'ko-KR');
+                // 숫자 정렬
+                if (columnIndex >= 6) {{
+                    const aNum = parseFloat(aText) || 0;
+                    const bNum = parseFloat(bText) || 0;
+                    return isAscending ? aNum - bNum : bNum - aNum;
                 }}
                 
-                // 오름차순/내림차순 적용
-                return isAscending ? compareResult : -compareResult;
+                // 텍스트 정렬
+                return isAscending ? 
+                    aText.localeCompare(bText) : 
+                    bText.localeCompare(aText);
             }});
             
-            // 테이블 재구성
+            // 재배치
             tbody.innerHTML = '';
             rows.forEach(row => tbody.appendChild(row));
-            
-            // 정렬 상태 저장 (선택적)
-            if (window.teamTableSortState) {{
-                window.teamTableSortState[teamCleanName] = {{
-                    column: columnIndex,
-                    ascending: !isAscending
-                }};
-            }}
         }}
         
         // 역할별 비교 테이블 생성

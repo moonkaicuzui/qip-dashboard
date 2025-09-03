@@ -629,6 +629,60 @@
       "team_name": "STITCHING",
       "role_category": "INSPECTOR",
       "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "NEW QIP MEMBER",
+      "position_2nd": "NEW QIP MEMBER",
+      "position_3rd": "NEW QIP MEMBER",
+      "final_code": "AUTO_1",
+      "team_name": "NEW",
+      "role_category": "NEW",
+      "role_type": "TYPE-3"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "B-GRADE TEAM / TEST SAMPLE HANDING TEAM",
+      "position_3rd": "ASSEMBLY LINE RQC",
+      "final_code": "AUTO_4",
+      "team_name": "ASSEMBLY",
+      "role_category": "INSPECTOR",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "HAPPO MTL TEAM LEADER",
+      "position_3rd": "HAPPO MTL TEAM LEADER",
+      "final_code": "AUTO_7",
+      "team_name": "MTL",
+      "role_category": "MID-MANAGEMENT",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "STITCHING INSPECTOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "2 ASSEMBLY BUILDING QUALITY IN CHARGE",
+      "final_code": "AUTO_8",
+      "team_name": "STITCHING",
+      "role_category": "INSPECTOR",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "REPACKING AREA INPUT-OUTPUT CARTON RQC",
+      "final_code": "AUTO_10",
+      "team_name": "ASSEMBLY",
+      "role_category": "INSPECTOR",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "ASSEMBLY INSPECTOR",
+      "position_2nd": "B-GRADE TEAM / TEST SAMPLE HANDING TEAM",
+      "position_3rd": "ALL B-GRADE CONTROL & PACKING",
+      "final_code": "AUTO_12",
+      "team_name": "ASSEMBLY",
+      "role_category": "INSPECTOR",
+      "role_type": "TYPE-2"
     }
   ],
   "teams": [
