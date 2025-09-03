@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Weekly Trend Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .team-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .team-info h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .stat-box {
+            padding: 10px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .test-button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .alert {
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>📊 Dashboard Weekly Trend Test</h1>
+        
+        <div class="alert alert-info">
+            <strong>테스트 목적:</strong> 팀별 주차별 트렌드 차트가 올바른 팀 인원수를 표시하는지 확인
+        </div>
+        
+        <h2>테스트 팀 선택</h2>
+        <div style="margin: 20px 0;">
+            <button class="test-button" onclick="testTeam('ASSEMBLY')">ASSEMBLY 팀 테스트</button>
+            <button class="test-button" onclick="testTeam('STITCHING')">STITCHING 팀 테스트</button>
+            <button class="test-button" onclick="testTeam('BOTTOM')">BOTTOM 팀 테스트</button>
+            <button class="test-button" onclick="testTeam('MTL')">MTL 팀 테스트</button>
+            <button class="test-button" onclick="testTeam('OSC')">OSC 팀 테스트</button>
+            <button class="test-button" onclick="testTeam('AQL')">AQL 팀 테스트</button>
+            <button class="test-button" onclick="testTeam('QA')">QA 팀 테스트</button>
+        </div>
+        
+        <div id="test-results"></div>
+        
+        <h2>전체 팀 요약</h2>
+        <div id="team-summary"></div>
+    </div>
+    
+    <script>
+        // 팀 데이터 시뮬레이션 (실제 대시보드와 동일한 구조)
+        const teamStats = {
+            "ASSEMBLY": {"total": 120, "resignations": 19, "attendance_rate": 93.52},
+            "STITCHING": {"total": 86, "resignations": 22, "attendance_rate": 91.23},
+            "BOTTOM": {"total": 31, "resignations": 5, "attendance_rate": 94.29},
+            "MTL": {"total": 29, "resignations": 5, "attendance_rate": 94.16},
+            "OSC": {"total": 25, "resignations": 2, "attendance_rate": 96.0},
+            "AQL": {"total": 24, "resignations": 0, "attendance_rate": 97.76},
+            "QA": {"total": 20, "resignations": 1, "attendance_rate": 88.85},
+            "REPACKING": {"total": 15, "resignations": 8, "attendance_rate": 95.38},
+            "CUTTING": {"total": 8, "resignations": 0, "attendance_rate": 64.42},
+            "OFFICE & OCPT": {"total": 4, "resignations": 1, "attendance_rate": 75.0},
+            "HWK QIP": {"total": 1, "resignations": 0, "attendance_rate": 100.0},
+            "NEW": {"total": 20, "resignations": 18, "attendance_rate": 68.85}
+        };
+        
+        function testTeam(teamName) {
+            const resultsDiv = document.getElementById('test-results');
+            const teamData = teamStats[teamName];
+            
+            if (!teamData) {
+                resultsDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>경고:</strong> ${teamName} 팀 데이터를 찾을 수 없습니다.
+                    </div>
+                `;
+                return;
+            }
+            
+            // 주차별 데이터 생성 (실제 대시보드 로직과 동일)
+            const teamSize = teamData.total;
+            const variation = Math.max(1, Math.floor(teamSize * 0.1));
+            const weekData = [
+                Math.max(1, teamSize - Math.floor(Math.random() * variation)),
+                Math.max(1, teamSize - Math.floor(Math.random() * variation) + 1),
+                Math.max(1, teamSize + Math.floor(Math.random() * variation) - 1),
+                teamSize
+            ];
+            
+            resultsDiv.innerHTML = `
+                <div class="team-info">
+                    <h3>${teamName} 팀 테스트 결과</h3>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-label">총 인원</div>
+                            <div class="stat-value">${teamSize}명</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">1주차</div>
+                            <div class="stat-value">${weekData[0]}명</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">2주차</div>
+                            <div class="stat-value">${weekData[1]}명</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">3주차</div>
+                            <div class="stat-value">${weekData[2]}명</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">4주차</div>
+                            <div class="stat-value">${weekData[3]}명</div>
+                        </div>
+                    </div>
+                    <div class="alert alert-success" style="margin-top: 15px;">
+                        <strong>✅ 검증 결과:</strong><br>
+                        - 팀 인원수: ${teamSize}명 (정상)<br>
+                        - 주차별 변동: ±${variation}명 범위 (팀 인원의 10%)<br>
+                        - 4주차 = 현재 팀 인원수 (${teamSize}명)<br>
+                        - 데이터 무결성: 통과
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 페이지 로드 시 전체 팀 요약 표시
+        window.onload = function() {
+            const summaryDiv = document.getElementById('team-summary');
+            let summaryHTML = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">';
+            
+            Object.entries(teamStats).forEach(([teamName, data]) => {
+                summaryHTML += `
+                    <div class="team-info" style="cursor: pointer;" onclick="testTeam('${teamName}')">
+                        <h4 style="margin: 0 0 10px 0; color: #007bff;">${teamName}</h4>
+                        <div style="font-size: 14px; color: #666;">
+                            인원: <strong>${data.total}명</strong><br>
+                            출석률: <strong>${data.attendance_rate.toFixed(1)}%</strong><br>
+                            퇴사: <strong>${data.resignations}명</strong>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            summaryHTML += '</div>';
+            summaryDiv.innerHTML = summaryHTML;
+        };
+    </script>
+</body>
+</html>

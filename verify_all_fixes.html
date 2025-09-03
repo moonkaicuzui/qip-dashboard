@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Fix Verification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        iframe {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .fix-list {
+            list-style: none;
+            padding: 0;
+        }
+        .fix-list li {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-left: 4px solid #007bff;
+        }
+        .fix-list li.fixed {
+            border-left-color: #28a745;
+        }
+        .fix-list li.pending {
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 대시보드 수정 사항 검증</h1>
+        
+        <div class="test-section">
+            <h2>수정 사항 체크리스트</h2>
+            <ul class="fix-list">
+                <li id="fix1">✅ JavaScript 구문 오류 수정 (Lines 3358, 3394, 3552, 3588)</li>
+                <li id="fix2">✅ 함수 스코프 문제 해결 (members 변수 정의)</li>
+                <li id="fix3">✅ 팀 멤버 테이블 데이터 속성 매핑 (employee_no, entrance_date)</li>
+                <li id="fix4">✅ Multi-Level Donut 차트 비율 계산 수정 (teamData.total 우선 사용)</li>
+                <li id="fix5">✅ Sunburst 차트 5단계 계층 구조 구현</li>
+                <li id="fix6">✅ Sunburst 차트 실제 팀 인원 수 표시</li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>자동 테스트</h2>
+            <button onclick="runAllTests()">모든 테스트 실행</button>
+            <button onclick="checkASSSEMBLYTeam()">ASSEMBLY 팀 검증</button>
+            <button onclick="checkChartRendering()">차트 렌더링 검증</button>
+            <button onclick="checkTableData()">테이블 데이터 검증</button>
+            <div id="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>대시보드 뷰</h2>
+            <iframe id="dashboard-frame" src=""></iframe>
+        </div>
+    </div>
+    
+    <script>
+        const resultsDiv = document.getElementById('test-results');
+        
+        function addTestResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+        
+        async function runAllTests() {
+            clearResults();
+            addTestResult('테스트 시작...', 'info');
+            
+            // Load dashboard
+            const iframe = document.getElementById('dashboard-frame');
+            iframe.src = 'output_files/management_dashboard_2025_08.html';
+            
+            iframe.onload = async function() {
+                addTestResult('대시보드 로드 완료', 'success');
+                
+                try {
+                    const iframeWindow = iframe.contentWindow;
+                    const iframeDocument = iframe.contentDocument;
+                    
+                    // Test 1: Check if JavaScript loaded without errors
+                    if (iframeWindow.teamMembers && iframeWindow.teamStats) {
+                        addTestResult('✅ JavaScript 로드 성공', 'success');
+                    } else {
+                        addTestResult('❌ JavaScript 로드 실패', 'error');
+                    }
+                    
+                    // Test 2: Check ASSEMBLY team data
+                    const assemblyStats = iframeWindow.teamStats['2025_08']?.ASSEMBLY;
+                    const julyAssemblyStats = iframeWindow.teamStats['2025_07']?.ASSEMBLY;
+                    
+                    if (assemblyStats && julyAssemblyStats) {
+                        const current = assemblyStats.total;
+                        const previous = julyAssemblyStats.total;
+                        const change = ((current - previous) / previous * 100).toFixed(1);
+                        
+                        if (current === 120 && previous === 115) {
+                            addTestResult(`✅ ASSEMBLY 팀 데이터 정확: 7월(${previous}명) → 8월(${current}명) = +${change}%`, 'success');
+                        } else {
+                            addTestResult(`❌ ASSEMBLY 팀 데이터 오류: 7월(${previous}명) → 8월(${current}명)`, 'error');
+                        }
+                    }
+                    
+                    // Test 3: Check chart elements
+                    const canvases = iframeDocument.querySelectorAll('canvas');
+                    const plotlyDivs = iframeDocument.querySelectorAll('[id*="sunburst"]');
+                    
+                    addTestResult(`Canvas 차트: ${canvases.length}개 발견`, 'info');
+                    addTestResult(`Sunburst 차트: ${plotlyDivs.length}개 발견`, 'info');
+                    
+                    // Test 4: Check team members data
+                    const assemblyMembers = iframeWindow.teamMembers?.ASSEMBLY;
+                    if (assemblyMembers && assemblyMembers.length > 0) {
+                        const firstMember = assemblyMembers[0];
+                        if (firstMember.employee_no && firstMember.entrance_date) {
+                            addTestResult(`✅ 팀 멤버 데이터 구조 정상 (employee_no, entrance_date 속성 존재)`, 'success');
+                        } else {
+                            addTestResult(`⚠️ 팀 멤버 데이터 속성 확인 필요`, 'error');
+                        }
+                        addTestResult(`ASSEMBLY 팀원 수: ${assemblyMembers.length}명`, 'info');
+                    }
+                    
+                    // Test 5: Open ASSEMBLY team modal
+                    if (iframeWindow.showTeamDetails) {
+                        iframeWindow.showTeamDetails('ASSEMBLY');
+                        addTestResult('ASSEMBLY 팀 상세 모달 열기 시도', 'info');
+                        
+                        setTimeout(() => {
+                            const modal = iframeDocument.querySelector('.modal');
+                            if (modal && modal.style.display === 'block') {
+                                addTestResult('✅ 모달 표시 성공', 'success');
+                                
+                                // Check table data
+                                const tbody = modal.querySelector('tbody');
+                                if (tbody) {
+                                    const rows = tbody.querySelectorAll('tr');
+                                    if (rows.length > 0) {
+                                        const firstRow = rows[0];
+                                        const cells = firstRow.querySelectorAll('td');
+                                        let hasData = false;
+                                        
+                                        cells.forEach(cell => {
+                                            if (cell.textContent.trim() && cell.textContent.trim() !== '-') {
+                                                hasData = true;
+                                            }
+                                        });
+                                        
+                                        if (hasData) {
+                                            addTestResult(`✅ 테이블 데이터 표시됨 (${rows.length}개 행)`, 'success');
+                                        } else {
+                                            addTestResult('❌ 테이블 데이터가 모두 "-"로 표시됨', 'error');
+                                        }
+                                    }
+                                }
+                                
+                                // Close modal
+                                const closeBtn = modal.querySelector('.close');
+                                if (closeBtn) closeBtn.click();
+                            }
+                        }, 1000);
+                    }
+                    
+                } catch (error) {
+                    addTestResult(`에러: ${error.message}`, 'error');
+                }
+            };
+            
+            iframe.onerror = function() {
+                addTestResult('대시보드 로드 실패', 'error');
+            };
+        }
+        
+        function checkASSSEMBLYTeam() {
+            const iframe = document.getElementById('dashboard-frame');
+            if (!iframe.src) {
+                iframe.src = 'output_files/management_dashboard_2025_08.html';
+                iframe.onload = () => checkASSSEMBLYTeam();
+                return;
+            }
+            
+            clearResults();
+            const iframeWindow = iframe.contentWindow;
+            
+            if (iframeWindow.showTeamDetails) {
+                iframeWindow.showTeamDetails('ASSEMBLY');
+                addTestResult('ASSEMBLY 팀 상세 정보 표시 중...', 'info');
+            }
+        }
+        
+        function checkChartRendering() {
+            const iframe = document.getElementById('dashboard-frame');
+            if (!iframe.src) {
+                iframe.src = 'output_files/management_dashboard_2025_08.html';
+                iframe.onload = () => checkChartRendering();
+                return;
+            }
+            
+            clearResults();
+            const iframeDocument = iframe.contentDocument;
+            
+            // Check all canvases
+            const canvases = iframeDocument.querySelectorAll('canvas');
+            canvases.forEach((canvas, index) => {
+                const ctx = canvas.getContext('2d');
+                const hasContent = ctx && ctx.canvas.width > 0 && ctx.canvas.height > 0;
+                addTestResult(
+                    `Canvas ${index + 1} (${canvas.id}): ${hasContent ? '✅ 렌더링됨' : '❌ 비어있음'}`,
+                    hasContent ? 'success' : 'error'
+                );
+            });
+        }
+        
+        function checkTableData() {
+            const iframe = document.getElementById('dashboard-frame');
+            if (!iframe.src) {
+                iframe.src = 'output_files/management_dashboard_2025_08.html';
+                iframe.onload = () => checkTableData();
+                return;
+            }
+            
+            clearResults();
+            const iframeWindow = iframe.contentWindow;
+            
+            // Check team members data structure
+            if (iframeWindow.teamMembers) {
+                Object.keys(iframeWindow.teamMembers).forEach(team => {
+                    const members = iframeWindow.teamMembers[team];
+                    if (members.length > 0) {
+                        const sample = members[0];
+                        addTestResult(`${team}: ${members.length}명, 데이터 키: ${Object.keys(sample).join(', ')}`, 'info');
+                    }
+                });
+            }
+        }
+        
+        // Auto-load dashboard on page load
+        window.onload = function() {
+            const iframe = document.getElementById('dashboard-frame');
+            iframe.src = 'output_files/management_dashboard_2025_08.html';
+        };
+    </script>
+</body>
+</html>

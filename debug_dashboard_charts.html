@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Chart Debugging</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            background: #fee;
+            border-color: #dc3545;
+        }
+        .success {
+            background: #efe;
+            border-color: #28a745;
+        }
+        pre {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Dashboard Chart Debugging Tool</h1>
+        
+        <div class="debug-section">
+            <h2>차트 라이브러리 체크</h2>
+            <div id="library-check"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>데이터 체크</h2>
+            <div id="data-check"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>차트 테스트</h2>
+            <button onclick="testWeeklyChart()">주차별 차트 테스트</button>
+            <button onclick="testDonutChart()">도넛 차트 테스트</button>
+            <button onclick="testSunburstChart()">Sunburst 차트 테스트</button>
+            <button onclick="loadDashboard()">대시보드 데이터 로드</button>
+        </div>
+        
+        <div class="debug-section">
+            <h2>테스트 결과</h2>
+            <div id="test-results"></div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="test-chart"></canvas>
+            <div id="plotly-chart"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 라이브러리 체크
+        function checkLibraries() {
+            const libraryDiv = document.getElementById('library-check');
+            let html = '<ul>';
+            
+            // Chart.js 체크
+            if (typeof Chart !== 'undefined') {
+                html += '<li>✅ Chart.js 로드됨 (버전: ' + Chart.version + ')</li>';
+            } else {
+                html += '<li>❌ Chart.js 로드 실패</li>';
+            }
+            
+            // Plotly 체크
+            if (typeof Plotly !== 'undefined') {
+                html += '<li>✅ Plotly 로드됨</li>';
+            } else {
+                html += '<li>❌ Plotly 로드 실패</li>';
+            }
+            
+            html += '</ul>';
+            libraryDiv.innerHTML = html;
+        }
+        
+        // 주차별 차트 테스트
+        function testWeeklyChart() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h3>주차별 차트 테스트 중...</h3>';
+            
+            try {
+                const ctx = document.getElementById('test-chart');
+                
+                // 기존 차트 제거
+                if (window.testChart) {
+                    window.testChart.destroy();
+                }
+                
+                const testData = {
+                    labels: ['1주차', '2주차', '3주차', '4주차'],
+                    datasets: [{
+                        label: 'ASSEMBLY 팀',
+                        data: [110, 112, 115, 120],
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.4
+                    }]
+                };
+                
+                window.testChart = new Chart(ctx, {
+                    type: 'line',
+                    data: testData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '주차별 팀 인원 트렌드 테스트'
+                            }
+                        }
+                    }
+                });
+                
+                resultsDiv.innerHTML = '<div class="success">✅ 주차별 차트 생성 성공!</div>';
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="error">❌ 오류: ' + error.message + '</div>';
+                console.error('Chart error:', error);
+            }
+        }
+        
+        // 도넛 차트 테스트
+        function testDonutChart() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h3>도넛 차트 테스트 중...</h3>';
+            
+            try {
+                const ctx = document.getElementById('test-chart');
+                
+                if (window.testChart) {
+                    window.testChart.destroy();
+                }
+                
+                const testData = {
+                    labels: ['INSPECTOR', 'TOP-MANAGEMENT', 'MID-MANAGEMENT', 'SUPPORT'],
+                    datasets: [{
+                        data: [85, 5, 10, 20],
+                        backgroundColor: [
+                            '#FF6B6B',
+                            '#4ECDC4',
+                            '#45B7D1',
+                            '#96CEB4'
+                        ]
+                    }]
+                };
+                
+                window.testChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: testData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '팀 역할 분포 테스트'
+                            }
+                        }
+                    }
+                });
+                
+                resultsDiv.innerHTML = '<div class="success">✅ 도넛 차트 생성 성공!</div>';
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="error">❌ 오류: ' + error.message + '</div>';
+                console.error('Donut chart error:', error);
+            }
+        }
+        
+        // Sunburst 차트 테스트
+        function testSunburstChart() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h3>Sunburst 차트 테스트 중...</h3>';
+            
+            try {
+                // Canvas 숨기고 Plotly div 표시
+                document.getElementById('test-chart').style.display = 'none';
+                const plotlyDiv = document.getElementById('plotly-chart');
+                plotlyDiv.style.display = 'block';
+                
+                const data = [{
+                    type: 'sunburst',
+                    labels: ['ASSEMBLY', 'INSPECTOR', 'SUPPORT', 'John Doe', 'Jane Smith'],
+                    parents: ['', 'ASSEMBLY', 'ASSEMBLY', 'INSPECTOR', 'SUPPORT'],
+                    values: [120, 85, 35, 1, 1],
+                    marker: {
+                        colors: ['#4CAF50', '#FF6B6B', '#96CEB4', '#FFB6C1', '#98D8C8']
+                    }
+                }];
+                
+                const layout = {
+                    title: 'Sunburst 차트 테스트',
+                    margin: {l: 0, r: 0, b: 0, t: 40},
+                    height: 400
+                };
+                
+                Plotly.newPlot(plotlyDiv, data, layout);
+                
+                resultsDiv.innerHTML = '<div class="success">✅ Sunburst 차트 생성 성공!</div>';
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="error">❌ 오류: ' + error.message + '</div>';
+                console.error('Sunburst error:', error);
+            }
+        }
+        
+        // 대시보드 데이터 로드 및 분석
+        function loadDashboard() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<h3>대시보드 데이터 분석 중...</h3>';
+            
+            // iframe으로 대시보드 로드
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = 'output_files/management_dashboard_2025_08.html';
+            
+            iframe.onload = function() {
+                try {
+                    const iframeWindow = iframe.contentWindow;
+                    const iframeDocument = iframe.contentDocument;
+                    
+                    // 데이터 체크
+                    let html = '<h3>대시보드 데이터 분석 결과:</h3><ul>';
+                    
+                    // teamMembers 변수 체크
+                    if (iframeWindow.teamMembers) {
+                        const teams = Object.keys(iframeWindow.teamMembers);
+                        html += '<li>✅ teamMembers 데이터 발견: ' + teams.length + '개 팀</li>';
+                        html += '<li>팀 목록: ' + teams.join(', ') + '</li>';
+                        
+                        // 각 팀의 멤버 수 체크
+                        teams.forEach(team => {
+                            const members = iframeWindow.teamMembers[team];
+                            html += '<li>' + team + ': ' + (members ? members.length : 0) + '명</li>';
+                        });
+                    } else {
+                        html += '<li>❌ teamMembers 데이터 없음</li>';
+                    }
+                    
+                    // 차트 캔버스 체크
+                    const canvases = iframeDocument.querySelectorAll('canvas');
+                    html += '<li>Canvas 요소: ' + canvases.length + '개 발견</li>';
+                    
+                    // Plotly 차트 체크
+                    const plotlyDivs = iframeDocument.querySelectorAll('[id*="sunburst"]');
+                    html += '<li>Sunburst 차트 컨테이너: ' + plotlyDivs.length + '개 발견</li>';
+                    
+                    html += '</ul>';
+                    resultsDiv.innerHTML = html;
+                    
+                } catch (error) {
+                    resultsDiv.innerHTML = '<div class="error">❌ 대시보드 분석 중 오류: ' + error.message + '</div>';
+                }
+                
+                // iframe 제거
+                document.body.removeChild(iframe);
+            };
+            
+            document.body.appendChild(iframe);
+        }
+        
+        // 데이터 체크
+        function checkData() {
+            const dataDiv = document.getElementById('data-check');
+            
+            // 샘플 데이터 구조 확인
+            const sampleTeamData = {
+                'ASSEMBLY': [
+                    {name: 'John Doe', position: 'ASSEMBLY INSPECTOR', role: 'INSPECTOR'},
+                    {name: 'Jane Smith', position: 'GROUP LEADER', role: 'MID-MANAGEMENT'}
+                ]
+            };
+            
+            let html = '<h3>예상 데이터 구조:</h3>';
+            html += '<pre>' + JSON.stringify(sampleTeamData, null, 2) + '</pre>';
+            
+            dataDiv.innerHTML = html;
+        }
+        
+        // 페이지 로드 시 체크
+        window.onload = function() {
+            checkLibraries();
+            checkData();
+        };
+    </script>
+</body>
+</html>

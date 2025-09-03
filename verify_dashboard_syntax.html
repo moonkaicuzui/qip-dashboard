@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Syntax Verification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status-section {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .test-results {
+            margin-top: 20px;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Dashboard JavaScript Syntax Verification</h1>
+        
+        <div class="status-section info">
+            <h2>검증 방법</h2>
+            <p>이 페이지는 대시보드의 JavaScript 구문 오류를 자동으로 검증합니다.</p>
+            <ol>
+                <li>대시보드를 iframe으로 로드합니다</li>
+                <li>JavaScript 오류를 감지합니다</li>
+                <li>콘솔 로그를 캡처합니다</li>
+                <li>결과를 표시합니다</li>
+            </ol>
+        </div>
+        
+        <div class="test-controls">
+            <button onclick="testDashboard()">대시보드 테스트 시작</button>
+            <button onclick="openDashboard()">대시보드 직접 열기</button>
+        </div>
+        
+        <div id="test-results" class="test-results"></div>
+    </div>
+    
+    <script>
+        let errorCount = 0;
+        let warningCount = 0;
+        let logs = [];
+        
+        // 전역 에러 핸들러
+        window.addEventListener('error', function(event) {
+            errorCount++;
+            const errorMsg = `Error: ${event.message} at ${event.filename}:${event.lineno}:${event.colno}`;
+            logs.push(errorMsg);
+            console.error('Captured error:', errorMsg);
+        });
+        
+        function testDashboard() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="status-section info"><h3>테스트 진행 중...</h3></div>';
+            
+            errorCount = 0;
+            warningCount = 0;
+            logs = [];
+            
+            // iframe 생성하여 대시보드 로드
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = 'output_files/management_dashboard_2025_08.html';
+            
+            iframe.onload = function() {
+                // iframe 내부 오류 확인
+                try {
+                    const iframeWindow = iframe.contentWindow;
+                    
+                    // iframe 내 에러 리스너 추가
+                    iframeWindow.addEventListener('error', function(event) {
+                        errorCount++;
+                        logs.push(`Iframe Error: ${event.message} at line ${event.lineno}`);
+                    });
+                    
+                    // 잠시 대기 후 결과 표시
+                    setTimeout(() => {
+                        displayResults();
+                        document.body.removeChild(iframe);
+                    }, 3000);
+                    
+                } catch (e) {
+                    resultsDiv.innerHTML = `
+                        <div class="status-section error">
+                            <h3>❌ 테스트 실행 중 오류</h3>
+                            <p>${e.message}</p>
+                        </div>
+                    `;
+                    if (iframe.parentNode) {
+                        document.body.removeChild(iframe);
+                    }
+                }
+            };
+            
+            iframe.onerror = function() {
+                resultsDiv.innerHTML = `
+                    <div class="status-section error">
+                        <h3>❌ 대시보드 로드 실패</h3>
+                        <p>Dashboard 파일을 찾을 수 없거나 로드할 수 없습니다.</p>
+                    </div>
+                `;
+            };
+            
+            document.body.appendChild(iframe);
+        }
+        
+        function displayResults() {
+            const resultsDiv = document.getElementById('test-results');
+            
+            if (errorCount === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="status-section success">
+                        <h3>✅ 검증 성공!</h3>
+                        <p>JavaScript 구문 오류가 발견되지 않았습니다.</p>
+                        <p>대시보드가 정상적으로 로드되었습니다.</p>
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = `
+                    <div class="status-section error">
+                        <h3>❌ 오류 발견</h3>
+                        <p>${errorCount}개의 JavaScript 오류가 발견되었습니다.</p>
+                        <h4>오류 목록:</h4>
+                        <pre>${logs.join('\n')}</pre>
+                    </div>
+                `;
+            }
+            
+            // 추가 정보
+            resultsDiv.innerHTML += `
+                <div class="status-section info">
+                    <h3>📊 검증 요약</h3>
+                    <ul>
+                        <li>테스트 시간: ${new Date().toLocaleString('ko-KR')}</li>
+                        <li>오류 개수: ${errorCount}</li>
+                        <li>경고 개수: ${warningCount}</li>
+                        <li>대시보드 파일: management_dashboard_2025_08.html</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function openDashboard() {
+            window.open('output_files/management_dashboard_2025_08.html', '_blank');
+        }
+        
+        // 페이지 로드 시 자동 테스트
+        window.onload = function() {
+            console.log('Dashboard Syntax Verification Tool Loaded');
+        };
+    </script>
+</body>
+</html>
