@@ -683,6 +683,87 @@
       "team_name": "ASSEMBLY",
       "role_category": "INSPECTOR",
       "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "GROUP LEADER",
+      "position_2nd": "REPORT TEAM ",
+      "position_3rd": "TEAM OPERATION MANAGEMENT",
+      "final_code": "OF2B",
+      "team_name": "OFFICE & OCPT",
+      "role_category": "REPORT",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "A.MANAGER",
+      "position_2nd": "A.MANAGER",
+      "position_3rd": "ALL ASSEMBLY QUALITY IN CHARGE",
+      "final_code": "H2",
+      "team_name": "ASSEMBLY",
+      "role_category": "TOP-MANAGEMENT",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "(V) SUPERVISOR",
+      "position_2nd": "(V) SUPERVISOR",
+      "position_3rd": "1 ASSEMBLY BUILDING QUALITY IN CHARGE",
+      "final_code": "G2",
+      "team_name": "ASSEMBLY",
+      "role_category": "TOP-MANAGEMENT",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "STITCHING INSPECTOR",
+      "position_2nd": "UPPER INSPECTOR ",
+      "position_3rd": "STITCHING LINE RQC",
+      "final_code": "S1B2",
+      "team_name": "STITCHING",
+      "role_category": "INSPECTOR",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "LINE LEADER ( GROUP LEADER SUCCESSOR)",
+      "position_3rd": "12 ASSEMBLY LINE QUALITY IN CHARGE",
+      "final_code": "E2",
+      "team_name": "ASSEMBLY",
+      "role_category": "MID-MANAGEMENT",
+      "role_type": "TYPE-1"
+    },
+    {
+      "position_1st": "STITCHING INSPECTOR",
+      "position_2nd": "UPPER INSPECTOR ",
+      "position_3rd": "STITCHING LINE TQC",
+      "final_code": "S1A2",
+      "team_name": "STITCHING",
+      "role_category": "INSPECTOR",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "LINE LEADER ( GROUP LEADER SUCCESSOR)",
+      "position_3rd": "1 STITCHING BUILDING QIP LEADER'S SUCCESSOR 1",
+      "final_code": "R2",
+      "team_name": "STITCHING",
+      "role_category": "MID-MANAGEMENT",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "LINE LEADER",
+      "position_2nd": "LINE LEADER ( GROUP LEADER SUCCESSOR)",
+      "position_3rd": "1 BUILDING BOTTOM QUALITY IN CHARGE",
+      "final_code": "BTS1B",
+      "team_name": "BOTTOM",
+      "role_category": "MID-MANAGEMENT",
+      "role_type": "TYPE-2"
+    },
+    {
+      "position_1st": "AQL INSPECTOR",
+      "position_2nd": "QIP PACKING TEAM",
+      "position_3rd": "FG WH INPUT-OUTPUT CARTON TQC",
+      "final_code": "B2F",
+      "team_name": "AQL",
+      "role_category": "PACKING",
+      "role_type": "TYPE-2"
     }
   ],
   "teams": [

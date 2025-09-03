@@ -326,11 +326,19 @@ class EnhancedHRDashboard:
         df = self.data['current']
         metrics = {}
         
-        # 활성 직원만 필터링
-        if 'RE MARK' in df.columns:
+        # 활성 직원만 필터링 - 해당 월 시작일 기준으로 필터링
+        # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
+        month_start = pd.Timestamp(self.year, self.month, 1)
+        
+        if 'Stop working Date' in df.columns:
+            # 퇴사일이 없거나, 퇴사일이 해당 월 시작일 이후인 경우만 포함
+            active_mask = df['Stop working Date'].isna() | (df['Stop working Date'] >= month_start)
+        elif 'RE MARK' in df.columns:
+            # Stop working Date가 없는 경우에만 RE MARK 사용
             active_mask = df['RE MARK'] != 'Stop working'
         else:
-            active_mask = df['Stop working Date'].isna() | (df['Stop working Date'] > self.report_date)
+            # 모든 직원을 활성으로 간주
+            active_mask = pd.Series([True] * len(df), index=df.index)
             
         active_employees = df[active_mask]
         metrics['total_employees'] = len(active_employees)
@@ -479,11 +487,60 @@ class EnhancedHRDashboard:
         df = self.data['current']
         team_stats = {}
         
-        # 팀 칼럼 찾기 - position 조합 우선 사용
+        # 팀 칼럼 찾기 - 개선된 매핑 로직 적용 (July와 동일)
         df['real_team'] = None
         
-        # 1. Position 조합으로 먼저 시도 (가장 정확)
+        # ASSEMBLY INSPECTOR 특별 처리 - position_3rd로 구분
+        assembly_mask = (df['QIP POSITION 1ST  NAME'] == 'ASSEMBLY INSPECTOR')
+        if 'QIP POSITION 3RD  NAME' in df.columns:
+            repacking_keywords = ['REPACKING', 'REPACK']
+            assembly_repacking_mask = assembly_mask & df['QIP POSITION 3RD  NAME'].str.contains('|'.join(repacking_keywords), case=False, na=False)
+            df.loc[assembly_repacking_mask, 'real_team'] = 'REPACKING'
+            assembly_not_repacking = assembly_mask & ~assembly_repacking_mask
+            df.loc[assembly_not_repacking, 'real_team'] = 'ASSEMBLY'
+        else:
+            df.loc[assembly_mask, 'real_team'] = 'ASSEMBLY'
+        
+        # LINE LEADER 특별 처리 - position_2nd 기반 매핑
+        line_leader_mask = (df['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
+        if 'QIP POSITION 2ND  NAME' in df.columns:
+            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('GROUP LEADER SUCCESSOR', case=False, na=False), 'real_team'] = 'STITCHING'
+            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('SUVERVISOR SUCCESSOR', case=False, na=False), 'real_team'] = 'CUTTING'
+            df.loc[line_leader_mask & (df['QIP POSITION 2ND  NAME'] == 'LINE LEADER'), 'real_team'] = 'OSC'
+            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('HAPPO MTL', case=False, na=False), 'real_team'] = 'MTL'
+        
+        # GROUP LEADER 특별 처리 - position_2nd 기반 매핑
+        group_leader_mask = (df['QIP POSITION 1ST  NAME'] == 'GROUP LEADER')
+        if 'QIP POSITION 2ND  NAME' in df.columns:
+            df.loc[group_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('HEAD/', case=False, na=False), 'real_team'] = 'STITCHING'
+            df.loc[group_leader_mask & (df['QIP POSITION 2ND  NAME'] == 'GROUP LEADER'), 'real_team'] = 'ASSEMBLY'
+            df.loc[group_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('REPORT TEAM', case=False, na=False), 'real_team'] = 'OFFICE & OCPT'
+        
+        # (V) SUPERVISOR 특별 처리 - position_3rd 기반 매핑
+        supervisor_mask = (df['QIP POSITION 1ST  NAME'] == '(V) SUPERVISOR')
+        if 'QIP POSITION 3RD  NAME' in df.columns:
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('ASSEMBLY', case=False, na=False), 'real_team'] = 'ASSEMBLY'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('CUTTING', case=False, na=False), 'real_team'] = 'CUTTING'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('OCPT|OFFICE', case=False, na=False), 'real_team'] = 'OFFICE & OCPT'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('OSC|MTL', case=False, na=False), 'real_team'] = 'OSC'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('QA TEAM', case=False, na=False), 'real_team'] = 'QA'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('STITCHING', case=False, na=False), 'real_team'] = 'STITCHING'
+        
+        # A.MANAGER 특별 처리 - position_3rd 기반 매핑
+        manager_mask = (df['QIP POSITION 1ST  NAME'] == 'A.MANAGER')
+        if 'QIP POSITION 3RD  NAME' in df.columns:
+            df.loc[manager_mask & df['QIP POSITION 3RD  NAME'].str.contains('ASSEMBLY', case=False, na=False), 'real_team'] = 'ASSEMBLY'
+            df.loc[manager_mask & df['QIP POSITION 3RD  NAME'].str.contains('STITCHING', case=False, na=False), 'real_team'] = 'STITCHING'
+        
+        # NEW QIP MEMBER 처리
+        new_member_mask = df['QIP POSITION 1ST  NAME'].str.contains('NEW QIP MEMBER', case=False, na=False)
+        df.loc[new_member_mask, 'real_team'] = 'NEW'
+        
+        # 나머지 포지션에 대한 매핑 - position 조합 우선 사용
         for idx, row in df.iterrows():
+            if pd.notna(df.at[idx, 'real_team']):  # 이미 매핑된 경우 건너뜀
+                continue
+                
             pos1 = str(row.get('QIP POSITION 1ST  NAME', '')).strip()
             pos2 = str(row.get('QIP POSITION 2ND  NAME', '')).strip()
             pos3 = str(row.get('QIP POSITION 3RD  NAME', '')).strip()
@@ -495,21 +552,20 @@ class EnhancedHRDashboard:
             if combo_key in self.position_combo_to_team:
                 df.at[idx, 'real_team'] = self.position_combo_to_team[combo_key]
         
-        # 2. 조합으로 못 찾은 경우, 개별 position 컬럼으로 시도
-        # 우선순위: 가장 구체적인 것부터 (3RD -> FINAL CODE -> 2ND -> 1ST)
+        # 여전히 매핑되지 않은 경우 개별 position으로 시도
         position_columns = [
-            'QIP POSITION 3RD  NAME',        # 가장 구체적
-            'FINAL QIP POSITION NAME CODE',   # 다음으로 구체적
-            'QIP POSITION 2ND  NAME',         # 중간 레벨
-            'QIP POSITION 1ST  NAME'          # 가장 일반적
+            'QIP POSITION 1ST  NAME',
+            'QIP POSITION 2ND  NAME',
+            'QIP POSITION 3RD  NAME',
+            'FINAL QIP POSITION NAME CODE'
         ]
         
         for col in position_columns:
             if col in df.columns:
-                # 각 포지션 컬럼에서 팀 찾기
-                temp_mapping = df[col].map(self.position_to_team)
-                # 비어있는 값만 채우기 (이미 매핑된 값은 유지)
-                df['real_team'] = df['real_team'].combine_first(temp_mapping)
+                unmapped_mask = df['real_team'].isna()
+                if unmapped_mask.any():
+                    temp_mapping = df.loc[unmapped_mask, col].map(self.position_to_team)
+                    df.loc[unmapped_mask, 'real_team'] = df.loc[unmapped_mask, 'real_team'].combine_first(temp_mapping)
         
         # 여전히 매핑되지 않은 경우 기본값 설정
         df['real_team'] = df['real_team'].fillna('Team Unidentified')
@@ -519,8 +575,19 @@ class EnhancedHRDashboard:
         for team in df[team_column].dropna().unique():
             team_df = df[df[team_column] == team]
             
-            # 활성 직원만
-            active_mask = team_df['RE MARK'] != 'Stop working' if 'RE MARK' in team_df.columns else team_df['Stop working Date'].isna()
+            # 활성 직원만 - 해당 월 시작일 기준으로 필터링
+            # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
+            month_start = pd.Timestamp(self.year, self.month, 1)
+            
+            if 'Stop working Date' in team_df.columns:
+                # 퇴사일이 없거나, 퇴사일이 해당 월 시작일 이후인 경우만 포함
+                active_mask = team_df['Stop working Date'].isna() | (team_df['Stop working Date'] >= month_start)
+            elif 'RE MARK' in team_df.columns:
+                # Stop working Date가 없는 경우에만 RE MARK 사용
+                active_mask = team_df['RE MARK'] != 'Stop working'
+            else:
+                # 모든 직원을 활성으로 간주
+                active_mask = pd.Series([True] * len(team_df), index=team_df.index)
             active_team = team_df[active_mask]
             
             # 만근 직원 계산
@@ -586,12 +653,67 @@ class EnhancedHRDashboard:
         if self.data['previous'].empty:
             return {}
             
-        df = self.data['previous']
+        df = self.data['previous'].copy()
         team_stats = {}
         
-        # 팀 칼럼 찾기 - Assembly Inspector 수정 로직 적용
+        # 팀 칼럼 찾기 - 개선된 매핑 로직 적용
         df['real_team'] = None
         
+        # ASSEMBLY INSPECTOR 특별 처리 - 7월 데이터 특성 고려
+        # position_3rd가 ASSEMBLY LINE 관련이면 ASSEMBLY, REPACKING LINE 관련이면 REPACKING
+        assembly_mask = (df['QIP POSITION 1ST  NAME'] == 'ASSEMBLY INSPECTOR')
+        
+        # position_3rd로 구분
+        if 'QIP POSITION 3RD  NAME' in df.columns:
+            # REPACKING 관련 키워드
+            repacking_keywords = ['REPACKING', 'REPACK']
+            assembly_repacking_mask = assembly_mask & df['QIP POSITION 3RD  NAME'].str.contains('|'.join(repacking_keywords), case=False, na=False)
+            df.loc[assembly_repacking_mask, 'real_team'] = 'REPACKING'
+            
+            # 나머지 ASSEMBLY INSPECTOR는 ASSEMBLY
+            assembly_not_repacking = assembly_mask & ~assembly_repacking_mask
+            df.loc[assembly_not_repacking, 'real_team'] = 'ASSEMBLY'
+        else:
+            # position_3rd가 없으면 모두 ASSEMBLY로
+            df.loc[assembly_mask, 'real_team'] = 'ASSEMBLY'
+        
+        # LINE LEADER 특별 처리 - position_2nd 기반 매핑
+        line_leader_mask = (df['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
+        if 'QIP POSITION 2ND  NAME' in df.columns:
+            # 각 position_2nd에 따른 팀 매핑
+            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('GROUP LEADER SUCCESSOR', case=False, na=False), 'real_team'] = 'STITCHING'
+            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('SUVERVISOR SUCCESSOR', case=False, na=False), 'real_team'] = 'CUTTING'
+            df.loc[line_leader_mask & (df['QIP POSITION 2ND  NAME'] == 'LINE LEADER'), 'real_team'] = 'OSC'
+            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('HAPPO MTL', case=False, na=False), 'real_team'] = 'MTL'
+        
+        # GROUP LEADER 특별 처리 - position_2nd 기반 매핑
+        group_leader_mask = (df['QIP POSITION 1ST  NAME'] == 'GROUP LEADER')
+        if 'QIP POSITION 2ND  NAME' in df.columns:
+            df.loc[group_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('HEAD/', case=False, na=False), 'real_team'] = 'STITCHING'
+            df.loc[group_leader_mask & (df['QIP POSITION 2ND  NAME'] == 'GROUP LEADER'), 'real_team'] = 'ASSEMBLY'
+            df.loc[group_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('REPORT TEAM', case=False, na=False), 'real_team'] = 'OFFICE & OCPT'
+        
+        # (V) SUPERVISOR 특별 처리 - position_3rd 기반 매핑
+        supervisor_mask = (df['QIP POSITION 1ST  NAME'] == '(V) SUPERVISOR')
+        if 'QIP POSITION 3RD  NAME' in df.columns:
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('ASSEMBLY', case=False, na=False), 'real_team'] = 'ASSEMBLY'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('CUTTING', case=False, na=False), 'real_team'] = 'CUTTING'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('OCPT|OFFICE', case=False, na=False), 'real_team'] = 'OFFICE & OCPT'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('OSC|MTL', case=False, na=False), 'real_team'] = 'OSC'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('QA TEAM', case=False, na=False), 'real_team'] = 'QA'
+            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('STITCHING', case=False, na=False), 'real_team'] = 'STITCHING'
+        
+        # A.MANAGER 특별 처리 - position_3rd 기반 매핑
+        manager_mask = (df['QIP POSITION 1ST  NAME'] == 'A.MANAGER')
+        if 'QIP POSITION 3RD  NAME' in df.columns:
+            df.loc[manager_mask & df['QIP POSITION 3RD  NAME'].str.contains('ASSEMBLY', case=False, na=False), 'real_team'] = 'ASSEMBLY'
+            df.loc[manager_mask & df['QIP POSITION 3RD  NAME'].str.contains('STITCHING', case=False, na=False), 'real_team'] = 'STITCHING'
+        
+        # NEW QIP MEMBER 처리
+        new_member_mask = df['QIP POSITION 1ST  NAME'].str.contains('NEW QIP MEMBER', case=False, na=False)
+        df.loc[new_member_mask, 'real_team'] = 'NEW'
+        
+        # 나머지 포지션에 대한 매핑
         position_columns = [
             'QIP POSITION 1ST  NAME',
             'QIP POSITION 2ND  NAME', 
@@ -601,10 +723,11 @@ class EnhancedHRDashboard:
         
         for col in position_columns:
             if col in df.columns:
-                # 각 포지션 컬럼에서 팀 찾기
-                temp_mapping = df[col].map(self.position_to_team)
-                # 비어있는 값만 채우기 (이미 매핑된 값은 유지)
-                df['real_team'] = df['real_team'].combine_first(temp_mapping)
+                # 이미 매핑된 행은 건드리지 않음
+                unmapped_mask = df['real_team'].isna()
+                if unmapped_mask.any():
+                    temp_mapping = df.loc[unmapped_mask, col].map(self.position_to_team)
+                    df.loc[unmapped_mask, 'real_team'] = df.loc[unmapped_mask, 'real_team'].combine_first(temp_mapping)
         
         # 여전히 매핑되지 않은 경우 기본값 설정
         df['real_team'] = df['real_team'].fillna('Team Unidentified')
@@ -614,8 +737,20 @@ class EnhancedHRDashboard:
         for team in df[team_column].dropna().unique():
             team_df = df[df[team_column] == team]
             
-            # 활성 직원만
-            active_mask = team_df['RE MARK'] != 'Stop working' if 'RE MARK' in team_df.columns else team_df['Stop working Date'].isna()
+            # 활성 직원만 - 이전 월 시작일 기준으로 필터링
+            # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
+            prev_month_start = pd.Timestamp(self.year if self.month > 1 else self.year-1, 
+                                           self.month-1 if self.month > 1 else 12, 1)
+            
+            if 'Stop working Date' in team_df.columns:
+                # 퇴사일이 없거나, 퇴사일이 이전 월 시작일 이후인 경우만 포함
+                active_mask = team_df['Stop working Date'].isna() | (team_df['Stop working Date'] >= prev_month_start)
+            elif 'RE MARK' in team_df.columns:
+                # Stop working Date가 없는 경우에만 RE MARK 사용
+                active_mask = team_df['RE MARK'] != 'Stop working'
+            else:
+                # 모든 직원을 활성으로 간주
+                active_mask = pd.Series([True] * len(team_df), index=team_df.index)
             active_team = team_df[active_mask]
             
             team_stats[team] = {
@@ -645,10 +780,14 @@ class EnhancedHRDashboard:
         self.metadata['team_stats'] = self.metadata.get('team_stats', {})
         self.metadata['team_stats'][month_key] = self.calculate_team_statistics()
         
-        # 7월 팀별 통계도 저장 (없으면 생성)
+        # 7월 팀별 통계 재계산 - 항상 새로 계산하여 정확도 보장
         prev_month_key = f"{self.year}_{(self.month-1):02d}" if self.month > 1 else f"{self.year-1}_12"
-        if prev_month_key not in self.metadata['team_stats']:
+        # 이전 월 데이터가 있으면 항상 재계산 (기존 저장된 잘못된 데이터 문제 해결)
+        if not self.data['previous'].empty:
             self.metadata['team_stats'][prev_month_key] = self.calculate_previous_team_statistics()
+        elif prev_month_key not in self.metadata['team_stats']:
+            # 이전 월 데이터가 없으면 빈 딕셔너리
+            self.metadata['team_stats'][prev_month_key] = {}
         
         # 결근 사유 저장
         self.metadata['absence_reasons'] = self.metadata.get('absence_reasons', {})
@@ -1675,8 +1814,19 @@ class EnhancedHRDashboard:
             # 여전히 매핑되지 않은 경우 기본값 설정
             df['real_team'] = df['real_team'].fillna('Team Unidentified')
             
-            # 활성 직원만 필터링
-            active_mask = df['RE MARK'] != 'Stop working' if 'RE MARK' in df.columns else df['Stop working Date'].isna()
+            # 활성 직원만 필터링 - 해당 월 시작일 기준으로 필터링
+            # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
+            month_start = pd.Timestamp(self.year, self.month, 1)
+            
+            if 'Stop working Date' in df.columns:
+                # 퇴사일이 없거나, 퇴사일이 해당 월 시작일 이후인 경우만 포함
+                active_mask = df['Stop working Date'].isna() | (df['Stop working Date'] >= month_start)
+            elif 'RE MARK' in df.columns:
+                # Stop working Date가 없는 경우에만 RE MARK 사용
+                active_mask = df['RE MARK'] != 'Stop working'
+            else:
+                # 모든 직원을 활성으로 간주
+                active_mask = pd.Series([True] * len(df), index=df.index)
             active_df = df[active_mask]
             
             # 팀별로 멤버 정보 수집
