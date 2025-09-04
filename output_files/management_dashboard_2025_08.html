@@ -542,7 +542,7 @@
             <div class="header-info">
                 <span>📅 2025년 8월</span>
                 <span>📆 데이터 기간: 2025.08.01 ~ 2025.08.16</span>
-                <span>⏰ 생성일시: 2025-09-04 16:29:21</span>
+                <span>⏰ 생성일시: 2025-09-04 18:07:18</span>
                 <span>🚫 No Fake Data</span>
                 <button onclick="navigateToIncentive()" class="nav-button">📊 Incentive Dashboard</button>
             </div>
@@ -564,7 +564,7 @@
                 <div class="card-title">총인원 정보</div>
                 <div class="card-value">381명</div>
                 <div class="card-subtitle">TYPE-1: 127명 TYPE-2: 235명 TYPE-3: 19명</div>
-                <div class="card-change change-neutral">새로운 데이터</div>
+                <div class="card-change change-positive">▲ 1.3% vs last month (+5명)</div>
             </div>
             
             <div class="hr-card" onclick="showErrorDetails()"  style="border: 2px solid #ff4444; background-color: #fff5f5;">
@@ -580,7 +580,7 @@
                 <div class="card-title">결근자 정보/결근율</div>
                 <div class="card-value">14.0%</div>
                 <div class="card-subtitle">결근자: 373명</div>
-                <div class="card-change change-neutral">새로운 데이터</div>
+                <div class="card-change change-positive">▲ 51.0% vs last month</div>
             </div>
             
             <div class="hr-card" onclick="openModal('modal-resignation')" >
@@ -633,7 +633,7 @@
                 <div class="card-title">만근자</div>
                 <div class="card-value">8명</div>
                 <div class="card-subtitle">만근율: 2.1%</div>
-                <div class="card-change change-neutral">새로운 데이터</div>
+                <div class="card-change change-negative">▼ 97.4% vs last month (-297명)</div>
             </div>
             
             <div class="hr-card" onclick="openModal('modal-long-term')" >
@@ -1058,11 +1058,11 @@
     <script>
         
         // 📊 중앙 데이터 구조 - Single Source of Truth
-        const centralizedData = {"current_month": {"total_employees": 381, "type1_count": "127", "type2_count": "235", "type3_count": "19", "attendance_rate": 86.03192702394526, "absence_rate": 13.968072976054742, "absence_count": 373, "resignation_count": 0, "resignation_rate": 0.0, "recent_hires": 3, "recent_resignations": 0, "under_60_days": 15, "full_attendance_count": 8, "long_term_count": 276, "team_stats": {"OFFICE & OCPT": {"total": 5, "attendance_rate": 74.29, "absence_rate": 25.71, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "OSC": {"total": 25, "attendance_rate": 89.14, "absence_rate": 10.86, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "ASSEMBLY": {"total": 112, "attendance_rate": 87.24, "absence_rate": 12.76, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "BOTTOM": {"total": 28, "attendance_rate": 86.99, "absence_rate": 13.01, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "QA": {"total": 20, "attendance_rate": 81.91, "absence_rate": 18.09, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "MTL": {"total": 28, "attendance_rate": 90.56, "absence_rate": 9.44, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "STITCHING": {"total": 96, "attendance_rate": 83.63, "absence_rate": 16.37, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "AQL": {"total": 23, "attendance_rate": 90.68, "absence_rate": 9.32, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "REPACKING": {"total": 16, "attendance_rate": 88.84, "absence_rate": 11.16, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "HWK QIP": {"total": 1, "attendance_rate": 92.86, "absence_rate": 7.14, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "CUTTING": {"total": 8, "attendance_rate": 59.82, "absence_rate": 40.18, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "NEW": {"total": 19, "attendance_rate": 90.1, "absence_rate": 9.9, "new_hires": 7, "resignations": 0, "full_attendance_count": 8, "full_attendance_rate": 42.11}}}, "previous_month": {"total_employees": 0, "attendance_rate": 0, "absence_rate": 0, "resignation_count": 0, "recent_hires": 0, "full_attendance_count": 0, "team_stats": {"OFFICE & OCPT": {"total": 5, "attendance_rate": 80.0, "absence_rate": 20.0, "new_hires": 0, "resignations": 0, "full_attendance_count": 4, "full_attendance_rate": 80.0}, "OSC": {"total": 22, "attendance_rate": 95.06, "absence_rate": 4.94, "new_hires": 0, "resignations": 0, "full_attendance_count": 20, "full_attendance_rate": 90.91}, "ASSEMBLY": {"total": 110, "attendance_rate": 94.51, "absence_rate": 5.49, "new_hires": 1, "resignations": 0, "full_attendance_count": 94, "full_attendance_rate": 85.45}, "BOTTOM": {"total": 30, "attendance_rate": 93.91, "absence_rate": 6.09, "new_hires": 1, "resignations": 0, "full_attendance_count": 24, "full_attendance_rate": 80.0}, "QA": {"total": 20, "attendance_rate": 94.57, "absence_rate": 5.43, "new_hires": 0, "resignations": 0, "full_attendance_count": 18, "full_attendance_rate": 90.0}, "MTL": {"total": 28, "attendance_rate": 96.12, "absence_rate": 3.88, "new_hires": 0, "resignations": 0, "full_attendance_count": 25, "full_attendance_rate": 89.29}, "STITCHING": {"total": 98, "attendance_rate": 92.9, "absence_rate": 7.1, "new_hires": 1, "resignations": 0, "full_attendance_count": 79, "full_attendance_rate": 80.61}, "AQL": {"total": 22, "attendance_rate": 98.81, "absence_rate": 1.19, "new_hires": 0, "resignations": 0, "full_attendance_count": 19, "full_attendance_rate": 86.36}, "REPACKING": {"total": 17, "attendance_rate": 96.68, "absence_rate": 3.32, "new_hires": 0, "resignations": 0, "full_attendance_count": 15, "full_attendance_rate": 88.24}, "HWK QIP": {"total": 1, "attendance_rate": 100.0, "absence_rate": 0.0, "new_hires": 0, "resignations": 0, "full_attendance_count": 1, "full_attendance_rate": 100.0}, "CUTTING": {"total": 8, "attendance_rate": 75.0, "absence_rate": 25.0, "new_hires": 0, "resignations": 0, "full_attendance_count": 6, "full_attendance_rate": 75.0}, "NEW": {"total": 15, "attendance_rate": 13.62, "absence_rate": 86.38, "new_hires": 9, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}}}, "weekly_data": {"Week1": {"date": "08/01", "date_full": "2025-08-01", "total_employees": 381, "attendance_rate": 86.03, "absence_rate": 13.97, "new_hires": 5, "resignations": 0}, "Week2": {"date": "08/08", "date_full": "2025-08-08", "total_employees": 381, "attendance_rate": 86.03, "absence_rate": 13.97, "new_hires": 2, "resignations": 0}}, "last_available_date": "", "last_available_date_display": ""};
+        const centralizedData = {"current_month": {"total_employees": 381, "type1_count": "127", "type2_count": "235", "type3_count": "19", "attendance_rate": 86.03192702394526, "absence_rate": 13.968072976054742, "absence_count": 373, "resignation_count": 0, "resignation_rate": 0.0, "recent_hires": 3, "recent_resignations": 0, "under_60_days": 15, "full_attendance_count": 8, "long_term_count": 276, "team_stats": {"OFFICE & OCPT": {"total": 5, "attendance_rate": 74.29, "absence_rate": 25.71, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "OSC": {"total": 25, "attendance_rate": 89.14, "absence_rate": 10.86, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "ASSEMBLY": {"total": 112, "attendance_rate": 87.24, "absence_rate": 12.76, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "BOTTOM": {"total": 28, "attendance_rate": 86.99, "absence_rate": 13.01, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "QA": {"total": 20, "attendance_rate": 81.91, "absence_rate": 18.09, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "MTL": {"total": 28, "attendance_rate": 90.56, "absence_rate": 9.44, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "STITCHING": {"total": 96, "attendance_rate": 83.63, "absence_rate": 16.37, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "AQL": {"total": 23, "attendance_rate": 90.68, "absence_rate": 9.32, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "REPACKING": {"total": 16, "attendance_rate": 88.84, "absence_rate": 11.16, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "HWK QIP": {"total": 1, "attendance_rate": 92.86, "absence_rate": 7.14, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "CUTTING": {"total": 8, "attendance_rate": 59.82, "absence_rate": 40.18, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "NEW": {"total": 19, "attendance_rate": 90.1, "absence_rate": 9.9, "new_hires": 7, "resignations": 0, "full_attendance_count": 8, "full_attendance_rate": 42.11}}}, "previous_month": {"total_employees": 376, "attendance_rate": 90.7261794635, "absence_rate": 9.2738205365, "resignation_count": 0, "recent_hires": 0, "full_attendance_count": 305, "team_stats": {"OFFICE & OCPT": {"total": 5, "attendance_rate": 80.0, "absence_rate": 20.0, "new_hires": 0, "resignations": 0, "full_attendance_count": 4, "full_attendance_rate": 80.0}, "OSC": {"total": 22, "attendance_rate": 95.06, "absence_rate": 4.94, "new_hires": 0, "resignations": 0, "full_attendance_count": 20, "full_attendance_rate": 90.91}, "ASSEMBLY": {"total": 110, "attendance_rate": 94.51, "absence_rate": 5.49, "new_hires": 1, "resignations": 0, "full_attendance_count": 94, "full_attendance_rate": 85.45}, "BOTTOM": {"total": 30, "attendance_rate": 93.91, "absence_rate": 6.09, "new_hires": 1, "resignations": 0, "full_attendance_count": 24, "full_attendance_rate": 80.0}, "QA": {"total": 20, "attendance_rate": 94.57, "absence_rate": 5.43, "new_hires": 0, "resignations": 0, "full_attendance_count": 18, "full_attendance_rate": 90.0}, "MTL": {"total": 28, "attendance_rate": 96.12, "absence_rate": 3.88, "new_hires": 0, "resignations": 0, "full_attendance_count": 25, "full_attendance_rate": 89.29}, "STITCHING": {"total": 98, "attendance_rate": 92.9, "absence_rate": 7.1, "new_hires": 1, "resignations": 0, "full_attendance_count": 79, "full_attendance_rate": 80.61}, "AQL": {"total": 22, "attendance_rate": 98.81, "absence_rate": 1.19, "new_hires": 0, "resignations": 0, "full_attendance_count": 19, "full_attendance_rate": 86.36}, "REPACKING": {"total": 17, "attendance_rate": 96.68, "absence_rate": 3.32, "new_hires": 0, "resignations": 0, "full_attendance_count": 15, "full_attendance_rate": 88.24}, "HWK QIP": {"total": 1, "attendance_rate": 100.0, "absence_rate": 0.0, "new_hires": 0, "resignations": 0, "full_attendance_count": 1, "full_attendance_rate": 100.0}, "CUTTING": {"total": 8, "attendance_rate": 75.0, "absence_rate": 25.0, "new_hires": 0, "resignations": 0, "full_attendance_count": 6, "full_attendance_rate": 75.0}, "NEW": {"total": 15, "attendance_rate": 13.62, "absence_rate": 86.38, "new_hires": 9, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}}}, "weekly_data": {"Week1": {"date": "08/01", "date_full": "2025-08-01", "total_employees": 381, "attendance_rate": 86.03, "absence_rate": 13.97, "new_hires": 5, "resignations": 0}, "Week2": {"date": "08/08", "date_full": "2025-08-08", "total_employees": 381, "attendance_rate": 86.03, "absence_rate": 13.97, "new_hires": 2, "resignations": 0}}, "last_available_date": "", "last_available_date_display": ""};
         
-        // 전역 데이터 (기존 코드와의 호환성 유지)
-        const monthlyDataJuly = {};
-        const monthlyDataAugust = {"error_count": 0, "error_rate": 0.0, "total_employees": 381, "type1_count": "127", "type2_count": "235", "type3_count": "19", "attendance_rate": 86.03192702394526, "absence_rate": 13.968072976054742, "absence_count": 373, "resignation_count": 0, "resignation_rate": 0.0, "recent_hires": 3, "recent_hires_rate": 0.7874015748031495, "recent_resignations": 0, "recent_resignation_rate": 0.0, "under_60_days": 15, "under_60_days_rate": 3.937007874015748, "post_assignment_resignations": 0, "post_assignment_resignation_rate": 0.0, "full_attendance_count": 8, "full_attendance_rate": 2.099737532808399, "long_term_count": 276, "long_term_rate": 72.44094488188976};
+        // 전역 데이터 - 중앙 데이터 구조를 참조하도록 변경 (하위 호환성 유지)
+        const monthlyDataJuly = centralizedData.previous_month;  // 중앙 데이터의 이전 월 데이터 참조
+        const monthlyDataAugust = centralizedData.current_month;  // 중앙 데이터의 현재 월 데이터 참조
         const currentWeeklyData = {"Week1": {"date": "08/01", "date_full": "2025-08-01", "total_employees": 381, "attendance_rate": 86.03, "absence_rate": 13.97, "new_hires": 5, "resignations": 0}, "Week2": {"date": "08/08", "date_full": "2025-08-08", "total_employees": 381, "attendance_rate": 86.03, "absence_rate": 13.97, "new_hires": 2, "resignations": 0}};
         const prevWeeklyData = {};
         const teamStats = {"OFFICE & OCPT": {"total": 5, "attendance_rate": 74.29, "absence_rate": 25.71, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "OSC": {"total": 25, "attendance_rate": 89.14, "absence_rate": 10.86, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "ASSEMBLY": {"total": 112, "attendance_rate": 87.24, "absence_rate": 12.76, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "BOTTOM": {"total": 28, "attendance_rate": 86.99, "absence_rate": 13.01, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "QA": {"total": 20, "attendance_rate": 81.91, "absence_rate": 18.09, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "MTL": {"total": 28, "attendance_rate": 90.56, "absence_rate": 9.44, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "STITCHING": {"total": 96, "attendance_rate": 83.63, "absence_rate": 16.37, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "AQL": {"total": 23, "attendance_rate": 90.68, "absence_rate": 9.32, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "REPACKING": {"total": 16, "attendance_rate": 88.84, "absence_rate": 11.16, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "HWK QIP": {"total": 1, "attendance_rate": 92.86, "absence_rate": 7.14, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "CUTTING": {"total": 8, "attendance_rate": 59.82, "absence_rate": 40.18, "new_hires": 0, "resignations": 0, "full_attendance_count": 0, "full_attendance_rate": 0.0}, "NEW": {"total": 19, "attendance_rate": 90.1, "absence_rate": 9.9, "new_hires": 7, "resignations": 0, "full_attendance_count": 8, "full_attendance_rate": 42.11}};
@@ -2282,7 +2282,7 @@
                     labels: ['7월', '8월'],
                     datasets: [{
                         label: '총인원',
-                        data: [monthlyDataJuly.total_employees || 0, monthlyDataAugust.total_employees || 0],
+                        data: [centralizedData.previous_month.total_employees || 0, centralizedData.current_month.total_employees || 0],
                         backgroundColor: ['#FFEAA7', '#45B7D1']
                     }]
                 },
@@ -2409,7 +2409,7 @@
                 .map(([name, data]) => ({
                     name: name,
                     total: data.total || 0,
-                    percentage: ((data.total || 0) / monthlyDataAugust.total_employees * 100).toFixed(1)
+                    percentage: ((data.total || 0) / centralizedData.current_month.total_employees * 100).toFixed(1)
                 }))
                 .sort((a, b) => b.total - a.total);
             
@@ -2482,10 +2482,10 @@
             typeCardsDiv.className = 'type-cards';
             
             // TYPE 값 처리 - 문자열일 수 있음
-            const type1Count = parseInt(monthlyDataAugust.type1_count) || 0;
-            const type2Count = parseInt(monthlyDataAugust.type2_count) || 0;
-            const type3Count = parseInt(monthlyDataAugust.type3_count) || 0;
-            const totalCount = monthlyDataAugust.total_employees || 0;
+            const type1Count = parseInt(centralizedData.current_month.type1_count) || 0;
+            const type2Count = parseInt(centralizedData.current_month.type2_count) || 0;
+            const type3Count = parseInt(centralizedData.current_month.type3_count) || 0;
+            const totalCount = centralizedData.current_month.total_employees || 0;
             
             const typeData = [
                 {
@@ -2696,7 +2696,7 @@
                         fullTeamData.push({
                             name: teamName,
                             total: teamStat.total || 0,
-                            percentage: ((teamStat.total || 0) / monthlyDataAugust.total_employees * 100).toFixed(1)
+                            percentage: ((teamStat.total || 0) / centralizedData.current_month.total_employees * 100).toFixed(1)
                         });
                     }
                 });
@@ -3041,11 +3041,8 @@
                         const julyData = julyTeamStats[name] || {};
                         let julyTotal = julyData.total || 0;
                         
-                        // 7월 데이터가 없으면 생성된 값 사용
-                        if (julyTotal === 0) {
-                            const randomFactor = 0.8 + Math.random() * 0.4;
-                            julyTotal = Math.round(data.total * randomFactor);
-                        }
+                        // 7월 데이터가 없으면 0으로 표시 (가짜 데이터 생성 금지)
+                        // NO FAKE DATA POLICY - 우리사전에 가짜 데이타는 없다
                         
                         const change = data.total - julyTotal;
                         const changePercent = julyTotal > 0 ? ((change / julyTotal) * 100) : 0;
@@ -3304,7 +3301,7 @@
             modal.className = 'modal';
             modal.style.display = 'block';
             modal.style.zIndex = '2000';
-            const monthlyData = {"2025_08": {"error_count": 0, "error_rate": 0.0, "total_employees": 381, "type1_count": "127", "type2_count": "235", "type3_count": "19", "attendance_rate": 86.03192702394526, "absence_rate": 13.968072976054742, "absence_count": 373, "resignation_count": 0, "resignation_rate": 0.0, "recent_hires": 3, "recent_hires_rate": 0.7874015748031495, "recent_resignations": 0, "recent_resignation_rate": 0.0, "under_60_days": 15, "under_60_days_rate": 3.937007874015748, "post_assignment_resignations": 0, "post_assignment_resignation_rate": 0.0, "full_attendance_count": 8, "full_attendance_rate": 2.099737532808399, "long_term_count": 276, "long_term_rate": 72.44094488188976}};
+            const monthlyData = {"2025_08": {"error_count": 0, "error_rate": 0.0, "total_employees": 381, "type1_count": "127", "type2_count": "235", "type3_count": "19", "attendance_rate": 86.03192702394526, "absence_rate": 13.968072976054742, "absence_count": 373, "resignation_count": 0, "resignation_rate": 0.0, "recent_hires": 3, "recent_hires_rate": 0.7874015748031495, "recent_resignations": 0, "recent_resignation_rate": 0.0, "under_60_days": 15, "under_60_days_rate": 3.937007874015748, "post_assignment_resignations": 0, "post_assignment_resignation_rate": 0.0, "full_attendance_count": 8, "full_attendance_rate": 2.099737532808399, "long_term_count": 276, "long_term_rate": 72.44094488188976}, "2025_07": {"error_count": 0, "error_rate": 0.0, "total_employees": 376, "type1_count": "126", "type2_count": "235", "type3_count": "15", "attendance_rate": 90.7261794635, "absence_rate": 9.2738205365, "absence_count": 0, "resignation_count": 0, "resignation_rate": 0.0, "recent_hires": 0, "recent_hires_rate": 0.0, "recent_resignations": 0, "recent_resignation_rate": 0.0, "under_60_days": 0, "under_60_days_rate": 0.0, "post_assignment_resignations": 0, "post_assignment_resignation_rate": 0.0, "full_attendance_count": 305, "full_attendance_rate": 81.1170212766, "long_term_count": 0, "long_term_rate": 0.0}};
             const weeklyData = {"2025_08": {"Week1": {"date": "08/01", "date_full": "2025-08-01", "total_employees": 381, "attendance_rate": 86.03, "absence_rate": 13.97, "new_hires": 5, "resignations": 0}, "Week2": {"date": "08/08", "date_full": "2025-08-08", "total_employees": 381, "attendance_rate": 86.03, "absence_rate": 13.97, "new_hires": 2, "resignations": 0}}};
             const teamMembersList = teamMembers[teamName] || [];
             // 데이터 일관성 보장 - teamStats와 teamMembers 동기화
@@ -4734,7 +4731,7 @@
                     labels: ['7월', '8월'],
                     datasets: [{
                         label: '결근율 (%)',
-                        data: [monthlyDataJuly.absence_rate || 0, monthlyDataAugust.absence_rate || 0],
+                        data: [centralizedData.previous_month.absence_rate || 0, centralizedData.current_month.absence_rate || 0],
                         borderColor: '#dc3545',
                         backgroundColor: 'rgba(220, 53, 69, 0.1)',
                         tension: 0.4,
