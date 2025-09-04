@@ -260,6 +260,47 @@ class EnhancedHRDashboard:
         except:
             return pd.NaT
             
+    def create_unified_employee_filter(self, df, reference_date, filter_type='month_active'):
+        """
+        통합 직원 필터링 함수 - 인센티브 대시보드와 동일한 로직 사용
+        
+        Args:
+            df: 직원 데이터 DataFrame
+            reference_date: 기준 날짜 (pd.Timestamp)
+            filter_type: 'month_active' (월 활성), 'week_active' (주 활성), 'all' (전체)
+            
+        Returns:
+            활성 직원 마스크 (boolean Series)
+        """
+        if df.empty:
+            return pd.Series([], dtype=bool)
+            
+        # 기본값: 모든 직원 활성
+        active_mask = pd.Series([True] * len(df), index=df.index)
+        
+        if filter_type == 'all':
+            return active_mask
+            
+        # 인센티브 대시보드와 동일한 로직:
+        # 1. Stop working Date가 없는 직원 (현재 근무 중)
+        # 2. Stop working Date가 reference_date 이후인 직원 (해당 기간에 근무)
+        # 중요: 인센티브 대시보드는 입사일 필터를 적용하지 않음
+        
+        if 'Stop working Date' in df.columns:
+            # Stop working Date 우선 사용
+            active_mask = (
+                df['Stop working Date'].isna() |  # 퇴사일이 없는 직원
+                (df['Stop working Date'] >= reference_date)  # 기준일 이후 퇴사
+            )
+        elif 'RE MARK' in df.columns:
+            # Stop working Date가 없으면 RE MARK 사용 (보조 지표)
+            active_mask = df['RE MARK'] != 'Stop working'
+            
+        # 인센티브 대시보드와 동일하게 입사일 필터링을 제거
+        # 해당 월 인센티브 파일에 있으면 모두 포함
+                
+        return active_mask
+            
     def calculate_real_weekly_data(self):
         """실제 주차별 데이터 계산"""
         if self.data['current'].empty:
@@ -278,22 +319,9 @@ class EnhancedHRDashboard:
             
             week_key = f"Week{week_num}"
             
-            # 해당 주차에 재직 중인 직원 - 주차 시작일 기준
-            # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
-            if 'Stop working Date' in df.columns:
-                # 퇴사일이 없거나, 퇴사일이 주차 시작일 이후인 경우만 포함
-                active_employees = df[
-                    (df['Entrance Date'] <= week_end) & 
-                    ((df['Stop working Date'].isna()) | (df['Stop working Date'] >= week_start))
-                ]
-            elif 'RE MARK' in df.columns:
-                # Stop working Date가 없는 경우에만 RE MARK 사용
-                active_employees = df[
-                    (df['Entrance Date'] <= week_end) &
-                    (df['RE MARK'] != 'Stop working')
-                ]
-            else:
-                active_employees = df[df['Entrance Date'] <= week_end]
+            # 해당 주차에 재직 중인 직원 - 통합 필터 함수 사용
+            active_mask = self.create_unified_employee_filter(df, pd.Timestamp(week_start), 'week_active')
+            active_employees = df[active_mask]
             
             # 신규 입사자
             new_hires = df[
@@ -340,17 +368,30 @@ class EnhancedHRDashboard:
         # 활성 직원만 필터링 - 해당 월 시작일 기준으로 필터링
         # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
         month_start = pd.Timestamp(self.year, self.month, 1)
+        month_end = pd.Timestamp(self.year, self.month, 1) + pd.DateOffset(months=1) - pd.Timedelta(days=1)
         
-        if 'Stop working Date' in df.columns:
-            # 퇴사일이 없거나, 퇴사일이 해당 월 시작일 이후인 경우만 포함
-            active_mask = df['Stop working Date'].isna() | (df['Stop working Date'] >= month_start)
-        elif 'RE MARK' in df.columns:
-            # Stop working Date가 없는 경우에만 RE MARK 사용
-            active_mask = df['RE MARK'] != 'Stop working'
-        else:
-            # 모든 직원을 활성으로 간주
-            active_mask = pd.Series([True] * len(df), index=df.index)
+        # 데이터 오류 감지: 미래 입사일을 가진 직원
+        error_employees = pd.DataFrame()
+        if 'Entrance Date' in df.columns:
+            error_employees = df[df['Entrance Date'] > month_end]
+            metrics['error_count'] = len(error_employees)
+            metrics['error_rate'] = (metrics['error_count'] / len(df) * 100) if len(df) > 0 else 0
             
+            # 에러 직원 정보 저장 (디버깅용)
+            if len(error_employees) > 0:
+                print(f"  ⚠️ 데이터 오류: {len(error_employees)}명의 직원이 미래 입사일을 가지고 있습니다")
+                for _, emp in error_employees.head(5).iterrows():
+                    print(f"    - {emp.get('Name', 'N/A')} - 입사일: {emp.get('Entrance Date', 'N/A')}")
+        else:
+            metrics['error_count'] = 0
+            metrics['error_rate'] = 0
+        
+        # 통합 필터 함수 사용 (에러 직원 제외)
+        active_mask = self.create_unified_employee_filter(df, month_start, 'month_active')
+        # 에러 직원 제외
+        if 'Entrance Date' in df.columns:
+            active_mask = active_mask & (df['Entrance Date'] <= month_end)
+        
         active_employees = df[active_mask]
         metrics['total_employees'] = len(active_employees)
         
@@ -590,15 +631,8 @@ class EnhancedHRDashboard:
             # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
             month_start = pd.Timestamp(self.year, self.month, 1)
             
-            if 'Stop working Date' in team_df.columns:
-                # 퇴사일이 없거나, 퇴사일이 해당 월 시작일 이후인 경우만 포함
-                active_mask = team_df['Stop working Date'].isna() | (team_df['Stop working Date'] >= month_start)
-            elif 'RE MARK' in team_df.columns:
-                # Stop working Date가 없는 경우에만 RE MARK 사용
-                active_mask = team_df['RE MARK'] != 'Stop working'
-            else:
-                # 모든 직원을 활성으로 간주
-                active_mask = pd.Series([True] * len(team_df), index=team_df.index)
+            # 통합 필터 함수 사용
+            active_mask = self.create_unified_employee_filter(team_df, month_start, 'month_active')
             active_team = team_df[active_mask]
             
             # 만근 직원 계산
@@ -753,15 +787,8 @@ class EnhancedHRDashboard:
             prev_month_start = pd.Timestamp(self.year if self.month > 1 else self.year-1, 
                                            self.month-1 if self.month > 1 else 12, 1)
             
-            if 'Stop working Date' in team_df.columns:
-                # 퇴사일이 없거나, 퇴사일이 이전 월 시작일 이후인 경우만 포함
-                active_mask = team_df['Stop working Date'].isna() | (team_df['Stop working Date'] >= prev_month_start)
-            elif 'RE MARK' in team_df.columns:
-                # Stop working Date가 없는 경우에만 RE MARK 사용
-                active_mask = team_df['RE MARK'] != 'Stop working'
-            else:
-                # 모든 직원을 활성으로 간주
-                active_mask = pd.Series([True] * len(team_df), index=team_df.index)
+            # 통합 필터 함수 사용
+            active_mask = self.create_unified_employee_filter(team_df, prev_month_start, 'month_active')
             active_team = team_df[active_mask]
             
             team_stats[team] = {
@@ -839,15 +866,8 @@ class EnhancedHRDashboard:
             week_end = week_start + timedelta(days=6)
             week_key = f"Week{week_num}"
             
-            # 해당 주차에 재직 중인 직원 필터링
-            if 'Stop working Date' in df.columns:
-                active_mask = (df['Entrance Date'] <= week_end) & \
-                             ((df['Stop working Date'].isna()) | (df['Stop working Date'] >= week_start))
-            elif 'RE MARK' in df.columns:
-                active_mask = (df['Entrance Date'] <= week_end) & (df['RE MARK'] != 'Stop working')
-            else:
-                active_mask = df['Entrance Date'] <= week_end
-            
+            # 해당 주차에 재직 중인 직원 필터링 - 통합 필터 함수 사용
+            active_mask = self.create_unified_employee_filter(df, pd.Timestamp(week_start), 'week_active')
             week_df = df[active_mask]
             
             # 팀별 인원수 계산
@@ -1463,6 +1483,14 @@ class EnhancedHRDashboard:
             font-weight: bold;
         }}
         
+        /* 에러 카드 스타일 */
+        .change-error {{
+            color: #ff4444;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }}
+        
         /* 애니메이션 정의 */
         @keyframes pulse {{
             0% {{
@@ -1575,6 +1603,15 @@ class EnhancedHRDashboard:
             },
             {
                 'number': 2,
+                'title': '데이터 오류 인원',
+                'value': f"{metrics.get('error_count', 0)}명",
+                'subtitle': f"미래 입사일 오류: {metrics.get('error_rate', 0):.1f}%",
+                'prev_value': 0,
+                'modal_id': 'modal-error',
+                'is_error': True
+            },
+            {
+                'number': 3,
                 'title': '결근자 정보/결근율',
                 'value': f"{metrics.get('absence_rate', 0):.1f}%",
                 'subtitle': f"결근자: {metrics.get('absence_count', 0)}명",
@@ -1582,7 +1619,7 @@ class EnhancedHRDashboard:
                 'modal_id': 'modal-absence'
             },
             {
-                'number': 3,
+                'number': 4,
                 'title': '퇴사율',
                 'value': f"{metrics.get('resignation_rate', 0):.1f}%",
                 'subtitle': f"퇴사자: {metrics.get('resignation_count', 0)}명",
@@ -1590,7 +1627,7 @@ class EnhancedHRDashboard:
                 'modal_id': 'modal-resignation'
             },
             {
-                'number': 4,
+                'number': 5,
                 'title': '최근 30일내\n입사 인원',
                 'value': f"{metrics.get('recent_hires', 0)}명",
                 'subtitle': f"신입 비율: {metrics.get('recent_hires_rate', 0):.1f}%",
@@ -1598,7 +1635,7 @@ class EnhancedHRDashboard:
                 'modal_id': 'modal-new-hires'
             },
             {
-                'number': 5,
+                'number': 6,
                 'title': '최근 30일내\n퇴사 인원\n(신입 퇴사율)',
                 'value': f"{metrics.get('recent_resignations', 0)}명",
                 'subtitle': f"신입 퇴사율: {metrics.get('recent_resignation_rate', 0):.1f}%",
@@ -1650,25 +1687,32 @@ class EnhancedHRDashboard:
                 
             prev_val = card['prev_value']
             
-            if prev_val > 0 and current_val > 0:
-                change = ((current_val - prev_val) / prev_val) * 100
-                # 인원수 차이 계산
-                if '명' in str(card['value']):
-                    actual_diff = int(current_val - prev_val)
-                    sign = '+' if actual_diff > 0 else ''
-                    change_text = f"{'▲' if change > 0 else '▼'} {abs(change):.1f}% vs last month ({sign}{actual_diff}명)"
-                else:
-                    change_text = f"{'▲' if change > 0 else '▼'} {abs(change):.1f}% vs last month"
-                change_class = 'change-positive' if change > 0 else 'change-negative'
-            elif prev_val == 0 and current_val > 0:
-                change_text = "새로운 데이터"
-                change_class = 'change-neutral'
+            # 에러 카드는 특별한 스타일 적용
+            if card.get('is_error', False):
+                change_text = "⚠️ 데이터 입력 오류"
+                change_class = 'change-error'
+                card_style = ' style="border: 2px solid #ff4444; background-color: #fff5f5;"'
             else:
-                change_text = "이전 데이터 없음"
-                change_class = 'change-neutral'
+                card_style = ''
+                if prev_val > 0 and current_val > 0:
+                    change = ((current_val - prev_val) / prev_val) * 100
+                    # 인원수 차이 계산
+                    if '명' in str(card['value']):
+                        actual_diff = int(current_val - prev_val)
+                        sign = '+' if actual_diff > 0 else ''
+                        change_text = f"{'▲' if change > 0 else '▼'} {abs(change):.1f}% vs last month ({sign}{actual_diff}명)"
+                    else:
+                        change_text = f"{'▲' if change > 0 else '▼'} {abs(change):.1f}% vs last month"
+                    change_class = 'change-positive' if change > 0 else 'change-negative'
+                elif prev_val == 0 and current_val > 0:
+                    change_text = "새로운 데이터"
+                    change_class = 'change-neutral'
+                else:
+                    change_text = "이전 데이터 없음"
+                    change_class = 'change-neutral'
             
             cards_html += f'''
-            <div class="hr-card" onclick="openModal('{card['modal_id']}')">
+            <div class="hr-card" onclick="openModal('{card['modal_id']}')" {card_style}>
                 <div class="card-number">{card['number']}</div>
                 <div class="card-title">{card['title']}</div>
                 <div class="card-value">{card['value']}</div>
@@ -1903,19 +1947,9 @@ class EnhancedHRDashboard:
             # 여전히 매핑되지 않은 경우 기본값 설정
             df['real_team'] = df['real_team'].fillna('Team Unidentified')
             
-            # 활성 직원만 필터링 - 해당 월 시작일 기준으로 필터링
-            # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
+            # 활성 직원만 필터링 - 통합 필터 함수 사용
             month_start = pd.Timestamp(self.year, self.month, 1)
-            
-            if 'Stop working Date' in df.columns:
-                # 퇴사일이 없거나, 퇴사일이 해당 월 시작일 이후인 경우만 포함
-                active_mask = df['Stop working Date'].isna() | (df['Stop working Date'] >= month_start)
-            elif 'RE MARK' in df.columns:
-                # Stop working Date가 없는 경우에만 RE MARK 사용
-                active_mask = df['RE MARK'] != 'Stop working'
-            else:
-                # 모든 직원을 활성으로 간주
-                active_mask = pd.Series([True] * len(df), index=df.index)
+            active_mask = self.create_unified_employee_filter(df, month_start, 'month_active')
             active_df = df[active_mask]
             
             # 팀별로 멤버 정보 수집
@@ -3342,6 +3376,19 @@ class EnhancedHRDashboard:
                             `;
                         }}).join('') + `
                     </tbody>
+                    <tfoot style="background-color: #f8f9fa; font-weight: bold;">
+                        <tr>
+                            <td colspan="2" style="text-align: center;">총합</td>
+                            <td style="text-align: right;">` + fullAttendanceData.reduce((sum, team) => sum + team.fullAttendance, 0) + `명</td>
+                            <td style="text-align: right;">` + fullAttendanceData.reduce((sum, team) => sum + team.total, 0) + `명</td>
+                            <td style="text-align: right;">` + (
+                                fullAttendanceData.reduce((sum, team) => sum + team.total, 0) > 0 
+                                ? (fullAttendanceData.reduce((sum, team) => sum + team.fullAttendance, 0) / 
+                                   fullAttendanceData.reduce((sum, team) => sum + team.total, 0) * 100).toFixed(1) 
+                                : 0
+                            ) + `%</td>
+                        </tr>
+                    </tfoot>
                 </table>
             `;
             fullAttendanceSection.appendChild(fullAttendanceTableDiv);

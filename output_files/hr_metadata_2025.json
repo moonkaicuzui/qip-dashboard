@@ -1,56 +1,58 @@
 {
   "monthly_data": {
     "2025_08": {
-      "total_employees": 392,
-      "type1_count": "130",
-      "type2_count": "240",
+      "error_count": 10,
+      "error_rate": 2.1551724137931036,
+      "total_employees": 385,
+      "type1_count": "127",
+      "type2_count": "236",
       "type3_count": "22",
-      "attendance_rate": 90.55368128596943,
-      "absence_rate": 9.446318714030568,
-      "absence_count": 85,
+      "attendance_rate": 90.40016168148746,
+      "absence_rate": 9.599838318512539,
+      "absence_count": 84,
       "resignation_count": 9,
-      "resignation_rate": 2.295918367346939,
-      "recent_hires": 15,
-      "recent_hires_rate": 3.826530612244898,
+      "resignation_rate": 2.3376623376623376,
+      "recent_hires": 8,
+      "recent_hires_rate": 2.0779220779220777,
       "recent_resignations": 17,
-      "recent_resignation_rate": 113.33333333333333,
-      "under_60_days": 25,
-      "under_60_days_rate": 6.377551020408164,
+      "recent_resignation_rate": 212.5,
+      "under_60_days": 18,
+      "under_60_days_rate": 4.675324675324675,
       "post_assignment_resignations": 5,
-      "post_assignment_resignation_rate": 20.0,
-      "full_attendance_count": 306,
-      "full_attendance_rate": 78.06122448979592,
-      "long_term_count": 281,
-      "long_term_rate": 71.68367346938776
+      "post_assignment_resignation_rate": 27.77777777777778,
+      "full_attendance_count": 300,
+      "full_attendance_rate": 77.92207792207793,
+      "long_term_count": 282,
+      "long_term_rate": 73.24675324675324
     }
   },
   "weekly_data": {
     "2025_08": {
       "Week1": {
-        "total_employees": 377,
-        "attendance_rate": 91.6,
-        "absence_rate": 8.4,
+        "total_employees": 392,
+        "attendance_rate": 90.55,
+        "absence_rate": 9.45,
         "new_hires": 1,
         "resignations": 3
       },
       "Week2": {
-        "total_employees": 379,
-        "attendance_rate": 91.14,
-        "absence_rate": 8.86,
+        "total_employees": 389,
+        "attendance_rate": 90.69,
+        "absence_rate": 9.31,
         "new_hires": 5,
         "resignations": 4
       },
       "Week3": {
-        "total_employees": 378,
-        "attendance_rate": 91.02,
-        "absence_rate": 8.98,
+        "total_employees": 385,
+        "attendance_rate": 91.16,
+        "absence_rate": 8.84,
         "new_hires": 3,
         "resignations": 2
       },
       "Week4": {
-        "total_employees": 376,
-        "attendance_rate": 91.16,
-        "absence_rate": 8.84,
+        "total_employees": 383,
+        "attendance_rate": 91.3,
+        "absence_rate": 8.7,
         "new_hires": 0,
         "resignations": 0
       }
@@ -411,5 +413,5 @@
       }
     }
   },
-  "generation_timestamp": "2025-09-03 23:22:16"
+  "generation_timestamp": "2025-09-04 07:51:25"
 }

@@ -445,6 +445,14 @@
             font-weight: bold;
         }
         
+        /* 에러 카드 스타일 */
+        .change-error {
+            color: #ff4444;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
         /* 애니메이션 정의 */
         @keyframes pulse {
             0% {
@@ -534,7 +542,7 @@
             <div class="header-info">
                 <span>📅 2025년 8월</span>
                 <span>📆 데이터 기간: 2025.08.01 ~ 2025.08.31</span>
-                <span>⏰ 생성일시: 2025-09-03 23:22:16</span>
+                <span>⏰ 생성일시: 2025-09-04 07:51:25</span>
                 <span>🚫 No Fake Data</span>
                 <button onclick="navigateToIncentive()" class="nav-button">📊 Incentive Dashboard</button>
             </div>
@@ -551,81 +559,89 @@
             </h2>
             <div class="cards-grid-3x3">
                 
-            <div class="hr-card" onclick="openModal('modal-total-employees')">
+            <div class="hr-card" onclick="openModal('modal-total-employees')" >
                 <div class="card-number">1</div>
                 <div class="card-title">총인원 정보</div>
-                <div class="card-value">392명</div>
-                <div class="card-subtitle">TYPE-1: 130명 TYPE-2: 240명 TYPE-3: 22명</div>
+                <div class="card-value">385명</div>
+                <div class="card-subtitle">TYPE-1: 127명 TYPE-2: 236명 TYPE-3: 22명</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
-            <div class="hr-card" onclick="openModal('modal-absence')">
+            <div class="hr-card" onclick="openModal('modal-error')"  style="border: 2px solid #ff4444; background-color: #fff5f5;">
                 <div class="card-number">2</div>
+                <div class="card-title">데이터 오류 인원</div>
+                <div class="card-value">10명</div>
+                <div class="card-subtitle">미래 입사일 오류: 2.2%</div>
+                <div class="card-change change-error">⚠️ 데이터 입력 오류</div>
+            </div>
+            
+            <div class="hr-card" onclick="openModal('modal-absence')" >
+                <div class="card-number">3</div>
                 <div class="card-title">결근자 정보/결근율</div>
-                <div class="card-value">9.4%</div>
-                <div class="card-subtitle">결근자: 85명</div>
+                <div class="card-value">9.6%</div>
+                <div class="card-subtitle">결근자: 84명</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
-            <div class="hr-card" onclick="openModal('modal-resignation')">
-                <div class="card-number">3</div>
+            <div class="hr-card" onclick="openModal('modal-resignation')" >
+                <div class="card-number">4</div>
                 <div class="card-title">퇴사율</div>
                 <div class="card-value">2.3%</div>
                 <div class="card-subtitle">퇴사자: 9명</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
-            <div class="hr-card" onclick="openModal('modal-new-hires')">
-                <div class="card-number">4</div>
+            <div class="hr-card" onclick="openModal('modal-new-hires')" >
+                <div class="card-number">5</div>
                 <div class="card-title">최근 30일내
 입사 인원</div>
-                <div class="card-value">15명</div>
-                <div class="card-subtitle">신입 비율: 3.8%</div>
+                <div class="card-value">8명</div>
+                <div class="card-subtitle">신입 비율: 2.1%</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
-            <div class="hr-card" onclick="openModal('modal-new-resignations')">
-                <div class="card-number">5</div>
+            <div class="hr-card" onclick="openModal('modal-new-resignations')" >
+                <div class="card-number">6</div>
                 <div class="card-title">최근 30일내
 퇴사 인원
 (신입 퇴사율)</div>
                 <div class="card-value">17명</div>
-                <div class="card-subtitle">신입 퇴사율: 113.3%</div>
+                <div class="card-subtitle">신입 퇴사율: 212.5%</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
-            <div class="hr-card" onclick="openModal('modal-under-60')">
+            <div class="hr-card" onclick="openModal('modal-under-60')" >
                 <div class="card-number">6</div>
                 <div class="card-title">입사 60일 미만
 인원</div>
-                <div class="card-value">25명</div>
-                <div class="card-subtitle">비율: 6.4%</div>
+                <div class="card-value">18명</div>
+                <div class="card-subtitle">비율: 4.7%</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
-            <div class="hr-card" onclick="openModal('modal-post-assignment')">
+            <div class="hr-card" onclick="openModal('modal-post-assignment')" >
                 <div class="card-number">7</div>
                 <div class="card-title">보직 부여 후
 퇴사 인원</div>
                 <div class="card-value">5명</div>
-                <div class="card-subtitle">퇴사율: 20.0%</div>
+                <div class="card-subtitle">퇴사율: 27.8%</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
-            <div class="hr-card" onclick="openModal('modal-full-attendance')">
+            <div class="hr-card" onclick="openModal('modal-full-attendance')" >
                 <div class="card-number">8</div>
                 <div class="card-title">만근자</div>
-                <div class="card-value">306명</div>
-                <div class="card-subtitle">만근율: 78.1%</div>
+                <div class="card-value">300명</div>
+                <div class="card-subtitle">만근율: 77.9%</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
-            <div class="hr-card" onclick="openModal('modal-long-term')">
+            <div class="hr-card" onclick="openModal('modal-long-term')" >
                 <div class="card-number">9</div>
                 <div class="card-title">장기근속자
 (1년 이상)</div>
-                <div class="card-value">281명</div>
-                <div class="card-subtitle">장기근속율: 71.7%</div>
+                <div class="card-value">282명</div>
+                <div class="card-subtitle">장기근속율: 73.2%</div>
                 <div class="card-change change-neutral">새로운 데이터</div>
             </div>
             
@@ -1043,12 +1059,12 @@
         
         // 전역 데이터
         const monthlyDataJuly = {};
-        const monthlyDataAugust = {"total_employees": 392, "type1_count": "130", "type2_count": "240", "type3_count": "22", "attendance_rate": 90.55368128596943, "absence_rate": 9.446318714030568, "absence_count": 85, "resignation_count": 9, "resignation_rate": 2.295918367346939, "recent_hires": 15, "recent_hires_rate": 3.826530612244898, "recent_resignations": 17, "recent_resignation_rate": 113.33333333333333, "under_60_days": 25, "under_60_days_rate": 6.377551020408164, "post_assignment_resignations": 5, "post_assignment_resignation_rate": 20.0, "full_attendance_count": 306, "full_attendance_rate": 78.06122448979592, "long_term_count": 281, "long_term_rate": 71.68367346938776};
-        const currentWeeklyData = {"Week1": {"total_employees": 377, "attendance_rate": 91.6, "absence_rate": 8.4, "new_hires": 1, "resignations": 3}, "Week2": {"total_employees": 379, "attendance_rate": 91.14, "absence_rate": 8.86, "new_hires": 5, "resignations": 4}, "Week3": {"total_employees": 378, "attendance_rate": 91.02, "absence_rate": 8.98, "new_hires": 3, "resignations": 2}, "Week4": {"total_employees": 376, "attendance_rate": 91.16, "absence_rate": 8.84, "new_hires": 0, "resignations": 0}};
+        const monthlyDataAugust = {"error_count": 10, "error_rate": 2.1551724137931036, "total_employees": 385, "type1_count": "127", "type2_count": "236", "type3_count": "22", "attendance_rate": 90.40016168148746, "absence_rate": 9.599838318512539, "absence_count": 84, "resignation_count": 9, "resignation_rate": 2.3376623376623376, "recent_hires": 8, "recent_hires_rate": 2.0779220779220777, "recent_resignations": 17, "recent_resignation_rate": 212.5, "under_60_days": 18, "under_60_days_rate": 4.675324675324675, "post_assignment_resignations": 5, "post_assignment_resignation_rate": 27.77777777777778, "full_attendance_count": 300, "full_attendance_rate": 77.92207792207793, "long_term_count": 282, "long_term_rate": 73.24675324675324};
+        const currentWeeklyData = {"Week1": {"total_employees": 392, "attendance_rate": 90.55, "absence_rate": 9.45, "new_hires": 1, "resignations": 3}, "Week2": {"total_employees": 389, "attendance_rate": 90.69, "absence_rate": 9.31, "new_hires": 5, "resignations": 4}, "Week3": {"total_employees": 385, "attendance_rate": 91.16, "absence_rate": 8.84, "new_hires": 3, "resignations": 2}, "Week4": {"total_employees": 383, "attendance_rate": 91.3, "absence_rate": 8.7, "new_hires": 0, "resignations": 0}};
         const prevWeeklyData = {};
         const teamStats = {"OFFICE & OCPT": {"total": 5, "resignations": 1, "attendance_rate": 80.0, "new_hires": 0, "full_attendance_count": 4, "full_attendance_rate": 80.0}, "OSC": {"total": 25, "resignations": 2, "attendance_rate": 96.0, "new_hires": 2, "full_attendance_count": 20, "full_attendance_rate": 80.0}, "ASSEMBLY": {"total": 114, "resignations": 19, "attendance_rate": 94.00544959128065, "new_hires": 3, "full_attendance_count": 95, "full_attendance_rate": 83.33333333333334}, "BOTTOM": {"total": 31, "resignations": 5, "attendance_rate": 90.33078880407125, "new_hires": 1, "full_attendance_count": 26, "full_attendance_rate": 83.87096774193549}, "QA": {"total": 20, "resignations": 1, "attendance_rate": 88.84615384615384, "new_hires": 0, "full_attendance_count": 12, "full_attendance_rate": 60.0}, "MTL": {"total": 28, "resignations": 5, "attendance_rate": 97.52747252747253, "new_hires": 0, "full_attendance_count": 25, "full_attendance_rate": 89.28571428571429}, "STITCHING": {"total": 98, "resignations": 22, "attendance_rate": 88.92405063291139, "new_hires": 0, "full_attendance_count": 78, "full_attendance_rate": 79.59183673469387}, "AQL": {"total": 23, "resignations": 0, "attendance_rate": 97.65886287625418, "new_hires": 1, "full_attendance_count": 21, "full_attendance_rate": 91.30434782608695}, "REPACKING": {"total": 17, "resignations": 8, "attendance_rate": 92.99065420560748, "new_hires": 0, "full_attendance_count": 13, "full_attendance_rate": 76.47058823529412}, "HWK QIP": {"total": 1, "resignations": 0, "attendance_rate": 100.0, "new_hires": 0, "full_attendance_count": 1, "full_attendance_rate": 100.0}, "CUTTING": {"total": 8, "resignations": 0, "attendance_rate": 64.42307692307693, "new_hires": 0, "full_attendance_count": 3, "full_attendance_rate": 37.5}, "NEW": {"total": 22, "resignations": 18, "attendance_rate": 67.77777777777779, "new_hires": 8, "full_attendance_count": 8, "full_attendance_rate": 36.36363636363637}};
         const absenceReasons = {};
-        const weeklyTeamData = {"Week1": {"AQL": 23, "ASSEMBLY": 119, "BOTTOM": 32, "CUTTING": 8, "HWK QIP": 1, "MTL": 29, "NEW": 14, "OFFICE & OCPT": 4, "OSC": 23, "QA": 20, "REPACKING": 16, "STITCHING": 88}, "Week2": {"AQL": 23, "ASSEMBLY": 118, "BOTTOM": 31, "CUTTING": 8, "HWK QIP": 1, "MTL": 29, "NEW": 18, "OFFICE & OCPT": 4, "OSC": 23, "QA": 20, "REPACKING": 16, "STITCHING": 88}, "Week3": {"AQL": 23, "ASSEMBLY": 118, "BOTTOM": 31, "CUTTING": 8, "HWK QIP": 1, "MTL": 29, "NEW": 20, "OFFICE & OCPT": 4, "OSC": 23, "QA": 20, "REPACKING": 15, "STITCHING": 86}, "Week4": {"AQL": 23, "ASSEMBLY": 117, "BOTTOM": 30, "CUTTING": 8, "HWK QIP": 1, "MTL": 29, "NEW": 20, "OFFICE & OCPT": 4, "OSC": 23, "QA": 20, "REPACKING": 15, "STITCHING": 86}};
+        const weeklyTeamData = {"Week1": {"AQL": 24, "ASSEMBLY": 122, "BOTTOM": 33, "CUTTING": 8, "HWK QIP": 1, "MTL": 29, "NEW": 22, "OFFICE & OCPT": 4, "OSC": 25, "QA": 20, "REPACKING": 16, "STITCHING": 88}, "Week2": {"AQL": 24, "ASSEMBLY": 121, "BOTTOM": 32, "CUTTING": 8, "HWK QIP": 1, "MTL": 29, "NEW": 21, "OFFICE & OCPT": 4, "OSC": 25, "QA": 20, "REPACKING": 16, "STITCHING": 88}, "Week3": {"AQL": 24, "ASSEMBLY": 121, "BOTTOM": 32, "CUTTING": 8, "HWK QIP": 1, "MTL": 29, "NEW": 20, "OFFICE & OCPT": 4, "OSC": 25, "QA": 20, "REPACKING": 15, "STITCHING": 86}, "Week4": {"AQL": 24, "ASSEMBLY": 120, "BOTTOM": 31, "CUTTING": 8, "HWK QIP": 1, "MTL": 29, "NEW": 20, "OFFICE & OCPT": 4, "OSC": 25, "QA": 20, "REPACKING": 15, "STITCHING": 86}};
         // 팀 멤버 데이터를 안전하게 처리
         const teamMembers = {};
         teamMembers["OFFICE & OCPT"] = [];
@@ -2812,6 +2828,19 @@
                             `;
                         }).join('') + `
                     </tbody>
+                    <tfoot style="background-color: #f8f9fa; font-weight: bold;">
+                        <tr>
+                            <td colspan="2" style="text-align: center;">총합</td>
+                            <td style="text-align: right;">` + fullAttendanceData.reduce((sum, team) => sum + team.fullAttendance, 0) + `명</td>
+                            <td style="text-align: right;">` + fullAttendanceData.reduce((sum, team) => sum + team.total, 0) + `명</td>
+                            <td style="text-align: right;">` + (
+                                fullAttendanceData.reduce((sum, team) => sum + team.total, 0) > 0 
+                                ? (fullAttendanceData.reduce((sum, team) => sum + team.fullAttendance, 0) / 
+                                   fullAttendanceData.reduce((sum, team) => sum + team.total, 0) * 100).toFixed(1) 
+                                : 0
+                            ) + `%</td>
+                        </tr>
+                    </tfoot>
                 </table>
             `;
             fullAttendanceSection.appendChild(fullAttendanceTableDiv);
@@ -2926,8 +2955,8 @@
             modal.className = 'modal';
             modal.style.display = 'block';
             modal.style.zIndex = '2000';
-            const monthlyData = {"2025_08": {"total_employees": 392, "type1_count": "130", "type2_count": "240", "type3_count": "22", "attendance_rate": 90.55368128596943, "absence_rate": 9.446318714030568, "absence_count": 85, "resignation_count": 9, "resignation_rate": 2.295918367346939, "recent_hires": 15, "recent_hires_rate": 3.826530612244898, "recent_resignations": 17, "recent_resignation_rate": 113.33333333333333, "under_60_days": 25, "under_60_days_rate": 6.377551020408164, "post_assignment_resignations": 5, "post_assignment_resignation_rate": 20.0, "full_attendance_count": 306, "full_attendance_rate": 78.06122448979592, "long_term_count": 281, "long_term_rate": 71.68367346938776}};
-            const weeklyData = {"2025_08": {"Week1": {"total_employees": 377, "attendance_rate": 91.6, "absence_rate": 8.4, "new_hires": 1, "resignations": 3}, "Week2": {"total_employees": 379, "attendance_rate": 91.14, "absence_rate": 8.86, "new_hires": 5, "resignations": 4}, "Week3": {"total_employees": 378, "attendance_rate": 91.02, "absence_rate": 8.98, "new_hires": 3, "resignations": 2}, "Week4": {"total_employees": 376, "attendance_rate": 91.16, "absence_rate": 8.84, "new_hires": 0, "resignations": 0}}};
+            const monthlyData = {"2025_08": {"error_count": 10, "error_rate": 2.1551724137931036, "total_employees": 385, "type1_count": "127", "type2_count": "236", "type3_count": "22", "attendance_rate": 90.40016168148746, "absence_rate": 9.599838318512539, "absence_count": 84, "resignation_count": 9, "resignation_rate": 2.3376623376623376, "recent_hires": 8, "recent_hires_rate": 2.0779220779220777, "recent_resignations": 17, "recent_resignation_rate": 212.5, "under_60_days": 18, "under_60_days_rate": 4.675324675324675, "post_assignment_resignations": 5, "post_assignment_resignation_rate": 27.77777777777778, "full_attendance_count": 300, "full_attendance_rate": 77.92207792207793, "long_term_count": 282, "long_term_rate": 73.24675324675324}};
+            const weeklyData = {"2025_08": {"Week1": {"total_employees": 392, "attendance_rate": 90.55, "absence_rate": 9.45, "new_hires": 1, "resignations": 3}, "Week2": {"total_employees": 389, "attendance_rate": 90.69, "absence_rate": 9.31, "new_hires": 5, "resignations": 4}, "Week3": {"total_employees": 385, "attendance_rate": 91.16, "absence_rate": 8.84, "new_hires": 3, "resignations": 2}, "Week4": {"total_employees": 383, "attendance_rate": 91.3, "absence_rate": 8.7, "new_hires": 0, "resignations": 0}}};
             const teamMembersList = teamMembers[teamName] || [];
             // 데이터 일관성 보장 - teamStats와 teamMembers 동기화
             const members = teamMembersList;
