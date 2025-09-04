@@ -2291,10 +2291,12 @@ class EnhancedHRDashboard:
                 modalDiv.id = 'modal-error-details';
                 modalDiv.className = 'modal';
                 modalDiv.innerHTML = `
-                    <div class="modal-content" style="max-width: 90%; height: 80%; overflow-y: auto;">
-                        <span class="close" onclick="closeErrorModal()">&times;</span>
-                        <h3>${{labels.title}}</h3>
-                        <div id="error-details-content">
+                    <div class="modal-content" style="max-width: 1200px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 30px; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e9ecef;">
+                            <h3 style="margin: 0; color: #2c3e50; font-size: 24px; font-weight: 600;">${{labels.title}}</h3>
+                            <span class="close" onclick="closeErrorModal()" style="font-size: 30px; color: #6c757d; cursor: pointer; transition: color 0.3s;">&times;</span>
+                        </div>
+                        <div id="error-details-content" style="padding: 10px;">
                             <!-- Error content will be populated here -->
                         </div>
                     </div>
@@ -2306,13 +2308,27 @@ class EnhancedHRDashboard:
             const contentDiv = document.getElementById('error-details-content');
             let html = '';
             
-            // 요약 정보
-            html += `<div class="error-summary" style="background: #fff3cd; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-left: 5px solid #ff6b6b;">`;
-            html += `<h4 style="margin-top: 0;">${{labels.summary}}</h4>`;
-            html += `<p>${{labels.totalErrors}}: <strong>${{errorReport.summary.total_errors}} ${{labels.items}}</strong></p>`;
-            html += `<p>Critical: <span style="color: #dc3545;">${{errorReport.summary.critical}} ${{labels.items}}</span> | `;
-            html += `Warning: <span style="color: #ffc107;">${{errorReport.summary.warning}} ${{labels.items}}</span> | `;
-            html += `Info: <span style="color: #17a2b8;">${{errorReport.summary.info}} ${{labels.items}}</span></p>`;
+            // 요약 정보 카드
+            html += `<div class="error-summary" style="background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%); padding: 25px; margin-bottom: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.15); border-left: 6px solid #ff6b6b;">`;
+            html += `<h4 style="margin-top: 0; margin-bottom: 20px; color: #2c3e50; font-size: 18px;">${{labels.summary}}</h4>`;
+            html += `<div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px;">`;
+            html += `<div style="flex: 1; min-width: 150px;">`;
+            html += `<div style="font-size: 14px; color: #6c757d; margin-bottom: 5px;">${{labels.totalErrors}}</div>`;
+            html += `<div style="font-size: 28px; font-weight: bold; color: #2c3e50;">${{errorReport.summary.total_errors}} ${{labels.items}}</div>`;
+            html += `</div>`;
+            html += `<div style="flex: 1; min-width: 150px;">`;
+            html += `<div style="font-size: 14px; color: #6c757d; margin-bottom: 5px;">Critical</div>`;
+            html += `<div style="font-size: 28px; font-weight: bold; color: #dc3545;">${{errorReport.summary.critical}} ${{labels.items}}</div>`;
+            html += `</div>`;
+            html += `<div style="flex: 1; min-width: 150px;">`;
+            html += `<div style="font-size: 14px; color: #6c757d; margin-bottom: 5px;">Warning</div>`;
+            html += `<div style="font-size: 28px; font-weight: bold; color: #ffc107;">${{errorReport.summary.warning}} ${{labels.items}}</div>`;
+            html += `</div>`;
+            html += `<div style="flex: 1; min-width: 150px;">`;
+            html += `<div style="font-size: 14px; color: #6c757d; margin-bottom: 5px;">Info</div>`;
+            html += `<div style="font-size: 28px; font-weight: bold; color: #17a2b8;">${{errorReport.summary.info}} ${{labels.items}}</div>`;
+            html += `</div>`;
+            html += `</div>`;
             html += `</div>`;
             
             // 시간 관련 오류
@@ -2349,82 +2365,125 @@ class EnhancedHRDashboard:
             document.getElementById('modal-error-details').style.display = 'block';
         }}
         
-        // 오류 섹션 생성 함수
+        // 오류 섹션 생성 함수 (카드 형식)
         function createErrorSection(title, errors, color) {{
-            let html = `<div class="error-section" style="margin-bottom: 25px;">`;
-            html += `<h4 style="color: ${{color}}; border-bottom: 2px solid ${{color}}; padding-bottom: 5px;">${{title}} (${{errors.length}} ${{labels.items}})</h4>`;
-            html += `<table style="width: 100%; border-collapse: collapse;">`;
-            html += `<thead>`;
-            html += `<tr style="background: #f8f9fa;">`;
-            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.id}}</th>`;
-            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.name}}</th>`;
-            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.errorColumn}}</th>`;
-            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.errorValue}}</th>`;
-            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.expectedValue}}</th>`;
-            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.severity}}</th>`;
-            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.action}}</th>`;
-            html += `</tr>`;
-            html += `</thead>`;
-            html += `<tbody>`;
+            let html = `<div class="error-section" style="margin-bottom: 35px;">`;
+            html += `<div style="display: flex; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid ${{color}};">`;
+            html += `<h4 style="color: ${{color}}; margin: 0; font-size: 20px; font-weight: 600;">${{title}}</h4>`;
+            html += `<span style="margin-left: 15px; background: ${{color}}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold;">${{errors.length}} ${{labels.items}}</span>`;
+            html += `</div>`;
+            
+            html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 20px;">`;
             
             errors.forEach(error => {{
                 const severityColor = error.severity === 'critical' ? '#dc3545' : 
                                      error.severity === 'warning' ? '#ffc107' : '#28a745';
-                html += `<tr>`;
-                html += `<td style="padding: 8px; border: 1px solid #dee2e6;">${{error.id || 'N/A'}}</td>`;
-                html += `<td style="padding: 8px; border: 1px solid #dee2e6;">${{error.name || 'N/A'}}</td>`;
-                html += `<td style="padding: 8px; border: 1px solid #dee2e6;">${{error.error_column || error.error_type}}</td>`;
-                html += `<td style="padding: 8px; border: 1px solid #dee2e6; color: #dc3545;">${{error.error_value}}</td>`;
-                html += `<td style="padding: 8px; border: 1px solid #dee2e6; color: #28a745;">${{error.expected_value}}</td>`;
-                html += `<td style="padding: 8px; border: 1px solid #dee2e6;"><span style="color: ${{severityColor}}; font-weight: bold;">${{error.severity}}</span></td>`;
-                html += `<td style="padding: 8px; border: 1px solid #dee2e6;">${{error.suggested_action}}</td>`;
-                html += `</tr>`;
+                const severityBg = error.severity === 'critical' ? 'rgba(220, 53, 69, 0.1)' : 
+                                  error.severity === 'warning' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(40, 167, 69, 0.1)';
                 
-                // 상세 분석 정보가 있는 경우 추가 행으로 표시 (주로 출근 데이터 오류)
+                html += `<div style="background: white; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: all 0.3s; cursor: default;">`;
+                
+                // 헤더 (ID와 이름)
+                html += `<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">`;
+                html += `<div style="flex: 1;">`;
+                html += `<div style="font-size: 12px; color: #6c757d; margin-bottom: 3px;">ID: ${{error.id || 'N/A'}}</div>`;
+                html += `<div style="font-size: 16px; font-weight: 600; color: #2c3e50;">${{error.name || 'N/A'}}</div>`;
+                html += `</div>`;
+                html += `<span style="background: ${{severityBg}}; color: ${{severityColor}}; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; text-transform: uppercase;">${{error.severity}}</span>`;
+                html += `</div>`;
+                
+                // 오류 타입/컬럼
+                html += `<div style="background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 12px;">`;
+                html += `<div style="font-size: 12px; color: #6c757d; margin-bottom: 5px;">${{labels.columnHeaders.errorColumn}}</div>`;
+                html += `<div style="font-size: 14px; font-weight: 500; color: #495057;">${{error.error_column || error.error_type}}</div>`;
+                html += `</div>`;
+                
+                // 오류 값과 예상 값
+                html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">`;
+                html += `<div style="background: rgba(220, 53, 69, 0.05); border-radius: 6px; padding: 10px; border: 1px solid rgba(220, 53, 69, 0.15);">`;
+                html += `<div style="font-size: 11px; color: #dc3545; margin-bottom: 3px; font-weight: 600;">${{labels.columnHeaders.errorValue}}</div>`;
+                html += `<div style="font-size: 13px; color: #721c24; word-break: break-word;">${{error.error_value}}</div>`;
+                html += `</div>`;
+                html += `<div style="background: rgba(40, 167, 69, 0.05); border-radius: 6px; padding: 10px; border: 1px solid rgba(40, 167, 69, 0.15);">`;
+                html += `<div style="font-size: 11px; color: #28a745; margin-bottom: 3px; font-weight: 600;">${{labels.columnHeaders.expectedValue}}</div>`;
+                html += `<div style="font-size: 13px; color: #155724; word-break: break-word;">${{error.expected_value}}</div>`;
+                html += `</div>`;
+                html += `</div>`;
+                
+                // 권장 조치
+                html += `<div style="border-top: 1px solid #e9ecef; padding-top: 12px;">`;
+                html += `<div style="font-size: 11px; color: #6c757d; margin-bottom: 3px; text-transform: uppercase; font-weight: 600;">${{labels.columnHeaders.action}}</div>`;
+                html += `<div style="font-size: 13px; color: #495057;">${{error.suggested_action || 'Review and correct the data'}}</div>`;
+                html += `</div>`;
+                
+                // 상세 분석 정보가 있는 경우 (주로 출근 데이터 오류)
                 if (error.detailed_analysis) {{
-                    html += `<tr style="background: #f9f9f9;">`;
-                    html += `<td colspan="7" style="padding: 12px; border: 1px solid #dee2e6;">`;
-                    html += `<div style="margin-left: 20px;">`;
-                    html += `<strong style="color: #666;">${{labels.detailAnalysis}}</strong><br>`;
-                    html += `<div style="margin-top: 8px; line-height: 1.6;">`;
+                    const analysis = error.detailed_analysis;
+                    html += `<div style="margin-top: 15px; padding-top: 15px; border-top: 2px dashed #e9ecef;">`;
+                    html += `<div style="font-size: 12px; color: #666; margin-bottom: 10px; text-transform: uppercase; font-weight: 600;">${{labels.detailAnalysis || 'Detailed Analysis'}}</div>`;
                     
                     if (error.description) {{
-                        html += `<p style="margin: 4px 0;"><strong>${{labels.problem}}:</strong> ${{error.description}}</p>`;
+                        html += `<div style="background: #fff8e1; border-radius: 6px; padding: 10px; margin-bottom: 10px;">`;
+                        html += `<div style="font-size: 12px; color: #f57c00; margin-bottom: 3px; font-weight: 600;">${{labels.problem || 'Problem'}}</div>`;
+                        html += `<div style="font-size: 13px; color: #5d4037;">${{error.description}}</div>`;
+                        html += `</div>`;
                     }}
                     
-                    const analysis = error.detailed_analysis;
-                    html += `<p style="margin: 4px 0;"><strong>${{labels.entranceDate}}:</strong> ${{analysis.entrance_date ? analysis.entrance_date.split(' ')[0] : 'N/A'}}</p>`;
-                    html += `<p style="margin: 4px 0;"><strong>${{labels.stopDate}}:</strong> ${{analysis.stop_date === 'Active' ? labels.active : analysis.stop_date ? analysis.stop_date.split(' ')[0] : 'N/A'}}</p>`;
-                    html += `<p style="margin: 4px 0;"><strong>${{labels.augustPeriod}}:</strong> ${{analysis.month_start ? analysis.month_start.split(' ')[0] : ''}} ~ ${{analysis.month_end ? analysis.month_end.split(' ')[0] : ''}}</p>`;
-                    html += `<p style="margin: 4px 0;"><strong>${{labels.workDayCalc}}:</strong></p>`;
-                    html += `<ul style="margin: 4px 0 4px 20px;">`;
-                    html += `<li>${{labels.actualDays}}: <span style="color: #dc3545;">${{analysis.actual_days}} ${{labels.days}}</span></li>`;
-                    html += `<li>${{labels.recordedTotal}}: <span style="color: #dc3545;">${{analysis.recorded_total}} ${{labels.days}}</span></li>`;
-                    html += `<li>${{labels.expectedTotal}}: <span style="color: #28a745;">${{analysis.expected_total}} ${{labels.days}}</span></li>`;
-                    html += `</ul>`;
+                    // 날짜 정보
+                    html += `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">`;
+                    html += `<div style="background: #f5f5f5; border-radius: 4px; padding: 8px;">`;
+                    html += `<div style="font-size: 11px; color: #666; margin-bottom: 2px;">${{labels.entranceDate || 'Entrance Date'}}</div>`;
+                    html += `<div style="font-size: 12px; color: #333; font-weight: 500;">${{analysis.entrance_date ? analysis.entrance_date.split(' ')[0] : 'N/A'}}</div>`;
+                    html += `</div>`;
+                    html += `<div style="background: #f5f5f5; border-radius: 4px; padding: 8px;">`;
+                    html += `<div style="font-size: 11px; color: #666; margin-bottom: 2px;">${{labels.stopDate || 'Stop Date'}}</div>`;
+                    html += `<div style="font-size: 12px; color: #333; font-weight: 500;">${{analysis.stop_date === 'Active' ? (labels.active || 'Active') : analysis.stop_date ? analysis.stop_date.split(' ')[0] : 'N/A'}}</div>`;
+                    html += `</div>`;
+                    html += `</div>`;
+                    
+                    // 근무일 계산 정보
+                    html += `<div style="background: #f0f4f8; border-radius: 6px; padding: 10px; margin-bottom: 10px;">`;
+                    html += `<div style="font-size: 11px; color: #666; margin-bottom: 5px; font-weight: 600;">${{labels.workDayCalc || 'Work Days Calculation'}}</div>`;
+                    html += `<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">`;
+                    html += `<div style="text-align: center;">`;
+                    html += `<div style="font-size: 10px; color: #999;">${{labels.actualDays || 'Actual'}}</div>`;
+                    html += `<div style="font-size: 16px; font-weight: bold; color: #dc3545;">${{analysis.actual_days}}</div>`;
+                    html += `</div>`;
+                    html += `<div style="text-align: center;">`;
+                    html += `<div style="font-size: 10px; color: #999;">${{labels.recordedTotal || 'Recorded'}}</div>`;
+                    html += `<div style="font-size: 16px; font-weight: bold; color: #dc3545;">${{analysis.recorded_total}}</div>`;
+                    html += `</div>`;
+                    html += `<div style="text-align: center;">`;
+                    html += `<div style="font-size: 10px; color: #999;">${{labels.expectedTotal || 'Expected'}}</div>`;
+                    html += `<div style="font-size: 16px; font-weight: bold; color: #28a745;">${{analysis.expected_total}}</div>`;
+                    html += `</div>`;
+                    html += `</div>`;
+                    html += `</div>`;
                     
                     // 오류 원인 설명
                     if (analysis.expected_total && analysis.recorded_total) {{
                         const diff = analysis.expected_total - analysis.recorded_total;
                         if (diff !== 0) {{
-                            html += `<p style="margin: 8px 0 4px 0; padding: 8px; background: #ffebee; border-left: 3px solid #dc3545;">`;
-                            html += `<strong>${{labels.errorCause}}:</strong> Total working days are <strong>${{Math.abs(diff)}} ${{labels.days}}</strong> `;
-                            html += diff > 0 ? labels.shortage : labels.excess;
-                            html += `. ${{labels.recalcNeeded}}`;
-                            html += `</p>`;
+                            html += `<div style="background: #ffebee; border-left: 4px solid #dc3545; border-radius: 4px; padding: 10px;">`;
+                            html += `<div style="font-size: 11px; color: #c62828; margin-bottom: 3px; font-weight: 600;">${{labels.errorCause || 'Error Cause'}}</div>`;
+                            html += `<div style="font-size: 12px; color: #721c24;">`;
+                            html += `Total working days are <strong>${{Math.abs(diff)}} ${{labels.days || 'days'}}</strong> `;
+                            html += diff > 0 ? (labels.shortage || 'short') : (labels.excess || 'excess');
+                            html += `. ${{labels.recalcNeeded || 'Recalculation needed'}}`;
+                            html += `</div>`;
+                            html += `</div>`;
                         }}
                     }}
                     
                     html += `</div>`;
-                    html += `</div>`;
-                    html += `</td>`;
-                    html += `</tr>`;
                 }}
+                
+                // 카드 닫기
+                html += `</div>`;
             }});
             
-            html += `</tbody>`;
-            html += `</table>`;
-            html += `</div>`;
+            html += `</div>`;  // grid container 닫기
+            html += `</div>`;  // error-section 닫기
             return html;
         }}
         
