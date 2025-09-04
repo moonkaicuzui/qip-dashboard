@@ -88,7 +88,7 @@ class EnhancedHRDashboard:
         print("✅ Real data loading complete")
         
     def filter_active_employees(self, df, target_month=None, target_year=None):
-        """공통 모듈을 사용하여 활성 직원 필터링
+        """Management Dashboard 전용 직원 필터링
         
         Args:
             df: 원본 데이터프레임
@@ -104,9 +104,25 @@ class EnhancedHRDashboard:
         if target_year is None:
             target_year = self.year
             
-        # 공통 필터링 모듈 사용
-        return EmployeeFilter.filter_active_employees(
-            df, target_month, target_year, include_future=False
+        # Management Dashboard 전용 필터링 사용 (데이터 최신일 고려)
+        from datetime import datetime
+        
+        # 데이터 최신일 계산 (출근 데이터 기준) - 올바른 월 전달
+        data_latest_date = None
+        if hasattr(self, 'latest_data_date'):
+            data_latest_date = self.latest_data_date
+        else:
+            # calculate_latest_data_date 메서드를 사용하여 최신일 가져오기
+            try:
+                latest_day = self.calculate_latest_data_date(target_month, target_year)
+                data_latest_date = datetime(target_year, target_month, latest_day)
+            except:
+                data_latest_date = None
+        
+        return EmployeeFilter.filter_employees_for_management(
+            df, target_month, target_year, 
+            generation_date=datetime.now(),
+            data_latest_date=data_latest_date
         )
     
     def load_current_month_data(self):
@@ -468,13 +484,22 @@ class EnhancedHRDashboard:
             metrics['error_count'] = 0
             metrics['error_rate'] = 0
         
-        # 통합 필터 함수 사용 (에러 직원 제외)
-        active_mask = self.create_unified_employee_filter(df, month_start, 'month_active')
-        # 에러 직원 제외
-        if 'Entrance Date' in df.columns:
-            active_mask = active_mask & (df['Entrance Date'] <= month_end)
+        # Management Dashboard 전용 필터링 사용 (데이터 최신일 고려)
+        from datetime import datetime
         
-        active_employees = df[active_mask]
+        # 데이터 최신일 계산 - 올바른 월 전달
+        data_latest_date = None
+        try:
+            latest_day = self.calculate_latest_data_date(self.month, self.year)
+            data_latest_date = datetime(self.year, self.month, latest_day)
+        except:
+            data_latest_date = None
+        
+        active_employees = EmployeeFilter.filter_employees_for_management(
+            df, target_month=self.month, target_year=self.year, 
+            generation_date=datetime.now(),
+            data_latest_date=data_latest_date
+        )
         metrics['total_employees'] = len(active_employees)
         
         # TYPE별 카운트 - 실제 칼럼명 사용
@@ -906,9 +931,13 @@ class EnhancedHRDashboard:
             week_end = week_start + timedelta(days=6)
             week_key = f"Week{week_num}"
             
-            # 해당 주차에 재직 중인 직원 필터링 - 통합 필터 함수 사용
-            active_mask = self.create_unified_employee_filter(df, pd.Timestamp(week_start), 'week_active')
-            week_df = df[active_mask]
+            # Management Dashboard 전용 필터링 사용 (데이터 최신일 고려)
+            # 주차별 데이터는 해당 주차 날짜 기준으로 필터링
+            week_df = EmployeeFilter.filter_employees_for_management(
+                df, target_month=week_start.month, target_year=week_start.year, 
+                generation_date=week_start,
+                data_latest_date=week_start  # 주차별은 해당 주차 날짜를 그대로 사용
+            )
             
             # 팀별 인원수 계산
             team_counts = week_df.groupby('real_team').size().to_dict()
@@ -997,12 +1026,18 @@ class EnhancedHRDashboard:
         print(f"✅ Dashboard generated: {output_file}")
         return output_file
         
-    def calculate_latest_data_date(self):
+    def calculate_latest_data_date(self, target_month=None, target_year=None):
         """출근 데이터 파일에서 실제 최신 날짜 읽기 - NO HARDCODING"""
         import pandas as pd
         from calendar import monthrange
         import datetime
         import os
+        
+        # 대상 월/년도 설정 (기본값: 현재 설정된 월)
+        if target_month is None:
+            target_month = self.month
+        if target_year is None:
+            target_year = self.year
         
         # 출근 데이터 파일 경로 찾기
         month_names = {
@@ -1011,7 +1046,7 @@ class EnhancedHRDashboard:
             9: 'september', 10: 'october', 11: 'november', 12: 'december'
         }
         
-        month_name = month_names.get(self.month, f'month_{self.month}')
+        month_name = month_names.get(target_month, f'month_{target_month}')
         
         # 우선순위: converted 폴더 -> original 폴더 -> 기본값
         attendance_files = [
@@ -2088,10 +2123,22 @@ class EnhancedHRDashboard:
             # 여전히 매핑되지 않은 경우 기본값 설정
             df['real_team'] = df['real_team'].fillna('Team Unidentified')
             
-            # 활성 직원만 필터링 - 통합 필터 함수 사용
-            month_start = pd.Timestamp(self.year, self.month, 1)
-            active_mask = self.create_unified_employee_filter(df, month_start, 'month_active')
-            active_df = df[active_mask]
+            # Management Dashboard 전용 필터링 사용 (데이터 최신일 고려)
+            from datetime import datetime
+            
+            # 데이터 최신일 계산 - 올바른 월 전달
+            data_latest_date = None
+            try:
+                latest_day = self.calculate_latest_data_date(self.month, self.year)
+                data_latest_date = datetime(self.year, self.month, latest_day)
+            except:
+                data_latest_date = None
+            
+            active_df = EmployeeFilter.filter_employees_for_management(
+                df, target_month=self.month, target_year=self.year, 
+                generation_date=datetime.now(),
+                data_latest_date=data_latest_date
+            )
             
             # 팀별로 멤버 정보 수집
             for team in active_df['real_team'].unique():
