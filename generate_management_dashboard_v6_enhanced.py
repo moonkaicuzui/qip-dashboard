@@ -85,6 +85,47 @@ class EnhancedHRDashboard:
         
         print("✅ Real data loading complete")
         
+    def filter_active_employees(self, df, target_month=None, target_year=None):
+        """인센티브 대시보드와 동일한 기준으로 활성 직원 필터링
+        
+        Args:
+            df: 원본 데이터프레임
+            target_month: 대상 월 (기본값: self.month)
+            target_year: 대상 년도 (기본값: self.year)
+            
+        Returns:
+            필터링된 데이터프레임
+        """
+        if df.empty:
+            return df
+            
+        # 대상 월 설정
+        if target_month is None:
+            target_month = self.month
+        if target_year is None:
+            target_year = self.year
+            
+        # 1단계: Employee No가 있는 실제 직원만 선택
+        valid_employees = df[df['Employee No'].notna()].copy()
+        
+        # 2단계: 계산 월 이전 퇴사자 제외
+        calc_month_start = pd.Timestamp(target_year, target_month, 1)
+        
+        if 'Stop working Date' in valid_employees.columns:
+            # Stop working Date 파싱 (이미 파싱되어 있을 수 있음)
+            if valid_employees['Stop working Date'].dtype == 'object':
+                valid_employees['Stop working Date'] = pd.to_datetime(valid_employees['Stop working Date'], errors='coerce')
+            
+            # 활성 직원: 퇴사일이 없거나 계산 월 이후 퇴사자
+            active_employees = valid_employees[
+                (valid_employees['Stop working Date'].isna()) |  # 퇴사일 없는 직원
+                (valid_employees['Stop working Date'] >= calc_month_start)  # 계산 월 이후 퇴사자
+            ]
+        else:
+            active_employees = valid_employees
+            
+        return active_employees
+    
     def load_current_month_data(self):
         """현재 월 데이터 로드"""
         try:
@@ -134,9 +175,14 @@ class EnhancedHRDashboard:
                             df.at[idx, 'Total Working Days'] = total_working_days
                     
                     print(f"  ✓ Total Working Days updated based on attendance data")
-                    
+                
+                # 인센티브 대시보드와 동일한 기준으로 필터링
+                original_count = len(df)
+                df = self.filter_active_employees(df)
+                filtered_count = len(df)
+                
                 self.data['current'] = df
-                print(f"  ✓ Current month REAL data loaded: {len(df)} records")
+                print(f"  ✓ Current month REAL data loaded: {filtered_count} active employees (from {original_count} total records)")
             else:
                 print(f"  ❌ Current month data not found: {file_path}")
                 self.data['current'] = pd.DataFrame()
@@ -167,9 +213,14 @@ class EnhancedHRDashboard:
                     prev_df['Entrance Date'] = prev_df['Entrance Date'].apply(self.parse_date)
                 if 'Stop working Date' in prev_df.columns:
                     prev_df['Stop working Date'] = prev_df['Stop working Date'].apply(self.parse_date)
-                    
+                
+                # 인센티브 대시보드와 동일한 기준으로 필터링 (이전 월 기준)
+                original_count = len(prev_df)
+                prev_df = self.filter_active_employees(prev_df, prev_month, prev_year)
+                filtered_count = len(prev_df)
+                
                 self.data['previous'] = prev_df
-                print(f"  ✓ Previous month REAL data loaded: {len(prev_df)} records")
+                print(f"  ✓ Previous month REAL data loaded: {filtered_count} active employees (from {original_count} total records)")
             else:
                 print(f"  ⚠ Previous month data not found")
                 self.data['previous'] = pd.DataFrame()
@@ -334,11 +385,12 @@ class EnhancedHRDashboard:
         return active_mask
             
     def calculate_real_weekly_data(self):
-        """실제 주차별 데이터 계산"""
+        """실제 주차별 데이터 계산 (인센티브 대시보드와 동일한 필터 적용)"""
         if self.data['current'].empty:
             self.weekly_data = {}
             return
-            
+        
+        # 이미 필터링된 데이터 사용
         df = self.data['current']
         
         # 실제 날짜 기반 주차 계산
