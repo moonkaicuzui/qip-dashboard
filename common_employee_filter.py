@@ -352,6 +352,22 @@ class EmployeeFilter:
         # 4단계: 퇴사자 필터링
         if 'Stop working Date' in valid_employees.columns:
             before_filter_count = len(valid_employees)
+            
+            # ASSEMBLY 팀 특별 디버깅
+            if 'Team' in valid_employees.columns:
+                assembly_before = valid_employees[valid_employees['Team'] == 'ASSEMBLY']
+                if len(assembly_before) > 0:
+                    print(f"\n  [ASSEMBLY 디버깅] 필터링 전: {len(assembly_before)}명")
+                    # 퇴사자 확인
+                    assembly_resigned = assembly_before[
+                        (assembly_before['Stop working Date'].notna()) &
+                        (assembly_before['Stop working Date'] <= reference_date)
+                    ]
+                    if len(assembly_resigned) > 0:
+                        print(f"  [ASSEMBLY 디버깅] 퇴사자 {len(assembly_resigned)}명:")
+                        for idx, emp in assembly_resigned.iterrows():
+                            print(f"    - {emp.get('Name', 'Unknown')} (ID: {emp.get('Employee No', 'N/A')}, 퇴사일: {emp['Stop working Date']})")
+            
             active_employees = valid_employees[
                 (valid_employees['Stop working Date'].isna()) |  # 퇴사일 없는 직원
                 (valid_employees['Stop working Date'] > reference_date)  # 기준일 이후 퇴사자
@@ -363,11 +379,33 @@ class EmployeeFilter:
         # 5단계: 미래 입사자 필터링
         if 'Entrance Date' in active_employees.columns:
             before_filter_count = len(active_employees)
+            
+            # ASSEMBLY 팀 특별 디버깅
+            if 'Team' in active_employees.columns:
+                assembly_before = active_employees[active_employees['Team'] == 'ASSEMBLY']
+                if len(assembly_before) > 0:
+                    print(f"  [ASSEMBLY 디버깅] 미래 입사자 필터링 전: {len(assembly_before)}명")
+                    # 미래 입사자 확인
+                    assembly_future = assembly_before[
+                        (assembly_before['Entrance Date'].notna()) &
+                        (assembly_before['Entrance Date'] > reference_date)
+                    ]
+                    if len(assembly_future) > 0:
+                        print(f"  [ASSEMBLY 디버깅] 미래 입사자 {len(assembly_future)}명:")
+                        for idx, emp in assembly_future.iterrows():
+                            print(f"    - {emp.get('Name', 'Unknown')} (ID: {emp.get('Employee No', 'N/A')}, 입사일: {emp['Entrance Date']})")
+            
             active_employees = active_employees[
                 (active_employees['Entrance Date'].isna()) |  # 입사일 없는 직원 (기존 직원)
                 (active_employees['Entrance Date'] <= reference_date)  # 기준일 이전/당일 입사자
             ]
             print(f"  미래 입사자 제외 후: {len(active_employees)}개 ({before_filter_count - len(active_employees)}명 제외)")
+        
+        # ASSEMBLY 팀 최종 확인
+        if 'Team' in active_employees.columns:
+            assembly_final = active_employees[active_employees['Team'] == 'ASSEMBLY']
+            if len(assembly_final) > 0:
+                print(f"  [ASSEMBLY 디버깅] 최종 필터링 후: {len(assembly_final)}명")
         
         print(f"  최종 활성 직원: {len(active_employees)}명")
         return active_employees
