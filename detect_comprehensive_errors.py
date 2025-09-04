@@ -76,21 +76,14 @@ class DataErrorDetector:
         """시간 관련 오류 감지"""
         print("  📅 Detecting temporal errors...")
         
-        if 'Entrance Date' in df.columns:
-            # Future entrance dates
-            future_entrance = df[df['Entrance Date'] > self.month_end]
-            for _, row in future_entrance.iterrows():
-                self.add_error('temporal_errors', {
-                    'id': row.get('Employee No', row.get('ID No', 'N/A')),
-                    'name': row.get('Full Name', row.get('Name', 'N/A')),
-                    'error_type': 'Future Entrance Date',
-                    'error_column': 'Entrance Date',
-                    'error_value': str(row['Entrance Date']),
-                    'expected_value': f'<= {self.month_end}',
-                    'severity': 'critical',
-                    'description': 'Entrance date is in the future',
-                    'suggested_action': 'Verify and correct entrance date'
-                })
+        # Note: Entrance date can be after month_end because basic_manpower_data.csv 
+        # is updated daily. If report is generated on Sept 15th for August,
+        # employees who joined on Sept 15th will be in the data.
+        # This is NOT an error - it's normal business operation.
+        
+        # We'll only check for clearly invalid dates (e.g., far future dates)
+        # For now, we'll skip the future entrance date check entirely
+        # since the business logic allows for this scenario
         
         if 'Stop working Date' in df.columns and 'Entrance Date' in df.columns:
             # Stop date before entrance date
