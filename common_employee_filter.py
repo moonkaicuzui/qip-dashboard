@@ -264,6 +264,115 @@ class EmployeeFilter:
         return summary
     
     @staticmethod
+    def filter_employees_for_management(df: pd.DataFrame,
+                                       target_month: int,
+                                       target_year: int,
+                                       generation_date: Optional[datetime] = None,
+                                       data_latest_date: Optional[datetime] = None) -> pd.DataFrame:
+        """
+        Management Dashboard 전용 직원 필터링 메서드
+        데이터 최신일을 기준으로 정확한 총원 계산
+        
+        Args:
+            df: 원본 데이터프레임
+            target_month: 대상 월 (1-12)
+            target_year: 대상 년도
+            generation_date: 보고서 생성일 (기본값: 현재 날짜)
+            data_latest_date: 실제 데이터의 최신일 (출근 데이터 등의 마지막 날짜)
+            
+        Returns:
+            필터링된 데이터프레임
+            
+        필터링 로직 (개선됨):
+        1. 데이터 최신일이 제공된 경우:
+           - 기준일: 데이터 최신일 (예: 8월 16일)
+           - 실제 데이터가 있는 마지막 날 기준으로 정확한 총원 계산
+           
+        2. 데이터 최신일이 없는 경우 (기존 로직):
+           - 월이 끝난 경우: 월말 기준
+           - 월 진행 중: 보고서 생성일 기준
+        """
+        if df.empty:
+            return df
+            
+        # 보고서 생성일 (기본값: 현재 날짜)
+        if generation_date is None:
+            generation_date = datetime.now()
+        
+        # 복사본 생성하여 원본 데이터 보호
+        df_copy = df.copy()
+        
+        # 1단계: Employee No가 있는 실제 직원만 선택
+        print(f"\n[Management Dashboard 필터링]")
+        print(f"  보고서 생성일: {generation_date.strftime('%Y-%m-%d')}")
+        print(f"  대상 월: {target_year}년 {target_month}월")
+        print(f"  전체 레코드: {len(df_copy)}개")
+        
+        valid_employees = df_copy[df_copy['Employee No'].notna()]
+        print(f"  Employee No 있는 직원: {len(valid_employees)}개")
+        
+        if valid_employees.empty:
+            return valid_employees
+        
+        # 2단계: 날짜 파싱 - 공통 날짜 파서 사용
+        if 'Stop working Date' in valid_employees.columns:
+            valid_employees.loc[:, 'Stop working Date'] = valid_employees['Stop working Date'].apply(DateParser.parse_date)
+        
+        if 'Entrance Date' in valid_employees.columns:
+            valid_employees.loc[:, 'Entrance Date'] = valid_employees['Entrance Date'].apply(DateParser.parse_date)
+        
+        # 3단계: 기준일 설정 (핵심 로직)
+        # 대상 월의 마지막 날 계산
+        if target_month == 12:
+            month_end = pd.Timestamp(target_year, 12, 31)
+            next_month_start = pd.Timestamp(target_year + 1, 1, 1)
+        else:
+            # 해당 월의 마지막 날 계산 (28, 29, 30, 31일 자동 처리)
+            next_month_start = pd.Timestamp(target_year, target_month + 1, 1)
+            month_end = next_month_start - pd.Timedelta(days=1)
+        
+        # 보고서 생성일을 Timestamp로 변환
+        gen_date_ts = pd.Timestamp(generation_date)
+        
+        # 기준일 결정 (개선된 로직)
+        if data_latest_date is not None:
+            # 옵션 1: 데이터 최신일이 제공된 경우 - 이를 기준으로 사용
+            reference_date = pd.Timestamp(data_latest_date)
+            print(f"  데이터 최신일: {reference_date.strftime('%Y-%m-%d')}")
+            print(f"  기준일: {reference_date.strftime('%Y-%m-%d')} (데이터 최신일 기준)")
+        elif gen_date_ts > month_end:
+            # 케이스 1: 대상 월이 이미 끝난 경우 (예: 9월에 8월 보고서)
+            reference_date = month_end
+            print(f"  기준일: {reference_date.strftime('%Y-%m-%d')} (월말 기준)")
+        else:
+            # 케이스 2: 대상 월이 진행 중인 경우 (예: 8월 15일에 8월 보고서)
+            reference_date = gen_date_ts
+            print(f"  기준일: {reference_date.strftime('%Y-%m-%d')} (생성일 기준)")
+        
+        # 4단계: 퇴사자 필터링
+        if 'Stop working Date' in valid_employees.columns:
+            before_filter_count = len(valid_employees)
+            active_employees = valid_employees[
+                (valid_employees['Stop working Date'].isna()) |  # 퇴사일 없는 직원
+                (valid_employees['Stop working Date'] > reference_date)  # 기준일 이후 퇴사자
+            ]
+            print(f"  퇴사자 제외 후: {len(active_employees)}개 ({before_filter_count - len(active_employees)}명 제외)")
+        else:
+            active_employees = valid_employees
+        
+        # 5단계: 미래 입사자 필터링
+        if 'Entrance Date' in active_employees.columns:
+            before_filter_count = len(active_employees)
+            active_employees = active_employees[
+                (active_employees['Entrance Date'].isna()) |  # 입사일 없는 직원 (기존 직원)
+                (active_employees['Entrance Date'] <= reference_date)  # 기준일 이전/당일 입사자
+            ]
+            print(f"  미래 입사자 제외 후: {len(active_employees)}개 ({before_filter_count - len(active_employees)}명 제외)")
+        
+        print(f"  최종 활성 직원: {len(active_employees)}명")
+        return active_employees
+    
+    @staticmethod
     def get_type_statistics(df: pd.DataFrame) -> Tuple[int, int, int]:
         """
         TYPE별 인원 계산 (TYPE-1, TYPE-2, TYPE-3)
