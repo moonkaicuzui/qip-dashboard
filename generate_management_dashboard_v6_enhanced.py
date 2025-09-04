@@ -278,11 +278,22 @@ class EnhancedHRDashboard:
             
             week_key = f"Week{week_num}"
             
-            # 해당 주차에 재직 중인 직원
-            active_employees = df[
-                (df['Entrance Date'] <= week_end) & 
-                ((df['Stop working Date'].isna()) | (df['Stop working Date'] > week_end))
-            ]
+            # 해당 주차에 재직 중인 직원 - 주차 시작일 기준
+            # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
+            if 'Stop working Date' in df.columns:
+                # 퇴사일이 없거나, 퇴사일이 주차 시작일 이후인 경우만 포함
+                active_employees = df[
+                    (df['Entrance Date'] <= week_end) & 
+                    ((df['Stop working Date'].isna()) | (df['Stop working Date'] >= week_start))
+                ]
+            elif 'RE MARK' in df.columns:
+                # Stop working Date가 없는 경우에만 RE MARK 사용
+                active_employees = df[
+                    (df['Entrance Date'] <= week_end) &
+                    (df['RE MARK'] != 'Stop working')
+                ]
+            else:
+                active_employees = df[df['Entrance Date'] <= week_end]
             
             # 신규 입사자
             new_hires = df[
@@ -768,6 +779,83 @@ class EnhancedHRDashboard:
         
         return team_stats
     
+    def calculate_weekly_team_data(self):
+        """주차별 팀 데이터 계산"""
+        if self.data['current'].empty:
+            return {}
+            
+        df = self.data['current'].copy()
+        
+        # 팀 매핑 수행 (calculate_team_statistics와 동일한 로직)
+        df['real_team'] = None
+        
+        # 3단계 포지션 조합으로 우선 매핑
+        if all(col in df.columns for col in ['QIP POSITION 1ST  NAME', 'QIP POSITION 2ND  NAME', 'QIP POSITION 3RD  NAME']):
+            for idx, row in df.iterrows():
+                position_1st = str(row.get('QIP POSITION 1ST  NAME', '')).strip()
+                position_2nd = str(row.get('QIP POSITION 2ND  NAME', '')).strip()
+                position_3rd = str(row.get('QIP POSITION 3RD  NAME', '')).strip()
+                combo_key = f"{position_1st}|{position_2nd}|{position_3rd}"
+                
+                if combo_key in self.position_combo_to_team:
+                    df.at[idx, 'real_team'] = self.position_combo_to_team[combo_key]
+        
+        # 특별한 포지션 매핑 처리
+        special_mappings = [
+            ('LINE LEADER', 'GROUP LEADER SUCCESSOR', 'STITCHING'),
+            ('LINE LEADER', 'SUVERVISOR SUCCESSOR', 'CUTTING'),
+            ('LINE LEADER', 'LINE LEADER', 'OSC'),
+            ('GROUP LEADER', 'HEAD/ GROUP LEADER', 'BOTTOM'),
+            ('GROUP LEADER', 'GROUP LEADER', 'ASSEMBLY'),
+            ('GROUP LEADER', 'HEAD/ GROUP LEADER', 'STITCHING'),
+            ('(V) SUPERVISOR', '(V) SUPERVISOR', 'ASSEMBLY'),
+            ('(V) SUPERVISOR', '(V) SUPERVISOR', 'STITCHING'),
+            ('A.MANAGER', 'A.MANAGER', 'STITCHING'),
+            ('A.MANAGER', 'A.MANAGER', 'ASSEMBLY'),
+        ]
+        
+        for position_1st, position_2nd_pattern, team in special_mappings:
+            mask = (df['real_team'].isna()) & (df['QIP POSITION 1ST  NAME'] == position_1st)
+            if 'QIP POSITION 2ND  NAME' in df.columns:
+                mask = mask & df['QIP POSITION 2ND  NAME'].str.contains(position_2nd_pattern, case=False, na=False)
+                df.loc[mask, 'real_team'] = team
+        
+        # 남은 포지션 매핑
+        for col in ['QIP POSITION 1ST  NAME', 'QIP POSITION 2ND  NAME', 'QIP POSITION 3RD  NAME']:
+            if col in df.columns:
+                unmapped_mask = df['real_team'].isna()
+                if unmapped_mask.any():
+                    temp_mapping = df.loc[unmapped_mask, col].map(self.position_to_team)
+                    df.loc[unmapped_mask, 'real_team'] = df.loc[unmapped_mask, 'real_team'].combine_first(temp_mapping)
+        
+        df['real_team'] = df['real_team'].fillna('Team Unidentified')
+        
+        # 실제 날짜 기반 주차 계산
+        start_date = datetime(self.year, self.month, 1)
+        weekly_team_data = {}
+        
+        for week_num in range(1, 5):
+            week_start = start_date + timedelta(days=(week_num-1)*7)
+            week_end = week_start + timedelta(days=6)
+            week_key = f"Week{week_num}"
+            
+            # 해당 주차에 재직 중인 직원 필터링
+            if 'Stop working Date' in df.columns:
+                active_mask = (df['Entrance Date'] <= week_end) & \
+                             ((df['Stop working Date'].isna()) | (df['Stop working Date'] >= week_start))
+            elif 'RE MARK' in df.columns:
+                active_mask = (df['Entrance Date'] <= week_end) & (df['RE MARK'] != 'Stop working')
+            else:
+                active_mask = df['Entrance Date'] <= week_end
+            
+            week_df = df[active_mask]
+            
+            # 팀별 인원수 계산
+            team_counts = week_df.groupby('real_team').size().to_dict()
+            weekly_team_data[week_key] = team_counts
+        
+        return weekly_team_data
+    
     def save_metadata(self):
         """메타데이터 저장"""
         month_key = f"{self.year}_{self.month:02d}"
@@ -822,12 +910,13 @@ class EnhancedHRDashboard:
         team_stats = self.calculate_team_statistics()
         absence_reasons = self.calculate_absence_reasons()
         team_members = self.load_team_members_data()  # 팀 멤버 데이터 추가
+        weekly_team_data = self.calculate_weekly_team_data()  # 주차별 팀 데이터 추가
         
         # 이전 월 메트릭
         prev_month_key = f"{self.year if self.month > 1 else self.year-1}_{(self.month-1 if self.month > 1 else 12):02d}"
         prev_metrics = self.metadata.get('monthly_data', {}).get(prev_month_key, {})
         
-        html_content = self.generate_full_html(metrics, team_stats, absence_reasons, prev_metrics, team_members)
+        html_content = self.generate_full_html(metrics, team_stats, absence_reasons, prev_metrics, team_members, weekly_team_data)
         
         # HTML 파일 저장
         output_file = f"output_files/management_dashboard_{self.year}_{self.month:02d}.html"
@@ -859,7 +948,7 @@ class EnhancedHRDashboard:
             
         return last_date.day
     
-    def generate_full_html(self, metrics, team_stats, absence_reasons, prev_metrics, team_members):
+    def generate_full_html(self, metrics, team_stats, absence_reasons, prev_metrics, team_members, weekly_team_data=None):
         """완전한 HTML 생성"""
         # 월별 트렌드 데이터 준비
         monthly_trend = self.prepare_monthly_trend_data()
@@ -929,7 +1018,7 @@ class EnhancedHRDashboard:
     </div>
     
     <script>
-        {self.generate_enhanced_javascript(metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members)}
+        {self.generate_enhanced_javascript(metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data)}
     </script>
 </body>
 </html>'''
@@ -1927,7 +2016,7 @@ class EnhancedHRDashboard:
         
         return team_members
     
-    def generate_enhanced_javascript(self, metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members):
+    def generate_enhanced_javascript(self, metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data=None):
         """향상된 JavaScript 생성"""
         # numpy 타입 변환
         def convert_numpy_types(obj):
@@ -1955,6 +2044,7 @@ class EnhancedHRDashboard:
         absence_reasons_json = json.dumps(convert_numpy_types(absence_reasons), ensure_ascii=False)
         current_weekly_json = json.dumps(convert_numpy_types(current_weekly), ensure_ascii=False)
         prev_weekly_json = json.dumps(convert_numpy_types(prev_weekly), ensure_ascii=False)
+        weekly_team_data_json = json.dumps(convert_numpy_types(weekly_team_data) if weekly_team_data else {}, ensure_ascii=False)
         
         return f'''
         // 전역 데이터
@@ -1964,6 +2054,7 @@ class EnhancedHRDashboard:
         const prevWeeklyData = {prev_weekly_json};
         const teamStats = {team_stats_json};
         const absenceReasons = {absence_reasons_json};
+        const weeklyTeamData = {weekly_team_data_json};
         // 팀 멤버 데이터를 안전하게 처리
         const teamMembers = {{}};
 {self._generate_team_members_js(team_members)}
@@ -2263,8 +2354,8 @@ class EnhancedHRDashboard:
             body.appendChild(weeklyChartDiv);
             
             // 주차별 데이터 - 팀별 데이터 생성
-            const teamSize = teamData.total || 120; // ASSEMBLY 팀 실제 크기
-            const baseRate = teamData.attendance_rate || 93.5;
+            const teamSize = teamData.total || 0;
+            const baseRate = teamData.attendance_rate || 0;
             const weeklyAttendance = [
                 baseRate + (Math.random() * 2 - 1), // Week1: ±1% 변동
                 baseRate + (Math.random() * 2 - 1), // Week2: ±1% 변동 
@@ -2517,14 +2608,14 @@ class EnhancedHRDashboard:
             ];
             
             const combinedValues = [
-                prevWeeklyData.Week1?.total_employees || 377,
-                prevWeeklyData.Week2?.total_employees || 374,
-                prevWeeklyData.Week3?.total_employees || 372,
-                prevWeeklyData.Week4?.total_employees || 373,
-                currentWeeklyData.Week1?.total_employees || 374,
-                currentWeeklyData.Week2?.total_employees || 375,
-                currentWeeklyData.Week3?.total_employees || 376,
-                currentWeeklyData.Week4?.total_employees || 376
+                prevWeeklyData.Week1?.total_employees || 0,
+                prevWeeklyData.Week2?.total_employees || 0,
+                prevWeeklyData.Week3?.total_employees || 0,
+                prevWeeklyData.Week4?.total_employees || 0,
+                currentWeeklyData.Week1?.total_employees || 0,
+                currentWeeklyData.Week2?.total_employees || 0,
+                currentWeeklyData.Week3?.total_employees || 0,
+                currentWeeklyData.Week4?.total_employees || 0
             ];
             
             // 추세선을 위한 선형 회귀 계산
@@ -2674,7 +2765,7 @@ class EnhancedHRDashboard:
             const type1Count = parseInt(monthlyDataAugust.type1_count) || 0;
             const type2Count = parseInt(monthlyDataAugust.type2_count) || 0;
             const type3Count = parseInt(monthlyDataAugust.type3_count) || 0;
-            const totalCount = monthlyDataAugust.total_employees || 383;
+            const totalCount = monthlyDataAugust.total_employees || 0;
             
             const typeData = [
                 {{
@@ -3598,20 +3689,23 @@ class EnhancedHRDashboard:
                 const currentTeamSize = teamStats[teamName]?.total || members.length;
                 const weekLabels = ['1주차', '2주차', '3주차', '4주차'];
                 
-                // 실제 팀 규모를 기준으로 현실적인 주차별 데이터 생성
-                // ASSEMBLY 팀의 경우 109명 기준으로 일관성있게 표시
-                let weekData;
-                if (teamName === 'ASSEMBLY') {{
-                    // ASSEMBLY 팀은 109명 기준으로 일관된 데이터 표시
-                    weekData = [108, 109, 109, 109];
+                // 실제 주차별 팀 데이터 사용
+                let weekData = [];
+                if (weeklyTeamData && Object.keys(weeklyTeamData).length > 0) {{
+                    // 실제 주차별 데이터가 있는 경우
+                    for (let week = 1; week <= 4; week++) {{
+                        const weekKey = `Week${{week}}`;
+                        const weekTeamData = weeklyTeamData[weekKey];
+                        if (weekTeamData && weekTeamData[teamName] !== undefined) {{
+                            weekData.push(weekTeamData[teamName]);
+                        }} else {{
+                            // 해당 주차 데이터가 없으면 현재 팀 크기 사용
+                            weekData.push(currentTeamSize);
+                        }}
+                    }}
                 }} else {{
-                    // 다른 팀들은 현재 인원수 기준으로 약간의 변동 (±1명)
-                    weekData = [
-                        currentTeamSize,
-                        currentTeamSize,
-                        currentTeamSize,
-                        currentTeamSize
-                    ];
+                    // 주차별 데이터가 없으면 현재 팀 크기로 채움
+                    weekData = [currentTeamSize, currentTeamSize, currentTeamSize, currentTeamSize];
                 }}
                 
                 const weeklyChart = new Chart(weeklyCtx, {{

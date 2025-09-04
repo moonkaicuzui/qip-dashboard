@@ -27,23 +27,23 @@
   "weekly_data": {
     "2025_08": {
       "Week1": {
-        "total_employees": 374,
-        "attendance_rate": 91.75,
-        "absence_rate": 8.25,
+        "total_employees": 377,
+        "attendance_rate": 91.6,
+        "absence_rate": 8.4,
         "new_hires": 1,
         "resignations": 3
       },
       "Week2": {
-        "total_employees": 375,
-        "attendance_rate": 91.62,
-        "absence_rate": 8.38,
+        "total_employees": 379,
+        "attendance_rate": 91.14,
+        "absence_rate": 8.86,
         "new_hires": 5,
         "resignations": 4
       },
       "Week3": {
-        "total_employees": 376,
-        "attendance_rate": 91.16,
-        "absence_rate": 8.84,
+        "total_employees": 378,
+        "attendance_rate": 91.02,
+        "absence_rate": 8.98,
         "new_hires": 3,
         "resignations": 2
       },
@@ -411,5 +411,5 @@
       }
     }
   },
-  "generation_timestamp": "2025-09-03 23:06:55"
+  "generation_timestamp": "2025-09-03 23:22:16"
 }
