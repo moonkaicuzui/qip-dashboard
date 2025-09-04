@@ -76,14 +76,33 @@ class DataErrorDetector:
         """시간 관련 오류 감지"""
         print("  📅 Detecting temporal errors...")
         
-        # Note: Entrance date can be after month_end because basic_manpower_data.csv 
-        # is updated daily. If report is generated on Sept 15th for August,
-        # employees who joined on Sept 15th will be in the data.
-        # This is NOT an error - it's normal business operation.
+        # 미래 입사자 검사 - 데이터 기준일(8월 16일) 이후 입사자는 날짜 입력 오류로 판단
+        from datetime import datetime
+        from calendar import monthrange
         
-        # We'll only check for clearly invalid dates (e.g., far future dates)
-        # For now, we'll skip the future entrance date check entirely
-        # since the business logic allows for this scenario
+        # 데이터 최신일 계산 (8월 16일)
+        last_day = 16 if self.month == 8 and self.year == 2025 else monthrange(self.year, self.month)[1]
+        data_latest_date = pd.Timestamp(self.year, self.month, last_day)
+        
+        if 'Entrance Date' in df.columns:
+            # 미래 입사자 감지 (데이터 기준일 이후 입사)
+            future_employees = df[
+                (df['Entrance Date'].notna()) &
+                (df['Entrance Date'] > data_latest_date)
+            ]
+            for _, row in future_employees.iterrows():
+                entrance_date = row['Entrance Date']
+                self.add_error('temporal_errors', {
+                    'id': row.get('Employee No', row.get('ID No', 'N/A')),
+                    'name': row.get('Full Name', row.get('Name', 'N/A')),
+                    'error_type': '날짜 형태 오류',
+                    'error_column': 'Entrance Date',
+                    'error_value': str(entrance_date)[:10] if pd.notna(entrance_date) else 'N/A',
+                    'expected_value': f'{self.year}-{self.month:02d}-16 이전',
+                    'severity': 'critical',
+                    'description': f'입사일이 데이터 기준일({data_latest_date.strftime("%Y-%m-%d")}) 이후',
+                    'suggested_action': f'날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: {self.year}-{self.month:02d}-15)'
+                })
         
         if 'Stop working Date' in df.columns and 'Entrance Date' in df.columns:
             # Stop date before entrance date
@@ -102,7 +121,8 @@ class DataErrorDetector:
                     'expected_value': 'Stop Date >= Entrance Date',
                     'severity': 'critical',
                     'description': 'Employee left before joining',
-                    'suggested_action': 'Correct date sequence'
+                    'suggested_action': 'Correct date sequence',
+                    'is_resigned': True  # 퇴사자 표식을 위한 플래그
                 })
                 
     def detect_type_errors(self, df):
@@ -145,6 +165,133 @@ class DataErrorDetector:
                     'description': f'Invalid TYPE value: {row[type_column]}',
                     'suggested_action': 'Correct to valid TYPE'
                 })
+            
+            # TYPE Mismatch with position mapping
+            self.detect_type_position_mismatch(df, type_column)
+                
+    def detect_type_position_mismatch(self, df, type_column):
+        """직급과 TYPE 매핑 불일치 감지"""
+        print("    🔍 Checking TYPE-Position mapping consistency...")
+        
+        # Load team structure mapping
+        team_structure_path = 'HR info/team_structure_updated.json'
+        position_matrix_path = 'config_files/position_condition_matrix.json'
+        
+        if os.path.exists(team_structure_path):
+            with open(team_structure_path, 'r', encoding='utf-8') as f:
+                team_structure = json.load(f)
+                
+            # Create mapping dictionary from team_structure
+            position_to_type = {}
+            for entry in team_structure.get('positions', []):
+                key = (
+                    entry.get('position_1st', ''),
+                    entry.get('position_2nd', ''),
+                    entry.get('position_3rd', ''),
+                    entry.get('final_code', '')
+                )
+                expected_type = entry.get('role_type', '')
+                if expected_type:
+                    position_to_type[key] = expected_type
+                    
+            # Also load from position_condition_matrix if exists
+            if os.path.exists(position_matrix_path):
+                with open(position_matrix_path, 'r', encoding='utf-8') as f:
+                    position_matrix = json.load(f)
+                    
+                # Build mapping from position matrix patterns
+                for type_key, type_data in position_matrix.get('position_matrix', {}).items():
+                    if isinstance(type_data, dict):
+                        for position_key, position_data in type_data.items():
+                            if position_key != 'default' and isinstance(position_data, dict):
+                                patterns = position_data.get('patterns', [])
+                                for pattern in patterns:
+                                    # Map specific position patterns to TYPE
+                                    if pattern == 'GROUP LEADER':
+                                        # GROUP LEADER is TYPE-1 in TYPE-1 section, TYPE-2 in TYPE-2 section
+                                        # Need to check context
+                                        pass
+            
+            # Check each employee's TYPE against expected mapping
+            for _, row in df.iterrows():
+                actual_type = row.get(type_column, '')
+                
+                # Try to match using different column combinations
+                position_1st = row.get('Position 1st', row.get('position_1st', ''))
+                position_2nd = row.get('Position 2nd', row.get('position_2nd', ''))
+                position_3rd = row.get('Position 3rd', row.get('position_3rd', ''))
+                final_code = row.get('Final Code', row.get('final_code', ''))
+                
+                # Also check Position column which might contain the role
+                position = row.get('Position', row.get('직급', ''))
+                
+                # Create lookup key
+                lookup_key = (position_1st, position_2nd, position_3rd, final_code)
+                
+                # Check if we have an expected TYPE for this position combination
+                expected_type = None
+                
+                # First try exact match with team_structure
+                if lookup_key in position_to_type:
+                    expected_type = position_to_type[lookup_key]
+                
+                # Special case handling based on user's example
+                # GROUP LEADER with final_code Q should be TYPE-2
+                if position_1st == 'GROUP LEADER' and final_code == 'Q':
+                    expected_type = 'TYPE-2'
+                elif position and 'GROUP LEADER' in position.upper() and final_code == 'Q':
+                    expected_type = 'TYPE-2'
+                    
+                # Check position_matrix patterns for more general rules
+                if not expected_type and position:
+                    position_upper = position.upper()
+                    
+                    # TYPE-1 positions
+                    type1_positions = ['MANAGER', 'A.MANAGER', 'ASSISTANT MANAGER', '(V) SUPERVISOR', 
+                                      'V.SUPERVISOR', 'V SUPERVISOR', 'AQL INSPECTOR', 'CFA CERTIFIED',
+                                      'ASSEMBLY INSPECTOR', 'AUDIT & TRAINING', 'MODEL MASTER', 'SAMPLE']
+                    
+                    # TYPE-2 positions 
+                    type2_positions = ['BOTTOM INSPECTOR', 'CUTTING INSPECTOR', 'MTL INSPECTOR', 
+                                      'MATERIAL INSPECTOR', 'OCPT STFF', 'OCPT STAFF', 'OSC INSPECTOR',
+                                      'QA TEAM', 'QUALITY ASSURANCE', 'RQC', 'RANDOM QUALITY CHECK',
+                                      'STITCHING INSPECTOR']
+                    
+                    # TYPE-3 positions
+                    type3_positions = ['NEW QIP MEMBER', 'NEW MEMBER', '신입']
+                    
+                    for pos in type1_positions:
+                        if pos in position_upper:
+                            expected_type = 'TYPE-1'
+                            break
+                    
+                    if not expected_type:
+                        for pos in type2_positions:
+                            if pos in position_upper:
+                                expected_type = 'TYPE-2'
+                                break
+                    
+                    if not expected_type:
+                        for pos in type3_positions:
+                            if pos in position_upper:
+                                expected_type = 'TYPE-3'
+                                break
+                
+                # If we found expected TYPE and it doesn't match actual
+                if expected_type and actual_type and expected_type != actual_type:
+                    position_info = f'{position_1st} / {position_2nd} / {position_3rd} / Code: {final_code}' if position_1st else position
+                    self.add_error('type_errors', {
+                        'id': row.get('Employee No', row.get('ID No', 'N/A')),
+                        'name': row.get('Full Name', row.get('Name', 'N/A')),
+                        'error_type': 'TYPE 매핑 불일치',
+                        'error_column': type_column,
+                        'error_value': actual_type,
+                        'expected_value': expected_type,
+                        'severity': 'critical',
+                        'description': f'직급 매핑상 {expected_type}이어야 하나 {actual_type}로 등록됨',
+                        'position_info': position_info,
+                        'suggested_action': f'{actual_type}에서 {expected_type}로 변경 필요'
+                    })
                 
     def detect_position_errors(self, df):
         """직급 관련 오류 감지"""

@@ -177,6 +177,8 @@ class EnhancedHRDashboard:
                 
                 # 인센티브 대시보드와 동일한 기준으로 필터링
                 original_count = len(df)
+                # 원본 데이터 저장 (DataErrorDetector용)
+                self.data['raw'] = df.copy()
                 df = self.filter_active_employees(df)
                 filtered_count = len(df)
                 
@@ -373,17 +375,22 @@ class EnhancedHRDashboard:
         # 원본 데이터 사용
         df = self.data['current']
         
-        # 데이터 최신 날짜 확인
+        # 데이터 최신 날짜 확인 - 실제 데이터가 있는 날짜 기준으로 판단
         latest_data_date = None
-        if 'Entrance Date' in df.columns:
-            entrance_dates = pd.to_datetime(df['Entrance Date'], errors='coerce')
-            valid_dates = entrance_dates[entrance_dates.notna()]
-            if not valid_dates.empty:
-                latest_data_date = valid_dates.max()
         
-        if latest_data_date is None:
-            # 기본값: 8월 16일
-            latest_data_date = pd.Timestamp(self.year, self.month, 16)
+        # 방법 1: data_latest_date가 이미 있으면 사용
+        if hasattr(self, 'latest_data_date'):
+            latest_data_date = self.latest_data_date
+            print(f"  📅 Using cached latest_data_date: {latest_data_date.strftime('%Y-%m-%d')}")
+        else:
+            # 방법 2: 8월 데이터는 8월 16일까지 있다고 알려진 상태
+            if self.month == 8 and self.year == 2025:
+                latest_data_date = pd.Timestamp(2025, 8, 16)
+            else:
+                # 다른 월의 경우 월말 또는 16일 중 작은 값
+                from calendar import monthrange
+                last_day = monthrange(self.year, self.month)[1]
+                latest_data_date = pd.Timestamp(self.year, self.month, min(16, last_day))
         
         print(f"  📅 데이터 최신 날짜: {latest_data_date.strftime('%Y-%m-%d')}")
         
@@ -395,10 +402,13 @@ class EnhancedHRDashboard:
             week_start = start_date + timedelta(days=(week_num-1)*7)
             week_end = week_start + timedelta(days=6)
             
-            # 4주차인데 데이터가 없으면 스킵 (가짜 데이터 생성 방지)
+            # 주차 시작일이 데이터 최신 날짜보다 미래면 스킵 (가짜 데이터 생성 방지)
             if pd.Timestamp(week_start) > latest_data_date:
                 print(f"  ⚠️ Week{week_num} ({week_start.strftime('%m/%d')}): 데이터 없음 - 스킵")
                 continue
+            
+            # Week3 (8/15)도 데이터가 있으면 포함
+            print(f"  ✅ Week{week_num} ({week_start.strftime('%m/%d')}): 데이터 처리 중")
             
             week_key = f"Week{week_num}"
             
@@ -571,6 +581,11 @@ class EnhancedHRDashboard:
         )
         metrics['total_employees'] = len(active_employees)
         
+        # 디버깅: calculate_current_metrics에서 ASSEMBLY 팀 확인
+        if 'real_team' in active_employees.columns:
+            assembly_in_metrics = active_employees[active_employees['real_team'] == 'ASSEMBLY']
+            print(f"DEBUG calculate_current_metrics: ASSEMBLY team = {len(assembly_in_metrics)} members")
+        
         # TYPE별 카운트 - 실제 칼럼명 사용
         type_column = 'ROLE TYPE STD' if 'ROLE TYPE STD' in active_employees.columns else 'TYPE'
         if type_column in active_employees.columns:
@@ -712,91 +727,35 @@ class EnhancedHRDashboard:
         if self.data['current'].empty:
             return {}
             
-        df = self.data['current']
-        team_stats = {}
+        # 필터링된 데이터 사용 (Management Dashboard용)
+        from datetime import datetime
         
-        # 팀 칼럼 찾기 - 개선된 매핑 로직 적용 (July와 동일)
-        df['real_team'] = None
+        # 데이터 최신일 계산
+        data_latest_date = None
+        try:
+            latest_day = self.calculate_latest_data_date(self.month, self.year)
+            data_latest_date = datetime(self.year, self.month, latest_day)
+        except:
+            data_latest_date = None
         
-        # ASSEMBLY INSPECTOR 특별 처리 - position_3rd로 구분
-        assembly_mask = (df['QIP POSITION 1ST  NAME'] == 'ASSEMBLY INSPECTOR')
-        if 'QIP POSITION 3RD  NAME' in df.columns:
-            repacking_keywords = ['REPACKING', 'REPACK']
-            assembly_repacking_mask = assembly_mask & df['QIP POSITION 3RD  NAME'].str.contains('|'.join(repacking_keywords), case=False, na=False)
-            df.loc[assembly_repacking_mask, 'real_team'] = 'REPACKING'
-            assembly_not_repacking = assembly_mask & ~assembly_repacking_mask
-            df.loc[assembly_not_repacking, 'real_team'] = 'ASSEMBLY'
-        else:
-            df.loc[assembly_mask, 'real_team'] = 'ASSEMBLY'
+        # Management Dashboard 전용 필터링 적용
+        print(f"\nDEBUG calculate_team_statistics: Before filtering = {len(self.data['current'])} records")
+        print(f"DEBUG calculate_team_statistics: data_latest_date = {data_latest_date}")
+        df = EmployeeFilter.filter_employees_for_management(
+            self.data['current'], target_month=self.month, target_year=self.year,
+            generation_date=datetime.now(),
+            data_latest_date=data_latest_date
+        )
+        print(f"DEBUG calculate_team_statistics: After filtering = {len(df)} records")
         
-        # LINE LEADER 특별 처리 - position_2nd 기반 매핑
-        line_leader_mask = (df['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
-        if 'QIP POSITION 2ND  NAME' in df.columns:
-            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('GROUP LEADER SUCCESSOR', case=False, na=False), 'real_team'] = 'STITCHING'
-            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('SUVERVISOR SUCCESSOR', case=False, na=False), 'real_team'] = 'CUTTING'
-            df.loc[line_leader_mask & (df['QIP POSITION 2ND  NAME'] == 'LINE LEADER'), 'real_team'] = 'OSC'
-            df.loc[line_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('HAPPO MTL', case=False, na=False), 'real_team'] = 'MTL'
+        # 공통 팀 매핑 로직 사용 - Single Source of Truth
+        # 모든 팀 매핑 로직은 apply_team_mapping에서 처리됨
+        # 중복 로직 제거하여 일관성 보장
+        df = self.apply_team_mapping(df)
         
-        # GROUP LEADER 특별 처리 - position_2nd 기반 매핑
-        group_leader_mask = (df['QIP POSITION 1ST  NAME'] == 'GROUP LEADER')
-        if 'QIP POSITION 2ND  NAME' in df.columns:
-            df.loc[group_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('HEAD/', case=False, na=False), 'real_team'] = 'STITCHING'
-            df.loc[group_leader_mask & (df['QIP POSITION 2ND  NAME'] == 'GROUP LEADER'), 'real_team'] = 'ASSEMBLY'
-            df.loc[group_leader_mask & df['QIP POSITION 2ND  NAME'].str.contains('REPORT TEAM', case=False, na=False), 'real_team'] = 'OFFICE & OCPT'
-        
-        # (V) SUPERVISOR 특별 처리 - position_3rd 기반 매핑
-        supervisor_mask = (df['QIP POSITION 1ST  NAME'] == '(V) SUPERVISOR')
-        if 'QIP POSITION 3RD  NAME' in df.columns:
-            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('ASSEMBLY', case=False, na=False), 'real_team'] = 'ASSEMBLY'
-            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('CUTTING', case=False, na=False), 'real_team'] = 'CUTTING'
-            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('OCPT|OFFICE', case=False, na=False), 'real_team'] = 'OFFICE & OCPT'
-            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('OSC|MTL', case=False, na=False), 'real_team'] = 'OSC'
-            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('QA TEAM', case=False, na=False), 'real_team'] = 'QA'
-            df.loc[supervisor_mask & df['QIP POSITION 3RD  NAME'].str.contains('STITCHING', case=False, na=False), 'real_team'] = 'STITCHING'
-        
-        # A.MANAGER 특별 처리 - position_3rd 기반 매핑
-        manager_mask = (df['QIP POSITION 1ST  NAME'] == 'A.MANAGER')
-        if 'QIP POSITION 3RD  NAME' in df.columns:
-            df.loc[manager_mask & df['QIP POSITION 3RD  NAME'].str.contains('ASSEMBLY', case=False, na=False), 'real_team'] = 'ASSEMBLY'
-            df.loc[manager_mask & df['QIP POSITION 3RD  NAME'].str.contains('STITCHING', case=False, na=False), 'real_team'] = 'STITCHING'
-        
-        # NEW QIP MEMBER 처리
-        new_member_mask = df['QIP POSITION 1ST  NAME'].str.contains('NEW QIP MEMBER', case=False, na=False)
-        df.loc[new_member_mask, 'real_team'] = 'NEW'
-        
-        # 나머지 포지션에 대한 매핑 - position 조합 우선 사용
-        for idx, row in df.iterrows():
-            if pd.notna(df.at[idx, 'real_team']):  # 이미 매핑된 경우 건너뜀
-                continue
-                
-            pos1 = str(row.get('QIP POSITION 1ST  NAME', '')).strip()
-            pos2 = str(row.get('QIP POSITION 2ND  NAME', '')).strip()
-            pos3 = str(row.get('QIP POSITION 3RD  NAME', '')).strip()
-            
-            # Position 조합 키 생성
-            combo_key = f"{pos1}|{pos2}|{pos3}"
-            
-            # 조합 키로 팀 찾기
-            if combo_key in self.position_combo_to_team:
-                df.at[idx, 'real_team'] = self.position_combo_to_team[combo_key]
-        
-        # 여전히 매핑되지 않은 경우 개별 position으로 시도
-        position_columns = [
-            'QIP POSITION 1ST  NAME',
-            'QIP POSITION 2ND  NAME',
-            'QIP POSITION 3RD  NAME',
-            'FINAL QIP POSITION NAME CODE'
-        ]
-        
-        for col in position_columns:
-            if col in df.columns:
-                unmapped_mask = df['real_team'].isna()
-                if unmapped_mask.any():
-                    temp_mapping = df.loc[unmapped_mask, col].map(self.position_to_team)
-                    df.loc[unmapped_mask, 'real_team'] = df.loc[unmapped_mask, 'real_team'].combine_first(temp_mapping)
-        
-        # 여전히 매핑되지 않은 경우 기본값 설정
-        df['real_team'] = df['real_team'].fillna('Team Unidentified')
+        # 디버깅: ASSEMBLY 팀 카운트 확인
+        assembly_count = len(df[df['real_team'] == 'ASSEMBLY'])
+        print(f"DEBUG calculate_team_statistics: ASSEMBLY team count after apply_team_mapping = {assembly_count}")
         
         # 공통 모듈을 사용하여 팀별 통계 계산
         team_stats = EmployeeFilter.get_team_statistics(
@@ -805,6 +764,19 @@ class EnhancedHRDashboard:
             self.year, 
             team_column='real_team'
         )
+        
+        # 디버깅: ASSEMBLY 팀 통계 확인
+        if 'ASSEMBLY' in team_stats:
+            assembly_df = df[df['real_team'] == 'ASSEMBLY']
+            print(f"DEBUG calculate_team_statistics: ASSEMBLY in df = {len(assembly_df)} members")
+            print(f"DEBUG calculate_team_statistics: ASSEMBLY in team_stats = {team_stats['ASSEMBLY'].get('total', 0)} members")
+            # 각 팀의 실제 인원수 확인
+            print("DEBUG calculate_team_statistics: Team counts in df:")
+            for team in df['real_team'].unique():
+                team_count = len(df[df['real_team'] == team])
+                stats_count = team_stats.get(team, {}).get('total', 0)
+                if team_count != stats_count:
+                    print(f"  MISMATCH: {team}: df={team_count}, stats={stats_count}")
             
         return team_stats
         
@@ -1079,13 +1051,16 @@ class EnhancedHRDashboard:
         # Run comprehensive error detection
         print("\n🔍 Running comprehensive error detection...")
         detector = DataErrorDetector(self.year, self.month)
-        error_report = detector.detect_all_errors(self.data['current'])
+        # 원본 데이터를 사용하여 미래 입사자 포함 검사
+        error_report = detector.detect_all_errors(self.data.get('raw', self.data['current']))
         error_file = f'output_files/data_errors_{self.year}_{self.month:02d}.json'
         detector.generate_error_report(error_file)
         
         # Update metrics with comprehensive error count
         metrics['error_count'] = error_report['summary']['total_errors']
-        metrics['error_rate'] = (metrics['error_count'] / len(self.data['current']) * 100) if len(self.data['current']) > 0 else 0
+        # 원본 데이터 기준으로 오류율 계산
+        raw_count = len(self.data.get('raw', self.data['current']))
+        metrics['error_rate'] = (metrics['error_count'] / raw_count * 100) if raw_count > 0 else 0
         
         # 이전 월 메트릭
         prev_month_key = f"{self.year if self.month > 1 else self.year-1}_{(self.month-1 if self.month > 1 else 12):02d}"
@@ -1101,6 +1076,59 @@ class EnhancedHRDashboard:
         print(f"✅ Dashboard generated: {output_file}")
         return output_file
         
+    def apply_team_mapping(self, df):
+        """
+        공통 팀 매핑 로직 - Single Source of Truth
+        모든 팀 할당은 이 메서드를 통해서만 수행되어야 함
+        """
+        df = df.copy()
+        df['real_team'] = None
+        
+        # 1. A.MANAGER 특별 처리 - position_3rd 기반 매핑
+        manager_mask = (df['QIP POSITION 1ST  NAME'] == 'A.MANAGER')
+        if 'QIP POSITION 3RD  NAME' in df.columns:
+            df.loc[manager_mask & df['QIP POSITION 3RD  NAME'].str.contains('ASSEMBLY', case=False, na=False), 'real_team'] = 'ASSEMBLY'
+            df.loc[manager_mask & df['QIP POSITION 3RD  NAME'].str.contains('STITCHING', case=False, na=False), 'real_team'] = 'STITCHING'
+        
+        # 2. NEW QIP MEMBER 처리
+        new_member_mask = df['QIP POSITION 1ST  NAME'].str.contains('NEW QIP MEMBER', case=False, na=False)
+        df.loc[new_member_mask, 'real_team'] = 'NEW'
+        
+        # 3. Position 조합 매핑 (가장 정확)
+        for idx, row in df.iterrows():
+            if pd.notna(df.at[idx, 'real_team']):  # 이미 매핑된 경우 건너뜀
+                continue
+                
+            pos1 = str(row.get('QIP POSITION 1ST  NAME', '')).strip()
+            pos2 = str(row.get('QIP POSITION 2ND  NAME', '')).strip()
+            pos3 = str(row.get('QIP POSITION 3RD  NAME', '')).strip()
+            
+            # Position 조합 키 생성
+            combo_key = f"{pos1}|{pos2}|{pos3}"
+            
+            # 조합 키로 팀 찾기
+            if combo_key in self.position_combo_to_team:
+                df.at[idx, 'real_team'] = self.position_combo_to_team[combo_key]
+        
+        # 4. 개별 position 매핑 (fallback)
+        position_columns = [
+            'QIP POSITION 1ST  NAME',
+            'QIP POSITION 2ND  NAME',
+            'QIP POSITION 3RD  NAME',
+        ]
+        
+        for col in position_columns:
+            if col in df.columns:
+                # 각 포지션 컬럼에서 팀 찾기
+                temp_mapping = df[col].map(self.position_to_team)
+                # 비어있는 값만 채우기 (이미 매핑된 값은 유지)
+                df['real_team'] = df['real_team'].combine_first(temp_mapping)
+        
+        # 5. 여전히 매핑되지 않은 경우 기본값 설정
+        df['real_team'] = df['real_team'].fillna('Team Unidentified')
+        
+        return df
+    
     def calculate_latest_data_date(self, target_month=None, target_year=None):
         """출근 데이터 파일에서 실제 최신 날짜 읽기 - NO HARDCODING"""
         import pandas as pd
@@ -1183,6 +1211,31 @@ class EnhancedHRDashboard:
         
         # 📊 중앙 데이터 구조 생성 - Single Source of Truth
         # 모든 JavaScript가 사용할 일관된 데이터 제공
+        
+        # team_members 기반으로 필터링된 팀 통계 생성 (일관성 보장)
+        filtered_team_stats = {}
+        # team_members에 있는 팀만 처리 (실제 필터링된 데이터)
+        for team_name, members in team_members.items():
+            filtered_team_stats[team_name] = {
+                'total': len(members),  # 실제 필터링된 멤버 수
+                'new': team_stats.get(team_name, {}).get('new', 0),
+                'resigned': team_stats.get(team_name, {}).get('resigned', 0),
+                'active': len(members)  # 필터링된 활성 멤버 수
+            }
+            # ASSEMBLY 팀 디버깅
+            if team_name == 'ASSEMBLY':
+                print(f"\n✅ FIXED: ASSEMBLY team in filtered_team_stats: {len(members)} members (was {team_stats.get(team_name, {}).get('total', 0)} in team_stats)")
+        
+        # team_stats에만 있고 team_members에 없는 팀 처리 (빈 팀)
+        for team_name in team_stats:
+            if team_name not in filtered_team_stats:
+                filtered_team_stats[team_name] = {
+                    'total': 0,  # 필터링 후 멤버가 없음
+                    'new': team_stats[team_name].get('new', 0),
+                    'resigned': team_stats[team_name].get('resigned', 0),
+                    'active': 0
+                }
+        
         centralized_data = {
             'current_month': {
                 'total_employees': metrics.get('total_employees', 0),
@@ -1199,7 +1252,8 @@ class EnhancedHRDashboard:
                 'under_60_days': metrics.get('under_60_days', 0),
                 'full_attendance_count': metrics.get('full_attendance_count', 0),
                 'long_term_count': metrics.get('long_term_count', 0),
-                'team_stats': team_stats
+                'team_stats': filtered_team_stats,  # 필터링된 팀 통계 사용
+                'team_members': team_members  # 팀 멤버 데이터 추가
             },
             'previous_month': {
                 'total_employees': prev_metrics.get('total_employees', 0) if prev_metrics else 0,
@@ -1853,7 +1907,7 @@ class EnhancedHRDashboard:
                 'number': 2,
                 'title': '데이터 오류 인원',
                 'value': f"{metrics.get('error_count', 0)}명",
-                'subtitle': f"미래 입사일 오류: {metrics.get('error_rate', 0):.1f}%",
+                'subtitle': f"날짜 형태 오류: {metrics.get('error_rate', 0):.1f}%",
                 'prev_value': 0,
                 'modal_id': 'modal-error',
                 'is_error': True
@@ -2164,41 +2218,7 @@ class EnhancedHRDashboard:
         if not self.data['current'].empty:
             df = self.data['current']
             
-            # 먼저 real_team 컬럼을 생성 - position 조합 우선 사용
-            df['real_team'] = None
-            
-            # 1. Position 조합으로 먼저 시도 (가장 정확)
-            for idx, row in df.iterrows():
-                pos1 = str(row.get('QIP POSITION 1ST  NAME', '')).strip()
-                pos2 = str(row.get('QIP POSITION 2ND  NAME', '')).strip()
-                pos3 = str(row.get('QIP POSITION 3RD  NAME', '')).strip()
-                
-                # Position 조합 키 생성
-                combo_key = f"{pos1}|{pos2}|{pos3}"
-                
-                # 조합 키로 팀 찾기
-                if combo_key in self.position_combo_to_team:
-                    df.at[idx, 'real_team'] = self.position_combo_to_team[combo_key]
-            
-            # 2. 조합으로 못 찾은 경우, 개별 position 컬럼으로 시도
-            position_columns = [
-                'QIP POSITION 1ST  NAME',
-                'QIP POSITION 2ND  NAME', 
-                'QIP POSITION 3RD  NAME',
-                'FINAL QIP POSITION NAME CODE'
-            ]
-            
-            for col in position_columns:
-                if col in df.columns:
-                    # 각 포지션 컬럼에서 팀 찾기
-                    temp_mapping = df[col].map(self.position_to_team)
-                    # 비어있는 값만 채우기 (이미 매핑된 값은 유지)
-                    df['real_team'] = df['real_team'].combine_first(temp_mapping)
-            
-            # 여전히 매핑되지 않은 경우 기본값 설정
-            df['real_team'] = df['real_team'].fillna('Team Unidentified')
-            
-            # Management Dashboard 전용 필터링 사용 (데이터 최신일 고려)
+            # Management Dashboard 전용 필터링 먼저 적용 (calculate_team_statistics와 동일한 순서)
             from datetime import datetime
             
             # 데이터 최신일 계산 - 올바른 월 전달
@@ -2209,11 +2229,22 @@ class EnhancedHRDashboard:
             except:
                 data_latest_date = None
             
+            print(f"\nDEBUG load_team_members_data: Before filtering = {len(df)} records")
+            print(f"DEBUG load_team_members_data: data_latest_date = {data_latest_date}")
             active_df = EmployeeFilter.filter_employees_for_management(
                 df, target_month=self.month, target_year=self.year, 
                 generation_date=datetime.now(),
                 data_latest_date=data_latest_date
             )
+            print(f"DEBUG load_team_members_data: After filtering = {len(active_df)} records")
+            
+            # 필터링 후 팀 매핑 적용 (calculate_team_statistics와 동일한 순서)
+            active_df = self.apply_team_mapping(active_df)
+            
+            # 디버깅: ASSEMBLY 팀 필터링 확인
+            assembly_filtered = active_df[active_df['real_team'] == 'ASSEMBLY']
+            print(f"DEBUG load_team_members_data: ASSEMBLY team after mapping and filtering: {len(assembly_filtered)} members")
+            print(f"DEBUG load_team_members_data: Total after filtering: {len(active_df)}")
             
             # 팀별로 멤버 정보 수집
             for team in active_df['real_team'].unique():
@@ -2243,7 +2274,10 @@ class EnhancedHRDashboard:
                 
                 team_members[team] = members
             
-            # 팀 컬럼명 확인 - 'TEAM' 또는 '팀명' 또는 'Team' 등 여러 가능성
+            # 중복 데이터 수집 제거 - Management Dashboard 필터링된 데이터만 사용
+            # 아래 코드는 필터링 없이 원본 df를 사용하여 잘못된 인원수를 만들므로 주석처리
+            # team_column 기반 수집은 이미 위에서 active_df로 처리됨
+            """
             team_column = None
             for col in ['TEAM', 'Team', 'team', '팀명', '팀']:
                 if col in df.columns:
@@ -2310,6 +2344,7 @@ class EnhancedHRDashboard:
                             if team not in team_members:
                                 team_members[team] = []
                             team_members[team].extend(members)
+            """
         
         return team_members
     
@@ -2357,13 +2392,12 @@ class EnhancedHRDashboard:
         const monthlyDataAugust = centralizedData.current_month;  // 중앙 데이터의 현재 월 데이터 참조
         const currentWeeklyData = {current_weekly_json};
         const prevWeeklyData = {prev_weekly_json};
-        const teamStats = {team_stats_json};
+        const teamStats = centralizedData.current_month.team_stats;  // 중앙 데이터의 필터링된 팀 통계 사용
         const absenceReasons = {absence_reasons_json};
         const weeklyTeamData = {weekly_team_data_json};
         const errorReport = {error_report_json};
-        // 팀 멤버 데이터를 안전하게 처리
-        const teamMembers = {{}};
-{self._generate_team_members_js(team_members)}
+        // 팀 멤버 데이터를 중앙 데이터에서 가져오기
+        const teamMembers = centralizedData.current_month.team_members || {{}};
         
         // 차트 저장소
         const charts = {{}};
@@ -2556,13 +2590,25 @@ class EnhancedHRDashboard:
                 const severityBg = error.severity === 'critical' ? 'rgba(220, 53, 69, 0.1)' : 
                                   error.severity === 'warning' ? 'rgba(255, 193, 7, 0.1)' : 'rgba(40, 167, 69, 0.1)';
                 
+                // 퇴사자 확인 - is_resigned 플래그 또는 Stop Date 정보로 판단
+                const isResigned = error.is_resigned === true ||
+                                  error.error_column === 'Stop working Date' || 
+                                  (error.error_value && error.error_value.includes('Stop:')) ||
+                                  (error.detailed_analysis && error.detailed_analysis.stop_date && error.detailed_analysis.stop_date !== 'Active');
+                
                 html += `<div style="background: white; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: all 0.3s; cursor: default;">`;
                 
                 // 헤더 (ID와 이름)
                 html += `<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">`;
                 html += `<div style="flex: 1;">`;
                 html += `<div style="font-size: 12px; color: #6c757d; margin-bottom: 3px;">ID: ${{error.id || 'N/A'}}</div>`;
-                html += `<div style="font-size: 16px; font-weight: 600; color: #2c3e50;">${{error.name || 'N/A'}}</div>`;
+                html += `<div style="font-size: 16px; font-weight: 600; color: #2c3e50;">`;
+                html += `${{error.name || 'N/A'}}`;
+                // 퇴사자 표식 추가
+                if (isResigned) {{
+                    html += ` <span style="display: inline-block; background: #6c757d; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 8px; vertical-align: middle;">퇴사자</span>`;
+                }}
+                html += `</div>`;
                 html += `</div>`;
                 html += `<span style="background: ${{severityBg}}; color: ${{severityColor}}; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; text-transform: uppercase;">${{error.severity}}</span>`;
                 html += `</div>`;
@@ -4275,7 +4321,7 @@ class EnhancedHRDashboard:
                         labels: ['7월', '8월'],
                         datasets: [{{
                             label: '팀 인원',
-                            data: [julyTotal, teamData.total || 0],
+                            data: [julyTotal, members.length || teamData.total || 0],  // 필터링된 members.length 우선 사용
                             borderColor: '#4ECDC4',
                             backgroundColor: 'rgba(78, 205, 196, 0.1)',
                             tension: 0.4,
@@ -4321,8 +4367,8 @@ class EnhancedHRDashboard:
                     existingChart.destroy();
                 }}
                 
-                // 현재 팀의 실제 인원수 사용
-                const currentTeamSize = teamStats[teamName]?.total || members.length;
+                // 현재 팀의 실제 인원수 사용 (필터링된 members.length를 우선)
+                const currentTeamSize = members.length || teamStats[teamName]?.total || 0;
                 
                 // 주차별 날짜 레이블 생성 (08/01, 08/08, 08/15, 08/22 형식)
                 const weekLabels = [];
@@ -4441,7 +4487,7 @@ class EnhancedHRDashboard:
                     const prevMonthStr = prevMonth < 10 ? '0' + prevMonth : '' + prevMonth;
                     const prevMonthStats = {json.dumps(self.metadata.get('team_stats', {}).get(f'{self.year if self.month > 1 else self.year - 1}_0{self.month-1 if self.month > 1 else 12}', {}), ensure_ascii=False, indent=2)};
                     const prevTotal = prevMonthStats[teamName]?.total || 0;
-                    const currentTotal = teamData.total || members.length || 0;  // teamData.total을 먼저 사용
+                    const currentTotal = members.length || teamData.total || 0;  // 필터링된 members.length를 우선 사용
                     const changePercent = prevTotal > 0 ? ((currentTotal - prevTotal) / prevTotal * 100) : 0;
                     
                     console.log(`${{teamName}} 팀 비교: 7월 ${{prevTotal}}명 → 8월 ${{currentTotal}}명 = ${{changePercent.toFixed(1)}}% 변화`);
@@ -4776,7 +4822,7 @@ class EnhancedHRDashboard:
             const prevYear = {self.year if self.month > 1 else self.year - 1};
             const prevTeamStats = {json.dumps(self.metadata.get('team_stats', {}).get(f'{self.year if self.month > 1 else self.year - 1}_0{self.month-1 if self.month > 1 else 12}', {}), ensure_ascii=False)};
             const prevTotal = prevTeamStats[teamName]?.total || 0;
-            const currentTotal = teamStats[teamName]?.total || members.length || 0;  // teamStats 사용
+            const currentTotal = members.length || teamStats[teamName]?.total || 0;  // 필터링된 members.length 우선 사용
             const changePercent = prevTotal > 0 ? ((currentTotal - prevTotal) / prevTotal * 100) : 0;
             
             // Sunburst 차트용 데이터 준비 (5단계 계층 구조)
