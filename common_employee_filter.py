@@ -10,6 +10,7 @@
 
 import pandas as pd
 from datetime import datetime
+from common_date_parser import DateParser
 from typing import Optional, Dict, Any, Tuple
 
 
@@ -55,18 +56,12 @@ class EmployeeFilter:
         if valid_employees.empty:
             return valid_employees
         
-        # 2단계: 날짜 파싱 확인
+        # 2단계: 날짜 파싱 - 공통 날짜 파서 사용
         if 'Stop working Date' in valid_employees.columns:
-            if valid_employees['Stop working Date'].dtype == 'object':
-                valid_employees.loc[:, 'Stop working Date'] = pd.to_datetime(
-                    valid_employees['Stop working Date'], errors='coerce'
-                )
+            valid_employees.loc[:, 'Stop working Date'] = valid_employees['Stop working Date'].apply(DateParser.parse_date)
         
         if 'Entrance Date' in valid_employees.columns:
-            if valid_employees['Entrance Date'].dtype == 'object':
-                valid_employees.loc[:, 'Entrance Date'] = pd.to_datetime(
-                    valid_employees['Entrance Date'], errors='coerce'
-                )
+            valid_employees.loc[:, 'Entrance Date'] = valid_employees['Entrance Date'].apply(DateParser.parse_date)
         
         # 3단계: 계산 월 기준일 설정
         calc_month_start = pd.Timestamp(target_year, target_month, 1)
