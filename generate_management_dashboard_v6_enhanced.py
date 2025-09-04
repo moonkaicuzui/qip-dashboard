@@ -22,6 +22,7 @@ warnings.filterwarnings('ignore')
 from detect_comprehensive_errors import DataErrorDetector
 from calculate_total_working_days import calculate_total_working_days_from_attendance, get_employee_attendance_data_count
 from common_employee_filter import EmployeeFilter
+from common_date_parser import DateParser
 
 class EnhancedHRDashboard:
     def __init__(self, month, year):
@@ -303,27 +304,8 @@ class EnhancedHRDashboard:
             self.metadata = {'monthly_data': {}, 'weekly_data': {}, 'team_stats': {}}
             
     def parse_date(self, date_str):
-        """날짜 파싱"""
-        if pd.isna(date_str) or date_str == '' or date_str == 'nan':
-            return pd.NaT
-            
-        date_str = str(date_str).strip()
-        
-        formats = [
-            '%Y.%m.%d', '%d/%m/%Y', '%m/%d/%Y', '%Y-%m-%d',
-            '%Y/%m/%d', '%d.%m.%Y', '%d-%m-%Y'
-        ]
-        
-        for fmt in formats:
-            try:
-                return pd.to_datetime(date_str, format=fmt, dayfirst=('/' in fmt and fmt.index('/') < 3))
-            except:
-                continue
-                
-        try:
-            return pd.to_datetime(date_str, dayfirst=True)
-        except:
-            return pd.NaT
+        """날짜 파싱 - 공통 날짜 파서 사용"""
+        return DateParser.parse_date(date_str)
             
     def create_unified_employee_filter(self, df, reference_date, filter_type='month_active'):
         """
@@ -1088,6 +1070,44 @@ class EnhancedHRDashboard:
     
     def generate_full_html(self, metrics, team_stats, absence_reasons, prev_metrics, team_members, weekly_team_data=None, error_report=None):
         """완전한 HTML 생성"""
+        
+        # 📊 중앙 데이터 구조 생성 - Single Source of Truth
+        # 모든 JavaScript가 사용할 일관된 데이터 제공
+        centralized_data = {
+            'current_month': {
+                'total_employees': metrics.get('total_employees', 0),
+                'type1_count': metrics.get('type1_count', 0),
+                'type2_count': metrics.get('type2_count', 0),
+                'type3_count': metrics.get('type3_count', 0),
+                'attendance_rate': metrics.get('attendance_rate', 0),
+                'absence_rate': metrics.get('absence_rate', 0),
+                'absence_count': metrics.get('absence_count', 0),
+                'resignation_count': metrics.get('resignation_count', 0),
+                'resignation_rate': metrics.get('resignation_rate', 0),
+                'recent_hires': metrics.get('recent_hires', 0),
+                'recent_resignations': metrics.get('recent_resignations', 0),
+                'under_60_days': metrics.get('under_60_days', 0),
+                'full_attendance_count': metrics.get('full_attendance_count', 0),
+                'long_term_count': metrics.get('long_term_count', 0),
+                'team_stats': team_stats
+            },
+            'previous_month': {
+                'total_employees': prev_metrics.get('total_employees', 0) if prev_metrics else 0,
+                'attendance_rate': prev_metrics.get('attendance_rate', 0) if prev_metrics else 0,
+                'absence_rate': prev_metrics.get('absence_rate', 0) if prev_metrics else 0,
+                'resignation_count': prev_metrics.get('resignation_count', 0) if prev_metrics else 0,
+                'recent_hires': prev_metrics.get('recent_hires', 0) if prev_metrics else 0,
+                'full_attendance_count': prev_metrics.get('full_attendance_count', 0) if prev_metrics else 0,
+                'team_stats': self.metadata.get('team_stats', {}).get(f"{self.year if self.month > 1 else self.year-1}_{(self.month-1 if self.month > 1 else 12):02d}", {})
+            },
+            'weekly_data': self.weekly_data,
+            'last_available_date': self.latest_data_date.strftime('%Y-%m-%d') if hasattr(self, 'latest_data_date') else '',
+            'last_available_date_display': self.latest_data_date.strftime('%m/%d') if hasattr(self, 'latest_data_date') else ''
+        }
+        
+        # JSON으로 변환
+        centralized_data_json = json.dumps(centralized_data, ensure_ascii=False)
+        
         # 월별 트렌드 데이터 준비
         monthly_trend = self.prepare_monthly_trend_data()
         
@@ -1156,7 +1176,7 @@ class EnhancedHRDashboard:
     </div>
     
     <script>
-        {self.generate_enhanced_javascript(metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data, error_report)}
+        {self.generate_enhanced_javascript(metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data, error_report, centralized_data_json)}
     </script>
 </body>
 </html>'''
@@ -2171,7 +2191,7 @@ class EnhancedHRDashboard:
         
         return team_members
     
-    def generate_enhanced_javascript(self, metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data=None, error_report=None):
+    def generate_enhanced_javascript(self, metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data=None, error_report=None, centralized_data_json=None):
         """향상된 JavaScript 생성"""
         # numpy 타입 변환
         def convert_numpy_types(obj):
@@ -2203,7 +2223,10 @@ class EnhancedHRDashboard:
         error_report_json = json.dumps(convert_numpy_types(error_report) if error_report else {'temporal_errors': [], 'type_errors': [], 'position_errors': [], 'team_errors': [], 'attendance_errors': [], 'duplicate_errors': [], 'summary': {'total_errors': 0, 'critical': 0, 'warning': 0, 'info': 0}}, ensure_ascii=False)
         
         return f'''
-        // 전역 데이터
+        // 📊 중앙 데이터 구조 - Single Source of Truth
+        const centralizedData = {centralized_data_json};
+        
+        // 전역 데이터 (기존 코드와의 호환성 유지)
         const monthlyDataJuly = {json.dumps(monthly_data_july, ensure_ascii=False)};
         const monthlyDataAugust = {json.dumps(monthly_data_august, ensure_ascii=False)};
         const currentWeeklyData = {current_weekly_json};
@@ -3702,10 +3725,10 @@ class EnhancedHRDashboard:
                     }})
                     .sort((a, b) => b.augustTotal - a.augustTotal);
                 
-                // Total 계산
+                // Total 계산 (Python에서 계산된 실제 총원 사용)
                 const totals = {{
-                    augustTotal: sortedTeams.reduce((sum, t) => sum + t.augustTotal, 0),
-                    julyTotal: sortedTeams.reduce((sum, t) => sum + t.julyTotal, 0),
+                    augustTotal: centralizedData.current_month.total_employees,  // 중앙 데이터의 필터링된 총원
+                    julyTotal: centralizedData.previous_month.total_employees,  // 중앙 데이터의 7월 총원
                     change: 0,
                     changePercent: 0
                 }};
@@ -3741,7 +3764,7 @@ class EnhancedHRDashboard:
                 const totalChangeSign = totals.change > 0 ? '+' : '';
                 
                 totalRow.innerHTML = `
-                    <td style="padding: 10px; font-weight: 700;">Total</td>
+                    <td style="padding: 10px; font-weight: 700;">Total (Last Available: ` + centralizedData.last_available_date_display + `)</td>
                     <td style="padding: 10px; text-align: center; font-weight: 700;">${{totals.augustTotal}}명</td>
                     <td style="padding: 10px; text-align: center; font-weight: 700;">${{totals.julyTotal}}명</td>
                     <td style="padding: 10px; text-align: center; color: ${{totalChangeColor}}; font-weight: 700;">
@@ -3765,17 +3788,23 @@ class EnhancedHRDashboard:
             
             // 팀별 만근 데이터 표 섹션 시작
             
-            // 팀별 만근 데이터 계산 및 정렬
-            const fullAttendanceData = teamData.map(team => {{
-                const teamStat = teamStats[team.name];
-                const fullAttendance = teamStat.full_attendance_count || 0;
-                return {{
-                    name: team.name,
-                    fullAttendance: fullAttendance,
-                    total: teamStat.total || 0,
-                    rate: teamStat.full_attendance_rate || 0
-                }};
-            }}).sort((a, b) => b.fullAttendance - a.fullAttendance);
+            // 팀별 만근 데이터 계산 및 정렬 (Python에서 필터링된 데이터 사용)
+            const augustTeamStats = {json.dumps(team_stats, ensure_ascii=False)};
+            const fullAttendanceData = [];
+            
+            // Python에서 필터링된 팀 데이터만 사용
+            Object.entries(augustTeamStats).forEach(([teamName, teamStat]) => {{
+                if (teamStat && teamStat.total > 0) {{
+                    fullAttendanceData.push({{
+                        name: teamName,
+                        fullAttendance: teamStat.full_attendance_count || 0,
+                        total: teamStat.total || 0,
+                        rate: teamStat.full_attendance_rate || 0
+                    }});
+                }}
+            }});
+            
+            fullAttendanceData.sort((a, b) => b.fullAttendance - a.fullAttendance);
             
             // 만근율 테이블을 카드 컨테이너로 감싸기
             const fullAttendanceSection = document.createElement('div');
@@ -3816,12 +3845,12 @@ class EnhancedHRDashboard:
                     <tfoot style="background-color: #f8f9fa; font-weight: bold;">
                         <tr>
                             <td colspan="2" style="text-align: center;">총합</td>
-                            <td style="text-align: right;">` + fullAttendanceData.reduce((sum, team) => sum + team.fullAttendance, 0) + `명</td>
-                            <td style="text-align: right;">` + fullAttendanceData.reduce((sum, team) => sum + team.total, 0) + `명</td>
+                            <td style="text-align: right;">` + centralizedData.current_month.full_attendance_count + `명</td>
+                            <td style="text-align: right;">` + centralizedData.current_month.total_employees + `명</td>
                             <td style="text-align: right;">` + (
-                                fullAttendanceData.reduce((sum, team) => sum + team.total, 0) > 0 
-                                ? (fullAttendanceData.reduce((sum, team) => sum + team.fullAttendance, 0) / 
-                                   fullAttendanceData.reduce((sum, team) => sum + team.total, 0) * 100).toFixed(1) 
+                                centralizedData.current_month.total_employees > 0 
+                                ? (centralizedData.current_month.full_attendance_count / 
+                                   centralizedData.current_month.total_employees * 100).toFixed(1) 
                                 : 0
                             ) + `%</td>
                         </tr>
