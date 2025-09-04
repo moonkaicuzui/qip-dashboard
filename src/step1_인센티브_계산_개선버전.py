@@ -48,6 +48,10 @@ from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum
 
+# 공통 직원 필터링 모듈 import
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from common_employee_filter import EmployeeFilter
+
 warnings.filterwarnings('ignore')
 
 # 공통 조건 체크 모듈 import
@@ -3133,19 +3137,13 @@ class CompleteQIPCalculator:
         
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
         
-        # 전체 통계 - Employee No가 있는 실제 직원만 계산
-        valid_employees = self.month_data[self.month_data['Employee No'].notna()]
-        
-        # 계산 월 이전 퇴사자 제외
-        calc_month_start = pd.Timestamp(self.config.year, self.config.month.number, 1)
-        if 'Stop working Date' in valid_employees.columns:
-            valid_employees['Stop working Date'] = pd.to_datetime(valid_employees['Stop working Date'], errors='coerce')
-            active_employees = valid_employees[
-                (valid_employees['Stop working Date'].isna()) |  # 퇴사일 없는 직원
-                (valid_employees['Stop working Date'] >= calc_month_start)  # 계산 월 이후 퇴사자
-            ]
-        else:
-            active_employees = valid_employees
+        # 공통 필터를 사용하여 활성 직원 필터링
+        print("\n[공통 모듈 사용] 활성 직원 필터링...")
+        active_employees = EmployeeFilter.filter_active_employees(
+            self.month_data, 
+            self.config.month.number, 
+            self.config.year
+        )
         
         total_employees = len(active_employees)
         receiving_employees = (active_employees[incentive_col] > 0).sum()

@@ -21,6 +21,7 @@ import warnings
 warnings.filterwarnings('ignore')
 from detect_comprehensive_errors import DataErrorDetector
 from calculate_total_working_days import calculate_total_working_days_from_attendance, get_employee_attendance_data_count
+from common_employee_filter import EmployeeFilter
 
 class EnhancedHRDashboard:
     def __init__(self, month, year):
@@ -86,7 +87,7 @@ class EnhancedHRDashboard:
         print("✅ Real data loading complete")
         
     def filter_active_employees(self, df, target_month=None, target_year=None):
-        """인센티브 대시보드와 동일한 기준으로 활성 직원 필터링
+        """공통 모듈을 사용하여 활성 직원 필터링
         
         Args:
             df: 원본 데이터프레임
@@ -96,35 +97,16 @@ class EnhancedHRDashboard:
         Returns:
             필터링된 데이터프레임
         """
-        if df.empty:
-            return df
-            
         # 대상 월 설정
         if target_month is None:
             target_month = self.month
         if target_year is None:
             target_year = self.year
             
-        # 1단계: Employee No가 있는 실제 직원만 선택
-        valid_employees = df[df['Employee No'].notna()].copy()
-        
-        # 2단계: 계산 월 이전 퇴사자 제외
-        calc_month_start = pd.Timestamp(target_year, target_month, 1)
-        
-        if 'Stop working Date' in valid_employees.columns:
-            # Stop working Date 파싱 (이미 파싱되어 있을 수 있음)
-            if valid_employees['Stop working Date'].dtype == 'object':
-                valid_employees['Stop working Date'] = pd.to_datetime(valid_employees['Stop working Date'], errors='coerce')
-            
-            # 활성 직원: 퇴사일이 없거나 계산 월 이후 퇴사자
-            active_employees = valid_employees[
-                (valid_employees['Stop working Date'].isna()) |  # 퇴사일 없는 직원
-                (valid_employees['Stop working Date'] >= calc_month_start)  # 계산 월 이후 퇴사자
-            ]
-        else:
-            active_employees = valid_employees
-            
-        return active_employees
+        # 공통 필터링 모듈 사용
+        return EmployeeFilter.filter_active_employees(
+            df, target_month, target_year, include_future=False
+        )
     
     def load_current_month_data(self):
         """현재 월 데이터 로드"""
@@ -390,8 +372,22 @@ class EnhancedHRDashboard:
             self.weekly_data = {}
             return
         
-        # 이미 필터링된 데이터 사용
+        # 원본 데이터 사용
         df = self.data['current']
+        
+        # 데이터 최신 날짜 확인
+        latest_data_date = None
+        if 'Entrance Date' in df.columns:
+            entrance_dates = pd.to_datetime(df['Entrance Date'], errors='coerce')
+            valid_dates = entrance_dates[entrance_dates.notna()]
+            if not valid_dates.empty:
+                latest_data_date = valid_dates.max()
+        
+        if latest_data_date is None:
+            # 기본값: 8월 16일
+            latest_data_date = pd.Timestamp(self.year, self.month, 16)
+        
+        print(f"  📅 데이터 최신 날짜: {latest_data_date.strftime('%Y-%m-%d')}")
         
         # 실제 날짜 기반 주차 계산
         start_date = datetime(self.year, self.month, 1)
@@ -401,11 +397,17 @@ class EnhancedHRDashboard:
             week_start = start_date + timedelta(days=(week_num-1)*7)
             week_end = week_start + timedelta(days=6)
             
+            # 4주차인데 데이터가 없으면 스킵 (가짜 데이터 생성 방지)
+            if pd.Timestamp(week_start) > latest_data_date:
+                print(f"  ⚠️ Week{week_num} ({week_start.strftime('%m/%d')}): 데이터 없음 - 스킵")
+                continue
+            
             week_key = f"Week{week_num}"
             
-            # 해당 주차에 재직 중인 직원 - 통합 필터 함수 사용
-            active_mask = self.create_unified_employee_filter(df, pd.Timestamp(week_start), 'week_active')
-            active_employees = df[active_mask]
+            # 공통 필터 모듈 사용하여 주차 시작일 기준 활성 직원 필터링
+            active_employees = EmployeeFilter.filter_active_employees(
+                df, week_start.month, week_start.year, include_future=False
+            )
             
             # 신규 입사자
             new_hires = df[
@@ -430,6 +432,8 @@ class EnhancedHRDashboard:
                 attendance_rate = 0
                 
             week_data[week_key] = {
+                'date': week_start.strftime('%m/%d'),  # 날짜 레이블 추가 (MM/DD)
+                'date_full': week_start.strftime('%Y-%m-%d'),  # 전체 날짜
                 'total_employees': len(active_employees),
                 'attendance_rate': round(attendance_rate, 2),
                 'absence_rate': round(100 - attendance_rate, 2),
@@ -442,17 +446,29 @@ class EnhancedHRDashboard:
         self.weekly_data = week_data
         
     def calculate_real_hr_metrics(self):
-        """실제 HR 메트릭 계산"""
+        """실제 HR 메트릭 계산 - 데이터 마지막 날짜 기준"""
         if self.data['current'].empty:
             return {}
             
         df = self.data['current']
         metrics = {}
         
-        # 활성 직원만 필터링 - 해당 월 시작일 기준으로 필터링
-        # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
+        # 데이터의 실제 마지막 날짜 확인 (current 데이터에서)
+        latest_data_date = None
+        if 'current' in self.data and not self.data['current'].empty:
+            basic_df = self.data['current']
+            if 'Entrance Date' in basic_df.columns:
+                entrance_dates = pd.to_datetime(basic_df['Entrance Date'], errors='coerce')
+                valid_dates = entrance_dates[entrance_dates.notna()]
+                if not valid_dates.empty:
+                    latest_data_date = valid_dates.max()
+        
+        if latest_data_date is None:
+            latest_data_date = pd.Timestamp(self.year, self.month, 16)  # 기본값
+        
+        # 마지막 날짜 기준으로 필터링
         month_start = pd.Timestamp(self.year, self.month, 1)
-        month_end = pd.Timestamp(self.year, self.month, 1) + pd.DateOffset(months=1) - pd.Timedelta(days=1)
+        month_end = latest_data_date  # 실제 데이터가 있는 마지막 날
         
         # 데이터 오류 감지: 미래 입사일을 가진 직원
         error_employees = pd.DataFrame()
@@ -705,41 +721,14 @@ class EnhancedHRDashboard:
         
         # 여전히 매핑되지 않은 경우 기본값 설정
         df['real_team'] = df['real_team'].fillna('Team Unidentified')
-        team_column = 'real_team'
-            
-        # 팀별 통계
-        for team in df[team_column].dropna().unique():
-            team_df = df[df[team_column] == team]
-            
-            # 활성 직원만 - 해당 월 시작일 기준으로 필터링
-            # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
-            month_start = pd.Timestamp(self.year, self.month, 1)
-            
-            # 통합 필터 함수 사용
-            active_mask = self.create_unified_employee_filter(team_df, month_start, 'month_active')
-            active_team = team_df[active_mask]
-            
-            # 만근 직원 계산
-            full_attendance_count = 0
-            if 'Actual Working Days' in active_team.columns and 'Total Working Days' in active_team.columns:
-                full_attendance = active_team[
-                    (active_team['Actual Working Days'] == active_team['Total Working Days']) &
-                    (active_team['Total Working Days'] > 0)
-                ]
-                full_attendance_count = len(full_attendance)
-            
-            team_stats[team] = {
-                'total': len(active_team),
-                'resignations': len(team_df[team_df['Stop working Date'].notna()]) if 'Stop working Date' in team_df.columns else 0,
-                'attendance_rate': (
-                    active_team['Actual Working Days'].sum() / active_team['Total Working Days'].sum() * 100
-                    if 'Total Working Days' in active_team.columns and active_team['Total Working Days'].sum() > 0 else 0
-                ),
-                'new_hires': len(active_team[active_team['Entrance Date'] >= (self.report_date - timedelta(days=30))])
-                    if 'Entrance Date' in active_team.columns else 0,
-                'full_attendance_count': full_attendance_count,
-                'full_attendance_rate': (full_attendance_count / len(active_team) * 100) if len(active_team) > 0 else 0
-            }
+        
+        # 공통 모듈을 사용하여 팀별 통계 계산
+        team_stats = EmployeeFilter.get_team_statistics(
+            df, 
+            self.month, 
+            self.year, 
+            team_column='real_team'
+        )
             
         return team_stats
         
@@ -860,33 +849,18 @@ class EnhancedHRDashboard:
         
         # 여전히 매핑되지 않은 경우 기본값 설정
         df['real_team'] = df['real_team'].fillna('Team Unidentified')
-        team_column = 'real_team'
-            
-        # 팀별 통계
-        for team in df[team_column].dropna().unique():
-            team_df = df[df[team_column] == team]
-            
-            # 활성 직원만 - 이전 월 시작일 기준으로 필터링
-            # Stop working Date를 우선시하고, RE MARK는 보조 지표로 사용
-            prev_month_start = pd.Timestamp(self.year if self.month > 1 else self.year-1, 
-                                           self.month-1 if self.month > 1 else 12, 1)
-            
-            # 통합 필터 함수 사용
-            active_mask = self.create_unified_employee_filter(team_df, prev_month_start, 'month_active')
-            active_team = team_df[active_mask]
-            
-            team_stats[team] = {
-                'total': len(active_team),
-                'resignations': len(team_df[team_df['Stop working Date'].notna()]) if 'Stop working Date' in team_df.columns else 0,
-                'attendance_rate': (
-                    active_team['Actual Working Days'].sum() / active_team['Total Working Days'].sum() * 100
-                    if 'Total Working Days' in active_team.columns and active_team['Total Working Days'].sum() > 0 else 0
-                ),
-                'new_hires': len(active_team[
-                    (active_team['Entrance Date'] >= pd.Timestamp(self.year if self.month > 1 else self.year-1, 
-                                                                   self.month-1 if self.month > 1 else 12, 1))
-                ]) if 'Entrance Date' in active_team.columns else 0
-            }
+        
+        # 이전 월 계산
+        prev_month = self.month - 1 if self.month > 1 else 12
+        prev_year = self.year if self.month > 1 else self.year - 1
+        
+        # 공통 모듈을 사용하여 팀별 통계 계산
+        team_stats = EmployeeFilter.get_team_statistics(
+            df, 
+            prev_month,
+            prev_year, 
+            team_column='real_team'
+        )
         
         return team_stats
     
@@ -2843,10 +2817,20 @@ class EnhancedHRDashboard:
                 baseRate + (Math.random() * 2 - 1)  // Week4: ±1% 변동
             ];
             
+            // 주차별 날짜 레이블 동적 생성
+            const weekLabels = [];
+            const weeklyData = {json.dumps(self.weekly_data, ensure_ascii=False)};
+            for (let i = 1; i <= 4; i++) {{
+                const weekKey = 'Week' + i;
+                if (weeklyData[weekKey]) {{
+                    weekLabels.push(weeklyData[weekKey].date);  // MM/DD 형식 사용
+                }}
+            }}
+            
             new Chart(document.getElementById('team-weekly-chart'), {{
                 type: 'line',
                 data: {{
-                    labels: ['Week1', 'Week2', 'Week3', 'Week4'],
+                    labels: weekLabels,
                     datasets: [{{
                         label: '출근율 (%)',
                         data: weeklyAttendance,
@@ -3081,25 +3065,32 @@ class EnhancedHRDashboard:
             trendDiv.innerHTML = '<canvas id="trend-' + modalId + '"></canvas>';
             modalBody.appendChild(trendDiv);
             
-            // 7월과 8월 주차별 데이터를 연속으로 결합
-            const combinedLabels = [
-                '7월 W1', '7월 W2', '7월 W3', '7월 W4',
-                '8월 W1', '8월 W2', '8월 W3', '8월 W4'
-            ];
+            // 7월과 8월 주차별 데이터를 연속으로 결합 - 날짜 레이블 사용
+            const combinedLabels = [];
+            const combinedValues = [];
             
-            const combinedValues = [
-                prevWeeklyData.Week1?.total_employees || 0,
-                prevWeeklyData.Week2?.total_employees || 0,
-                prevWeeklyData.Week3?.total_employees || 0,
-                prevWeeklyData.Week4?.total_employees || 0,
-                currentWeeklyData.Week1?.total_employees || 0,
-                currentWeeklyData.Week2?.total_employees || 0,
-                currentWeeklyData.Week3?.total_employees || 0,
-                currentWeeklyData.Week4?.total_employees || 0
-            ];
+            // 7월 데이터 처리 (있는 것만)
+            const julyWeeklyData = {json.dumps(self.metadata.get('weekly_data', {}).get(f'{self.year if self.month > 1 else self.year-1}_07', {}), ensure_ascii=False)};
+            for (let i = 1; i <= 4; i++) {{
+                const weekKey = 'Week' + i;
+                if (julyWeeklyData[weekKey]) {{
+                    combinedLabels.push('07/' + String(1 + (i-1)*7).padStart(2, '0'));
+                    combinedValues.push(julyWeeklyData[weekKey].total_employees || 0);
+                }}
+            }}
             
-            // 추세선을 위한 선형 회귀 계산
-            const xValues = Array.from({{length: 8}}, (_, i) => i);
+            // 8월 데이터 처리 (있는 것만)
+            const augustWeeklyData = {json.dumps(self.metadata.get('weekly_data', {}).get(f'{self.year}_{self.month:02d}', {}), ensure_ascii=False)};
+            for (let i = 1; i <= 4; i++) {{
+                const weekKey = 'Week' + i;
+                if (augustWeeklyData[weekKey]) {{
+                    combinedLabels.push(augustWeeklyData[weekKey].date || ('08/' + String(1 + (i-1)*7).padStart(2, '0')));
+                    combinedValues.push(augustWeeklyData[weekKey].total_employees || 0);
+                }}
+            }}
+            
+            // 추세선을 위한 선형 회귀 계산 (실제 데이터 개수 기반)
+            const xValues = Array.from({{length: combinedValues.length}}, (_, i) => i);
             const n = combinedValues.length;
             const sumX = xValues.reduce((a, b) => a + b, 0);
             const sumY = combinedValues.reduce((a, b) => a + b, 0);
@@ -4180,34 +4171,48 @@ class EnhancedHRDashboard:
                 
                 // 현재 팀의 실제 인원수 사용
                 const currentTeamSize = teamStats[teamName]?.total || members.length;
-                const weekLabels = ['1주차', '2주차', '3주차', '4주차'];
                 
-                // 실제 주차별 팀 데이터 사용
+                // 주차별 날짜 레이블 생성 (08/01, 08/08, 08/15, 08/22 형식)
+                const weekLabels = [];
+                for (let week = 0; week < 4; week++) {{
+                    const date = new Date({self.year}, {self.month - 1}, 1 + (week * 7));
+                    weekLabels.push(`${{String(date.getMonth() + 1).padStart(2, '0')}}/${{String(date.getDate()).padStart(2, '0')}}`);
+                }}
+                
+                // 실제 주차별 팀 데이터 사용 (가짜 데이터 생성하지 않음)
                 let weekData = [];
-                if (weeklyTeamData && Object.keys(weeklyTeamData).length > 0) {{
-                    // 실제 주차별 데이터가 있는 경우
-                    for (let week = 1; week <= 4; week++) {{
-                        const weekKey = `Week${{week}}`;
-                        const weekTeamData = weeklyTeamData[weekKey];
-                        if (weekTeamData && weekTeamData[teamName] !== undefined) {{
-                            weekData.push(weekTeamData[teamName]);
+                let actualWeekLabels = [];
+                
+                // 실제 주차별 데이터만 가져오기 (가짜 데이터 생성 방지)
+                const augustWeeklyTeamData = {json.dumps(self.metadata.get('weekly_data', {}).get(f'{self.year}_{self.month:02d}', {}), ensure_ascii=False)};
+                
+                for (let week = 1; week <= 4; week++) {{
+                    const weekKey = `Week${{week}}`;
+                    if (augustWeeklyTeamData[weekKey]) {{
+                        // 주차 데이터가 존재하는 경우만
+                        actualWeekLabels.push(augustWeeklyTeamData[weekKey].date || weekLabels[week - 1]);
+                        const teamWeekData = weeklyTeamData[weekKey];
+                        if (teamWeekData && teamWeekData[teamName] !== undefined) {{
+                            weekData.push(teamWeekData[teamName]);
                         }} else {{
-                            // 해당 주차 데이터가 없으면 현재 팀 크기 사용
-                            weekData.push(currentTeamSize);
+                            weekData.push(currentTeamSize); // 팀 데이터가 없으면 현재 사이즈 사용
                         }}
                     }}
-                }} else {{
-                    // 주차별 데이터가 없으면 현재 팀 크기로 채움
-                    weekData = [currentTeamSize, currentTeamSize, currentTeamSize, currentTeamSize];
-                }}
+                    // Week4가 없으면 추가하지 않음
+                }} 
+                
+                // 실제 데이터가 있는 경우만 차트 그리기
+                const hasData = weekData.length > 0;
+                const finalLabels = hasData ? actualWeekLabels : weekLabels.slice(0, 1);
+                const finalData = hasData ? weekData : [currentTeamSize];
                 
                 const weeklyChart = new Chart(weeklyCtx, {{
                     type: 'line',
                     data: {{
-                        labels: weekLabels,
+                        labels: finalLabels,
                         datasets: [{{
                             label: teamName + ' 팀 인원',
-                            data: weekData,
+                            data: finalData,
                             borderColor: '#45B7D1',
                             backgroundColor: 'rgba(69, 183, 209, 0.1)',
                             tension: 0.4,
