@@ -52,7 +52,7 @@
     "name": "TRẦN KIỀU EM",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 357977.0,
+    "amount": 282487.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -101,7 +101,7 @@
     "name": "LƯƠNG THỊ CẨM TIÊN",
     "position": "A.MANAGER",
     "type": "TYPE-1",
-    "amount": 383301.0,
+    "amount": 299053.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -164,7 +164,7 @@
     "name": "NGUYỄN THỊ BÍCH NGỌC",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -213,8 +213,8 @@
     "name": "TRẦN THỊ THÚY ANH",
     "position": "MODEL MASTER",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "전체 공장 AQL reject율 3.9% (기준: 3% 미만)",
+    "amount": 250000.0,
+    "calculation_basis": "Model Master incentive",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -262,8 +262,8 @@
           "applicable": false
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.95,
+          "passed": true,
+          "value": 2.94,
           "threshold": 3.0,
           "applicable": true
         }
@@ -351,8 +351,8 @@
     "name": "CAO THỊ TỐ NGUYÊN",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "담당 구역 AQL reject율 4.3% (기준: 3% 미만)",
+    "amount": 150000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -400,8 +400,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 4.35,
+          "passed": true,
+          "value": 2.99,
           "threshold": 3.0,
           "applicable": true
         }
@@ -426,7 +426,7 @@
     "name": "THỊ BÍCH NGÀ",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 127767.0,
+    "amount": 99684.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -579,8 +579,8 @@
     "name": "NGUYỄN THÚY HẰNG",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "담당 구역 AQL reject율 3.4% (기준: 3% 미만)",
+    "amount": 150000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -628,8 +628,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.45,
+          "passed": true,
+          "value": 2.67,
           "threshold": 3.0,
           "applicable": true
         }
@@ -654,8 +654,8 @@
     "name": "DANH THỊ ANH ĐÀO",
     "position": "MODEL MASTER",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "전체 공장 AQL reject율 3.9% (기준: 3% 미만)",
+    "amount": 250000.0,
+    "calculation_basis": "Model Master incentive",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -703,8 +703,8 @@
           "applicable": false
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.95,
+          "passed": true,
+          "value": 2.94,
           "threshold": 3.0,
           "applicable": true
         }
@@ -729,7 +729,7 @@
     "name": "LÊ THỊ THOẢNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -827,7 +827,7 @@
     "name": "LÊ TRÚC LY",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -865,7 +865,7 @@
     "name": "NGUYỄN THỊ NGỌC ÁNH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -914,7 +914,7 @@
     "name": "THỊ KIM THO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 254659.0,
+    "amount": 186718.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -963,7 +963,7 @@
     "name": "THỊ MY",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 88941.0,
+    "amount": 70823.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1009,13 +1009,13 @@
       "5prs": {
         "volume": {
           "passed": false,
-          "value": 0,
+          "value": 40,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
-          "passed": false,
-          "value": 0,
+          "passed": true,
+          "value": 100.0,
           "threshold": 95,
           "applicable": true
         }
@@ -1026,7 +1026,7 @@
     "name": "PHAN THỊ YẾN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1176,7 +1176,7 @@
     "name": "LÊ THỊ DIỄM LINH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 357977.0,
+    "amount": 282487.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1274,7 +1274,7 @@
     "name": "THỊ NGỌC HÀ",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1358,13 +1358,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 360,
+          "value": 740,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.78,
+          "value": 98.11,
           "threshold": 95,
           "applicable": true
         }
@@ -1375,7 +1375,7 @@
     "name": "THÁI UYỂN NHI",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 449337.0,
+    "amount": 313455.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1536,8 +1536,8 @@
     "name": "DANH THỊ KIM ANH",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "담당 구역 AQL reject율 3.3% (기준: 3% 미만)",
+    "amount": 150000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -1585,8 +1585,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.33,
+          "passed": true,
+          "value": 2.99,
           "threshold": 3.0,
           "applicable": true
         }
@@ -1660,7 +1660,7 @@
     "name": "DANH THỊ ANH THƯ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1709,7 +1709,7 @@
     "name": "VÕ THỊ TÝ NỊ",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 357977.0,
+    "amount": 282487.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1821,7 +1821,7 @@
     "name": "DƯƠNG LÝ BẰNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1974,7 +1974,7 @@
     "name": "TRẦN THỊ TỐ QUYÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2135,7 +2135,7 @@
     "name": "DANH THỊ BÍCH HỢP",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2173,7 +2173,7 @@
     "name": "THỊ KIM MỪNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2271,7 +2271,7 @@
     "name": "VÕ VĂN KIỆT",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 335845.0,
+    "amount": 245256.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2334,7 +2334,7 @@
     "name": "NGUYỄN THỊ BÍCH PHƯỢNG",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 254659.0,
+    "amount": 186718.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2484,13 +2484,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 550,
+          "value": 990,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 95.82,
+          "value": 95.35,
           "threshold": 95,
           "applicable": true
         }
@@ -2501,7 +2501,7 @@
     "name": "THỊ NGỌC CHÚC",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2550,7 +2550,7 @@
     "name": "NGUYỄN THỊ MỸ TIÊN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 127767.0,
+    "amount": 99684.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2645,13 +2645,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 330,
+          "value": 360,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 99.09,
+          "value": 98.89,
           "threshold": 95,
           "applicable": true
         }
@@ -2662,7 +2662,7 @@
     "name": "NGUYỄN THỊ HẠNH",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 127767.0,
+    "amount": 99684.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2711,7 +2711,7 @@
     "name": "LÊ HUỲNH GIAO",
     "position": "GROUP LEADER",
     "type": "TYPE-1",
-    "amount": 254659.0,
+    "amount": 186718.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2774,7 +2774,7 @@
     "name": "TRẦN THỊ BÍCH LY",
     "position": "MANAGER",
     "type": "TYPE-1",
-    "amount": 447184.0,
+    "amount": 348896.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2838,7 +2838,7 @@
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
     "amount": 0.0,
-    "calculation_basis": "담당 구역 AQL reject율 4.7% (기준: 3% 미만)",
+    "calculation_basis": "담당 구역 AQL reject율 3.2% (기준: 3% 미만)",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -2887,7 +2887,7 @@
         },
         "area_reject_rate": {
           "passed": false,
-          "value": 4.69,
+          "value": 3.17,
           "threshold": 3.0,
           "applicable": true
         }
@@ -2912,8 +2912,8 @@
     "name": "PHẠM MỸ HUYỀN",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "담당 구역 AQL reject율 3.3% (기준: 3% 미만)",
+    "amount": 150000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -2961,8 +2961,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.33,
+          "passed": true,
+          "value": 2.99,
           "threshold": 3.0,
           "applicable": true
         }
@@ -2987,7 +2987,7 @@
     "name": "MAI TUYẾT ANH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 357977.0,
+    "amount": 282487.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3149,7 +3149,7 @@
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
     "amount": 0.0,
-    "calculation_basis": "담당 구역 AQL reject율 3.9% (기준: 3% 미만)",
+    "calculation_basis": "기타 조건 미충족",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -3197,8 +3197,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.95,
+          "passed": true,
+          "value": 2.94,
           "threshold": 3.0,
           "applicable": true
         }
@@ -3269,13 +3269,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 440,
+          "value": 680,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.18,
+          "value": 98.38,
           "threshold": 95,
           "applicable": true
         }
@@ -3286,7 +3286,7 @@
     "name": "NGUYỄN THỊ MAI LAN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3384,7 +3384,7 @@
     "name": "ĐOÀN THỊ NGỌC THƠ",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 254659.0,
+    "amount": 186718.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3433,7 +3433,7 @@
     "name": "THỊ KIM THẢO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 254659.0,
+    "amount": 186718.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3545,7 +3545,7 @@
     "name": "TRƯƠNG THỊ XUÂN QUỲNH",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 127767.0,
+    "amount": 99684.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3706,7 +3706,7 @@
     "name": "VÕ THỊ HỒNG TƯƠI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3755,7 +3755,7 @@
     "name": "NGUYỄN VĂN LUÂN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 179735.0,
+    "amount": 125382.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3818,7 +3818,7 @@
     "name": "PHÙNG THỊ THỦY",
     "position": "A.MANAGER",
     "type": "TYPE-2",
-    "amount": 383301.0,
+    "amount": 299053.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4011,13 +4011,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 770,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.1,
+          "value": 97.53,
           "threshold": 95,
           "applicable": true
         }
@@ -4083,8 +4083,8 @@
     "name": "NGUYỄN NGỌC TUẤN",
     "position": "MODEL MASTER",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "전체 공장 AQL reject율 3.9% (기준: 3% 미만)",
+    "amount": 250000.0,
+    "calculation_basis": "Model Master incentive",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -4132,8 +4132,8 @@
           "applicable": false
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.95,
+          "passed": true,
+          "value": 2.94,
           "threshold": 3.0,
           "applicable": true
         }
@@ -4158,7 +4158,7 @@
     "name": "PHAN VĂN BỔNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4207,7 +4207,7 @@
     "name": "THỊ OÁCH HA",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4256,7 +4256,7 @@
     "name": "HUỲNH THIỆN YẾN PHƯƠNG",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4305,7 +4305,7 @@
     "name": "NGUYỄN THỊ BÍCH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4354,7 +4354,7 @@
     "name": "LÊ THẢO THANH",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4403,7 +4403,7 @@
     "name": "NGUYỄN THỊ KIM CHI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4498,13 +4498,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 560,
+          "value": 840,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.5,
+          "value": 97.62,
           "threshold": 95,
           "applicable": true
         }
@@ -4515,7 +4515,7 @@
     "name": "TRẦN NHÃ LINH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4564,7 +4564,7 @@
     "name": "NGUYỄN THỊ KIỀU ANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4613,7 +4613,7 @@
     "name": "THỊ HỒNG THẮM",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4662,7 +4662,7 @@
     "name": "LƯU GIA HÂN",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 254659.0,
+    "amount": 186718.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4757,13 +4757,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 195,
+          "value": 355,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.46,
+          "value": 98.59,
           "threshold": 95,
           "applicable": true
         }
@@ -4774,7 +4774,7 @@
     "name": "NGUYỄN THỊ BÍCH VY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4823,7 +4823,7 @@
     "name": "NGUYỄN THỊ BÉ BA",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4872,7 +4872,7 @@
     "name": "VŨ HỒNG TIÊN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 169852.0,
+    "amount": 101911.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4981,13 +4981,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 480,
+          "value": 920,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.08,
+          "value": 97.07,
           "threshold": 95,
           "applicable": true
         }
@@ -4998,7 +4998,7 @@
     "name": "NGUYỄN THỊ THU HÀ",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5047,7 +5047,7 @@
     "name": "PHẠM THỊ SÂM",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5096,7 +5096,7 @@
     "name": "THỊ THANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5191,13 +5191,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 450,
+          "value": 930,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 95.56,
+          "value": 95.27,
           "threshold": 95,
           "applicable": true
         }
@@ -5208,7 +5208,7 @@
     "name": "NGUYỄN TẤN THÀNH",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5246,7 +5246,7 @@
     "name": "HÀ THỊ MỘNG TUYỀN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 127767.0,
+    "amount": 99684.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5358,7 +5358,7 @@
     "name": "THỊ DƯỢC",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5471,7 +5471,7 @@
     "name": "HÀ CÔNG NHANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5517,13 +5517,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 560,
+          "value": 1040,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.32,
+          "value": 97.6,
           "threshold": 95,
           "applicable": true
         }
@@ -5534,7 +5534,7 @@
     "name": "LÊ VĂN DLEL",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5678,13 +5678,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 490,
+          "value": 930,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 90.82,
+          "value": 91.83,
           "threshold": 95,
           "applicable": true
         }
@@ -5695,7 +5695,7 @@
     "name": "LĂM THỊ THẮM",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5790,13 +5790,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 640,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.86,
+          "value": 97.97,
           "threshold": 95,
           "applicable": true
         }
@@ -5852,14 +5852,14 @@
       },
       "5prs": {
         "volume": {
-          "passed": false,
-          "value": 90,
+          "passed": true,
+          "value": 120,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.78,
+          "value": 98.33,
           "threshold": 95,
           "applicable": true
         }
@@ -5870,7 +5870,7 @@
     "name": "NGUYỄN THỊ THU DIỆU",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5919,7 +5919,7 @@
     "name": "VÕ KIM THANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5968,7 +5968,7 @@
     "name": "LÊ VĂN NAM",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 254659.0,
+    "amount": 186718.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6017,7 +6017,7 @@
     "name": "PHẠM NGỌC CHĂM",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6112,13 +6112,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 260,
+          "value": 440,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.69,
+          "value": 97.95,
           "threshold": 95,
           "applicable": true
         }
@@ -6129,7 +6129,7 @@
     "name": "THÁI NGỌC TRÂM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6279,13 +6279,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 100,
+          "value": 420,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.0,
+          "value": 98.33,
           "threshold": 95,
           "applicable": true
         }
@@ -6342,13 +6342,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 360,
+          "value": 660,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.89,
+          "value": 99.24,
           "threshold": 95,
           "applicable": true
         }
@@ -6359,7 +6359,7 @@
     "name": "CHÂU THỊ CHÚC LY",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6408,7 +6408,7 @@
     "name": "HUỲNH NGỌC LÀNH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6503,13 +6503,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 660,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.1,
+          "value": 98.48,
           "threshold": 95,
           "applicable": true
         }
@@ -6520,7 +6520,7 @@
     "name": "THÁI THỊ CẨM TIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6615,13 +6615,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 290,
+          "value": 330,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.59,
+          "value": 97.27,
           "threshold": 95,
           "applicable": true
         }
@@ -6632,7 +6632,7 @@
     "name": "PHẠM THỊ MỸ TIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6681,7 +6681,7 @@
     "name": "LÊ THỊ THÚY LIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6776,13 +6776,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 360,
+          "value": 800,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.5,
+          "value": 97.88,
           "threshold": 95,
           "applicable": true
         }
@@ -6793,7 +6793,7 @@
     "name": "NGUYỄN THỊ MỸ NHUNG",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6905,7 +6905,7 @@
     "name": "NGUYỄN CHÍ LUẬN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6954,7 +6954,7 @@
     "name": "VÕ MINH TÂM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7003,7 +7003,7 @@
     "name": "LÊ NGỌC LINH ĐAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7052,7 +7052,7 @@
     "name": "TRẦN THỊ THÙY ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7147,13 +7147,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 560,
+          "value": 800,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.5,
+          "value": 97.12,
           "threshold": 95,
           "applicable": true
         }
@@ -7259,7 +7259,7 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 520,
+          "value": 1000,
           "threshold": 100,
           "applicable": true
         },
@@ -7276,7 +7276,7 @@
     "name": "VÕ THỊ BÍCH NGÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7371,13 +7371,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 380,
+          "value": 680,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.63,
+          "value": 97.79,
           "threshold": 95,
           "applicable": true
         }
@@ -7434,13 +7434,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 180,
+          "value": 260,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.78,
+          "value": 98.46,
           "threshold": 95,
           "applicable": true
         }
@@ -7497,13 +7497,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 500,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.21,
+          "value": 97.4,
           "threshold": 95,
           "applicable": true
         }
@@ -7560,13 +7560,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.21,
+          "value": 98.27,
           "threshold": 95,
           "applicable": true
         }
@@ -7577,7 +7577,7 @@
     "name": "THỊ DƯƠNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7626,7 +7626,7 @@
     "name": "TRƯƠNG YẾN MY",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7675,7 +7675,7 @@
     "name": "THỊ YẾN NHI",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7724,7 +7724,7 @@
     "name": "TRẦN HỒ QUẾ PHƯƠNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7882,13 +7882,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 440,
+          "value": 740,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.18,
+          "value": 97.97,
           "threshold": 95,
           "applicable": true
         }
@@ -7954,7 +7954,7 @@
     "name": "THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8066,7 +8066,7 @@
     "name": "VŨ HOÀNG KHA",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8153,7 +8153,7 @@
     "name": "TRẦN PHỤNG KIỀU",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8248,13 +8248,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 750,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.21,
+          "value": 98.0,
           "threshold": 95,
           "applicable": true
         }
@@ -8314,7 +8314,7 @@
     "name": "LÊ THỊ THANH TUYỀN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8461,7 +8461,7 @@
     "name": "LÊ VĂN KHANG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8510,7 +8510,7 @@
     "name": "NGUYỄN THANH HÀO",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8548,7 +8548,7 @@
     "name": "PHẠM THỊ NGỌC THƠ",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8597,7 +8597,7 @@
     "name": "LÊ THỊ BẾN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8646,7 +8646,7 @@
     "name": "NGÔ THỊ NGỌC NGÂN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 127767.0,
+    "amount": 99684.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8790,13 +8790,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 730,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.72,
+          "value": 99.18,
           "threshold": 95,
           "applicable": true
         }
@@ -8853,13 +8853,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 210,
+          "value": 570,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.1,
+          "value": 98.95,
           "threshold": 95,
           "applicable": true
         }
@@ -8870,7 +8870,7 @@
     "name": "CHÂU THỊ LỆ TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8919,7 +8919,7 @@
     "name": "DANH HOÀI NAM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8968,7 +8968,7 @@
     "name": "THỊ HỒNG NGA",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9017,7 +9017,7 @@
     "name": "THỊ BÉ BẢY",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9066,7 +9066,7 @@
     "name": "HỨA THỊ KIM NHẢN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9161,13 +9161,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 340,
+          "value": 580,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.94,
+          "value": 98.45,
           "threshold": 95,
           "applicable": true
         }
@@ -9224,13 +9224,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 720,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.95,
+          "value": 98.61,
           "threshold": 95,
           "applicable": true
         }
@@ -9388,7 +9388,7 @@
     "name": "NGUYỄN THỊ NGỌC HUYỀN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9483,13 +9483,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 520,
+          "value": 920,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 92.69,
+          "value": 92.83,
           "threshold": 95,
           "applicable": true
         }
@@ -9500,7 +9500,7 @@
     "name": "HUỲNH ANH THƯ",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9549,7 +9549,7 @@
     "name": "TRƯƠNG THỊ TUYẾT LOAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9598,7 +9598,7 @@
     "name": "NGUYỄN NGỌC TRÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9647,7 +9647,7 @@
     "name": "HỒ THỊ KIM QUÍ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9791,13 +9791,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 260,
+          "value": 480,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.31,
+          "value": 98.12,
           "threshold": 95,
           "applicable": true
         }
@@ -9857,7 +9857,7 @@
     "name": "ĐOÀN THỊ MỸ NGÂN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9903,13 +9903,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 850,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
-          "passed": true,
-          "value": 98.72,
+          "passed": false,
+          "value": 94.94,
           "threshold": 95,
           "applicable": true
         }
@@ -9920,7 +9920,7 @@
     "name": "PHAN THỊ MỸ PHÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9969,7 +9969,7 @@
     "name": "NGUYỄN THU THẢO",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10018,7 +10018,7 @@
     "name": "HUỲNH THỊ ÁNH TUYẾT",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10067,7 +10067,7 @@
     "name": "DANH THỊ NGỌC DIỄM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10116,7 +10116,7 @@
     "name": "CHUNG THÀNH PHONG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10148,7 +10148,7 @@
       "5prs": {
         "volume": {
           "passed": false,
-          "value": 30,
+          "value": 60,
           "threshold": 100,
           "applicable": true
         },
@@ -10165,7 +10165,7 @@
     "name": "NGUYỄN THỊ HUỲNH NHƯ",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 404659.0,
+    "amount": 336718.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10214,7 +10214,7 @@
     "name": "TĂNG THỊ ÁNH HỒNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10312,7 +10312,7 @@
     "name": "PHAN THỊ BÉ NGÂN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 750000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10358,13 +10358,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 860,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 99.05,
+          "value": 96.63,
           "threshold": 95,
           "applicable": true
         }
@@ -10473,7 +10473,7 @@
     "name": "NGUYỄN THỊ CHÚC GIANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10522,8 +10522,8 @@
     "name": "SẦM TRÍ THÀNH",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "담당 구역 AQL reject율 3.4% (기준: 3% 미만)",
+    "amount": 150000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "attendance_rate": {
@@ -10571,8 +10571,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.45,
+          "passed": true,
+          "value": 2.67,
           "threshold": 3.0,
           "applicable": true
         }
@@ -10597,7 +10597,7 @@
     "name": "VÕ THỊ NHỊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10646,7 +10646,7 @@
     "name": "TRƯƠNG THỊ THÚY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10741,13 +10741,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 500,
+          "value": 980,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 94.4,
+          "value": 92.24,
           "threshold": 95,
           "applicable": true
         }
@@ -10804,7 +10804,7 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 780,
           "threshold": 100,
           "applicable": true
         },
@@ -10821,7 +10821,7 @@
     "name": "THỊ TUYỀN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10916,13 +10916,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 750,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 99.23,
+          "value": 99.2,
           "threshold": 95,
           "applicable": true
         }
@@ -10933,7 +10933,7 @@
     "name": "LÝ THỊ MỸ HUYỀN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11028,13 +11028,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 430,
+          "value": 910,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
-          "passed": true,
-          "value": 97.67,
+          "passed": false,
+          "value": 93.3,
           "threshold": 95,
           "applicable": true
         }
@@ -11091,13 +11091,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 560,
+          "value": 1040,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 94.82,
+          "value": 94.9,
           "threshold": 95,
           "applicable": true
         }
@@ -11209,7 +11209,7 @@
     "name": "LÝ THỊ THÚY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11405,7 +11405,7 @@
     "name": "LÊ THỊ XUYẾN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11503,7 +11503,7 @@
     "name": "NGUYỄN MINH KHANG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11552,7 +11552,7 @@
     "name": "HỒ THỊ TỐ TRINH",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11601,7 +11601,7 @@
     "name": "XÀ THỊ NGÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11696,13 +11696,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.14,
+          "value": 97.5,
           "threshold": 95,
           "applicable": true
         }
@@ -11759,13 +11759,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 360,
+          "value": 450,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.61,
+          "value": 97.56,
           "threshold": 95,
           "applicable": true
         }
@@ -11874,7 +11874,7 @@
     "name": "NGUYỄN THỊ VIỆT THƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11923,7 +11923,7 @@
     "name": "PHAN THỊ MY PHA",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11969,13 +11969,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.57,
+          "value": 99.23,
           "threshold": 95,
           "applicable": true
         }
@@ -12035,7 +12035,7 @@
     "name": "DANH VIỆT NGHI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12179,13 +12179,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 780,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.1,
+          "value": 98.72,
           "threshold": 95,
           "applicable": true
         }
@@ -12196,7 +12196,7 @@
     "name": "DANH NGỌC HUYỀN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12234,7 +12234,7 @@
     "name": "DANH VÀNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12283,7 +12283,7 @@
     "name": "PHAN VÂN ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12378,13 +12378,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 260,
+          "value": 480,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.31,
+          "value": 96.67,
           "threshold": 95,
           "applicable": true
         }
@@ -12444,7 +12444,7 @@
     "name": "TRẦN QUỐC KIỆT",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12539,13 +12539,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 750,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.72,
+          "value": 99.33,
           "threshold": 95,
           "applicable": true
         }
@@ -12602,13 +12602,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 250,
+          "value": 360,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 99.6,
+          "value": 99.17,
           "threshold": 95,
           "applicable": true
         }
@@ -12619,7 +12619,7 @@
     "name": "HUỲNH THIỆN THUYỀN NGỌC",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12731,7 +12731,7 @@
     "name": "NGUYỄN THỊ KIM ANH",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12780,7 +12780,7 @@
     "name": "MAI THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12829,7 +12829,7 @@
     "name": "HUỲNH THỊ KỲ ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12878,7 +12878,7 @@
     "name": "CAO VĂN PHẨM",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12916,7 +12916,7 @@
     "name": "PHẠM NGỌC HƯỞNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13028,7 +13028,7 @@
     "name": "LIÊNG THỊ THÚY HUỲNH",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13077,7 +13077,7 @@
     "name": "NGUYỄN ANH THƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13221,13 +13221,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.21,
+          "value": 98.65,
           "threshold": 95,
           "applicable": true
         }
@@ -13333,13 +13333,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 500,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.21,
+          "value": 97.6,
           "threshold": 95,
           "applicable": true
         }
@@ -13350,7 +13350,7 @@
     "name": "HUỲNH MỘNG NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13445,13 +13445,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 780,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.81,
+          "value": 98.97,
           "threshold": 95,
           "applicable": true
         }
@@ -13557,13 +13557,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 260,
+          "value": 500,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 95.38,
+          "value": 95.6,
           "threshold": 95,
           "applicable": true
         }
@@ -13683,13 +13683,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 750,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 99.76,
+          "value": 99.47,
           "threshold": 95,
           "applicable": true
         }
@@ -13847,7 +13847,7 @@
     "name": "MÃ TẤN THIÊM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14054,13 +14054,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 720,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.72,
+          "value": 98.89,
           "threshold": 95,
           "applicable": true
         }
@@ -14071,7 +14071,7 @@
     "name": "TRẦN VĂN HÀ",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 0.0,
+    "amount": 250000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14116,14 +14116,14 @@
       },
       "5prs": {
         "volume": {
-          "passed": false,
-          "value": 0,
+          "passed": true,
+          "value": 150,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
-          "passed": false,
-          "value": 0,
+          "passed": true,
+          "value": 98.0,
           "threshold": 95,
           "applicable": true
         }
@@ -14134,7 +14134,7 @@
     "name": "HUỲNH THỊ BÉ TƯ",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14183,7 +14183,7 @@
     "name": "TRƯƠNG KIM LĨNH",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14278,13 +14278,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 785,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.57,
+          "value": 98.47,
           "threshold": 95,
           "applicable": true
         }
@@ -14341,13 +14341,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.14,
+          "value": 97.12,
           "threshold": 95,
           "applicable": true
         }
@@ -14404,13 +14404,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 410,
+          "value": 790,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 96.1,
+          "value": 95.19,
           "threshold": 95,
           "applicable": true
         }
@@ -14530,13 +14530,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 560,
+          "value": 1040,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 96.96,
+          "value": 97.12,
           "threshold": 95,
           "applicable": true
         }
@@ -14547,7 +14547,7 @@
     "name": "NGUYỄN TRƯỜNG SƠN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14596,7 +14596,7 @@
     "name": "ĐOÀN THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14645,7 +14645,7 @@
     "name": "TRƯƠNG KIM THÙY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14740,13 +14740,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 360,
+          "value": 720,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.89,
+          "value": 99.17,
           "threshold": 95,
           "applicable": true
         }
@@ -14806,7 +14806,7 @@
     "name": "TRẦN THỊ NGỌC ÂN",
     "position": "OCPT STFF",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14918,7 +14918,7 @@
     "name": "LA THẢO MY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14967,7 +14967,7 @@
     "name": "HOÀNG VŨ ANH PHÚ",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15062,13 +15062,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 260,
+          "value": 480,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 95.0,
+          "value": 95.21,
           "threshold": 95,
           "applicable": true
         }
@@ -15079,7 +15079,7 @@
     "name": "HUỲNH TRƯƠNG YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15237,13 +15237,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 500,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 95.36,
+          "value": 95.4,
           "threshold": 95,
           "applicable": true
         }
@@ -15254,7 +15254,7 @@
     "name": "TÔ THỊ DIỄM MI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15300,7 +15300,7 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 240,
+          "value": 480,
           "threshold": 100,
           "applicable": true
         },
@@ -15317,7 +15317,7 @@
     "name": "NGUYỄN THỊ NGỌC NHƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15366,7 +15366,7 @@
     "name": "BÙI THỊ MỸ DUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15415,7 +15415,7 @@
     "name": "NGUYỄN NGỌC TẤN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15461,13 +15461,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 750,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.21,
+          "value": 96.4,
           "threshold": 95,
           "applicable": true
         }
@@ -15524,13 +15524,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
-          "passed": false,
-          "value": 93.93,
+          "passed": true,
+          "value": 95.0,
           "threshold": 95,
           "applicable": true
         }
@@ -15541,7 +15541,7 @@
     "name": "THỊ KIM YẾN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15590,7 +15590,7 @@
     "name": "SƠN THỊ MỪNG",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15639,7 +15639,7 @@
     "name": "LÊ THỊ KIM TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15688,7 +15688,7 @@
     "name": "TRẦN NGỌC TIỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15737,7 +15737,7 @@
     "name": "PHẠM THỊ THU HẰNG",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15775,7 +15775,7 @@
     "name": "NGUYỄN THÚY VY",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15870,13 +15870,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 720,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.81,
+          "value": 99.17,
           "threshold": 95,
           "applicable": true
         }
@@ -15887,7 +15887,7 @@
     "name": "ĐÀO THỊ NGUYỆT",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15985,7 +15985,7 @@
     "name": "LÝ NGUYỄN TRUNG DUY",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16034,7 +16034,7 @@
     "name": "LÊ THÀNH THẢO",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16146,7 +16146,7 @@
     "name": "NGUYỄN THỊ MỘNG MI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16258,7 +16258,7 @@
     "name": "NGUYỄN NGỌC HIỀN NGOAN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16353,13 +16353,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 870,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 95.38,
+          "value": 95.06,
           "threshold": 95,
           "applicable": true
         }
@@ -16370,7 +16370,7 @@
     "name": "CHƯƠNG THỊ YẾN NHI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16416,13 +16416,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 880,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
-          "passed": true,
-          "value": 98.81,
+          "passed": false,
+          "value": 94.55,
           "threshold": 95,
           "applicable": true
         }
@@ -16433,7 +16433,7 @@
     "name": "DANH THỊ CHANH ĐA",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16528,13 +16528,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 510,
+          "value": 990,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 92.35,
+          "value": 91.21,
           "threshold": 95,
           "applicable": true
         }
@@ -16608,7 +16608,7 @@
     "name": "LÝ THỊ MỸ AN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16657,7 +16657,7 @@
     "name": "NGUYỄN THỊ THÙY OANH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16769,7 +16769,7 @@
     "name": "HỒ NGUYỄN QUỲNH ANH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16818,7 +16818,7 @@
     "name": "NGUYỄN VĂN DƯƠNG",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16905,7 +16905,7 @@
     "name": "LÊ VŨ HỒNG TRÂM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16954,7 +16954,7 @@
     "name": "LÊ THỊ MỸ NGỌC",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17049,13 +17049,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 750,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.46,
+          "value": 98.93,
           "threshold": 95,
           "applicable": true
         }
@@ -17115,7 +17115,7 @@
     "name": "LÊ THANH TUẤN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17213,7 +17213,7 @@
     "name": "NGÔ THANH KIM HÂN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17311,7 +17311,7 @@
     "name": "DƯƠNG KIỀU TIÊN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17360,7 +17360,7 @@
     "name": "LÂM THỊ NHƯ Ý",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17409,7 +17409,7 @@
     "name": "TRẦN ANH THI",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17507,7 +17507,7 @@
     "name": "THỊ THU THẢO",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17668,7 +17668,7 @@
     "name": "HỨA THỊ YẾN NHI",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17780,7 +17780,7 @@
     "name": "NGUYỄN NGỌC TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17829,7 +17829,7 @@
     "name": "TRẦN THANH LIÊM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17878,7 +17878,7 @@
     "name": "NGUYỄN NGỌC HÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17927,7 +17927,7 @@
     "name": "LÊ THỊ MINH THƯ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18022,13 +18022,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 780,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.33,
+          "value": 99.1,
           "threshold": 95,
           "applicable": true
         }
@@ -18039,7 +18039,7 @@
     "name": "NGUYỄN THỊ MỸ CHI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18088,7 +18088,7 @@
     "name": "PHẠM THỊ HUYỀN TRANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18137,7 +18137,7 @@
     "name": "LƯƠNG THỊ KIM THOA",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18232,13 +18232,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 750,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 99.23,
+          "value": 99.33,
           "threshold": 95,
           "applicable": true
         }
@@ -18295,13 +18295,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.5,
+          "value": 98.08,
           "threshold": 95,
           "applicable": true
         }
@@ -18424,7 +18424,7 @@
     "name": "DANH NGỌC TUẤN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18536,7 +18536,7 @@
     "name": "TRƯƠNG THỦY TIÊN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18585,7 +18585,7 @@
     "name": "NGUYỄN TRƯƠNG HỒNG NHIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18680,13 +18680,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 510,
+          "value": 950,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 89.41,
+          "value": 90.95,
           "threshold": 95,
           "applicable": true
         }
@@ -18743,13 +18743,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 240,
+          "value": 480,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
-          "passed": false,
-          "value": 94.58,
+          "passed": true,
+          "value": 95.42,
           "threshold": 95,
           "applicable": true
         }
@@ -18806,13 +18806,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 460,
+          "value": 940,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 94.57,
+          "value": 94.04,
           "threshold": 95,
           "applicable": true
         }
@@ -18823,7 +18823,7 @@
     "name": "NGUYỄN ANH KHOA",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18924,7 +18924,7 @@
     "name": "LÊ THỊ HỒNG LIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19022,7 +19022,7 @@
     "name": "NGUYỄN THỊ THÙY TRANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19071,7 +19071,7 @@
     "name": "LÊ THỊ MỘNG NGHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19166,13 +19166,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 560,
+          "value": 1040,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.68,
+          "value": 97.6,
           "threshold": 95,
           "applicable": true
         }
@@ -19183,7 +19183,7 @@
     "name": "TRẦN THỊ KIM CHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19232,7 +19232,7 @@
     "name": "HUỲNH THỊ MỸ DUNG",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19281,7 +19281,7 @@
     "name": "LƯU KIM CHỌN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 127767.0,
+    "amount": 99684.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19376,13 +19376,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 560,
+          "value": 1040,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 93.75,
+          "value": 94.13,
           "threshold": 95,
           "applicable": true
         }
@@ -19393,7 +19393,7 @@
     "name": "THỊ MỸ HẠNH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19442,7 +19442,7 @@
     "name": "TRẦN THỊ KIM NÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19698,13 +19698,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 690,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.97,
+          "value": 99.13,
           "threshold": 95,
           "applicable": true
         }
@@ -19715,7 +19715,7 @@
     "name": "DANH THỊ NGUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19810,13 +19810,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 750,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.95,
+          "value": 98.67,
           "threshold": 95,
           "applicable": true
         }
@@ -19925,7 +19925,7 @@
     "name": "THỊ BÁCH HỢP",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19974,7 +19974,7 @@
     "name": "TRƯƠNG THỊ THẢO EM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20023,7 +20023,7 @@
     "name": "NGUYỄN THỊ THÙY NHUNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20118,13 +20118,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.14,
+          "value": 97.69,
           "threshold": 95,
           "applicable": true
         }
@@ -20181,13 +20181,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 430,
+          "value": 790,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.6,
+          "value": 98.86,
           "threshold": 95,
           "applicable": true
         }
@@ -20247,7 +20247,7 @@
     "name": "NGUYỄN HOÀNG LONG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20527,13 +20527,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 520,
+          "value": 1000,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": false,
-          "value": 93.46,
+          "value": 94.2,
           "threshold": 95,
           "applicable": true
         }
@@ -20593,7 +20593,7 @@
     "name": "LÊ THỊ KIM THÙY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20688,13 +20688,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 500,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.86,
+          "value": 96.8,
           "threshold": 95,
           "applicable": true
         }
@@ -20743,7 +20743,7 @@
     "name": "LƯU NGUYỄN TẤN DŨNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20838,13 +20838,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 780,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.57,
+          "value": 98.72,
           "threshold": 95,
           "applicable": true
         }
@@ -20901,13 +20901,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 560,
+          "value": 1040,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.5,
+          "value": 97.21,
           "threshold": 95,
           "applicable": true
         }
@@ -20918,7 +20918,7 @@
     "name": "PHẠM CHÍ THIỆN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20956,7 +20956,7 @@
     "name": "VÕ THỊ CẨM TIÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21002,13 +21002,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 390,
+          "value": 850,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.72,
+          "value": 96.0,
           "threshold": 95,
           "applicable": true
         }
@@ -21019,7 +21019,7 @@
     "name": "CAO THỊ TUYẾT NGÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21068,7 +21068,7 @@
     "name": "HỒ MINH TÝ",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21201,13 +21201,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 200,
+          "value": 360,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 95.5,
+          "value": 95.0,
           "threshold": 95,
           "applicable": true
         }
@@ -21264,13 +21264,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 780,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 99.29,
+          "value": 99.1,
           "threshold": 95,
           "applicable": true
         }
@@ -21344,7 +21344,7 @@
     "name": "HUỲNH TÚ GẤM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21439,13 +21439,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 480,
+          "value": 960,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 97.71,
+          "value": 97.19,
           "threshold": 95,
           "applicable": true
         }
@@ -21456,7 +21456,7 @@
     "name": "NGUYỄN QUỐC CƯỜNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21543,7 +21543,7 @@
     "name": "TRƯƠNG NỮ VÂN ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21592,7 +21592,7 @@
     "name": "TRẦN MỸ ÁI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21793,7 +21793,7 @@
     "name": "DANH CAO HUY LỘC",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21943,7 +21943,7 @@
     "name": "DANH THỊ VIỆT HỒNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21992,7 +21992,7 @@
     "name": "LÝ THỊ MỸ LINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22041,7 +22041,7 @@
     "name": "NGUYỄN THỊ HẰNG",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22128,7 +22128,7 @@
     "name": "LÊ THỊ HUẾ MINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22177,7 +22177,7 @@
     "name": "NGUYỄN NGỌC TRÂM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22389,7 +22389,7 @@
     "name": "TRẦN THỊ HUỲNH NHAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22438,7 +22438,7 @@
     "name": "TRẦN THỊ MỸ TIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22533,13 +22533,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 420,
+          "value": 780,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.81,
+          "value": 98.97,
           "threshold": 95,
           "applicable": true
         }
@@ -22588,7 +22588,7 @@
     "name": "HỒ THỊ MAI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22637,7 +22637,7 @@
     "name": "THỊ THÚY KIỀU",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22724,7 +22724,7 @@
     "name": "DANH THỊ CẨM ĐIỀU",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22933,13 +22933,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 360,
+          "value": 690,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.89,
+          "value": 99.28,
           "threshold": 95,
           "applicable": true
         }
@@ -22950,7 +22950,7 @@
     "name": "TRẦN NGỌC BẢO TRÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22999,7 +22999,7 @@
     "name": "DANH THỊ NGỌC TRINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23048,7 +23048,7 @@
     "name": "PHAN THỊ NGỌC THẢO",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23160,7 +23160,7 @@
     "name": "LÝ THỊ TRÚC QUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23209,7 +23209,7 @@
     "name": "VỎ THỊ LỤA",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23258,7 +23258,7 @@
     "name": "BÙI THỊ MỸ NHIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23307,7 +23307,7 @@
     "name": "LÊ THỊ THANH THÚY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23402,13 +23402,13 @@
       "5prs": {
         "volume": {
           "passed": true,
-          "value": 280,
+          "value": 520,
           "threshold": 100,
           "applicable": true
         },
         "pass_rate": {
           "passed": true,
-          "value": 98.21,
+          "value": 98.08,
           "threshold": 95,
           "applicable": true
         }
@@ -23419,7 +23419,7 @@
     "name": "PHẠM THỊ NHƯ Ý",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 369531.0,
+    "amount": 378947.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {

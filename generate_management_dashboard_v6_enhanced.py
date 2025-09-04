@@ -19,6 +19,8 @@ from datetime import datetime, timedelta
 import argparse
 import warnings
 warnings.filterwarnings('ignore')
+from detect_comprehensive_errors import DataErrorDetector
+from calculate_total_working_days import calculate_total_working_days_from_attendance, get_employee_attendance_data_count
 
 class EnhancedHRDashboard:
     def __init__(self, month, year):
@@ -102,6 +104,36 @@ class EnhancedHRDashboard:
                     df['Entrance Date'] = df['Entrance Date'].apply(self.parse_date)
                 if 'Stop working Date' in df.columns:
                     df['Stop working Date'] = df['Stop working Date'].apply(self.parse_date)
+                
+                # attendance CSV 기반으로 Total Working Days 재계산
+                total_working_days = calculate_total_working_days_from_attendance(self.year, self.month)
+                
+                if total_working_days is None:
+                    print("  ❌ attendance 파일에서 Total Working Days를 계산할 수 없습니다.")
+                    print("     attendance CSV 파일이 없거나 형식이 올바르지 않습니다.")
+                    # Total Working Days 컬럼이 이미 있으면 그대로 사용
+                    if 'Total Working Days' not in df.columns:
+                        raise ValueError("Total Working Days를 계산할 수 없고, 기존 데이터도 없습니다.")
+                    else:
+                        print("     → 기존 Total Working Days 값을 사용합니다.")
+                        total_working_days = 0  # 개별 계산 스킵
+                
+                # 각 직원의 실제 attendance 데이터 개수로 Total Working Days 업데이트
+                if total_working_days > 0 and 'Employee No' in df.columns:
+                    print(f"  📊 Updating Total Working Days based on attendance CSV...")
+                    for idx, row in df.iterrows():
+                        employee_id = row['Employee No']
+                        # 각 직원의 실제 attendance 데이터 개수 가져오기
+                        employee_data_count = get_employee_attendance_data_count(employee_id, self.year, self.month)
+                        
+                        # 데이터가 있으면 해당 개수로, 없으면 전체 유니크 날짜 수로 설정
+                        if employee_data_count > 0:
+                            df.at[idx, 'Total Working Days'] = employee_data_count
+                        else:
+                            # 데이터가 없는 직원은 전체 기준으로
+                            df.at[idx, 'Total Working Days'] = total_working_days
+                    
+                    print(f"  ✓ Total Working Days updated based on attendance data")
                     
                 self.data['current'] = df
                 print(f"  ✓ Current month REAL data loaded: {len(df)} records")
@@ -684,12 +716,12 @@ class EnhancedHRDashboard:
         return absence_reasons
         
     def calculate_data_period(self):
-        """데이터 기간 계산"""
+        """데이터 기간 계산 - 실제 출근 데이터 기반"""
         start_date = datetime(self.year, self.month, 1)
-        if self.month == 12:
-            end_date = datetime(self.year + 1, 1, 1) - timedelta(days=1)
-        else:
-            end_date = datetime(self.year, self.month + 1, 1) - timedelta(days=1)
+        
+        # 실제 데이터의 마지막 날짜 가져오기
+        latest_day = self.calculate_latest_data_date()
+        end_date = datetime(self.year, self.month, latest_day)
             
         return f"{start_date.strftime('%Y.%m.%d')} ~ {end_date.strftime('%Y.%m.%d')}"
         
@@ -932,11 +964,22 @@ class EnhancedHRDashboard:
         team_members = self.load_team_members_data()  # 팀 멤버 데이터 추가
         weekly_team_data = self.calculate_weekly_team_data()  # 주차별 팀 데이터 추가
         
+        # Run comprehensive error detection
+        print("\n🔍 Running comprehensive error detection...")
+        detector = DataErrorDetector(self.year, self.month)
+        error_report = detector.detect_all_errors(self.data['current'])
+        error_file = f'output_files/data_errors_{self.year}_{self.month:02d}.json'
+        detector.generate_error_report(error_file)
+        
+        # Update metrics with comprehensive error count
+        metrics['error_count'] = error_report['summary']['total_errors']
+        metrics['error_rate'] = (metrics['error_count'] / len(self.data['current']) * 100) if len(self.data['current']) > 0 else 0
+        
         # 이전 월 메트릭
         prev_month_key = f"{self.year if self.month > 1 else self.year-1}_{(self.month-1 if self.month > 1 else 12):02d}"
         prev_metrics = self.metadata.get('monthly_data', {}).get(prev_month_key, {})
         
-        html_content = self.generate_full_html(metrics, team_stats, absence_reasons, prev_metrics, team_members, weekly_team_data)
+        html_content = self.generate_full_html(metrics, team_stats, absence_reasons, prev_metrics, team_members, weekly_team_data, error_report)
         
         # HTML 파일 저장
         output_file = f"output_files/management_dashboard_{self.year}_{self.month:02d}.html"
@@ -947,28 +990,77 @@ class EnhancedHRDashboard:
         return output_file
         
     def calculate_latest_data_date(self):
-        """실제 데이터의 최신 날짜 계산"""
-        # 2025년 8월의 경우 실제 데이터는 8월 29일까지
-        # (금요일이므로 주말 제외한 마지막 영업일)
-        if self.year == 2025 and self.month == 8:
-            return 29
-        
-        # 기본 로직: 월의 마지막 영업일
+        """출근 데이터 파일에서 실제 최신 날짜 읽기 - NO HARDCODING"""
+        import pandas as pd
         from calendar import monthrange
         import datetime
+        import os
         
+        # 출근 데이터 파일 경로 찾기
+        month_names = {
+            1: 'january', 2: 'february', 3: 'march', 4: 'april', 
+            5: 'may', 6: 'june', 7: 'july', 8: 'august',
+            9: 'september', 10: 'october', 11: 'november', 12: 'december'
+        }
+        
+        month_name = month_names.get(self.month, f'month_{self.month}')
+        
+        # 우선순위: converted 폴더 -> original 폴더 -> 기본값
+        attendance_files = [
+            f"input_files/attendance/converted/attendance data {month_name}_converted.csv",
+            f"input_files/attendance/original/attendance data {month_name}.csv",
+            f"input_files/attendance data {month_name}_converted.csv",
+            f"input_files/attendance data {month_name}.csv"
+        ]
+        
+        latest_date = None
+        
+        for file_path in attendance_files:
+            if os.path.exists(file_path):
+                try:
+                    # 출근 데이터 읽기
+                    df = pd.read_csv(file_path, encoding='utf-8-sig')
+                    
+                    # Work Date 컬럼 찾기
+                    date_column = None
+                    for col in ['Work Date', 'Date', 'Work_Date', '날짜']:
+                        if col in df.columns:
+                            date_column = col
+                            break
+                    
+                    if date_column:
+                        # 날짜 파싱 및 최대값 찾기
+                        df[date_column] = pd.to_datetime(df[date_column], errors='coerce')
+                        latest_date = df[date_column].max()
+                        
+                        if pd.notna(latest_date):
+                            print(f"  📅 출근 데이터 최신 날짜: {latest_date.strftime('%Y-%m-%d')}")
+                            return latest_date.day
+                            
+                except Exception as e:
+                    print(f"  ⚠️ 출근 데이터 읽기 오류: {e}")
+                    continue
+        
+        # 출근 데이터가 없으면 기본 로직 사용
+        print(f"  ⚠️ 출근 데이터 파일이 없어 월말 기준 사용")
+        today = datetime.date.today()
         last_day = monthrange(self.year, self.month)[1]
-        
-        # 마지막 날이 주말인 경우 직전 평일로 조정
         last_date = datetime.date(self.year, self.month, last_day)
         
-        # 토요일(5) 또는 일요일(6)인 경우
-        while last_date.weekday() >= 5:  
-            last_date -= datetime.timedelta(days=1)
+        if last_date < today:
+            data_date = last_date
+        elif datetime.date(self.year, self.month, 1) <= today <= last_date:
+            data_date = today
+        else:
+            data_date = last_date
+        
+        # 주말 제외
+        while data_date.weekday() >= 5:
+            data_date -= datetime.timedelta(days=1)
             
-        return last_date.day
+        return data_date.day
     
-    def generate_full_html(self, metrics, team_stats, absence_reasons, prev_metrics, team_members, weekly_team_data=None):
+    def generate_full_html(self, metrics, team_stats, absence_reasons, prev_metrics, team_members, weekly_team_data=None, error_report=None):
         """완전한 HTML 생성"""
         # 월별 트렌드 데이터 준비
         monthly_trend = self.prepare_monthly_trend_data()
@@ -1038,7 +1130,7 @@ class EnhancedHRDashboard:
     </div>
     
     <script>
-        {self.generate_enhanced_javascript(metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data)}
+        {self.generate_enhanced_javascript(metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data, error_report)}
     </script>
 </body>
 </html>'''
@@ -1711,8 +1803,11 @@ class EnhancedHRDashboard:
                     change_text = "이전 데이터 없음"
                     change_class = 'change-neutral'
             
+            # Use showErrorDetails() for error card, openModal() for others
+            onclick_handler = "showErrorDetails()" if card.get('is_error', False) else f"openModal('{card['modal_id']}')"
+            
             cards_html += f'''
-            <div class="hr-card" onclick="openModal('{card['modal_id']}')" {card_style}>
+            <div class="hr-card" onclick="{onclick_handler}" {card_style}>
                 <div class="card-number">{card['number']}</div>
                 <div class="card-title">{card['title']}</div>
                 <div class="card-value">{card['value']}</div>
@@ -2050,7 +2145,7 @@ class EnhancedHRDashboard:
         
         return team_members
     
-    def generate_enhanced_javascript(self, metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data=None):
+    def generate_enhanced_javascript(self, metrics, team_stats, absence_reasons, current_weekly, prev_weekly, team_members, weekly_team_data=None, error_report=None):
         """향상된 JavaScript 생성"""
         # numpy 타입 변환
         def convert_numpy_types(obj):
@@ -2079,6 +2174,7 @@ class EnhancedHRDashboard:
         current_weekly_json = json.dumps(convert_numpy_types(current_weekly), ensure_ascii=False)
         prev_weekly_json = json.dumps(convert_numpy_types(prev_weekly), ensure_ascii=False)
         weekly_team_data_json = json.dumps(convert_numpy_types(weekly_team_data) if weekly_team_data else {}, ensure_ascii=False)
+        error_report_json = json.dumps(convert_numpy_types(error_report) if error_report else {'temporal_errors': [], 'type_errors': [], 'position_errors': [], 'team_errors': [], 'attendance_errors': [], 'duplicate_errors': [], 'summary': {'total_errors': 0, 'critical': 0, 'warning': 0, 'info': 0}}, ensure_ascii=False)
         
         return f'''
         // 전역 데이터
@@ -2089,6 +2185,7 @@ class EnhancedHRDashboard:
         const teamStats = {team_stats_json};
         const absenceReasons = {absence_reasons_json};
         const weeklyTeamData = {weekly_team_data_json};
+        const errorReport = {error_report_json};
         // 팀 멤버 데이터를 안전하게 처리
         const teamMembers = {{}};
 {self._generate_team_members_js(team_members)}
@@ -2099,6 +2196,244 @@ class EnhancedHRDashboard:
         // Navigation function
         function navigateToIncentive() {{
             window.location.href = 'dashboard_{self.year}_{self.month:02d}.html';
+        }}
+        
+        // Language configuration for error modal
+        const errorModalLabels = {{
+            'ko': {{
+                title: '데이터 오류 상세 정보',
+                summary: '오류 요약',
+                totalErrors: '총 오류',
+                items: '건',
+                temporal: '시간 관련 오류',
+                type: 'TYPE 분류 오류',
+                position: '직급 매핑 오류',
+                team: '팀명 오류',
+                attendance: '출근 데이터 오류',
+                duplicate: 'ID 및 중복 오류',
+                columnHeaders: {{
+                    id: 'ID',
+                    name: '이름',
+                    errorColumn: '오류 항목',
+                    errorValue: '오류 값',
+                    expectedValue: '예상 값',
+                    severity: '심각도',
+                    action: '권장 조치'
+                }},
+                detailAnalysis: '📊 상세 분석:',
+                problem: '문제',
+                entranceDate: '입사일',
+                stopDate: '퇴사일',
+                active: '재직 중',
+                augustPeriod: '8월 기간',
+                workDayCalc: '근무일 계산',
+                actualDays: '실제 근무일',
+                recordedTotal: '기록된 총 근무일',
+                expectedTotal: '예상 총 근무일',
+                days: '일',
+                errorCause: '오류 원인',
+                shortage: '부족합니다',
+                excess: '초과합니다',
+                recalcNeeded: '퇴사일 기준으로 재계산이 필요합니다'
+            }},
+            'en': {{
+                title: 'Data Error Details',
+                summary: 'Error Summary',
+                totalErrors: 'Total Errors',
+                items: 'items',
+                temporal: 'Temporal Errors',
+                type: 'TYPE Classification Errors',
+                position: 'Position Mapping Errors',
+                team: 'Team Name Errors',
+                attendance: 'Attendance Data Errors',
+                duplicate: 'ID & Duplicate Errors',
+                columnHeaders: {{
+                    id: 'ID',
+                    name: 'Name',
+                    errorColumn: 'Error Column',
+                    errorValue: 'Error Value',
+                    expectedValue: 'Expected Value',
+                    severity: 'Severity',
+                    action: 'Suggested Action'
+                }},
+                detailAnalysis: '📊 Detailed Analysis:',
+                problem: 'Problem',
+                entranceDate: 'Entrance Date',
+                stopDate: 'Stop Date',
+                active: 'Active',
+                augustPeriod: 'August Period',
+                workDayCalc: 'Working Days Calculation',
+                actualDays: 'Actual Working Days',
+                recordedTotal: 'Recorded Total Days',
+                expectedTotal: 'Expected Total Days',
+                days: 'days',
+                errorCause: 'Error Cause',
+                shortage: 'short',
+                excess: 'over',
+                recalcNeeded: 'Recalculation needed based on stop date'
+            }}
+        }};
+        
+        // Configuration: Set language for the dashboard
+        // 'en' for English, 'ko' for Korean
+        const DASHBOARD_LANGUAGE = 'en'; // ← Change this to switch language
+        
+        // Get labels for current language
+        const currentLanguage = DASHBOARD_LANGUAGE;
+        const labels = errorModalLabels[currentLanguage];
+        
+        // 오류 상세 보기 함수
+        function showErrorDetails() {{
+            const modal = document.getElementById('modal-error-details');
+            if (!modal) {{
+                // 모달 생성
+                const modalDiv = document.createElement('div');
+                modalDiv.id = 'modal-error-details';
+                modalDiv.className = 'modal';
+                modalDiv.innerHTML = `
+                    <div class="modal-content" style="max-width: 90%; height: 80%; overflow-y: auto;">
+                        <span class="close" onclick="closeErrorModal()">&times;</span>
+                        <h3>${{labels.title}}</h3>
+                        <div id="error-details-content">
+                            <!-- Error content will be populated here -->
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modalDiv);
+            }}
+            
+            // 오류 내용 채우기
+            const contentDiv = document.getElementById('error-details-content');
+            let html = '';
+            
+            // 요약 정보
+            html += `<div class="error-summary" style="background: #fff3cd; padding: 15px; margin-bottom: 20px; border-radius: 5px; border-left: 5px solid #ff6b6b;">`;
+            html += `<h4 style="margin-top: 0;">${{labels.summary}}</h4>`;
+            html += `<p>${{labels.totalErrors}}: <strong>${{errorReport.summary.total_errors}} ${{labels.items}}</strong></p>`;
+            html += `<p>Critical: <span style="color: #dc3545;">${{errorReport.summary.critical}} ${{labels.items}}</span> | `;
+            html += `Warning: <span style="color: #ffc107;">${{errorReport.summary.warning}} ${{labels.items}}</span> | `;
+            html += `Info: <span style="color: #17a2b8;">${{errorReport.summary.info}} ${{labels.items}}</span></p>`;
+            html += `</div>`;
+            
+            // 시간 관련 오류
+            if (errorReport.temporal_errors && errorReport.temporal_errors.length > 0) {{
+                html += createErrorSection(labels.temporal, errorReport.temporal_errors, '#ff4444');
+            }}
+            
+            // TYPE 분류 오류
+            if (errorReport.type_errors && errorReport.type_errors.length > 0) {{
+                html += createErrorSection(labels.type, errorReport.type_errors, '#ff8800');
+            }}
+            
+            // 직급 오류
+            if (errorReport.position_errors && errorReport.position_errors.length > 0) {{
+                html += createErrorSection(labels.position, errorReport.position_errors, '#ffaa00');
+            }}
+            
+            // 팀 오류
+            if (errorReport.team_errors && errorReport.team_errors.length > 0) {{
+                html += createErrorSection(labels.team, errorReport.team_errors, '#0066cc');
+            }}
+            
+            // 출근 데이터 오류
+            if (errorReport.attendance_errors && errorReport.attendance_errors.length > 0) {{
+                html += createErrorSection(labels.attendance, errorReport.attendance_errors, '#cc3366');
+            }}
+            
+            // 중복/ID 오류
+            if (errorReport.duplicate_errors && errorReport.duplicate_errors.length > 0) {{
+                html += createErrorSection(labels.duplicate, errorReport.duplicate_errors, '#9933cc');
+            }}
+            
+            contentDiv.innerHTML = html;
+            document.getElementById('modal-error-details').style.display = 'block';
+        }}
+        
+        // 오류 섹션 생성 함수
+        function createErrorSection(title, errors, color) {{
+            let html = `<div class="error-section" style="margin-bottom: 25px;">`;
+            html += `<h4 style="color: ${{color}}; border-bottom: 2px solid ${{color}}; padding-bottom: 5px;">${{title}} (${{errors.length}} ${{labels.items}})</h4>`;
+            html += `<table style="width: 100%; border-collapse: collapse;">`;
+            html += `<thead>`;
+            html += `<tr style="background: #f8f9fa;">`;
+            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.id}}</th>`;
+            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.name}}</th>`;
+            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.errorColumn}}</th>`;
+            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.errorValue}}</th>`;
+            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.expectedValue}}</th>`;
+            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.severity}}</th>`;
+            html += `<th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;">${{labels.columnHeaders.action}}</th>`;
+            html += `</tr>`;
+            html += `</thead>`;
+            html += `<tbody>`;
+            
+            errors.forEach(error => {{
+                const severityColor = error.severity === 'critical' ? '#dc3545' : 
+                                     error.severity === 'warning' ? '#ffc107' : '#28a745';
+                html += `<tr>`;
+                html += `<td style="padding: 8px; border: 1px solid #dee2e6;">${{error.id || 'N/A'}}</td>`;
+                html += `<td style="padding: 8px; border: 1px solid #dee2e6;">${{error.name || 'N/A'}}</td>`;
+                html += `<td style="padding: 8px; border: 1px solid #dee2e6;">${{error.error_column || error.error_type}}</td>`;
+                html += `<td style="padding: 8px; border: 1px solid #dee2e6; color: #dc3545;">${{error.error_value}}</td>`;
+                html += `<td style="padding: 8px; border: 1px solid #dee2e6; color: #28a745;">${{error.expected_value}}</td>`;
+                html += `<td style="padding: 8px; border: 1px solid #dee2e6;"><span style="color: ${{severityColor}}; font-weight: bold;">${{error.severity}}</span></td>`;
+                html += `<td style="padding: 8px; border: 1px solid #dee2e6;">${{error.suggested_action}}</td>`;
+                html += `</tr>`;
+                
+                // 상세 분석 정보가 있는 경우 추가 행으로 표시 (주로 출근 데이터 오류)
+                if (error.detailed_analysis) {{
+                    html += `<tr style="background: #f9f9f9;">`;
+                    html += `<td colspan="7" style="padding: 12px; border: 1px solid #dee2e6;">`;
+                    html += `<div style="margin-left: 20px;">`;
+                    html += `<strong style="color: #666;">${{labels.detailAnalysis}}</strong><br>`;
+                    html += `<div style="margin-top: 8px; line-height: 1.6;">`;
+                    
+                    if (error.description) {{
+                        html += `<p style="margin: 4px 0;"><strong>${{labels.problem}}:</strong> ${{error.description}}</p>`;
+                    }}
+                    
+                    const analysis = error.detailed_analysis;
+                    html += `<p style="margin: 4px 0;"><strong>${{labels.entranceDate}}:</strong> ${{analysis.entrance_date ? analysis.entrance_date.split(' ')[0] : 'N/A'}}</p>`;
+                    html += `<p style="margin: 4px 0;"><strong>${{labels.stopDate}}:</strong> ${{analysis.stop_date === 'Active' ? labels.active : analysis.stop_date ? analysis.stop_date.split(' ')[0] : 'N/A'}}</p>`;
+                    html += `<p style="margin: 4px 0;"><strong>${{labels.augustPeriod}}:</strong> ${{analysis.month_start ? analysis.month_start.split(' ')[0] : ''}} ~ ${{analysis.month_end ? analysis.month_end.split(' ')[0] : ''}}</p>`;
+                    html += `<p style="margin: 4px 0;"><strong>${{labels.workDayCalc}}:</strong></p>`;
+                    html += `<ul style="margin: 4px 0 4px 20px;">`;
+                    html += `<li>${{labels.actualDays}}: <span style="color: #dc3545;">${{analysis.actual_days}} ${{labels.days}}</span></li>`;
+                    html += `<li>${{labels.recordedTotal}}: <span style="color: #dc3545;">${{analysis.recorded_total}} ${{labels.days}}</span></li>`;
+                    html += `<li>${{labels.expectedTotal}}: <span style="color: #28a745;">${{analysis.expected_total}} ${{labels.days}}</span></li>`;
+                    html += `</ul>`;
+                    
+                    // 오류 원인 설명
+                    if (analysis.expected_total && analysis.recorded_total) {{
+                        const diff = analysis.expected_total - analysis.recorded_total;
+                        if (diff !== 0) {{
+                            html += `<p style="margin: 8px 0 4px 0; padding: 8px; background: #ffebee; border-left: 3px solid #dc3545;">`;
+                            html += `<strong>${{labels.errorCause}}:</strong> Total working days are <strong>${{Math.abs(diff)}} ${{labels.days}}</strong> `;
+                            html += diff > 0 ? labels.shortage : labels.excess;
+                            html += `. ${{labels.recalcNeeded}}`;
+                            html += `</p>`;
+                        }}
+                    }}
+                    
+                    html += `</div>`;
+                    html += `</div>`;
+                    html += `</td>`;
+                    html += `</tr>`;
+                }}
+            }});
+            
+            html += `</tbody>`;
+            html += `</table>`;
+            html += `</div>`;
+            return html;
+        }}
+        
+        // 오류 모달 닫기
+        function closeErrorModal() {{
+            const modal = document.getElementById('modal-error-details');
+            if (modal) {{
+                modal.style.display = 'none';
+            }}
         }}
         
         // 모달 열기
