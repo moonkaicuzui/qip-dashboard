@@ -5071,20 +5071,30 @@ class EnhancedHRDashboard:
             members.forEach((member, index) => {{
                 const row = tbody.insertRow();
                 
-                // 입사일 처리
-                const entranceDate = member.entrance_date || '-';
+                // 입사일 처리 - join_date 필드 사용 (entrance_date가 아님!)
+                const entranceDate = member.join_date || member.entrance_date || '-';
                 
-                // 근속년수 계산
+                // 근속년수 계산 - "우리사전에 가짜 데이타는 없다"
                 let yearsOfService = '-';
                 if (entranceDate && entranceDate !== '-' && entranceDate !== '') {{
                     const entDate = new Date(entranceDate);
                     if (!isNaN(entDate) && entDate <= currentDate) {{
                         const years = Math.floor((currentDate - entDate) / (365.25 * 24 * 60 * 60 * 1000));
+                        const months = Math.floor(((currentDate - entDate) % (365.25 * 24 * 60 * 60 * 1000)) / (30.44 * 24 * 60 * 60 * 1000));
+                        
                         if (years >= 0) {{
-                            yearsOfService = years + '년';
+                            if (months > 0) {{
+                                yearsOfService = `${{years}}년 ${{months}}개월`;
+                            }} else {{
+                                yearsOfService = `${{years}}년`;
+                            }}
                         }} else {{
-                            yearsOfService = '0년';  // 음수이면 0년으로 처리
+                            // 미래 날짜는 표시하지 않음 (가짜 데이터 방지)
+                            yearsOfService = '-';
                         }}
+                    }} else {{
+                        // 잘못된 날짜 형식이면 표시하지 않음
+                        yearsOfService = '-';
                     }}
                 }}
                 
