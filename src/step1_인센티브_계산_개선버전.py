@@ -240,8 +240,9 @@ class ConfigManager:
         # 근무일 수 계산
         working_days = calculate_working_days_from_attendance(attendance_file, year, month)
         if not working_days:
-            working_days = 23  # 기본값
-            print(f"  → 기본 근무일 사용: {working_days}일")
+            print("❌ 오류: attendance 파일에서 근무일을 계산할 수 없습니다.")
+            print("   attendance CSV 파일이 존재하고 올바른 형식인지 확인하세요.")
+            return None
         
         # 이전 2개월 자동 계산
         prev_month1_num = (month - 2) % 12 or 12

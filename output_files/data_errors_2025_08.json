@@ -1,0 +1,158 @@
+{
+  "temporal_errors": [
+    {
+      "id": 623090224,
+      "name": "DANH THỊ THU HUỲNH",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-09-14 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625020092,
+      "name": "HUỲNH THỊ MỸ DUNG",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-10-02 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625020143,
+      "name": "LƯU KIM CHỌN",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-12-02 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625020179,
+      "name": "NGUYỄN PHÁT LỢI",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-12-02 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625030144,
+      "name": "LƯU NGUYỄN TẤN DŨNG",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-10-03 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625030163,
+      "name": "LÊ THANH NGÂN",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-12-03 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625030164,
+      "name": "TRẦN CẨM TIÊN",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-12-03 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625030182,
+      "name": "PHẠM CHÍ THIỆN",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-12-03 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625050084,
+      "name": "NGUYỄN THỊ THÙY TRANG",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-09-05 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 625050086,
+      "name": "NGUYỄN ÁNH NGỌC",
+      "error_type": "Future Entrance Date",
+      "error_column": "Entrance Date",
+      "error_value": "2025-09-05 00:00:00",
+      "expected_value": "<= 2025-08-31 00:00:00",
+      "severity": "critical",
+      "description": "Entrance date is in the future",
+      "suggested_action": "Verify and correct entrance date"
+    },
+    {
+      "id": 623090224,
+      "name": "DANH THỊ THU HUỲNH",
+      "error_type": "Invalid Date Sequence",
+      "error_column": "Stop working Date",
+      "error_value": "Stop: 2025-05-10 00:00:00, Enter: 2025-09-14 00:00:00",
+      "expected_value": "Stop Date >= Entrance Date",
+      "severity": "critical",
+      "description": "Employee left before joining",
+      "suggested_action": "Correct date sequence"
+    },
+    {
+      "id": 625050084,
+      "name": "NGUYỄN THỊ THÙY TRANG",
+      "error_type": "Invalid Date Sequence",
+      "error_column": "Stop working Date",
+      "error_value": "Stop: 2025-05-16 00:00:00, Enter: 2025-09-05 00:00:00",
+      "expected_value": "Stop Date >= Entrance Date",
+      "severity": "critical",
+      "description": "Employee left before joining",
+      "suggested_action": "Correct date sequence"
+    },
+    {
+      "id": 625050086,
+      "name": "NGUYỄN ÁNH NGỌC",
+      "error_type": "Invalid Date Sequence",
+      "error_column": "Stop working Date",
+      "error_value": "Stop: 2025-05-16 00:00:00, Enter: 2025-09-05 00:00:00",
+      "expected_value": "Stop Date >= Entrance Date",
+      "severity": "critical",
+      "description": "Employee left before joining",
+      "suggested_action": "Correct date sequence"
+    }
+  ],
+  "type_errors": [],
+  "position_errors": [],
+  "team_errors": [],
+  "attendance_errors": [],
+  "duplicate_errors": [],
+  "summary": {
+    "total_errors": 13,
+    "critical": 13,
+    "warning": 0,
+    "info": 0
+  }
+}

@@ -194,8 +194,8 @@ fi
 # Step 2: Dashboard 생성 (최신 v5.0 버전)
 run_step "Step 2: HTML Dashboard 생성 (v5.0)" "python3 integrated_dashboard_final.py --month $month_choice --year $YEAR"
 
-# Step 3: Management Dashboard 생성 (v3.0 - 실제 데이터 로드)
-run_step "Step 3: Management Dashboard 생성 (v3.0)" "python3 generate_management_dashboard_v3.py --month $month_choice --year $YEAR"
+# Step 3: Management Dashboard 생성 (v6.0 Enhanced - 데이터 오류 감지 포함)
+run_step "Step 3: Management Dashboard 생성 (v6.0 Enhanced)" "python3 generate_management_dashboard_v6_enhanced.py --month $month_choice --year $YEAR"
 
 # 완료 메시지
 echo ""
