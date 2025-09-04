@@ -443,6 +443,75 @@ class EnhancedHRDashboard:
         month_key = f"{self.year}_{self.month:02d}"
         self.weekly_data = week_data
         
+    def calculate_previous_real_hr_metrics(self):
+        """이전 월의 HR 지표 계산"""
+        prev_month = self.month - 1 if self.month > 1 else 12
+        prev_year = self.year if self.month > 1 else self.year - 1
+        
+        if self.data['previous'].empty:
+            return {}
+            
+        df = self.data['previous']
+        
+        # 이전 월의 최신 데이터 날짜 계산
+        from calendar import monthrange
+        last_day = monthrange(prev_year, prev_month)[1]
+        prev_latest_date = datetime(prev_year, prev_month, last_day)
+        
+        # 이전 월 기준으로 필터링
+        filtered_df = EmployeeFilter.filter_employees_for_management(
+            df, target_month=prev_month, target_year=prev_year,
+            generation_date=datetime.now(),
+            data_latest_date=prev_latest_date
+        )
+        
+        total_employees = len(filtered_df)
+        
+        metrics = {
+            'error_count': 0,
+            'error_rate': 0.0,
+            'total_employees': total_employees,
+            'type1_count': str(len(filtered_df[filtered_df['ROLE TYPE STD'] == 'TYPE-1'])) if 'ROLE TYPE STD' in filtered_df.columns else '0',
+            'type2_count': str(len(filtered_df[filtered_df['ROLE TYPE STD'] == 'TYPE-2'])) if 'ROLE TYPE STD' in filtered_df.columns else '0',
+            'type3_count': str(len(filtered_df[filtered_df['ROLE TYPE STD'] == 'TYPE-3'])) if 'ROLE TYPE STD' in filtered_df.columns else '0',
+            'attendance_rate': 0.0,
+            'absence_rate': 0.0,
+            'absence_count': 0,
+            'resignation_count': 0,
+            'resignation_rate': 0.0,
+            'recent_hires': 0,
+            'recent_hires_rate': 0.0,
+            'recent_resignations': 0,
+            'recent_resignation_rate': 0.0,
+            'under_60_days': 0,
+            'under_60_days_rate': 0.0,
+            'post_assignment_resignations': 0,
+            'post_assignment_resignation_rate': 0.0,
+            'full_attendance_count': 0,
+            'full_attendance_rate': 0.0,
+            'long_term_count': 0,
+            'long_term_rate': 0.0
+        }
+        
+        if total_employees > 0:
+            # 출근율 계산
+            if 'Actual Working Days' in filtered_df.columns and 'Total Working Days' in filtered_df.columns:
+                actual_sum = filtered_df['Actual Working Days'].sum()
+                total_sum = filtered_df['Total Working Days'].sum()
+                if total_sum > 0:
+                    metrics['attendance_rate'] = round(actual_sum / total_sum * 100, 10)
+                    metrics['absence_rate'] = round(100 - metrics['attendance_rate'], 10)
+            
+            # 만근자 수
+            if 'Actual Working Days' in filtered_df.columns and 'Total Working Days' in filtered_df.columns:
+                full_attendance = filtered_df[
+                    filtered_df['Actual Working Days'] == filtered_df['Total Working Days']
+                ]
+                metrics['full_attendance_count'] = len(full_attendance)
+                metrics['full_attendance_rate'] = round(len(full_attendance) / total_employees * 100, 10)
+        
+        return metrics
+    
     def calculate_real_hr_metrics(self):
         """실제 HR 메트릭 계산 - 데이터 마지막 날짜 기준"""
         if self.data['current'].empty:
@@ -961,10 +1030,16 @@ class EnhancedHRDashboard:
         prev_month_key = f"{self.year}_{(self.month-1):02d}" if self.month > 1 else f"{self.year-1}_12"
         # 이전 월 데이터가 있으면 항상 재계산 (기존 저장된 잘못된 데이터 문제 해결)
         if not self.data['previous'].empty:
+            # 이전 월 monthly_data 계산
+            prev_metrics = self.calculate_previous_real_hr_metrics()
+            self.metadata['monthly_data'][prev_month_key] = prev_metrics
+            
+            # 이전 월 team_stats 계산
             self.metadata['team_stats'][prev_month_key] = self.calculate_previous_team_statistics()
         elif prev_month_key not in self.metadata['team_stats']:
             # 이전 월 데이터가 없으면 빈 딕셔너리
             self.metadata['team_stats'][prev_month_key] = {}
+            self.metadata['monthly_data'][prev_month_key] = {}
         
         # 결근 사유 저장
         self.metadata['absence_reasons'] = self.metadata.get('absence_reasons', {})
@@ -1087,12 +1162,12 @@ class EnhancedHRDashboard:
         # 출근 데이터가 없으면 기본 로직 사용
         print(f"  ⚠️ 출근 데이터 파일이 없어 월말 기준 사용")
         today = datetime.date.today()
-        last_day = monthrange(self.year, self.month)[1]
-        last_date = datetime.date(self.year, self.month, last_day)
+        last_day = monthrange(target_year, target_month)[1]
+        last_date = datetime.date(target_year, target_month, last_day)
         
         if last_date < today:
             data_date = last_date
-        elif datetime.date(self.year, self.month, 1) <= today <= last_date:
+        elif datetime.date(target_year, target_month, 1) <= today <= last_date:
             data_date = today
         else:
             data_date = last_date
@@ -2255,8 +2330,12 @@ class EnhancedHRDashboard:
             else:
                 return obj
         
+        # 7월 데이터 가져오기 - 8월이면 2025_07, 다른 월이면 해당 월의 이전 월
+        prev_month = self.month - 1 if self.month > 1 else 12
+        prev_year = self.year if self.month > 1 else self.year - 1
+        prev_month_key = f'{prev_year}_{prev_month:02d}'
         monthly_data_july = convert_numpy_types(
-            self.metadata.get('monthly_data', {}).get(f'{self.year}_07', {})
+            self.metadata.get('monthly_data', {}).get(prev_month_key, {})
         )
         monthly_data_august = convert_numpy_types(
             self.metadata.get('monthly_data', {}).get(f'{self.year}_08', {})
@@ -2273,9 +2352,9 @@ class EnhancedHRDashboard:
         // 📊 중앙 데이터 구조 - Single Source of Truth
         const centralizedData = {centralized_data_json};
         
-        // 전역 데이터 (기존 코드와의 호환성 유지)
-        const monthlyDataJuly = {json.dumps(monthly_data_july, ensure_ascii=False)};
-        const monthlyDataAugust = {json.dumps(monthly_data_august, ensure_ascii=False)};
+        // 전역 데이터 - 중앙 데이터 구조를 참조하도록 변경 (하위 호환성 유지)
+        const monthlyDataJuly = centralizedData.previous_month;  // 중앙 데이터의 이전 월 데이터 참조
+        const monthlyDataAugust = centralizedData.current_month;  // 중앙 데이터의 현재 월 데이터 참조
         const currentWeeklyData = {current_weekly_json};
         const prevWeeklyData = {prev_weekly_json};
         const teamStats = {team_stats_json};
@@ -3103,7 +3182,7 @@ class EnhancedHRDashboard:
                     labels: ['7월', '8월'],
                     datasets: [{{
                         label: '총인원',
-                        data: [monthlyDataJuly.total_employees || 0, monthlyDataAugust.total_employees || 0],
+                        data: [centralizedData.previous_month.total_employees || 0, centralizedData.current_month.total_employees || 0],
                         backgroundColor: ['{self.colors['chart_colors'][4]}', '{self.colors['chart_colors'][2]}']
                     }}]
                 }},
@@ -3230,7 +3309,7 @@ class EnhancedHRDashboard:
                 .map(([name, data]) => ({{
                     name: name,
                     total: data.total || 0,
-                    percentage: ((data.total || 0) / monthlyDataAugust.total_employees * 100).toFixed(1)
+                    percentage: ((data.total || 0) / centralizedData.current_month.total_employees * 100).toFixed(1)
                 }}))
                 .sort((a, b) => b.total - a.total);
             
@@ -3303,10 +3382,10 @@ class EnhancedHRDashboard:
             typeCardsDiv.className = 'type-cards';
             
             // TYPE 값 처리 - 문자열일 수 있음
-            const type1Count = parseInt(monthlyDataAugust.type1_count) || 0;
-            const type2Count = parseInt(monthlyDataAugust.type2_count) || 0;
-            const type3Count = parseInt(monthlyDataAugust.type3_count) || 0;
-            const totalCount = monthlyDataAugust.total_employees || 0;
+            const type1Count = parseInt(centralizedData.current_month.type1_count) || 0;
+            const type2Count = parseInt(centralizedData.current_month.type2_count) || 0;
+            const type3Count = parseInt(centralizedData.current_month.type3_count) || 0;
+            const totalCount = centralizedData.current_month.total_employees || 0;
             
             const typeData = [
                 {{
@@ -3408,7 +3487,7 @@ class EnhancedHRDashboard:
                         fullTeamData.push({{
                             name: teamName,
                             total: teamStat.total || 0,
-                            percentage: ((teamStat.total || 0) / monthlyDataAugust.total_employees * 100).toFixed(1)
+                            percentage: ((teamStat.total || 0) / centralizedData.current_month.total_employees * 100).toFixed(1)
                         }});
                     }}
                 }});
@@ -3753,11 +3832,8 @@ class EnhancedHRDashboard:
                         const julyData = julyTeamStats[name] || {{}};
                         let julyTotal = julyData.total || 0;
                         
-                        // 7월 데이터가 없으면 생성된 값 사용
-                        if (julyTotal === 0) {{
-                            const randomFactor = 0.8 + Math.random() * 0.4;
-                            julyTotal = Math.round(data.total * randomFactor);
-                        }}
+                        // 7월 데이터가 없으면 0으로 표시 (가짜 데이터 생성 금지)
+                        // NO FAKE DATA POLICY - 우리사전에 가짜 데이타는 없다
                         
                         const change = data.total - julyTotal;
                         const changePercent = julyTotal > 0 ? ((change / julyTotal) * 100) : 0;
@@ -5337,7 +5413,7 @@ class EnhancedHRDashboard:
                     labels: ['7월', '8월'],
                     datasets: [{{
                         label: '결근율 (%)',
-                        data: [monthlyDataJuly.absence_rate || 0, monthlyDataAugust.absence_rate || 0],
+                        data: [centralizedData.previous_month.absence_rate || 0, centralizedData.current_month.absence_rate || 0],
                         borderColor: '#dc3545',
                         backgroundColor: 'rgba(220, 53, 69, 0.1)',
                         tension: 0.4,

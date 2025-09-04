@@ -24,6 +24,31 @@
       "full_attendance_rate": 2.099737532808399,
       "long_term_count": 276,
       "long_term_rate": 72.44094488188976
+    },
+    "2025_07": {
+      "error_count": 0,
+      "error_rate": 0.0,
+      "total_employees": 376,
+      "type1_count": "126",
+      "type2_count": "235",
+      "type3_count": "15",
+      "attendance_rate": 90.7261794635,
+      "absence_rate": 9.2738205365,
+      "absence_count": 0,
+      "resignation_count": 0,
+      "resignation_rate": 0.0,
+      "recent_hires": 0,
+      "recent_hires_rate": 0.0,
+      "recent_resignations": 0,
+      "recent_resignation_rate": 0.0,
+      "under_60_days": 0,
+      "under_60_days_rate": 0.0,
+      "post_assignment_resignations": 0,
+      "post_assignment_resignation_rate": 0.0,
+      "full_attendance_count": 305,
+      "full_attendance_rate": 81.1170212766,
+      "long_term_count": 0,
+      "long_term_rate": 0.0
     }
   },
   "weekly_data": {
@@ -499,5 +524,5 @@
       }
     }
   },
-  "generation_timestamp": "2025-09-04 16:29:22"
+  "generation_timestamp": "2025-09-04 18:07:19"
 }
