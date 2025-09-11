@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QIP Trainer Dashboard v3.0 Modern - Quality Manager Edition</title>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts - Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =============================================
+           MODERN DESIGN SYSTEM - 2025 Trends
+           ============================================= */
+        
+        :root {
+            /* Modern Color Palette */
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            
+            --critical: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --info: #3b82f6;
+            
+            /* Glassmorphism Colors */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            
+            /* Dark Theme */
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-border: #334155;
+            
+            /* Modern Gradients */
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-critical: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+            --gradient-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            
+            /* Shadows - Soft and Modern */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --shadow-glow: 0 0 50px rgba(99, 102, 241, 0.3);
+            
+            /* Typography Scale */
+            --font-xs: 0.75rem;
+            --font-sm: 0.875rem;
+            --font-base: 1rem;
+            --font-lg: 1.125rem;
+            --font-xl: 1.25rem;
+            --font-2xl: 1.5rem;
+            --font-3xl: 1.875rem;
+            --font-4xl: 2.25rem;
+            --font-5xl: 3rem;
+            
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            
+            /* Animation */
+            --transition-fast: 150ms;
+            --transition-base: 250ms;
+            --transition-slow: 350ms;
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --radius-full: 9999px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            opacity: 0.1;
+            z-index: -2;
+        }
+        
+        /* Animated Gradient Orbs */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out;
+            z-index: -1;
+        }
+        
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+        
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+        
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-50px, 50px) scale(0.9); }
+            75% { transform: translate(30px, 30px) scale(1.05); }
+        }
+        
+        /* =============================================
+           GLASSMORPHISM CONTAINERS
+           ============================================= */
+        
+        .glass-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: 
+                0 8px 32px 0 rgba(31, 38, 135, 0.15),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+            transition: all var(--transition-base) ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 12px 40px 0 rgba(31, 38, 135, 0.25),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        /* =============================================
+           MODERN HEADER
+           ============================================= */
+        
+        .modern-header {
+            padding: var(--space-6) var(--space-4);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+        
+        .header-title {
+            font-size: var(--font-2xl);
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+        
+        .header-subtitle {
+            font-size: var(--font-sm);
+            color: #94a3b8;
+            margin-top: var(--space-1);
+        }
+        
+        /* Mode Selector - Modern Pills */
+        .mode-selector {
+            display: flex;
+            gap: var(--space-2);
+            padding: var(--space-1);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-full);
+            backdrop-filter: blur(10px);
+        }
+        
+        .mode-btn {
+            padding: var(--space-2) var(--space-4);
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: var(--font-sm);
+            font-weight: 500;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mode-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea, #a78bfa);
+            opacity: 0;
+            transition: opacity var(--transition-base);
+            border-radius: inherit;
+        }
+        
+        .mode-btn:hover {
+            color: white;
+        }
+        
+        .mode-btn.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea, #a78bfa);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* =============================================
+           SMART ALERT - MODERN NOTIFICATION
+           ============================================= */
+        
+        .smart-alert {
+            position: fixed;
+            top: var(--space-4);
+            right: var(--space-4);
+            max-width: 400px;
+            z-index: 9999;
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .alert-modern {
+            background: rgba(239, 68, 68, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            box-shadow: 
+                0 10px 40px rgba(239, 68, 68, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
+        }
+        
+        .alert-icon-modern {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-xl);
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+            }
+        }
+        
+        .alert-title {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            color: white;
+        }
+        
+        .alert-message-modern {
+            color: #e2e8f0;
+            font-size: var(--font-sm);
+            line-height: 1.5;
+            margin-bottom: var(--space-4);
+        }
+        
+        .alert-actions-modern {
+            display: flex;
+            gap: var(--space-2);
+        }
+        
+        .alert-btn-modern {
+            flex: 1;
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            font-size: var(--font-sm);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            border: none;
+        }
+        
+        .alert-btn-primary {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .alert-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        .alert-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .alert-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* =============================================
+           QUICK ACTION BAR - MODERN FLOATING
+           ============================================= */
+        
+        .quick-action-modern {
+            position: fixed;
+            bottom: var(--space-6);
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-2xl);
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+        
+        .action-btn-modern {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-xl);
+            border: none;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            color: white;
+            font-size: var(--font-xl);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
+            transform: translate(-50%, -50%);
+            transition: width var(--transition-slow), height var(--transition-slow);
+        }
+        
+        .action-btn-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .action-btn-modern:hover::before {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .action-btn-modern:active {
+            transform: scale(0.95);
+        }
+        
+        .action-btn-emergency {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: emergency-pulse 2s infinite;
+        }
+        
+        @keyframes emergency-pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+            }
+        }
+        
+        /* Tooltip */
+        .action-btn-modern::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            padding: var(--space-2) var(--space-3);
+            background: rgba(15, 23, 42, 0.95);
+            color: white;
+            font-size: var(--font-xs);
+            white-space: nowrap;
+            border-radius: var(--radius-md);
+            pointer-events: none;
+            transition: transform var(--transition-base);
+            backdrop-filter: blur(10px);
+        }
+        
+        .action-btn-modern:hover::after {
+            transform: translateX(-50%) scale(1);
+        }
+        
+        /* =============================================
+           MAIN DASHBOARD CONTAINER
+           ============================================= */
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-6) var(--space-4);
+            padding-bottom: 120px;
+        }
+        
+        /* =============================================
+           PRIORITY METRICS - MODERN CARDS
+           ============================================= */
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+        
+        .metric-card-modern {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        
+        .metric-card-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        }
+        
+        .metric-card-modern.critical::before {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .metric-card-modern.warning::before {
+            background: linear-gradient(90deg, #f59e0b, #fb923c);
+        }
+        
+        .metric-card-modern.success::before {
+            background: linear-gradient(90deg, #10b981, #14b8a6);
+        }
+        
+        .metric-card-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-4);
+        }
+        
+        .metric-label {
+            font-size: var(--font-sm);
+            color: #94a3b8;
+            font-weight: 500;
+            letter-spacing: 0.025em;
+        }
+        
+        .metric-badge {
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-full);
+            font-size: var(--font-xs);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+        
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+        
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+        
+        .metric-value {
+            font-size: var(--font-4xl);
+            font-weight: 800;
+            color: white;
+            line-height: 1;
+            margin-bottom: var(--space-2);
+        }
+        
+        .metric-unit {
+            font-size: var(--font-lg);
+            color: #94a3b8;
+            font-weight: 400;
+            margin-left: var(--space-2);
+        }
+        
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-top: var(--space-4);
+            padding-top: var(--space-4);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .trend-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-lg);
+        }
+        
+        .trend-up {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .trend-down {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .trend-text {
+            font-size: var(--font-sm);
+            color: #94a3b8;
+        }
+        
+        .metric-action {
+            margin-top: var(--space-4);
+            padding: var(--space-3) var(--space-4);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: var(--radius-lg);
+            color: #a5b4fc;
+            font-size: var(--font-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .metric-action:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+            color: white;
+            transform: translateX(4px);
+        }
+        
+        /* =============================================
+           HIGH RISK INSPECTORS - MODERN LIST
+           ============================================= */
+        
+        .risk-section {
+            margin-top: var(--space-8);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-6);
+        }
+        
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(236, 72, 153, 0.2));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-xl);
+        }
+        
+        .section-title {
+            font-size: var(--font-2xl);
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.02em;
+        }
+        
+        .inspector-list {
+            display: grid;
+            gap: var(--space-3);
+        }
+        
+        .inspector-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .inspector-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #ef4444, #dc2626);
+        }
+        
+        .inspector-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(8px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .inspector-info {
+            flex: 1;
+        }
+        
+        .inspector-name {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            color: white;
+            margin-bottom: var(--space-1);
+        }
+        
+        .inspector-details {
+            font-size: var(--font-sm);
+            color: #64748b;
+        }
+        
+        .inspector-metrics {
+            text-align: right;
+        }
+        
+        .pass-rate {
+            font-size: var(--font-2xl);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .pass-label {
+            font-size: var(--font-xs);
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* =============================================
+           EMERGENCY MODE OVERLAY
+           ============================================= */
+        
+        .emergency-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 10000;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .emergency-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .emergency-content {
+            max-width: 600px;
+            width: 90%;
+            padding: var(--space-8);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(236, 72, 153, 0.1));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: var(--radius-2xl);
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.3);
+            text-align: center;
+        }
+        
+        .emergency-title {
+            font-size: var(--font-3xl);
+            font-weight: 800;
+            color: white;
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+        }
+        
+        .emergency-icon {
+            font-size: var(--font-4xl);
+            animation: emergency-shake 0.5s infinite;
+        }
+        
+        @keyframes emergency-shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+        
+        .emergency-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+            margin: var(--space-6) 0;
+        }
+        
+        .emergency-stat {
+            padding: var(--space-4);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .emergency-stat-value {
+            font-size: var(--font-3xl);
+            font-weight: 800;
+            color: #ef4444;
+            margin-bottom: var(--space-2);
+        }
+        
+        .emergency-stat-label {
+            font-size: var(--font-sm);
+            color: #94a3b8;
+        }
+        
+        .emergency-actions {
+            display: grid;
+            gap: var(--space-3);
+        }
+        
+        .emergency-btn {
+            padding: var(--space-4) var(--space-6);
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            border-radius: var(--radius-lg);
+            color: white;
+            font-size: var(--font-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        
+        .emergency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+        }
+        
+        .emergency-btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .emergency-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* =============================================
+           RESPONSIVE DESIGN
+           ============================================= */
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .mode-selector {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-action-modern {
+                bottom: var(--space-4);
+                left: var(--space-4);
+                right: var(--space-4);
+                transform: none;
+                justify-content: space-around;
+            }
+            
+            .action-btn-modern {
+                width: 48px;
+                height: 48px;
+                font-size: var(--font-lg);
+            }
+            
+            .smart-alert {
+                left: var(--space-4);
+                right: var(--space-4);
+                max-width: none;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* =============================================
+           LOADING ANIMATION
+           ============================================= */
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* =============================================
+           PRINT STYLES
+           ============================================= */
+        
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .quick-action-modern,
+            .smart-alert,
+            .mode-selector {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Orbs -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    
+    <!-- Smart Alert (Priority Notification) -->
+    <div class="smart-alert" id="smartAlert">
+        <div class="alert-modern">
+            <div class="alert-header">
+                <div class="alert-icon-modern">🚨</div>
+                <div>
+                    <div class="alert-title">긴급 알림</div>
+                </div>
+            </div>
+            <div class="alert-message-modern">
+                3명의 검사원이 즉시 조치가 필요합니다. 합격률이 92% 미만으로 떨어졌습니다.
+            </div>
+            <div class="alert-actions-modern">
+                <button class="alert-btn-modern alert-btn-primary" onclick="activateEmergencyMode()">
+                    긴급 대응
+                </button>
+                <button class="alert-btn-modern alert-btn-secondary" onclick="dismissAlert()">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modern Header -->
+    <header class="modern-header">
+        <div class="header-content">
+            <div>
+                <h1 class="header-title">품질 관리 지휘부</h1>
+                <p class="header-subtitle" id="headerSubtitle">2025년 9월 10일 수요일 | 품질 관리자</p>
+            </div>
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('priority')">우선순위</button>
+                <button class="mode-btn" onclick="setMode('morning')">아침 브리핑</button>
+                <button class="mode-btn" onclick="setMode('detail')">상세 분석</button>
+                <button class="mode-btn" onclick="setMode('presentation')">발표 모드</button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Priority Metrics Grid -->
+        <div class="metrics-grid">
+            <!-- Critical: High Risk Inspectors -->
+            <div class="metric-card-modern critical" onclick="drillDown('risk')">
+                <div class="metric-header">
+                    <span class="metric-label">고위험 검사원</span>
+                    <span class="metric-badge badge-critical">긴급</span>
+                </div>
+                <div class="metric-value">16<span class="metric-unit">명</span></div>
+                <div class="metric-trend">
+                    <div class="trend-icon trend-down">↑</div>
+                    <span class="trend-text">어제 대비 +3명</span>
+                </div>
+                <button class="metric-action">
+                    즉시 조치하기 →
+                </button>
+            </div>
+            
+            <!-- Warning: Overall Pass Rate -->
+            <div class="metric-card-modern warning" onclick="drillDown('rate')">
+                <div class="metric-header">
+                    <span class="metric-label">전체 합격률</span>
+                    <span class="metric-badge badge-warning">주의</span>
+                </div>
+                <div class="metric-value">97.1<span class="metric-unit">%</span></div>
+                <div class="metric-trend">
+                    <div class="trend-icon trend-down">↓</div>
+                    <span class="trend-text">목표 98% | 지난주 -0.8%</span>
+                </div>
+                <button class="metric-action">
+                    개선 계획 보기 →
+                </button>
+            </div>
+            
+            <!-- Success: Improved Inspectors -->
+            <div class="metric-card-modern success" onclick="drillDown('improved')">
+                <div class="metric-header">
+                    <span class="metric-label">개선된 검사원</span>
+                    <span class="metric-badge badge-success">양호</span>
+                </div>
+                <div class="metric-value">8<span class="metric-unit">명</span></div>
+                <div class="metric-trend">
+                    <div class="trend-icon trend-up">↑</div>
+                    <span class="trend-text">이번 주 목표 달성률 80%</span>
+                </div>
+                <button class="metric-action">
+                    성과 분석 →
+                </button>
+            </div>
+            
+            <!-- Info: Today's Progress -->
+            <div class="metric-card-modern" onclick="drillDown('today')">
+                <div class="metric-header">
+                    <span class="metric-label">오늘 검사</span>
+                    <span class="metric-badge badge-success">진행중</span>
+                </div>
+                <div class="metric-value">234<span class="metric-unit">건</span></div>
+                <div class="metric-trend">
+                    <div class="trend-icon trend-up">⏱</div>
+                    <span class="trend-text">예상 완료: 450건</span>
+                </div>
+                <button class="metric-action">
+                    실시간 모니터링 →
+                </button>
+            </div>
+        </div>
+        
+        <!-- High Risk Inspectors Section -->
+        <div class="risk-section">
+            <div class="section-header">
+                <div class="section-icon">⚠️</div>
+                <h2 class="section-title">즉시 관리 필요 검사원 (Top 5)</h2>
+            </div>
+            
+            <div class="inspector-list" id="inspectorList">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modern Quick Action Bar -->
+    <div class="quick-action-modern">
+        <button class="action-btn-modern action-btn-emergency" data-tooltip="긴급 대응" onclick="quickAction('emergency')">
+            🚨
+        </button>
+        <button class="action-btn-modern" data-tooltip="교육 배정" onclick="quickAction('training')">
+            📚
+        </button>
+        <button class="action-btn-modern" data-tooltip="보고서" onclick="quickAction('report')">
+            📊
+        </button>
+        <button class="action-btn-modern" data-tooltip="업무 지시" onclick="quickAction('instruction')">
+            📋
+        </button>
+        <button class="action-btn-modern" data-tooltip="알림 설정" onclick="quickAction('notification')">
+            🔔
+        </button>
+    </div>
+    
+    <!-- Emergency Mode Overlay -->
+    <div class="emergency-overlay" id="emergencyOverlay">
+        <div class="emergency-content">
+            <h2 class="emergency-title">
+                <span class="emergency-icon">🚨</span>
+                긴급 대응 모드
+            </h2>
+            <p style="color: #94a3b8; margin-bottom: var(--space-6);">
+                즉시 조치가 필요한 상황입니다
+            </p>
+            
+            <div class="emergency-stats">
+                <div class="emergency-stat">
+                    <div class="emergency-stat-value">3</div>
+                    <div class="emergency-stat-label">Critical 검사원</div>
+                </div>
+                <div class="emergency-stat">
+                    <div class="emergency-stat-value">91.5%</div>
+                    <div class="emergency-stat-label">최저 합격률</div>
+                </div>
+            </div>
+            
+            <div class="emergency-actions">
+                <button class="emergency-btn" onclick="emergencyAction('stop')">
+                    🛑 라인 중지 요청
+                </button>
+                <button class="emergency-btn" onclick="emergencyAction('call')">
+                    📞 슈퍼바이저 호출
+                </button>
+                <button class="emergency-btn" onclick="emergencyAction('training')">
+                    📚 긴급 교육 시작
+                </button>
+                <button class="emergency-btn emergency-btn-secondary" onclick="closeEmergencyMode()">
+                    ← 대시보드로 돌아가기
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // High Risk Inspectors Data
+        const highRiskInspectors = [
+            { name: 'NGUYỄN VĂN TOÀN', id: '624080430', building: 'Building A', line: 'Line 3', rate: 92.1 },
+            { name: 'NGUYỄN THỊ THẢO QUYÊN', id: '622030777', building: 'Building B', line: 'Line 1', rate: 92.2 },
+            { name: 'HỒ NHỰT PHI', id: '624060040', building: 'Building A', line: 'Line 2', rate: 92.3 },
+            { name: 'NGUYỄN QUỐC HUY', id: '622070194', building: 'Building C', line: 'Line 4', rate: 92.4 },
+            { name: 'PHẠM THỊ KIỀU TRANG', id: '624070252', building: 'Building B', line: 'Line 5', rate: 92.5 }
+        ];
+        
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Quality Manager Dashboard v3.0 Modern Initialized');
+            
+            // Update date/time
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+            
+            // Load inspector list
+            loadInspectorList();
+            
+            // Show smart alert after 2 seconds
+            setTimeout(() => {
+                document.getElementById('smartAlert').style.display = 'block';
+            }, 2000);
+            
+            // Log performance
+            logPerformance();
+        });
+        
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                weekday: 'long',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            const dateStr = now.toLocaleDateString('ko-KR', options);
+            document.getElementById('headerSubtitle').textContent = `${dateStr} | 품질 관리자`;
+        }
+        
+        function loadInspectorList() {
+            const listContainer = document.getElementById('inspectorList');
+            
+            highRiskInspectors.forEach(inspector => {
+                const card = document.createElement('div');
+                card.className = 'inspector-card';
+                card.onclick = () => showInspectorDetail(inspector);
+                
+                card.innerHTML = `
+                    <div class="inspector-info">
+                        <div class="inspector-name">${inspector.name}</div>
+                        <div class="inspector-details">ID: ${inspector.id} | ${inspector.building} | ${inspector.line}</div>
+                    </div>
+                    <div class="inspector-metrics">
+                        <div class="pass-rate">${inspector.rate}%</div>
+                        <div class="pass-label">합격률</div>
+                    </div>
+                `;
+                
+                listContainer.appendChild(card);
+            });
+        }
+        
+        function setMode(mode) {
+            console.log(`📊 Mode changed to: ${mode}`);
+            
+            // Update active button
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Mode-specific actions
+            switch(mode) {
+                case 'priority':
+                    // Current view
+                    break;
+                case 'morning':
+                    console.log('Loading morning briefing...');
+                    break;
+                case 'detail':
+                    console.log('Loading detailed analysis...');
+                    // This would show all 5PRS features
+                    break;
+                case 'presentation':
+                    console.log('Entering presentation mode...');
+                    enterPresentationMode();
+                    break;
+            }
+        }
+        
+        function quickAction(action) {
+            console.log(`⚡ Quick action: ${action}`);
+            
+            switch(action) {
+                case 'emergency':
+                    activateEmergencyMode();
+                    break;
+                case 'training':
+                    console.log('Opening training assignment...');
+                    break;
+                case 'report':
+                    console.log('Generating report...');
+                    break;
+                case 'instruction':
+                    window.open('quality_manager_work_instructions.html', '_blank');
+                    break;
+                case 'notification':
+                    console.log('Opening notification settings...');
+                    break;
+            }
+        }
+        
+        function activateEmergencyMode() {
+            console.log('🚨 EMERGENCY MODE ACTIVATED');
+            document.getElementById('emergencyOverlay').classList.add('active');
+        }
+        
+        function closeEmergencyMode() {
+            document.getElementById('emergencyOverlay').classList.remove('active');
+        }
+        
+        function emergencyAction(action) {
+            console.log(`🚨 Emergency action: ${action}`);
+            // Implement emergency actions
+        }
+        
+        function dismissAlert() {
+            document.getElementById('smartAlert').style.display = 'none';
+        }
+        
+        function drillDown(metric) {
+            console.log(`📈 Drilling down into: ${metric}`);
+            // Implement drill-down functionality
+        }
+        
+        function showInspectorDetail(inspector) {
+            console.log(`👤 Showing details for: ${inspector.name}`);
+            // Implement inspector detail view
+        }
+        
+        function enterPresentationMode() {
+            document.documentElement.requestFullscreen();
+        }
+        
+        function logPerformance() {
+            const loadTime = performance.now();
+            const memory = performance.memory ? 
+                (performance.memory.usedJSHeapSize / 1048576).toFixed(2) + 'MB' : 
+                'N/A';
+            
+            console.log(`⚡ Dashboard Performance:`, {
+                loadTime: `${loadTime.toFixed(2)}ms`,
+                memory: memory
+            });
+        }
+        
+        // Service Worker Registration (for offline support)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.log('SW registration failed');
+            });
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEmergencyMode();
+            }
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'e':
+                        e.preventDefault();
+                        activateEmergencyMode();
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        enterPresentationMode();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -12,6 +12,61 @@
       "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
     },
     {
+      "id": 625080309,
+      "name": "HUỲNH THỊ TƯỜNG VI",
+      "error_type": "날짜 형태 오류",
+      "error_column": "Entrance Date",
+      "error_value": "2025-08-29",
+      "expected_value": "2025-08-16 이전",
+      "severity": "critical",
+      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+    },
+    {
+      "id": 625080310,
+      "name": "TRỊNH THỊ YẾN NHI",
+      "error_type": "날짜 형태 오류",
+      "error_column": "Entrance Date",
+      "error_value": "2025-08-29",
+      "expected_value": "2025-08-16 이전",
+      "severity": "critical",
+      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+    },
+    {
+      "id": 625080311,
+      "name": "HUỲNH NGỌC ANH THƯ",
+      "error_type": "날짜 형태 오류",
+      "error_column": "Entrance Date",
+      "error_value": "2025-08-29",
+      "expected_value": "2025-08-16 이전",
+      "severity": "critical",
+      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+    },
+    {
+      "id": 625080312,
+      "name": "NGUYỄN THỊ BÍCH TRÂM",
+      "error_type": "날짜 형태 오류",
+      "error_column": "Entrance Date",
+      "error_value": "2025-08-29",
+      "expected_value": "2025-08-16 이전",
+      "severity": "critical",
+      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+    },
+    {
+      "id": 625080332,
+      "name": "BÙI VĂN CÒN",
+      "error_type": "날짜 형태 오류",
+      "error_column": "Entrance Date",
+      "error_value": "2025-08-29",
+      "expected_value": "2025-08-16 이전",
+      "severity": "critical",
+      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+    },
+    {
       "id": 625030143,
       "name": "PHẠM TRẦN SANG",
       "error_type": "날짜 형태 오류",
@@ -133,8 +188,8 @@
   "attendance_errors": [],
   "duplicate_errors": [],
   "summary": {
-    "total_errors": 11,
-    "critical": 11,
+    "total_errors": 16,
+    "critical": 16,
     "warning": 0,
     "info": 0
   }
