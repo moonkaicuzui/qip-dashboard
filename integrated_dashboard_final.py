@@ -1227,59 +1227,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                             <th class="sub-header" id="summaryAvgTotalHeader">총원 기준</th>
                         </tr>
                     </thead>
-                    <tbody id="typeSummaryBody">'''
-    
-    # Type별 요약 데이터 생성
-    total_stats = {'total': 0, 'paid': 0, 'amount': 0}
-    
-    for emp_type in sorted(type_stats.keys()):
-        if not emp_type:  # 빈 Type 건너뛰기
-            continue
-        stats = type_stats[emp_type]
-        rate = (stats['paid'] / stats['total'] * 100) if stats['total'] > 0 else 0
-        avg_paid = (stats['amount'] / stats['paid']) if stats['paid'] > 0 else 0
-        avg_total = (stats['amount'] / stats['total']) if stats['total'] > 0 else 0
-        
-        # Total 집계
-        total_stats['total'] += stats['total']
-        total_stats['paid'] += stats['paid']
-        total_stats['amount'] += stats['amount']
-        
-        # Type badge 클래스 결정
-        type_class = '2'  # 기본값
-        if 'TYPE-1' in emp_type.upper():
-            type_class = '1'
-        elif 'TYPE-2' in emp_type.upper():
-            type_class = '2'
-        elif 'TYPE-3' in emp_type.upper():
-            type_class = '3'
-        
-        html_content += f'''
-                        <tr>
-                            <td><span class="type-badge type-{type_class}">{emp_type}</span></td>
-                            <td>{stats['total']}명</td>
-                            <td>{stats['paid']}명</td>
-                            <td>{rate:.1f}%</td>
-                            <td>{stats['amount']:,} VND</td>
-                            <td>{avg_paid:,.0f} VND</td>
-                            <td>{avg_total:,.0f} VND</td>
-                        </tr>'''
-    
-    # Total 행 추가
-    total_rate = (total_stats['paid'] / total_stats['total'] * 100) if total_stats['total'] > 0 else 0
-    total_avg_paid = (total_stats['amount'] / total_stats['paid']) if total_stats['paid'] > 0 else 0
-    total_avg_total = (total_stats['amount'] / total_stats['total']) if total_stats['total'] > 0 else 0
-    
-    html_content += f'''
-                        <tr style="font-weight: bold; background-color: #f3f4f6;">
-                            <td>Total</td>
-                            <td>{total_stats['total']}명</td>
-                            <td>{total_stats['paid']}명</td>
-                            <td>{total_rate:.1f}%</td>
-                            <td>{total_stats['amount']:,} VND</td>
-                            <td>{total_avg_paid:,.0f} VND</td>
-                            <td>{total_avg_total:,.0f} VND</td>
-                        </tr>'''
+                    <tbody id="typeSummaryBody">
+                        <!-- JavaScript로 동적으로 채워질 예정 -->'''
     
     html_content += f'''
                     </tbody>
@@ -4383,6 +4332,80 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             // 예제 차트 업데이트 코드
         }}
         
+        // Type별 요약 테이블 업데이트 함수
+        function updateTypeSummaryTable() {{
+            // Type별 데이터 집계
+            const typeData = {{
+                'TYPE-1': {{ total: 0, paid: 0, totalAmount: 0 }},
+                'TYPE-2': {{ total: 0, paid: 0, totalAmount: 0 }},
+                'TYPE-3': {{ total: 0, paid: 0, totalAmount: 0 }}
+            }};
+            
+            // 전체 데이터 집계
+            let grandTotal = 0;
+            let grandPaid = 0;
+            let grandAmount = 0;
+            
+            // 직원 데이터 순회하며 집계
+            employeeData.forEach(emp => {{
+                const type = emp.type;
+                if (typeData[type]) {{
+                    typeData[type].total++;
+                    grandTotal++;
+                    
+                    const amount = parseInt(emp.august_incentive) || 0;
+                    if (amount > 0) {{
+                        typeData[type].paid++;
+                        typeData[type].totalAmount += amount;
+                        grandPaid++;
+                        grandAmount += amount;
+                    }}
+                }}
+            }});
+            
+            // 테이블 tbody 업데이트
+            const tbody = document.getElementById('typeSummaryBody');
+            if (tbody) {{
+                let html = '';
+                
+                // 각 Type별 행 생성
+                ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(type => {{
+                    const data = typeData[type];
+                    const paymentRate = data.total > 0 ? (data.paid / data.total * 100).toFixed(1) : '0.0';
+                    const avgPaid = data.paid > 0 ? Math.round(data.totalAmount / data.paid) : 0;
+                    const avgTotal = data.total > 0 ? Math.round(data.totalAmount / data.total) : 0;
+                    const typeClass = type.toLowerCase().replace('type-', '');
+                    
+                    html += '<tr>';
+                    html += '<td><span class="type-badge type-' + typeClass + '">' + type + '</span></td>';
+                    html += '<td>' + data.total + '명</td>';
+                    html += '<td>' + data.paid + '명</td>';
+                    html += '<td>' + paymentRate + '%</td>';
+                    html += '<td>' + data.totalAmount.toLocaleString() + ' VND</td>';
+                    html += '<td>' + avgPaid.toLocaleString() + ' VND</td>';
+                    html += '<td>' + avgTotal.toLocaleString() + ' VND</td>';
+                    html += '</tr>';
+                }});
+                
+                // 합계 행 생성
+                const totalPaymentRate = grandTotal > 0 ? (grandPaid / grandTotal * 100).toFixed(1) : '0.0';
+                const totalAvgPaid = grandPaid > 0 ? Math.round(grandAmount / grandPaid) : 0;
+                const totalAvgTotal = grandTotal > 0 ? Math.round(grandAmount / grandTotal) : 0;
+                
+                html += '<tr style="font-weight: bold; background-color: #f3f4f6;">';
+                html += '<td>Total</td>';
+                html += '<td>' + grandTotal + '명</td>';
+                html += '<td>' + grandPaid + '명</td>';
+                html += '<td>' + totalPaymentRate + '%</td>';
+                html += '<td>' + grandAmount.toLocaleString() + ' VND</td>';
+                html += '<td>' + totalAvgPaid.toLocaleString() + ' VND</td>';
+                html += '<td>' + totalAvgTotal.toLocaleString() + ' VND</td>';
+                html += '</tr>';
+                
+                tbody.innerHTML = html;
+            }}
+        }}
+        
         // 초기화
         window.onload = function() {{
             // 저장된 언어 설정 복원
@@ -4395,6 +4418,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             updatePositionFilter();
             updateAllTexts();
             updateTalentPoolSection();
+            updateTypeSummaryTable();  // Type별 요약 테이블 업데이트 추가
         }};
         
         // Talent Program 텍스트 업데이트 함수
