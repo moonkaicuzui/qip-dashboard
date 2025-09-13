@@ -1,0 +1,139 @@
+{
+  "modal": {
+    "title": "Absence Status Detailed Analysis",
+    "close": "Close",
+    "export": "Export",
+    "refresh": "Refresh"
+  },
+  "tabs": {
+    "summary": "Summary",
+    "detailed": "Detailed Analysis",
+    "team": "By Team",
+    "individual": "Individual"
+  },
+  "kpi": {
+    "monthly_cumulative": "Monthly Cumulative",
+    "daily": "Daily",
+    "absence_rate": "Absence Rate",
+    "unauthorized_absence": "Unauthorized Absence Rate",
+    "authorized_absence": "Authorized Absence Rate",
+    "avg_absence_days": "Avg Absence Days per Person",
+    "avg_unauthorized_days": "Avg Unauthorized Days per Person",
+    "avg_authorized_days": "Avg Authorized Days per Person"
+  },
+  "charts": {
+    "monthly_trend": "Monthly Absence Rate Trend",
+    "weekly_trend": "Weekly Absence Rate Trend",
+    "daily_trend": "Daily Absence Rate Trend (Last 30 Days)",
+    "team_comparison": "Team-wise Absence Status",
+    "reason_breakdown": "Absence Reason Distribution",
+    "team_reason_matrix": "Team Absence Reason Matrix",
+    "weekday_pattern": "Weekday Absence Pattern",
+    "tenure_analysis": "Absence Rate by Tenure",
+    "employee_table": "Employee Details",
+    "risk_list": "Absence Risk Personnel List",
+    "predictable_sudden": "Predictable vs Sudden Absence",
+    "ai_forecast": "AI-based Pattern Recognition & Forecast"
+  },
+  "table": {
+    "headers": {
+      "employee_id": "Emp ID",
+      "name": "Name",
+      "team": "Team",
+      "role": "Role",
+      "position": "Position",
+      "join_date": "Join Date",
+      "working_days": "Working Days",
+      "absence_days": "Absence Days",
+      "absence_rate": "Absence Rate",
+      "risk_level": "Risk Level",
+      "reason": "Reason",
+      "date": "Date",
+      "consecutive_days": "Consecutive Days"
+    }
+  },
+  "categories": {
+    "planned": "Planned Leave",
+    "maternity": "Maternity/Childcare",
+    "medical": "Medical/Health",
+    "disciplinary": "Disciplinary/Unauthorized",
+    "legal": "Legal Obligation"
+  },
+  "risk": {
+    "high": "High Risk",
+    "medium": "Medium Risk",
+    "low": "Low Risk",
+    "alerts": {
+      "consecutive_absence": "3 Consecutive Days Unauthorized Absence",
+      "department_threshold": "Department Absence Rate Exceeds 15%",
+      "same_reason_concentration": "Concentrated Absence for Same Reason"
+    }
+  },
+  "drill_down": {
+    "level1": "Company Overview",
+    "level2": "Team Details",
+    "level3": "Role Analysis",
+    "level4": "Individual Details",
+    "navigation": {
+      "back": "Back",
+      "home": "Home",
+      "breadcrumb": "Current Location"
+    }
+  },
+  "team_detail": {
+    "title": "{team} Team Details",
+    "monthly_trend": "Team Monthly Absence Trend",
+    "weekly_trend": "Team Weekly Absence Trend",
+    "daily_trend": "Team Daily Absence Trend",
+    "role_analysis": "Absence Rate by Role in Team",
+    "reason_matrix": "Absence Reason Matrix by Role",
+    "sunburst": "5-Level Hierarchy Distribution",
+    "reason_donut": "Absence Reason Distribution",
+    "member_list": "Team Member List"
+  },
+  "individual_detail": {
+    "title": "{name} Details",
+    "basic_info": "Basic Information",
+    "attendance_info": "Attendance Information",
+    "monthly_trend": "Monthly Absence Trend",
+    "weekly_trend": "Weekly Absence Trend",
+    "absence_history": "Absence History",
+    "risk_assessment": "Risk Assessment"
+  },
+  "messages": {
+    "no_data": "No data available",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "export_success": "Successfully exported",
+    "new_data": "New data",
+    "vs_last_month": "vs Last Month",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "no_change": "No change"
+  },
+  "timeframe": {
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "year": "Year",
+    "quarter": "Quarter",
+    "august": "August",
+    "july": "July",
+    "june": "June"
+  },
+  "tenure": {
+    "less_1m": "Less than 1 month",
+    "less_3m": "Less than 3 months",
+    "less_6m": "Less than 6 months",
+    "less_1y": "Less than 1 year",
+    "less_2y": "Less than 2 years",
+    "over_2y": "Over 2 years"
+  },
+  "weekdays": {
+    "monday": "Mon",
+    "tuesday": "Tue",
+    "wednesday": "Wed",
+    "thursday": "Thu",
+    "friday": "Fri"
+  }
+}

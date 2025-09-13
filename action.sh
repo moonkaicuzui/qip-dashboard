@@ -197,6 +197,26 @@ run_step "Step 2: HTML Dashboard 생성 (v5.0)" "python3 integrated_dashboard_fi
 # Step 3: Management Dashboard 생성 (v6.0 Enhanced - 데이터 오류 감지 포함)
 run_step "Step 3: Management Dashboard 생성 (v6.0 Enhanced)" "python3 generate_management_dashboard_v6_enhanced.py --month $month_choice --year $YEAR"
 
+# Step 4: 5PRS 데이터 통합 및 API 서버 시작
+echo ""
+echo -e "${YELLOW}🔄 5PRS Dashboard API 서버를 시작합니다...${NC}"
+
+# 기존 5PRS API 서버 종료
+pkill -f "5prs_data_api.py" 2>/dev/null
+
+# 5PRS 데이터 통합 실행
+python3 src/integrate_5prs_data.py --month $MONTH --year $YEAR
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ 5PRS 데이터 통합 완료${NC}"
+else
+    echo -e "${YELLOW}⚠️ 5PRS 데이터 통합 실패${NC}"
+fi
+
+# 5PRS API 서버 백그라운드 실행
+nohup python3 src/5prs_data_api.py --host 0.0.0.0 --port 5003 > logs/5prs_api.log 2>&1 &
+API_PID=$!
+echo -e "${GREEN}✅ 5PRS API 서버 시작됨 (PID: $API_PID, Port: 5003)${NC}"
+
 # 완료 메시지
 echo ""
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -213,17 +233,20 @@ else
     echo -e "  ${BLUE}• Incentive Dashboard: output_files/dashboard_${YEAR}_${month_choice}.html${NC}"
     echo -e "  ${BLUE}• Management Dashboard: output_files/management_dashboard_${YEAR}_${month_choice}.html${NC}"
 fi
+echo -e "  ${BLUE}• 5PRS Dashboard: http://localhost:5003${NC}"
 echo ""
 echo -e "${YELLOW}💡 HTML 파일을 브라우저에서 열어 결과를 확인하세요.${NC}"
+echo -e "${YELLOW}💡 5PRS Dashboard는 http://localhost:5003 에서 확인할 수 있습니다.${NC}"
 echo ""
 
 # HTML 파일 자동으로 열기 옵션
 echo -e "${CYAN}대시보드를 지금 열어보시겠습니까?${NC}"
 echo "  1) Incentive Dashboard"
 echo "  2) Management Dashboard"
-echo "  3) 둘 다 열기"
-echo "  4) 열지 않음"
-echo -e "${WHITE}선택 (1-4): ${NC}\c"
+echo "  3) 5PRS Dashboard (http://localhost:5003)"
+echo "  4) 모든 대시보드 열기"
+echo "  5) 열지 않음"
+echo -e "${WHITE}선택 (1-5): ${NC}\c"
 read open_choice
 
 # 월 번호를 두 자리로 포맷
@@ -253,6 +276,11 @@ case $open_choice in
         fi
         ;;
     3)
+        open "http://localhost:5003"
+        echo -e "${GREEN}✅ 5PRS Dashboard가 브라우저에서 열렸습니다!${NC}"
+        echo -e "${YELLOW}💡 5PRS Dashboard는 API 서버가 실행 중이어야 작동합니다.${NC}"
+        ;;
+    4)
         HTML_FILE1="output_files/dashboard_${YEAR}_${MONTH_PADDED}.html"
         HTML_FILE2="output_files/management_dashboard_${YEAR}_${MONTH_PADDED}.html"
         if [ -f "$HTML_FILE1" ]; then
@@ -263,8 +291,10 @@ case $open_choice in
             open "$HTML_FILE2"
             echo -e "${GREEN}✅ Management Dashboard가 브라우저에서 열렸습니다!${NC}"
         fi
+        open "http://localhost:5003"
+        echo -e "${GREEN}✅ 5PRS Dashboard가 브라우저에서 열렸습니다!${NC}"
         ;;
-    4)
+    5)
         echo -e "${YELLOW}대시보드를 열지 않았습니다.${NC}"
         ;;
     *)

@@ -55,9 +55,11 @@ function processRawData(data, processed) {
 
     data.forEach(row => {
         const validationQty = parseInt(row['Validation Qty']) || 0;
+        const passQty = parseInt(row['Pass Qty']) || 0;
         const rejectQty = parseInt(row['Reject Qty']) || 0;
 
-        if (validationQty === 0 && rejectQty === 0) return;
+        // Skip only if all quantities are 0
+        if (validationQty === 0 && passQty === 0 && rejectQty === 0) return;
 
         processed.totalValidation += validationQty;
         processed.totalReject += rejectQty;

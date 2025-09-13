@@ -1,6 +1,0 @@
-파일 구조는 아래와 같다: 
-Module8이란 폴더 내에 'index.html' 파일이 있고, 'style.css' 파일이 있고, 'js' 폴더가 있다.
-'js' 폴더 내에 'config.js' 파일이 있고, 'dataProcessor.js' 파일이 있고, 'fileHandler.js' 파일이 있고, 'main.js' 파일이 있고, 'state.js' 파일이 있고, 'uiController.js' 파일이 있고,  'ui'폴더가 있다.
-'ui' 폴더 내에 'helpers' 폴더가 있고, 'tab' 폴더가 있다.
-'helpers' 폴더 내에 'chartHelpers.js' 파일이 있고, 'modalHelpers.js' 파일이 있고, 'uiUtils.js' 파일이 있다.
- 'tab' 폴더 내에 'actionsTab.js' 파일이 있고, 'defectsTab.js' 파일이 있고, 'overviewTab.js' 파일이 있고, 'riskTab.js' 파일이 있고,'sustainabilityTab.js' 파일이 있고, 'tqcTab.js' 파일이 있다.
