@@ -1,0 +1,122 @@
+{
+  "timestamp": "2025-09-12 23:28:47",
+  "summary": {
+    "total_cards": 10,
+    "cards_found": 0,
+    "cards_clickable": 0,
+    "popups_opened": 0,
+    "charts_loaded": 0
+  },
+  "details": [
+    {
+      "card_number": 1,
+      "card_name": "총인원 정보",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('1')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 2,
+      "card_name": "데이터 오류 인원",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('2')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 3,
+      "card_name": "결근자 정보/결근율",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('3')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 4,
+      "card_name": "퇴사율",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('4')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 5,
+      "card_name": "최근 30일내 입사 인원",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('5')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 6,
+      "card_name": "최근 30일내 퇴사 인원",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('6')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 7,
+      "card_name": "입사 60일 미만 인원",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('7')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 8,
+      "card_name": "보직 부여 후 퇴사 인원",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('8')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 9,
+      "card_name": "만근자",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('9')\". Did you mean to CSS.escape it?"
+      ]
+    },
+    {
+      "card_number": 10,
+      "card_name": "장기근속자",
+      "card_found": false,
+      "card_clickable": false,
+      "popup_opened": false,
+      "charts_loaded": false,
+      "errors": [
+        "Page.query_selector: Unexpected token \"\" while parsing css selector \".hr-card:has(.card-number:text('10')\". Did you mean to CSS.escape it?"
+      ]
+    }
+  ]
+}

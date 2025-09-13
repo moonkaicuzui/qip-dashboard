@@ -796,3 +796,51 @@ function initializePerformanceMonitoring() {
 
 // 성능 모니터링 초기화 (선택적)
 initializePerformanceMonitoring();
+
+// 대시보드 네비게이터 초기화
+function initializeDashboardNavigator() {
+    const selector = document.getElementById('dashboardSelector');
+    if (selector) {
+        selector.addEventListener('change', (e) => {
+            const selectedDashboard = e.target.value;
+            const currentMonth = new URLSearchParams(window.location.search).get('month') || 'august';
+            const currentYear = new URLSearchParams(window.location.search).get('year') || '2025';
+            
+            // Month name to number mapping
+            const monthMap = {
+                'january': '01', 'february': '02', 'march': '03', 'april': '04',
+                'may': '05', 'june': '06', 'july': '07', 'august': '08',
+                'september': '09', 'october': '10', 'november': '11', 'december': '12'
+            };
+            
+            const monthNumber = monthMap[currentMonth.toLowerCase()] || '08';
+            
+            let targetUrl = '';
+            switch(selectedDashboard) {
+                case 'incentive':
+                    targetUrl = `/output_files/dashboard_${currentYear}_${monthNumber}.html`;
+                    break;
+                case 'management':
+                    targetUrl = `/output_files/management_dashboard_${currentYear}_${monthNumber}.html`;
+                    break;
+                case '5prs':
+                    // 현재 페이지 유지
+                    return;
+                default:
+                    return;
+            }
+            
+            // 새 페이지로 이동
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        });
+        
+        console.log('✅ 대시보드 네비게이터 초기화 완료');
+    }
+}
+
+// DOMContentLoaded 이벤트에 네비게이터 초기화 추가
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDashboardNavigator();
+});

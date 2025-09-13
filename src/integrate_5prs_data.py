@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 5PRS 데이터 통합 스크립트
-input_files/5prs 폴더의 모든 데이터를 통합하여 단일 JSON 파일로 생성
+Google Drive와 로컬 폴더에서 데이터를 가져와 기존 5PRS Dashboard와 통합
 """
 
 import os
@@ -15,6 +15,9 @@ from typing import Dict, List, Any, Optional
 import argparse
 import numpy as np
 
+# Add parent directory for imports
+sys.path.append(str(Path(__file__).parent.parent))
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -22,17 +25,38 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Import Google Drive Manager
+try:
+    from src.google_drive_manager import GoogleDriveManager
+    GOOGLE_DRIVE_AVAILABLE = True
+except ImportError:
+    logger.warning("Google Drive Manager not available")
+    GOOGLE_DRIVE_AVAILABLE = False
+
 
 class DataIntegrator:
     """5PRS 데이터 통합 클래스"""
     
-    def __init__(self, month: str, year: int):
+    def __init__(self, month: str, year: int, use_google_drive: bool = True):
         self.month = month
         self.year = year
         self.month_num = self.get_month_number(month)
-        self.input_dir = Path('input_files/5prs')
+        self.input_dir = Path('input_files')
         self.output_dir = Path('output_files/dashboards/5prs/data')
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.use_google_drive = use_google_drive and GOOGLE_DRIVE_AVAILABLE
+        self.drive_manager = None
+        
+        # Initialize Google Drive if enabled
+        if self.use_google_drive:
+            try:
+                self.drive_manager = GoogleDriveManager()
+                if not self.drive_manager.initialize():
+                    logger.warning("Google Drive initialization failed, falling back to local files")
+                    self.use_google_drive = False
+            except Exception as e:
+                logger.warning(f"Google Drive setup failed: {e}, using local files only")
+                self.use_google_drive = False
         
     def get_month_number(self, month: str) -> int:
         """월 이름을 숫자로 변환"""
@@ -44,49 +68,86 @@ class DataIntegrator:
         return months.get(month.lower(), 0)
     
     def find_data_files(self) -> List[Path]:
-        """input_files/5prs 폴더에서 데이터 파일 찾기"""
+        """Google Drive와 로컬 폴더에서 데이터 파일 찾기"""
+        files = []
+        
+        # 1. Google Drive에서 데이터 가져오기
+        if self.use_google_drive and self.drive_manager:
+            google_file = self._download_from_google_drive()
+            if google_file and google_file.exists():
+                files.append(google_file)
+                logger.info(f"✅ Google Drive에서 데이터 로드: {google_file.name}")
+        
+        # 2. 로컬 폴더에서 데이터 찾기
+        local_files = self._find_local_files()
+        files.extend(local_files)
+        
+        # 중복 제거
+        files = list(set(files))
+        
+        logger.info(f"총 찾은 데이터 파일: {len(files)}개")
+        for f in files:
+            logger.info(f"  - {f.name}")
+        
+        return files
+    
+    def _download_from_google_drive(self) -> Optional[Path]:
+        """Google Drive에서 5PRS 데이터 다운로드"""
+        try:
+            # Google Drive 경로 설정
+            drive_path = f"monthly_data/{self.year}_{self.month_num:02d}/5prs_data.csv"
+            local_path = Path(f".cache/5prs_data_{self.month}_{self.year}.csv")
+            local_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # 다운로드 실행
+            if self.drive_manager.download_specific_file(drive_path, str(local_path)):
+                return local_path
+            else:
+                logger.warning(f"Google Drive에서 파일을 찾을 수 없음: {drive_path}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Google Drive 다운로드 실패: {e}")
+            return None
+    
+    def _find_local_files(self) -> List[Path]:
+        """로컬 폴더에서 5PRS 데이터 파일 찾기"""
         files = []
         
         # 지원하는 확장자
         extensions = ['.csv', '.xlsx', '.xls', '.json']
         
-        # 전체 월 처리
+        # 검색할 디렉토리들
+        search_dirs = [
+            self.input_dir,
+            self.input_dir / '5prs',
+            self.input_dir / '5PRS',
+            Path('output_files/dashboards/5prs/data')
+        ]
+        
+        # 파일 패턴 정의
         if self.month.lower() == 'all':
-            # 모든 5PRS 관련 파일 찾기
-            patterns = [
-                "*5prs*",
-                "*PRS*",
-                "*qip_trainer*",
-                "*basic*manpower*"
-            ]
-            
-            # 각 월별 패턴도 추가
-            all_months = ['january', 'february', 'march', 'april', 'may', 'june',
-                         'july', 'august', 'september', 'october', 'november', 'december']
-            for m in all_months:
-                patterns.append(f"*{m}*")
+            patterns = ["*5prs*", "*PRS*", "*qip_trainer*"]
         else:
-            # 특정 월 데이터 파일 패턴
             patterns = [
-                f"*{self.month}*",
-                f"*{self.year}_{self.month_num:02d}*",
-                f"*{self.month_num:02d}_{self.year}*",
-                f"*5prs*{self.month}*"
+                f"*5prs*{self.month}*",
+                f"*5prs*{self.year}_{self.month_num:02d}*",
+                f"*{self.month}*5prs*",
+                f"5prs_data_{self.month}.csv"
             ]
         
-        for pattern in patterns:
-            for ext in extensions:
-                found = list(self.input_dir.glob(f"{pattern}{ext}"))
-                files.extend(found)
+        # 각 디렉토리에서 파일 검색
+        for search_dir in search_dirs:
+            if search_dir.exists():
+                for pattern in patterns:
+                    for ext in extensions:
+                        found = list(search_dir.glob(f"{pattern}{ext}"))
+                        files.extend(found)
+                        # 대소문자 구분 없이 검색
+                        found = list(search_dir.glob(f"{pattern.upper()}{ext}"))
+                        files.extend(found)
         
-        # 중복 제거
-        files = list(set(files))
-        
-        logger.info(f"찾은 데이터 파일: {len(files)}개")
-        for f in files:
-            logger.info(f"  - {f.name}")
-        
-        return files
+        return list(set(files))  # 중복 제거
     
     def read_file(self, file_path: Path) -> Optional[pd.DataFrame]:
         """파일 읽기 (CSV, Excel, JSON 지원)"""
@@ -94,7 +155,12 @@ class DataIntegrator:
             ext = file_path.suffix.lower()
             
             if ext == '.csv':
-                df = pd.read_csv(file_path, encoding='utf-8', error_bad_lines=False)
+                # Use on_bad_lines='skip' for pandas >= 1.3.0
+                try:
+                    df = pd.read_csv(file_path, encoding='utf-8', on_bad_lines='skip')
+                except TypeError:
+                    # Fallback for older pandas versions
+                    df = pd.read_csv(file_path, encoding='utf-8')
             elif ext in ['.xlsx', '.xls']:
                 df = pd.read_excel(file_path)
             elif ext == '.json':
@@ -151,6 +217,10 @@ class DataIntegrator:
             'item': 'product',
             
             # 수량
+            'validation qty': 'validation_qty',
+            'Validation Qty': 'validation_qty',
+            'Valiation Qty': 'validation_qty',  # 오타 처리
+            'validated qty': 'validation_qty',
             'pass qty': 'pass_qty',
             'Pass Qty': 'pass_qty',
             'pass': 'pass_qty',
@@ -202,12 +272,19 @@ class DataIntegrator:
         # 모든 데이터프레임 합치기
         integrated = pd.concat(dataframes, ignore_index=True)
         
-        # 중복 제거
-        if 'date' in integrated.columns and 'inspector_id' in integrated.columns:
-            integrated = integrated.drop_duplicates(
-                subset=['date', 'inspector_id', 'product'], 
-                keep='first'
-            )
+        # 중복 제거 (사용 가능한 컬럼만 사용)
+        dedup_cols = []
+        if 'date' in integrated.columns:
+            dedup_cols.append('date')
+        if 'inspector_id' in integrated.columns:
+            dedup_cols.append('inspector_id')
+        if 'product' in integrated.columns:
+            dedup_cols.append('product')
+        elif 'Model' in integrated.columns:
+            dedup_cols.append('Model')
+            
+        if dedup_cols:
+            integrated = integrated.drop_duplicates(subset=dedup_cols, keep='first')
         
         logger.info(f"✅ 데이터 통합 완료: {len(integrated)} rows")
         return integrated
@@ -403,15 +480,30 @@ class DataIntegrator:
 
 def main():
     """메인 함수"""
-    parser = argparse.ArgumentParser(description='5PRS 데이터 통합')
+    parser = argparse.ArgumentParser(description='5PRS 데이터 통합 (Google Drive + 로컬)')
     parser.add_argument('--month', type=str, required=True, help='월 (예: august)')
     parser.add_argument('--year', type=int, default=2025, help='년도')
+    parser.add_argument('--no-google', action='store_true', help='Google Drive 사용 안함')
+    parser.add_argument('--api-mode', action='store_true', help='API 모드로 실행 (JSON 출력)')
     
     args = parser.parse_args()
     
     # 통합 실행
-    integrator = DataIntegrator(args.month, args.year)
-    success = integrator.run()
+    use_google = not args.no_google
+    integrator = DataIntegrator(args.month, args.year, use_google_drive=use_google)
+    
+    if args.api_mode:
+        # API 모드: JSON 형식으로 데이터 반환
+        success = integrator.run()
+        if success:
+            # 생성된 JSON 파일 경로 출력
+            output_file = integrator.output_dir / f"integrated_5prs_{args.year}_{integrator.month_num:02d}.json"
+            print(json.dumps({"status": "success", "file": str(output_file)}))
+        else:
+            print(json.dumps({"status": "error", "message": "Data integration failed"}))
+    else:
+        # 일반 모드
+        success = integrator.run()
     
     sys.exit(0 if success else 1)
 

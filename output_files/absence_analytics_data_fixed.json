@@ -1,0 +1,3995 @@
+{
+  "summary": {
+    "total_employees": 391,
+    "total_absence_days": 263,
+    "avg_absence_rate": 3.06,
+    "high_risk_count": 12,
+    "medium_risk_count": 15,
+    "low_risk_count": 364,
+    "maternity_leave_count": 0,
+    "total_maternity_days": 0
+  },
+  "team_statistics": {
+    "(V) SUPERVISOR": {
+      "total_employees": 13,
+      "total_absence_days": 28.0,
+      "avg_absence_days": 2.15,
+      "total_attendance_days": 258.0,
+      "high_risk_count": 3,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 286,
+      "team_absence_rate": 9.79
+    },
+    "A.MANAGER": {
+      "total_employees": 2,
+      "total_absence_days": 0.0,
+      "avg_absence_days": 0.0,
+      "total_attendance_days": 44.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 44,
+      "team_absence_rate": 0.0
+    },
+    "AQL INSPECTOR": {
+      "total_employees": 22,
+      "total_absence_days": 5.0,
+      "avg_absence_days": 0.23,
+      "total_attendance_days": 479.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 484,
+      "team_absence_rate": 1.03
+    },
+    "ASSEMBLY INSPECTOR": {
+      "total_employees": 122,
+      "total_absence_days": 75.0,
+      "avg_absence_days": 0.61,
+      "total_attendance_days": 2609.0,
+      "high_risk_count": 2,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 2684,
+      "team_absence_rate": 2.79
+    },
+    "AUDIT & TRAINING TEAM": {
+      "total_employees": 7,
+      "total_absence_days": 12.0,
+      "avg_absence_days": 1.71,
+      "total_attendance_days": 142.0,
+      "high_risk_count": 1,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 154,
+      "team_absence_rate": 7.79
+    },
+    "BOTTOM INSPECTOR": {
+      "total_employees": 29,
+      "total_absence_days": 13.0,
+      "avg_absence_days": 0.45,
+      "total_attendance_days": 625.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 638,
+      "team_absence_rate": 2.04
+    },
+    "CUTTING INSPECTOR": {
+      "total_employees": 7,
+      "total_absence_days": 19.0,
+      "avg_absence_days": 2.71,
+      "total_attendance_days": 135.0,
+      "high_risk_count": 2,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 154,
+      "team_absence_rate": 12.34
+    },
+    "GROUP LEADER": {
+      "total_employees": 8,
+      "total_absence_days": 1.0,
+      "avg_absence_days": 0.12,
+      "total_attendance_days": 175.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 176,
+      "team_absence_rate": 0.57
+    },
+    "LINE LEADER": {
+      "total_employees": 14,
+      "total_absence_days": 20.0,
+      "avg_absence_days": 1.43,
+      "total_attendance_days": 288.0,
+      "high_risk_count": 1,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 308,
+      "team_absence_rate": 6.49
+    },
+    "MANAGER": {
+      "total_employees": 1,
+      "total_absence_days": 0.0,
+      "avg_absence_days": 0.0,
+      "total_attendance_days": 22.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 22,
+      "team_absence_rate": 0.0
+    },
+    "MODEL MASTER": {
+      "total_employees": 3,
+      "total_absence_days": 0.0,
+      "avg_absence_days": 0.0,
+      "total_attendance_days": 66.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 66,
+      "team_absence_rate": 0.0
+    },
+    "MTL INSPECTOR": {
+      "total_employees": 25,
+      "total_absence_days": 9.0,
+      "avg_absence_days": 0.36,
+      "total_attendance_days": 541.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 550,
+      "team_absence_rate": 1.64
+    },
+    "NEW": {
+      "total_employees": 22,
+      "total_absence_days": 1.0,
+      "avg_absence_days": 0.05,
+      "total_attendance_days": 483.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 484,
+      "team_absence_rate": 0.21
+    },
+    "OCPT STFF": {
+      "total_employees": 1,
+      "total_absence_days": 1.0,
+      "avg_absence_days": 1.0,
+      "total_attendance_days": 21.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 22,
+      "team_absence_rate": 4.55
+    },
+    "OSC INSPECTOR": {
+      "total_employees": 23,
+      "total_absence_days": 14.0,
+      "avg_absence_days": 0.61,
+      "total_attendance_days": 492.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 506,
+      "team_absence_rate": 2.77
+    },
+    "QA TEAM": {
+      "total_employees": 9,
+      "total_absence_days": 8.0,
+      "avg_absence_days": 0.89,
+      "total_attendance_days": 190.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 198,
+      "team_absence_rate": 4.04
+    },
+    "RQC": {
+      "total_employees": 3,
+      "total_absence_days": 5.0,
+      "avg_absence_days": 1.67,
+      "total_attendance_days": 61.0,
+      "high_risk_count": 0,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 66,
+      "team_absence_rate": 7.58
+    },
+    "STITCHING INSPECTOR": {
+      "total_employees": 80,
+      "total_absence_days": 52.0,
+      "avg_absence_days": 0.65,
+      "total_attendance_days": 1708.0,
+      "high_risk_count": 3,
+      "total_maternity_days": 0.0,
+      "total_possible_days": 1760,
+      "team_absence_rate": 2.95
+    }
+  },
+  "daily_trend": [
+    {
+      "date": "08/01",
+      "absence_count": 15,
+      "absence_rate": 3.84
+    },
+    {
+      "date": "08/04",
+      "absence_count": 36,
+      "absence_rate": 9.21
+    },
+    {
+      "date": "08/05",
+      "absence_count": 30,
+      "absence_rate": 7.67
+    },
+    {
+      "date": "08/06",
+      "absence_count": 34,
+      "absence_rate": 8.7
+    },
+    {
+      "date": "08/07",
+      "absence_count": 29,
+      "absence_rate": 7.42
+    },
+    {
+      "date": "08/08",
+      "absence_count": 28,
+      "absence_rate": 7.16
+    },
+    {
+      "date": "08/11",
+      "absence_count": 17,
+      "absence_rate": 4.35
+    },
+    {
+      "date": "08/12",
+      "absence_count": 14,
+      "absence_rate": 3.58
+    },
+    {
+      "date": "08/13",
+      "absence_count": 18,
+      "absence_rate": 4.6
+    },
+    {
+      "date": "08/14",
+      "absence_count": 21,
+      "absence_rate": 5.37
+    },
+    {
+      "date": "08/15",
+      "absence_count": 19,
+      "absence_rate": 4.86
+    },
+    {
+      "date": "08/18",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/19",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/20",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/21",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/22",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/25",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/26",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/27",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/28",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    },
+    {
+      "date": "08/29",
+      "absence_count": 0,
+      "absence_rate": 0.0
+    }
+  ],
+  "category_distribution": {
+    "planned": 242,
+    "disciplinary": 73,
+    "medical": 31,
+    "legal": 1
+  },
+  "risk_distribution": {
+    "low": 364,
+    "medium": 15,
+    "high": 12
+  },
+  "top_absences": [
+    {
+      "Employee No": "619100392",
+      "Full Name": "PHẠM MINH HUY",
+      "absence_days": 14.0,
+      "absence_rate": 63.64,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618110042",
+      "Full Name": "NGUYỄN THỊ HỒNG NHUNG",
+      "absence_days": 9.0,
+      "absence_rate": 40.91,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100345",
+      "Full Name": "MAI HỒNG LỤA",
+      "absence_days": 9.0,
+      "absence_rate": 40.91,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619090315",
+      "Full Name": "LÝ KIỀU LOAN",
+      "absence_days": 8.0,
+      "absence_rate": 36.36,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620090101",
+      "Full Name": "TRẦN THỊ MỸ MIỀU",
+      "absence_days": 7.0,
+      "absence_rate": 31.82,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050636",
+      "Full Name": "LÊ THỊ PHƯỢNG UYÊN",
+      "absence_days": 7.0,
+      "absence_rate": 31.82,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620080295",
+      "Full Name": "VÕ THỊ THÙY LINH",
+      "absence_days": 6.0,
+      "absence_rate": 27.27,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050496",
+      "Full Name": "PHẠM THỊ BÍCH XUYÊN",
+      "absence_days": 6.0,
+      "absence_rate": 27.27,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619020207",
+      "Full Name": "NGUYỄN THỊ LƯỢM",
+      "absence_days": 6.0,
+      "absence_rate": 27.27,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619070140",
+      "Full Name": "DANH THỊ THANH HUYỀN",
+      "absence_days": 5.0,
+      "absence_rate": 22.73,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623120027",
+      "Full Name": "HUỲNH HOÀI THƯƠNG",
+      "absence_days": 5.0,
+      "absence_rate": 22.73,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624040011",
+      "Full Name": "THỊ KIM HUỲNH",
+      "absence_days": 5.0,
+      "absence_rate": 22.73,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030296",
+      "Full Name": "NGUYỄN THỊ MỸ SAL",
+      "absence_days": 4.0,
+      "absence_rate": 18.18,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619050317",
+      "Full Name": "DANH THỊ CẨM MINH",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622070536",
+      "Full Name": "THỊ QUÝ MÙI",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620060084",
+      "Full Name": "ĐỖ THỊ HỒNG THÚY",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070337",
+      "Full Name": "ĐINH NGUYỄN PHƯƠNG ANH",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090048",
+      "Full Name": "DƯƠNG THỊ THU THẢO",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090059",
+      "Full Name": "NGUYỄN HỒNG THƯ",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090320",
+      "Full Name": "NGUYỄN KIM MINH NGỌC",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    }
+  ],
+  "employee_details": [
+    {
+      "Employee No": "617100049",
+      "Full Name": "ĐINH KIM NGOAN",
+      "team": "GROUP LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618030024",
+      "Full Name": "TRẦN KIỀU EM",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618030049",
+      "Full Name": "LƯƠNG THỊ CẨM TIÊN",
+      "team": "A.MANAGER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618030189",
+      "Full Name": "NGUYỄN THỊ BÍCH NGỌC",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618030241",
+      "Full Name": "TRẦN THỊ THÚY ANH",
+      "team": "MODEL MASTER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618040412",
+      "Full Name": "CAO THỊ MIỀN",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618060092",
+      "Full Name": "CAO THỊ TỐ NGUYÊN",
+      "team": "AUDIT & TRAINING TEAM",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618100175",
+      "Full Name": "THỊ BÍCH NGÀ",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618110042",
+      "Full Name": "NGUYỄN THỊ HỒNG NHUNG",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 9.0,
+      "absence_rate": 40.91,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618110077",
+      "Full Name": "LÊ NGỌC LÂM MỸ HUỲNH",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618110087",
+      "Full Name": "NGUYỄN THÚY HẰNG",
+      "team": "AUDIT & TRAINING TEAM",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "618110097",
+      "Full Name": "DANH THỊ ANH ĐÀO",
+      "team": "MODEL MASTER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030996",
+      "Full Name": "DANH MINH HIẾU",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621040446",
+      "Full Name": "THÁI THỊ XUÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619100307",
+      "Full Name": "DANH THÁI",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619040194",
+      "Full Name": "TRẦN THỊ MAI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619020343",
+      "Full Name": "THỊ KIM THO",
+      "team": "GROUP LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619020468",
+      "Full Name": "THỊ MY",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620020923",
+      "Full Name": "BÙI TRƯƠNG NGỌC NHỨT",
+      "team": "AQL INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619030390",
+      "Full Name": "NGUYỄN THỊ BÍCH CHƯƠNG",
+      "team": "GROUP LEADER",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619050317",
+      "Full Name": "DANH THỊ CẨM MINH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619050074",
+      "Full Name": "LÊ THỊ DIỄM LINH",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619070140",
+      "Full Name": "DANH THỊ THANH HUYỀN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 5.0,
+      "absence_rate": 22.73,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620120306",
+      "Full Name": "NGUYỄN NGÔ TUYẾT NGÂN",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621060243",
+      "Full Name": "HÀ CÔNG NHANH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619070072",
+      "Full Name": "THÁI UYỂN NHI",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619070107",
+      "Full Name": "TÔ THỊ LOAN ANH",
+      "team": "GROUP LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620120027",
+      "Full Name": "ĐẶNG THỊ TUYẾT TRINH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619070185",
+      "Full Name": "DANH THỊ KIM ANH",
+      "team": "AUDIT & TRAINING TEAM",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020636",
+      "Full Name": "TRẦN THỊ THÙY ANH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030380",
+      "Full Name": "TRẦN NHÃ LINH",
+      "team": "OSC INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619080083",
+      "Full Name": "VÕ THỊ TÝ NỊ",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619080327",
+      "Full Name": "NGUYỄN THỊ MỸ TRÂM",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020914",
+      "Full Name": "VÕ THỊ BÍCH NGÂN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619090315",
+      "Full Name": "LÝ KIỀU LOAN",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 8.0,
+      "absence_rate": 36.36,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110376",
+      "Full Name": "ĐOÀN PHAN NHI",
+      "team": "AQL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020174",
+      "Full Name": "NGUYỄN NGỌC BÍCH THỦY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619100392",
+      "Full Name": "PHẠM MINH HUY",
+      "team": "LINE LEADER",
+      "absence_days": 14.0,
+      "absence_rate": 63.64,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030225",
+      "Full Name": "NGUYỄN THỊ TƯỜNG VY",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050074",
+      "Full Name": "LÊ THỊ THANH TUYỀN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620020691",
+      "Full Name": "VÕ VĂN KIỆT",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620020705",
+      "Full Name": "NGUYỄN THỊ BÍCH PHƯỢNG",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621040472",
+      "Full Name": "NGUYỄN TẤN THÀNH",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020703",
+      "Full Name": "DANH CHÀNH THUƠL",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620030052",
+      "Full Name": "THỊ NGỌC CHÚC",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620030340",
+      "Full Name": "NGUYỄN THỊ MỸ TIÊN",
+      "team": "LINE LEADER",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622021407",
+      "Full Name": "DANH TRƯỜNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620060085",
+      "Full Name": "NGUYỄN THỊ HẠNH",
+      "team": "LINE LEADER",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620060128",
+      "Full Name": "LÊ HUỲNH GIAO",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620070012",
+      "Full Name": "TRẦN THỊ BÍCH LY",
+      "team": "MANAGER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620070013",
+      "Full Name": "NGUYỄN THANH TRÚC",
+      "team": "AUDIT & TRAINING TEAM",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620070020",
+      "Full Name": "PHẠM MỸ HUYỀN",
+      "team": "AUDIT & TRAINING TEAM",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620070050",
+      "Full Name": "MAI TUYẾT ANH",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620080295",
+      "Full Name": "VÕ THỊ THÙY LINH",
+      "team": "AUDIT & TRAINING TEAM",
+      "absence_days": 6.0,
+      "absence_rate": 27.27,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030320",
+      "Full Name": "QUÁCH THANH TOÀN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620090070",
+      "Full Name": "NGUYỄN THỊ MAI LAN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620090101",
+      "Full Name": "TRẦN THỊ MỸ MIỀU",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 7.0,
+      "absence_rate": 31.82,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620090168",
+      "Full Name": "ĐOÀN THỊ NGỌC THƠ",
+      "team": "GROUP LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620090241",
+      "Full Name": "THỊ KIM THẢO",
+      "team": "GROUP LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620090386",
+      "Full Name": "TRƯƠNG THỊ ÁNH TIÊN",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620110075",
+      "Full Name": "TRƯƠNG THỊ XUÂN QUỲNH",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030777",
+      "Full Name": "NGUYỄN THỊ THẢO QUYÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620110408",
+      "Full Name": "NGUYỄN VĂN LUÂN",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620110439",
+      "Full Name": "PHÙNG THỊ THỦY",
+      "team": "A.MANAGER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050496",
+      "Full Name": "PHẠM THỊ BÍCH XUYÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 6.0,
+      "absence_rate": 27.27,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050636",
+      "Full Name": "LÊ THỊ PHƯỢNG UYÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 7.0,
+      "absence_rate": 31.82,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080340",
+      "Full Name": "NGUYỄN VĂN DƯƠNG",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620120386",
+      "Full Name": "NGUYỄN NGỌC TUẤN",
+      "team": "MODEL MASTER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622070194",
+      "Full Name": "NGUYỄN QUỐC HUY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622080458",
+      "Full Name": "NGUYỄN HỒNG CẨM",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621020289",
+      "Full Name": "HUỲNH THIỆN YẾN PHƯƠNG",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623030007",
+      "Full Name": "ĐOÀN THỊ MỸ NGÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621020329",
+      "Full Name": "LÊ THẢO THANH",
+      "team": "RQC",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623080380",
+      "Full Name": "PHAN THỊ BÉ NGÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090032",
+      "Full Name": "ĐẶNG CHÍ CÔNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090178",
+      "Full Name": "LÂM THỊ NHƯ Ý",
+      "team": "OSC INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090063",
+      "Full Name": "LÝ NHỰT KHOA",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020507",
+      "Full Name": "THỊ BÁCH HỢP",
+      "team": "OSC INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030556",
+      "Full Name": "LƯU GIA HÂN",
+      "team": "GROUP LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090139",
+      "Full Name": "PHẠM THỊ CẨM LINH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622070133",
+      "Full Name": "HỨA THỊ KIM NHẢN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090194",
+      "Full Name": "DANH THỊ KIỀU PHƯƠNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030759",
+      "Full Name": "VŨ HỒNG TIÊN",
+      "team": "LINE LEADER",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090198",
+      "Full Name": "TRƯƠNG THẢO HUY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621031025",
+      "Full Name": "NGUYỄN THỊ THU HÀ",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623100210",
+      "Full Name": "LÊ THỊ KIM ANH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623100234",
+      "Full Name": "HUỲNH THỊ HẢO",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623110220",
+      "Full Name": "PHAN THỊ MY PHA",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624110346",
+      "Full Name": "NGUYỄN ANH KHOA",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621050241",
+      "Full Name": "HÀ THỊ MỘNG TUYỀN",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030182",
+      "Full Name": "PHẠM CHÍ THIỆN",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623120136",
+      "Full Name": "VÕ KIM HOÀI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621060393",
+      "Full Name": "LÊ VĂN DLEL",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621060451",
+      "Full Name": "NGUYỄN THỊ NGỌC QUYÊN",
+      "team": "QA TEAM",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020086",
+      "Full Name": "NGUYỄN THỊ KIM THOA",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020152",
+      "Full Name": "HUỲNH THỊ THANH THÙY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624030105",
+      "Full Name": "DANH THỊ NƯƠNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110013",
+      "Full Name": "SỬ HUYỀN TRANG",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110050",
+      "Full Name": "NGUYỄN THỊ THU DIỆU",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624030271",
+      "Full Name": "ĐẶNG HOÀNG DUY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110093",
+      "Full Name": "LÊ VĂN NAM",
+      "team": "GROUP LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110165",
+      "Full Name": "PHẠM NGỌC CHĂM",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624030295",
+      "Full Name": "NGUYỄN THỊ ANH THƯ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623030244",
+      "Full Name": "PHAN THỊ MỸ PHÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030242",
+      "Full Name": "HỒ MINH TÝ",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624030533",
+      "Full Name": "TRẦN TRẦN TRUNG KIÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624030608",
+      "Full Name": "TRẦN THỊ TRÚC QUYÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619080060",
+      "Full Name": "DANH THỊ ANH THƯ",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624040282",
+      "Full Name": "ĐOÀN CÔNG HÀO",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624040283",
+      "Full Name": "TRẦN VĂN HÀ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623040397",
+      "Full Name": "HUỲNH THỊ ÁNH TUYẾT",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624040410",
+      "Full Name": "LÊ THỊ HUYỀN TRÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621120401",
+      "Full Name": "PHẠM THỊ MỸ TIÊN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621120402",
+      "Full Name": "LÊ THỊ THÚY LIÊN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624050151",
+      "Full Name": "PHẠM THỊ THU THẢO",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020079",
+      "Full Name": "NGUYỄN THỊ MỸ NHUNG",
+      "team": "RQC",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624050200",
+      "Full Name": "NGUYỄN THỊ HUỲNH HÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020340",
+      "Full Name": "NGUYỄN CHÍ LUẬN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020578",
+      "Full Name": "VÕ MINH TÂM",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623080377",
+      "Full Name": "TĂNG THỊ ÁNH HỒNG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090019",
+      "Full Name": "VÕ THỊ NHỊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624050450",
+      "Full Name": "TRẦN THỊ MỸ LỆ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060040",
+      "Full Name": "HỒ NHỰT PHI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090021",
+      "Full Name": "TRƯƠNG THỊ THÚY",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060316",
+      "Full Name": "NGUYỄN THỊ CẨM NHUNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060318",
+      "Full Name": "NGUYỄN THỊ MỸ HOA",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622021338",
+      "Full Name": "THỊ THANH THẢO",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060331",
+      "Full Name": "HUỲNH LÊ THANH TÚ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623100170",
+      "Full Name": "LÊ THỊ XUYẾN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622021632",
+      "Full Name": "TRƯƠNG YẾN MY",
+      "team": "MTL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622021707",
+      "Full Name": "THỊ YẾN NHI",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623110211",
+      "Full Name": "NGUYỄN THỊ VIỆT THƯ",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030022",
+      "Full Name": "TRẦN NGÔ KIM TUYẾN",
+      "team": "LINE LEADER",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060384",
+      "Full Name": "TÔ THỊ DIỄM MI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625040176",
+      "Full Name": "DANH CAO HUY LỘC",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623120027",
+      "Full Name": "HUỲNH HOÀI THƯƠNG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 5.0,
+      "absence_rate": 22.73,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070020",
+      "Full Name": "NGUYỄN NGỌC TẤN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030489",
+      "Full Name": "VŨ HOÀNG KHA",
+      "team": "AQL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020085",
+      "Full Name": "PHAN VÂN ANH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030533",
+      "Full Name": "TRẦN PHỤNG KIỀU",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070060",
+      "Full Name": "TRẦN THANH THANH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070252",
+      "Full Name": "PHẠM THỊ KIỀU TRANG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020214",
+      "Full Name": "MAI THỊ YẾN NHI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050158",
+      "Full Name": "TRẦN THỊ CẨM TIÊN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070393",
+      "Full Name": "LÊ THỊ CHI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050246",
+      "Full Name": "NGUYỄN THANH HÀO",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050263",
+      "Full Name": "PHẠM THỊ NGỌC THƠ",
+      "team": "CUTTING INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080082",
+      "Full Name": "TRẦN THỊ BÍCH THẢO",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050461",
+      "Full Name": "NGÔ THỊ NGỌC NGÂN",
+      "team": "CUTTING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624030016",
+      "Full Name": "NGUYỄN ANH THƯ",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080083",
+      "Full Name": "CHƯƠNG THỊ YẾN NHI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080127",
+      "Full Name": "TRẦN KIM Y",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622060302",
+      "Full Name": "CHÂU THỊ LỆ TUYỀN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622060307",
+      "Full Name": "DANH HOÀI NAM",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624030294",
+      "Full Name": "HUỲNH MỘNG NHI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080430",
+      "Full Name": "NGUYỄN VĂN TOÀN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060009",
+      "Full Name": "ĐOÀN THỊ YẾN NHI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100065",
+      "Full Name": "DIỆP TÚ TIÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100308",
+      "Full Name": "NGUYỄN THỊ MỸ ANH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110751",
+      "Full Name": "CHÂU THỊ CHÚC LY",
+      "team": "OSC INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622070536",
+      "Full Name": "THỊ QUÝ MÙI",
+      "team": "RQC",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622070609",
+      "Full Name": "NGUYỄN THỊ NGỌC HUYỀN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100316",
+      "Full Name": "TRƯƠNG MINH ĐƯƠNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622080448",
+      "Full Name": "HUỲNH ANH THƯ",
+      "team": "MTL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060317",
+      "Full Name": "HUỲNH TRƯƠNG YẾN NHI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622080451",
+      "Full Name": "NGUYỄN NGỌC TRÂN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623110250",
+      "Full Name": "DANH VIỆT NGHI",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624110158",
+      "Full Name": "VƯƠNG Ý NHI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624110228",
+      "Full Name": "THỊ KIỀU XUÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070010",
+      "Full Name": "NGUYỄN THỊ NGỌC NHƯ",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070011",
+      "Full Name": "BÙI THỊ MỸ DUYÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070084",
+      "Full Name": "THỊ KIM YẾN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080352",
+      "Full Name": "LÊ VŨ HỒNG TRÂM",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624110274",
+      "Full Name": "NGUYỄN THỊ MINH THY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623060116",
+      "Full Name": "NGUYỄN THỊ HUỲNH NHƯ",
+      "team": "QA TEAM",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100200",
+      "Full Name": "PHẠM THỊ HUYỀN TRANG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625010030",
+      "Full Name": "LÂM THỊ THU LAN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624110084",
+      "Full Name": "NGUYỄN TRƯƠNG HỒNG NHIÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623080475",
+      "Full Name": "SẦM TRÍ THÀNH",
+      "team": "AUDIT & TRAINING TEAM",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624120097",
+      "Full Name": "LÊ THỊ HỒNG LIÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624120143",
+      "Full Name": "NGUYỄN THỊ THÙY TRANG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020179",
+      "Full Name": "NGUYỄN PHÁT LỢI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020419",
+      "Full Name": "NGUYỄN THỊ DIỄM MY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020464",
+      "Full Name": "DANH THỊ THÙY DƯƠNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020551",
+      "Full Name": "TRẦN VĂN SÁNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624120144",
+      "Full Name": "LÊ THỊ MỘNG NGHI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020591",
+      "Full Name": "ĐẶNG THỊ DIỄM ÁI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030063",
+      "Full Name": "THỊ XUÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020044",
+      "Full Name": "TRẦN THỊ KIM CHI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020285",
+      "Full Name": "THỊ MỸ HẠNH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030111",
+      "Full Name": "NGUYỄN VĂN VINH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623100203",
+      "Full Name": "HỒ THỊ TỐ TRINH",
+      "team": "MTL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623100209",
+      "Full Name": "XÀ THỊ NGÂN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030163",
+      "Full Name": "LÊ THANH NGÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030234",
+      "Full Name": "VÕ THỊ CẨM TIÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623110084",
+      "Full Name": "CHÂU THỊ BÍCH NGUYÊN",
+      "team": "(V) SUPERVISOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020286",
+      "Full Name": "TRẦN THỊ KIM NÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030296",
+      "Full Name": "NGUYỄN THỊ MỸ SAL",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 4.0,
+      "absence_rate": 18.18,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070225",
+      "Full Name": "SƠN THỊ MỪNG",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020420",
+      "Full Name": "DANH THỊ NGUYÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030360",
+      "Full Name": "ĐIÊU KIM NHƯ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020479",
+      "Full Name": "CAO VĂN PHẨM",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030363",
+      "Full Name": "HUỲNH NGỌC TRÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020542",
+      "Full Name": "TRƯƠNG THỊ THẢO EM",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050156",
+      "Full Name": "NGUYỄN TUYẾT ĐÀO",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020107",
+      "Full Name": "TRẦN QUỐC KIỆT",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050250",
+      "Full Name": "LÊ HUYỀN TRÂN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625060019",
+      "Full Name": "DƯƠNG THỊ HẬU",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020155",
+      "Full Name": "HUỲNH THIỆN THUYỀN NGỌC",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020210",
+      "Full Name": "NGUYỄN THỊ KIM ANH",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020543",
+      "Full Name": "NGUYỄN THỊ THÙY NHUNG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625040140",
+      "Full Name": "TRƯƠNG NỮ VÂN ANH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619020209",
+      "Full Name": "LÊ TRÚC LY",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020499",
+      "Full Name": "PHẠM NGỌC HƯỞNG",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020552",
+      "Full Name": "LIÊNG THỊ THÚY HUỲNH",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625040161",
+      "Full Name": "TRẦN MỸ ÁI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080009",
+      "Full Name": "NGUYỄN THỊ NHƯ Ý",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619060201",
+      "Full Name": "BÙI THỊ KIỀU LY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625040240",
+      "Full Name": "DANH THỊ VIỆT HỒNG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620030032",
+      "Full Name": "NGUYỄN THỊ KIỀU TIÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620060084",
+      "Full Name": "ĐỖ THỊ HỒNG THÚY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620080362",
+      "Full Name": "DƯƠNG THỊ MỸ XUYÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624040011",
+      "Full Name": "THỊ KIM HUỲNH",
+      "team": "CUTTING INSPECTOR",
+      "absence_days": 5.0,
+      "absence_rate": 22.73,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624040035",
+      "Full Name": "MÃ TẤN THIÊM",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620120148",
+      "Full Name": "VƯƠNG THỊ MỸ NGA",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030280",
+      "Full Name": "NGUYỄN THỊ THỦY QUỲNH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624040330",
+      "Full Name": "HUỲNH THỊ BÉ TƯ",
+      "team": "CUTTING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624040331",
+      "Full Name": "TRƯƠNG KIM LĨNH",
+      "team": "CUTTING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030557",
+      "Full Name": "THỊ NHÀN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621070084",
+      "Full Name": "THỊ NGỌC ĐIỆP",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621100361",
+      "Full Name": "TRẦN THỊ TÚ NGA",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110258",
+      "Full Name": "PHAN TRUNG HẢO",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624050492",
+      "Full Name": "NGUYỄN TRƯỜNG SƠN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050005",
+      "Full Name": "LÝ THỊ MỸ LINH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060028",
+      "Full Name": "TRƯƠNG KIM THÙY",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110407",
+      "Full Name": "LÊ YẾN NHI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060087",
+      "Full Name": "TRẦN THỊ NGỌC ÂN",
+      "team": "OCPT STFF",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060132",
+      "Full Name": "LA THẢO MY",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624060254",
+      "Full Name": "HOÀNG VŨ ANH PHÚ",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110412",
+      "Full Name": "NGUYỄN THỊ KIM LOAN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050029",
+      "Full Name": "LÊ THỊ HUẾ MINH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621120120",
+      "Full Name": "LÊ HỒNG ĐÀO",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621120400",
+      "Full Name": "TRẦN THỊ NGỌC QUYỀN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020056",
+      "Full Name": "NGUYỄN ÚT TÝ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050129",
+      "Full Name": "TRẦN THỊ HUỲNH NHAN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050130",
+      "Full Name": "TRẦN THỊ MỸ TIÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622021048",
+      "Full Name": "NGUYỄN MỘNG THÊM",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622021050",
+      "Full Name": "LÊ THỊ DẠ LÝ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050158",
+      "Full Name": "HỒ THỊ MAI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070394",
+      "Full Name": "NGUYỄN THỊ MỘNG MI",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070226",
+      "Full Name": "LÊ THỊ KIM TUYỀN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070227",
+      "Full Name": "TRẦN NGỌC TIỀN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619030228",
+      "Full Name": "PHAN THỊ YẾN",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070250",
+      "Full Name": "NGUYỄN THÚY VY",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030023",
+      "Full Name": "LƯU HUỲNH BỬU XUYẾN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050542",
+      "Full Name": "BÙI THANH THẲNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070337",
+      "Full Name": "ĐINH NGUYỄN PHƯƠNG ANH",
+      "team": "QA TEAM",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070338",
+      "Full Name": "LÝ NGUYỄN TRUNG DUY",
+      "team": "QA TEAM",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070339",
+      "Full Name": "LÊ THÀNH THẢO",
+      "team": "QA TEAM",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622070156",
+      "Full Name": "ĐÀO HỒNG NHIỀU",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080126",
+      "Full Name": "DANH THỊ CHANH ĐA",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080032",
+      "Full Name": "NGUYỄN NGỌC HIỀN NGOAN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622080106",
+      "Full Name": "NGUYỄN THỊ YẾN NHƯ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020153",
+      "Full Name": "HUỲNH THỊ THANH THÚY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080234",
+      "Full Name": "LÝ THỊ MỸ AN",
+      "team": "OSC INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020913",
+      "Full Name": "LÂM THỊ THU PHƯƠNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080354",
+      "Full Name": "LÊ THỊ MỸ NGỌC",
+      "team": "OSC INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090271",
+      "Full Name": "THỊ THU THẢO",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625070145",
+      "Full Name": "PHẠM THỊ NHƯ Ý",
+      "team": "OSC INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619050431",
+      "Full Name": "THỊ NGỌC HÀ",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050159",
+      "Full Name": "THỊ THÚY KIỀU",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030477",
+      "Full Name": "THỊ HỒNG THẮM",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621020445",
+      "Full Name": "NGUYỄN THỊ KIM CHI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090037",
+      "Full Name": "LÊ THANH TUẤN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090048",
+      "Full Name": "DƯƠNG THỊ THU THẢO",
+      "team": "QA TEAM",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622070311",
+      "Full Name": "TRẦN THỊ KIỀU TRANG",
+      "team": "OSC INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090059",
+      "Full Name": "NGUYỄN HỒNG THƯ",
+      "team": "CUTTING INSPECTOR",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090131",
+      "Full Name": "DƯƠNG KIỀU TIÊN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622080452",
+      "Full Name": "HỒ THỊ KIM QUÍ",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090210",
+      "Full Name": "TRẦN ANH THI",
+      "team": "QA TEAM",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080235",
+      "Full Name": "NGUYỄN THỊ THÙY OANH",
+      "team": "OSC INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090320",
+      "Full Name": "NGUYỄN KIM MINH NGỌC",
+      "team": "MTL INSPECTOR",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090323",
+      "Full Name": "HỨA THỊ YẾN NHI",
+      "team": "QA TEAM",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090373",
+      "Full Name": "NGUYỄN NGỌC TUYỀN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090444",
+      "Full Name": "TRẦN THANH LIÊM",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090502",
+      "Full Name": "NGUYỄN NGỌC HÂN",
+      "team": "MTL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624080310",
+      "Full Name": "HỒ NGUYỄN QUỲNH ANH",
+      "team": "OSC INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619100381",
+      "Full Name": "TRẦN THỊ TỐ QUYÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624090058",
+      "Full Name": "NGÔ THANH KIM HÂN",
+      "team": "OSC INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050194",
+      "Full Name": "DANH THỊ CẨM ĐIỀU",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100230",
+      "Full Name": "LƯƠNG THỊ KIM THOA",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030474",
+      "Full Name": "NGUYỄN THỊ KIỀU ANH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621031108",
+      "Full Name": "PHẠM THỊ SÂM",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100345",
+      "Full Name": "MAI HỒNG LỤA",
+      "team": "CUTTING INSPECTOR",
+      "absence_days": 9.0,
+      "absence_rate": 40.91,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100457",
+      "Full Name": "DANH NGỌC TUẤN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100015",
+      "Full Name": "LÊ THỊ MINH THƯ",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050251",
+      "Full Name": "TRẦN NGỌC BẢO TRÂN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110916",
+      "Full Name": "HUỲNH NGỌC LÀNH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620110399",
+      "Full Name": "VÕ THỊ HỒNG TƯƠI",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050244",
+      "Full Name": "LÊ VĂN KHANG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620020520",
+      "Full Name": "DANH THỊ BÍCH HỢP",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050252",
+      "Full Name": "DANH THỊ NGỌC TRINH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050271",
+      "Full Name": "PHAN THỊ NGỌC THẢO",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625060017",
+      "Full Name": "LÝ THỊ TRÚC QUYÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623060090",
+      "Full Name": "CHUNG THÀNH PHONG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625060018",
+      "Full Name": "VỎ THỊ LỤA",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624100171",
+      "Full Name": "NGUYỄN THỊ MỸ CHI",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020143",
+      "Full Name": "LƯU KIM TRỌN",
+      "team": "LINE LEADER",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622050265",
+      "Full Name": "LÊ THỊ BẾN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625070193",
+      "Full Name": "MÃ HUỲNH KHÃ VY",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625070268",
+      "Full Name": "THỊ CẨM THU",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619020144",
+      "Full Name": "LÊ THỊ THOẢNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080006",
+      "Full Name": "PHAN THỊ ÁI NHƯ",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020044",
+      "Full Name": "DANH VÀNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624110015",
+      "Full Name": "TRƯƠNG THỦY TIÊN",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619020320",
+      "Full Name": "NGUYỄN THỊ NGỌC ÁNH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619070186",
+      "Full Name": "DANH THỊ NGỌC THƯ",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621020118",
+      "Full Name": "PHAN VĂN BỔNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623100187",
+      "Full Name": "NGUYỄN MINH KHANG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080309",
+      "Full Name": "HUỲNH THỊ TƯỜNG VI",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080310",
+      "Full Name": "TRỊNH THỊ YẾN NHI",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020638",
+      "Full Name": "NGUYỄN HOÀNG LONG",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080311",
+      "Full Name": "HUỲNH NGỌC ANH THƯ",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080312",
+      "Full Name": "NGUYỄN THỊ BÍCH TRÂM",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080332",
+      "Full Name": "BÙI VĂN CÒN",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619020207",
+      "Full Name": "NGUYỄN THỊ LƯỢM",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 6.0,
+      "absence_rate": 27.27,
+      "risk_level": "high",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030091",
+      "Full Name": "LÊ THỊ KIM THÙY",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621020323",
+      "Full Name": "NGUYỄN THỊ BÍCH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030144",
+      "Full Name": "LƯU NGUYỄN TẤN DŨNG",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030755",
+      "Full Name": "NGUYỄN THỊ BÉ BA",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110051",
+      "Full Name": "VÕ KIM THANH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621050490",
+      "Full Name": "THỊ DƯỢC",
+      "team": "AQL INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622040679",
+      "Full Name": "ONG THỊ CẨM NƯƠNG",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "619080448",
+      "Full Name": "DƯƠNG LÝ BẰNG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020037",
+      "Full Name": "DANH NGỌC HUYỀN",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622070130",
+      "Full Name": "THỊ BÉ BẢY",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090111",
+      "Full Name": "THỊ TUYỀN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "620020555",
+      "Full Name": "THỊ KIM MỪNG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070278",
+      "Full Name": "ĐÀO THỊ NGUYỆT",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030413",
+      "Full Name": "NGUYỄN QUỐC CƯỜNG",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621030642",
+      "Full Name": "NGUYỄN THỊ BÍCH VY",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621110318",
+      "Full Name": "THÁI NGỌC TRÂM",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624070231",
+      "Full Name": "PHẠM THỊ THU HẰNG",
+      "team": "AQL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030164",
+      "Full Name": "TRẦN CẨM TIÊN",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621120205",
+      "Full Name": "THÁI THỊ CẨM TIÊN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622020633",
+      "Full Name": "LÊ NGỌC LINH ĐAN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050024",
+      "Full Name": "NGUYỄN THỊ HẰNG",
+      "team": "QA TEAM",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622021557",
+      "Full Name": "THỊ DƯƠNG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625050053",
+      "Full Name": "NGUYỄN NGỌC TRÂM",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622021749",
+      "Full Name": "TRẦN HỒ QUẾ PHƯƠNG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030226",
+      "Full Name": "THỊ YẾN NHI",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621020156",
+      "Full Name": "THỊ OÁCH HA",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622030504",
+      "Full Name": "NGUYỄN THỊ TÚ TRINH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622060369",
+      "Full Name": "THỊ HỒNG NGA",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "622080450",
+      "Full Name": "TRƯƠNG THỊ TUYẾT LOAN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621040440",
+      "Full Name": "THỊ THANH",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623040186",
+      "Full Name": "NGUYỄN THU THẢO",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623050010",
+      "Full Name": "DANH THỊ NGỌC DIỄM",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623080455",
+      "Full Name": "NGUYỄN THỊ CHÚC GIANG",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090163",
+      "Full Name": "LÝ THỊ MỸ HUYỀN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "623090227",
+      "Full Name": "LÝ THỊ THÚY",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625060020",
+      "Full Name": "BÙI THỊ MỸ NHIÊN",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625060065",
+      "Full Name": "LÊ THỊ THANH THÚY",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "621100149",
+      "Full Name": "LĂM THỊ THẮM",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625020092",
+      "Full Name": "HUỲNH THỊ MỸ DUNG",
+      "team": "OSC INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "624020369",
+      "Full Name": "HUỲNH THỊ KỲ ANH",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625070232",
+      "Full Name": "LƯƠNG THỊ HOA",
+      "team": "BOTTOM INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625070265",
+      "Full Name": "LÊ THỊ HOÀI MỸ",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625070266",
+      "Full Name": "TRẦN LÂM NGỌC HUYỀN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 2.0,
+      "absence_rate": 9.09,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030235",
+      "Full Name": "CAO THỊ TUYẾT NGÂN",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625040239",
+      "Full Name": "HUỲNH THỊ ANH THƯ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 3.0,
+      "absence_rate": 13.64,
+      "risk_level": "medium",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625030362",
+      "Full Name": "HUỲNH TÚ GẤM",
+      "team": "STITCHING INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080008",
+      "Full Name": "ĐOÀN THỊ THU TRANG",
+      "team": "MTL INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625070269",
+      "Full Name": "VÕ THỊ HUỲNH NHƯ",
+      "team": "ASSEMBLY INSPECTOR",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080028",
+      "Full Name": "PHẠM TRƯỜNG PHƯỢNG ANH",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080057",
+      "Full Name": "LÊ THỊ CHINH",
+      "team": "NEW",
+      "absence_days": 1.0,
+      "absence_rate": 4.55,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080082",
+      "Full Name": "CÔ NGỌC GIÀU",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080083",
+      "Full Name": "THỊ HỒNG XUÂN",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080102",
+      "Full Name": "ĐOÀN THẢO NHI",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080140",
+      "Full Name": "ĐINH THỊ KIM THOA",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080141",
+      "Full Name": "NGUYỄN THỊ KHẢ DUY",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080164",
+      "Full Name": "LÝ THỊ THU HỒNG",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080165",
+      "Full Name": "DƯƠNG THỊ HOÀNG DUY",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080166",
+      "Full Name": "HỒ THỊ HỒNG ÂN",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080250",
+      "Full Name": "LÂM THỊ CHÚC ANH",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080251",
+      "Full Name": "LÊ THỊ TRÚC LINH",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080252",
+      "Full Name": "LÝ THỊ TRÚC ĐÀO",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080253",
+      "Full Name": "LÊ NGỌC KIM NGÂN",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080254",
+      "Full Name": "ĐẶNG THỊ KIM THOA",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080255",
+      "Full Name": "LÂM CẨM NHI",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    },
+    {
+      "Employee No": "625080266",
+      "Full Name": "CHÂU MAI QUỐC DUY",
+      "team": "NEW",
+      "absence_days": 0.0,
+      "absence_rate": 0.0,
+      "risk_level": "low",
+      "maternity_days": 0.0
+    }
+  ]
+}

@@ -22,8 +22,8 @@
       "post_assignment_resignation_rate": 0.0,
       "full_attendance_count": 8,
       "full_attendance_rate": 2.0460358056265986,
-      "long_term_count": 278,
-      "long_term_rate": 71.0997442455243
+      "long_term_count": 279,
+      "long_term_rate": 71.35549872122762
     },
     "2025_07": {
       "error_count": 0,
@@ -533,5 +533,5 @@
       }
     }
   },
-  "generation_timestamp": "2025-09-11 10:01:16"
+  "generation_timestamp": "2025-09-13 16:43:58"
 }

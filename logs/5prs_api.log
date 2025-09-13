@@ -1,0 +1,37 @@
+2025-09-13 16:44:03,342 - __main__ - INFO - Starting 5PRS Data API Server on 0.0.0.0:5003
+2025-09-13 16:44:03,342 - __main__ - INFO - Dashboard will be available at http://0.0.0.0:5003/
+2025-09-13 16:44:03,342 - __main__ - INFO - API endpoint: http://0.0.0.0:5003/api/5prs-data
+ * Serving Flask app '5prs_data_api'
+ * Debug mode: off
+2025-09-13 16:44:03,481 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5003
+ * Running on http://10.90.210.51:5003
+2025-09-13 16:44:03,481 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-09-13 16:44:08,128 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET / HTTP/1.1" 200 -
+2025-09-13 16:44:08,144 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /style.css HTTP/1.1" 200 -
+2025-09-13 16:44:08,144 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/main.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,217 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/uiController.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,217 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/state.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,218 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/dataProcessor.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,218 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/fileHandler.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,224 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/helpers/uiUtils.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,224 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/tab/riskTab.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,224 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/config.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,224 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/tab/overviewTab.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,225 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/tab/defectsTab.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,225 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/tab/tqcTab.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,228 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/tab/actionsTab.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,228 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/helpers/modalHelpers.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,228 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/helpers/chartHelpers.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,229 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "GET /js/ui/tab/sustainabilityTab.js HTTP/1.1" 200 -
+2025-09-13 16:44:08,242 - __main__ - INFO - Fetching fresh data for september 2025
+2025-09-13 16:44:08,248 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:08] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-09-13 16:44:11,560 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:44:11] "GET /api/5prs-data?month=september&year=2025 HTTP/1.1" 200 -
+2025-09-13 16:46:33,571 - __main__ - INFO - Returning cached data for september 2025
+2025-09-13 16:46:33,574 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:46:33] "GET /api/5prs-data?month=september&year=2025 HTTP/1.1" 200 -
+2025-09-13 16:47:07,935 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:47:07] "POST /api/clear-cache HTTP/1.1" 200 -
+2025-09-13 16:47:07,942 - __main__ - INFO - Fetching fresh data for september 2025
+2025-09-13 16:47:11,569 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:47:11] "GET /api/5prs-data?month=september&year=2025 HTTP/1.1" 200 -
+2025-09-13 16:48:27,310 - __main__ - INFO - Returning cached data for september 2025
+2025-09-13 16:48:27,312 - werkzeug - INFO - 127.0.0.1 - - [13/Sep/2025 16:48:27] "GET /api/5prs-data?month=september&year=2025 HTTP/1.1" 200 -
