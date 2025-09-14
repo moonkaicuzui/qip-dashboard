@@ -924,11 +924,13 @@ export function showModelConsistencyDetail(modelName) {
         const dailyCounts = Object.values(dailyData);
         if (dailyCounts.length < 2) return null;
         const stats = calculateStats(dailyCounts);
+        // Cap the consistency score at 100 for better readability
+        const rawScore = stats.avg > 0 ? (stats.stdDev / stats.avg * 100) : 0;
         return {
             defect,
             avg: stats.avg,
             stdDev: stats.stdDev,
-            score: stats.avg > 0 ? (stats.stdDev / stats.avg * 100) : 0
+            score: Math.min(rawScore, 100)  // Cap at 100
         };
     }).filter(Boolean).sort((a,b) => b.score - a.score);
 

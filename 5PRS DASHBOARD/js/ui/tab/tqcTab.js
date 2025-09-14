@@ -27,9 +27,10 @@ function initializeTQCFilters() {
         trainingFilter.addEventListener('change', updateTrainingChart);
     }
     
-    // TQC 테이블 필터들 (건물, 불량률)
+    // TQC 테이블 필터들 (건물, 불량률, 위험도)
     const buildingFilter = document.getElementById('tqcBuildingFilter');
     const rejectRateFilter = document.getElementById('tqcRejectRateFilter');
+    const riskFilter = document.getElementById('tqcRiskFilter');
     
     if (buildingFilter) {
         buildingFilter.removeEventListener('change', updateTQCtable);
@@ -40,6 +41,11 @@ function initializeTQCFilters() {
         rejectRateFilter.removeEventListener('change', updateTQCtable);
         rejectRateFilter.addEventListener('change', updateTQCtable);
     }
+    
+    if (riskFilter) {
+        riskFilter.removeEventListener('change', updateTQCtable);
+        riskFilter.addEventListener('change', updateTQCtable);
+    }
 }
 
 /**
@@ -49,6 +55,7 @@ export function updateTQCtable() {
     const tqcTableBody = document.getElementById('tqcTableBody');
     const buildingFilter = document.getElementById('tqcBuildingFilter').value;
     const rejectRateFilter = document.getElementById('tqcRejectRateFilter').value;
+    const riskFilter = document.getElementById('tqcRiskFilter')?.value || 'ALL';
     
     let filteredTQCs = Object.values(state.processedData.tqcData)
         .map(tqc => ({
@@ -66,6 +73,20 @@ export function updateTQCtable() {
         const min = parseFloat(minStr);
         const max = maxStr ? parseFloat(maxStr) : Infinity;
         filteredTQCs = filteredTQCs.filter(tqc => tqc.rejectRate >= min && (maxStr ? tqc.rejectRate < max : true));
+    }
+    
+    // 위험도 필터 적용
+    if (riskFilter !== 'ALL') {
+        if (riskFilter === 'HIGH') {
+            // 고위험: 불량률 5% 이상 AND 검증량 100개 이상
+            filteredTQCs = filteredTQCs.filter(tqc => tqc.rejectRate >= 5 && tqc.totalValidation >= 100);
+        } else if (riskFilter === 'MEDIUM') {
+            // 주의: 불량률 3-5%
+            filteredTQCs = filteredTQCs.filter(tqc => tqc.rejectRate >= 3 && tqc.rejectRate < 5);
+        } else if (riskFilter === 'LOW') {
+            // 정상: 불량률 3% 미만
+            filteredTQCs = filteredTQCs.filter(tqc => tqc.rejectRate < 3);
+        }
     }
     
     filteredTQCs.sort((a, b) => b.rejectRate - a.rejectRate);

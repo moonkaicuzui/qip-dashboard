@@ -9,6 +9,7 @@ import { updateDefectAnalysis } from './ui/tab/defectsTab.js';
 import { updateRiskAnalysis } from './ui/tab/riskTab.js';
 import { updateActionItems } from './ui/tab/actionsTab.js';
 import { updateSustainabilityAnalysis } from './ui/tab/sustainabilityTab.js';
+import { updateManagementInsights } from './ui/tab/managementTab.js';
 
 // 헬퍼 모듈 export (main.js에서 사용)
 export { openModal, closeModal, showTQCDetail, showTqcHeatmapDetail, showHeatmapDetail, showRiskDetail } from './ui/helpers/modalHelpers.js';
@@ -236,6 +237,9 @@ export function updateAllChartsAndTables() {
                 break;
             case 'sustainability': 
                 updateSustainabilityAnalysis(); 
+                break;
+            case 'management':
+                updateManagementInsights();
                 break;
             default:
                 console.warn(`⚠️ 알 수 없는 탭: ${activeTab}`);

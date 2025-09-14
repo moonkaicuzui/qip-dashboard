@@ -191,7 +191,8 @@ export function calculateVolatilityScore(dataArray, avgRejectRate) {
                    avgRejectRate < 7 ? 1.5 :
                    1.0;
     
-    const volatilityScore = stats.avg !== 0 ? (stats.cv / weight) : 0;
+    // Cap volatility score at 100 for better readability
+    const volatilityScore = stats.avg !== 0 ? Math.min(stats.cv / weight, 100) : 0;
     
     // 카테고리 분류
     let category = '안정';
