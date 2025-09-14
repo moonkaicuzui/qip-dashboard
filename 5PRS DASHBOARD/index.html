@@ -119,6 +119,7 @@
                     <button class="tab-button" data-tab="risk" data-lang="tabRisk">위험도 분석</button>
                     <button class="tab-button" data-tab="actions" data-lang="tabActions">업무 지시</button>
                     <button class="tab-button" data-tab="sustainability" data-lang="tabSustainability">지속성</button>
+                    <button class="tab-button" data-tab="management" data-lang="tabManagement">경영진 인사이트</button>
                 </div>
                 
                 <!-- 🔥 탭 컨텐츠 -->
@@ -197,6 +198,15 @@
                                     <option value="3-5">3-5%</option>
                                     <option value="5-10">5-10%</option>
                                     <option value="10-Infinity">10%-100%</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <span class="filter-label" data-lang="filterRisk">위험도:</span>
+                                <select class="filter-select" id="tqcRiskFilter">
+                                    <option value="ALL">전체</option>
+                                    <option value="HIGH">고위험 (불량률 5%↑, 검증 100개↑)</option>
+                                    <option value="MEDIUM">주의 (불량률 3-5%)</option>
+                                    <option value="LOW">정상 (불량률 3%↓)</option>
                                 </select>
                             </div>
                         </div>
@@ -481,6 +491,13 @@
                     <!-- 지속성 탭 -->
                     <!-- ========================================= -->
                     <div id="sustainability-panel" class="tab-panel">
+                        <!-- 동적으로 채워짐 -->
+                    </div>
+                    
+                    <!-- ========================================= -->
+                    <!-- 경영진 인사이트 탭 -->
+                    <!-- ========================================= -->
+                    <div id="management-panel" class="tab-panel">
                         <!-- 동적으로 채워짐 -->
                     </div>
                 </div>

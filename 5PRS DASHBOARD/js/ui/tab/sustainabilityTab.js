@@ -24,12 +24,31 @@ export function updateSustainabilityAnalysis() {
                     <select class="filter-select" id="sustainabilityTqcBuildingFilter"></select>
                 </div>
             </div>
+            <div class="info-box" style="background: #f0f9ff; border: 1px solid #0284c7; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                <h5 style="margin-top: 0; color: #0c4a6e;">📊 일관성 점수 계산 방법</h5>
+                <p style="margin: 0.5rem 0; font-size: 0.9rem;">
+                    <strong>일관성 점수 = (표준편차 ÷ 평균) × 100 ÷ 가중치</strong><br>
+                    • 낮은 점수(0-25): 안정적인 품질 - 일정한 불량률 유지<br>
+                    • 중간 점수(25-50): 주의 필요 - 변동성 증가 추세<br>
+                    • 높은 점수(50-100): 고위험 - 품질 불안정, 즉각 조치 필요
+                </p>
+            </div>
             <div id="tqc-consistency-container" class="table-container"></div>
         </div>
         <div class="card">
              <div class="card-header">
                 <h3 class="card-title" data-lang="auditorActivityConsistency">${translations[lang].auditorActivityConsistency}</h3>
                  <p class="card-subtitle">${translations[lang].auditorActivitySubtitle}</p>
+            </div>
+            <div class="info-box" style="background: #f0fdf4; border: 1px solid #16a34a; padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+                <h5 style="margin-top: 0; color: #14532d;">📈 일평균 검증 수량 계산 로직</h5>
+                <p style="margin: 0.5rem 0; font-size: 0.9rem;">
+                    <strong>일평균 = 총 검증 수량 ÷ 활동 일수 (최근 30일 기준)</strong><br>
+                    • 일평균 검증 수량: 어딧터가 하루에 검사하는 평균 제품 수<br>
+                    • 일평균 TQC 수: 하루에 담당하는 평균 검사자 수<br>
+                    • 일평균 모델 수: 하루에 검사하는 평균 제품 모델 종류<br>
+                    • 추세선: 이동평균으로 활동 패턴 변화 시각화
+                </p>
             </div>
             <div id="auditor-consistency-container" class="grid grid-cols-1" style="gap: 1.5rem;"></div>
         </div>

@@ -437,7 +437,8 @@ function categorizeVolatility(cv, avgRejectRate, stdDev) {
     const weight = avgRejectRate < 3 ? 2.0 :
                    avgRejectRate < 7 ? 1.5 :
                    1.0;
-    const volatilityScore = cv / weight; 
+    // Cap volatility score at 100 for better readability
+    const volatilityScore = Math.min(cv / weight, 100); 
     if (volatilityScore > 50 || stdDev > 3.0) {
         return { category: '고위험', score: volatilityScore };
     }
