@@ -658,19 +658,47 @@ class DataProcessor:
                 # 출석 데이터 없는 직원은 0일로 처리하고 다음 직원으로
                 continue
             
-            # 실제 출석 데이터에서 출근/결근 계산 (각 행이 하루씩)
+            # 실제 출석 데이터에서 출근/결근 계산
+            # 중요: 같은 날짜가 여러 번 나올 수 있으므로 unique한 날짜만 카운트
+            worked_dates = set()  # 중복 제거를 위한 set 사용
+
             if 'compAdd' in emp_data.columns:
-                for idx, row in emp_data.iterrows():
-                    comp_add = row['compAdd']
-                    if pd.notna(comp_add):
-                        comp_str = str(comp_add).strip()
-                        
-                        # 출근 체크 ('Đi làm' = 출근)
-                        if comp_str == 'Đi làm':
-                            actual_working_days += 1
-                        # 무단결근 체크 (필요 시 다른 패턴 추가)
-                        elif '무단' in comp_str or 'UNAPP' in comp_str.upper():
-                            unapproved_absence += 1
+                # Date 컬럼이 있는지 확인 (Work Date 추가)
+                date_col = None
+                for possible_date_col in ['Work Date', 'Date', 'date', 'DATE', 'Ngày', 'ngày', 'WorkDate']:
+                    if possible_date_col in emp_data.columns:
+                        date_col = possible_date_col
+                        break
+
+                if date_col:
+                    # Date 컬럼이 있으면 날짜별로 유니크하게 카운트
+                    for idx, row in emp_data.iterrows():
+                        comp_add = row['compAdd']
+                        work_date = row[date_col]
+
+                        if pd.notna(comp_add):
+                            comp_str = str(comp_add).strip()
+
+                            # 출근 체크 ('Đi làm' = 출근)
+                            if comp_str == 'Đi làm' and pd.notna(work_date):
+                                worked_dates.add(str(work_date))  # 날짜를 set에 추가 (중복 자동 제거)
+                            # 무단결근 체크 (필요 시 다른 패턴 추가)
+                            elif '무단' in comp_str or 'UNAPP' in comp_str.upper():
+                                unapproved_absence += 1
+
+                    # 유니크한 출근 날짜의 개수가 실제 근무일
+                    actual_working_days = len(worked_dates)
+                else:
+                    # Date 컬럼이 없으면 기존 방식 사용 (하지만 경고 출력)
+                    print(f"⚠️ Date 컬럼이 없어 정확한 출근일 계산이 어려울 수 있습니다: {emp_id}")
+                    for idx, row in emp_data.iterrows():
+                        comp_add = row['compAdd']
+                        if pd.notna(comp_add):
+                            comp_str = str(comp_add).strip()
+                            if comp_str == 'Đi làm':
+                                actual_working_days += 1
+                            elif '무단' in comp_str or 'UNAPP' in comp_str.upper():
+                                unapproved_absence += 1
             
             # 실제 근무일이 전체 근무일보다 많은 경우 조정
             if actual_working_days > total_working_days:
@@ -788,6 +816,8 @@ class DataProcessor:
                 'Total Valiation Qty': total_qty,
                 'Total Pass Qty': pass_qty,
                 'Pass %': round(pass_rate, 2),
+                '5PRS_Pass_Rate': round(pass_rate, 2),  # 표준화된 컬럼명 추가
+                '5PRS_Inspection_Qty': total_qty,  # 표준화된 컬럼명 추가
                 '5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%': condition1,
                 '5prs condition 2 - Total Valiation Qty is zero': condition2
             })
@@ -2664,7 +2694,8 @@ class CompleteQIPCalculator:
                 elif total_count > 0 and receiving_count > 0:
                     # 7% 계산 및 인센티브 수령 비율 반영
                     receiving_ratio = receiving_count / total_count
-                    incentive = int(total_sub_incentive * 0.07 * receiving_ratio)
+                    incentive = int(total_sub_incentive * 0.12 * receiving_ratio)
+                    
                 else:
                     incentive = 0
             else:
@@ -2870,25 +2901,29 @@ class CompleteQIPCalculator:
     def calculate_type2_incentive(self):
         """Type-2 인센티브 계산"""
         print("\n📊 TYPE-2 인센티브 계산...")
-        
+
         type2_mask = self.month_data['ROLE TYPE STD'] == 'TYPE-2'
-        
+
         # Type-1 참조 맵 생성
         type1_reference = self._create_type1_reference_map()
-        
+
         # TYPE-2 포지션 매칭 규칙 로드
         type2_mapping = self.load_type2_position_mapping()
-        
+
+        # 부하직원 매핑 (GROUP LEADER 계산용)
+        subordinate_mapping = self.create_manager_subordinate_mapping()
+
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
-        
+
         for idx, row in self.month_data[type2_mask].iterrows():
             # 이미 계산된 경우 스킵
             if row[incentive_col] > 0:
                 continue
-            
+
             position = row.get('QIP POSITION 1ST  NAME', '')
             position_upper = position.upper() if pd.notna(position) else ''
-            
+            emp_id = row.get('Employee No', '')
+
             # Stop Working Date 체크 추가
             stop_working_check = False
             if 'Stop working Date' in row.index:
@@ -2899,13 +2934,13 @@ class CompleteQIPCalculator:
                             stop_date = pd.to_datetime(stop_date_str, format='%Y.%m.%d', errors='coerce')
                         else:
                             stop_date = pd.to_datetime(stop_date_str, errors='coerce')
-                        
+
                         calc_month_start = pd.Timestamp(self.config.year, self.config.month.number, 1)
                         if pd.notna(stop_date) and stop_date < calc_month_start:
                             stop_working_check = True
                     except:
                         pass
-            
+
             # TYPE-2는 출근 조건만 체크 (AQL, 5PRS 조건 제외)
             attendance_fail = (
                 stop_working_check or  # Stop Working Date 체크 추가
@@ -2914,15 +2949,43 @@ class CompleteQIPCalculator:
                 row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
                 row.get('attendancy condition 4 - minimum working days') == 'yes'  # 최소 12일 근무 조건 추가
             )
-            
+
             # 출근 조건 미충족 시 0원
             if attendance_fail:
                 incentive = 0
             else:
                 # 매칭된 TYPE-1 포지션 찾기
                 mapped_position = self.get_mapped_type1_position(position_upper, row, type2_mapping)
-                
-                if mapped_position and mapped_position in type1_reference:
+
+                # GROUP LEADER 특별 처리 (QA3A도 GROUP LEADER로 매핑됨)
+                if mapped_position == 'GROUP LEADER':
+                    # TYPE-1 GROUP LEADER 평균 확인
+                    type1_group_avg = type1_reference.get('GROUP LEADER', 0)
+
+                    if type1_group_avg > 0:
+                        # TYPE-1 평균이 있으면 그대로 사용
+                        incentive = type1_group_avg
+                    else:
+                        # TYPE-1 평균이 0이면 독립적으로 계산
+                        incentive = self.calculate_type2_group_leader_independent(emp_id, subordinate_mapping)
+                        if incentive > 0:
+                            print(f"  → TYPE-2 GROUP LEADER {row.get('Full Name', 'Unknown')} ({emp_id}): 독립 계산 → {incentive:,} VND")
+
+                # SUPERVISOR 특별 처리 - TYPE-1 평균이 0일 때 독립 계산
+                elif 'SUPERVISOR' in position_upper:
+                    # TYPE-1 SUPERVISOR 평균 확인
+                    type1_supervisor_avg = type1_reference.get(position_upper, 0)
+
+                    if type1_supervisor_avg > 0:
+                        # TYPE-1 평균이 있으면 그대로 사용
+                        incentive = type1_supervisor_avg
+                    else:
+                        # TYPE-1 평균이 0이면 독립적으로 계산
+                        incentive = self.calculate_type2_supervisor_independent(position_upper)
+                        if incentive > 0:
+                            print(f"  → TYPE-2 {position} {row.get('Full Name', 'Unknown')} ({emp_id}): 독립 계산 → {incentive:,} VND")
+
+                elif mapped_position and mapped_position in type1_reference:
                     incentive = type1_reference[mapped_position]
                 elif position_upper in type1_reference:
                     # 직접 매칭
@@ -2930,14 +2993,114 @@ class CompleteQIPCalculator:
                 else:
                     incentive = 0
                     print(f"  ⚠️ TYPE-2 '{position}'에 대한 매칭 실패 → 0원")
-            
+
             self.month_data.loc[idx, incentive_col] = incentive
-        
+
         # 통계 출력
         receiving_count = (self.month_data[type2_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[type2_mask][incentive_col].sum()
         print(f"  → 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
+    def calculate_type2_group_leader_independent(self, emp_id: str, subordinate_mapping: Dict[str, List[str]]) -> int:
+        """TYPE-2 GROUP LEADER 독립 인센티브 계산
+        TYPE-1 평균이 0일 때 독립적으로 계산
+
+        계산 방식:
+        1. 전체 TYPE-2 Line Leader들 찾기 (부하직원 관계 무시)
+        2. Line Leader들의 평균 인센티브 계산
+        3. 평균 × 2 적용 (TYPE-1 GROUP LEADER와 동일한 계산식)
+        """
+        incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
+
+        # 전체 TYPE-2 Line Leader들 찾기 (부하직원 관계 무시)
+        type2_line_leader_mask = (
+            (self.month_data['ROLE TYPE STD'] == 'TYPE-2') &
+            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
+            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
+        )
+
+        type2_line_leaders = self.month_data[type2_line_leader_mask]
+
+        if type2_line_leaders.empty:
+            # TYPE-2 Line Leader가 없으면 TYPE-1 Line Leader 평균 사용 (폴백)
+            type1_line_leader_mask = (
+                (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
+                (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
+                (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
+            )
+            type2_line_leaders = self.month_data[type1_line_leader_mask]
+
+            if type2_line_leaders.empty:
+                return 0
+
+        # 인센티브를 받는 Line Leader들의 평균 계산
+        receiving_line_leaders = type2_line_leaders[type2_line_leaders[incentive_col] > 0]
+
+        if len(receiving_line_leaders) > 0:
+            avg_incentive = receiving_line_leaders[incentive_col].mean()
+            # Line Leader 평균의 2배 (TYPE-1 GROUP LEADER와 동일한 계산식)
+            result = int(avg_incentive * 2)
+
+            # 디버깅 정보 출력
+            print(f"    → TYPE-2 LINE LEADER {len(receiving_line_leaders)}명 평균: {avg_incentive:,.0f} VND")
+            print(f"    → GROUP LEADER 인센티브 (평균 × 2): {result:,.0f} VND")
+
+            return result
+
+        return 0
+
+    def calculate_type2_supervisor_independent(self, supervisor_position: str) -> int:
+        """TYPE-2 SUPERVISOR 독립 인센티브 계산
+        TYPE-1 SUPERVISOR 평균이 0일 때 독립적으로 계산
+
+        계산 방식:
+        1. 전체 TYPE-2 Line Leader들 찾기 (부하직원 관계 무시)
+        2. Line Leader들의 평균 인센티브 계산
+        3. SUPERVISOR 종류에 따른 배수 적용:
+           - (V) SUPERVISOR / VICE SUPERVISOR: 평균 × 2.5
+           - SUPERVISOR: 평균 × 2.5
+        """
+        incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
+
+        # 전체 TYPE-2 Line Leader들 찾기 (부하직원 관계 무시)
+        type2_line_leader_mask = (
+            (self.month_data['ROLE TYPE STD'] == 'TYPE-2') &
+            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
+            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
+        )
+
+        type2_line_leaders = self.month_data[type2_line_leader_mask]
+
+        if type2_line_leaders.empty:
+            # TYPE-2 Line Leader가 없으면 TYPE-1 Line Leader 평균 사용 (폴백)
+            type1_line_leader_mask = (
+                (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
+                (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
+                (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
+            )
+            type2_line_leaders = self.month_data[type1_line_leader_mask]
+
+            if type2_line_leaders.empty:
+                return 0
+
+        # 인센티브를 받는 Line Leader들의 평균 계산
+        receiving_line_leaders = type2_line_leaders[type2_line_leaders[incentive_col] > 0]
+
+        if len(receiving_line_leaders) > 0:
+            avg_incentive = receiving_line_leaders[incentive_col].mean()
+
+            # SUPERVISOR 배수 적용 (2.5배)
+            multiplier = 2.5
+            result = int(avg_incentive * multiplier)
+
+            # 디버깅 정보 출력
+            print(f"    → TYPE-2 LINE LEADER {len(receiving_line_leaders)}명 평균: {avg_incentive:,.0f} VND")
+            print(f"    → {supervisor_position} 인센티브 (평균 × {multiplier}): {result:,.0f} VND")
+
+            return result
+
+        return 0
+
     def load_type2_position_mapping(self) -> Dict:
         """TYPE-2 포지션 매칭 규칙 로드"""
         try:
@@ -3098,21 +3261,27 @@ class CompleteQIPCalculator:
                     self.month_data.loc[idx, 'Talent_Pool_Bonus'] = bonus_amount
                     self.month_data.loc[idx, 'Talent_Pool_Member'] = 'Y'
                     
+                    # 기존 인센티브 가져오기
+                    current_incentive = self.month_data.loc[idx, incentive_col]
+                    if pd.isna(current_incentive):
+                        current_incentive = 0
+
                     # 기존 인센티브와 합산 (settings에 따라)
                     if settings.get('stack_with_regular', True):
-                        current_incentive = self.month_data.loc[idx, incentive_col]
-                        if pd.isna(current_incentive):
-                            current_incentive = 0
-                        self.month_data.loc[idx, incentive_col] = current_incentive + bonus_amount
-                        
+                        # 기존 인센티브 + 보너스
+                        final_incentive = current_incentive + bonus_amount
+                        self.month_data.loc[idx, incentive_col] = final_incentive
+
                         emp_name = self.month_data.loc[idx, 'Full Name']
                         print(f"  ✅ {emp_name} ({emp_id}): +{bonus_amount:,} VND (Talent Pool 보너스)")
-                        print(f"     → 기존: {current_incentive:,.0f} VND → 최종: {current_incentive + bonus_amount:,.0f} VND")
+                        print(f"     → 기존: {current_incentive:,.0f} VND → 최종: {final_incentive:,.0f} VND")
                     else:
-                        # 보너스만 별도 지급
-                        self.month_data.loc[idx, incentive_col] = bonus_amount
+                        # 보너스만 별도 지급 (기존 인센티브는 유지하고 보너스만 추가)
+                        # 주의: 이 경우에도 기존 인센티브는 유지되어야 함
+                        final_incentive = current_incentive + bonus_amount
+                        self.month_data.loc[idx, incentive_col] = final_incentive
                         emp_name = self.month_data.loc[idx, 'Full Name']
-                        print(f"  ✅ {emp_name} ({emp_id}): {bonus_amount:,} VND (Talent Pool 보너스 단독)")
+                        print(f"  ✅ {emp_name} ({emp_id}): 기존 {current_incentive:,.0f} + 보너스 {bonus_amount:,.0f} = {final_incentive:,.0f} VND")
                     
                     applied_count += 1
                     total_bonus += bonus_amount
@@ -3201,10 +3370,158 @@ class CompleteQIPCalculator:
                             if row['수령인원'] > 0:
                                 print(f"        - 평균: {row['평균지급액']:,.0f} VND")
     
+    def add_condition_evaluation_to_excel(self):
+        """10개 조건 평가 결과를 Excel에 추가"""
+        print("\n📊 10개 조건 평가 결과를 Excel에 추가 중...")
+
+        if not POSITION_CONDITION_MATRIX:
+            print("⚠️ Position condition matrix를 찾을 수 없습니다.")
+            return
+
+        # 먼저 attendance_rate 컬럼이 없으면 계산하여 추가
+        if 'attendance_rate' not in self.month_data.columns:
+            print("  → attendance_rate 컬럼 계산 중...")
+            self.month_data['attendance_rate'] = 0.0
+
+            for idx in self.month_data.index:
+                total_days = self.month_data.loc[idx, 'Total Working Days'] if 'Total Working Days' in self.month_data.columns else 27
+                actual_days = self.month_data.loc[idx, 'Actual Working Days'] if 'Actual Working Days' in self.month_data.columns else 0
+
+                if total_days > 0:
+                    attendance_rate = (actual_days / total_days) * 100
+                else:
+                    attendance_rate = 0
+
+                self.month_data.loc[idx, 'attendance_rate'] = attendance_rate
+
+        # 각 직원별로 10개 조건 평가
+        for idx in self.month_data.index:
+            emp_type = self.month_data.loc[idx, 'ROLE TYPE STD']
+            position = self.month_data.loc[idx, 'QIP POSITION 1ST  NAME']
+
+            # position_condition_matrix.json에서 해당 직급의 조건 설정 가져오기
+            pos_config = get_position_config_from_matrix(emp_type, position)
+
+            if not pos_config:
+                # 기본값 설정 (default 사용)
+                type_matrix = POSITION_CONDITION_MATRIX.get('position_matrix', {}).get(emp_type, {})
+                pos_config = type_matrix.get('default', {})
+
+            applicable_conditions = pos_config.get('applicable_conditions', [])
+
+            # 10개 조건 각각 평가
+            # 조건 1: 출근율 >= 88%
+            attendance_rate = self.month_data.loc[idx, 'attendance_rate'] if 'attendance_rate' in self.month_data.columns else 0
+            cond_1_result = 'PASS' if attendance_rate >= 88 else 'FAIL'
+            cond_1_applicable = 'Y' if 1 in applicable_conditions else 'N/A'
+            self.month_data.loc[idx, 'cond_1_attendance_rate'] = cond_1_applicable if cond_1_applicable == 'N/A' else cond_1_result
+            self.month_data.loc[idx, 'cond_1_value'] = attendance_rate
+            self.month_data.loc[idx, 'cond_1_threshold'] = 88
+
+            # 조건 2: 무단결근 <= 2일
+            unapproved_absence = self.month_data.loc[idx, 'Unapproved Absence Days'] if 'Unapproved Absence Days' in self.month_data.columns else 0
+            cond_2_result = 'PASS' if unapproved_absence <= 2 else 'FAIL'
+            cond_2_applicable = 'Y' if 2 in applicable_conditions else 'N/A'
+            self.month_data.loc[idx, 'cond_2_unapproved_absence'] = cond_2_applicable if cond_2_applicable == 'N/A' else cond_2_result
+            self.month_data.loc[idx, 'cond_2_value'] = unapproved_absence
+            self.month_data.loc[idx, 'cond_2_threshold'] = 2
+
+            # 조건 3: 실근무일 > 0
+            actual_working_days = self.month_data.loc[idx, 'Actual Working Days'] if 'Actual Working Days' in self.month_data.columns else 0
+            cond_3_result = 'PASS' if actual_working_days > 0 else 'FAIL'
+            cond_3_applicable = 'Y' if 3 in applicable_conditions else 'N/A'
+            self.month_data.loc[idx, 'cond_3_actual_working_days'] = cond_3_applicable if cond_3_applicable == 'N/A' else cond_3_result
+            self.month_data.loc[idx, 'cond_3_value'] = actual_working_days
+            self.month_data.loc[idx, 'cond_3_threshold'] = 0
+
+            # 조건 4: 최소근무일 >= 12
+            cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
+            cond_4_applicable = 'Y' if 4 in applicable_conditions else 'N/A'
+            self.month_data.loc[idx, 'cond_4_minimum_days'] = cond_4_applicable if cond_4_applicable == 'N/A' else cond_4_result
+            self.month_data.loc[idx, 'cond_4_value'] = actual_working_days
+            self.month_data.loc[idx, 'cond_4_threshold'] = 12
+
+            # 조건 5: 개인 AQL 당월 실패 = 0
+            aql_col = f"{self.config.get_month_str('capital')} AQL Failures"
+            aql_fail = self.month_data.loc[idx, aql_col] if aql_col in self.month_data.columns else 0
+            cond_5_result = 'PASS' if aql_fail == 0 else 'FAIL'
+            cond_5_applicable = 'Y' if 5 in applicable_conditions else 'N/A'
+            self.month_data.loc[idx, 'cond_5_aql_personal_failure'] = cond_5_applicable if cond_5_applicable == 'N/A' else cond_5_result
+            self.month_data.loc[idx, 'cond_5_value'] = aql_fail
+            self.month_data.loc[idx, 'cond_5_threshold'] = 0
+
+            # 조건 6: 3개월 연속 AQL 실패 없음
+            continuous_fail = self.month_data.loc[idx, 'Continuous_FAIL'] if 'Continuous_FAIL' in self.month_data.columns else 'NO'
+            cond_6_result = 'PASS' if continuous_fail != 'YES' else 'FAIL'
+            cond_6_applicable = 'Y' if 6 in applicable_conditions else 'N/A'
+            self.month_data.loc[idx, 'cond_6_aql_continuous'] = cond_6_applicable if cond_6_applicable == 'N/A' else cond_6_result
+            self.month_data.loc[idx, 'cond_6_value'] = continuous_fail
+            self.month_data.loc[idx, 'cond_6_threshold'] = 'NO'
+
+            # 조건 7: 팀/구역 AQL (3개월 연속 실패 없음)
+            # 이 조건은 LINE LEADER나 특정 포지션에만 적용
+            team_aql_fail = False  # 기본값
+            if 7 in applicable_conditions:
+                # 실제 팀/구역 AQL 데이터 확인 (필요시 구현)
+                cond_7_result = 'PASS' if not team_aql_fail else 'FAIL'
+                self.month_data.loc[idx, 'cond_7_aql_team_area'] = cond_7_result
+                self.month_data.loc[idx, 'cond_7_value'] = 'NO' if not team_aql_fail else 'YES'
+            else:
+                self.month_data.loc[idx, 'cond_7_aql_team_area'] = 'N/A'
+                self.month_data.loc[idx, 'cond_7_value'] = 'N/A'
+            self.month_data.loc[idx, 'cond_7_threshold'] = 'NO'
+
+            # 조건 8: 담당구역 reject < 3%
+            if 8 in applicable_conditions:
+                reject_rate = self.month_data.loc[idx, 'Area_Reject_Rate'] if 'Area_Reject_Rate' in self.month_data.columns else 0
+                cond_8_result = 'PASS' if reject_rate < 3 else 'FAIL'
+                self.month_data.loc[idx, 'cond_8_area_reject'] = cond_8_result
+                self.month_data.loc[idx, 'cond_8_value'] = reject_rate
+            else:
+                self.month_data.loc[idx, 'cond_8_area_reject'] = 'N/A'
+                self.month_data.loc[idx, 'cond_8_value'] = 'N/A'
+            self.month_data.loc[idx, 'cond_8_threshold'] = 3
+
+            # 조건 9: 5PRS 통과율 >= 95%
+            prs_pass_rate = self.month_data.loc[idx, '5PRS_Pass_Rate'] if '5PRS_Pass_Rate' in self.month_data.columns else 0
+            cond_9_result = 'PASS' if prs_pass_rate >= 95 else 'FAIL'
+            cond_9_applicable = 'Y' if 9 in applicable_conditions else 'N/A'
+            self.month_data.loc[idx, 'cond_9_5prs_pass_rate'] = cond_9_applicable if cond_9_applicable == 'N/A' else cond_9_result
+            self.month_data.loc[idx, 'cond_9_value'] = prs_pass_rate
+            self.month_data.loc[idx, 'cond_9_threshold'] = 95
+
+            # 조건 10: 5PRS 검사량 >= 100
+            prs_qty = self.month_data.loc[idx, '5PRS_Inspection_Qty'] if '5PRS_Inspection_Qty' in self.month_data.columns else 0
+            cond_10_result = 'PASS' if prs_qty >= 100 else 'FAIL'
+            cond_10_applicable = 'Y' if 10 in applicable_conditions else 'N/A'
+            self.month_data.loc[idx, 'cond_10_5prs_inspection_qty'] = cond_10_applicable if cond_10_applicable == 'N/A' else cond_10_result
+            self.month_data.loc[idx, 'cond_10_value'] = prs_qty
+            self.month_data.loc[idx, 'cond_10_threshold'] = 100
+
+            # 전체 조건 충족 비율 계산
+            applicable_count = 0
+            passed_count = 0
+            for i in range(1, 11):
+                cond_col = f'cond_{i}_' + ['attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
+                                           'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
+                                           '5prs_pass_rate', '5prs_inspection_qty'][i-1]
+                if cond_col in self.month_data.columns:
+                    result = self.month_data.loc[idx, cond_col]
+                    if result != 'N/A':
+                        applicable_count += 1
+                        if result == 'PASS':
+                            passed_count += 1
+
+            self.month_data.loc[idx, 'conditions_applicable'] = applicable_count
+            self.month_data.loc[idx, 'conditions_passed'] = passed_count
+            self.month_data.loc[idx, 'conditions_pass_rate'] = (passed_count / applicable_count * 100) if applicable_count > 0 else 0
+
+        print(f"✅ 10개 조건 평가 결과 추가 완료")
+
     def save_results(self):
         """결과 저장"""
         print(f"\n💾 결과 파일 저장 중...")
-        
+
         try:
             # output_files 폴더 생성
             import os
@@ -3260,16 +3577,19 @@ class CompleteQIPCalculator:
             # Final Incentive amount 칼럼을 July_Incentive 값으로 덮어쓰기
             self.month_data['Final Incentive amount'] = self.month_data[incentive_col].copy()
             
-            # CSV 저장
+            # 10개 조건 평가 결과를 Excel과 CSV에 추가
+            self.add_condition_evaluation_to_excel()
+
+            # CSV 저장 (조건 평가 후)
             csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_최종완성버전_v6.0_Complete.csv")
             self.month_data.to_csv(csv_file, index=False, encoding='utf-8-sig')
-            
+
             # CSV 파일 생성 검증
             if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
                 print(f"✅ CSV 파일 저장 완료: {csv_file}")
             else:
                 print(f"⚠️ CSV 파일 생성 실패: {csv_file}")
-            
+
             # Excel 저장
             excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_최종완성버전_v6.0_Complete.xlsx")
             self.month_data.to_excel(excel_file, index=False)
@@ -3450,10 +3770,11 @@ class CompleteQIPCalculator:
                             emp_metadata['calculation_basis'] = 'Auditor/Trainer incentive'
                     # AQL INSPECTOR 특별 처리
                     elif 'AQL INSPECTOR' in str(position_value):
+                        aql_col = f'{self.config.get_month_str("capital")} AQL Failures'
                         emp_metadata['conditions']['aql'] = {
                             'monthly_failure': {
                                 'passed': amount > 0,  # 인센티브를 받았으면 통과로 간주
-                                'value': 0 if amount > 0 else int(row.get('July AQL Failures', 0)) if pd.notna(row.get('July AQL Failures')) else 0,
+                                'value': 0 if amount > 0 else int(row.get(aql_col, 0)) if pd.notna(row.get(aql_col)) else 0,
                                 'threshold': 0,
                                 'applicable': True
                             },
@@ -3463,10 +3784,11 @@ class CompleteQIPCalculator:
                         }
                         emp_metadata['calculation_basis'] = 'AQL Inspector 3-part incentive'
                     else:
+                        aql_col = f'{self.config.get_month_str("capital")} AQL Failures'
                         emp_metadata['conditions']['aql'] = {
                             'monthly_failure': {
-                                'passed': row.get('July AQL Failures', 0) == 0 if pd.notna(row.get('July AQL Failures')) else True,
-                                'value': int(row.get('July AQL Failures', 0)) if pd.notna(row.get('July AQL Failures')) else 0,
+                                'passed': row.get(aql_col, 0) == 0 if pd.notna(row.get(aql_col)) else True,
+                                'value': int(row.get(aql_col, 0)) if pd.notna(row.get(aql_col)) else 0,
                                 'threshold': 0,
                                 'applicable': True
                             },

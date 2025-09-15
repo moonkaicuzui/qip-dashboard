@@ -194,8 +194,11 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     column_mapping[col] = 'type'
                 elif f'{month.lower()}_incentive' in col_lower or f'{month.lower()} incentive' in col_lower:
                     column_mapping[col] = f'{month.lower()}_incentive'
-                elif 'attendance' in col_lower and 'rate' in col_lower:
+                elif col_lower == 'attendance_rate' or (col_lower == 'attendance rate'):
                     column_mapping[col] = 'attendance_rate'
+                elif col_lower.startswith('cond_'):
+                    # Skip condition columns
+                    pass
                 elif 'actual' in col_lower and 'working' in col_lower:
                     column_mapping[col] = 'actual_working_days'
                 elif 'talent_pool_member' in col_lower:
@@ -351,15 +354,31 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 df['pass_rate'] = 0
                 df['validation_qty'] = 0
             
-            # 출근 관련 컬럼
+            # 출근 관련 컬럼 - Excel 데이터를 그대로 사용 (하드코딩 제거)
+            # Excel이 단일 진실 소스(Single Source of Truth)
+            missing_columns = []
+
             if 'attendance_rate' not in df.columns:
-                df['attendance_rate'] = 100.0
+                missing_columns.append('attendance_rate')
+                # attendance_rate를 실제 데이터로 계산
+                if 'Actual Working Days' in df.columns and 'Total Working Days' in df.columns:
+                    df['attendance_rate'] = (df['Actual Working Days'] / df['Total Working Days'] * 100).fillna(0)
+                    df.loc[df['Total Working Days'] == 0, 'attendance_rate'] = 0
+                else:
+                    df['attendance_rate'] = 0  # 데이터 없음을 명시적으로 표시
             if 'actual_working_days' not in df.columns:
-                df['actual_working_days'] = 13
+                missing_columns.append('actual_working_days')
+                df['actual_working_days'] = 0  # 데이터 없음을 명시적으로 표시
             if 'unapproved_absences' not in df.columns:
-                df['unapproved_absences'] = 0
+                missing_columns.append('unapproved_absences')
+                df['unapproved_absences'] = 0  # 데이터 없음을 명시적으로 표시
             if 'absence_rate' not in df.columns:
-                df['absence_rate'] = 0
+                missing_columns.append('absence_rate')
+                df['absence_rate'] = 0  # 데이터 없음을 명시적으로 표시
+
+            if missing_columns:
+                print(f"⚠️ 누락된 출근 관련 컬럼: {missing_columns}")
+                print("   → Excel에서 데이터를 확인하세요. 하드코딩 없이 0으로 표시됩니다.")
             
             # 이전 달 인센티브 로드
             prev_month_name = 'july' if month.lower() == 'august' else 'june'
@@ -504,50 +523,82 @@ def get_applicable_conditions(position, type_name, condition_matrix):
     return type_matrix.get('default', {}).get('applicable_conditions', [1, 2, 3, 4])
 
 def evaluate_conditions(emp_data, condition_matrix):
-    """직원 데이터에 대한 조건 평가 (최적화)"""
+    """직원 데이터에 대한 조건 평가 - Excel 데이터 우선 사용"""
     if not condition_matrix:
         return []
-    
+
     conditions = condition_matrix.get('conditions', {})
     type_name = emp_data.get('type', 'TYPE-2')
-    
+
     # TYPE-3: 모든 조건 N/A
     if type_name == 'TYPE-3':
-        return [create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')) 
+        return [create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'))
                 for cond_id in range(1, 11)]
-    
-    applicable = get_applicable_conditions(emp_data.get('position', ''), type_name, condition_matrix)
+
     results = []
-    
-    # 조건 평가 함수 매핑
-    evaluators = {
-        1: lambda d: (d.get('attendance_rate', 0) >= 88, f"{d.get('attendance_rate', 0):.1f}%"),
-        2: lambda d: (d.get('unapproved_absences', 0) <= 2, f"{d.get('unapproved_absences', 0)}일"),
-        3: lambda d: (d.get('actual_working_days', 0) > 0, f"{d.get('actual_working_days', 0)}일"),
-        4: lambda d: (d.get('actual_working_days', 0) >= 12, f"{d.get('actual_working_days', 0)}일"),
-        5: lambda d: (d.get('aql_failures', 0) == 0, f"{d.get('aql_failures', 0)}건"),
-        6: lambda d: (d.get('continuous_fail', 'NO') != 'YES', '통과' if d.get('continuous_fail', 'NO') != 'YES' else '실패'),
-        7: lambda d: (d.get('area_consecutive_fail', 'NO') != 'YES', '통과' if d.get('area_consecutive_fail', 'NO') != 'YES' else '3개월 연속 실패'),
-        8: lambda d: evaluate_area_reject(d),
-        9: lambda d: (d.get('pass_rate', 0) >= 95, f"{d.get('pass_rate', 0):.1f}%"),
-        10: lambda d: (d.get('validation_qty', 0) >= 100, f"{d.get('validation_qty', 0)}족")
-    }
-    
+
+    # Excel에서 조건 결과 가져오기 (있으면 사용, 없으면 자체 계산)
+    condition_names = [
+        'attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
+        'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
+        '5prs_pass_rate', '5prs_inspection_qty'
+    ]
+
     for cond_id in range(1, 11):
-        cond_name = conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')
-        
-        if cond_id not in applicable:
-            results.append(create_na_result(cond_id, cond_name))
+        cond_col = f'cond_{cond_id}_{condition_names[cond_id-1]}'
+
+        # Excel에 조건 평가 결과가 있으면 사용
+        if cond_col in emp_data:
+            excel_result = emp_data.get(cond_col, 'N/A')
+            value_col = f'cond_{cond_id}_value'
+            value = emp_data.get(value_col, '')
+
+            if excel_result == 'PASS':
+                results.append({
+                    'id': cond_id,
+                    'description': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
+                    'result': 'PASS',
+                    'value': str(value)
+                })
+            elif excel_result == 'FAIL':
+                results.append({
+                    'id': cond_id,
+                    'description': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
+                    'result': 'FAIL',
+                    'value': str(value)
+                })
+            else:  # N/A
+                results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
         else:
-            is_met, actual = evaluators[cond_id](emp_data)
-            results.append({
-                'id': cond_id,
-                'name': cond_name,
-                'is_met': is_met,
-                'actual': actual,
-                'is_na': False
-            })
-    
+            # Excel에 없으면 기존 자체 계산 로직 사용 (fallback)
+            applicable = get_applicable_conditions(emp_data.get('position', ''), type_name, condition_matrix)
+
+            # 조건 평가 함수 매핑 (기존 로직 유지)
+            evaluators = {
+                1: lambda d: (d.get('attendance_rate', 0) >= 88, f"{d.get('attendance_rate', 0):.1f}%"),
+                2: lambda d: (d.get('unapproved_absences', 0) <= 2, f"{d.get('unapproved_absences', 0)}일"),
+                3: lambda d: (d.get('actual_working_days', 0) > 0, f"{d.get('actual_working_days', 0)}일"),
+                4: lambda d: (d.get('actual_working_days', 0) >= 12, f"{d.get('actual_working_days', 0)}일"),
+                5: lambda d: (d.get('aql_failures', 0) == 0, f"{d.get('aql_failures', 0)}건"),
+                6: lambda d: (d.get('continuous_fail', 'NO') != 'YES', '통과' if d.get('continuous_fail', 'NO') != 'YES' else '실패'),
+                7: lambda d: (d.get('area_consecutive_fail', 'NO') != 'YES', '통과' if d.get('area_consecutive_fail', 'NO') != 'YES' else '3개월 연속 실패'),
+                8: lambda d: evaluate_area_reject(d),
+                9: lambda d: (d.get('pass_rate', 0) >= 95, f"{d.get('pass_rate', 0):.1f}%"),
+                10: lambda d: (d.get('validation_qty', 0) >= 100, f"{d.get('validation_qty', 0)}족")
+            }
+
+            if cond_id not in applicable:
+                results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
+            else:
+                is_met, actual = evaluators[cond_id](emp_data)
+                results.append({
+                    'id': cond_id,
+                    'name': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
+                    'is_met': is_met,
+                    'actual': actual,
+                    'is_na': False
+                })
+
     return results
 
 def create_na_result(cond_id, cond_name):
@@ -657,30 +708,33 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     # 데이터 준비
     employees = []
     for _, row in df.iterrows():
+        # Convert Series to dict
+        row_dict = row.to_dict()
+
         emp = {
-            'emp_no': str(row.get('emp_no', '')),
-            'name': str(row.get('name', '')),
-            'position': str(row.get('position', '')),
-            'type': str(row.get('type', 'TYPE-2')),
-            'july_incentive': str(row.get('july_incentive', '0')),
-            'august_incentive': str(row.get('august_incentive', '0')),
-            'june_incentive': str(row.get('june_incentive', '0')),
-            'attendance_rate': float(row.get('attendance_rate', 100)),
-            'actual_working_days': int(row.get('actual_working_days', 13)),
-            'unapproved_absences': int(row.get('unapproved_absences', 0)),
-            'absence_rate': float(row.get('absence_rate', 0)),
-            'condition1': str(row.get('condition1', 'no')),
-            'condition2': str(row.get('condition2', 'no')),
-            'condition3': str(row.get('condition3', 'no')),
-            'condition4': str(row.get('condition4', 'no')),
-            'aql_failures': int(row.get('aql_failures', 0)),
-            'continuous_fail': str(row.get('continuous_fail', 'NO')),
-            'area_reject_rate': float(row.get('area_reject_rate', 0)),  # 이 값은 metadata에서 덮어씌워짐
-            'area_consecutive_fail': str(row.get('area_consecutive_fail', 'NO')),
-            'pass_rate': float(row.get('pass_rate', 0)),
-            'validation_qty': int(row.get('validation_qty', 0)),
-            'Talent_Pool_Member': str(row.get('Talent_Pool_Member', 'N')),
-            'Talent_Pool_Bonus': int(row.get('Talent_Pool_Bonus', 0))
+            'emp_no': str(row_dict.get('emp_no', '')),
+            'name': str(row_dict.get('name', '')),
+            'position': str(row_dict.get('position', '')),
+            'type': str(row_dict.get('type', 'TYPE-2')),
+            'july_incentive': str(row_dict.get('july_incentive', '0')),
+            'august_incentive': str(row_dict.get('august_incentive', '0')),
+            'june_incentive': str(row_dict.get('june_incentive', '0')),
+            'attendance_rate': float(row_dict.get('attendance_rate', 0)),
+            'actual_working_days': int(row_dict.get('actual_working_days', 0)),
+            'unapproved_absences': int(row_dict.get('unapproved_absences', 0)),
+            'absence_rate': float(row_dict.get('absence_rate', 0)),
+            'condition1': str(row_dict.get('condition1', 'no')),
+            'condition2': str(row_dict.get('condition2', 'no')),
+            'condition3': str(row_dict.get('condition3', 'no')),
+            'condition4': str(row_dict.get('condition4', 'no')),
+            'aql_failures': int(row_dict.get('aql_failures', 0)),
+            'continuous_fail': str(row_dict.get('continuous_fail', 'NO')),
+            'area_reject_rate': float(row_dict.get('area_reject_rate', 0)),  # 이 값은 metadata에서 덮어씌워짐
+            'area_consecutive_fail': str(row_dict.get('area_consecutive_fail', 'NO')),
+            'pass_rate': float(row_dict.get('pass_rate', 0)),
+            'validation_qty': int(row_dict.get('validation_qty', 0)),
+            'Talent_Pool_Member': str(row_dict.get('Talent_Pool_Member', 'N')),
+            'Talent_Pool_Bonus': int(row_dict.get('Talent_Pool_Bonus', 0))
         }
         
         # metadata에서 area_reject_rate 가져오기
@@ -1636,12 +1690,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                                 <tr>
                                     <td><strong><span class="calc-position-lineleader">5. LINE LEADER</span></strong></td>
                                     <td><strong><span class="calc-subordinate-incentive">부하직원 인센티브 기반 계산</span></strong><br>
-                                        <span class="text-primary"><span class="calc-incentive-label">인센티브</span> = (<span class="calc-subordinate-total">부하직원 총</span> <span class="calc-incentive-label">인센티브</span> × 7%) × (<span class="calc-receive-ratio">수령 비율</span>)</span><br>
+                                        <span class="text-primary"><span class="calc-incentive-label">인센티브</span> = (<span class="calc-subordinate-total">부하직원 총</span> <span class="calc-incentive-label">인센티브</span> × 12%) × (<span class="calc-receive-ratio">수령 비율</span>)</span><br>
                                         <span class="calc-apply-condition-lineleader">적용 조건: 출근(1-4) + 팀/구역 AQL(7) = 5개 조건</span></td>
                                     <td><span class="calc-example-employee" data-employee="619020468">예시: 619020468 직원</span><br>
                                         <span class="calc-subordinate-total">부하직원 총</span>: 1,270,585 VND<br>
-                                        <span class="calc-calculation-label">계산</span>: 1,270,585 × 0.07 × (8/10)<br>
-                                        = <strong>88,941 VND</strong></td>
+                                        <span class="calc-calculation-label">계산</span>: 1,270,585 × 0.12 × (8/10)<br>
+                                        = <strong>152,470 VND</strong></td>
                                 </tr>
                                 <tr style="background-color: #fff3e0;">
                                     <td><strong><span class="calc-position-aqlinspector">6. AQL INSPECTOR</span></strong></td>
@@ -1783,7 +1837,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                                 <tr>
                                     <td><strong>3. GROUP LEADER</strong></td>
                                     <td>TYPE-1 GROUP LEADER</td>
-                                    <td>GROUP LEADER <span class="average-text">평균</span></td>
+                                    <td>GROUP LEADER <span class="average-text">평균</span><br>
+                                        <small class="text-muted">(TYPE-1 평균 0시: 전체 TYPE-2 LINE LEADER 평균 × 2)</small></td>
                                     <td>254,659 VND</td>
                                 </tr>
                                 <tr>
@@ -1854,7 +1909,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                                 </tr>
                             </tbody>
                         </table>
-                        
+
+                        <!-- TYPE-2 GROUP LEADER 특별 계산 규칙 설명 -->
+                        <div class="alert alert-warning mb-4">
+                            <h6 style="color: #856404;" id="type2GroupLeaderSpecialTitle">⚠️ TYPE-2 GROUP LEADER 특별 계산 규칙</h6>
+                            <ul class="mb-0">
+                                <li id="type2BaseCalc"><strong>기본 계산:</strong> TYPE-1 GROUP LEADER 평균 인센티브 사용</li>
+                                <li id="type2IndependentCalc"><strong>TYPE-1 평균이 0 VND인 경우:</strong> 모든 TYPE-2 LINE LEADER 평균 × 2로 독립 계산</li>
+                                <li id="type2Important"><strong>중요:</strong> 부하직원 관계 없이 전체 TYPE-2 LINE LEADER 평균 사용</li>
+                                <li id="type2Conditions"><strong>적용 조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브 지급</li>
+                            </ul>
+                        </div>
+
                         <!-- TYPE-3 인센티브 -->
                         <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type3SectionTitle">TYPE-3 신입 직원 인센티브</h6>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
@@ -2509,6 +2575,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                                         <li id="faqAnswer10Reason4"><strong>시스템 오류</strong>: HR 부서에 문의</li>
                                     </ul>
                                     <span id="faqAnswer10Conclusion">개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.</span>
+                                </div>
+                            </div>
+
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion11">
+                                    Q11. TYPE-2 GROUP LEADER가 인센티브를 못 받는 경우가 있나요?
+                                </div>
+                                <div class="faq-answer">
+                                    <span id="faqAnswer11Main">TYPE-2 GROUP LEADER는 특별한 계산 규칙이 적용됩니다:</span>
+                                    <ul>
+                                        <li id="faqAnswer11Detail1"><strong>기본 계산:</strong> TYPE-1 GROUP LEADER 평균 인센티브를 받습니다</li>
+                                        <li id="faqAnswer11Detail2"><strong>독립 계산:</strong> TYPE-1 GROUP LEADER 평균이 0 VND일 경우, 자동으로 전체 TYPE-2 LINE LEADER 평균 × 2로 계산됩니다</li>
+                                        <li id="faqAnswer11Detail3"><strong>개선 사항:</strong> 부하직원 관계와 상관없이 전체 TYPE-2 LINE LEADER 평균을 사용하여 더 공정한 계산이 이루어집니다</li>
+                                        <li id="faqAnswer11Detail4"><strong>조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브를 받을 수 있습니다</li>
+                                    </ul>
+                                    <span id="faqAnswer11Conclusion">따라서 출근 조건을 충족한 TYPE-2 GROUP LEADER는 항상 인센티브를 받을 수 있도록 보장됩니다.</span>
                                 </div>
                             </div>
                         </div>
@@ -3271,7 +3353,67 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             if (answer10Conclusion) {{
                 answer10Conclusion.textContent = translations.incentiveCalculation?.faq?.answer10Conclusion?.[lang] || '개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.';
             }}
-            
+
+            // FAQ Q11 translations
+            const q11 = document.getElementById('faqQuestion11');
+            if (q11) {{
+                q11.textContent = translations.incentiveCalculation?.faq?.question11?.[lang] || 'Q11. TYPE-2 GROUP LEADER가 인센티브를 못 받는 경우가 있나요?';
+            }}
+            const answer11Main = document.getElementById('faqAnswer11Main');
+            if (answer11Main) {{
+                answer11Main.textContent = translations.incentiveCalculation?.faq?.answer11Main?.[lang] || 'TYPE-2 GROUP LEADER는 특별한 계산 규칙이 적용됩니다:';
+            }}
+            const answer11Detail1 = document.getElementById('faqAnswer11Detail1');
+            if (answer11Detail1) {{
+                const baseCalc = translations.incentiveCalculation?.faq?.answer11Detail1?.[lang] || '기본 계산: TYPE-1 GROUP LEADER 평균 인센티브를 받습니다';
+                answer11Detail1.innerHTML = `<strong>${{baseCalc.split(':')[0]}}:</strong> ${{baseCalc.split(':')[1] || ''}}`;
+            }}
+            const answer11Detail2 = document.getElementById('faqAnswer11Detail2');
+            if (answer11Detail2) {{
+                const indepCalc = translations.incentiveCalculation?.faq?.answer11Detail2?.[lang] || '독립 계산: TYPE-1 GROUP LEADER 평균이 0 VND일 경우, 자동으로 전체 TYPE-2 LINE LEADER 평균 × 2로 계산됩니다';
+                answer11Detail2.innerHTML = `<strong>${{indepCalc.split(':')[0]}}:</strong> ${{indepCalc.split(':')[1] || ''}}`;
+            }}
+            const answer11Detail3 = document.getElementById('faqAnswer11Detail3');
+            if (answer11Detail3) {{
+                const improvement = translations.incentiveCalculation?.faq?.answer11Detail3?.[lang] || '개선 사항: 부하직원 관계와 상관없이 전체 TYPE-2 LINE LEADER 평균을 사용하여 더 공정한 계산이 이루어집니다';
+                answer11Detail3.innerHTML = `<strong>${{improvement.split(':')[0]}}:</strong> ${{improvement.split(':')[1] || ''}}`;
+            }}
+            const answer11Detail4 = document.getElementById('faqAnswer11Detail4');
+            if (answer11Detail4) {{
+                const conditions = translations.incentiveCalculation?.faq?.answer11Detail4?.[lang] || '조건: TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브를 받을 수 있습니다';
+                answer11Detail4.innerHTML = `<strong>${{conditions.split(':')[0]}}:</strong> ${{conditions.split(':')[1] || ''}}`;
+            }}
+            const answer11Conclusion = document.getElementById('faqAnswer11Conclusion');
+            if (answer11Conclusion) {{
+                answer11Conclusion.textContent = translations.incentiveCalculation?.faq?.answer11Conclusion?.[lang] || '따라서 출근 조건을 충족한 TYPE-2 GROUP LEADER는 항상 인센티브를 받을 수 있도록 보장됩니다.';
+            }}
+
+            // TYPE-2 GROUP LEADER Special Calculation Box translations
+            const type2SpecialTitle = document.getElementById('type2GroupLeaderSpecialTitle');
+            if (type2SpecialTitle) {{
+                type2SpecialTitle.textContent = translations.type2GroupLeaderSpecial?.title?.[lang] || '⚠️ TYPE-2 GROUP LEADER 특별 계산 규칙';
+            }}
+            const type2BaseCalc = document.getElementById('type2BaseCalc');
+            if (type2BaseCalc) {{
+                const baseText = translations.type2GroupLeaderSpecial?.baseCalculation?.[lang] || '기본 계산: TYPE-1 GROUP LEADER 평균 인센티브 사용';
+                type2BaseCalc.innerHTML = `<strong>${{baseText.split(':')[0]}}:</strong> ${{baseText.split(':')[1] || ''}}`;
+            }}
+            const type2IndependentCalc = document.getElementById('type2IndependentCalc');
+            if (type2IndependentCalc) {{
+                const indepText = translations.type2GroupLeaderSpecial?.independentCalculation?.[lang] || 'TYPE-1 평균이 0 VND인 경우: 모든 TYPE-2 LINE LEADER 평균 × 2로 독립 계산';
+                type2IndependentCalc.innerHTML = `<strong>${{indepText.split(':')[0]}}:</strong> ${{indepText.split(':')[1] || ''}}`;
+            }}
+            const type2Important = document.getElementById('type2Important');
+            if (type2Important) {{
+                const importantText = translations.type2GroupLeaderSpecial?.important?.[lang] || '중요: 부하직원 관계 없이 전체 TYPE-2 LINE LEADER 평균 사용';
+                type2Important.innerHTML = `<strong>${{importantText.split(':')[0]}}:</strong> ${{importantText.split(':')[1] || ''}}`;
+            }}
+            const type2Conditions = document.getElementById('type2Conditions');
+            if (type2Conditions) {{
+                const conditionsText = translations.type2GroupLeaderSpecial?.conditions?.[lang] || '적용 조건: TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브 지급';
+                type2Conditions.innerHTML = `<strong>${{conditionsText.split(':')[0]}}:</strong> ${{conditionsText.split(':')[1] || ''}}`;
+            }}
+
             // Talent Pool 섹션 번역 업데이트
             const talentPoolTitle = document.getElementById('talentPoolTitle');
             if (talentPoolTitle) {{
@@ -3307,6 +3449,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
         function changeLanguage(lang) {{
             currentLanguage = lang;
             updateAllTexts();
+            updateTypeSummaryTable();  // Type별 요약 테이블도 업데이트
             localStorage.setItem('dashboardLanguage', lang);
         }}
         
@@ -4340,19 +4483,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 'TYPE-2': {{ total: 0, paid: 0, totalAmount: 0 }},
                 'TYPE-3': {{ total: 0, paid: 0, totalAmount: 0 }}
             }};
-            
+
             // 전체 데이터 집계
             let grandTotal = 0;
             let grandPaid = 0;
             let grandAmount = 0;
-            
+
             // 직원 데이터 순회하며 집계
             employeeData.forEach(emp => {{
                 const type = emp.type;
                 if (typeData[type]) {{
                     typeData[type].total++;
                     grandTotal++;
-                    
+
                     const amount = parseInt(emp.august_incentive) || 0;
                     if (amount > 0) {{
                         typeData[type].paid++;
@@ -4362,12 +4505,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                     }}
                 }}
             }});
-            
+
+            // 언어별 단위 설정
+            const personUnit = currentLanguage === 'ko' ? '명' :
+                              currentLanguage === 'en' ? ' people' :
+                              ' người';
+
             // 테이블 tbody 업데이트
             const tbody = document.getElementById('typeSummaryBody');
             if (tbody) {{
                 let html = '';
-                
+
                 // 각 Type별 행 생성
                 ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(type => {{
                     const data = typeData[type];
@@ -4375,33 +4523,33 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                     const avgPaid = data.paid > 0 ? Math.round(data.totalAmount / data.paid) : 0;
                     const avgTotal = data.total > 0 ? Math.round(data.totalAmount / data.total) : 0;
                     const typeClass = type.toLowerCase().replace('type-', '');
-                    
+
                     html += '<tr>';
                     html += '<td><span class="type-badge type-' + typeClass + '">' + type + '</span></td>';
-                    html += '<td>' + data.total + '명</td>';
-                    html += '<td>' + data.paid + '명</td>';
+                    html += '<td>' + data.total + personUnit + '</td>';
+                    html += '<td>' + data.paid + personUnit + '</td>';
                     html += '<td>' + paymentRate + '%</td>';
                     html += '<td>' + data.totalAmount.toLocaleString() + ' VND</td>';
                     html += '<td>' + avgPaid.toLocaleString() + ' VND</td>';
                     html += '<td>' + avgTotal.toLocaleString() + ' VND</td>';
                     html += '</tr>';
                 }});
-                
+
                 // 합계 행 생성
                 const totalPaymentRate = grandTotal > 0 ? (grandPaid / grandTotal * 100).toFixed(1) : '0.0';
                 const totalAvgPaid = grandPaid > 0 ? Math.round(grandAmount / grandPaid) : 0;
                 const totalAvgTotal = grandTotal > 0 ? Math.round(grandAmount / grandTotal) : 0;
-                
+
                 html += '<tr style="font-weight: bold; background-color: #f3f4f6;">';
                 html += '<td>Total</td>';
-                html += '<td>' + grandTotal + '명</td>';
-                html += '<td>' + grandPaid + '명</td>';
+                html += '<td>' + grandTotal + personUnit + '</td>';
+                html += '<td>' + grandPaid + personUnit + '</td>';
                 html += '<td>' + totalPaymentRate + '%</td>';
                 html += '<td>' + grandAmount.toLocaleString() + ' VND</td>';
                 html += '<td>' + totalAvgPaid.toLocaleString() + ' VND</td>';
                 html += '<td>' + totalAvgTotal.toLocaleString() + ' VND</td>';
                 html += '</tr>';
-                
+
                 tbody.innerHTML = html;
             }}
         }}
@@ -5648,7 +5796,8 @@ def main():
     html_content = generate_dashboard_html(df, month_name, args.year, args.month)
     
     # 파일 저장
-    output_file = f'output_files/dashboard_{args.year}_{args.month:02d}.html'
+    # 파일명 형식 변경: Incentive_Dashboard_YYYY_MM_Version_5.html
+    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_5.html'
     os.makedirs('output_files', exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)

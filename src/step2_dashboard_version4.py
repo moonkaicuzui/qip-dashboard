@@ -5392,7 +5392,8 @@ def generate_criteria_tab():
                                 <td><strong>모든 TYPE-2 직급</strong></td>
                                 <td>1, 2, 3, 4</td>
                                 <td>4개</td>
-                                <td>출근 조건만 적용</td>
+                                <td>출근 조건만 적용<br>
+                                    <small class="text-muted">* GROUP LEADER: TYPE-1 평균 0시 TYPE-2 LINE LEADER 평균×2</small></td>
                             </tr>
                         </tbody>
                     </table>

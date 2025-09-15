@@ -6,65 +6,10 @@
       "error_type": "날짜 형태 오류",
       "error_column": "Entrance Date",
       "error_value": "2025-09-14",
-      "expected_value": "2025-08-16 이전",
+      "expected_value": "2025-08-30 이전",
       "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
-    },
-    {
-      "id": 625080309,
-      "name": "HUỲNH THỊ TƯỜNG VI",
-      "error_type": "날짜 형태 오류",
-      "error_column": "Entrance Date",
-      "error_value": "2025-08-29",
-      "expected_value": "2025-08-16 이전",
-      "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
-    },
-    {
-      "id": 625080310,
-      "name": "TRỊNH THỊ YẾN NHI",
-      "error_type": "날짜 형태 오류",
-      "error_column": "Entrance Date",
-      "error_value": "2025-08-29",
-      "expected_value": "2025-08-16 이전",
-      "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
-    },
-    {
-      "id": 625080311,
-      "name": "HUỲNH NGỌC ANH THƯ",
-      "error_type": "날짜 형태 오류",
-      "error_column": "Entrance Date",
-      "error_value": "2025-08-29",
-      "expected_value": "2025-08-16 이전",
-      "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
-    },
-    {
-      "id": 625080312,
-      "name": "NGUYỄN THỊ BÍCH TRÂM",
-      "error_type": "날짜 형태 오류",
-      "error_column": "Entrance Date",
-      "error_value": "2025-08-29",
-      "expected_value": "2025-08-16 이전",
-      "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
-    },
-    {
-      "id": 625080332,
-      "name": "BÙI VĂN CÒN",
-      "error_type": "날짜 형태 오류",
-      "error_column": "Entrance Date",
-      "error_value": "2025-08-29",
-      "expected_value": "2025-08-16 이전",
-      "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+      "description": "입사일이 데이터 기준일(2025-08-30) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-30)"
     },
     {
       "id": 625030143,
@@ -72,10 +17,10 @@
       "error_type": "날짜 형태 오류",
       "error_column": "Entrance Date",
       "error_value": "2025-10-03",
-      "expected_value": "2025-08-16 이전",
+      "expected_value": "2025-08-30 이전",
       "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+      "description": "입사일이 데이터 기준일(2025-08-30) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-30)"
     },
     {
       "id": 625050085,
@@ -83,10 +28,10 @@
       "error_type": "날짜 형태 오류",
       "error_column": "Entrance Date",
       "error_value": "2025-09-05",
-      "expected_value": "2025-08-16 이전",
+      "expected_value": "2025-08-30 이전",
       "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+      "description": "입사일이 데이터 기준일(2025-08-30) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-30)"
     },
     {
       "id": 625050110,
@@ -94,10 +39,10 @@
       "error_type": "날짜 형태 오류",
       "error_column": "Entrance Date",
       "error_value": "2025-12-05",
-      "expected_value": "2025-08-16 이전",
+      "expected_value": "2025-08-30 이전",
       "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+      "description": "입사일이 데이터 기준일(2025-08-30) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-30)"
     },
     {
       "id": 625060065,
@@ -105,21 +50,10 @@
       "error_type": "날짜 형태 오류",
       "error_column": "Entrance Date",
       "error_value": "2025-11-06",
-      "expected_value": "2025-08-16 이전",
+      "expected_value": "2025-08-30 이전",
       "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
-    },
-    {
-      "id": 625080102,
-      "name": "ĐOÀN THẢO NHI",
-      "error_type": "날짜 형태 오류",
-      "error_column": "Entrance Date",
-      "error_value": "2025-11-08",
-      "expected_value": "2025-08-16 이전",
-      "severity": "critical",
-      "description": "입사일이 데이터 기준일(2025-08-16) 이후",
-      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-15)"
+      "description": "입사일이 데이터 기준일(2025-08-30) 이후",
+      "suggested_action": "날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: 2025-08-30)"
     },
     {
       "id": 623090224,
@@ -188,8 +122,8 @@
   "attendance_errors": [],
   "duplicate_errors": [],
   "summary": {
-    "total_errors": 16,
-    "critical": 16,
+    "total_errors": 10,
+    "critical": 10,
     "warning": 0,
     "info": 0
   }

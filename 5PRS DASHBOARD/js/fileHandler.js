@@ -20,9 +20,10 @@ export async function loadDataFromServer() {
         
         // API 엔드포인트에서 데이터 가져오기
         // 현재 포트를 사용하여 동적으로 API URL 생성
-        const currentPort = window.location.port || '5000';
-        const apiUrl = window.location.hostname === 'localhost'
-            ? `http://localhost:${currentPort}/api/5prs-data?month=${month}&year=${year}`
+        // action.sh는 포트 5003에서 API 서버를 실행함
+        const currentPort = window.location.port || '5003';
+        const apiUrl = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
+            ? `http://localhost:5003/api/5prs-data?month=${month}&year=${year}`
             : `/api/5prs-data?month=${month}&year=${year}`;
             
         console.log(`📡 API 호출: ${apiUrl}`);
@@ -161,9 +162,9 @@ export async function refreshData() {
     
     // 캐시 클리어 요청 (선택적)
     try {
-        const currentPort = window.location.port || '5000';
-        const apiUrl = window.location.hostname === 'localhost'
-            ? `http://localhost:${currentPort}/api/clear-cache`
+        const currentPort = window.location.port || '5003';
+        const apiUrl = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
+            ? `http://localhost:5003/api/clear-cache`
             : '/api/clear-cache';
             
         await fetch(apiUrl, { method: 'POST' });

@@ -1050,7 +1050,14 @@ class EnhancedHRDashboard:
         
         # Run comprehensive error detection
         print("\n🔍 Running comprehensive error detection...")
-        detector = DataErrorDetector(self.year, self.month)
+        # Get actual latest data date
+        try:
+            latest_day = self.calculate_latest_data_date(self.month, self.year)
+            latest_data_date = pd.Timestamp(self.year, self.month, latest_day)
+        except:
+            latest_data_date = None
+
+        detector = DataErrorDetector(self.year, self.month, latest_data_date)
         # 원본 데이터를 사용하여 미래 입사자 포함 검사
         error_report = detector.detect_all_errors(self.data.get('raw', self.data['current']))
         error_file = f'output_files/data_errors_{self.year}_{self.month:02d}.json'
