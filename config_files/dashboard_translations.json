@@ -2758,11 +2758,145 @@
         "en": "Please check the condition fulfillment details on the individual detail page.",
         "vi": "Vui lòng kiểm tra chi tiết việc đáp ứng điều kiện trên trang chi tiết cá nhân."
       },
+      "question11": {
+        "ko": "Q11. TYPE-2 GROUP LEADER가 인센티브를 못 받는 경우가 있나요?",
+        "en": "Q11. Are there cases where TYPE-2 GROUP LEADER doesn't receive incentives?",
+        "vi": "Q11. Có trường hợp TYPE-2 GROUP LEADER không nhận được thưởng không?"
+      },
+      "answer11Main": {
+        "ko": "TYPE-2 GROUP LEADER는 특별한 계산 규칙이 적용됩니다:",
+        "en": "TYPE-2 GROUP LEADER has special calculation rules applied:",
+        "vi": "TYPE-2 GROUP LEADER áp dụng quy tắc tính toán đặc biệt:"
+      },
+      "answer11Detail1": {
+        "ko": "기본 계산: TYPE-1 GROUP LEADER 평균 인센티브를 받습니다",
+        "en": "Base Calculation: Receives TYPE-1 GROUP LEADER average incentive",
+        "vi": "Tính toán cơ bản: Nhận mức thưởng trung bình của TYPE-1 GROUP LEADER"
+      },
+      "answer11Detail2": {
+        "ko": "독립 계산: TYPE-1 GROUP LEADER 평균이 0 VND일 경우, 자동으로 전체 TYPE-2 LINE LEADER 평균 × 2로 계산됩니다",
+        "en": "Independent Calculation: When TYPE-1 GROUP LEADER average is 0 VND, automatically calculated as all TYPE-2 LINE LEADER average × 2",
+        "vi": "Tính toán độc lập: Khi trung bình TYPE-1 GROUP LEADER là 0 VND, tự động tính bằng trung bình tất cả TYPE-2 LINE LEADER × 2"
+      },
+      "answer11Detail3": {
+        "ko": "개선 사항: 부하직원 관계와 상관없이 전체 TYPE-2 LINE LEADER 평균을 사용하여 더 공정한 계산이 이루어집니다",
+        "en": "Improvement: Uses all TYPE-2 LINE LEADER average for fairer calculation regardless of subordinate relationships",
+        "vi": "Cải tiến: Sử dụng trung bình tất cả TYPE-2 LINE LEADER để tính toán công bằng hơn không phụ thuộc quan hệ cấp dưới"
+      },
+      "answer11Detail4": {
+        "ko": "조건: TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브를 받을 수 있습니다",
+        "en": "Conditions: TYPE-2 can receive incentives by meeting only attendance conditions (1-4)",
+        "vi": "Điều kiện: TYPE-2 có thể nhận thưởng chỉ cần đáp ứng điều kiện chấm công (1-4)"
+      },
+      "answer11Conclusion": {
+        "ko": "따라서 출근 조건을 충족한 TYPE-2 GROUP LEADER는 항상 인센티브를 받을 수 있도록 보장됩니다.",
+        "en": "Therefore, TYPE-2 GROUP LEADERs who meet attendance conditions are guaranteed to receive incentives.",
+        "vi": "Do đó, TYPE-2 GROUP LEADER đáp ứng điều kiện chấm công luôn được đảm bảo nhận thưởng."
+      },
+      "question12": {
+        "ko": "Q12. TYPE-2 SUPERVISOR가 인센티브를 못 받는 경우가 있나요?",
+        "en": "Q12. Are there cases where TYPE-2 SUPERVISOR doesn't receive incentives?",
+        "vi": "Q12. Có trường hợp TYPE-2 SUPERVISOR không nhận được thưởng không?"
+      },
+      "answer12Main": {
+        "ko": "TYPE-2 SUPERVISOR도 TYPE-2 GROUP LEADER와 유사한 특별 계산 규칙이 적용됩니다:",
+        "en": "TYPE-2 SUPERVISOR also has special calculation rules similar to TYPE-2 GROUP LEADER:",
+        "vi": "TYPE-2 SUPERVISOR cũng áp dụng quy tắc tính toán đặc biệt tương tự TYPE-2 GROUP LEADER:"
+      },
+      "answer12Detail1": {
+        "ko": "기본 계산: TYPE-1 SUPERVISOR 평균 인센티브를 사용합니다",
+        "en": "Base calculation: Uses TYPE-1 SUPERVISOR average incentive",
+        "vi": "Tính toán cơ bản: Sử dụng mức thưởng trung bình của TYPE-1 SUPERVISOR"
+      },
+      "answer12Detail2": {
+        "ko": "독립 계산: TYPE-1 SUPERVISOR 평균이 0 VND인 경우, TYPE-2 LINE LEADER 평균 × 2.5로 독립 계산합니다",
+        "en": "Independent calculation: When TYPE-1 SUPERVISOR average is 0 VND, independently calculated as TYPE-2 LINE LEADER average × 2.5",
+        "vi": "Tính toán độc lập: Khi trung bình TYPE-1 SUPERVISOR là 0 VND, tính độc lập bằng trung bình TYPE-2 LINE LEADER × 2.5"
+      },
+      "answer12Detail3": {
+        "ko": "개선 사항: 부하직원 관계와 상관없이 전체 TYPE-2 LINE LEADER 평균을 사용하여 더 공정한 계산이 이루어집니다",
+        "en": "Improvement: Uses all TYPE-2 LINE LEADER average for fairer calculation regardless of subordinate relationships",
+        "vi": "Cải tiến: Sử dụng trung bình tất cả TYPE-2 LINE LEADER để tính toán công bằng hơn không phụ thuộc quan hệ cấp dưới"
+      },
+      "answer12Detail4": {
+        "ko": "조건: TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브를 받을 수 있습니다",
+        "en": "Conditions: TYPE-2 can receive incentives by meeting only attendance conditions (1-4)",
+        "vi": "Điều kiện: TYPE-2 có thể nhận thưởng chỉ cần đáp ứng điều kiện chấm công (1-4)"
+      },
+      "answer12Conclusion": {
+        "ko": "따라서 출근 조건을 충족한 TYPE-2 SUPERVISOR는 항상 인센티브를 받을 수 있도록 보장됩니다.",
+        "en": "Therefore, TYPE-2 SUPERVISORs who meet attendance conditions are guaranteed to receive incentives.",
+        "vi": "Do đó, TYPE-2 SUPERVISOR đáp ứng điều kiện chấm công luôn được đảm bảo nhận thưởng."
+      },
       "faqSectionTitle": {
         "ko": "❓ 자주 묻는 질문 (FAQ)",
         "en": "❓ Frequently Asked Questions (FAQ)",
         "vi": "❓ Câu hỏi thường gặp (FAQ)"
       }
+    }
+  },
+  "type2GroupLeaderSpecial": {
+    "title": {
+      "ko": "⚠️ TYPE-2 GROUP LEADER 특별 계산 규칙",
+      "en": "⚠️ TYPE-2 GROUP LEADER Special Calculation Rules",
+      "vi": "⚠️ Quy tắc tính toán đặc biệt cho TYPE-2 GROUP LEADER"
+    },
+    "baseCalculation": {
+      "ko": "기본 계산: TYPE-1 GROUP LEADER 평균 인센티브 사용",
+      "en": "Base Calculation: Uses TYPE-1 GROUP LEADER average incentive",
+      "vi": "Tính toán cơ bản: Sử dụng mức thưởng trung bình của TYPE-1 GROUP LEADER"
+    },
+    "independentCalculation": {
+      "ko": "TYPE-1 평균이 0 VND인 경우: 모든 TYPE-2 LINE LEADER 평균 × 2로 독립 계산",
+      "en": "When TYPE-1 average is 0 VND: Independently calculated as all TYPE-2 LINE LEADER average × 2",
+      "vi": "Khi trung bình TYPE-1 là 0 VND: Tính độc lập bằng trung bình tất cả TYPE-2 LINE LEADER × 2"
+    },
+    "important": {
+      "ko": "중요: 부하직원 관계 없이 전체 TYPE-2 LINE LEADER 평균 사용",
+      "en": "Important: Uses all TYPE-2 LINE LEADER average regardless of subordinate relationships",
+      "vi": "Quan trọng: Sử dụng trung bình tất cả TYPE-2 LINE LEADER không phụ thuộc quan hệ cấp dưới"
+    },
+    "conditions": {
+      "ko": "적용 조건: TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브 지급",
+      "en": "Conditions: TYPE-2 only needs to meet attendance conditions (1-4) for incentive payment",
+      "vi": "Điều kiện: TYPE-2 chỉ cần đáp ứng điều kiện chấm công (1-4) để nhận thưởng"
+    },
+    "note": {
+      "ko": "(TYPE-1 평균 0시: 전체 TYPE-2 LINE LEADER 평균 × 2)",
+      "en": "(When TYPE-1 avg is 0: All TYPE-2 LINE LEADER avg × 2)",
+      "vi": "(Khi TB TYPE-1 là 0: TB tất cả TYPE-2 LINE LEADER × 2)"
+    }
+  },
+  "type2SupervisorSpecial": {
+    "title": {
+      "ko": "⚠️ TYPE-2 SUPERVISOR 특별 계산 규칙",
+      "en": "⚠️ TYPE-2 SUPERVISOR Special Calculation Rules",
+      "vi": "⚠️ Quy tắc tính toán đặc biệt cho TYPE-2 SUPERVISOR"
+    },
+    "baseCalculation": {
+      "ko": "기본 계산: TYPE-1 SUPERVISOR 평균 인센티브 사용",
+      "en": "Base Calculation: Uses TYPE-1 SUPERVISOR average incentive",
+      "vi": "Tính toán cơ bản: Sử dụng mức thưởng trung bình của TYPE-1 SUPERVISOR"
+    },
+    "independentCalculation": {
+      "ko": "TYPE-1 평균이 0 VND인 경우: 모든 TYPE-2 LINE LEADER 평균 × 2.5로 독립 계산",
+      "en": "When TYPE-1 average is 0 VND: Independently calculated as all TYPE-2 LINE LEADER average × 2.5",
+      "vi": "Khi trung bình TYPE-1 là 0 VND: Tính độc lập bằng trung bình tất cả TYPE-2 LINE LEADER × 2.5"
+    },
+    "important": {
+      "ko": "중요: 부하직원 관계 없이 전체 TYPE-2 LINE LEADER 평균 사용",
+      "en": "Important: Uses all TYPE-2 LINE LEADER average regardless of subordinate relationships",
+      "vi": "Quan trọng: Sử dụng trung bình tất cả TYPE-2 LINE LEADER không phụ thuộc quan hệ cấp dưới"
+    },
+    "conditions": {
+      "ko": "적용 조건: TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브 지급",
+      "en": "Conditions: TYPE-2 only needs to meet attendance conditions (1-4) for incentive payment",
+      "vi": "Điều kiện: TYPE-2 chỉ cần đáp ứng điều kiện chấm công (1-4) để nhận thưởng"
+    },
+    "note": {
+      "ko": "(TYPE-1 평균 0시: 전체 TYPE-2 LINE LEADER 평균 × 2.5)",
+      "en": "(When TYPE-1 avg is 0: All TYPE-2 LINE LEADER avg × 2.5)",
+      "vi": "(Khi TB TYPE-1 là 0: TB tất cả TYPE-2 LINE LEADER × 2.5)"
     }
   },
   "incentive": {

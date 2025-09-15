@@ -55,6 +55,20 @@ export function createPieChart(canvasId, data, options = {}) {
     });
 }
 
+/**
+ * 도넛 차트 생성 함수
+ */
+export function createDoughnutChart(canvasId, data, options = {}) {
+    createChart(canvasId, 'doughnut', data, {
+        plugins: {
+            legend: {
+                position: 'right'
+            }
+        },
+        ...options
+    });
+}
+
 // 이 파일에는 Chart.js를 사용한 차트 생성 함수들이 포함되어 있습니다:
 
 // createChart() - 범용 차트 생성 (Chart.js 기반)

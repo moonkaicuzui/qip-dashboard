@@ -11,12 +11,13 @@ import os
 
 class DataErrorDetector:
     """포괄적 데이터 오류 감지 클래스"""
-    
-    def __init__(self, year, month):
+
+    def __init__(self, year, month, latest_data_date=None):
         self.year = year
         self.month = month
         self.month_start = pd.Timestamp(year, month, 1)
         self.month_end = pd.Timestamp(year, month, 1) + pd.DateOffset(months=1) - pd.Timedelta(days=1)
+        self.latest_data_date = latest_data_date  # 실제 데이터 최신 날짜
         self.errors = {
             'temporal_errors': [],
             'type_errors': [],
@@ -75,15 +76,20 @@ class DataErrorDetector:
     def detect_temporal_errors(self, df):
         """시간 관련 오류 감지"""
         print("  📅 Detecting temporal errors...")
-        
-        # 미래 입사자 검사 - 데이터 기준일(8월 16일) 이후 입사자는 날짜 입력 오류로 판단
+
+        # 미래 입사자 검사 - 실제 데이터 기준일 이후 입사자는 날짜 입력 오류로 판단
         from datetime import datetime
         from calendar import monthrange
-        
-        # 데이터 최신일 계산 (8월 16일)
-        last_day = 16 if self.month == 8 and self.year == 2025 else monthrange(self.year, self.month)[1]
-        data_latest_date = pd.Timestamp(self.year, self.month, last_day)
-        
+
+        # 데이터 최신일 계산 - 실제 데이터 날짜 사용 (하드코딩 제거)
+        if self.latest_data_date:
+            # 실제 데이터 최신 날짜가 제공된 경우
+            data_latest_date = self.latest_data_date
+        else:
+            # 제공되지 않은 경우 월말 사용 (폴백)
+            last_day = monthrange(self.year, self.month)[1]
+            data_latest_date = pd.Timestamp(self.year, self.month, last_day)
+
         if 'Entrance Date' in df.columns:
             # 미래 입사자 감지 (데이터 기준일 이후 입사)
             future_employees = df[
@@ -98,10 +104,10 @@ class DataErrorDetector:
                     'error_type': '날짜 형태 오류',
                     'error_column': 'Entrance Date',
                     'error_value': str(entrance_date)[:10] if pd.notna(entrance_date) else 'N/A',
-                    'expected_value': f'{self.year}-{self.month:02d}-16 이전',
+                    'expected_value': f'{data_latest_date.strftime("%Y-%m-%d")} 이전',
                     'severity': 'critical',
                     'description': f'입사일이 데이터 기준일({data_latest_date.strftime("%Y-%m-%d")}) 이후',
-                    'suggested_action': f'날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: {self.year}-{self.month:02d}-15)'
+                    'suggested_action': f'날짜 형식 확인 및 수정 (정확한 형식: YYYY-MM-DD, 예: {data_latest_date.strftime("%Y-%m-%d")})'
                 })
         
         if 'Stop working Date' in df.columns and 'Entrance Date' in df.columns:
