@@ -224,9 +224,9 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             for col in required_columns:
                 if col not in df.columns:
                     if col == f'{month.lower()}_incentive':
-                        # August_Incentive 컬럼 찾기
+                        # 해당 월의 Incentive 컬럼 찾기
                         for orig_col in df.columns:
-                            if 'august' in orig_col.lower() and 'incentive' in orig_col.lower():
+                            if month.lower() in orig_col.lower() and 'incentive' in orig_col.lower():
                                 df[col] = df[orig_col]
                                 break
                     elif col == 'type':
@@ -465,21 +465,43 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                         updated_count += 1
                 print(f"✅ 7월 인센티브 JSON 설정 적용 완료: {updated_count}명 업데이트")
             
-            # 퇴사일 필터링 (8월 1일 이전 퇴사자 제외)
+            # 입사일 및 퇴사일 필터링 (해당 월 기준)
+            print(f"✅ 직원 데이터 필터링 중...")
+
+            # 해당 월의 날짜 범위 계산
+            month_names = ['january', 'february', 'march', 'april', 'may', 'june',
+                           'july', 'august', 'september', 'october', 'november', 'december']
+            month_num = month_names.index(month.lower()) + 1
+            month_start = pd.to_datetime(f'{year}-{month_num:02d}-01')
+
+            # 다음 달 1일 계산 (월말 계산용)
+            import calendar
+            last_day = calendar.monthrange(year, month_num)[1]
+            month_end = pd.to_datetime(f'{year}-{month_num:02d}-{last_day}')
+
+            initial_count = len(df)
+
+            # 1. 퇴사일 필터링 (해당 월 1일 이전 퇴사자 제외)
             if 'Stop working Date' in df.columns:
-                print(f"✅ 퇴사일 데이터 확인 중...")
-                df['resignation_date'] = pd.to_datetime(df['Stop working Date'], format='%Y.%m.%d', errors='coerce')
-                august_start = pd.to_datetime(f'{year}-08-01')
-                
-                # 8월 이전 퇴사자 제외
-                before_august = df[df['resignation_date'] < august_start]
-                df = df[(df['resignation_date'] >= august_start) | (df['resignation_date'].isna())]
-                
-                if len(before_august) > 0:
-                    print(f"   - 8월 이전 퇴사자 {len(before_august)}명 제외")
-                print(f"   - 8월 인센티브 대상자: {len(df)}명")
+                df['resignation_date'] = pd.to_datetime(df['Stop working Date'], errors='coerce')
+                before_month = df[df['resignation_date'] < month_start]
+                df = df[(df['resignation_date'] >= month_start) | (df['resignation_date'].isna())]
+
+                if len(before_month) > 0:
+                    print(f"   - {get_korean_month(month)} 이전 퇴사자 {len(before_month)}명 제외")
+
+            # 2. 입사일 필터링 (해당 월 이후 입사자 제외)
+            if 'Entrance Date' in df.columns:
+                df['entrance_date'] = pd.to_datetime(df['Entrance Date'], errors='coerce')
+                after_month = df[df['entrance_date'] > month_end]
+                df = df[(df['entrance_date'] <= month_end) | (df['entrance_date'].isna())]
+
+                if len(after_month) > 0:
+                    print(f"   - {get_korean_month(month)} 이후 입사 예정자 {len(after_month)}명 제외")
+
+            print(f"   - {get_korean_month(month)} 인센티브 대상자: {len(df)}명 (전체 {initial_count}명 중)")
             
-            print(f"✅ {len(df)}명의 직원 데이터 로드 (8월 대상자만)")
+            print(f"✅ {len(df)}명의 직원 데이터 로드 ({get_korean_month(month)} 기준)")
             return df
             
     print("❌ 인센티브 데이터 파일을 찾을 수 없습니다")
@@ -707,7 +729,20 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
 
 def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     """dashboard_version4.html과 완전히 동일한 대시보드 생성"""
-    
+
+    # 이전 월 계산
+    month_map = {
+        'january': 0, 'february': 1, 'march': 2, 'april': 3,
+        'may': 4, 'june': 5, 'july': 6, 'august': 7,
+        'september': 8, 'october': 9, 'november': 10, 'december': 11
+    }
+    month_names = ['january', 'february', 'march', 'april', 'may', 'june',
+                   'july', 'august', 'september', 'october', 'november', 'december']
+
+    current_month_num = month_map.get(month.lower(), 7)
+    prev_month_name = month_names[current_month_num - 1] if current_month_num > 0 else 'december'
+    prev_year = year if current_month_num > 0 else year - 1
+
     # 조건 매트릭스 로드
     condition_matrix = load_condition_matrix()
     
@@ -733,7 +768,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             'position': str(row_dict.get('position', '')),
             'type': str(row_dict.get('type', 'TYPE-2')),
             'july_incentive': str(row_dict.get('july_incentive', '0')),
-            'august_incentive': str(row_dict.get('august_incentive', '0')),
+            'august_incentive': str(row_dict.get(f'{month.lower()}_incentive', '0')),  # 현재 월 인센티브 동적 처리
             'june_incentive': str(row_dict.get('june_incentive', '0')),
             'attendance_rate': float(row_dict.get('attendance_rate', 0)),
             'actual_working_days': int(row_dict.get('actual_working_days', 0)),
@@ -821,6 +856,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     current_hour = current_datetime.hour
     current_minute = current_datetime.minute
 
+    # 보고서 타입 결정 (중간 vs 최종)
+    is_interim_report = current_day < 20
+    report_type_ko = '중간 점검용' if is_interim_report else '최종'
+    report_type_en = 'Interim' if is_interim_report else 'Final'
+    report_type_vi = 'Tạm thời' if is_interim_report else 'Cuối cùng'
+
     # 해당 월의 마지막 날 계산
     import calendar
     # month_num is the actual month number passed from main
@@ -838,7 +879,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
         prs_min, prs_max = data_ranges.get('5prs', (None, None))
 
         # 출근 데이터 범위 포맷팅
-        if att_min and att_max:
+        if att_min is not None and att_max is not None:
             attendance_start_day = att_min.day
             attendance_end_day = att_max.day
             attendance_start_str = att_min.strftime('%d')
@@ -850,7 +891,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             attendance_end_str = f'{month_last_day:02d}'
 
         # 5PRS 데이터 범위 포맷팅
-        if prs_min and prs_max:
+        if prs_min is not None and prs_max is not None:
             prs_start_day = prs_min.day
             prs_end_day = prs_max.day
             prs_start_str = prs_min.strftime('%d')
@@ -861,13 +902,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             prs_start_str = '01'
             prs_end_str = f'{month_last_day:02d}'
 
-        # AQL 데이터 범위 (보통 월 전체)
-        aql_start_str = '01'
-        aql_end_str = f'{month_last_day:02d}'
+        # AQL 데이터 범위 포맷팅
+        if aql_min is not None and aql_max is not None:
+            aql_start_str = aql_min.strftime('%d')
+            aql_end_str = aql_max.strftime('%d')
+        else:
+            aql_start_str = '01'
+            aql_end_str = f'{month_last_day:02d}'
 
-        # 인센티브 데이터 범위 (항상 월 전체)
-        incentive_start_str = '01'
-        incentive_end_str = f'{month_last_day:02d}'
+        # 인센티브 데이터 범위 포맷팅
+        if inc_min is not None and inc_max is not None:
+            incentive_start_str = inc_min.strftime('%d')
+            incentive_end_str = inc_max.strftime('%d')
+        else:
+            incentive_start_str = '01'
+            incentive_end_str = f'{month_last_day:02d}'
 
     except Exception as e:
         # 에러 발생 시 기본값 사용 (월 전체)
@@ -1105,6 +1154,51 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             border-style: solid;
             border-color: #FFA500 transparent transparent transparent;
         }}
+
+        /* 보고서 타입 알림 */
+        .report-type-banner {{
+            background: {'linear-gradient(135deg, #FFA500 0%, #FFD700 100%)' if is_interim_report else 'linear-gradient(135deg, #28a745 0%, #20c997 100%)'};
+            color: white;
+            padding: 15px 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: slideDown 0.5s ease-out;
+        }}
+
+        .report-type-banner .icon {{
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }}
+
+        .report-type-banner .message {{
+            flex-grow: 1;
+        }}
+
+        .report-type-banner .title {{
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }}
+
+        .report-type-banner .description {{
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }}
+
+        @keyframes slideDown {{
+            from {{
+                opacity: 0;
+                transform: translateY(-20px);
+            }}
+            to {{
+                opacity: 1;
+                transform: translateY(0);
+            }}
+        }}
         
         .modal {{
             display: none;
@@ -1327,7 +1421,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}">• 기본 인력 데이터: {year}년 {month_num:02d}월 기준</p>
             </div>
         </div>
-        
+
+        <!-- 보고서 타입 알림 배너 -->
+        <div class="report-type-banner" id="reportTypeBanner">
+            <div style="display: flex; align-items: center;">
+                <span class="icon">{'⚠️' if is_interim_report else '✅'}</span>
+                <div class="message">
+                    <div class="title" id="reportTypeTitle">{report_type_ko} 보고서</div>
+                    <div class="description" id="reportTypeDesc">
+                        {'이 보고서는 월중 점검용 중간 보고서입니다. 최소 근무일(12일) 및 결근율(12%) 조건이 적용되지 않습니다.' if is_interim_report else '이 보고서는 월말 최종 보고서입니다. 모든 인센티브 조건이 정상적으로 적용됩니다.'}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: {current_day}일</span>
+            </div>
+        </div>
+
         <div class="content p-4">
             <!-- 요약 카드 -->
             <div class="row mb-4">
@@ -1480,8 +1590,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                                 <th id="nameHeader">이름</th>
                                 <th id="positionHeader">직급</th>
                                 <th id="typeHeader">Type</th>
-                                <th id="julyHeader">7월</th>
-                                <th id="augustHeader">8월</th>
+                                <th id="prevMonthHeader">{get_korean_month(prev_month_name)}</th>
+                                <th id="currentMonthHeader">{get_korean_month(month)}</th>
                                 <th id="talentPoolHeader">Talent Pool</th>
                                 <th id="statusHeader">상태</th>
                                 <th id="detailsHeader">상세</th>
@@ -3737,8 +3847,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 'nameHeader': 'individual.table.columns.name',
                 'positionHeader': 'individual.table.columns.position',
                 'typeHeader': 'individual.table.columns.type',
-                'julyHeader': 'common.july',
-                'augustHeader': 'common.august',
                 'statusHeader': 'individual.table.columns.status',
                 'detailsHeader': 'individual.table.columns.details'
             }};
@@ -3746,6 +3854,38 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             for (const [id, key] of Object.entries(individualHeaders)) {{
                 const elem = document.getElementById(id);
                 if (elem) elem.textContent = getTranslation(key, currentLanguage);
+            }}
+
+            // 월별 헤더 동적 업데이트
+            const prevMonthHeader = document.getElementById('prevMonthHeader');
+            const currentMonthHeader = document.getElementById('currentMonthHeader');
+
+            // 이전 월과 현재 월 이름 설정
+            const prevMonthName = '{prev_month_name}';
+            const currentMonthName = '{month}';
+
+            if (prevMonthHeader) {{
+                if (currentLanguage === 'ko') {{
+                    prevMonthHeader.textContent = '{get_korean_month(prev_month_name)}';
+                }} else if (currentLanguage === 'en') {{
+                    prevMonthHeader.textContent = prevMonthName.charAt(0).toUpperCase() + prevMonthName.slice(1);
+                }} else {{
+                    // Vietnamese
+                    const monthNum = {{'january': 1, 'february': 2, 'march': 3, 'april': 4, 'may': 5, 'june': 6, 'july': 7, 'august': 8, 'september': 9, 'october': 10, 'november': 11, 'december': 12}}[prevMonthName.toLowerCase()];
+                    prevMonthHeader.textContent = 'Tháng ' + monthNum;
+                }}
+            }}
+
+            if (currentMonthHeader) {{
+                if (currentLanguage === 'ko') {{
+                    currentMonthHeader.textContent = '{get_korean_month(month)}';
+                }} else if (currentLanguage === 'en') {{
+                    currentMonthHeader.textContent = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1);
+                }} else {{
+                    // Vietnamese
+                    const monthNum = {{'january': 1, 'february': 2, 'march': 3, 'april': 4, 'may': 5, 'june': 6, 'july': 7, 'august': 8, 'september': 9, 'october': 10, 'november': 11, 'december': 12}}[currentMonthName.toLowerCase()];
+                    currentMonthHeader.textContent = 'Tháng ' + monthNum;
+                }}
             }}
             
             // 필터 업데이트
@@ -3767,6 +3907,35 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             const optPaymentUnpaid = document.getElementById('optPaymentUnpaid');
             if (optPaymentUnpaid) optPaymentUnpaid.textContent = getTranslation('status.unpaid', currentLanguage);
             
+            // Report Type Banner 업데이트
+            const reportTypeBanner = document.getElementById('reportTypeBanner');
+            if (reportTypeBanner) {{
+                const isInterim = {str(is_interim_report).lower()};
+                const reportType = isInterim ? 'interim' : 'final';
+
+                // Title 업데이트
+                const reportTypeTitle = document.getElementById('reportTypeTitle');
+                if (reportTypeTitle) {{
+                    reportTypeTitle.textContent = getTranslation('reportTypeBanner.' + reportType + '.title', currentLanguage);
+                }}
+
+                // Description 업데이트
+                const reportTypeDesc = document.getElementById('reportTypeDesc');
+                if (reportTypeDesc) {{
+                    reportTypeDesc.textContent = getTranslation('reportTypeBanner.' + reportType + '.description', currentLanguage);
+                }}
+
+                // Generated on date 업데이트
+                const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
+                const dayText = currentLanguage === 'ko' ? '{current_day}일' :
+                               currentLanguage === 'en' ? 'Day {current_day}' :
+                               'Ngày {current_day}';
+                const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
+                if (dateSpan) {{
+                    dateSpan.textContent = generatedText + ': ' + dayText;
+                }}
+            }}
+
             // Summary 테이블의 "명" 단위 업데이트
             const typeSummaryBody = document.getElementById('typeSummaryBody');
             if (typeSummaryBody) {{

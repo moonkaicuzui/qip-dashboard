@@ -100,6 +100,37 @@
       "vi": "Tháng 8"
     }
   },
+  "reportTypeBanner": {
+    "interim": {
+      "title": {
+        "ko": "중간 점검용 보고서",
+        "en": "Interim Report",
+        "vi": "Báo cáo tạm thời"
+      },
+      "description": {
+        "ko": "이 보고서는 월중 점검용 중간 보고서입니다. 최소 근무일(12일) 및 결근율(12%) 조건이 적용되지 않습니다.",
+        "en": "This is an interim report for mid-month review. Minimum working days (12 days) and absence rate (12%) conditions are not applied.",
+        "vi": "Đây là báo cáo tạm thời để kiểm tra giữa tháng. Các điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ vắng mặt (12%) không được áp dụng."
+      }
+    },
+    "final": {
+      "title": {
+        "ko": "최종 보고서",
+        "en": "Final Report",
+        "vi": "Báo cáo cuối cùng"
+      },
+      "description": {
+        "ko": "이 보고서는 월말 최종 보고서입니다. 모든 인센티브 조건이 정상적으로 적용됩니다.",
+        "en": "This is the final report for month-end. All incentive conditions are applied normally.",
+        "vi": "Đây là báo cáo cuối cùng cho cuối tháng. Tất cả các điều kiện khen thưởng được áp dụng bình thường."
+      }
+    },
+    "generatedOn": {
+      "ko": "생성일",
+      "en": "Generated on",
+      "vi": "Tạo ngày"
+    }
+  },
   "summary": {
     "cards": {
       "totalEmployees": {
