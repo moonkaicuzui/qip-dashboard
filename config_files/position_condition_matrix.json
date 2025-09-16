@@ -1,7 +1,35 @@
 {
   "description": "Position-based condition application matrix for QIP incentive calculation",
-  "version": "1.0.0",
-  "last_updated": "2025-01-23",
+  "version": "1.1.0",
+  "last_updated": "2025-01-27",
+
+  "incentive_progression": {
+    "TYPE_1_PROGRESSIVE": {
+      "description": "Progressive incentive for ASSEMBLY INSPECTOR, MODEL MASTER, AUDITOR & TRAINER",
+      "applies_to": ["ASSEMBLY_INSPECTOR", "MODEL_MASTER", "AUDITOR_TRAINER"],
+      "progression_table": {
+        "0": 0,
+        "1": 150000,
+        "2": 250000,
+        "3": 300000,
+        "4": 350000,
+        "5": 400000,
+        "6": 450000,
+        "7": 500000,
+        "8": 650000,
+        "9": 750000,
+        "10": 850000,
+        "11": 950000,
+        "12": 1000000,
+        "13": 1000000,
+        "14": 1000000,
+        "15": 1000000
+      },
+      "max_months": 12,
+      "reset_on_fail": true,
+      "carry_over_next_month": true
+    }
+  },
   
   "conditions": {
     "1": {

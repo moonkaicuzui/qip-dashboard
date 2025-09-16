@@ -7,8 +7,8 @@
       "type1_count": "130",
       "type2_count": "247",
       "type3_count": "22",
-      "attendance_rate": 89.63341346153845,
-      "absence_rate": 10.366586538461547,
+      "attendance_rate": 89.73357371794873,
+      "absence_rate": 10.26642628205127,
       "absence_count": 219,
       "resignation_count": 0,
       "resignation_rate": 0.0,
@@ -57,8 +57,8 @@
         "date": "08/01",
         "date_full": "2025-08-01",
         "total_employees": 399,
-        "attendance_rate": 89.63,
-        "absence_rate": 10.37,
+        "attendance_rate": 89.73,
+        "absence_rate": 10.27,
         "new_hires": 3,
         "resignations": 0
       },
@@ -66,8 +66,8 @@
         "date": "08/08",
         "date_full": "2025-08-08",
         "total_employees": 399,
-        "attendance_rate": 89.63,
-        "absence_rate": 10.37,
+        "attendance_rate": 89.73,
+        "absence_rate": 10.27,
         "new_hires": 0,
         "resignations": 0
       },
@@ -75,8 +75,8 @@
         "date": "08/15",
         "date_full": "2025-08-15",
         "total_employees": 399,
-        "attendance_rate": 89.63,
-        "absence_rate": 10.37,
+        "attendance_rate": 89.73,
+        "absence_rate": 10.27,
         "new_hires": 0,
         "resignations": 0
       }
@@ -122,8 +122,8 @@
       },
       "QA": {
         "total": 20,
-        "attendance_rate": 89.08,
-        "absence_rate": 10.92,
+        "attendance_rate": 91.0,
+        "absence_rate": 9.0,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 10,
@@ -348,8 +348,8 @@
       },
       "QA": {
         "total": 20,
-        "attendance_rate": 89.08,
-        "absence_rate": 10.92,
+        "attendance_rate": 91.0,
+        "absence_rate": 9.0,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 10,
@@ -533,5 +533,5 @@
       }
     }
   },
-  "generation_timestamp": "2025-09-15 17:46:59"
+  "generation_timestamp": "2025-09-16 07:24:40"
 }

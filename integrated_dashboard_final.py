@@ -154,11 +154,13 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
     if generate_prev:
         prev_month_name, prev_year = generate_previous_month_data(month, year)
     
-    # 가능한 파일 패턴들
+    # 가능한 파일 패턴들 - output_files를 먼저 확인
+    month_str = 'august' if month == 8 else 'september' if month == 9 else str(month)
     patterns = [
-        f"input_files/{year}년 {get_korean_month(month)} 인센티브 지급 세부 정보.csv",
+        f"output_files/output_QIP_incentive_{month_str}_{year}_최종완성버전_v6.0_Complete.csv",
         f"output_files/output_QIP_incentive_{month}_{year}_최종완성버전_v6.0_Complete.csv",
-        f"output_files/output_QIP_incentive_{month}_{year}_*.csv"
+        f"output_files/output_QIP_incentive_{month_str}_{year}_*.csv",
+        f"input_files/{year}년 {get_korean_month(month)} 인센티브 지급 세부 정보.csv"
     ]
     
     for pattern in patterns:
@@ -554,18 +556,32 @@ def evaluate_conditions(emp_data, condition_matrix):
             value = emp_data.get(value_col, '')
 
             if excel_result == 'PASS':
+                # 조건별로 적절한 표시 값 설정
+                if cond_id == 7:  # 팀/구역 AQL
+                    actual_display = '통과' if value == 'NO' else str(value)
+                else:
+                    actual_display = str(value) if value else '통과'
+
                 results.append({
                     'id': cond_id,
-                    'description': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
-                    'result': 'PASS',
-                    'value': str(value)
+                    'name': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
+                    'is_met': True,
+                    'actual': actual_display,
+                    'is_na': False
                 })
             elif excel_result == 'FAIL':
+                # 조건별로 적절한 표시 값 설정
+                if cond_id == 7:  # 팀/구역 AQL
+                    actual_display = '실패' if value == 'YES' else str(value)
+                else:
+                    actual_display = str(value) if value else '실패'
+
                 results.append({
                     'id': cond_id,
-                    'description': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
-                    'result': 'FAIL',
-                    'value': str(value)
+                    'name': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
+                    'is_met': False,
+                    'actual': actual_display,
+                    'is_na': False
                 })
             else:  # N/A
                 results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
@@ -736,6 +752,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             'Talent_Pool_Member': str(row_dict.get('Talent_Pool_Member', 'N')),
             'Talent_Pool_Bonus': int(row_dict.get('Talent_Pool_Bonus', 0))
         }
+
+        # 조건 관련 컬럼 추가 (cond_1 ~ cond_10)
+        for cond_id in range(1, 11):
+            condition_names = [
+                'attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
+                'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
+                '5prs_pass_rate', '5prs_inspection_qty'
+            ]
+            cond_col = f'cond_{cond_id}_{condition_names[cond_id-1]}'
+            value_col = f'cond_{cond_id}_value'
+            threshold_col = f'cond_{cond_id}_threshold'
+
+            # CSV에서 조건 평가 결과와 값 가져오기
+            if cond_col in row_dict:
+                emp[cond_col] = row_dict[cond_col]
+            if value_col in row_dict:
+                emp[value_col] = row_dict[value_col]
+            if threshold_col in row_dict:
+                emp[threshold_col] = row_dict[threshold_col]
         
         # metadata에서 area_reject_rate 가져오기
         emp_no = str(emp['emp_no']).zfill(9)
@@ -785,7 +820,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     current_day = current_datetime.day
     current_hour = current_datetime.hour
     current_minute = current_datetime.minute
-    
+
+    # 해당 월의 마지막 날 계산
+    import calendar
+    # month_num is the actual month number passed from main
+    month_last_day = calendar.monthrange(year, month_num)[1]
+
     # JavaScript용 번역 데이터 생성
     translations_js = json.dumps(TRANSLATIONS, ensure_ascii=False, indent=2)
     
@@ -1220,9 +1260,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.0</span></h1>
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.1</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
+            <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
+                <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
+                <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-lastday="{month_last_day:02d}">• 인센티브 데이터: {year}년 {month_num:02d}월 01일 ~ {month_last_day:02d}일</p>
+                <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-lastday="{month_last_day:02d}">• 출근 데이터: {year}년 {month_num:02d}월 01일 ~ {month_last_day:02d}일</p>
+                <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-lastday="{month_last_day:02d}">• AQL 데이터: {year}년 {month_num:02d}월 01일 ~ {month_last_day:02d}일</p>
+                <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-lastday="{month_last_day:02d}">• 5PRS 데이터: {year}년 {month_num:02d}월 01일 ~ {month_last_day:02d}일</p>
+                <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}">• 기본 인력 데이터: {year}년 {month_num:02d}월 기준</p>
+            </div>
         </div>
         
         <div class="content p-4">
@@ -3480,7 +3528,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
-                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v5.0</span>';
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v5.1</span>';
             }}
             
             // 날짜 관련 업데이트
@@ -3516,7 +3564,56 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 }}
                 generationDate.innerHTML = dateLabel + ' ' + formattedDate;
             }}
-            
+
+            // 데이터 기간 섹션 업데이트
+            const dataPeriodTitle = document.getElementById('dataPeriodTitle');
+            if (dataPeriodTitle) {{
+                dataPeriodTitle.innerHTML = getTranslation('headers.dataPeriod.title', currentLanguage);
+            }}
+
+            // 각 데이터 기간 항목 업데이트
+            const dataPeriodItems = [
+                {{id: 'incentiveDataPeriod', key: 'incentiveData'}},
+                {{id: 'attendanceDataPeriod', key: 'attendanceData'}},
+                {{id: 'aqlDataPeriod', key: 'aqlData'}},
+                {{id: '5prsDataPeriod', key: '5prsData'}},
+                {{id: 'manpowerDataPeriod', key: 'manpowerData'}}
+            ];
+
+            dataPeriodItems.forEach(item => {{
+                const element = document.getElementById(item.id);
+                if (element) {{
+                    const year = element.getAttribute('data-year');
+                    const month = element.getAttribute('data-month');
+                    const lastDay = element.getAttribute('data-lastday');
+                    const dataLabel = getTranslation('headers.dataPeriod.' + item.key, currentLanguage);
+
+                    let periodText;
+                    if (item.key === 'manpowerData') {{
+                        // 기본 인력 데이터는 월 기준만 표시
+                        if (currentLanguage === 'ko') {{
+                            periodText = `• ${{dataLabel}}: ${{year}}년 ${{month}}월 기준`;
+                        }} else if (currentLanguage === 'en') {{
+                            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                            periodText = `• ${{dataLabel}}: Based on ${{monthNames[parseInt(month)-1]}} ${{year}}`;
+                        }} else {{
+                            periodText = `• ${{dataLabel}}: Dựa trên tháng ${{month}}/${{year}}`;
+                        }}
+                    }} else {{
+                        // 다른 데이터는 기간 표시
+                        if (currentLanguage === 'ko') {{
+                            periodText = `• ${{dataLabel}}: ${{year}}년 ${{month}}월 01일 ~ ${{lastDay}}일`;
+                        }} else if (currentLanguage === 'en') {{
+                            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                            periodText = `• ${{dataLabel}}: ${{monthNames[parseInt(month)-1]}} 01 - ${{lastDay}}, ${{year}}`;
+                        }} else {{
+                            periodText = `• ${{dataLabel}}: 01/${{month}} - ${{lastDay}}/${{month}}/${{year}}`;
+                        }}
+                    }}
+                    element.innerHTML = periodText;
+                }}
+            }});
+
             // 요약 카드 라벨 업데이트
             const cardLabels = {{
                 'totalEmployeesLabel': 'summary.cards.totalEmployees',

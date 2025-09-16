@@ -191,6 +191,32 @@ if [ $STEP1_RESULT -ne 0 ]; then
     exit 1
 fi
 
+# Step 1.5: Excel에서 JSON 생성 (다음 달 계산을 위한 데이터 준비)
+echo ""
+echo -e "${YELLOW}📝 Excel 데이터에서 JSON 파일 생성 중...${NC}"
+python3 src/generate_json_from_excel.py \
+    --excel "output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.csv" \
+    --month "$MONTH" \
+    --year "$YEAR" \
+    --validate
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ JSON 파일 생성 및 검증 완료${NC}"
+else
+    echo -e "${YELLOW}⚠️ JSON 파일 생성 중 경고 (작업은 계속됨)${NC}"
+fi
+
+# Step 1.6: Excel vs JSON 데이터 일관성 검증
+echo ""
+echo -e "${YELLOW}🔍 Excel vs JSON 데이터 일관성 검증 중...${NC}"
+python3 src/validate_excel_json_consistency.py \
+    --excel "output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.csv" \
+    --json "config_files/assembly_inspector_continuous_months.json"
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ 데이터 일관성 검증 완료${NC}"
+else
+    echo -e "${YELLOW}⚠️ 데이터 불일치 발견 (validation_report 확인 필요)${NC}"
+fi
+
 # Step 2: Dashboard 생성 (최신 v5.0 버전)
 run_step "Step 2: HTML Dashboard 생성 (v5.0)" "python3 integrated_dashboard_final.py --month $month_choice --year $YEAR"
 

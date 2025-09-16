@@ -47,6 +47,43 @@
       "en": "Report Generated:",
       "vi": "Báo cáo tạo ngày:"
     },
+    "dataPeriod": {
+      "title": {
+        "ko": "📊 사용 데이터 기간:",
+        "en": "📊 Data Period Used:",
+        "vi": "📊 Thời gian dữ liệu sử dụng:"
+      },
+      "incentiveData": {
+        "ko": "인센티브 데이터",
+        "en": "Incentive Data",
+        "vi": "Dữ liệu khen thưởng"
+      },
+      "attendanceData": {
+        "ko": "출근 데이터",
+        "en": "Attendance Data",
+        "vi": "Dữ liệu chấm công"
+      },
+      "aqlData": {
+        "ko": "AQL 데이터",
+        "en": "AQL Data",
+        "vi": "Dữ liệu AQL"
+      },
+      "5prsData": {
+        "ko": "5PRS 데이터",
+        "en": "5PRS Data",
+        "vi": "Dữ liệu 5PRS"
+      },
+      "manpowerData": {
+        "ko": "기본 인력 데이터",
+        "en": "Basic Manpower Data",
+        "vi": "Dữ liệu nhân lực cơ bản"
+      },
+      "basedOn": {
+        "ko": "기준",
+        "en": "Based on",
+        "vi": "Dựa trên"
+      }
+    },
     "month": {
       "ko": "월",
       "en": "Month",
