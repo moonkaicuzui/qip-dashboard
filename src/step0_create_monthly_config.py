@@ -16,6 +16,8 @@ import json
 from pathlib import Path
 from datetime import datetime
 import sys
+import pandas as pd
+import os
 
 def get_month_names():
     """월 이름 매핑"""
@@ -66,11 +68,66 @@ def create_config():
     
     month_name = months[month_num]
     
-    # 3. 근무일수 입력
-    print(f"\n📊 {year}년 {month_num}월의 근무일수를 입력하세요")
-    print("   (주말과 공휴일을 제외한 실제 근무일)")
-    working_days_input = input("근무일수 (기본값: 21): ").strip()
-    working_days = int(working_days_input) if working_days_input else 21
+    # 3. 근무일수 자동 계산 (attendance 파일에서)
+    print(f"\n📊 {year}년 {month_num}월의 근무일수를 계산합니다...")
+
+    # Attendance 파일 경로 확인 (여러 형식 시도)
+    attendance_paths = [
+        f"input_files/attendance/converted/attendance data {month_name}_converted.csv",
+        f"input_files/attendance data {month_name}.csv",
+        f"input_files/{year}년 {month_num}월 attendance.csv"
+    ]
+
+    working_days = None
+    for attendance_file in attendance_paths:
+        if os.path.exists(attendance_file):
+            try:
+                # Attendance 파일에서 실제 근무일 계산
+                df_attendance = pd.read_csv(attendance_file)
+                print(f"   📁 파일 찾음: {attendance_file}")
+
+                # Date 컬럼이 있는 경우 고유한 날짜 수 계산
+                if 'Date' in df_attendance.columns:
+                    df_attendance['Date'] = pd.to_datetime(df_attendance['Date'], errors='coerce')
+                    unique_dates = df_attendance['Date'].dropna().nunique()
+                    if unique_dates > 0:
+                        working_days = unique_dates
+                        print(f"   ✅ Attendance 파일에서 자동 계산: {working_days}일")
+                        break
+                # 날짜 컬럼이 다른 이름일 수 있음
+                elif '날짜' in df_attendance.columns:
+                    df_attendance['날짜'] = pd.to_datetime(df_attendance['날짜'], errors='coerce')
+                    unique_dates = df_attendance['날짜'].dropna().nunique()
+                    if unique_dates > 0:
+                        working_days = unique_dates
+                        print(f"   ✅ Attendance 파일에서 자동 계산: {working_days}일")
+                        break
+            except Exception as e:
+                print(f"   ⚠️ 파일 읽기 실패 ({attendance_file}): {e}")
+                continue
+
+    # 자동 계산 실패 시 필수 입력 요구
+    if working_days is None:
+        print(f"   ❌ Attendance 파일에서 근무일을 계산할 수 없습니다.")
+        print(f"   ⚠️ {month_num}월의 실제 근무일수를 반드시 입력해야 합니다.")
+        print("   (주말과 공휴일을 제외한 실제 근무일)")
+
+        while True:
+            working_days_input = input("근무일수 입력 (필수): ").strip()
+            if working_days_input:
+                try:
+                    working_days = int(working_days_input)
+                    if 15 <= working_days <= 31:
+                        print(f"   ✅ 설정된 근무일수: {working_days}일")
+                        break
+                    else:
+                        print("   ❌ 근무일수는 15일에서 31일 사이여야 합니다.")
+                except ValueError:
+                    print("   ❌ 숫자를 입력해주세요.")
+            else:
+                print("   ❌ 근무일수는 필수 입력사항입니다. 기본값을 사용할 수 없습니다.")
+
+    print(f"\n📅 {year}년 {month_num}월 근무일수: {working_days}일")
     
     # 4. 데이터 소스 선택
     print("\n📁 데이터 소스를 선택하세요:")
