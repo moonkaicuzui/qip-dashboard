@@ -5136,7 +5136,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 '10': 'modal.tenConditions.10'
             }};
             
-            // 각 직원의 조건 충족 통계 계산
+            // 실제 인센티브 기준으로 통계 계산 (방안 2 적용)
+            const actualPassCount = employees.filter(emp => parseInt(emp.august_incentive) > 0).length;
+            const actualFailCount = employees.filter(emp => parseInt(emp.august_incentive) === 0).length;
+
+            // 각 직원의 조건 충족 통계 계산 (참고용 유지)
             const conditionStats = {{}};
             if (employees[0] && employees[0].condition_results) {{
                 employees[0].condition_results.forEach(cond => {{
@@ -5149,7 +5153,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                         na_count: 0
                     }};
                 }});
-                
+
                 employees.forEach(emp => {{
                     if (emp.condition_results) {{
                         emp.condition_results.forEach(cond => {{
@@ -5222,9 +5226,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                         </div>
                     </div>
                     
-                    <!-- 조건 충족 상세 테이블 (동적 생성) -->
+                    <!-- 인센티브 수령 상세 및 조건별 통계 -->
                     <div style="margin-bottom: 20px;">
-                        <h6 style="color: #666; margin-bottom: 10px;">📋 ${{getTranslation('modal.conditionFulfillmentDetails', currentLanguage)}}</h6>
+                        <h6 style="color: #666; margin-bottom: 10px;">📋 ${{getTranslation('modal.incentiveReceiptStatus.title', currentLanguage)}}</h6>
+                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="padding: 10px; background: #d4edda; border-radius: 5px; border-left: 4px solid #28a745;">
+                                    <div style="color: #155724; font-size: 0.85rem;">${{getTranslation('modal.incentiveReceiptStatus.received', currentLanguage)}}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #155724;">${{actualPassCount}}${{getTranslation('common.people', currentLanguage)}}</div>
+                                </div>
+                                <div style="padding: 10px; background: #f8d7da; border-radius: 5px; border-left: 4px solid #dc3545;">
+                                    <div style="color: #721c24; font-size: 0.85rem;">${{getTranslation('modal.incentiveReceiptStatus.notReceived', currentLanguage)}}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #721c24;">${{actualFailCount}}${{getTranslation('common.people', currentLanguage)}}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <h6 style="color: #666; margin-bottom: 10px;">📊 ${{getTranslation('modal.incentiveReceiptStatus.conditionsByReference', currentLanguage)}}</h6>
                         <div style="overflow-x: auto;">
                             <table class="table table-sm" style="font-size: 0.9rem;">
                                 <thead style="background: #f8f9fa;">
