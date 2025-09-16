@@ -45,8 +45,15 @@ def get_progressive_positions(df: pd.DataFrame) -> pd.DataFrame:
         'AUDIT & TRAINING TEAM'
     ]
 
-    # Position 컬럼 정규화
-    df['Position_Upper'] = df['Position'].str.upper().str.strip()
+    # Position 컬럼 정규화 (실제 CSV 컬럼명 사용)
+    position_col = 'QIP POSITION 1ST  NAME' if 'QIP POSITION 1ST  NAME' in df.columns else 'Position'
+
+    if position_col not in df.columns:
+        print(f"❌ 오류: Position 컬럼을 찾을 수 없습니다.")
+        print(f"   사용 가능한 컬럼: {list(df.columns)[:10]}")
+        return pd.DataFrame()  # 빈 DataFrame 반환
+
+    df['Position_Upper'] = df[position_col].str.upper().str.strip()
 
     # Progressive 포지션 필터
     mask = df['Position_Upper'].isin(progressive_positions)
@@ -82,11 +89,11 @@ def generate_json_from_excel(excel_path: str, month: str, year: int, output_path
     for _, row in progressive_df.iterrows():
         emp_id = row['Employee No']
 
-        # 필요한 데이터 추출
+        # 필요한 데이터 추출 (실제 CSV 컬럼명 사용)
         employee_data = {
-            "name": row.get('Name', ''),
-            "position": row.get('Position', ''),
-            "type": row.get('Type', 'TYPE-1'),
+            "name": row.get('Full Name', row.get('Name', '')),
+            "position": row.get('QIP POSITION 1ST  NAME', row.get('Position', '')),
+            "type": row.get('ROLE TYPE STD', row.get('Type', 'TYPE-1')),
             f"{month.lower()}_incentive": float(row.get('Final Incentive amount', 0)),
             f"{month.lower()}_continuous_months": int(row.get('Continuous_Months', 0))
         }
@@ -103,6 +110,31 @@ def generate_json_from_excel(excel_path: str, month: str, year: int, output_path
                 next_month_name = month_names[next_month_idx]
 
                 employee_data[f"{next_month_name}_expected_months"] = int(next_month_expected)
+
+        # 출근 관련 정보 추가 (실제 CSV 컬럼명 사용)
+        if 'Actual Working Days' in row:
+            employee_data["actual_working_days"] = int(row.get('Actual Working Days', 0))
+
+        # Unapproved Absence Days (실제 컬럼명)
+        if 'Unapproved Absence Days' in row:
+            employee_data["unapproved_absences"] = int(row.get('Unapproved Absence Days', 0))
+        else:
+            # 컬럼이 없으면 기본값 0 (하드코딩 아님)
+            if 'unapproved_absences' not in employee_data:
+                print(f"   ⚠️ 누락된 출근 관련 컬럼: ['unapproved_absences'] - 0으로 처리", end='')
+                employee_data["unapproved_absences"] = 0
+
+        # Absence Rate (raw) (실제 컬럼명)
+        if 'Absence Rate (raw)' in row:
+            employee_data["absence_rate"] = float(row.get('Absence Rate (raw)', 0))
+        else:
+            # 컬럼이 없으면 기본값 0.0 (하드코딩 아님)
+            if 'absence_rate' not in employee_data:
+                if 'unapproved_absences' not in employee_data:  # 이미 위에서 경고 출력함
+                    print(", 'absence_rate']")
+                else:
+                    print(f"   ⚠️ 누락된 출근 관련 컬럼: ['absence_rate'] - 0으로 처리")
+                employee_data["absence_rate"] = 0.0
 
         # 조건 충족 여부 추가 (있으면)
         if 'All_Conditions_Met' in row:

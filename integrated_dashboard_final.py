@@ -826,6 +826,61 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     # month_num is the actual month number passed from main
     month_last_day = calendar.monthrange(year, month_num)[1]
 
+    # 실제 데이터 범위 가져오기
+    try:
+        from src.get_actual_data_range import get_all_data_ranges
+        data_ranges = get_all_data_ranges(month, year)
+
+        # 각 데이터 타입별 실제 범위
+        att_min, att_max = data_ranges.get('attendance', (None, None))
+        inc_min, inc_max = data_ranges.get('incentive', (None, None))
+        aql_min, aql_max = data_ranges.get('aql', (None, None))
+        prs_min, prs_max = data_ranges.get('5prs', (None, None))
+
+        # 출근 데이터 범위 포맷팅
+        if att_min and att_max:
+            attendance_start_day = att_min.day
+            attendance_end_day = att_max.day
+            attendance_start_str = att_min.strftime('%d')
+            attendance_end_str = att_max.strftime('%d')
+        else:
+            attendance_start_day = 1
+            attendance_end_day = month_last_day
+            attendance_start_str = '01'
+            attendance_end_str = f'{month_last_day:02d}'
+
+        # 5PRS 데이터 범위 포맷팅
+        if prs_min and prs_max:
+            prs_start_day = prs_min.day
+            prs_end_day = prs_max.day
+            prs_start_str = prs_min.strftime('%d')
+            prs_end_str = prs_max.strftime('%d')
+        else:
+            prs_start_day = 1
+            prs_end_day = month_last_day
+            prs_start_str = '01'
+            prs_end_str = f'{month_last_day:02d}'
+
+        # AQL 데이터 범위 (보통 월 전체)
+        aql_start_str = '01'
+        aql_end_str = f'{month_last_day:02d}'
+
+        # 인센티브 데이터 범위 (항상 월 전체)
+        incentive_start_str = '01'
+        incentive_end_str = f'{month_last_day:02d}'
+
+    except Exception as e:
+        # 에러 발생 시 기본값 사용 (월 전체)
+        print(f"⚠️ 실제 데이터 범위 가져오기 실패: {e}")
+        attendance_start_str = '01'
+        attendance_end_str = f'{month_last_day:02d}'
+        prs_start_str = '01'
+        prs_end_str = f'{month_last_day:02d}'
+        aql_start_str = '01'
+        aql_end_str = f'{month_last_day:02d}'
+        incentive_start_str = '01'
+        incentive_end_str = f'{month_last_day:02d}'
+
     # JavaScript용 번역 데이터 생성
     translations_js = json.dumps(TRANSLATIONS, ensure_ascii=False, indent=2)
     
@@ -1265,10 +1320,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
-                <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-lastday="{month_last_day:02d}">• 인센티브 데이터: {year}년 {month_num:02d}월 01일 ~ {month_last_day:02d}일</p>
-                <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-lastday="{month_last_day:02d}">• 출근 데이터: {year}년 {month_num:02d}월 01일 ~ {month_last_day:02d}일</p>
-                <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-lastday="{month_last_day:02d}">• AQL 데이터: {year}년 {month_num:02d}월 01일 ~ {month_last_day:02d}일</p>
-                <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-lastday="{month_last_day:02d}">• 5PRS 데이터: {year}년 {month_num:02d}월 01일 ~ {month_last_day:02d}일</p>
+                <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{incentive_start_str}" data-endday="{incentive_end_str}">• 인센티브 데이터: {year}년 {month_num:02d}월 {incentive_start_str}일 ~ {incentive_end_str}일</p>
+                <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{attendance_start_str}" data-endday="{attendance_end_str}">• 출근 데이터: {year}년 {month_num:02d}월 {attendance_start_str}일 ~ {attendance_end_str}일</p>
+                <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{aql_start_str}" data-endday="{aql_end_str}">• AQL 데이터: {year}년 {month_num:02d}월 {aql_start_str}일 ~ {aql_end_str}일</p>
+                <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{prs_start_str}" data-endday="{prs_end_str}">• 5PRS 데이터: {year}년 {month_num:02d}월 {prs_start_str}일 ~ {prs_end_str}일</p>
                 <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}">• 기본 인력 데이터: {year}년 {month_num:02d}월 기준</p>
             </div>
         </div>

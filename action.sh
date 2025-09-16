@@ -167,6 +167,44 @@ python3 src/sync_previous_incentive.py $MONTH $YEAR
 
 # Step 0.7: 출근 데이터 변환
 run_step "Step 0.7: 출근 데이터 변환" "python3 src/convert_attendance_data.py $MONTH"
+CONVERT_RESULT=$?
+
+# 출근 데이터 변환 실패 시 경고
+if [ $CONVERT_RESULT -ne 0 ]; then
+    echo -e "${YELLOW}⚠️ 출근 데이터 변환에 문제가 있습니다. working_days 자동 계산이 불가능할 수 있습니다.${NC}"
+fi
+
+# Step 0.7.5: Attendance 데이터에서 working_days 자동 계산 및 Config 업데이트
+echo ""
+echo -e "${YELLOW}🔄 Attendance 데이터에서 근무일수를 자동 계산하여 Config 업데이트 중...${NC}"
+
+# 스크립트 파일 존재 확인
+if [ ! -f "src/calculate_working_days_from_attendance.py" ]; then
+    echo -e "${RED}❌ calculate_working_days_from_attendance.py 파일이 없습니다.${NC}"
+    echo -e "${YELLOW}⚠️ Config의 기존 working_days 값을 사용합니다.${NC}"
+else
+    python3 src/calculate_working_days_from_attendance.py $MONTH $YEAR
+    CALC_RESULT=$?
+
+    if [ $CALC_RESULT -eq 0 ]; then
+        echo -e "${GREEN}✅ Config의 working_days가 실제 데이터 기반으로 자동 업데이트되었습니다${NC}"
+
+        # 업데이트된 working_days 값 표시
+        WORKING_DAYS=$(python3 -c "import json; config = json.load(open('$CONFIG_FILE')); print(config.get('working_days', 'N/A'))" 2>/dev/null)
+        if [ ! -z "$WORKING_DAYS" ] && [ "$WORKING_DAYS" != "N/A" ]; then
+            echo -e "${GREEN}   📅 ${MONTH} 근무일수: ${WORKING_DAYS}일${NC}"
+        fi
+    else
+        echo -e "${YELLOW}⚠️ 자동 계산 실패 - Config의 기존 working_days 값을 사용합니다${NC}"
+
+        # 기존 working_days 값 표시
+        EXISTING_DAYS=$(python3 -c "import json; config = json.load(open('$CONFIG_FILE')); print(config.get('working_days', 'N/A'))" 2>/dev/null)
+        if [ ! -z "$EXISTING_DAYS" ] && [ "$EXISTING_DAYS" != "N/A" ]; then
+            echo -e "${YELLOW}   📅 기존 working_days: ${EXISTING_DAYS}일${NC}"
+            echo -e "${YELLOW}   ⚠️ 주의: 이 값이 정확한지 확인이 필요합니다${NC}"
+        fi
+    fi
+fi
 
 # Step 0.8: HR 데이터 검증
 echo ""
