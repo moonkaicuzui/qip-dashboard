@@ -1,723 +1,1277 @@
 {
-  "description": "TYPE-1 ASSEMBLY INSPECTOR 연속 근무 개월수 추적 (7월 인센티브 금액 정보.csv 기준)",
-  "generated_date": "2025-08-27",
-  "source_file": "7월 인센티브 금액 정보.csv",
-  "note": "User specified: BÙI THỊ KIỀU LY received 750,000 VND in July = 9 months continuous → 850,000 VND in August (10 months)",
-  "incentive_table": {
-    "0": 0,
-    "1": 150000,
-    "2": 250000,
-    "3": 300000,
-    "4": 350000,
-    "5": 400000,
-    "6": 450000,
-    "7": 500000,
-    "8": 650000,
-    "9": 750000,
-    "10": 850000,
-    "11": 950000,
-    "12": 1000000
-  },
+  "description": "Assembly Inspector and Progressive Position Continuous Months Tracking",
+  "source": "2025년 7월 인센티브 지급 세부 정보.csv (원본)",
+  "updated_date": "2025-09-15 21:31:33",
   "employees": {
+    "618030241": {
+      "name": "TRẦN THỊ THÚY ANH",
+      "position": "MODEL MASTER",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "618060092": {
+      "name": "CAO THỊ TỐ NGUYÊN",
+      "position": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "618110087": {
+      "name": "NGUYỄN THÚY HẰNG",
+      "position": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "618110097": {
+      "name": "DANH THỊ ANH ĐÀO",
+      "position": "MODEL MASTER",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "619020144": {
+      "name": "LÊ THỊ THOẢNG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "619020207": {
+      "name": "NGUYỄN THỊ LƯỢM",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
     "619060201": {
       "name": "BÙI THỊ KIỀU LY",
-      "july_incentive": 750000,
-      "july_continuous_months": 9,
-      "august_expected_months": 10
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "619070185": {
+      "name": "DANH THỊ KIM ANH",
+      "position": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "619100381": {
+      "name": "TRẦN THỊ TỐ QUYÊN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "620030032": {
       "name": "NGUYỄN THỊ KIỀU TIÊN",
-      "july_incentive": 350000,
-      "july_continuous_months": 4,
-      "august_expected_months": 5
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "620060084": {
       "name": "ĐỖ THỊ HỒNG THÚY",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "620070013": {
+      "name": "NGUYỄN THANH TRÚC",
+      "position": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "620070020": {
+      "name": "PHẠM MỸ HUYỀN",
+      "position": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "620080271": {
       "name": "THỊ MINH PHƯỢNG",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "620080295": {
+      "name": "VÕ THỊ THÙY LINH",
+      "position": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "620080362": {
       "name": "DƯƠNG THỊ MỸ XUYÊN",
-      "july_incentive": 500000,
-      "july_continuous_months": 7,
-      "august_expected_months": 8
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "620110124": {
       "name": "PHẠM THỊ KIM MAI",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
+    },
+    "620110399": {
+      "name": "VÕ THỊ HỒNG TƯƠI",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "620120148": {
       "name": "VƯƠNG THỊ MỸ NGA",
-      "july_incentive": 650000,
-      "july_continuous_months": 8,
-      "august_expected_months": 9
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "620120386": {
+      "name": "NGUYỄN NGỌC TUẤN",
+      "position": "MODEL MASTER",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621020118": {
+      "name": "PHAN VĂN BỔNG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621020156": {
+      "name": "THỊ OÁCH HA",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621020323": {
+      "name": "NGUYỄN THỊ BÍCH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621020445": {
+      "name": "NGUYỄN THỊ KIM CHI",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "621030280": {
       "name": "NGUYỄN THỊ THỦY QUỲNH",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621030474": {
+      "name": "NGUYỄN THỊ KIỀU ANH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "621030557": {
       "name": "THỊ NHÀN",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621030755": {
+      "name": "NGUYỄN THỊ BÉ BA",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "621030996": {
       "name": "DANH MINH HIẾU",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "621031108": {
+      "name": "PHẠM THỊ SÂM",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621040440": {
+      "name": "THỊ THANH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "621040446": {
       "name": "THÁI THỊ XUÂN",
-      "july_incentive": 750000,
-      "july_continuous_months": 9,
-      "august_expected_months": 10
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "621050282": {
       "name": "PHAN MINH ANH",
-      "july_incentive": 750000,
-      "july_continuous_months": 9,
-      "august_expected_months": 10
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621060154": {
+      "name": "LÝ DĨ CƯỜNG",
+      "position": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "621060243": {
       "name": "HÀ CÔNG NHANH",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "621070084": {
       "name": "THỊ NGỌC ĐIỆP",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "621100149": {
+      "name": "LĂM THỊ THẮM",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "621100361": {
       "name": "TRẦN THỊ TÚ NGA",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "621110051": {
+      "name": "VÕ KIM THANH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "621110258": {
       "name": "PHAN TRUNG HẢO",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "621110407": {
       "name": "LÊ YẾN NHI",
-      "july_incentive": 650000,
-      "july_continuous_months": 8,
-      "august_expected_months": 9
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "621110412": {
       "name": "NGUYỄN THỊ KIM LOAN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
+    },
+    "621110916": {
+      "name": "HUỲNH NGỌC LÀNH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "621120120": {
       "name": "LÊ HỒNG ĐÀO",
-      "july_incentive": 500000,
-      "july_continuous_months": 7,
-      "august_expected_months": 8
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "621120400": {
       "name": "TRẦN THỊ NGỌC QUYỀN",
-      "july_incentive": 750000,
-      "july_continuous_months": 9,
-      "august_expected_months": 10
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "622020056": {
       "name": "NGUYỄN ÚT TÝ",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622020174": {
-      "name": "NGUYỄN NGỌC BÍCH THỦY",
-      "july_incentive": 0,
+      "name": "NGUYỄN NGỌC BÍCH THỦY",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "622020703": {
       "name": "DANH CHÀNH THUƠL",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "622020913": {
       "name": "LÂM THỊ THU PHƯƠNG",
-      "july_incentive": 1000000,
-      "july_continuous_months": 12,
-      "august_expected_months": 13
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622021048": {
       "name": "NGUYỄN MỘNG THÊM",
-      "july_incentive": 500000,
-      "july_continuous_months": 7,
-      "august_expected_months": 8
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622021050": {
       "name": "LÊ THỊ DẠ LÝ",
-      "july_incentive": 1000000,
-      "july_continuous_months": 12,
-      "august_expected_months": 13
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622021338": {
       "name": "THỊ THANH THẢO",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "622021407": {
       "name": "DANH TRƯỜNG",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "622030023": {
       "name": "LƯU HUỲNH BỬU XUYẾN",
-      "july_incentive": 350000,
-      "july_continuous_months": 4,
-      "august_expected_months": 5
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622030320": {
       "name": "QUÁCH THANH TOÀN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "622030777": {
       "name": "NGUYỄN THỊ THẢO QUYÊN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
+    },
+    "622040679": {
+      "name": "ONG THỊ CẨM NƯƠNG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "622050244": {
+      "name": "LÊ VĂN KHANG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "622050265": {
+      "name": "LÊ THỊ BẾN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622050542": {
       "name": "BÙI THANH THẲNG",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622050636": {
       "name": "LÊ THỊ PHƯỢNG UYÊN",
-      "july_incentive": 1000000,
-      "july_continuous_months": 12,
-      "august_expected_months": 13
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "622070130": {
+      "name": "THỊ BÉ BẢY",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622070156": {
       "name": "ĐÀO HỒNG NHIỀU",
-      "july_incentive": 750000,
-      "july_continuous_months": 9,
-      "august_expected_months": 10
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "622070194": {
       "name": "NGUYỄN QUỐC HUY",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "622080106": {
       "name": "NGUYỄN THỊ YẾN NHƯ",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "622080458": {
       "name": "NGUYỄN HỒNG CẨM",
-      "july_incentive": 1000000,
-      "july_continuous_months": 12,
-      "august_expected_months": 13
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "623030007": {
       "name": "ĐOÀN THỊ MỸ NGÂN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
+    },
+    "623060090": {
+      "name": "CHUNG THÀNH PHONG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "623080380": {
       "name": "PHAN THỊ BÉ NGÂN",
-      "july_incentive": 650000,
-      "july_continuous_months": 8,
-      "august_expected_months": 9
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "623080475": {
+      "name": "SẦM TRÍ THÀNH",
+      "position": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "623090032": {
       "name": "ĐẶNG CHÍ CÔNG",
-      "july_incentive": 150000,
-      "july_continuous_months": 1,
-      "august_expected_months": 2
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "623090063": {
       "name": "LÝ NHỰT KHOA",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
-    "623090139": {
-      "name": "PHẠM THỊ CẨM LINH",
-      "july_incentive": 650000,
-      "july_continuous_months": 8,
-      "august_expected_months": 9
-    },
-    "623090194": {
-      "name": "DANH THỊ KIỀU PHƯƠNG",
-      "july_incentive": 150000,
+    "623090111": {
+      "name": "THỊ TUYỀN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
+    "623090139": {
+      "name": "PHẠM THỊ CẨM LINH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "623090194": {
+      "name": "DANH THỊ KIỀU PHƯƠNG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
     "623090198": {
       "name": "TRƯƠNG THẢO HUY",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "623090218": {
       "name": "HUỲNH CHÍ TÂM",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
+    },
+    "623090325": {
+      "name": "VÕ LÝ HẢI",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "623090362": {
+      "name": "DANH THỊ CẨM THÙY",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "623100186": {
+      "name": "VÕ MINH NHẬT",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "623100187": {
+      "name": "NGUYỄN MINH KHANG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "623100210": {
       "name": "LÊ THỊ KIM ANH",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "623100234": {
       "name": "HUỲNH THỊ HẢO",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "623110220": {
       "name": "PHAN THỊ MY PHA",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "623120136": {
       "name": "VÕ KIM HOÀI",
-      "july_incentive": 250000,
-      "july_continuous_months": 2,
-      "august_expected_months": 3
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624020044": {
+      "name": "DANH VÀNG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "624020086": {
       "name": "NGUYỄN THỊ KIM THOA",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624020152": {
       "name": "HUỲNH THỊ THANH THÙY",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "624020153": {
       "name": "HUỲNH THỊ THANH THÚY",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
-    },
-    "624020170": {
-      "name": "HUỲNH TẤN TƯỚC",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624020551": {
-      "name": "TRẦN THỊ MỘNG TUYỀN",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624030105": {
-      "name": "DANH THỊ NƯƠNG",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
-    },
-    "624030271": {
-      "name": "ĐẶNG HOÀNG DUY",
-      "july_incentive": 400000,
-      "july_continuous_months": 5,
-      "august_expected_months": 6
-    },
-    "624030295": {
-      "name": "NGUYỄN THỊ ANH THƯ",
-      "july_incentive": 250000,
-      "july_continuous_months": 2,
-      "august_expected_months": 3
-    },
-    "624030533": {
-      "name": "TRẦN TRẦN TRUNG KIÊN",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624030607": {
-      "name": "THÁI PHƯƠNG YẾN",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624030608": {
-      "name": "TRẦN THỊ TRÚC QUYÊN",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
-    },
-    "624040270": {
-      "name": "LÝ THỊ CHANH ĐA",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624040282": {
-      "name": "ĐOÀN CÔNG HÀO",
-      "july_incentive": 400000,
-      "july_continuous_months": 5,
-      "august_expected_months": 6
-    },
-    "624040283": {
-      "name": "TRẦN VĂN HÀ",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624040410": {
-      "name": "LÊ THỊ HUYỀN TRÂN",
-      "july_incentive": 250000,
-      "july_continuous_months": 2,
-      "august_expected_months": 3
-    },
-    "624050151": {
-      "name": "PHẠM THỊ THU THẢO",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624050200": {
-      "name": "NGUYỄN THỊ HUỲNH HÂN",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624050331": {
-      "name": "THỊ NHẬT THANH",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624050450": {
-      "name": "TRẦN THỊ MỸ LỆ",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624060040": {
-      "name": "HỒ NHỰT PHI",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624060131": {
-      "name": "PHẠM THỊ THÙY DƯƠNG",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624060316": {
-      "name": "NGUYỄN THỊ CẨM NHUNG",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
+    "624020170": {
+      "name": "HUỲNH TẤN TƯỚC",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624020551": {
+      "name": "TRẦN THỊ MỘNG TUYỀN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624030105": {
+      "name": "DANH THỊ NƯƠNG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624030271": {
+      "name": "ĐẶNG HOÀNG DUY",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624030295": {
+      "name": "NGUYỄN THỊ ANH THƯ",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624030533": {
+      "name": "TRẦN TRẦN TRUNG KIÊN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624030607": {
+      "name": "THÁI PHƯƠNG YẾN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624030608": {
+      "name": "TRẦN THỊ TRÚC QUYÊN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624040238": {
+      "name": "TRẦN MINH KHÁNH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624040270": {
+      "name": "LÝ THỊ CHANH ĐA",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624040282": {
+      "name": "ĐOÀN CÔNG HÀO",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624040283": {
+      "name": "TRẦN VĂN HÀ",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624040410": {
+      "name": "LÊ THỊ HUYỀN TRÂN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624050151": {
+      "name": "PHẠM THỊ THU THẢO",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624050200": {
+      "name": "NGUYỄN THỊ HUỲNH HÂN",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624050331": {
+      "name": "THỊ NHẬT THANH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624050450": {
+      "name": "TRẦN THỊ MỸ LỆ",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624060040": {
+      "name": "HỒ NHỰT PHI",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624060131": {
+      "name": "PHẠM THỊ THÙY DƯƠNG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624060316": {
+      "name": "NGUYỄN THỊ CẨM NHUNG",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
     "624060318": {
       "name": "NGUYỄN THỊ MỸ HOA",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624060331": {
       "name": "HUỲNH LÊ THANH TÚ",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "624060384": {
       "name": "TÔ THỊ DIỄM MI",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "624070020": {
       "name": "NGUYỄN NGỌC TẤN",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "624070060": {
       "name": "TRẦN THANH THANH",
-      "july_incentive": 150000,
-      "july_continuous_months": 1,
-      "august_expected_months": 2
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "624070252": {
       "name": "PHẠM THỊ KIỀU TRANG",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
-    "624070393": {
-      "name": "LÊ THỊ CHI",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624080015": {
-      "name": "TRƯƠNG KIM MỴ",
-      "july_incentive": 250000,
-      "july_continuous_months": 2,
-      "august_expected_months": 3
-    },
-    "624080082": {
-      "name": "TRẦN THỊ BÍCH THẢO",
-      "july_incentive": 350000,
-      "july_continuous_months": 4,
-      "august_expected_months": 5
-    },
-    "624080083": {
-      "name": "CHƯƠNG THỊ YẾN NHI",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
-    },
-    "624080127": {
-      "name": "TRẦN KIM Y",
-      "july_incentive": 150000,
+    "624070278": {
+      "name": "ĐÀO THỊ NGUYỆT",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
+    "624070393": {
+      "name": "LÊ THỊ CHI",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624080015": {
+      "name": "TRƯƠNG KIM MỴ",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "624080082": {
+      "name": "TRẦN THỊ BÍCH THẢO",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624080083": {
+      "name": "CHƯƠNG THỊ YẾN NHI",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
+    "624080127": {
+      "name": "TRẦN KIM Y",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
+    },
     "624080166": {
       "name": "LƯU THỊ THU UYÊN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624080236": {
       "name": "BÙI THỊ CẨM",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624080430": {
       "name": "NGUYỄN VĂN TOÀN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624090322": {
       "name": "NGÔ THANH NHƯ",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624090346": {
       "name": "NGUYỄN QUỐC HUY",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624100065": {
       "name": "DIỆP TÚ TIÊN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624100308": {
       "name": "NGUYỄN THỊ MỸ ANH",
-      "july_incentive": 650000,
-      "july_continuous_months": 8,
-      "august_expected_months": 9
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "624100316": {
       "name": "TRƯƠNG MINH ĐƯƠNG",
-      "july_incentive": 350000,
-      "july_continuous_months": 4,
-      "august_expected_months": 5
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "624100346": {
       "name": "NGUYỄN THỊ NGỌC HÂN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624100460": {
       "name": "HỒ CHÍ TRUNG",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "624110158": {
       "name": "VƯƠNG Ý NHI",
-      "july_incentive": 250000,
-      "july_continuous_months": 2,
-      "august_expected_months": 3
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "624110228": {
       "name": "THỊ KIỀU XUÂN",
-      "july_incentive": 650000,
-      "july_continuous_months": 8,
-      "august_expected_months": 9
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "624110274": {
       "name": "NGUYỄN THỊ MINH THY",
-      "july_incentive": 400000,
-      "july_continuous_months": 5,
-      "august_expected_months": 6
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "624120070": {
       "name": "NGUYỄN ANH KIỆT",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "625010030": {
       "name": "LÂM THỊ THU LAN",
-      "july_incentive": 0,
-      "july_continuous_months": 0,
-      "august_expected_months": 0
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "625020179": {
       "name": "NGUYỄN PHÁT LỢI",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "625020385": {
       "name": "LÊ THÀNH THUẬN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "625020419": {
       "name": "NGUYỄN THỊ DIỄM MY",
-      "july_incentive": 250000,
-      "july_continuous_months": 2,
-      "august_expected_months": 3
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "625020464": {
       "name": "DANH THỊ THÙY DƯƠNG",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
+    },
+    "625020482": {
+      "name": "LÊ ANH TÁNH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "625020551": {
       "name": "TRẦN VĂN SÁNG",
-      "july_incentive": 400000,
-      "july_continuous_months": 5,
-      "august_expected_months": 6
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "625020591": {
       "name": "ĐẶNG THỊ DIỄM ÁI",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
+    },
+    "625030006": {
+      "name": "DƯƠNG THỊ MINH THƯ",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "625030063": {
       "name": "THỊ XUÂN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "625030111": {
       "name": "NGUYỄN VĂN VINH",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "625030163": {
       "name": "LÊ THANH NGÂN",
-      "july_incentive": 350000,
-      "july_continuous_months": 4,
-      "august_expected_months": 5
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "625030164": {
       "name": "TRẦN CẨM TIÊN",
-      "july_incentive": 300000,
-      "july_continuous_months": 3,
-      "august_expected_months": 4
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "625030234": {
       "name": "VÕ THỊ CẨM TIÊN",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "625030296": {
       "name": "NGUYỄN THỊ MỸ SAL",
-      "july_incentive": 150000,
-      "july_continuous_months": 1,
-      "august_expected_months": 2
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "625030360": {
       "name": "ĐIÊU KIM NHƯ",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "625030361": {
       "name": "HUỲNH THỊ NHƯ Ý",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "625030363": {
       "name": "HUỲNH NGỌC TRÂN",
-      "july_incentive": 250000,
-      "july_continuous_months": 2,
-      "august_expected_months": 3
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
+      "july_continuous_months": 1,
+      "august_expected_months": 2
     },
     "625040238": {
       "name": "VÕ THỊ BẢO HIỀN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
+    },
+    "625040239": {
+      "name": "HUỲNH THỊ ANH THƯ",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "july_incentive": 0.0,
+      "july_continuous_months": 0,
+      "august_expected_months": 1
     },
     "625050156": {
       "name": "NGUYỄN TUYẾT ĐÀO",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     },
     "625050250": {
       "name": "LÊ HUYỀN TRÂN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "625050278": {
       "name": "NGUYỄN THỊ MỸ TIÊN",
-      "july_incentive": 0,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 0.0,
       "july_continuous_months": 0,
-      "august_expected_months": 0
+      "august_expected_months": 1
     },
     "625060019": {
       "name": "DƯƠNG THỊ HẬU",
-      "july_incentive": 150000,
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "july_incentive": 150000.0,
       "july_continuous_months": 1,
       "august_expected_months": 2
     }
