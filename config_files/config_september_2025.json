@@ -7,15 +7,15 @@
     "august"
   ],
   "file_paths": {
-    "basic_manpower": "drive://monthly_data/2025_09/basic_manpower_data.csv",
-    "attendance": "drive://monthly_data/2025_09/attendance_data.csv",
-    "5prs": "drive://monthly_data/2025_09/5prs_data.csv",
-    "aql_current": "drive://aql_history/AQL_REPORT_SEPTEMBER_2025.csv",
-    "aql_history": "drive://aql_history/"
+    "basic": "input_files/basic manpower data september.csv",
+    "previous_incentive": "input_files/2025년 8월 인센티브 지급 세부 정보.csv",
+    "aql": "input_files/AQL history/HSRG AQL REPORT-SEPTEMBER.2025.csv",
+    "5prs": "input_files/5prs data september.csv",
+    "attendance": "input_files/attendance/converted/attendance data september_converted.csv"
   },
   "output_prefix": "output_QIP_incentive_september_2025",
   "created_at": "2025-09-16T12:44:01.691501",
   "data_source": "google_drive",
   "working_days_source": "attendance_data",
-  "working_days_updated_at": "2025-09-16T13:36:06.496922"
+  "working_days_updated_at": "2025-09-16T16:35:28.113289"
 }

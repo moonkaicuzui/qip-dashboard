@@ -578,6 +578,15 @@ class DataProcessor:
     def process_attendance_conditions(self, att_df: pd.DataFrame) -> pd.DataFrame:
         """출석 조건 처리 (개선된 버전)"""
         print("\n📊 출석 조건 처리 중...")
+
+        # 최소 근무일수 조건 적용 여부 안내
+        from datetime import datetime
+        current_date = datetime.now()
+        if current_date.day < 20:
+            print(f"  ℹ️ 현재 날짜 {current_date.day}일 - 매월 20일 이전이므로 최소 12일 근무 조건이 적용되지 않습니다.")
+            print(f"     (중간 보고서 생성을 위한 예외 처리)")
+        else:
+            print(f"  ℹ️ 현재 날짜 {current_date.day}일 - 최소 12일 근무 조건이 정상 적용됩니다.")
         
         # 직원 ID 칼럼 찾기 (ID No를 우선으로)
         emp_col = self.detect_column_names(att_df, [
@@ -633,11 +642,21 @@ class DataProcessor:
                 if absence_rate < 0:
                     absence_rate = 0
                 
+                # 최소 근무일수 조건을 날짜 기반으로 적용
+                from datetime import datetime
+                current_date = datetime.now()
+                apply_min_days_condition = current_date.day >= 20
+
                 # 조건 체크 (AR1 무단결근 사용)
                 cond1_fail = actual_days <= 0
                 cond2_fail = ar1_absences > 2  # AR1 무단결근이 2일 초과
                 cond3_fail = absence_rate > 12  # 결근율 12% 초과
-                cond4_fail = actual_days < 12  # 최소 근무일 12일 미만 (신규 조건)
+
+                # 최소 근무일 조건: 20일 이후에만 적용
+                if apply_min_days_condition:
+                    cond4_fail = actual_days < 12  # 최소 근무일 12일 미만
+                else:
+                    cond4_fail = False  # 20일 이전에는 조건 미적용
                 
                 attendance_results.append({
                     'Employee No': emp_id,
@@ -692,6 +711,7 @@ class DataProcessor:
             
             # Stop working 직원도 정상 처리 (제외하지 않음)
             
+            # 기본값 설정
             total_working_days = self.config.working_days
             actual_working_days = 0
             unapproved_absence = 0
@@ -718,6 +738,18 @@ class DataProcessor:
                         break
 
                 if date_col:
+                    # 월중 보고서의 경우 실제 데이터 기간으로 전체 근무일 재계산
+                    from datetime import datetime
+                    current_date = datetime.now()
+                    if current_date.day < 20:
+                        # 실제 데이터의 unique한 날짜 수를 세어 전체 근무일로 사용
+                        unique_dates = emp_data[date_col].dropna().nunique()
+                        if unique_dates > 0:
+                            total_working_days = unique_dates
+                            # 한 번만 출력 (처음 처리할 때만)
+                            if emp_id == att_df[emp_col].astype(str).str.zfill(9).iloc[0]:
+                                print(f"    ℹ️ 월중 보고서 - 실제 데이터 기간 {unique_dates}일을 전체 근무일로 사용")
+
                     # Date 컬럼이 있으면 날짜별로 유니크하게 카운트
                     for idx, row in emp_data.iterrows():
                         comp_add = row['compAdd']
@@ -775,6 +807,24 @@ class DataProcessor:
             if absence_rate < 0:
                 absence_rate = 0
             
+            # 날짜 기반으로 조건 적용 여부 결정
+            from datetime import datetime
+            current_date = datetime.now()
+
+            # 매월 20일 이전: 중간 보고서로 간주, 조건 완화
+            # 매월 20일 이후: 정상 조건 적용
+            is_mid_month_report = current_date.day < 20
+
+            if is_mid_month_report:
+                # 월중 보고서: 최소 근무일 및 결근율 조건 미적용
+                min_days_condition = 'no'  # 최소 12일 조건 미적용
+                # 결근율 조건도 완화: 실제 데이터 기간이 짧아 결근율이 높게 나올 수 있음
+                absence_rate_condition = 'no'  # 결근율 조건 미적용
+            else:
+                # 월말 보고서: 정상 조건 적용
+                min_days_condition = 'yes' if actual_working_days < 12 else 'no'
+                absence_rate_condition = 'yes' if absence_rate > 12 else 'no'
+
             attendance_results.append({
                 'Employee No': emp_id,
                 'Total Working Days': total_working_days,
@@ -783,8 +833,8 @@ class DataProcessor:
                 'Absence Rate (raw)': round(absence_rate, 2),
                 'attendancy condition 1 - acctual working days is zero': 'yes' if actual_working_days == 0 else 'no',
                 'attendancy condition 2 - unapproved Absence Day is more than 2 days': 'yes' if unapproved_absence > 2 else 'no',
-                'attendancy condition 3 - absent % is over 12%': 'yes' if absence_rate > 12 else 'no',
-                'attendancy condition 4 - minimum working days': 'yes' if actual_working_days < 12 else 'no'
+                'attendancy condition 3 - absent % is over 12%': absence_rate_condition,
+                'attendancy condition 4 - minimum working days': min_days_condition
             })
         
         result_df = pd.DataFrame(attendance_results)
