@@ -2795,9 +2795,9 @@ class CompleteQIPCalculator:
                     incentive = 0
                     print(f"    → Line Leader {row.get('Full Name', 'Unknown')}: 부하직원 중 3개월 연속 AQL 실패자 있음 (조건 7 미충족)")
                 elif total_count > 0 and receiving_count > 0:
-                    # 12% 계산 및 인센티브 수령 비율 반영
+                    # 15% 계산 및 인센티브 수령 비율 반영
                     receiving_ratio = receiving_count / total_count
-                    incentive = int(total_sub_incentive * 0.12 * receiving_ratio)
+                    incentive = int(total_sub_incentive * 0.15 * receiving_ratio)
                     
                 else:
                     incentive = 0
@@ -4685,7 +4685,7 @@ class CompleteQIPCalculator:
                             # 연속 개월 수 찾기 (로그에서 추출하거나 계산)
                             reason = f"조건 충족 - 연속 달성"
                         elif 'LINE LEADER' in str(position).upper():
-                            reason = "부하직원 인센티브 × 7%"
+                            reason = "부하직원 인센티브 × 15%"
                         elif 'GROUP LEADER' in str(position).upper():
                             reason = "Line Leader 평균 × 2"
                         else:
@@ -4905,7 +4905,7 @@ class CompleteQIPCalculator:
             
             <h4>인센티브 계산:</h4>
             <p style="margin: 10px 0;">
-                <strong>계산식:</strong> (부하직원 인센티브 총합 × 7%) × (인센티브 받는 부하직원 수 / 전체 부하직원 수)
+                <strong>계산식:</strong> (부하직원 인센티브 총합 × 15%) × (인센티브 받는 부하직원 수 / 전체 부하직원 수)
             </p>
             
             <!-- 관리자급 -->
