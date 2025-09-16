@@ -431,7 +431,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.1</span></h1>
             <p id="mainSubtitle">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="09" data-day="16" data-hour="07" data-minute="24">보고서 생성일: 2025년 09월 16일 07:24</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="09" data-day="16" data-hour="10" data-minute="58">보고서 생성일: 2025년 09월 16일 10:58</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="08" data-lastday="31">• 인센티브 데이터: 2025년 08월 01일 ~ 31일</p>
@@ -3035,6 +3035,28 @@
         "ko": "지급 완료",
         "en": "Payment Complete",
         "vi": "Đã thanh toán"
+      }
+    },
+    "incentiveReceiptStatus": {
+      "title": {
+        "ko": "인센티브 수령 현황",
+        "en": "Incentive Receipt Status",
+        "vi": "Tình trạng nhận tiền thưởng"
+      },
+      "received": {
+        "ko": "인센티브 수령",
+        "en": "Incentive Received",
+        "vi": "Đã nhận tiền thưởng"
+      },
+      "notReceived": {
+        "ko": "인센티브 미수령",
+        "en": "Incentive Not Received",
+        "vi": "Chưa nhận tiền thưởng"
+      },
+      "conditionsByReference": {
+        "ko": "조건별 충족 현황 (참고)",
+        "en": "Condition Fulfillment by Category (Reference)",
+        "vi": "Tình trạng điều kiện theo danh mục (Tham khảo)"
       }
     },
     "conditions": {
@@ -8044,7 +8066,11 @@
                 '10': 'modal.tenConditions.10'
             };
             
-            // 각 직원의 조건 충족 통계 계산
+            // 실제 인센티브 기준으로 통계 계산 (방안 2 적용)
+            const actualPassCount = employees.filter(emp => parseInt(emp.august_incentive) > 0).length;
+            const actualFailCount = employees.filter(emp => parseInt(emp.august_incentive) === 0).length;
+
+            // 각 직원의 조건 충족 통계 계산 (참고용 유지)
             const conditionStats = {};
             if (employees[0] && employees[0].condition_results) {
                 employees[0].condition_results.forEach(cond => {
@@ -8057,7 +8083,7 @@
                         na_count: 0
                     };
                 });
-                
+
                 employees.forEach(emp => {
                     if (emp.condition_results) {
                         emp.condition_results.forEach(cond => {
@@ -8130,9 +8156,22 @@
                         </div>
                     </div>
                     
-                    <!-- 조건 충족 상세 테이블 (동적 생성) -->
+                    <!-- 인센티브 수령 상세 및 조건별 통계 -->
                     <div style="margin-bottom: 20px;">
-                        <h6 style="color: #666; margin-bottom: 10px;">📋 ${getTranslation('modal.conditionFulfillmentDetails', currentLanguage)}</h6>
+                        <h6 style="color: #666; margin-bottom: 10px;">📋 ${getTranslation('modal.incentiveReceiptStatus.title', currentLanguage)}</h6>
+                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="padding: 10px; background: #d4edda; border-radius: 5px; border-left: 4px solid #28a745;">
+                                    <div style="color: #155724; font-size: 0.85rem;">${getTranslation('modal.incentiveReceiptStatus.received', currentLanguage)}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #155724;">${actualPassCount}${getTranslation('common.people', currentLanguage)}</div>
+                                </div>
+                                <div style="padding: 10px; background: #f8d7da; border-radius: 5px; border-left: 4px solid #dc3545;">
+                                    <div style="color: #721c24; font-size: 0.85rem;">${getTranslation('modal.incentiveReceiptStatus.notReceived', currentLanguage)}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #721c24;">${actualFailCount}${getTranslation('common.people', currentLanguage)}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <h6 style="color: #666; margin-bottom: 10px;">📊 ${getTranslation('modal.incentiveReceiptStatus.conditionsByReference', currentLanguage)}</h6>
                         <div style="overflow-x: auto;">
                             <table class="table table-sm" style="font-size: 0.9rem;">
                                 <thead style="background: #f8f9fa;">

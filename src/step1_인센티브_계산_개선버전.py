@@ -2039,6 +2039,26 @@ class CompleteQIPCalculator:
         else:
             print("   ⚠️ AQL 데이터를 찾을 수 없습니다.")
     
+    def is_all_buildings_team_leader(self, auditor_id: str) -> bool:
+        """
+        Auditor/Trainer가 전체 구역 담당 Team Leader인지 확인
+        """
+        area_mapping = self.load_auditor_trainer_area_mapping()
+
+        if not area_mapping:
+            return False
+
+        auditor_id_str = str(auditor_id)
+        if auditor_id_str in area_mapping.get('auditor_trainer_areas', {}):
+            config = area_mapping['auditor_trainer_areas'][auditor_id_str]
+
+            # conditions가 ALL type이면 전체 구역 담당
+            for condition in config.get('conditions', []):
+                if condition.get('type') == 'ALL':
+                    return True
+
+        return False
+
     def get_auditor_assigned_factory(self, auditor_id: str) -> str:
         """
         Auditor/Trainer가 담당하는 공장(Building) 반환
@@ -2184,7 +2204,13 @@ class CompleteQIPCalculator:
             # 2. 담당 공장에 3개월 연속 실패자가 있는지 확인
             # Auditor/Trainer의 담당 공장을 매핑에서 찾기
             auditor_factory = self.get_auditor_assigned_factory(emp_id)
-            has_continuous_fail_in_factory = auditor_factory in continuous_fail_by_factory and continuous_fail_by_factory[auditor_factory] > 0
+
+            # Team Leader (전체 구역 담당)는 연속 실패자 체크에서 제외
+            is_team_leader = self.is_all_buildings_team_leader(emp_id)
+            if is_team_leader:
+                has_continuous_fail_in_factory = False  # Team Leader는 연속 실패자 영향 받지 않음
+            else:
+                has_continuous_fail_in_factory = auditor_factory in continuous_fail_by_factory and continuous_fail_by_factory[auditor_factory] > 0
             
             # 3. 기본 조건 체크
             attendance_fail = (
@@ -2769,7 +2795,7 @@ class CompleteQIPCalculator:
                     incentive = 0
                     print(f"    → Line Leader {row.get('Full Name', 'Unknown')}: 부하직원 중 3개월 연속 AQL 실패자 있음 (조건 7 미충족)")
                 elif total_count > 0 and receiving_count > 0:
-                    # 7% 계산 및 인센티브 수령 비율 반영
+                    # 12% 계산 및 인센티브 수령 비율 반영
                     receiving_ratio = receiving_count / total_count
                     incentive = int(total_sub_incentive * 0.12 * receiving_ratio)
                     

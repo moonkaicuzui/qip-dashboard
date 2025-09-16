@@ -1179,6 +1179,28 @@
         "vi": "Đã thanh toán"
       }
     },
+    "incentiveReceiptStatus": {
+      "title": {
+        "ko": "인센티브 수령 현황",
+        "en": "Incentive Receipt Status",
+        "vi": "Tình trạng nhận tiền thưởng"
+      },
+      "received": {
+        "ko": "인센티브 수령",
+        "en": "Incentive Received",
+        "vi": "Đã nhận tiền thưởng"
+      },
+      "notReceived": {
+        "ko": "인센티브 미수령",
+        "en": "Incentive Not Received",
+        "vi": "Chưa nhận tiền thưởng"
+      },
+      "conditionsByReference": {
+        "ko": "조건별 충족 현황 (참고)",
+        "en": "Condition Fulfillment by Category (Reference)",
+        "vi": "Tình trạng điều kiện theo danh mục (Tham khảo)"
+      }
+    },
     "conditions": {
       "title": {
         "ko": "조건 충족 현황",
