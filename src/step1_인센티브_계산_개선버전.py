@@ -2795,9 +2795,9 @@ class CompleteQIPCalculator:
                     incentive = 0
                     print(f"    → Line Leader {row.get('Full Name', 'Unknown')}: 부하직원 중 3개월 연속 AQL 실패자 있음 (조건 7 미충족)")
                 elif total_count > 0 and receiving_count > 0:
-                    # 15% 계산 및 인센티브 수령 비율 반영
+                    # 12% 계산 및 인센티브 수령 비율 반영
                     receiving_ratio = receiving_count / total_count
-                    incentive = int(total_sub_incentive * 0.15 * receiving_ratio)
+                    incentive = int(total_sub_incentive * 0.12 * receiving_ratio)
                     
                 else:
                     incentive = 0
