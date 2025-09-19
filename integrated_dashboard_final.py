@@ -769,7 +769,7 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
     
     return emp_stats
 
-def generate_dashboard_html(df, month='august', year=2025, month_num=8):
+def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13):
     """dashboard_version4.html과 완전히 동일한 대시보드 생성"""
 
     # 이전 월 계산
@@ -2083,6 +2083,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual">개인별 상세</div>
                 <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria">인센티브 기준</div>
                 <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart">조직도</div>
+                <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation">요약 및 시스템 검증</div>
             </div>
             
             <!-- 요약 탭 -->
@@ -3587,8 +3588,169 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 </div>
             </div>
         </div>
+
+        <!-- 검증 탭 -->
+        <div id="validation" class="tab-content">
+            <h3 id="validationTabTitle">요약 및 시스템 검증</h3>
+
+            <!-- 중간 보고서 알림 (20일 이전 보고서인 경우에만 표시) -->
+            <div id="interimReportNotice" class="alert alert-warning" style="display: none;">
+                <i class="fas fa-info-circle"></i>
+                <span id="interimReportText">중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다</span>
+            </div>
+
+            <!-- KPI 카드 스타일 -->
+            <style>
+                .kpi-cards-grid {{
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                    gap: 20px;
+                    margin-bottom: 30px;
+                }}
+
+                .kpi-card {{
+                    padding: 25px;
+                    border-radius: 15px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;
+                    background: white;
+                    border: 1px solid #e0e0e0;
+                }}
+
+                .kpi-card:hover {{
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                }}
+
+                .kpi-card::before {{
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 5px;
+                    background: linear-gradient(90deg, var(--card-color-1), var(--card-color-2));
+                }}
+
+                .kpi-icon {{
+                    font-size: 2.5em;
+                    margin-bottom: 15px;
+                    display: inline-block;
+                    background: linear-gradient(135deg, var(--card-color-1), var(--card-color-2));
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+                }}
+
+                .kpi-value {{
+                    font-size: 2.8em;
+                    font-weight: 700;
+                    color: #2c3e50;
+                    margin: 10px 0;
+                    letter-spacing: -0.5px;
+                }}
+
+                .kpi-label {{
+                    color: #7f8c8d;
+                    font-size: 0.95em;
+                    font-weight: 500;
+                    margin-top: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }}
+
+                .kpi-card.warning {{
+                    background: #fff3cd;
+                    border-color: #ffc107;
+                }}
+
+                .kpi-card.danger {{
+                    background: #f8d7da;
+                    border-color: #dc3545;
+                }}
+
+                .kpi-card.success {{
+                    background: #d4edda;
+                    border-color: #28a745;
+                }}
+
+                .kpi-card.info {{
+                    background: #d1ecf1;
+                    border-color: #17a2b8;
+                }}
+            </style>
+
+            <!-- KPI 카드 그리드 -->
+            <div class="kpi-cards-grid">
+                <!-- KPI 카드 1: 총 근무일수 -->
+                <div class="kpi-card" onclick="showValidationModal('totalWorkingDays')" style="--card-color-1: #4a90e2; --card-color-2: #5ca0f2; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.1);">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value" id="kpiTotalWorkingDays">-</div>
+                    <div class="kpi-label">총 근무일수</div>
+                </div>
+
+                <!-- KPI 카드 2: 무단결근 3일 이상 -->
+                <div class="kpi-card" onclick="showValidationModal('absentWithoutInform')" style="--card-color-1: #f39c12; --card-color-2: #f1c40f; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1);">
+                    <div class="kpi-icon">⚠️</div>
+                    <div class="kpi-value" id="kpiAbsentWithoutInform">-</div>
+                    <div class="kpi-label">무단결근 ≥3일</div>
+                </div>
+
+                <!-- KPI 카드 3: 실제 근무일 0일 -->
+                <div class="kpi-card" onclick="showValidationModal('zeroWorkingDays')" style="--card-color-1: #e74c3c; --card-color-2: #c0392b; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);">
+                    <div class="kpi-icon">🚫</div>
+                    <div class="kpi-value" id="kpiZeroWorkingDays">-</div>
+                    <div class="kpi-label">실제 근무일 = 0</div>
+                </div>
+
+                <!-- KPI 카드 4: 최소 근무일 미충족 -->
+                <div class="kpi-card" onclick="showValidationModal('minimumDaysNotMet')" style="--card-color-1: #95a5a6; --card-color-2: #7f8c8d; box-shadow: 0 4px 15px rgba(149, 165, 166, 0.1);">
+                    <div class="kpi-icon">📉</div>
+                    <div class="kpi-value" id="kpiMinimumDaysNotMet">-</div>
+                    <div class="kpi-label">최소 근무일 미충족</div>
+                </div>
+
+                <!-- KPI 카드 5: AQL FAIL 보유자 -->
+                <div class="kpi-card" onclick="showValidationModal('aqlFail')" style="--card-color-1: #e67e22; --card-color-2: #d35400; box-shadow: 0 4px 15px rgba(230, 126, 34, 0.1);">
+                    <div class="kpi-icon">❌</div>
+                    <div class="kpi-value" id="kpiAqlFail">-</div>
+                    <div class="kpi-label">AQL FAIL 보유자</div>
+                </div>
+
+                <!-- KPI 카드 6: 3개월 연속 AQL FAIL -->
+                <div class="kpi-card" onclick="showValidationModal('consecutiveAqlFail')" style="--card-color-1: #c0392b; --card-color-2: #a93226; box-shadow: 0 4px 15px rgba(192, 57, 43, 0.1);">
+                    <div class="kpi-icon">🔴</div>
+                    <div class="kpi-value" id="kpiConsecutiveAqlFail">-</div>
+                    <div class="kpi-label">3개월 연속 AQL FAIL</div>
+                </div>
+
+                <!-- KPI 카드 7: 구역 AQL Reject Rate -->
+                <div class="kpi-card" onclick="showValidationModal('areaRejectRate')" style="--card-color-1: #3498db; --card-color-2: #2980b9; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-value" id="kpiAreaRejectRate">-</div>
+                    <div class="kpi-label">Area AQL Reject > 0.65%</div>
+                </div>
+
+                <!-- KPI 카드 8: 5PRS 통과율 < 95% -->
+                <div class="kpi-card" onclick="showValidationModal('lowPassRate')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);">
+                    <div class="kpi-icon">📉</div>
+                    <div class="kpi-value" id="kpiLowPassRate">-</div>
+                    <div class="kpi-label">5PRS Pass Rate < 95%</div>
+                </div>
+
+                <!-- KPI 카드 9: 5PRS 검사량 < 100족 -->
+                <div class="kpi-card" onclick="showValidationModal('lowInspectionQty')" style="--card-color-1: #1abc9c; --card-color-2: #16a085; box-shadow: 0 4px 15px rgba(26, 188, 156, 0.1);">
+                    <div class="kpi-icon">🔍</div>
+                    <div class="kpi-value" id="kpiLowInspectionQty">-</div>
+                    <div class="kpi-label">5PRS Inspection < 100 pairs</div>
+                </div>
+            </div>
+        </div>
     </div>
-    
+
     <!-- 직원 상세 모달 -->
     <div id="employeeModal" class="modal">
         <div class="modal-content">
@@ -3603,7 +3765,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     </div>
     
     <script>
-        const employeeData = {employees_json};
+        // Make employeeData globally accessible for validation tab
+        window.employeeData = {employees_json};
+        const employeeData = window.employeeData;
         const translations = {translations_js};
         const positionMatrix = {position_matrix_json};
         let currentLanguage = 'ko';
@@ -5785,6 +5949,521 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
         // 조직도 관련 함수들
         let orgChartData = null;
         let orgChartRoot = null;
+
+        // 검증 탭 관련 함수들
+        function initValidationTab() {{
+            console.log('Initializing validation tab...');
+
+            // 중간 보고서 여부 확인
+            const generationDate = document.getElementById('generationDate');
+            const reportDay = generationDate ? parseInt(generationDate.getAttribute('data-day')) : 0;
+            const isInterimReport = reportDay < 20;
+
+            // 중간 보고서 알림 표시
+            if (isInterimReport) {{
+                const notice = document.getElementById('interimReportNotice');
+                if (notice) {{
+                    notice.style.display = 'block';
+                }}
+            }}
+
+            // KPI 카드 값 계산 및 표시
+            updateValidationKPIs(isInterimReport);
+
+            // 탭 제목과 라벨 번역 업데이트
+            updateValidationTexts();
+        }}
+
+        function updateValidationKPIs(isInterimReport) {{
+            // 기존 employeeData에서 직접 값을 가져옴 (새로운 계산 없음)
+
+            // 1. 총 근무일수 - config에서 가져온 값 사용 (employee별 데이터가 아님)
+            const totalWorkingDays = {working_days}; // Python에서 주입된 값
+            document.getElementById('kpiTotalWorkingDays').textContent = totalWorkingDays + '일';
+
+            // 2. 무단결근 3일 이상 (unapproved_absences > 2)
+            const ar1Over3 = employeeData.filter(emp =>
+                parseFloat(emp['unapproved_absences'] || 0) > 2
+            ).length;
+            document.getElementById('kpiAbsentWithoutInform').textContent = ar1Over3 + '명';
+
+            // 3. 실제 근무일 0일
+            const zeroWorkingDays = employeeData.filter(emp =>
+                parseFloat(emp['actual_working_days'] || 0) === 0
+            ).length;
+            document.getElementById('kpiZeroWorkingDays').textContent = zeroWorkingDays + '명';
+
+            // 4. 최소 근무일 미충족 (중간 보고서면 N/A)
+            if (isInterimReport) {{
+                document.getElementById('kpiMinimumDaysNotMet').textContent = 'N/A';
+                document.getElementById('kpiMinimumDaysNotMet').parentElement.style.opacity = '0.5';
+            }} else {{
+                const minimumDaysNotMet = employeeData.filter(emp =>
+                    emp['condition4'] === 'no'
+                ).length;
+                document.getElementById('kpiMinimumDaysNotMet').textContent = minimumDaysNotMet + '명';
+            }}
+
+            // 5. AQL FAIL 보유자 (TYPE-1 특정 직급만)
+            const aqlFailEmployees = employeeData.filter(emp => {{
+                // TYPE-1이고 AQL 조건이 적용되는 직급만
+                const isType1 = emp['type'] === 'TYPE-1';
+                const position = (emp['position'] || '').toUpperCase();
+                const hasAQLCondition = position.includes('SUPERVISOR') ||
+                                       position.includes('GROUP LEADER') ||
+                                       position.includes('LINE LEADER') ||
+                                       position.includes('QA TEAM') ||
+                                       position.includes('MANAGER');
+                return isType1 && hasAQLCondition && parseFloat(emp['aql_failures'] || 0) > 0;
+            }}).length;
+            document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + '명';
+
+            // 6. 3개월 연속 AQL FAIL (continuous_fail이 'YES'인 경우)
+            const consecutiveFail = employeeData.filter(emp =>
+                (emp['continuous_fail'] || 'NO').toUpperCase() === 'YES'
+            ).length;
+            document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + '명';
+
+            // 7. 구역 AQL Reject Rate > 0.65%인 직원 수
+            const highRejectRate = employeeData.filter(emp =>
+                parseFloat(emp['area_reject_rate'] || 0) > 0.65
+            ).length;
+            document.getElementById('kpiAreaRejectRate').textContent = highRejectRate + '명';
+
+            // 8. 5PRS 통과율 < 95% (TYPE-1 ASSEMBLY INSPECTOR만)
+            const lowPassRate = employeeData.filter(emp => {{
+                const isType1 = emp['type'] === 'TYPE-1';
+                const position = (emp['position'] || '').toUpperCase();
+                const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+                const passRate = parseFloat(emp['pass_rate'] || 100);
+                return isType1 && isAssemblyInspector && passRate < 95 && passRate > 0;
+            }}).length;
+            document.getElementById('kpiLowPassRate').textContent = lowPassRate + '명';
+
+            // 9. 5PRS 검사량 < 100족 (TYPE-1 ASSEMBLY INSPECTOR만)
+            const lowInspectionQty = employeeData.filter(emp => {{
+                const isType1 = emp['type'] === 'TYPE-1';
+                const position = (emp['position'] || '').toUpperCase();
+                const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+                const inspectionQty = parseFloat(emp['validation_qty'] || 0);
+                return isType1 && isAssemblyInspector && inspectionQty < 100;
+            }}).length;
+            document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + '명';
+        }}
+
+        function updateValidationTexts() {{
+            // 검증 탭 텍스트 번역 업데이트
+            const tabTitle = document.getElementById('validationTabTitle');
+            if (tabTitle) {{
+                tabTitle.textContent = getTranslation('validationTab.title', currentLanguage);
+            }}
+
+            const interimText = document.getElementById('interimReportText');
+            if (interimText) {{
+                interimText.textContent = getTranslation('validationTab.interimNotice', currentLanguage);
+            }}
+
+            // KPI 카드 라벨 업데이트
+            document.querySelectorAll('.kpi-label').forEach((label, index) => {{
+                const kpiKeys = [
+                    'totalWorkingDays', 'absentWithoutInform', 'zeroWorkingDays',
+                    'minimumDaysNotMet', 'aqlFail', 'consecutiveAqlFail',
+                    'areaRejectRate', 'lowPassRate', 'lowInspectionQty'
+                ];
+                if (kpiKeys[index]) {{
+                    label.textContent = getTranslation(`validationTab.kpiCards.${{kpiKeys[index]}}.title`, currentLanguage);
+                }}
+            }});
+        }}
+
+        // 검증 모달 표시 함수
+        function showValidationModal(conditionType) {{
+            console.log('Showing validation modal for:', conditionType);
+
+            // 모달 HTML 생성
+            const modalHtml = createValidationModalContent(conditionType);
+
+            // 기존 모달 제거
+            const existingModal = document.getElementById('validationModal');
+            if (existingModal) {{
+                existingModal.remove();
+            }}
+
+            // 모달 추가
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            // 모달 표시
+            const modal = document.getElementById('validationModal');
+            if (modal) {{
+                modal.style.display = 'block';
+
+                // 테이블 정렬 기능 초기화
+                initSortableTable('validationModalTable');
+
+                // 검색 필터 초기화
+                initTableFilter('validationModalSearch', 'validationModalTable');
+            }}
+        }}
+
+        function createValidationModalContent(conditionType) {{
+            let modalTitle = '';
+            let tableHeaders = [];
+            let tableData = [];
+
+            // 중간 보고서 여부 확인
+            const generationDate = document.getElementById('generationDate');
+            const reportDay = generationDate ? parseInt(generationDate.getAttribute('data-day')) : 0;
+            const isInterimReport = reportDay < 20;
+
+            switch(conditionType) {{
+                case 'totalWorkingDays':
+                    modalTitle = getTranslation('validationTab.modalTitles.totalWorkingDays', currentLanguage);
+                    tableHeaders = ['날짜', '요일', '근무 인원수'];
+                    // 실제로는 일별 데이터가 없으므로 총 근무일수만 표시
+                    const totalDays = employeeData[0]?.['Total Working Days'] || 13;
+                    tableData = [[
+                        `${{dashboardYear}}년 ${{dashboardMonth}}월`,
+                        '-',
+                        `총 ${{totalDays}}일`
+                    ]];
+                    break;
+
+                case 'absentWithoutInform':
+                    modalTitle = getTranslation('validationTab.modalTitles.absentWithoutInform', currentLanguage);
+                    tableHeaders = [
+                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.position', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.ar1Days', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                    ];
+                    tableData = employeeData
+                        .filter(emp => parseFloat(emp['Unapproved Absence Days'] || 0) > 2)
+                        .map(emp => [
+                            emp['Employee No'],
+                            emp['Full Name'],
+                            emp['FINAL QIP POSITION NAME CODE'],
+                            emp['Unapproved Absence Days'],
+                            emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || 'FAIL'
+                        ]);
+                    break;
+
+                case 'zeroWorkingDays':
+                    modalTitle = getTranslation('validationTab.modalTitles.zeroWorkingDays', currentLanguage);
+                    tableHeaders = [
+                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.position', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.totalDays', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.actualDays', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                    ];
+                    tableData = employeeData
+                        .filter(emp => parseFloat(emp['Actual Working Days'] || 0) === 0)
+                        .map(emp => [
+                            emp['Employee No'],
+                            emp['Full Name'],
+                            emp['FINAL QIP POSITION NAME CODE'],
+                            emp['Total Working Days'] || 13,
+                            emp['Actual Working Days'],
+                            emp['attendancy condition 1 - acctual working days is zero'] || 'FAIL'
+                        ]);
+                    break;
+
+                case 'minimumDaysNotMet':
+                    modalTitle = getTranslation('validationTab.modalTitles.minimumDaysNotMet', currentLanguage);
+                    const isInterim = new Date().getDate() < 20;
+                    tableHeaders = [
+                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.position', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.actualDays', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.minimumRequired', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                    ];
+
+                    // 중간보고 시에는 조건 4를 적용하지 않음
+                    if (isInterim) {{
+                        tableData = []; // 중간보고 시 표시 안함
+                    }} else {{
+                        const totalWorkingDays = parseFloat(employeeData[0]?.['Total Working Days'] || 13);
+                        const minDays = Math.ceil(totalWorkingDays / 2);
+                        tableData = employeeData
+                            .filter(emp => parseFloat(emp['Actual Working Days'] || 0) < minDays)
+                            .map(emp => [
+                                emp['Employee No'],
+                                emp['Full Name'],
+                                emp['FINAL QIP POSITION NAME CODE'],
+                                emp['Actual Working Days'],
+                                minDays,
+                                emp['attendancy condition 4 - minimum working days'] || 'FAIL'
+                            ]);
+                    }}
+                    break;
+
+                case 'aqlFail':
+                    modalTitle = getTranslation('validationTab.modalTitles.aqlFail', currentLanguage);
+                    tableHeaders = [
+                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.position', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.type', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.aqlFailures', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                    ];
+
+                    // TYPE-1에서 조건 5가 적용되는 포지션만 필터링
+                    const aqlPositions = ['SUPERVISOR', 'A.MANAGER', 'MANAGER', 'S.MANAGER', 'AQL INSPECTOR'];
+                    tableData = employeeData
+                        .filter(emp => {{
+                            const position = (emp['FINAL QIP POSITION NAME CODE'] || '').toUpperCase();
+                            const isType1 = emp['ROLE TYPE STD'] === 'TYPE-1';
+                            const hasAqlCondition = aqlPositions.some(pos => position.includes(pos));
+                            const hasAqlFail = parseFloat(emp['September AQL Failures'] || 0) > 0;
+                            return isType1 && hasAqlCondition && hasAqlFail;
+                        }})
+                        .map(emp => [
+                            emp['Employee No'],
+                            emp['Full Name'],
+                            emp['FINAL QIP POSITION NAME CODE'],
+                            emp['ROLE TYPE STD'] || 'TYPE-1',
+                            emp['September AQL Failures'],
+                            emp['cond_5_aql_personal_failure'] || 'FAIL'
+                        ]);
+                    break;
+
+                case 'consecutiveAqlFail':
+                    modalTitle = getTranslation('validationTab.modalTitles.consecutiveAqlFail', currentLanguage);
+                    tableHeaders = [
+                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.position', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.supervisor', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.continuousFail', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                    ];
+
+                    tableData = employeeData
+                        .filter(emp => (emp['Continuous_FAIL'] || 'NO').toUpperCase() === 'YES')
+                        .map(emp => [
+                            emp['Employee No'],
+                            emp['Full Name'],
+                            emp['FINAL QIP POSITION NAME CODE'],
+                            emp['direct boss name'] || '-',
+                            emp['Continuous_FAIL'],
+                            emp['cond_6_aql_continuous'] || 'FAIL'
+                        ]);
+                    break;
+
+                case 'areaRejectRate':
+                    modalTitle = getTranslation('validationTab.modalTitles.areaRejectRate', currentLanguage);
+                    tableHeaders = [
+                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.area', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.rejectRate', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                    ];
+
+                    // Area AQL reject rate > 0.65% 필터링
+                    tableData = employeeData
+                        .filter(emp => parseFloat(emp['Area_Reject_Rate'] || 0) > 0.65)
+                        .map(emp => [
+                            emp['Employee No'],
+                            emp['Full Name'],
+                            emp['area'] || '-',
+                            (parseFloat(emp['Area_Reject_Rate'] || 0).toFixed(2)) + '%',
+                            emp['cond_8_area_reject'] || 'FAIL'
+                        ]);
+                    break;
+
+                case 'lowPassRate':
+                    modalTitle = getTranslation('validationTab.modalTitles.lowPassRate', currentLanguage);
+                    tableHeaders = [
+                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.position', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.type', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.passRate', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                    ];
+
+                    // TYPE-1 ASSEMBLY INSPECTOR만 필터링
+                    tableData = employeeData
+                        .filter(emp => {{
+                            const position = (emp['position'] || '').toUpperCase();
+                            const isType1 = emp['type'] === 'TYPE-1';
+                            const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+                            const lowPassRate = parseFloat(emp['pass_rate'] || 100) < 95;
+                            return isType1 && isAssemblyInspector && lowPassRate;
+                        }})
+                        .map(emp => [
+                            emp['emp_no'],
+                            emp['name'],
+                            emp['position'],
+                            emp['type'] || 'TYPE-1',
+                            (parseFloat(emp['pass_rate'] || 0).toFixed(1)) + '%',
+                            emp['cond_9_5prs_pass_rate'] || 'FAIL'
+                        ]);
+                    break;
+
+                case 'lowInspectionQty':
+                    modalTitle = getTranslation('validationTab.modalTitles.lowInspectionQty', currentLanguage);
+                    tableHeaders = [
+                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.position', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.type', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.inspectionQty', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                    ];
+
+                    // TYPE-1 ASSEMBLY INSPECTOR만 필터링
+                    tableData = employeeData
+                        .filter(emp => {{
+                            const position = (emp['position'] || '').toUpperCase();
+                            const isType1 = emp['type'] === 'TYPE-1';
+                            const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+                            const lowQty = parseFloat(emp['validation_qty'] || 0) < 100;
+                            return isType1 && isAssemblyInspector && lowQty;
+                        }})
+                        .map(emp => [
+                            emp['emp_no'],
+                            emp['name'],
+                            emp['position'],
+                            emp['type'] || 'TYPE-1',
+                            emp['validation_qty'] || '0',
+                            emp['cond_10_5prs_inspection_qty'] || 'FAIL'
+                        ]);
+                    break;
+
+                default:
+                    modalTitle = 'Details';
+                    tableHeaders = ['No Data'];
+                    tableData = [['No data available']];
+            }}
+
+            // 모달 HTML 생성
+            return `
+                <div id="validationModal" class="modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+                    <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">
+                        <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0;">
+                            <span class="close" onclick="closeValidationModal()" style="color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+                            <h2>${{modalTitle}}</h2>
+                        </div>
+                        <div class="modal-body" style="padding: 20px;">
+                            <div class="search-box" style="margin-bottom: 20px;">
+                                <input type="text" id="validationModalSearch" placeholder="${{getTranslation('validationTab.tableHeaders.searchPlaceholder', currentLanguage)}}"
+                                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                            </div>
+                            <div style="overflow-x: auto;">
+                                <table id="validationModalTable" class="table" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background-color: #f2f2f2;">
+                                            ${{tableHeaders.map((header, index) => `
+                                                <th onclick="sortValidationTable(${{index}})" style="cursor: pointer; padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">
+                                                    ${{header}} <span class="sort-icon">↕</span>
+                                                </th>
+                                            `).join('')}}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${{tableData.map(row => `
+                                            <tr>
+                                                ${{row.map(cell => `<td style="padding: 10px; border-bottom: 1px solid #ddd;">${{cell || '-'}}</td>`).join('')}}
+                                            </tr>
+                                        `).join('')}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="padding: 20px; text-align: right; border-top: 1px solid #ddd;">
+                            <button onclick="closeValidationModal()" class="btn btn-secondary" style="padding: 10px 20px; background-color: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                ${{getTranslation('validationTab.tableHeaders.close', currentLanguage)}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }}
+
+        function closeValidationModal() {{
+            const modal = document.getElementById('validationModal');
+            if (modal) {{
+                modal.remove();
+            }}
+        }}
+
+        function initSortableTable(tableId) {{
+            // 테이블 정렬 기능 초기화
+            const table = document.getElementById(tableId);
+            if (!table) return;
+
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {{
+                header.setAttribute('data-sort-direction', 'none');
+            }});
+        }}
+
+        function sortValidationTable(columnIndex) {{
+            const table = document.getElementById('validationModalTable');
+            if (!table) return;
+
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const header = table.querySelectorAll('th')[columnIndex];
+
+            let sortDirection = header.getAttribute('data-sort-direction') || 'none';
+            sortDirection = sortDirection === 'none' || sortDirection === 'desc' ? 'asc' : 'desc';
+
+            rows.sort((a, b) => {{
+                const aValue = a.children[columnIndex].textContent.trim();
+                const bValue = b.children[columnIndex].textContent.trim();
+
+                // 숫자 비교
+                const aNum = parseFloat(aValue);
+                const bNum = parseFloat(bValue);
+
+                if (!isNaN(aNum) && !isNaN(bNum)) {{
+                    return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
+                }}
+
+                // 문자열 비교
+                if (sortDirection === 'asc') {{
+                    return aValue.localeCompare(bValue);
+                }} else {{
+                    return bValue.localeCompare(aValue);
+                }}
+            }});
+
+            // 정렬된 행 다시 추가
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+
+            // 정렬 방향 업데이트
+            header.setAttribute('data-sort-direction', sortDirection);
+
+            // 정렬 아이콘 업데이트
+            table.querySelectorAll('.sort-icon').forEach(icon => icon.textContent = '↕');
+            header.querySelector('.sort-icon').textContent = sortDirection === 'asc' ? '↑' : '↓';
+        }}
+
+        function initTableFilter(searchInputId, tableId) {{
+            const searchInput = document.getElementById(searchInputId);
+            const table = document.getElementById(tableId);
+
+            if (!searchInput || !table) return;
+
+            searchInput.addEventListener('keyup', function() {{
+                const filter = this.value.toLowerCase();
+                const rows = table.querySelector('tbody').querySelectorAll('tr');
+
+                rows.forEach(row => {{
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(filter) ? '' : 'none';
+                }});
+            }});
+        }}
 
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', function() {{
@@ -9079,6 +9758,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                     drawOrgChart();
                 }}, 100);
             }}
+
+            // 검증 탭이면 KPI 카드 초기화
+            if (tabName === 'validation') {{
+                console.log('Validation tab selected');
+                setTimeout(() => {{
+                    initValidationTab();
+                }}, 100);
+            }}
         }}
         
         // 직원 테이블 생성
@@ -10070,7 +10757,9 @@ def main():
         return
     
     # 대시보드 생성
-    html_content = generate_dashboard_html(df, month_name, args.year, args.month)
+    # TODO: Load working_days from config file
+    working_days = 13  # September 2025 working days
+    html_content = generate_dashboard_html(df, month_name, args.year, args.month, working_days)
     
     # 파일 저장
     # 파일명 형식 변경: Incentive_Dashboard_YYYY_MM_Version_5.html
