@@ -29,6 +29,11 @@
       "ko": "조직도",
       "en": "Org Chart",
       "vi": "Sơ đồ tổ chức"
+    },
+    "validation": {
+      "ko": "요약 및 시스템 검증",
+      "en": "Summary & System Validation",
+      "vi": "Tóm tắt & Xác thực hệ thống"
     }
   },
   "orgChart": {
@@ -3936,6 +3941,292 @@
       "ko": "현재 Talent Pool 멤버가 없습니다.",
       "en": "There are currently no Talent Pool members.",
       "vi": "Hiện tại không có thành viên Talent Pool."
+    }
+  },
+  "validationTab": {
+    "title": {
+      "ko": "요약 및 시스템 검증",
+      "en": "Summary & System Validation",
+      "vi": "Tóm tắt & Xác thực hệ thống"
+    },
+    "interimNotice": {
+      "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
+      "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
+      "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
+    },
+    "kpiCards": {
+      "totalWorkingDays": {
+        "title": {
+          "ko": "총 근무일수",
+          "en": "Total Working Days",
+          "vi": "Tổng ngày làm việc"
+        },
+        "unit": {
+          "ko": "일",
+          "en": "days",
+          "vi": "ngày"
+        }
+      },
+      "absentWithoutInform": {
+        "title": {
+          "ko": "무단결근 3일 이상",
+          "en": "Absent Without Inform ≥3 days",
+          "vi": "Vắng không phép ≥3 ngày"
+        },
+        "unit": {
+          "ko": "명",
+          "en": "people",
+          "vi": "người"
+        }
+      },
+      "zeroWorkingDays": {
+        "title": {
+          "ko": "실제 근무일 0일",
+          "en": "Actual Working Days = 0",
+          "vi": "Ngày làm việc thực tế = 0"
+        },
+        "unit": {
+          "ko": "명",
+          "en": "people",
+          "vi": "người"
+        }
+      },
+      "minimumDaysNotMet": {
+        "title": {
+          "ko": "최소 근무일 미충족",
+          "en": "Minimum Days Not Met",
+          "vi": "Không đủ ngày làm tối thiểu"
+        },
+        "unit": {
+          "ko": "명",
+          "en": "people",
+          "vi": "người"
+        },
+        "notApplicable": {
+          "ko": "해당없음",
+          "en": "N/A",
+          "vi": "N/A"
+        }
+      },
+      "aqlFail": {
+        "title": {
+          "ko": "AQL FAIL 보유자",
+          "en": "With AQL FAIL",
+          "vi": "Có AQL FAIL"
+        },
+        "unit": {
+          "ko": "명",
+          "en": "people",
+          "vi": "người"
+        }
+      },
+      "consecutiveAqlFail": {
+        "title": {
+          "ko": "3개월 연속 AQL FAIL",
+          "en": "3-Month Consecutive AQL FAIL",
+          "vi": "AQL FAIL 3 tháng liên tiếp"
+        },
+        "unit": {
+          "ko": "명",
+          "en": "people",
+          "vi": "người"
+        }
+      },
+      "areaRejectRate": {
+        "title": {
+          "ko": "구역 AQL Reject Rate",
+          "en": "Area AQL Reject Rate",
+          "vi": "Tỷ lệ từ chối AQL khu vực"
+        },
+        "unit": {
+          "ko": "%",
+          "en": "%",
+          "vi": "%"
+        }
+      },
+      "lowPassRate": {
+        "title": {
+          "ko": "5PRS 통과율 < 95%",
+          "en": "5PRS Pass Rate < 95%",
+          "vi": "Tỷ lệ đạt 5PRS < 95%"
+        },
+        "unit": {
+          "ko": "명",
+          "en": "people",
+          "vi": "người"
+        }
+      },
+      "lowInspectionQty": {
+        "title": {
+          "ko": "5PRS 검사량 < 100족",
+          "en": "5PRS Inspection < 100 pairs",
+          "vi": "Kiểm tra 5PRS < 100 đôi"
+        },
+        "unit": {
+          "ko": "명",
+          "en": "people",
+          "vi": "người"
+        }
+      }
+    },
+    "tableHeaders": {
+      "employeeNo": {
+        "ko": "사번",
+        "en": "Employee No",
+        "vi": "Mã nhân viên"
+      },
+      "name": {
+        "ko": "이름",
+        "en": "Name",
+        "vi": "Tên"
+      },
+      "position": {
+        "ko": "직급",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "type": {
+        "ko": "타입",
+        "en": "Type",
+        "vi": "Loại"
+      },
+      "totalDays": {
+        "ko": "총 근무일",
+        "en": "Total Days",
+        "vi": "Tổng ngày"
+      },
+      "actualDays": {
+        "ko": "실제 근무일",
+        "en": "Actual Days",
+        "vi": "Ngày thực tế"
+      },
+      "ar1Days": {
+        "ko": "무단결근일",
+        "en": "AR1 Days",
+        "vi": "Ngày vắng không phép"
+      },
+      "conditionStatus": {
+        "ko": "조건 상태",
+        "en": "Status",
+        "vi": "Trạng thái"
+      },
+      "aqlTotal": {
+        "ko": "총 AQL",
+        "en": "Total AQL",
+        "vi": "Tổng AQL"
+      },
+      "aqlPass": {
+        "ko": "PASS",
+        "en": "PASS",
+        "vi": "ĐẠT"
+      },
+      "aqlFail": {
+        "ko": "FAIL",
+        "en": "FAIL",
+        "vi": "KHÔNG ĐẠT"
+      },
+      "area": {
+        "ko": "구역",
+        "en": "Area",
+        "vi": "Khu vực"
+      },
+      "rejectRate": {
+        "ko": "Reject %",
+        "en": "Reject %",
+        "vi": "Tỷ lệ từ chối %"
+      },
+      "supervisor": {
+        "ko": "상사",
+        "en": "Supervisor",
+        "vi": "Giám sát"
+      },
+      "auditor": {
+        "ko": "감사관",
+        "en": "Auditor",
+        "vi": "Kiểm toán viên"
+      },
+      "inspectionQty": {
+        "ko": "검사량",
+        "en": "Inspection Qty",
+        "vi": "Số lượng kiểm tra"
+      },
+      "passRate": {
+        "ko": "통과율",
+        "en": "Pass Rate",
+        "vi": "Tỷ lệ đạt"
+      },
+      "minimumRequired": {
+        "ko": "최소 요구일",
+        "en": "Minimum Required",
+        "vi": "Yêu cầu tối thiểu"
+      },
+      "aqlFailures": {
+        "ko": "AQL 실패 횟수",
+        "en": "AQL Failures",
+        "vi": "Số lần thất bại AQL"
+      },
+      "continuousFail": {
+        "ko": "연속 실패",
+        "en": "Continuous Fail",
+        "vi": "Thất bại liên tục"
+      },
+      "searchPlaceholder": {
+        "ko": "검색...",
+        "en": "Search...",
+        "vi": "Tìm kiếm..."
+      },
+      "close": {
+        "ko": "닫기",
+        "en": "Close",
+        "vi": "Đóng"
+      }
+    },
+    "modalTitles": {
+      "totalWorkingDays": {
+        "ko": "총 근무일수 상세",
+        "en": "Total Working Days Details",
+        "vi": "Chi tiết tổng ngày làm việc"
+      },
+      "absentWithoutInform": {
+        "ko": "무단결근 상세",
+        "en": "Absent Without Inform Details",
+        "vi": "Chi tiết vắng không phép"
+      },
+      "zeroWorkingDays": {
+        "ko": "실제 근무일 0일 상세",
+        "en": "Zero Working Days Details",
+        "vi": "Chi tiết ngày làm việc bằng 0"
+      },
+      "minimumDaysNotMet": {
+        "ko": "최소 근무일 미충족 상세",
+        "en": "Minimum Days Not Met Details",
+        "vi": "Chi tiết không đủ ngày tối thiểu"
+      },
+      "aqlFail": {
+        "ko": "AQL FAIL 상세",
+        "en": "AQL FAIL Details",
+        "vi": "Chi tiết AQL FAIL"
+      },
+      "consecutiveAqlFail": {
+        "ko": "3개월 연속 AQL FAIL 상세",
+        "en": "3-Month Consecutive AQL FAIL Details",
+        "vi": "Chi tiết AQL FAIL 3 tháng liên tiếp"
+      },
+      "areaRejectRate": {
+        "ko": "구역별 AQL Reject Rate 상세",
+        "en": "Area AQL Reject Rate Details",
+        "vi": "Chi tiết tỷ lệ từ chối AQL theo khu vực"
+      },
+      "lowPassRate": {
+        "ko": "5PRS 통과율 미달 상세",
+        "en": "Low 5PRS Pass Rate Details",
+        "vi": "Chi tiết tỷ lệ đạt 5PRS thấp"
+      },
+      "lowInspectionQty": {
+        "ko": "5PRS 검사량 미달 상세",
+        "en": "Low 5PRS Inspection Quantity Details",
+        "vi": "Chi tiết số lượng kiểm tra 5PRS thấp"
+      }
     }
   },
   "management": {
