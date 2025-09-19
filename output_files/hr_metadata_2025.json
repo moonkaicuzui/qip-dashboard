@@ -53,27 +53,27 @@
     "2025_09": {
       "error_count": 0,
       "error_rate": 0.0,
-      "total_employees": 396,
-      "type1_count": "129",
-      "type2_count": "247",
+      "total_employees": 393,
+      "type1_count": "127",
+      "type2_count": "246",
       "type3_count": "20",
-      "attendance_rate": 88.2219419924338,
-      "absence_rate": 11.778058007566202,
-      "absence_count": 141,
-      "resignation_count": 2,
-      "resignation_rate": 0.5050505050505051,
-      "recent_hires": 18,
-      "recent_hires_rate": 4.545454545454546,
+      "attendance_rate": 89.1504806749068,
+      "absence_rate": 10.849519325093198,
+      "absence_count": 158,
+      "resignation_count": 0,
+      "resignation_rate": 0.0,
+      "recent_hires": 19,
+      "recent_hires_rate": 4.8346055979643765,
       "recent_resignations": 0,
       "recent_resignation_rate": 0.0,
       "under_60_days": 37,
-      "under_60_days_rate": 9.343434343434344,
+      "under_60_days_rate": 9.414758269720101,
       "post_assignment_resignations": 0,
       "post_assignment_resignation_rate": 0.0,
-      "full_attendance_count": 255,
-      "full_attendance_rate": 64.39393939393939,
+      "full_attendance_count": 235,
+      "full_attendance_rate": 59.796437659033074,
       "long_term_count": 278,
-      "long_term_rate": 70.2020202020202
+      "long_term_rate": 70.73791348600508
     }
   },
   "weekly_data": {
@@ -110,29 +110,29 @@
       "Week1": {
         "date": "09/01",
         "date_full": "2025-09-01",
-        "total_employees": 396,
-        "attendance_rate": 88.22,
-        "absence_rate": 11.78,
+        "total_employees": 393,
+        "attendance_rate": 89.15,
+        "absence_rate": 10.85,
         "new_hires": 0,
         "resignations": 0
       },
       "Week2": {
         "date": "09/08",
         "date_full": "2025-09-08",
-        "total_employees": 396,
-        "attendance_rate": 88.22,
-        "absence_rate": 11.78,
+        "total_employees": 393,
+        "attendance_rate": 89.15,
+        "absence_rate": 10.85,
         "new_hires": 5,
         "resignations": 0
       },
       "Week3": {
         "date": "09/15",
         "date_full": "2025-09-15",
-        "total_employees": 396,
-        "attendance_rate": 88.22,
-        "absence_rate": 11.78,
-        "new_hires": 0,
-        "resignations": 1
+        "total_employees": 393,
+        "attendance_rate": 89.15,
+        "absence_rate": 10.85,
+        "new_hires": 1,
+        "resignations": 0
       }
     }
   },
@@ -360,44 +360,44 @@
     "2025_09": {
       "OFFICE & OCPT": {
         "total": 4,
-        "attendance_rate": 100.0,
-        "absence_rate": 0.0,
+        "attendance_rate": 98.08,
+        "absence_rate": 1.92,
         "new_hires": 0,
         "resignations": 0,
-        "full_attendance_count": 4,
-        "full_attendance_rate": 100.0
+        "full_attendance_count": 3,
+        "full_attendance_rate": 75.0
       },
       "OSC": {
         "total": 25,
-        "attendance_rate": 94.8,
-        "absence_rate": 5.2,
+        "attendance_rate": 95.69,
+        "absence_rate": 4.31,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 15,
         "full_attendance_rate": 60.0
       },
       "ASSEMBLY": {
-        "total": 121,
-        "attendance_rate": 87.62,
-        "absence_rate": 12.38,
+        "total": 119,
+        "attendance_rate": 89.15,
+        "absence_rate": 10.85,
         "new_hires": 0,
-        "resignations": 1,
-        "full_attendance_count": 77,
-        "full_attendance_rate": 63.64
+        "resignations": 0,
+        "full_attendance_count": 70,
+        "full_attendance_rate": 58.82
       },
       "BOTTOM": {
         "total": 32,
-        "attendance_rate": 96.58,
-        "absence_rate": 3.42,
+        "attendance_rate": 95.69,
+        "absence_rate": 4.31,
         "new_hires": 0,
         "resignations": 0,
-        "full_attendance_count": 29,
-        "full_attendance_rate": 90.62
+        "full_attendance_count": 26,
+        "full_attendance_rate": 81.25
       },
       "QA": {
         "total": 20,
-        "attendance_rate": 89.11,
-        "absence_rate": 10.89,
+        "attendance_rate": 90.46,
+        "absence_rate": 9.54,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 11,
@@ -405,30 +405,30 @@
       },
       "MTL": {
         "total": 30,
-        "attendance_rate": 88.41,
-        "absence_rate": 11.59,
-        "new_hires": 0,
-        "resignations": 0,
-        "full_attendance_count": 17,
-        "full_attendance_rate": 56.67
-      },
-      "AQL": {
-        "total": 23,
-        "attendance_rate": 92.61,
-        "absence_rate": 7.39,
+        "attendance_rate": 88.52,
+        "absence_rate": 11.48,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 16,
-        "full_attendance_rate": 69.57
+        "full_attendance_rate": 53.33
       },
-      "STITCHING": {
-        "total": 95,
-        "attendance_rate": 86.9,
-        "absence_rate": 13.1,
+      "AQL": {
+        "total": 23,
+        "attendance_rate": 92.31,
+        "absence_rate": 7.69,
         "new_hires": 0,
         "resignations": 0,
-        "full_attendance_count": 60,
-        "full_attendance_rate": 63.16
+        "full_attendance_count": 15,
+        "full_attendance_rate": 65.22
+      },
+      "STITCHING": {
+        "total": 94,
+        "attendance_rate": 87.28,
+        "absence_rate": 12.72,
+        "new_hires": 0,
+        "resignations": 0,
+        "full_attendance_count": 53,
+        "full_attendance_rate": 56.38
       },
       "HWK QIP": {
         "total": 1,
@@ -441,8 +441,8 @@
       },
       "CUTTING": {
         "total": 8,
-        "attendance_rate": 69.05,
-        "absence_rate": 30.95,
+        "attendance_rate": 70.37,
+        "absence_rate": 29.63,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 4,
@@ -450,8 +450,8 @@
       },
       "REPACKING": {
         "total": 17,
-        "attendance_rate": 88.82,
-        "absence_rate": 11.18,
+        "attendance_rate": 89.59,
+        "absence_rate": 10.41,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 9,
@@ -459,10 +459,10 @@
       },
       "NEW": {
         "total": 20,
-        "attendance_rate": 72.83,
-        "absence_rate": 27.17,
-        "new_hires": 5,
-        "resignations": 1,
+        "attendance_rate": 78.7,
+        "absence_rate": 21.3,
+        "new_hires": 6,
+        "resignations": 0,
         "full_attendance_count": 12,
         "full_attendance_rate": 60.0
       }
@@ -473,48 +473,48 @@
     "2025_09": {}
   },
   "current_month": {
-    "total_count": 396,
+    "total_count": 393,
     "by_team": {
       "OFFICE & OCPT": {
         "total": 4,
-        "attendance_rate": 100.0,
-        "absence_rate": 0.0,
+        "attendance_rate": 98.08,
+        "absence_rate": 1.92,
         "new_hires": 0,
         "resignations": 0,
-        "full_attendance_count": 4,
-        "full_attendance_rate": 100.0
+        "full_attendance_count": 3,
+        "full_attendance_rate": 75.0
       },
       "OSC": {
         "total": 25,
-        "attendance_rate": 94.8,
-        "absence_rate": 5.2,
+        "attendance_rate": 95.69,
+        "absence_rate": 4.31,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 15,
         "full_attendance_rate": 60.0
       },
       "ASSEMBLY": {
-        "total": 121,
-        "attendance_rate": 87.62,
-        "absence_rate": 12.38,
+        "total": 119,
+        "attendance_rate": 89.15,
+        "absence_rate": 10.85,
         "new_hires": 0,
-        "resignations": 1,
-        "full_attendance_count": 77,
-        "full_attendance_rate": 63.64
+        "resignations": 0,
+        "full_attendance_count": 70,
+        "full_attendance_rate": 58.82
       },
       "BOTTOM": {
         "total": 32,
-        "attendance_rate": 96.58,
-        "absence_rate": 3.42,
+        "attendance_rate": 95.69,
+        "absence_rate": 4.31,
         "new_hires": 0,
         "resignations": 0,
-        "full_attendance_count": 29,
-        "full_attendance_rate": 90.62
+        "full_attendance_count": 26,
+        "full_attendance_rate": 81.25
       },
       "QA": {
         "total": 20,
-        "attendance_rate": 89.11,
-        "absence_rate": 10.89,
+        "attendance_rate": 90.46,
+        "absence_rate": 9.54,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 11,
@@ -522,30 +522,30 @@
       },
       "MTL": {
         "total": 30,
-        "attendance_rate": 88.41,
-        "absence_rate": 11.59,
-        "new_hires": 0,
-        "resignations": 0,
-        "full_attendance_count": 17,
-        "full_attendance_rate": 56.67
-      },
-      "AQL": {
-        "total": 23,
-        "attendance_rate": 92.61,
-        "absence_rate": 7.39,
+        "attendance_rate": 88.52,
+        "absence_rate": 11.48,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 16,
-        "full_attendance_rate": 69.57
+        "full_attendance_rate": 53.33
       },
-      "STITCHING": {
-        "total": 95,
-        "attendance_rate": 86.9,
-        "absence_rate": 13.1,
+      "AQL": {
+        "total": 23,
+        "attendance_rate": 92.31,
+        "absence_rate": 7.69,
         "new_hires": 0,
         "resignations": 0,
-        "full_attendance_count": 60,
-        "full_attendance_rate": 63.16
+        "full_attendance_count": 15,
+        "full_attendance_rate": 65.22
+      },
+      "STITCHING": {
+        "total": 94,
+        "attendance_rate": 87.28,
+        "absence_rate": 12.72,
+        "new_hires": 0,
+        "resignations": 0,
+        "full_attendance_count": 53,
+        "full_attendance_rate": 56.38
       },
       "HWK QIP": {
         "total": 1,
@@ -558,8 +558,8 @@
       },
       "CUTTING": {
         "total": 8,
-        "attendance_rate": 69.05,
-        "absence_rate": 30.95,
+        "attendance_rate": 70.37,
+        "absence_rate": 29.63,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 4,
@@ -567,8 +567,8 @@
       },
       "REPACKING": {
         "total": 17,
-        "attendance_rate": 88.82,
-        "absence_rate": 11.18,
+        "attendance_rate": 89.59,
+        "absence_rate": 10.41,
         "new_hires": 0,
         "resignations": 0,
         "full_attendance_count": 9,
@@ -576,10 +576,10 @@
       },
       "NEW": {
         "total": 20,
-        "attendance_rate": 72.83,
-        "absence_rate": 27.17,
-        "new_hires": 5,
-        "resignations": 1,
+        "attendance_rate": 78.7,
+        "absence_rate": 21.3,
+        "new_hires": 6,
+        "resignations": 0,
         "full_attendance_count": 12,
         "full_attendance_rate": 60.0
       }
@@ -698,5 +698,5 @@
       }
     }
   },
-  "generation_timestamp": "2025-09-16 16:35:32"
+  "generation_timestamp": "2025-09-19 18:04:32"
 }

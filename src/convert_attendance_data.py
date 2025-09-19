@@ -34,10 +34,18 @@ def convert_attendance(month, year=2025):
             print(f"⚠️ 원본 파일이 없습니다: {original_file}")
             return False
         
-        # 이미 변환된 파일이 있으면 건너뛰기
+        # 변환된 파일이 있고 원본보다 최신이면 건너뛰기
         if converted_file.exists():
-            print(f"ℹ️ 이미 변환된 파일이 있습니다: {converted_file}")
-            return True
+            original_mtime = original_file.stat().st_mtime
+            converted_mtime = converted_file.stat().st_mtime
+
+            if converted_mtime >= original_mtime:
+                print(f"ℹ️ 변환된 파일이 최신입니다: {converted_file}")
+                return True
+            else:
+                print(f"🔄 원본 파일이 업데이트되어 재변환합니다: {original_file}")
+                # 기존 변환 파일 삭제
+                converted_file.unlink()
         
         # CSV 파일 읽기
         df = pd.read_csv(original_file, encoding='utf-8-sig')

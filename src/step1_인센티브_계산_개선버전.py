@@ -767,9 +767,11 @@ class DataProcessor:
                             # 출장 체크 ('Đi công tác' in Reason Description = 출장도 출근으로 처리)
                             elif reason_str == 'Đi công tác' and pd.notna(work_date):
                                 worked_dates.add(str(work_date))  # 출장도 출근으로 처리
-                            # 무단결근 체크 (필요 시 다른 패턴 추가)
-                            elif '무단' in comp_str or 'UNAPP' in comp_str.upper():
-                                unapproved_absence += 1
+                            # 결근 체크 (Vắng mặt = 결근)
+                            elif comp_str == 'Vắng mặt':
+                                # AR1 무단결근 체크 (Reason Description에 AR1이 있으면 무단결근)
+                                if 'AR1' in reason_str or 'Vắng không phép' in reason_str or 'không phép' in reason_str.lower():
+                                    unapproved_absence += 1
 
                     # 유니크한 출근 날짜의 개수가 실제 근무일
                     actual_working_days = len(worked_dates)
@@ -790,8 +792,11 @@ class DataProcessor:
                             # 출장 체크 (Reason Description 확인)
                             elif reason_str == 'Đi công tác':
                                 actual_working_days += 1
-                            elif '무단' in comp_str or 'UNAPP' in comp_str.upper():
-                                unapproved_absence += 1
+                            # 결근 체크 (Vắng mặt = 결근)
+                            elif comp_str == 'Vắng mặt':
+                                # AR1 무단결근 체크 (Reason Description에 AR1이 있으면 무단결근)
+                                if 'AR1' in reason_str or 'Vắng không phép' in reason_str or 'không phép' in reason_str.lower():
+                                    unapproved_absence += 1
             
             # 실제 근무일이 전체 근무일보다 많은 경우 조정
             if actual_working_days > total_working_days:
@@ -829,7 +834,8 @@ class DataProcessor:
                 'Employee No': emp_id,
                 'Total Working Days': total_working_days,
                 'Actual Working Days': actual_working_days,
-                'Unapproved Absence Days': unapproved_absence,
+                'AR1 Absences': unapproved_absence,  # AR1 absences are the unapproved absences
+                'Unapproved Absences': unapproved_absence,
                 'Absence Rate (raw)': round(absence_rate, 2),
                 'attendancy condition 1 - acctual working days is zero': 'yes' if actual_working_days == 0 else 'no',
                 'attendancy condition 2 - unapproved Absence Day is more than 2 days': 'yes' if unapproved_absence > 2 else 'no',
@@ -1207,21 +1213,21 @@ class DataProcessor:
         
         # 3. 3개월 연속 실패자 찾기
         continuous_fail_employees = set()
-        
-        # 모든 직원 ID 수집
+
+        # 모든 직원 ID 수집 (현재 월 기준으로 모든 직원 포함)
         all_employees = set(month1_failures.keys()) | set(month2_failures.keys()) | set(month3_failures.keys())
-        
+
         for emp_id in all_employees:
             month1_fail = month1_failures.get(emp_id, 0) > 0
             month2_fail = month2_failures.get(emp_id, 0) > 0
             month3_fail = month3_failures.get(emp_id, 0) > 0
-            
+
             if month1_fail and month2_fail and month3_fail:
                 continuous_fail_employees.add(emp_id)
                 print(f"    ✅ {emp_id}: 3개월 연속 실패 ({latest_months[0]}:{month1_failures.get(emp_id)}건, {latest_months[1]}:{month2_failures.get(emp_id)}건, {latest_months[2]}:{month3_failures.get(emp_id)}건)")
-        
+
         print(f"\n  📊 3개월 연속 실패자: {len(continuous_fail_employees)}명")
-        
+
         # 4. 결과 DataFrame 생성 (BUILDING 정보 포함)
         aql_results = []
         current_month_fail_col = f"{self.config.get_month_str('capital')} AQL Failures"
@@ -1250,11 +1256,25 @@ class DataProcessor:
                         if emp_no not in employee_buildings:
                             employee_buildings[emp_no] = row['BUILDING']
         
-        for emp_id in all_employees:
+        # 모든 직원의 결과를 포함 (실패가 없더라도)
+        # 먼저 기본 데이터프레임에서 모든 직원 ID 가져오기
+        if self.df is not None and 'Employee No' in self.df.columns:
+            all_company_employees = self.df['Employee No'].unique()
+        else:
+            all_company_employees = []
+
+        # 모든 직원 ID 통합 (AQL 데이터 + 회사 전체 직원)
+        all_employees_combined = set(all_employees)
+        for emp_id in all_company_employees:
+            if pd.notna(emp_id):
+                emp_id_str = str(emp_id).strip().zfill(9)
+                all_employees_combined.add(emp_id_str)
+
+        for emp_id in all_employees_combined:
             continuous_fail = 'YES' if emp_id in continuous_fail_employees else 'NO'
             # 최신 월(3번째 월)의 실패 건수
             current_month_fail_count = month3_failures.get(emp_id, 0)
-            
+
             aql_results.append({
                 'Employee No': emp_id,
                 current_month_fail_col: current_month_fail_count,
@@ -1592,11 +1612,24 @@ class CompleteQIPCalculator:
             # AQL history 파일이 있는지 확인
             import os
             aql_history_path = 'input_files/AQL history'
-            use_history = (
-                os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-MAY.2025.csv') and
-                os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-JUNE.2025.csv') and
-                os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-JULY.2025.csv')
-            )
+
+            # 현재 월과 이전 2개월의 AQL history 파일 확인
+            current_month = self.config.month.full_name.upper()
+            prev_months = [m.full_name.upper() for m in self.config.previous_months] if self.config.previous_months else []
+
+            # 3개월 파일 모두 있는지 확인 (현재 월 + 이전 2개월)
+            if len(prev_months) >= 2:
+                month1 = prev_months[1]  # 2개월 전
+                month2 = prev_months[0]  # 1개월 전
+                month3 = current_month   # 현재 월
+
+                use_history = (
+                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month1}.{self.config.year}.csv') and
+                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month2}.{self.config.year}.csv') and
+                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month3}.{self.config.year}.csv')
+                )
+            else:
+                use_history = False
             
             if use_history:
                 print("  → AQL History 파일 사용")
@@ -1630,17 +1663,33 @@ class CompleteQIPCalculator:
                         if not tran.empty:
                             print(f"    → 624040283 Continuous_FAIL: {tran.iloc[0]['Continuous_FAIL']}")
                 
+                # 병합 전 데이터 타입 확인
+                print(f"  → 병합 전 month_data Employee No 타입: {self.month_data['Employee No'].dtype}")
+                print(f"  → 병합 전 aql_conditions Employee No 타입: {aql_conditions['Employee No'].dtype}")
+
+                # 샘플 ID 비교
+                month_sample = self.month_data['Employee No'].iloc[:3].tolist()
+                aql_sample = aql_conditions['Employee No'].iloc[:3].tolist()
+                print(f"  → month_data 샘플: {month_sample}")
+                print(f"  → aql_conditions 샘플: {aql_sample}")
+
                 self.month_data = pd.merge(
                     self.month_data,
                     aql_conditions,
                     on='Employee No',
                     how='left'
                 )
-                
+
                 # 병합 후 AQL 실패 건수 확인
                 if aql_col in self.month_data.columns:
                     aql_fail_count_after = (self.month_data[aql_col] > 0).sum()
                     print(f"  → AQL 병합 후: {aql_fail_count_after}명이 AQL 실패 기록 보유")
+
+                    # 특정 직원 확인
+                    test_emp = '625060019'
+                    test_row = self.month_data[self.month_data['Employee No'] == test_emp]
+                    if not test_row.empty:
+                        print(f"  → 직원 {test_emp} AQL 실패: {test_row.iloc[0][aql_col]}")
                 
                 # 병합 후 3개월 연속 실패자 확인
                 if 'Continuous_FAIL' in self.month_data.columns:
@@ -1650,7 +1699,75 @@ class CompleteQIPCalculator:
                     tran_after = self.month_data[self.month_data['Employee No'] == '624040283']
                     if not tran_after.empty:
                         print(f"    → 624040283 Continuous_FAIL 병합 후: {tran_after.iloc[0]['Continuous_FAIL']}")
-    
+
+        # AQL Area Reject Rate 계산 및 추가
+        self._add_area_reject_rates()
+
+    def _add_area_reject_rates(self):
+        """각 직원의 담당 구역 reject rate 계산 및 추가"""
+        print("\n📊 Area Reject Rate 계산 중...")
+
+        # AQL 데이터 로드
+        aql_data = self.load_aql_data_for_area_calculation()
+        if aql_data is None or aql_data.empty:
+            print("  ⚠️ AQL 데이터가 없어 Area Reject Rate를 계산할 수 없습니다.")
+            self.month_data['Area_Reject_Rate'] = 0
+            return
+
+        # Building별 reject rate 계산
+        building_reject_rates = {}
+        for building in ['A', 'B', 'C', 'D']:
+            building_data = aql_data[
+                (aql_data['BUILDING'] == building) &
+                (aql_data['REPACKING PO'] == 'NORMAL PO')
+            ]
+
+            if not building_data.empty:
+                total = len(building_data)
+                fails = len(building_data[building_data['RESULT'].str.upper() == 'FAIL'])
+                rate = (fails / total * 100) if total > 0 else 0
+                building_reject_rates[building] = rate
+                if rate >= 3:
+                    print(f"  ⚠️ Building {building}: {rate:.2f}% (≥3%)")
+
+        # 각 직원에게 해당 building의 reject rate 할당
+        self.month_data['Area_Reject_Rate'] = 0
+
+        # Auditor/Trainer의 담당 구역 매핑 로드
+        area_mapping = self.load_auditor_trainer_area_mapping()
+
+        for idx, row in self.month_data.iterrows():
+            emp_id = row.get('Employee No', '')
+            position = str(row.get('QIP POSITION 1ST  NAME', '')).upper()
+
+            # Auditor & Training Team인 경우
+            if 'AUDIT' in position or 'TRAINING' in position:
+                # 담당 구역 찾기
+                if area_mapping and str(emp_id) in area_mapping.get('auditor_trainer_areas', {}):
+                    config = area_mapping['auditor_trainer_areas'][str(emp_id)]
+                    for condition in config.get('conditions', []):
+                        if condition.get('type') == 'ALL':
+                            # 전체 구역 담당 - 전체 reject rate
+                            total_all = len(aql_data[aql_data['REPACKING PO'] == 'NORMAL PO'])
+                            fails_all = len(aql_data[(aql_data['REPACKING PO'] == 'NORMAL PO') &
+                                                    (aql_data['RESULT'].str.upper() == 'FAIL')])
+                            rate = (fails_all / total_all * 100) if total_all > 0 else 0
+                            self.month_data.loc[idx, 'Area_Reject_Rate'] = rate
+                            break
+                        elif condition.get('type') == 'AND':
+                            # 특정 Building 담당
+                            for filter_item in condition.get('filters', []):
+                                if filter_item.get('column') == 'BUILDING':
+                                    building = filter_item.get('value')
+                                    self.month_data.loc[idx, 'Area_Reject_Rate'] = building_reject_rates.get(building, 0)
+                                    break
+
+            # 일반 직원은 자신이 속한 Building의 reject rate (필요시)
+            # 현재는 Auditor/Trainer만 적용
+
+        area_reject_count = (self.month_data['Area_Reject_Rate'] >= 3).sum()
+        print(f"✅ Area Reject Rate 계산 완료: {area_reject_count}명이 3% 이상")
+
     def _recalculate_absence_rate_for_resigned(self):
         """퇴사자를 위한 결근율 재계산"""
         import numpy as np
@@ -3744,7 +3861,7 @@ class CompleteQIPCalculator:
             # 조건 8: 담당구역 reject < 3%
             if 8 in applicable_conditions:
                 reject_rate = self.month_data.loc[idx, 'Area_Reject_Rate'] if 'Area_Reject_Rate' in self.month_data.columns else 0
-                cond_8_result = 'PASS' if reject_rate < 3 else 'FAIL'
+                cond_8_result = 'yes' if reject_rate >= 3 else 'no'  # yes = condition failed (reject rate >= 3%)
                 self.month_data.loc[idx, 'cond_8_area_reject'] = cond_8_result
                 self.month_data.loc[idx, 'cond_8_value'] = reject_rate
             else:

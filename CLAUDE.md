@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-QIP (Quality Inspection Process) Incentive Dashboard System - A comprehensive incentive calculation and visualization system for factory workers with Google Drive integration and JSON-based business rule configuration.
+QIP (Quality Inspection Process) Incentive Dashboard System - A comprehensive incentive calculation and visualization system for factory workers with Google Drive integration, JSON-based business rule configuration, and full multi-language support (Korean, English, Vietnamese).
 
 ## Core Development Principles
 
@@ -53,6 +53,15 @@ python validate_dashboard.py
 
 # Check position conditions
 python verify_all_positions.py
+
+# Verify LINE LEADER counts
+python verify_line_leader_counts.py
+
+# Test language switching
+python test_language_switch.py
+
+# Check dynamic month references
+python verify_dynamic_month.py
 ```
 
 ## Architecture and Core Components
@@ -105,10 +114,18 @@ The system uses JSON-based configuration to define all business rules, eliminati
 - Dashboard HTML is generated with embedded JavaScript
 - Template literals use f-strings - escape braces as `{{}}` to avoid syntax errors
 - Chart.js instances must be destroyed before recreation to prevent animation bugs
+- Use `updateAllTexts()` function to handle language switching for all UI elements
+
+#### Organization Chart (Org Chart Tab)
+- Displays TYPE-1 manager hierarchy with incentive calculations
+- Recursive team member finding using `boss_id` field
+- Modal windows show calculation details and failure reasons
+- Field normalization handles various column name formats (Direct_Manager_ID, boss_id, etc.)
+- LINE LEADER counts must be consistent across all tabs
 
 #### Type Classification
 - TYPE-1: Management and specialized positions (higher incentive ranges)
-- TYPE-2: Standard inspection positions (moderate incentive ranges)  
+- TYPE-2: Standard inspection positions (moderate incentive ranges)
 - TYPE-3: New QIP members (basic incentive, no conditions required)
 
 ### Google Drive Integration
@@ -127,7 +144,12 @@ The system includes Google Drive sync capabilities:
 
 ### Language Support
 
-The system supports multilingual labels (Korean, English, Vietnamese) configured in the JSON files. Dashboard UI primarily uses Korean with some English labels.
+The system provides full multi-language support (Korean, English, Vietnamese):
+- Translation file: `config_files/dashboard_translations.json`
+- Dynamic language switching via `changeLanguage()` function
+- All UI elements including org chart and modals support translation
+- Language preference persists in localStorage
+- Month references must use dynamic variables (e.g., `dashboardMonth + '_incentive'`), never hardcoded
 
 ## Dependencies
 

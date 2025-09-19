@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Date Display</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h2>Date Display Test for September Dashboard</h2>
+
+    <div style="padding: 20px; background: #f0f0f0; margin: 20px;">
+        <p id="incentiveDataPeriod" data-year="2025" data-month="09" data-startday="01" data-endday="30">• 인센티브 데이터: 2025년 09월 01일 ~ 30일</p>
+        <p id="attendanceDataPeriod" data-year="2025" data-month="09" data-startday="01" data-endday="13">• 출근 데이터: 2025년 09월 01일 ~ 13일</p>
+        <p id="aqlDataPeriod" data-year="2025" data-month="09" data-startday="01" data-endday="30">• AQL 데이터: 2025년 09월 01일 ~ 30일</p>
+        <p id="5prsDataPeriod" data-year="2025" data-month="09" data-startday="03" data-endday="15">• 5PRS 데이터: 2025년 09월 03일 ~ 15일</p>
+    </div>
+
+    <button onclick="testTranslation()">Test Translation Update</button>
+
+    <div id="result" style="padding: 20px; margin: 20px; border: 2px solid green;">
+        <h3>Results:</h3>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        function testTranslation() {
+            const output = document.getElementById('output');
+            let results = [];
+
+            const dataPeriodItems = [
+                {id: 'incentiveDataPeriod', key: 'incentiveData'},
+                {id: 'attendanceDataPeriod', key: 'attendanceData'},
+                {id: 'aqlDataPeriod', key: 'aqlData'},
+                {id: '5prsDataPeriod', key: '5prsData'}
+            ];
+
+            dataPeriodItems.forEach(item => {
+                const element = document.getElementById(item.id);
+                if (element) {
+                    const year = element.getAttribute('data-year');
+                    const month = element.getAttribute('data-month');
+                    const startDay = element.getAttribute('data-startday');
+                    const endDay = element.getAttribute('data-endday');
+
+                    results.push(`${item.id}:`);
+                    results.push(`  year: ${year}`);
+                    results.push(`  month: ${month}`);
+                    results.push(`  startDay: ${startDay}`);
+                    results.push(`  endDay: ${endDay}`);
+
+                    // Test Korean format
+                    const koreanText = `• ${item.key}: ${year}년 ${month}월 ${startDay}일 ~ ${endDay}일`;
+                    results.push(`  Korean: ${koreanText}`);
+                    results.push('');
+
+                    // Update the element to show it works
+                    element.style.background = '#90EE90';
+                    element.innerHTML = koreanText + ' ✓';
+                }
+            });
+
+            output.textContent = results.join('\n');
+        }
+
+        // Auto-run test on load
+        window.onload = function() {
+            testTranslation();
+        };
+    </script>
+</body>
+</html>
