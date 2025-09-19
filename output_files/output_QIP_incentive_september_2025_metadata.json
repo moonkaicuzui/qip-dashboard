@@ -3,7 +3,7 @@
     "name": "ĐINH KIM NGOAN",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 427058.0,
+    "amount": 367058.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -52,7 +52,7 @@
     "name": "TRẦN KIỀU EM",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 538573.0,
+    "amount": 466156.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -101,7 +101,7 @@
     "name": "LƯƠNG THỊ CẨM TIÊN",
     "position": "A.MANAGER",
     "type": "TYPE-1",
-    "amount": 637512.0,
+    "amount": 549912.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -164,7 +164,7 @@
     "name": "NGUYỄN THỊ BÍCH NGỌC",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -288,7 +288,7 @@
     "name": "CAO THỊ MIỀN",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 548500.0,
+    "amount": 459498.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -426,7 +426,7 @@
     "name": "THỊ BÍCH NGÀ",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 212504.0,
+    "amount": 183304.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -973,7 +973,7 @@
     "name": "THỊ KIM THO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 427058.0,
+    "amount": 367058.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1022,7 +1022,7 @@
     "name": "THỊ MY",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 213529.0,
+    "amount": 183529.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1140,7 +1140,7 @@
     "name": "NGUYỄN THỊ BÍCH CHƯƠNG",
     "position": "GROUP LEADER",
     "type": "TYPE-1",
-    "amount": 427058.0,
+    "amount": 367058.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1203,7 +1203,7 @@
     "name": "DANH THỊ CẨM MINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1252,7 +1252,7 @@
     "name": "LÊ THỊ DIỄM LINH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 538573.0,
+    "amount": 466156.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1468,7 +1468,7 @@
     "name": "THÁI UYỂN NHI",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 575781.0,
+    "amount": 505781.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1704,7 +1704,7 @@
     "name": "TRẦN THỊ THÙY ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1753,7 +1753,7 @@
     "name": "TRẦN NHÃ LINH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1802,7 +1802,7 @@
     "name": "VÕ THỊ TÝ NỊ",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 538573.0,
+    "amount": 466156.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1851,7 +1851,7 @@
     "name": "NGUYỄN THỊ MỸ TRÂM",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 131200.0,
+    "amount": 84000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1914,7 +1914,7 @@
     "name": "VÕ THỊ BÍCH NGÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2130,7 +2130,7 @@
     "name": "PHẠM MINH HUY",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 291200.0,
+    "amount": 219999.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2297,7 +2297,7 @@
     "name": "LÊ THỊ THANH TUYỀN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2395,7 +2395,7 @@
     "name": "VÕ VĂN KIỆT",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 561795.0,
+    "amount": 490128.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2458,7 +2458,7 @@
     "name": "NGUYỄN THỊ BÍCH PHƯỢNG",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 538573.0,
+    "amount": 466156.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2507,7 +2507,7 @@
     "name": "NGUYỄN TẤN THÀNH",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2608,7 +2608,7 @@
     "name": "THỊ NGỌC CHÚC",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2657,7 +2657,7 @@
     "name": "NGUYỄN THỊ MỸ TIÊN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 212504.0,
+    "amount": 183304.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2769,7 +2769,7 @@
     "name": "NGUYỄN THỊ HẠNH",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 212504.0,
+    "amount": 183304.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2818,7 +2818,7 @@
     "name": "LÊ HUỲNH GIAO",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 468218.0,
+    "amount": 409218.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2881,7 +2881,7 @@
     "name": "TRẦN THỊ BÍCH LY",
     "position": "MANAGER",
     "type": "TYPE-1",
-    "amount": 743764.0,
+    "amount": 641564.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3094,7 +3094,7 @@
     "name": "MAI TUYẾT ANH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 538573.0,
+    "amount": 466156.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3393,7 +3393,7 @@
     "name": "NGUYỄN THỊ MAI LAN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3442,7 +3442,7 @@
     "name": "TRẦN THỊ MỸ MIỀU",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 538573.0,
+    "amount": 466156.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3491,7 +3491,7 @@
     "name": "ĐOÀN THỊ NGỌC THƠ",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 427058.0,
+    "amount": 367058.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3540,7 +3540,7 @@
     "name": "THỊ KIM THẢO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 427058.0,
+    "amount": 367058.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3652,7 +3652,7 @@
     "name": "TRƯƠNG THỊ XUÂN QUỲNH",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 212504.0,
+    "amount": 183304.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3813,7 +3813,7 @@
     "name": "NGUYỄN THỊ THẢO QUYÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3844,8 +3844,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -3876,7 +3876,7 @@
     "name": "NGUYỄN VĂN LUÂN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 209000.0,
+    "amount": 153000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3939,7 +3939,7 @@
     "name": "PHÙNG THỊ THỦY",
     "position": "A.MANAGER",
     "type": "TYPE-2",
-    "amount": 637512.0,
+    "amount": 549912.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3988,7 +3988,7 @@
     "name": "PHẠM THỊ BÍCH XUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4149,7 +4149,7 @@
     "name": "NGUYỄN VĂN DƯƠNG",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4293,8 +4293,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -4388,7 +4388,7 @@
     "name": "HUỲNH THIỆN YẾN PHƯƠNG",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4500,7 +4500,7 @@
     "name": "LÊ THẢO THANH",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4612,7 +4612,7 @@
     "name": "ĐẶNG CHÍ CÔNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4643,8 +4643,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -4675,7 +4675,7 @@
     "name": "LÂM THỊ NHƯ Ý",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4755,8 +4755,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 2,
           "threshold": 0,
           "applicable": true
         },
@@ -4787,7 +4787,7 @@
     "name": "THỊ BÁCH HỢP",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4836,7 +4836,7 @@
     "name": "LƯU GIA HÂN",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 427058.0,
+    "amount": 367058.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4916,8 +4916,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -4948,7 +4948,7 @@
     "name": "HỨA THỊ KIM NHẢN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5028,8 +5028,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 4,
           "threshold": 0,
           "applicable": true
         },
@@ -5186,7 +5186,7 @@
     "name": "NGUYỄN THỊ THU HÀ",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5424,7 +5424,7 @@
     "name": "NGUYỄN ANH KHOA",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5462,7 +5462,7 @@
     "name": "HÀ THỊ MỘNG TUYỀN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 212504.0,
+    "amount": 183304.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5574,7 +5574,7 @@
     "name": "PHẠM CHÍ THIỆN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5750,7 +5750,7 @@
     "name": "LÊ VĂN DLEL",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6100,7 +6100,7 @@
     "name": "NGUYỄN THỊ THU DIỆU",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6212,7 +6212,7 @@
     "name": "LÊ VĂN NAM",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 427058.0,
+    "amount": 367058.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6261,7 +6261,7 @@
     "name": "PHẠM NGỌC CHĂM",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6373,7 +6373,7 @@
     "name": "PHAN THỊ MỸ PHÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6422,7 +6422,7 @@
     "name": "HỒ MINH TÝ",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6460,7 +6460,7 @@
     "name": "TRẦN TRẦN TRUNG KIÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6491,8 +6491,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -6586,7 +6586,7 @@
     "name": "DANH THỊ ANH THƯ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6761,7 +6761,7 @@
     "name": "HUỲNH THỊ ÁNH TUYẾT",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6873,7 +6873,7 @@
     "name": "PHẠM THỊ MỸ TIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6922,7 +6922,7 @@
     "name": "LÊ THỊ THÚY LIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7034,7 +7034,7 @@
     "name": "NGUYỄN THỊ MỸ NHUNG",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7146,7 +7146,7 @@
     "name": "NGUYỄN CHÍ LUẬN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7195,7 +7195,7 @@
     "name": "VÕ MINH TÂM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7244,7 +7244,7 @@
     "name": "TĂNG THỊ ÁNH HỒNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7293,7 +7293,7 @@
     "name": "VÕ THỊ NHỊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7454,7 +7454,7 @@
     "name": "HỒ NHỰT PHI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7485,8 +7485,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -7517,7 +7517,7 @@
     "name": "TRƯƠNG THỊ THÚY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7723,8 +7723,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -7818,7 +7818,7 @@
     "name": "LÊ THỊ XUYẾN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7867,7 +7867,7 @@
     "name": "TRƯƠNG YẾN MY",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7916,7 +7916,7 @@
     "name": "THỊ YẾN NHI",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -7965,7 +7965,7 @@
     "name": "NGUYỄN THỊ VIỆT THƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8140,7 +8140,7 @@
     "name": "DANH CAO HUY LỘC",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8290,7 +8290,7 @@
     "name": "VŨ HOÀNG KHA",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8328,7 +8328,7 @@
     "name": "PHAN VÂN ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8377,7 +8377,7 @@
     "name": "TRẦN PHỤNG KIỀU",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8457,8 +8457,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -8520,8 +8520,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 2,
           "threshold": 0,
           "applicable": true
         },
@@ -8552,7 +8552,7 @@
     "name": "MAI THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8601,7 +8601,7 @@
     "name": "TRẦN THỊ CẨM TIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8762,7 +8762,7 @@
     "name": "NGUYỄN THANH HÀO",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8800,7 +8800,7 @@
     "name": "PHẠM THỊ NGỌC THƠ",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8849,7 +8849,7 @@
     "name": "TRẦN THỊ BÍCH THẢO",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8880,8 +8880,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -8912,7 +8912,7 @@
     "name": "NGÔ THỊ NGỌC NGÂN",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8961,7 +8961,7 @@
     "name": "NGUYỄN ANH THƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9136,7 +9136,7 @@
     "name": "CHÂU THỊ LỆ TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9185,7 +9185,7 @@
     "name": "DANH HOÀI NAM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9234,7 +9234,7 @@
     "name": "HUỲNH MỘNG NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9346,7 +9346,7 @@
     "name": "ĐOÀN THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9521,7 +9521,7 @@
     "name": "CHÂU THỊ CHÚC LY",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9619,7 +9619,7 @@
     "name": "THỊ QUÝ MÙI",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9668,7 +9668,7 @@
     "name": "NGUYỄN THỊ NGỌC HUYỀN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9748,8 +9748,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -9780,7 +9780,7 @@
     "name": "HUỲNH ANH THƯ",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9829,7 +9829,7 @@
     "name": "HUỲNH TRƯƠNG YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9878,7 +9878,7 @@
     "name": "NGUYỄN NGỌC TRÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9927,7 +9927,7 @@
     "name": "DANH VIỆT NGHI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10200,7 +10200,7 @@
     "name": "NGUYỄN THỊ NGỌC NHƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10249,7 +10249,7 @@
     "name": "BÙI THỊ MỸ DUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10298,7 +10298,7 @@
     "name": "THỊ KIM YẾN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10347,7 +10347,7 @@
     "name": "LÊ VŨ HỒNG TRÂM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10427,8 +10427,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -10459,7 +10459,7 @@
     "name": "NGUYỄN THỊ HUỲNH NHƯ",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 577058.0,
+    "amount": 517058.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10508,7 +10508,7 @@
     "name": "PHẠM THỊ HUYỀN TRANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10767,7 +10767,7 @@
     "name": "NGUYỄN TRƯƠNG HỒNG NHIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10891,7 +10891,7 @@
     "name": "LÊ THỊ HỒNG LIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10940,7 +10940,7 @@
     "name": "NGUYỄN THỊ THÙY TRANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11241,7 +11241,7 @@
     "name": "LÊ THỊ MỘNG NGHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11321,8 +11321,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -11479,7 +11479,7 @@
     "name": "TRẦN THỊ KIM CHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11675,7 +11675,7 @@
     "name": "THỊ MỸ HẠNH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11885,7 +11885,7 @@
     "name": "XÀ THỊ NGÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12158,7 +12158,7 @@
     "name": "TRẦN THỊ KIM NÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12238,8 +12238,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -12319,7 +12319,7 @@
     "name": "SƠN THỊ MỪNG",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12368,7 +12368,7 @@
     "name": "DANH THỊ NGUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12480,7 +12480,7 @@
     "name": "CAO VĂN PHẨM",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12581,7 +12581,7 @@
     "name": "TRƯƠNG THỊ THẢO EM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12742,7 +12742,7 @@
     "name": "TRẦN QUỐC KIỆT",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12885,8 +12885,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 2,
           "threshold": 0,
           "applicable": true
         },
@@ -12917,7 +12917,7 @@
     "name": "HUỲNH THIỆN THUYỀN NGỌC",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13078,7 +13078,7 @@
     "name": "NGUYỄN THỊ THÙY NHUNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13127,7 +13127,7 @@
     "name": "TRƯƠNG NỮ VÂN ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13176,7 +13176,7 @@
     "name": "LÊ TRÚC LY",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13214,7 +13214,7 @@
     "name": "PHẠM NGỌC HƯỞNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13326,7 +13326,7 @@
     "name": "LIÊNG THỊ THÚY HUỲNH",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13375,7 +13375,7 @@
     "name": "TRẦN MỸ ÁI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -13648,7 +13648,7 @@
     "name": "DANH THỊ VIỆT HỒNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14145,7 +14145,7 @@
     "name": "MÃ TẤN THIÊM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14337,8 +14337,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -14432,7 +14432,7 @@
     "name": "HUỲNH THỊ BÉ TƯ",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14481,7 +14481,7 @@
     "name": "TRƯƠNG KIM LĨNH",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14845,7 +14845,7 @@
     "name": "NGUYỄN TRƯỜNG SƠN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14894,7 +14894,7 @@
     "name": "LÝ THỊ MỸ LINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -14943,7 +14943,7 @@
     "name": "TRƯƠNG KIM THÙY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15104,7 +15104,7 @@
     "name": "TRẦN THỊ NGỌC ÂN",
     "position": "OCPT STFF",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15216,7 +15216,7 @@
     "name": "LA THẢO MY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15265,7 +15265,7 @@
     "name": "HOÀNG VŨ ANH PHÚ",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15377,7 +15377,7 @@
     "name": "LÊ THỊ HUẾ MINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15552,7 +15552,7 @@
     "name": "NGUYỄN ÚT TÝ",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15583,8 +15583,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -15615,7 +15615,7 @@
     "name": "TRẦN THỊ HUỲNH NHAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15664,7 +15664,7 @@
     "name": "TRẦN THỊ MỸ TIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15713,7 +15713,7 @@
     "name": "NGUYỄN MỘNG THÊM",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15744,8 +15744,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -15839,7 +15839,7 @@
     "name": "HỒ THỊ MAI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15888,7 +15888,7 @@
     "name": "NGUYỄN THỊ MỘNG MI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15937,7 +15937,7 @@
     "name": "LÊ THỊ KIM TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15986,7 +15986,7 @@
     "name": "TRẦN NGỌC TIỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16035,7 +16035,7 @@
     "name": "PHAN THỊ YẾN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16073,7 +16073,7 @@
     "name": "NGUYỄN THÚY VY",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16248,7 +16248,7 @@
     "name": "ĐINH NGUYỄN PHƯƠNG ANH",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16297,7 +16297,7 @@
     "name": "LÝ NGUYỄN TRUNG DUY",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16346,7 +16346,7 @@
     "name": "LÊ THÀNH THẢO",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16458,7 +16458,7 @@
     "name": "DANH THỊ CHANH ĐA",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16570,7 +16570,7 @@
     "name": "NGUYỄN NGỌC HIỀN NGOAN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16745,7 +16745,7 @@
     "name": "LÝ THỊ MỸ AN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16920,7 +16920,7 @@
     "name": "LÊ THỊ MỸ NGỌC",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16969,7 +16969,7 @@
     "name": "THỊ THU THẢO",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17081,7 +17081,7 @@
     "name": "PHẠM THỊ NHƯ Ý",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17130,7 +17130,7 @@
     "name": "THỊ NGỌC HÀ",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17217,7 +17217,7 @@
     "name": "THỊ THÚY KIỀU",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17266,7 +17266,7 @@
     "name": "THỊ HỒNG THẮM",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17427,7 +17427,7 @@
     "name": "LÊ THANH TUẤN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17476,7 +17476,7 @@
     "name": "DƯƠNG THỊ THU THẢO",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17525,7 +17525,7 @@
     "name": "TRẦN THỊ KIỀU TRANG",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17574,7 +17574,7 @@
     "name": "NGUYỄN HỒNG THƯ",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17623,7 +17623,7 @@
     "name": "DƯƠNG KIỀU TIÊN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17672,7 +17672,7 @@
     "name": "HỒ THỊ KIM QUÍ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17721,7 +17721,7 @@
     "name": "TRẦN ANH THI",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17819,7 +17819,7 @@
     "name": "NGUYỄN THỊ THÙY OANH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17868,7 +17868,7 @@
     "name": "NGUYỄN KIM MINH NGỌC",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -17980,7 +17980,7 @@
     "name": "HỨA THỊ YẾN NHI",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18092,7 +18092,7 @@
     "name": "NGUYỄN NGỌC TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18141,7 +18141,7 @@
     "name": "TRẦN THANH LIÊM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18190,7 +18190,7 @@
     "name": "NGUYỄN NGỌC HÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18239,7 +18239,7 @@
     "name": "HỒ NGUYỄN QUỲNH ANH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18288,7 +18288,7 @@
     "name": "TRẦN THỊ TỐ QUYÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18337,7 +18337,7 @@
     "name": "NGÔ THANH KIM HÂN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18386,7 +18386,7 @@
     "name": "DANH THỊ CẨM ĐIỀU",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18435,7 +18435,7 @@
     "name": "LƯƠNG THỊ KIM THOA",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18484,7 +18484,7 @@
     "name": "NGUYỄN THỊ KIỀU ANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18533,7 +18533,7 @@
     "name": "PHẠM THỊ SÂM",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18582,7 +18582,7 @@
     "name": "MAI HỒNG LỤA",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18694,7 +18694,7 @@
     "name": "DANH NGỌC TUẤN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18806,7 +18806,7 @@
     "name": "LÊ THỊ MINH THƯ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18855,7 +18855,7 @@
     "name": "TRẦN NGỌC BẢO TRÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18904,7 +18904,7 @@
     "name": "HUỲNH NGỌC LÀNH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -18953,7 +18953,7 @@
     "name": "VÕ THỊ HỒNG TƯƠI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19002,7 +19002,7 @@
     "name": "LÊ VĂN KHANG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19051,7 +19051,7 @@
     "name": "DANH THỊ BÍCH HỢP",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19152,7 +19152,7 @@
     "name": "DANH THỊ NGỌC TRINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19250,7 +19250,7 @@
     "name": "PHAN THỊ NGỌC THẢO",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19299,7 +19299,7 @@
     "name": "LÝ THỊ TRÚC QUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19348,7 +19348,7 @@
     "name": "CHUNG THÀNH PHONG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19446,7 +19446,7 @@
     "name": "NGUYỄN THỊ MỸ CHI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19495,7 +19495,7 @@
     "name": "LƯU KIM TRỌN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 212504.0,
+    "amount": 183304.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19544,7 +19544,7 @@
     "name": "LÊ THỊ BẾN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19642,7 +19642,7 @@
     "name": "THỊ CẨM THU",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19852,7 +19852,7 @@
     "name": "LÊ THỊ THOẢNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19950,7 +19950,7 @@
     "name": "DANH VÀNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20097,7 +20097,7 @@
     "name": "TRƯƠNG THỦY TIÊN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20146,7 +20146,7 @@
     "name": "NGUYỄN THỊ NGỌC ÁNH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20244,7 +20244,7 @@
     "name": "PHAN VĂN BỔNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20293,7 +20293,7 @@
     "name": "NGUYỄN MINH KHANG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20467,7 +20467,7 @@
     "name": "NGUYỄN HOÀNG LONG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20913,7 +20913,7 @@
     "name": "LÊ THỊ KIM THÙY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -20962,7 +20962,7 @@
     "name": "NGUYỄN THỊ BÍCH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21049,7 +21049,7 @@
     "name": "LƯU NGUYỄN TẤN DŨNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21098,7 +21098,7 @@
     "name": "NGUYỄN THỊ BÉ BA",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21147,7 +21147,7 @@
     "name": "VÕ KIM THANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21196,7 +21196,7 @@
     "name": "THỊ DƯỢC",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21234,7 +21234,7 @@
     "name": "ONG THỊ CẨM NƯƠNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21283,7 +21283,7 @@
     "name": "DƯƠNG LÝ BẰNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21332,7 +21332,7 @@
     "name": "DANH NGỌC HUYỀN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21419,7 +21419,7 @@
     "name": "THỊ BÉ BẢY",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21468,7 +21468,7 @@
     "name": "THỊ TUYỀN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21580,7 +21580,7 @@
     "name": "THỊ KIM MỪNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21629,7 +21629,7 @@
     "name": "ĐÀO THỊ NGUYỆT",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21678,7 +21678,7 @@
     "name": "NGUYỄN QUỐC CƯỜNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21765,7 +21765,7 @@
     "name": "NGUYỄN THỊ BÍCH VY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -21814,7 +21814,7 @@
     "name": "THÁI NGỌC TRÂM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22015,7 +22015,7 @@
     "name": "PHẠM THỊ THU HẰNG",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22116,7 +22116,7 @@
     "name": "TRẦN CẨM TIÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22165,7 +22165,7 @@
     "name": "THÁI THỊ CẨM TIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22214,7 +22214,7 @@
     "name": "LÊ NGỌC LINH ĐAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22263,7 +22263,7 @@
     "name": "NGUYỄN THỊ HẰNG",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22350,7 +22350,7 @@
     "name": "THỊ DƯƠNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22399,7 +22399,7 @@
     "name": "NGUYỄN NGỌC TRÂM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22611,7 +22611,7 @@
     "name": "TRẦN HỒ QUẾ PHƯƠNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22660,7 +22660,7 @@
     "name": "THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22709,7 +22709,7 @@
     "name": "THỊ OÁCH HA",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22845,7 +22845,7 @@
     "name": "THỊ HỒNG NGA",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -22932,7 +22932,7 @@
     "name": "TRƯƠNG THỊ TUYẾT LOAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23095,7 +23095,7 @@
     "name": "THỊ THANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23144,7 +23144,7 @@
     "name": "NGUYỄN THU THẢO",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23193,7 +23193,7 @@
     "name": "DANH THỊ NGỌC DIỄM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23242,7 +23242,7 @@
     "name": "NGUYỄN THỊ CHÚC GIANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23354,7 +23354,7 @@
     "name": "LÝ THỊ MỸ HUYỀN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23403,7 +23403,7 @@
     "name": "LÝ THỊ THÚY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23452,7 +23452,7 @@
     "name": "BÙI THỊ MỸ NHIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23501,7 +23501,7 @@
     "name": "LÊ THỊ THANH THÚY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23550,7 +23550,7 @@
     "name": "LĂM THỊ THẮM",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23599,7 +23599,7 @@
     "name": "HUỲNH THỊ MỸ DUNG",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23686,7 +23686,7 @@
     "name": "HUỲNH THỊ KỲ ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23735,7 +23735,7 @@
     "name": "LƯƠNG THỊ HOA",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23784,7 +23784,7 @@
     "name": "LÊ THỊ HOÀI MỸ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23833,7 +23833,7 @@
     "name": "TRẦN LÂM NGỌC HUYỀN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23920,7 +23920,7 @@
     "name": "CAO THỊ TUYẾT NGÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -23969,7 +23969,7 @@
     "name": "HUỲNH THỊ ANH THƯ",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24018,7 +24018,7 @@
     "name": "HUỲNH TÚ GẤM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24105,7 +24105,7 @@
     "name": "ĐOÀN THỊ THU TRANG",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24154,7 +24154,7 @@
     "name": "VÕ THỊ HUỲNH NHƯ",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24203,7 +24203,7 @@
     "name": "PHẠM TRƯỜNG PHƯỢNG ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24252,7 +24252,7 @@
     "name": "LÊ THỊ CHINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24339,7 +24339,7 @@
     "name": "THỊ HỒNG XUÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24451,7 +24451,7 @@
     "name": "ĐINH THỊ KIM THOA",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24563,7 +24563,7 @@
     "name": "LÝ THỊ THU HỒNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24612,7 +24612,7 @@
     "name": "DƯƠNG THỊ HOÀNG DUY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24661,7 +24661,7 @@
     "name": "HỒ THỊ HỒNG ÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 249342.0,
+    "amount": 259420.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {

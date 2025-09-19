@@ -1633,6 +1633,8 @@ class CompleteQIPCalculator:
             
             if use_history:
                 print("  → AQL History 파일 사용")
+                # DataProcessor에 month_data를 전달하여 모든 직원 목록 제공
+                self.data_processor.df = self.month_data
                 aql_conditions = self.data_processor.process_aql_conditions_with_history()
             else:
                 print("  → 기존 방식 사용 (이전 인센티브 파일 기반)")
