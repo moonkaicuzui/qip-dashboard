@@ -24,6 +24,315 @@
       "ko": "인센티브 기준",
       "en": "Incentive Criteria",
       "vi": "Tiêu chí khen thưởng"
+    },
+    "orgChart": {
+      "ko": "조직도",
+      "en": "Org Chart",
+      "vi": "Sơ đồ tổ chức"
+    }
+  },
+  "orgChart": {
+    "title": {
+      "ko": "TYPE-1 관리자 인센티브 구조",
+      "en": "TYPE-1 Manager Incentive Structure",
+      "vi": "Cấu trúc khuyến khích quản lý TYPE-1"
+    },
+    "subtitle": {
+      "ko": "부하직원 성과에 기반한 인센티브를 받는 TYPE-1 관리자",
+      "en": "TYPE-1 managers receiving incentive based on subordinate performance",
+      "vi": "Quản lý TYPE-1 nhận khuyến khích dựa trên hiệu suất cấp dưới"
+    },
+    "noteLabel": {
+      "ko": "참고",
+      "en": "Note",
+      "vi": "Lưu ý"
+    },
+    "excludedPositions": {
+      "ko": "AQL INSPECTOR, AUDIT & TRAINING TEAM, MODEL MASTER 직급은 조직도에서 제외되었습니다.",
+      "en": "AQL INSPECTOR, AUDIT & TRAINING TEAM, MODEL MASTER positions are excluded from the organization chart.",
+      "vi": "Các vị trí AQL INSPECTOR, AUDIT & TRAINING TEAM, MODEL MASTER không được bao gồm trong sơ đồ tổ chức."
+    },
+    "helpText": {
+      "ko": "각 직원의 인센티브 계산 기준과 부하직원 정보를 확인하세요",
+      "en": "Check each employee's incentive calculation criteria and subordinate information",
+      "vi": "Kiểm tra tiêu chí tính khuyến khích và thông tin cấp dưới của từng nhân viên"
+    },
+    "searchPlaceholder": {
+      "ko": "이름 또는 사번으로 검색...",
+      "en": "Search by name or employee ID...",
+      "vi": "Tìm kiếm theo tên hoặc mã nhân viên..."
+    },
+    "filterLabel": {
+      "ko": "직급 필터",
+      "en": "Position Filter",
+      "vi": "Bộ lọc chức vụ"
+    },
+    "showReceivingOnly": {
+      "ko": "인센티브 수령자만 표시",
+      "en": "Show Incentive Recipients Only",
+      "vi": "Chỉ hiện người nhận khuyến khích"
+    },
+    "legendTitle": {
+      "ko": "인센티브 계산 방식",
+      "en": "Incentive Calculation Method",
+      "vi": "Phương pháp tính khuyến khích"
+    },
+    "legendNote": {
+      "ko": "특수 직급(AQL Inspector, Audit Team, Model Master)은 개별 성과 기반이므로 제외",
+      "en": "Special positions (AQL Inspector, Audit Team, Model Master) excluded as they are based on individual performance",
+      "vi": "Các vị trí đặc biệt (AQL Inspector, Audit Team, Model Master) được loại trừ vì dựa trên hiệu suất cá nhân"
+    },
+    "calculationFormulas": {
+      "lineLeader": {
+        "ko": "TYPE-1 부하 인센티브 합 × 12% × 수령비율",
+        "en": "TYPE-1 Subordinate Incentive Sum × 12% × Receiving Rate",
+        "vi": "Tổng khuyến khích cấp dưới TYPE-1 × 12% × Tỷ lệ nhận"
+      },
+      "groupLeader": {
+        "ko": "팀 내 LINE LEADER 평균 × 2",
+        "en": "Team LINE LEADER Average × 2",
+        "vi": "Trung bình LINE LEADER trong nhóm × 2"
+      },
+      "supervisor": {
+        "ko": "LINE LEADER 평균 × 2.5",
+        "en": "LINE LEADER Average × 2.5",
+        "vi": "Trung bình LINE LEADER × 2.5"
+      },
+      "aManager": {
+        "ko": "LINE LEADER 평균 × 3",
+        "en": "LINE LEADER Average × 3",
+        "vi": "Trung bình LINE LEADER × 3"
+      },
+      "manager": {
+        "ko": "하위 관리자 평균 × 3.5",
+        "en": "Lower Manager Average × 3.5",
+        "vi": "Trung bình quản lý cấp dưới × 3.5"
+      }
+    },
+    "filters": {
+      "allTypes": {
+        "ko": "모든 Type",
+        "en": "All Types",
+        "vi": "Tất cả loại"
+      },
+      "viewAll": {
+        "ko": "전체 보기",
+        "en": "View All",
+        "vi": "Xem tất cả"
+      },
+      "paidOnly": {
+        "ko": "인센티브 수령자",
+        "en": "Incentive Recipients",
+        "vi": "Người nhận khen thưởng"
+      },
+      "unpaidOnly": {
+        "ko": "인센티브 미수령자",
+        "en": "Non-Recipients",
+        "vi": "Người không nhận"
+      }
+    },
+    "usageGuide": {
+      "title": {
+        "ko": "사용 안내:",
+        "en": "Usage Guide:",
+        "vi": "Hướng dẫn sử dụng:"
+      },
+      "text": {
+        "ko": "인센티브 금액 또는",
+        "en": "Click incentive amount or",
+        "vi": "Nhấp vào số tiền khuyến khích hoặc"
+      },
+      "subtext": {
+        "ko": "버튼을 클릭하면 상세 정보를 볼 수 있습니다.",
+        "en": "button to view detailed information.",
+        "vi": "nút để xem thông tin chi tiết."
+      }
+    },
+    "buttons": {
+      "expandAll": {
+        "ko": "전체 펼치기",
+        "en": "Expand All",
+        "vi": "Mở rộng tất cả"
+      },
+      "collapseAll": {
+        "ko": "전체 접기",
+        "en": "Collapse All",
+        "vi": "Thu gọn tất cả"
+      },
+      "reset": {
+        "ko": "초기화",
+        "en": "Reset",
+        "vi": "Đặt lại"
+      },
+      "export": {
+        "ko": "이미지 저장",
+        "en": "Save Image",
+        "vi": "Lưu hình ảnh"
+      },
+      "close": {
+        "ko": "닫기",
+        "en": "Close",
+        "vi": "Đóng"
+      }
+    },
+    "noData": {
+      "ko": "조직도 데이터가 없습니다.",
+      "en": "No organization data available.",
+      "vi": "Không có dữ liệu tổ chức."
+    },
+    "error": {
+      "ko": "조직도 생성 중 오류가 발생했습니다.",
+      "en": "Error creating organization chart.",
+      "vi": "Lỗi khi tạo sơ đồ tổ chức."
+    },
+    "tooltipLabels": {
+      "empNo": {
+        "ko": "사번",
+        "en": "Employee No",
+        "vi": "Mã nhân viên"
+      },
+      "position": {
+        "ko": "직급",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "incentive": {
+        "ko": "인센티브",
+        "en": "Incentive",
+        "vi": "Khen thưởng"
+      },
+      "boss": {
+        "ko": "상사",
+        "en": "Supervisor",
+        "vi": "Quản lý"
+      },
+      "none": {
+        "ko": "없음",
+        "en": "None",
+        "vi": "Không có"
+      }
+    },
+    "incentiveReceived": {
+      "ko": "인센티브 수령",
+      "en": "Incentive Received",
+      "vi": "Đã nhận thưởng"
+    },
+    "incentiveNotReceived": {
+      "ko": "인센티브 미수령",
+      "en": "Incentive Not Received",
+      "vi": "Chưa nhận thưởng"
+    },
+    "modalTitle": {
+      "ko": "인센티브 계산 상세",
+      "en": "Incentive Calculation Details",
+      "vi": "Chi tiết tính khuyến khích"
+    },
+    "modalLabels": {
+      "actualIncentive": {
+        "ko": "실제 인센티브",
+        "en": "Actual Incentive",
+        "vi": "Khuyến khích thực tế"
+      },
+      "calculationMethod": {
+        "ko": "계산 방식",
+        "en": "Calculation Method",
+        "vi": "Phương pháp tính"
+      },
+      "subordinateCount": {
+        "ko": "부하직원 수",
+        "en": "Number of Subordinates",
+        "vi": "Số lượng cấp dưới"
+      },
+      "receivingSubordinates": {
+        "ko": "인센티브 수령 부하",
+        "en": "Incentive Receiving Subordinates",
+        "vi": "Cấp dưới nhận khuyến khích"
+      },
+      "subordinateIncentiveSum": {
+        "ko": "부하 인센티브 합계",
+        "en": "Subordinate Incentive Sum",
+        "vi": "Tổng khuyến khích cấp dưới"
+      },
+      "expectedCalculation": {
+        "ko": "예상 계산",
+        "en": "Expected Calculation",
+        "vi": "Tính toán dự kiến"
+      },
+      "conditionStatus": {
+        "ko": "조건 충족 현황",
+        "en": "Condition Fulfillment Status",
+        "vi": "Tình trạng đáp ứng điều kiện"
+      },
+      "teamLineLeaderList": {
+        "ko": "팀 LINE LEADER 목록",
+        "en": "Team LINE LEADER List",
+        "vi": "Danh sách LINE LEADER nhóm"
+      },
+      "teamLineLeaderCount": {
+        "ko": "팀 LINE LEADER 수",
+        "en": "Team LINE LEADER Count",
+        "vi": "Số lượng LINE LEADER nhóm"
+      },
+      "calcDetailLineLeader": {
+        "ko": "계산 상세 (LINE LEADER)",
+        "en": "Calculation Detail (LINE LEADER)",
+        "vi": "Chi tiết tính toán (LINE LEADER)"
+      },
+      "calcDetailGroupLeader": {
+        "ko": "계산 상세 (GROUP LEADER)",
+        "en": "Calculation Detail (GROUP LEADER)",
+        "vi": "Chi tiết tính toán (GROUP LEADER)"
+      },
+      "calcDetailSupervisor": {
+        "ko": "계산 상세 (SUPERVISOR)",
+        "en": "Calculation Detail (SUPERVISOR)",
+        "vi": "Chi tiết tính toán (SUPERVISOR)"
+      },
+      "calcDetailAManager": {
+        "ko": "계산 상세 (A.MANAGER)",
+        "en": "Calculation Detail (A.MANAGER)",
+        "vi": "Chi tiết tính toán (A.MANAGER)"
+      },
+      "calcDetailManager": {
+        "ko": "계산 상세 (MANAGER)",
+        "en": "Calculation Detail (MANAGER)",
+        "vi": "Chi tiết tính toán (MANAGER)"
+      },
+      "subordinateIncentive": {
+        "ko": "부하 인센티브",
+        "en": "Subordinate Incentive",
+        "vi": "Khuyến khích cấp dưới"
+      },
+      "receivingRate": {
+        "ko": "수령비율",
+        "en": "Receiving Rate",
+        "vi": "Tỷ lệ nhận"
+      },
+      "noPaymentReason": {
+        "ko": "미지급 사유",
+        "en": "Non-Payment Reason",
+        "vi": "Lý do không chi trả"
+      },
+      "conditionFailure": {
+        "ko": "조건 미충족",
+        "en": "Condition Not Met",
+        "vi": "Điều kiện không đáp ứng"
+      },
+      "actualPayment": {
+        "ko": "실제 지급액",
+        "en": "Actual Payment",
+        "vi": "Số tiền chi trả thực tế"
+      }
+    },
+    "expandAll": {
+      "ko": "전체 펼치기",
+      "en": "Expand All",
+      "vi": "Mở rộng tất cả"
+    },
+    "collapseAll": {
+      "ko": "전체 접기",
+      "en": "Collapse All",
+      "vi": "Thu gọn tất cả"
     }
   },
   "headers": {
@@ -906,6 +1215,21 @@
     }
   },
   "modal": {
+    "modalTitle": {
+      "ko": "인센티브 계산 상세",
+      "en": "Incentive Calculation Details",
+      "vi": "Chi tiết tính khuyến khích"
+    },
+    "expectedIncentive": {
+      "ko": "예상 인센티브",
+      "en": "Expected Incentive",
+      "vi": "Khuyến khích dự kiến"
+    },
+    "actualIncentive": {
+      "ko": "실제 인센티브",
+      "en": "Actual Incentive",
+      "vi": "Khuyến khích thực tế"
+    },
     "title": {
       "ko": "직원 상세 정보",
       "en": "Employee Details",

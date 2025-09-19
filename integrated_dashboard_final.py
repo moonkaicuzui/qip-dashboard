@@ -196,6 +196,14 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     column_mapping[col] = 'type'
                 elif f'{month.lower()}_incentive' in col_lower or f'{month.lower()} incentive' in col_lower:
                     column_mapping[col] = f'{month.lower()}_incentive'
+                elif f'{month.capitalize()}_Incentive' in col:  # Handle capitalized month names
+                    column_mapping[col] = f'{month.lower()}_incentive'
+                elif 'August_Incentive' in col:  # For other months showing August data
+                    column_mapping[col] = 'august_incentive'
+                elif 'July_Incentive' in col:
+                    column_mapping[col] = 'july_incentive'
+                elif 'Previous_Incentive' in col:
+                    column_mapping[col] = 'previous_incentive'
                 elif col_lower == 'attendance_rate' or (col_lower == 'attendance rate'):
                     column_mapping[col] = 'attendance_rate'
                 elif col_lower.startswith('cond_'):
@@ -209,7 +217,13 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     column_mapping[col] = 'Talent_Pool_Bonus'
             
             df = df.rename(columns=column_mapping)
-            
+
+            # 디버그: 매핑된 컬럼 확인
+            print(f"✅ 컬럼 매핑 완료: {month}_incentive 컬럼 존재: {f'{month.lower()}_incentive' in df.columns}")
+            if f'{month.lower()}_incentive' in df.columns:
+                non_zero = (df[f'{month.lower()}_incentive'] > 0).sum()
+                print(f"   - {month}_incentive 값이 0이 아닌 직원: {non_zero}명")
+
             # Type 컬럼이 없으면 position에서 결정
             if 'type' not in df.columns and 'position' in df.columns:
                 df['type'] = df['position'].apply(determine_type_from_position)
@@ -383,8 +397,23 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 print("   → Excel에서 데이터를 확인하세요. 하드코딩 없이 0으로 표시됩니다.")
             
             # 이전 달 인센티브 로드
-            prev_month_name = 'july' if month.lower() == 'august' else 'june'
-            prev_year = year
+            month_names = ['', 'january', 'february', 'march', 'april', 'may', 'june',
+                          'july', 'august', 'september', 'october', 'november', 'december']
+            month_map = {
+                'january': 1, 'february': 2, 'march': 3, 'april': 4,
+                'may': 5, 'june': 6, 'july': 7, 'august': 8,
+                'september': 9, 'october': 10, 'november': 11, 'december': 12
+            }
+
+            current_month_num = month_map.get(month.lower(), 8)
+            if current_month_num == 1:
+                prev_month_name = 'december'
+                prev_year = year - 1
+            else:
+                prev_month_name = month_names[current_month_num - 1]
+                prev_year = year
+
+            print(f"✅ 이전 월 계산: {month} → {prev_month_name}")
             
             # 모든 직원의 7월 인센티브는 JSON 설정 파일에서 로드
             july_incentive_data = {}
@@ -425,10 +454,23 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                         break
                 
                 # 이전 월 인센티브 컬럼 찾기
+                incentive_col_found = False
                 for col in prev_df.columns:
-                    if f'{prev_month_name.lower()}_incentive' in col.lower() or f'{prev_month_name.lower()} incentive' in col.lower():
+                    col_lower = col.lower()
+                    # 다양한 형식 처리: August_Incentive, august_incentive, Final Incentive amount 등
+                    if (f'{prev_month_name.lower()}_incentive' in col_lower or
+                        f'{prev_month_name.lower()} incentive' in col_lower or
+                        f'{prev_month_name.capitalize()}_Incentive' in col or
+                        (prev_month_name.lower() == 'august' and 'August_Incentive' in col)):
                         prev_df.rename(columns={col: f'{prev_month_name}_incentive'}, inplace=True)
+                        incentive_col_found = True
+                        print(f"   - 이전 월 인센티브 컬럼 찾음: {col} → {prev_month_name}_incentive")
                         break
+
+                # Final Incentive amount를 대체로 사용
+                if not incentive_col_found and 'Final Incentive amount' in prev_df.columns:
+                    prev_df.rename(columns={'Final Incentive amount': f'{prev_month_name}_incentive'}, inplace=True)
+                    print(f"   - Final Incentive amount를 {prev_month_name}_incentive로 사용")
                 
                 # 사번 기준으로 병합
                 if 'emp_no' in prev_df.columns and f'{prev_month_name}_incentive' in prev_df.columns:
@@ -739,13 +781,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     month_names = ['january', 'february', 'march', 'april', 'may', 'june',
                    'july', 'august', 'september', 'october', 'november', 'december']
 
+    # 한국어 월 이름 매핑
+    month_kor_map = {
+        'january': '1월', 'february': '2월', 'march': '3월', 'april': '4월',
+        'may': '5월', 'june': '6월', 'july': '7월', 'august': '8월',
+        'september': '9월', 'october': '10월', 'november': '11월', 'december': '12월'
+    }
+    month_kor = month_kor_map.get(month.lower(), f'{month_num}월')
+
     current_month_num = month_map.get(month.lower(), 7)
     prev_month_name = month_names[current_month_num - 1] if current_month_num > 0 else 'december'
     prev_year = year if current_month_num > 0 else year - 1
 
     # 조건 매트릭스 로드
     condition_matrix = load_condition_matrix()
-    
+
     # 메타데이터 파일 로드
     metadata = {}
     metadata_file = f"output_files/output_QIP_incentive_{month}_{year}_metadata.json"
@@ -755,20 +805,68 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             print(f"✅ 메타데이터 로드 완료: {metadata_file}")
     else:
         print(f"⚠️ 메타데이터 파일이 없습니다: {metadata_file}")
-    
+
+    # Basic manpower 데이터 로드하여 보스 정보 보완
+    basic_df = None
+    basic_file = f'input_files/basic manpower data {month}.csv'
+    if os.path.exists(basic_file):
+        try:
+            basic_df = pd.read_csv(basic_file, encoding='utf-8-sig')
+            # 데이터 정리
+            basic_df = basic_df.dropna(subset=['Employee No', 'Full Name'], how='all')
+            basic_df = basic_df[basic_df['Employee No'].notna()]
+
+            # Employee No를 정수로 변환 후 문자열로 (소수점 제거)
+            basic_df['Employee No'] = basic_df['Employee No'].apply(lambda x: str(int(float(x))) if pd.notna(x) and x != '' else '')
+
+            # MST direct boss name도 동일하게 처리
+            basic_df['MST direct boss name'] = basic_df['MST direct boss name'].apply(
+                lambda x: str(int(float(x))) if pd.notna(x) and x != '' and x != 0 else ''
+            )
+
+            print(f"✅ Basic manpower 데이터 로드 완료: {len(basic_df)} 직원")
+        except Exception as e:
+            print(f"⚠️ Basic manpower 데이터 로드 실패: {e}")
+
     # 데이터 준비
     employees = []
     for _, row in df.iterrows():
         # Convert Series to dict
         row_dict = row.to_dict()
 
+        # Employee No 가져오기
+        emp_no = str(row_dict.get('emp_no', ''))
+
+        # Basic manpower에서 보스 정보 가져오기
+        boss_id = ''
+        boss_name = ''
+        if basic_df is not None and emp_no:
+            # emp_no에서 .0 제거 (혹시 있다면)
+            emp_no_clean = emp_no.replace('.0', '') if '.0' in emp_no else emp_no
+            basic_row = basic_df[basic_df['Employee No'] == emp_no_clean]
+            if not basic_row.empty:
+                boss_id = str(basic_row['MST direct boss name'].iloc[0]) if pd.notna(basic_row['MST direct boss name'].iloc[0]) else ''
+                boss_name = str(basic_row['direct boss name'].iloc[0]) if pd.notna(basic_row['direct boss name'].iloc[0]) else ''
+                # nan, 0, 0.0, 빈 문자열 등을 빈 문자열로 처리
+                if boss_id in ['nan', '0', '0.0', '']:
+                    boss_id = ''
+                if boss_name in ['nan', '0', '0.0', '']:
+                    boss_name = ''
+
         emp = {
-            'emp_no': str(row_dict.get('emp_no', '')),
+            'emp_no': emp_no,
             'name': str(row_dict.get('name', '')),
             'position': str(row_dict.get('position', '')),
             'type': str(row_dict.get('type', 'TYPE-2')),
-            'july_incentive': str(row_dict.get('july_incentive', '0')),
-            'august_incentive': str(row_dict.get(f'{month.lower()}_incentive', '0')),  # 현재 월 인센티브 동적 처리
+            'boss_id': boss_id,  # Basic manpower에서 가져온 상사 ID
+            'boss_name': boss_name,  # Basic manpower에서 가져온 상사 이름
+            # 동적 월 인센티브 매핑
+            f'{month.lower()}_incentive': str(row_dict.get(f'{month.lower()}_incentive', '0')),  # 현재 월 인센티브
+            f'{prev_month_name.lower()}_incentive': str(row_dict.get(f'{prev_month_name.lower()}_incentive', '0')),  # 이전 월 인센티브
+            # 호환성을 위해 추가
+            'august_incentive': str(row_dict.get('august_incentive', '0')) if 'august_incentive' in row_dict else '0',
+            'july_incentive': str(row_dict.get('july_incentive', '0')) if 'july_incentive' in row_dict else '0',
+            'september_incentive': str(row_dict.get('september_incentive', '0')) if 'september_incentive' in row_dict else '0',
             'june_incentive': str(row_dict.get('june_incentive', '0')),
             'attendance_rate': float(row_dict.get('attendance_rate', 0)),
             'actual_working_days': int(row_dict.get('actual_working_days', 0)),
@@ -817,13 +915,38 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
         
         # 조건 평가 결과 추가
         emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
-        
+
+        # 실패 사유 표시를 위한 조건 필드 추가 - CSV에서 직접 가져오기
+        emp['attendancy condition 1 - acctual working days is zero'] = str(row_dict.get('attendancy condition 1 - acctual working days is zero', 'no'))
+        emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] = str(row_dict.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no'))
+        emp['attendancy condition 3 - absent % is over 12%'] = str(row_dict.get('attendancy condition 3 - absent % is over 12%', 'no'))
+        emp['attendancy condition 4 - minimum working days'] = str(row_dict.get('attendancy condition 4 - minimum working days', 'no'))
+
+        # AQL 조건 필드 추가
+        emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
+        emp['September AQL Failures'] = int(row_dict.get('September AQL Failures', row_dict.get('aql_failures', 0)))
+        emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
+
+        # 5PRS 조건 필드 추가
+        emp['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] = str(row_dict.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%', 'yes'))
+        emp['5prs condition 2 - Total Valiation Qty is zero'] = str(row_dict.get('5prs condition 2 - Total Valiation Qty is zero', 'no'))
+
+        # conditions_pass_rate 필드 추가
+        emp['conditions_pass_rate'] = float(row_dict.get('conditions_pass_rate', 0))
+        emp['conditions_passed'] = int(row_dict.get('conditions_passed', 0))
+        emp['conditions_applicable'] = int(row_dict.get('conditions_applicable', 0))
+
+        # Working Days 필드 추가
+        emp['Working Days'] = int(row_dict.get('actual_working_days', 0))
+
         employees.append(emp)
     
     # 통계 계산
     total_employees = len(employees)
-    paid_employees = sum(1 for e in employees if int(e['august_incentive']) > 0)
-    total_amount = sum(int(e['august_incentive']) for e in employees)
+    # 현재 월 인센티브 필드 이름
+    current_month_field = f'{month.lower()}_incentive'
+    paid_employees = sum(1 for e in employees if int(float(e.get(current_month_field, '0') or '0')) > 0)
+    total_amount = sum(int(float(e.get(current_month_field, '0') or '0')) for e in employees)
     payment_rate = (paid_employees / total_employees * 100) if total_employees > 0 else 0
     
     # Type별 통계
@@ -838,7 +961,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 'paid_amounts': []
             }
         type_stats[emp_type]['total'] += 1
-        amount = int(emp['august_incentive'])
+        amount = int(float(emp.get(current_month_field, '0') or '0'))
         if amount > 0:
             type_stats[emp_type]['paid'] += 1
             type_stats[emp_type]['amount'] += amount
@@ -846,7 +969,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     
     # 직원 데이터 JSON
     employees_json = json.dumps(employees, ensure_ascii=False)
-    
+
+    # Position matrix 데이터 로드
+    position_matrix = load_condition_matrix()
+    position_matrix_json = json.dumps(position_matrix, ensure_ascii=False)
+
     # 현재 시간 - ISO 형식으로 저장
     current_datetime = datetime.now()
     current_date_iso = current_datetime.strftime('%Y-%m-%d %H:%M')
@@ -941,7 +1068,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     <title>QIP 인센티브 계산 결과 - {year}년 {get_korean_month(month)}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Bootstrap JavaScript Bundle with Popper (필수!) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {{
             background: #f5f5f5;
@@ -1392,6 +1522,484 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             font-weight: 500;
             background: #f9fafb;
         }}
+
+        /* 모달 관련 스타일 수정 */
+        #incentiveModal {{
+            z-index: 1055 !important;
+        }}
+
+        #incentiveModal .modal-dialog {{
+            z-index: 1056 !important;
+        }}
+
+        #incentiveModal .modal-content {{
+            z-index: 1057 !important;
+            position: relative !important;
+            background: white !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+        }}
+
+        #incentiveModal .modal-content * {{
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+        }}
+
+        .modal-backdrop {{
+            z-index: 1050 !important;
+            background-color: rgba(0, 0, 0, 0.5) !important;
+        }}
+
+        .modal.show .modal-dialog {{
+            z-index: 1056 !important;
+        }}
+
+        /* 새로운 접이식 조직도 스타일 */
+        .collapsible-tree {{
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }}
+
+        .collapsible-tree ul {{
+            position: relative;
+            padding: 20px 0 0 30px;
+            margin: 0;
+            list-style: none;
+        }}
+
+        .collapsible-tree li {{
+            position: relative;
+            padding: 15px 0;
+        }}
+
+        /* 연결선 스타일 */
+        .collapsible-tree li::before {{
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 0;
+            border-left: 2px solid #667eea;
+            height: 100%;
+        }}
+
+        .collapsible-tree li::after {{
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: 40px;
+            width: 30px;
+            border-top: 2px solid #667eea;
+        }}
+
+        .collapsible-tree li:last-child::before {{
+            height: 40px;
+        }}
+
+        .collapsible-tree li.no-children::before,
+        .collapsible-tree li.no-children::after {{
+            display: none;
+        }}
+
+        /* 노드 카드 스타일 */
+        .org-node {{
+            display: inline-block;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            min-width: 200px;
+            border-left: 4px solid;
+        }}
+
+        .org-node:hover {{
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }}
+
+        /* 직급별 색상 - 모던하고 세련된 색상 */
+        .org-node.manager {{
+            border-left-color: #6366f1;
+            background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
+        }}
+
+        .org-node.supervisor {{
+            border-left-color: #8b5cf6;
+            background: linear-gradient(135deg, #ffffff 0%, #f3e8ff 100%);
+        }}
+
+        .org-node.group-leader {{
+            border-left-color: #ec4899;
+            background: linear-gradient(135deg, #ffffff 0%, #fce7f3 100%);
+        }}
+
+        .org-node.line-leader {{
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);
+        }}
+
+        .org-node.inspector {{
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, #ffffff 0%, #d1fae5 100%);
+        }}
+
+        .org-node.default {{
+            border-left-color: #6b7280;
+            background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+        }}
+
+        /* 인센티브 여부 표시 */
+        .org-node.has-incentive {{
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+        }}
+
+        .org-node.no-incentive {{
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+        }}
+
+        /* 노드 내용 스타일 */
+        .node-position {{
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }}
+
+        .node-name {{
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 3px;
+        }}
+
+        .node-id {{
+            font-size: 11px;
+            color: #9ca3af;
+        }}
+
+        /* 인센티브 정보 스타일 - 개선된 버전 */
+        .node-incentive-info {{
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px dashed transparent;
+            border-radius: 6px;
+            padding: 6px;
+        }}
+
+        .node-incentive-info:hover {{
+            background: rgba(99, 102, 241, 0.2);
+            border: 2px dashed #6366f1;
+            border-radius: 6px;
+            padding: 6px;
+            transform: scale(1.02);
+            box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+        }}
+
+        .incentive-amount {{
+            font-size: 14px;
+            font-weight: 700;
+            color: #059669;
+            margin-right: 8px;
+        }}
+
+        .incentive-detail-btn {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            min-width: 30px;
+            min-height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+            position: relative;
+        }}
+
+        .incentive-detail-btn:hover {{
+            transform: scale(1.2);
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }}
+
+        .incentive-info-icon {{
+            font-size: 16px;
+            color: #6366f1;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }}
+
+        .incentive-info-icon:hover {{
+            opacity: 1;
+        }}
+
+        .node-incentive {{
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }}
+
+        .node-incentive.received {{
+            background-color: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+        }}
+
+        .node-incentive.not-received {{
+            background-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }}
+
+        /* 접기/펼치기 버튼 */
+        .toggle-btn {{
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            color: #667eea;
+            font-weight: bold;
+            transition: all 0.3s;
+            z-index: 10;
+        }}
+
+        .toggle-btn:hover {{
+            background: #667eea;
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+        }}
+
+        /* 자식 수 표시 */
+        .child-count {{
+            background: #667eea;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            margin-left: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }}
+
+        /* 접힌 상태 */
+        .collapsed > ul {{
+            display: none;
+        }}
+
+        .collapsed .toggle-btn::after {{
+            content: '+';
+        }}
+
+        /* 검색 및 필터 컨트롤 */
+        .org-controls {{
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }}
+
+        .org-header {{
+            text-align: center;
+            margin-bottom: 30px;
+        }}
+
+        .org-header h4 {{
+            color: #1f2937;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }}
+
+        .org-header p {{
+            color: #6b7280;
+            font-size: 14px;
+        }}
+
+        /* 범례 스타일 */
+        .org-legend {{
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }}
+
+        .org-legend h6 {{
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }}
+
+        .legend-items {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }}
+
+        .legend-item {{
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            color: #4b5563;
+        }}
+
+        .legend-box {{
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }}
+
+        .legend-dot {{
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid;
+        }}
+
+        .legend-dot.received {{
+            border-color: #10b981;
+            background: #10b981;
+        }}
+
+        .legend-dot.not-received {{
+            border-color: #ef4444;
+            background: transparent;
+        }}
+
+        /* 검색 하이라이트 */
+        .search-hidden {{
+            opacity: 0.2;
+            filter: grayscale(100%);
+        }}
+
+        .search-highlight {{
+            background: #fef08a !important;
+            border-color: #facc15 !important;
+            animation: pulse 1s infinite;
+        }}
+
+        @keyframes pulse {{
+            0% {{ transform: scale(1); }}
+            50% {{ transform: scale(1.02); }}
+            100% {{ transform: scale(1); }}
+        }}
+
+        /* 로딩 스피너 */
+        .org-loading {{
+            text-align: center;
+            padding: 50px;
+        }}
+
+        .org-loading-spinner {{
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }}
+
+        @keyframes spin {{
+            0% {{ transform: rotate(0deg); }}
+            100% {{ transform: rotate(360deg); }}
+        }}
+
+        .expanded .toggle-btn::after {{
+            content: '−';
+        }}
+
+        /* 조직도 통계 패널 */
+        .org-stats-panel {{
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }}
+
+        .org-stats-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }}
+
+        .org-stat-item {{
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }}
+
+        .org-stat-number {{
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }}
+
+        .org-stat-label {{
+            font-size: 12px;
+            opacity: 0.9;
+        }}
+
+        /* 로딩 상태 */
+        .org-loading {{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            color: #6b7280;
+        }}
+
+        .org-loading-spinner {{
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }}
+
+        @keyframes spin {{
+            to {{
+                transform: rotate(360deg);
+            }}
+        }}
     </style>
 </head>
 <body>
@@ -1474,6 +2082,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 <div class="tab" data-tab="position" onclick="showTab('position')" id="tabPosition">직급별 상세</div>
                 <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual">개인별 상세</div>
                 <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria">인센티브 기준</div>
+                <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart">조직도</div>
             </div>
             
             <!-- 요약 탭 -->
@@ -1860,7 +2469,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                                 <tr>
                                     <th width="20%" class="calc-header-position">직급</th>
                                     <th width="40%" class="calc-header-method">계산 방법</th>
-                                    <th width="40%" class="calc-header-example">실제 계산 예시 (2025년 8월)</th>
+                                    <th width="40%" class="calc-header-example">실제 계산 예시 ({year}년 {month_kor})</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2031,7 +2640,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                                     <th width="25%">TYPE-2 직급</th>
                                     <th width="25%">참조 TYPE-1 직급</th>
                                     <th width="25%">계산 방법</th>
-                                    <th width="25%">2025년 8월 평균</th>
+                                    <th width="25%">{year}년 {month_kor} 평균</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -2321,7 +2930,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                             </table>
                             <p class="text-muted small mt-2">
                                 <span id="faqRejectRateNote">* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)</span><br>
-                                <span id="faqMemberNote">* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원</span>
+                                <span id="faqMemberNote">* {month_kor} 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원</span>
                             </p>
                         </div>
                         
@@ -2836,6 +3445,147 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 
                 <!-- Multi-language Script - Removed duplicate event listener -->
             </div>
+
+            <!-- 조직도 탭 -->
+            <div id="orgchart" class="tab-content">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 id="orgChartTitle" class="mb-4">조직 구조도 (TYPE-1)</h3>
+
+                        <!-- 제외된 직급 안내 -->
+                        <div class="alert alert-info mb-3" style="background: #e3f2fd; border: 1px solid #1976d2; color: #0d47a1;">
+                            <i class="fas fa-info-circle"></i> <strong>참고:</strong> AQL INSPECTOR, AUDIT & TRAINING TEAM, MODEL MASTER 직급은 조직도에서 제외되었습니다.
+                        </div>
+
+                        <!-- 동적 경로 표시 (Breadcrumb) -->
+                        <div id="orgBreadcrumb" class="breadcrumb mb-3" style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
+                            <span style="color: #666;">전체 조직</span>
+                        </div>
+
+                        <!-- 필터 옵션 -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <select id="orgIncentiveFilter" class="form-select" onchange="updateOrgChart()">
+                                    <option value="" id="filterAll">전체 보기</option>
+                                    <option value="paid" id="filterPaid">인센티브 수령자</option>
+                                    <option value="unpaid" id="filterUnpaid">인센티브 미수령자</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" onclick="expandAll()">
+                                    <i class="fas fa-expand"></i> <span id="expandAllBtn">전체 펼치기</span>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-secondary w-100" onclick="collapseAll()">
+                                    <i class="fas fa-compress"></i> <span id="collapseAllBtn">전체 접기</span>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-primary" onclick="resetOrgChart()">
+                                    <i class="fas fa-redo"></i> <span id="resetViewBtn">초기화</span>
+                                </button>
+                            </div>
+                            <!-- 저장 버튼 제거 -->
+                        </div>
+
+                        <!-- 범례 -->
+                        <div class="mb-3">
+                            <div class="d-flex flex-wrap gap-3">
+                                <span><span style="display:inline-block; width:15px; height:15px; background:#1f77b4; border-radius:3px;"></span> Manager</span>
+                                <span><span style="display:inline-block; width:15px; height:15px; background:#2ca02c; border-radius:3px;"></span> Supervisor</span>
+                                <span><span style="display:inline-block; width:15px; height:15px; background:#ff7f0e; border-radius:3px;"></span> Group Leader</span>
+                                <span><span style="display:inline-block; width:15px; height:15px; background:#d62728; border-radius:3px;"></span> Line Leader</span>
+                                <span><span style="display:inline-block; width:15px; height:15px; background:#9467bd; border-radius:3px;"></span> Inspector</span>
+                                <span><span style="display:inline-block; width:15px; height:15px; background:#8c564b; border-radius:3px;"></span> Others</span>
+                                <span class="ms-3"><span style="display:inline-block; width:15px; height:15px; border: 2px solid #28a745; border-radius:3px;"></span> <span id="legendReceived">인센티브 수령</span></span>
+                                <span><span style="display:inline-block; width:15px; height:15px; border: 2px solid #dc3545; border-radius:3px;"></span> <span id="legendNotReceived">인센티브 미수령</span></span>
+                            </div>
+                        </div>
+
+                        <!-- 새로운 접이식 조직도 컨테이너 -->
+                        <div id="orgChartContainer" class="collapsible-tree">
+                            <!-- 제목 및 설명 -->
+                            <div class="org-header">
+                                <h4 id="orgChartTitle">TYPE-1 관리자 인센티브 구조</h4>
+                                <p id="orgChartSubtitle" class="text-muted">TYPE-1 managers receiving incentive based on subordinate performance</p>
+                            </div>
+
+                            <!-- 검색 및 필터 컨트롤 -->
+                            <div class="org-controls mb-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                            <input type="text" id="orgSearchInput" class="form-control" placeholder="직원 이름 또는 ID 검색...">
+                                            <button class="btn btn-outline-secondary" id="orgSearchClear" type="button">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="btn-group" role="group">
+                                            <button id="expandAllBtn" class="btn btn-outline-primary">
+                                                <i class="fas fa-expand"></i> <span id="expandAllText">모두 펼치기</span>
+                                            </button>
+                                            <button id="collapseAllBtn" class="btn btn-outline-primary">
+                                                <i class="fas fa-compress"></i> <span id="collapseAllText">모두 접기</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 사용 안내 -->
+                            <div class="alert alert-info mb-3" role="alert" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-left: 4px solid #6366f1;">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>💡 <span id="usageGuideTitle">사용 안내:</span></strong> <span id="usageGuideText">인센티브 금액 또는 <span class="badge bg-primary">ℹ️</span> 버튼을 클릭하면 상세 정보를 볼 수 있습니다.</span>
+                                <span class="float-end text-muted small" id="usageGuideSubtext">각 직원의 인센티브 계산 기준과 부하직원 정보를 확인하세요</span>
+                            </div>
+
+                            <!-- 범례 -->
+                            <div class="org-legend mb-3">
+                                <h6 id="legendTitle">범례</h6>
+                                <div class="legend-items">
+                                    <span class="legend-item">
+                                        <span class="legend-box" style="background:#2ca02c;"></span>
+                                        <span id="legendManager">Manager</span>
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-box" style="background:#1f77b4;"></span>
+                                        <span id="legendSupervisor">Supervisor</span>
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-box" style="background:#ff7f0e;"></span>
+                                        <span id="legendGroupLeader">Group Leader</span>
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-box" style="background:#d62728;"></span>
+                                        <span id="legendLineLeader">Line Leader</span>
+                                    </span>
+                                    <span class="legend-item ms-3">
+                                        <span class="legend-dot received"></span>
+                                        <span id="legendIncentiveReceived">인센티브 수령</span>
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-dot not-received"></span>
+                                        <span id="legendNoIncentive">인센티브 미수령</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div id="orgTreeContent">
+                                <!-- JavaScript로 동적 생성됨 -->
+                            </div>
+                        </div>
+
+
+                        <!-- 직원 정보 툴팁 -->
+                        <div id="orgTooltip" style="position: absolute; visibility: hidden; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000;">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -2855,8 +3605,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
     <script>
         const employeeData = {employees_json};
         const translations = {translations_js};
+        const positionMatrix = {position_matrix_json};
         let currentLanguage = 'ko';
-        
+        const dashboardMonth = '{month.lower()}';
+        const dashboardYear = {year};
+
+        // employeeData 필드 정규화 - boss_id 매핑 추가
+        employeeData.forEach(emp => {{
+            // boss_id 필드 생성 (여러 가능한 필드명 체크)
+            emp.boss_id = emp.boss_id ||
+                         emp.Direct_Manager_ID ||
+                         emp['Direct Manager ID'] ||
+                         emp.direct_manager_id ||
+                         '';
+
+            // emp_no도 문자열로 통일
+            emp.emp_no = String(emp.emp_no || emp['Employee No'] || '');
+
+            // position과 name 필드도 확인
+            emp.position = emp.position || emp['QIP POSITION 1ST  NAME'] || '';
+            emp.name = emp.name || emp['Full Name'] || emp.employee_name || '';
+            emp.type = emp.type || emp['ROLE TYPE STD'] || '';
+        }});
+
+        console.log('Employee data normalized. Sample:', employeeData.slice(0, 2));
+
         // 번역 함수
         function getTranslation(keyPath, lang = currentLanguage) {{
             const keys = keyPath.split('.');
@@ -3085,7 +3858,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             
             const memberNote = document.getElementById('faqMemberNote');
             if (memberNote) {{
-                memberNote.textContent = translations.incentiveCalculation?.faq?.memberNote?.[lang] || '* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원';
+                const monthText = dashboardMonth === 'september' ? '9월' : dashboardMonth === 'august' ? '8월' : dashboardMonth === 'july' ? '7월' : dashboardMonth;
+                memberNote.textContent = translations.incentiveCalculation?.faq?.memberNote?.[lang] || `* ${{monthText}} 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원`;
             }}
             
             // Case 3 - TYPE-2 STITCHING INSPECTOR
@@ -3653,6 +4427,136 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 talentPoolPaymentPeriodLabel.textContent = getTranslation('talentPool.paymentPeriod', lang);
             }}
             
+            // 조직도 탭 번역 업데이트
+            const tabOrgChart = document.getElementById('tabOrgChart');
+            if (tabOrgChart) {{
+                tabOrgChart.textContent = getTranslation('tabs.orgChart', currentLanguage);
+            }}
+
+            // 조직도 제목 및 부제
+            const orgChartTitle = document.getElementById('orgChartTitle');
+            if (orgChartTitle) {{
+                orgChartTitle.textContent = getTranslation('orgChart.title', currentLanguage);
+            }}
+
+            const orgChartSubtitle = document.getElementById('orgChartSubtitle');
+            if (orgChartSubtitle) {{
+                orgChartSubtitle.textContent = getTranslation('orgChart.subtitle', currentLanguage);
+            }}
+
+            // 사용 안내 텍스트
+            const usageGuideTitle = document.getElementById('usageGuideTitle');
+            if (usageGuideTitle) {{
+                usageGuideTitle.textContent = getTranslation('orgChart.usageGuide.title', currentLanguage);
+            }}
+            const usageGuideText = document.getElementById('usageGuideText');
+            if (usageGuideText) {{
+                usageGuideText.innerHTML = getTranslation('orgChart.usageGuide.text', currentLanguage);
+            }}
+            const usageGuideSubtext = document.getElementById('usageGuideSubtext');
+            if (usageGuideSubtext) {{
+                usageGuideSubtext.textContent = getTranslation('orgChart.usageGuide.subtext', currentLanguage);
+            }}
+
+            // 버튼 텍스트 - span 요소 내부의 텍스트만 업데이트
+            const expandAllBtnSpan = document.querySelector('#expandAllBtn');
+            if (expandAllBtnSpan) {{
+                const iconElement = expandAllBtnSpan.parentElement.querySelector('i');
+                expandAllBtnSpan.textContent = getTranslation('orgChart.buttons.expandAll', currentLanguage);
+            }}
+            const collapseAllBtnSpan = document.querySelector('#collapseAllBtn');
+            if (collapseAllBtnSpan) {{
+                const iconElement = collapseAllBtnSpan.parentElement.querySelector('i');
+                collapseAllBtnSpan.textContent = getTranslation('orgChart.buttons.collapseAll', currentLanguage);
+            }}
+            const resetViewBtnSpan = document.querySelector('#resetViewBtn');
+            if (resetViewBtnSpan) {{
+                const iconElement = resetViewBtnSpan.parentElement.querySelector('i');
+                resetViewBtnSpan.textContent = getTranslation('orgChart.buttons.reset', currentLanguage);
+            }}
+
+            // 모달 내부 텍스트 번역
+            document.querySelectorAll('.modal-actual-incentive').forEach(elem => {{
+                elem.textContent = getTranslation('orgChart.modalLabels.actualIncentive', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-calc-method').forEach(elem => {{
+                elem.textContent = getTranslation('orgChart.modalLabels.calculationMethod', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-no-payment-reason').forEach(elem => {{
+                elem.textContent = getTranslation('orgChart.modalLabels.noPaymentReason', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-calc-detail-line-leader').forEach(elem => {{
+                elem.textContent = getTranslation('orgChart.modalLabels.calcDetailLineLeader', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-close-btn').forEach(elem => {{
+                elem.textContent = getTranslation('orgChart.buttons.close', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-team-line-leader-list').forEach(elem => {{
+                elem.textContent = getTranslation('modal.teamLineLeaderList', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-team-line-leader-count').forEach(elem => {{
+                elem.textContent = getTranslation('modal.teamLineLeaderCount', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-calc-detail-line-leader').forEach(elem => {{
+                elem.textContent = getTranslation('modal.calcDetailLineLeader', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-calc-detail-group-leader').forEach(elem => {{
+                elem.textContent = getTranslation('modal.calcDetailGroupLeader', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-calc-detail-supervisor').forEach(elem => {{
+                elem.textContent = getTranslation('modal.calcDetailSupervisor', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-calc-detail-amanager').forEach(elem => {{
+                elem.textContent = getTranslation('modal.calcDetailAManager', currentLanguage);
+            }});
+            document.querySelectorAll('.modal-calc-detail-manager').forEach(elem => {{
+                elem.textContent = getTranslation('modal.calcDetailManager', currentLanguage);
+            }})
+
+            // 조직도 안내 텍스트
+            const orgChartNoteLabel = document.getElementById('orgChartNoteLabel');
+            if (orgChartNoteLabel) {{
+                orgChartNoteLabel.textContent = getTranslation('orgChart.noteLabel', currentLanguage);
+            }}
+
+            const orgChartExcludedPositions = document.getElementById('orgChartExcludedPositions');
+            if (orgChartExcludedPositions) {{
+                orgChartExcludedPositions.textContent = getTranslation('orgChart.excludedPositions', currentLanguage);
+            }}
+
+            const orgChartHelpText = document.getElementById('orgChartHelpText');
+            if (orgChartHelpText) {{
+                orgChartHelpText.textContent = getTranslation('orgChart.helpText', currentLanguage);
+            }}
+
+            // 조직도 필터 옵션 업데이트
+            const filterAll = document.getElementById('filterAll');
+            if (filterAll) filterAll.textContent = getTranslation('orgChart.filters.viewAll', currentLanguage);
+
+            const filterPaid = document.getElementById('filterPaid');
+            if (filterPaid) filterPaid.textContent = getTranslation('orgChart.filters.paidOnly', currentLanguage);
+
+            const filterUnpaid = document.getElementById('filterUnpaid');
+            if (filterUnpaid) filterUnpaid.textContent = getTranslation('orgChart.filters.unpaidOnly', currentLanguage);
+
+            // 조직도 범례 업데이트
+            const legendReceived = document.getElementById('legendReceived');
+            if (legendReceived) legendReceived.textContent = getTranslation('orgChart.incentiveReceived', currentLanguage);
+
+            const legendNotReceived = document.getElementById('legendNotReceived');
+            if (legendNotReceived) legendNotReceived.textContent = getTranslation('orgChart.incentiveNotReceived', currentLanguage);
+
+            const legendIncentiveReceived = document.getElementById('legendIncentiveReceived');
+            if (legendIncentiveReceived) legendIncentiveReceived.textContent = getTranslation('orgChart.incentiveReceived', currentLanguage);
+
+            const legendNoIncentive = document.getElementById('legendNoIncentive');
+            if (legendNoIncentive) legendNoIncentive.textContent = getTranslation('orgChart.incentiveNotReceived', currentLanguage);
+
+            // 조직도가 이미 그려져 있다면 다시 그리기
+            if (typeof updateOrgChart === 'function' && document.getElementById('orgTreeContent').innerHTML !== '') {{
+                updateOrgChart();
+            }}
+
             // 테이블 재생성하여 툴팁 번역 적용
             generateEmployeeTable();
             updatePositionFilter();
@@ -3750,7 +4654,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 if (element) {{
                     const year = element.getAttribute('data-year');
                     const month = element.getAttribute('data-month');
-                    const lastDay = element.getAttribute('data-lastday');
+                    const startDay = element.getAttribute('data-startday');
+                    const endDay = element.getAttribute('data-endday');
                     const dataLabel = getTranslation('headers.dataPeriod.' + item.key, currentLanguage);
 
                     let periodText;
@@ -3767,12 +4672,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                     }} else {{
                         // 다른 데이터는 기간 표시
                         if (currentLanguage === 'ko') {{
-                            periodText = `• ${{dataLabel}}: ${{year}}년 ${{month}}월 01일 ~ ${{lastDay}}일`;
+                            periodText = `• ${{dataLabel}}: ${{year}}년 ${{month}}월 ${{startDay}}일 ~ ${{endDay}}일`;
                         }} else if (currentLanguage === 'en') {{
                             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                            periodText = `• ${{dataLabel}}: ${{monthNames[parseInt(month)-1]}} 01 - ${{lastDay}}, ${{year}}`;
+                            periodText = `• ${{dataLabel}}: ${{monthNames[parseInt(month)-1]}} ${{startDay}} - ${{endDay}}, ${{year}}`;
                         }} else {{
-                            periodText = `• ${{dataLabel}}: 01/${{month}} - ${{lastDay}}/${{month}}/${{year}}`;
+                            periodText = `• ${{dataLabel}}: ${{startDay}}/${{month}} - ${{endDay}}/${{month}}/${{year}}`;
                         }}
                     }}
                     element.innerHTML = periodText;
@@ -3804,7 +4709,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 'tabSummary': 'tabs.summary',
                 'tabPosition': 'tabs.position',
                 'tabIndividual': 'tabs.individual',
-                'tabCriteria': 'tabs.criteria'
+                'tabCriteria': 'tabs.criteria',
+                'tabOrgChart': 'tabs.orgChart'
             }};
             
             for (const [id, key] of Object.entries(tabs)) {{
@@ -4817,7 +5723,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                     typeData[type].total++;
                     grandTotal++;
 
-                    const amount = parseInt(emp.august_incentive) || 0;
+                    const amount = parseInt(emp[dashboardMonth + '_incentive']) || 0;
                     if (amount > 0) {{
                         typeData[type].paid++;
                         typeData[type].totalAmount += amount;
@@ -4876,6 +5782,3030 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
         }}
         
         // 초기화
+        // 조직도 관련 함수들
+        let orgChartData = null;
+        let orgChartRoot = null;
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {{
+            console.log('=== DOMContentLoaded Event Fired ===');
+            console.log('Total employees in data:', employeeData ? employeeData.length : 'No data');
+
+            // Bootstrap 툴팁 초기화
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {{
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            }});
+            console.log('Bootstrap tooltips initialized:', tooltipList.length);
+
+            // D3.js 라이브러리 확인
+            if (typeof d3 === 'undefined') {{
+                console.error('D3.js library not loaded!');
+                alert('D3.js 라이브러리가 로드되지 않았습니다. 페이지를 새로고침해주세요.');
+                return;
+            }}
+            console.log('D3.js version:', d3.version);
+
+            // Bootstrap 탭 이벤트 리스너 등록
+            // 다양한 선택자 시도
+            let orgChartTabButton = document.querySelector('button[data-bs-target="#orgchart"]');
+            if (!orgChartTabButton) {{
+                orgChartTabButton = document.querySelector('a[data-bs-target="#orgchart"]');
+            }}
+            if (!orgChartTabButton) {{
+                orgChartTabButton = document.querySelector('[data-bs-target="#orgchart"]');
+            }}
+            if (!orgChartTabButton) {{
+                // 네 번째 탭 버튼 직접 선택 (0-indexed이므로 3)
+                const allTabButtons = document.querySelectorAll('.nav-link');
+                if (allTabButtons.length > 3) {{
+                    orgChartTabButton = allTabButtons[3];
+                    console.log('네 번째 탭 버튼 사용');
+                }}
+            }}
+            if (orgChartTabButton) {{
+                console.log('조직도 탭 버튼 발견, 이벤트 리스너 등록');
+                orgChartTabButton.addEventListener('shown.bs.tab', function(event) {{
+                    console.log('🎯 조직도 탭 활성화됨');
+                    drawOrgChart();
+                }});
+
+                // 클릭 이벤트도 추가 (shown.bs.tab이 작동 안할 경우 대비)
+                orgChartTabButton.addEventListener('click', function() {{
+                    setTimeout(() => {{
+                        const orgTab = document.getElementById('orgchart');
+                        if (orgTab && orgTab.classList.contains('active')) {{
+                            console.log('🎯 조직도 탭 클릭 - 차트 그리기');
+                            drawOrgChart();
+                        }}
+                    }}, 100);
+                }});
+            }}
+
+            // 조직도 탭이 초기에 활성화되어 있는지 확인
+            setTimeout(() => {{
+                const orgTab = document.getElementById('orgchart');
+                console.log('Organization chart tab element:', orgTab);
+
+                if (orgTab) {{
+                    if (orgTab.classList.contains('active') && orgTab.classList.contains('show')) {{
+                        console.log('Org chart tab is active, drawing initial chart...');
+                        drawOrgChart();
+                    }} else {{
+                        console.log('Org chart tab is not active initially');
+                    }}
+                }} else {{
+                    console.error('Org chart tab element not found!');
+                }}
+            }}, 500); // 데이터 로드를 위한 약간의 지연
+        }});
+
+        // 직급 계층 레벨 정의
+        function getPositionLevel(position) {{
+            const pos = position.toUpperCase();
+            // S.Manager가 최상위
+            if (pos.includes('S.MANAGER') || pos.includes('SENIOR MANAGER')) return 1;
+            // Manager가 S.Manager의 부하
+            if (pos.includes('MANAGER') && !pos.includes('A.') && !pos.includes('ASSISTANT')) return 2;
+            // A.Manager가 Manager의 부하
+            if (pos.includes('A.MANAGER') || pos.includes('ASSISTANT MANAGER')) return 3;
+            // Supervisor가 A.Manager의 부하
+            if (pos.includes('SUPERVISOR')) return 4;
+            // Group Leader
+            if (pos.includes('GROUP') && pos.includes('LEADER')) return 5;
+            // Line Leader
+            if (pos.includes('LINE') && pos.includes('LEADER')) return 6;
+            // Inspector
+            if (pos.includes('INSPECTOR')) return 7;
+            // Others
+            return 8;
+        }}
+
+        // Breadcrumb 업데이트 함수
+        function updateBreadcrumb(current) {{
+            const breadcrumb = document.getElementById('orgBreadcrumb');
+            if (breadcrumb) {{
+                breadcrumb.innerHTML = `
+                    <span style="color: #666;">조직도</span>
+                    <span style="color: #999;"> › </span>
+                    <span style="color: #333; font-weight: bold;">${{current}}</span>
+                `;
+            }}
+        }}
+
+        // 줌 컨트롤 함수들
+        let currentZoomBehavior = null;
+
+        function zoomIn() {{
+            const svg = d3.select("#orgChartSvg");
+            if (currentZoomBehavior && svg.node()) {{
+                svg.transition().duration(300).call(
+                    currentZoomBehavior.scaleBy, 1.3
+                );
+            }}
+        }}
+
+        function zoomOut() {{
+            const svg = d3.select("#orgChartSvg");
+            if (currentZoomBehavior && svg.node()) {{
+                svg.transition().duration(300).call(
+                    currentZoomBehavior.scaleBy, 0.7
+                );
+            }}
+        }}
+
+        function resetZoom() {{
+            const svg = d3.select("#orgChartSvg");
+            if (currentZoomBehavior && svg.node()) {{
+                svg.transition().duration(500).call(
+                    currentZoomBehavior.transform,
+                    d3.zoomIdentity
+                );
+            }}
+        }}
+
+        // 인센티브 값을 안전하게 파싱하는 헬퍼 함수
+        function parseIncentive(value) {{
+            if (!value) return 0;
+            // 문자열 형태의 값 처리
+            const strValue = String(value).trim();
+            // 쉼표 제거 후 파싱
+            const parsed = parseInt(strValue.replace(/,/g, ''), 10);
+            return isNaN(parsed) ? 0 : parsed;
+        }}
+
+        // 인센티브 수령 여부 확인 함수
+        function hasIncentive(data) {{
+            const amount = parseIncentive(data.incentive || data[dashboardMonth + '_incentive'] || 0);
+            return amount > 0;
+        }}
+
+        // 직급별 색상 정의
+        function getPositionColor(position) {{
+            if (!position) return '#8c564b'; // Others (brown)
+            const pos = position.toUpperCase();
+
+            if (pos.includes('MANAGER') && !pos.includes('A.') && !pos.includes('ASSISTANT')) {{
+                return '#1f77b4'; // Manager (blue)
+            }}
+            if (pos.includes('SUPERVISOR')) {{
+                return '#2ca02c'; // Supervisor (green)
+            }}
+            if (pos.includes('GROUP') && pos.includes('LEADER')) {{
+                return '#ff7f0e'; // Group Leader (orange)
+            }}
+            if (pos.includes('LINE') && pos.includes('LEADER')) {{
+                return '#d62728'; // Line Leader (red)
+            }}
+            if (pos.includes('INSPECTOR')) {{
+                return '#9467bd'; // Inspector (purple)
+            }}
+            return '#8c564b'; // Others (brown)
+        }}
+
+        // 새로운 접이식 조직도 그리기 함수
+        function drawOrgChart() {{
+            console.log('Drawing new collapsible org chart...');
+            drawCollapsibleOrgChart();
+        }}
+
+        function drawCollapsibleOrgChart() {{
+            console.log('🏗️ === 조직도 그리기 시작 ===');
+            console.log('   Employee Data 수:', employeeData ? employeeData.length : 0);
+            console.log('   Dashboard Month:', dashboardMonth);
+
+            const container = document.getElementById('orgTreeContent');
+            if (!container) {{
+                console.error('orgTreeContent container not found!');
+                return;
+            }}
+
+            // 로딩 표시
+            container.innerHTML = `<div class="org-loading"><div class="org-loading-spinner"></div><p>${{getTranslation('orgChart.loadingMessage')}}</p></div>`;
+
+            // 계층 구조 데이터 생성
+            const hierarchyData = buildHierarchyData();
+            if (!hierarchyData || hierarchyData.length === 0) {{
+                container.innerHTML = `<div class="alert alert-warning">${{getTranslation('orgChart.noDataMessage')}}</div>`;
+                return;
+            }}
+
+            // HTML 트리 생성
+            const treeHTML = buildTreeHTML(hierarchyData);
+            container.innerHTML = treeHTML;
+
+            // 이벤트 리스너 추가
+            attachTreeEventListeners();
+
+            // 통계 업데이트
+
+            // UI 텍스트 업데이트
+            updateOrgChartUIText();
+        }}
+
+        // 계층 구조 데이터 빌드
+        function buildHierarchyData() {{
+            console.log('Building TYPE-1 manager hierarchy data...');
+
+            if (!employeeData || employeeData.length === 0) {{
+                console.error('No employee data available');
+                return null;
+            }}
+
+            // Special calculation positions 확인 함수
+            function hasSpecialCalculation(position) {{
+                if (!position || !positionMatrix) return false;
+                const pos = position.toUpperCase();
+
+                // TYPE-1 positions 확인
+                const type1Positions = positionMatrix.position_matrix?.['TYPE-1'] || {{}};
+
+                // 각 직급 체크
+                for (const [key, config] of Object.entries(type1Positions)) {{
+                    if (key === 'default') continue;
+
+                    // patterns 매칭 확인
+                    if (config.patterns) {{
+                        for (const pattern of config.patterns) {{
+                            if (pos.includes(pattern.toUpperCase())) {{
+                                // special_calculation 필드 확인
+                                if (config.special_calculation) {{
+                                    return true;
+                                }}
+                            }}
+                        }}
+                    }}
+                }}
+
+                return false;
+            }}
+
+            // TYPE-1 직원 중 관리자 포지션만 필터링 (special calculation 제외)
+            const filteredEmployees = employeeData.filter(emp => {{
+                // TYPE-1이 아닌 경우 제외
+                if (emp.type !== 'TYPE-1') {{
+                    return false;
+                }}
+
+                const position = (emp.position || '').toUpperCase();
+
+                // Special calculation positions 제외 (AQL INSPECTOR, AUDIT & TRAINING, MODEL MASTER)
+                if (hasSpecialCalculation(emp.position)) {{
+                    console.log(`Excluding special calculation position: ${{emp.position}} - ${{emp.name}}`);
+                    return false;
+                }}
+
+                // 관리자 포지션 확인 (부하 기반 계산하는 포지션)
+                const isManager = position.includes('MANAGER') ||
+                                 position.includes('SUPERVISOR') ||
+                                 position.includes('GROUP LEADER') ||
+                                 position.includes('LINE LEADER');
+
+                return isManager;
+            }});
+
+            console.log(`Filtered employees: ${{filteredEmployees.length}} (excluded ${{employeeData.length - filteredEmployees.length}})`);
+
+            // 직원 ID로 매핑
+            const employeeMap = {{}};
+            const rootNodes = [];
+
+            // 먼저 필터된 직원을 맵에 저장
+            filteredEmployees.forEach(emp => {{
+                // 인센티브 계산 방법 결정
+                let calculationMethod = '';
+                const pos = (emp.position || '').toUpperCase();
+
+                if (pos.includes('LINE LEADER')) {{
+                    calculationMethod = getTranslation('orgChart.calculationFormulas.lineLeader');
+                }} else if (pos.includes('GROUP LEADER')) {{
+                    calculationMethod = getTranslation('orgChart.calculationFormulas.groupLeader');
+                }} else if (pos.includes('SUPERVISOR')) {{
+                    calculationMethod = getTranslation('orgChart.calculationFormulas.supervisor');
+                }} else if (pos.includes('A.MANAGER') || pos.includes('ASSISTANT')) {{
+                    calculationMethod = getTranslation('orgChart.calculationFormulas.assistantManager');
+                }} else if (pos.includes('MANAGER')) {{
+                    calculationMethod = getTranslation('orgChart.calculationFormulas.manager');
+                }}
+
+                employeeMap[emp.emp_no] = {{
+                    id: emp.emp_no,
+                    name: emp.name,
+                    position: emp.position,
+                    type: emp.type,
+                    incentive: emp[dashboardMonth + '_incentive'] || 0,
+                    boss_id: emp.boss_id,
+                    calculationMethod: calculationMethod,
+                    children: []
+                }};
+            }});
+
+            // 부모-자식 관계 설정
+            filteredEmployees.forEach(emp => {{
+                if (emp.boss_id && emp.boss_id !== '' && emp.boss_id !== 'nan' && emp.boss_id !== '0') {{
+                    const boss = employeeMap[emp.boss_id];
+                    if (boss) {{
+                        boss.children.push(employeeMap[emp.emp_no]);
+                    }} else {{
+                        // 보스가 없으면 루트 노드로 추가
+                        rootNodes.push(employeeMap[emp.emp_no]);
+                    }}
+                }} else {{
+                    // 보스 ID가 없으면 루트 노드
+                    rootNodes.push(employeeMap[emp.emp_no]);
+                }}
+            }});
+
+            console.log(`Hierarchy built: ${{rootNodes.length}} root nodes`);
+            return rootNodes;
+        }}
+
+        // HTML 트리 생성
+        function buildTreeHTML(nodes, depth = 0) {{
+            if (!nodes || nodes.length === 0) return '';
+
+            let html = '<ul>';
+
+            nodes.forEach(node => {{
+                const hasChildren = node.children && node.children.length > 0;
+                const liClass = hasChildren ? 'expanded' : 'no-children';
+                const nodeClass = getNodeClass(node.position);
+                const incentiveClass = node.incentive > 0 ? 'has-incentive' : 'no-incentive';
+                const incentiveDot = node.incentive > 0 ? 'received' : 'not-received';
+
+                html += `<li class="${{liClass}}">`;
+                html += `<div class="org-node ${{nodeClass}} ${{incentiveClass}}">`;
+
+                // 인센티브 표시 점
+                html += `<div class="node-incentive ${{incentiveDot}}"></div>`;
+
+                // 노드 내용
+                html += `<div class="node-position">${{node.position || 'N/A'}}</div>`;
+                html += `<div class="node-name">${{node.name}}</div>`;
+                html += `<div class="node-id">ID: ${{node.id}}</div>`;
+
+                // 인센티브 정보 (모든 경우 클릭 가능)
+                const incentiveAmount = Number(node.incentive) || 0;
+                const incentiveFormatted = incentiveAmount.toLocaleString('ko-KR');
+                html += `<div class="node-incentive-info" data-node-id="${{node.id}}">`;
+                html += `<div style="display: flex; align-items: center;">`;
+                if (incentiveAmount > 0) {{
+                    html += `<span class="incentive-amount">₫${{incentiveFormatted}}</span>`;
+                }} else {{
+                    html += `<span class="incentive-amount" style="color: #dc3545;">₫0</span>`;
+                }}
+                html += `</div>`;
+                html += `<span class="incentive-detail-btn"
+                            data-node-id="${{node.id}}"
+                            title="클릭하여 상세 정보 보기"
+                            role="button"
+                            tabindex="0"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top">ℹ️</span>`;
+                html += '</div>';
+
+                // LINE LEADER의 경우 부하직원 표시
+                if (node.position && node.position.toUpperCase().includes('LINE LEADER')) {{
+                    // 부하직원 찾기 (인센티브 계산에 영향을 미치는 TYPE-1 부하만)
+                    const subordinates = employeeData.filter(emp =>
+                        emp.boss_id === node.id &&
+                        emp.type === 'TYPE-1'
+                    );
+
+                    const receivingCount = subordinates.filter(sub => {{
+                        const incentive = sub[dashboardMonth + '_incentive'] || 0;
+                        return Number(incentive) > 0;
+                    }}).length;
+
+                    if (subordinates.length > 0) {{
+                        html += `<div class="subordinate-info">`;
+                        html += `<span class="subordinate-label">인센티브 계산 기반:</span>`;
+                        html += `<span class="subordinate-count">TYPE-1 부하 ${{receivingCount}}/${{subordinates.length}}명</span>`;
+                        html += '</div>';
+                    }}
+                }}
+
+                // 자식이 있으면 접기/펼치기 버튼과 자식 수 표시
+                if (hasChildren) {{
+                    html += `<span class="child-count">${{node.children.length}}</span>`;
+                    html += `<span class="toggle-btn"></span>`;
+                }}
+
+                html += '</div>';
+
+                // 재귀적으로 자식 노드 추가
+                if (hasChildren) {{
+                    html += buildTreeHTML(node.children, depth + 1);
+                }}
+
+                html += '</li>';
+            }});
+
+            html += '</ul>';
+            return html;
+        }}
+
+        // 노드 클래스 결정
+        function getNodeClass(position) {{
+            if (!position) return 'default';
+            const pos = position.toUpperCase();
+
+            if (pos.includes('MANAGER') && !pos.includes('ASSISTANT')) return 'manager';
+            if (pos.includes('SUPERVISOR')) return 'supervisor';
+            if (pos.includes('GROUP LEADER')) return 'group-leader';
+            if (pos.includes('LINE LEADER')) return 'line-leader';
+            if (pos.includes('INSPECTOR')) return 'inspector';
+            return 'default';
+        }}
+
+        // 트리 이벤트 리스너
+        function attachTreeEventListeners() {{
+            console.log('📎 attachTreeEventListeners 호출됨');
+
+            // 정보 버튼 클릭 이벤트 - 이벤트 위임 방식으로 변경
+            const treeContent = document.getElementById('orgTreeContent');
+            if (treeContent) {{
+                // 기존 리스너 제거 (중복 방지)
+                if (window.incentiveButtonHandler) {{
+                    treeContent.removeEventListener('click', window.incentiveButtonHandler, true);
+                }}
+
+                // 핸들러 함수를 전역에 저장하여 나중에 제거 가능
+                window.incentiveButtonHandler = function(e) {{
+                    console.log('🖱️ 클릭 이벤트 발생:', e.target.className);
+
+                    // 정보 버튼이 클릭된 경우
+                    if (e.target && e.target.classList && e.target.classList.contains('incentive-detail-btn')) {{
+                        console.log('ℹ️ 정보 버튼 클릭됨 (이벤트 위임)');
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+
+                        const nodeId = e.target.getAttribute('data-node-id');
+                        console.log('📌 노드 ID:', nodeId);
+                        console.log('📌 모달 함수 존재:', typeof window.showIncentiveModal);
+
+                        if (window.showIncentiveModal && nodeId) {{
+                            console.log('🎯 모달 함수 호출 시도:', nodeId);
+                            try {{
+                                window.showIncentiveModal(nodeId);
+                                console.log('✅ 모달 함수 호출 성공');
+                            }} catch(error) {{
+                                console.error('❌ 모달 함수 호출 중 오류:', error);
+                            }}
+                        }} else {{
+                            console.error('❌ 모달 함수가 없거나 노드 ID가 없음');
+                            console.error('   - showIncentiveModal:', typeof window.showIncentiveModal);
+                            console.error('   - nodeId:', nodeId);
+                        }}
+                        return false;
+                    }}
+                }};
+
+                // 이벤트 위임으로 처리 (동적으로 생성되는 버튼도 처리 가능)
+                treeContent.addEventListener('click', window.incentiveButtonHandler, true); // capture 단계에서 처리
+                console.log('✅ 인센티브 버튼 이벤트 리스너 등록 완료');
+            }} else {{
+                console.error('❌ orgTreeContent 요소를 찾을 수 없음');
+            }}
+
+            // 토글 버튼 클릭 이벤트
+            document.querySelectorAll('.toggle-btn').forEach(btn => {{
+                btn.addEventListener('click', function(e) {{
+                    e.stopPropagation();
+                    const li = this.closest('li');
+                    if (li.classList.contains('collapsed')) {{
+                        li.classList.remove('collapsed');
+                        li.classList.add('expanded');
+                    }} else {{
+                        li.classList.remove('expanded');
+                        li.classList.add('collapsed');
+                    }}
+                }});
+            }});
+
+            // 인센티브 정보 클릭 이벤트 (이벤트 위임 방식)
+            console.log('📌 인센티브 클릭 이벤트 리스너 등록 중...');
+            const orgContainer = document.getElementById('orgTreeContent');
+            if (orgContainer) {{
+                // 기존 리스너 제거 (중복 방지)
+                orgContainer.removeEventListener('click', handleIncentiveClick);
+                // 새 리스너 추가
+                orgContainer.addEventListener('click', handleIncentiveClick);
+                console.log('✅ 이벤트 위임 리스너 등록 완료');
+            }}
+
+            // 인센티브 클릭 핸들러 함수
+            function handleIncentiveClick(e) {{
+                const incentiveInfo = e.target.closest('.node-incentive-info');
+                if (incentiveInfo) {{
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const nodeId = incentiveInfo.getAttribute('data-node-id');
+                    console.log('💰 인센티브 클릭 감지 - Node ID:', nodeId);
+
+                    if (window.showIncentiveModal) {{
+                        window.showIncentiveModal(nodeId);
+                    }} else {{
+                        console.error('❌ showIncentiveModal 함수가 없습니다');
+                    }}
+                }}
+            }}
+
+            // 조직도가 그려진 후 툴팁 재초기화
+            setTimeout(() => {{
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {{
+                    new bootstrap.Tooltip(tooltipTriggerEl);
+                }});
+                console.log('✅ 조직도 툴팁 초기화 완료:', tooltipTriggerList.length, '개');
+            }}, 500);
+
+            // 검색 기능
+            const searchInput = document.getElementById('orgSearchInput');
+            const searchClear = document.getElementById('orgSearchClear');
+
+            if (searchInput) {{
+                searchInput.addEventListener('input', function() {{
+                    const searchTerm = this.value.toLowerCase();
+                    searchInTree(searchTerm);
+                }});
+            }}
+
+            if (searchClear) {{
+                searchClear.addEventListener('click', function() {{
+                    searchInput.value = '';
+                    searchInTree('');
+                }});
+            }}
+
+            // 모두 펼치기/접기 버튼
+            const expandAllBtn = document.getElementById('expandAllBtn');
+            const collapseAllBtn = document.getElementById('collapseAllBtn');
+
+            if (expandAllBtn) {{
+                expandAllBtn.addEventListener('click', function() {{
+                    document.querySelectorAll('.collapsible-tree li').forEach(li => {{
+                        if (li.querySelector('.toggle-btn')) {{
+                            li.classList.remove('collapsed');
+                            li.classList.add('expanded');
+                        }}
+                    }});
+                }});
+            }}
+
+            if (collapseAllBtn) {{
+                collapseAllBtn.addEventListener('click', function() {{
+                    document.querySelectorAll('.collapsible-tree li').forEach(li => {{
+                        if (li.querySelector('.toggle-btn')) {{
+                            li.classList.remove('expanded');
+                            li.classList.add('collapsed');
+                        }}
+                    }});
+                }});
+            }}
+
+            // 노드 클릭 이벤트 (인센티브 정보 클릭 제외)
+            document.querySelectorAll('.org-node').forEach(node => {{
+                node.addEventListener('click', function(e) {{
+                    // 인센티브 정보를 클릭한 경우는 제외
+                    if (e.target.closest('.node-incentive-info')) {{
+                        console.log('🚫 인센티브 클릭이므로 expand/collapse 무시');
+                        return;
+                    }}
+                    const toggleBtn = this.querySelector('.toggle-btn');
+                    if (toggleBtn) {{
+                        console.log('📂 노드 expand/collapse 토글');
+                        toggleBtn.click();
+                    }}
+                }});
+            }});
+        }}
+
+        // 전체 펼치기
+        function expandAll() {{
+            document.querySelectorAll('.collapsible-tree li.collapsed').forEach(li => {{
+                li.classList.remove('collapsed');
+                li.classList.add('expanded');
+            }});
+        }}
+
+        // 전체 접기
+        function collapseAll() {{
+            document.querySelectorAll('.collapsible-tree li.expanded').forEach(li => {{
+                if (li.querySelector('ul')) {{ // 자식이 있는 경우만
+                    li.classList.remove('expanded');
+                    li.classList.add('collapsed');
+                }}
+            }});
+        }}
+
+        // 검색 기능
+        function searchInTree(searchTerm) {{
+            const nodes = document.querySelectorAll('.org-node');
+            const allLis = document.querySelectorAll('.collapsible-tree li');
+
+            if (!searchTerm) {{
+                // 검색어가 없으면 모두 표시
+                nodes.forEach(node => {{
+                    node.classList.remove('search-hidden');
+                    node.classList.remove('search-highlight');
+                }});
+                return;
+            }}
+
+            // 모든 노드 숨기기
+            nodes.forEach(node => {{
+                node.classList.add('search-hidden');
+                node.classList.remove('search-highlight');
+            }});
+
+            // 검색어와 일치하는 노드 찾기
+            nodes.forEach(node => {{
+                const name = node.querySelector('.node-name')?.textContent.toLowerCase() || '';
+                const id = node.querySelector('.node-id')?.textContent.toLowerCase() || '';
+                const position = node.querySelector('.node-position')?.textContent.toLowerCase() || '';
+
+                if (name.includes(searchTerm) || id.includes(searchTerm) || position.includes(searchTerm)) {{
+                    node.classList.remove('search-hidden');
+                    node.classList.add('search-highlight');
+
+                    // 부모 노드들도 표시
+                    let parent = node.closest('li');
+                    while (parent) {{
+                        const parentNode = parent.querySelector(':scope > .org-node');
+                        if (parentNode) {{
+                            parentNode.classList.remove('search-hidden');
+                        }}
+                        // 부모 li를 펼치기
+                        if (parent.classList.contains('collapsed')) {{
+                            parent.classList.remove('collapsed');
+                            parent.classList.add('expanded');
+                        }}
+                        parent = parent.parentElement?.closest('li');
+                    }}
+                }}
+            }});
+        }}
+
+        // 모달 테스트 함수 (전역 스코프)
+        // 모달 강제 닫기 함수 (전역 스코프)
+        window.forceCloseModal = function() {{
+            console.log('🚨 모달 강제 닫기 실행');
+            const modal = document.getElementById('incentiveModal');
+            if (modal) {{
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {{
+                    modalInstance.hide();
+                    modalInstance.dispose();
+                }}
+                modal.remove();
+            }}
+            // 백드롭과 body 상태 정리
+            document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        }};
+
+        // 팀 내 모든 LINE LEADER 찾기 (재귀적) - Excel 로직과 동일
+        function findTeamLineLeaders(managerId, depth = 0, visited = null) {{
+            if (depth > 5) return []; // 무한 루프 방지
+
+            if (!visited) {{
+                visited = new Set();
+            }}
+
+            // managerId를 문자열로 통일
+            managerId = String(managerId || '');
+            if (!managerId || managerId === 'nan' || managerId === '0' || managerId === '') {{
+                return [];
+            }}
+
+            if (visited.has(managerId)) {{
+                return [];
+            }}
+            visited.add(managerId);
+
+            let lineLeaders = [];
+
+            // boss_id를 문자열로 비교하여 직접 부하들 찾기
+            const directSubordinates = employeeData.filter(emp => {{
+                const bossId = String(emp.boss_id || '');
+                return bossId === managerId && bossId !== '';
+            }});
+
+            directSubordinates.forEach(sub => {{
+                const position = (sub.position || '').toUpperCase();
+
+                // TYPE-1 LINE LEADER인 경우 추가
+                if (sub.type === 'TYPE-1' && position.includes('LINE') && position.includes('LEADER')) {{
+                    lineLeaders.push(sub);
+                }}
+
+                // 재귀적으로 부하의 부하 탐색 (emp_no를 문자열로 변환)
+                const subLineLeaders = findTeamLineLeaders(String(sub.emp_no || ''), depth + 1, visited);
+                lineLeaders = lineLeaders.concat(subLineLeaders);
+            }});
+
+            return lineLeaders;
+        }}
+
+        // 인센티브 미지급 사유 분석 함수
+        function getIncentiveFailureReasons(employee) {{
+            const reasons = [];
+            const position = (employee.position || '').toUpperCase();
+
+            // 출근 조건 체크 (모든 직급 공통)
+            if (employee['attendancy condition 1 - acctual working days is zero'] === 'yes') {{
+                reasons.push('실제 근무일 0일 (출근 조건 1번 미충족)');
+            }}
+            if (employee['attendancy condition 2 - unapproved Absence Day is more than 2 days'] === 'yes') {{
+                reasons.push('무단결근 2일 초과 (출근 조건 2번 미충족)');
+            }}
+            if (employee['attendancy condition 3 - absent % is over 12%'] === 'yes') {{
+                reasons.push('결근율 12% 초과 (출근 조건 3번 미충족)');
+            }}
+            if (employee['attendancy condition 4 - minimum working days'] === 'yes') {{
+                reasons.push('최소 근무일 미달 (출근 조건 4번 미충족)');
+            }}
+
+            // LINE LEADER의 경우 AQL 조건 추가 체크
+            if (position.includes('LINE') && position.includes('LEADER')) {{
+                if (employee['aql condition 7 - team/area fail AQL'] === 'yes') {{
+                    reasons.push('팀/구역 AQL 실패 (AQL 조건 7번 미충족)');
+                }}
+                if (employee['September AQL Failures'] > 0) {{
+                    reasons.push(`9월 AQL 실패 ${{employee['September AQL Failures']}}건`);
+                }}
+                if (employee['Continuous_FAIL'] === 'YES') {{
+                    reasons.push('3개월 연속 AQL 실패');
+                }}
+            }}
+
+            // 5PRS 조건 체크 (해당 직급만)
+            if (employee['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] === 'no') {{
+                reasons.push('5PRS 검증 부족 또는 합격률 95% 미달 (5PRS 조건 1번 미충족)');
+            }}
+            if (employee['5prs condition 2 - Total Valiation Qty is zero'] === 'yes') {{
+                reasons.push('5PRS 총 검증 수량 0 (5PRS 조건 2번 미충족)');
+            }}
+
+            // 조건 통과율 체크
+            if (employee['conditions_pass_rate'] !== undefined && employee['conditions_pass_rate'] < 100) {{
+                const passRate = parseFloat(employee['conditions_pass_rate'] || 0).toFixed(1);
+                const passed = employee['conditions_passed'] || 0;
+                const applicable = employee['conditions_applicable'] || 0;
+                if (reasons.length === 0 && passRate < 100) {{
+                    reasons.push(`조건 통과율 부족: ${{passed}}/${{applicable}} (${{passRate}}%)`);
+                }}
+            }}
+
+            // 사유가 없는 경우 기본 메시지
+            if (reasons.length === 0) {{
+                if (employee[dashboardMonth + '_incentive'] === 0) {{
+                    reasons.push('조건 정보를 확인할 수 없습니다');
+                }}
+            }}
+
+            return reasons;
+        }}
+
+        // 인센티브 상세 모달 (전역 스코프)
+        window.showIncentiveModal = function(nodeId) {{
+            console.log('🔍 모달 함수 호출됨 - Node ID:', nodeId);
+
+            try {{
+                // 기존 모달이 있으면 강제 닫기
+                window.forceCloseModal();
+
+                const employee = employeeData.find(emp => emp.emp_no === nodeId);
+                if (!employee) {{
+                    console.error('❌ 직원 데이터를 찾을 수 없음:', nodeId);
+                    alert('직원 데이터를 찾을 수 없습니다. ID: ' + nodeId);
+                    return;
+                }}
+                console.log('✅ 직원 발견:', employee.name, employee.position);
+
+                const position = (employee.position || '').toUpperCase();
+                const employeeIncentive = Number(employee[dashboardMonth + '_incentive'] || 0);
+
+                // 부하 직원 찾기 (TYPE-1만)
+                const subordinates = employeeData.filter(emp => emp.boss_id === nodeId && emp.type === 'TYPE-1');
+                const receivingSubordinates = subordinates.filter(sub => {{
+                    const incentive = sub[dashboardMonth + '_incentive'] || 0;
+                    return Number(incentive) > 0;
+                }});
+
+                // 계산 과정 상세 내용 생성
+                let calculationDetails = '';
+
+                if (position.includes('LINE LEADER')) {{
+                // LINE LEADER 계산 상세 - 부하직원 합계 × 12% × 수령율
+                const assemblyInspectors = subordinates.filter(sub =>
+                    sub.position && sub.position.toUpperCase().includes('ASSEMBLY INSPECTOR')
+                );
+                const totalSubIncentive = assemblyInspectors.reduce((sum, sub) => {{
+                    return sum + Number(sub[dashboardMonth + '_incentive'] || 0);
+                }}, 0);
+                const receivingInspectors = assemblyInspectors.filter(ai =>
+                    Number(ai[dashboardMonth + '_incentive'] || 0) > 0
+                );
+                const receivingRatio = assemblyInspectors.length > 0 ? receivingInspectors.length / assemblyInspectors.length : 0;
+                const expectedIncentive = Math.round(totalSubIncentive * 0.12 * receivingRatio);
+
+                // ASSEMBLY INSPECTOR 상세 내역 생성
+                let inspectorDetails = '';
+                if (assemblyInspectors.length > 0) {{
+                    inspectorDetails = `
+                        <div class="mt-3">
+                            <h6>📋 ASSEMBLY INSPECTOR 인센티브 내역 (합계 계산 대상)</h6>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>이름</th>
+                                        <th>ID</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">수령 여부</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${{assemblyInspectors.map(ai => {{
+                                        const aiIncentive = Number(ai[dashboardMonth + '_incentive'] || 0);
+                                        const isReceiving = aiIncentive > 0;
+                                        return `
+                                            <tr class="${{isReceiving ? '' : 'text-muted'}}">
+                                                <td>${{ai.name || ai.employee_name || 'Unknown'}}</td>
+                                                <td>${{ai.emp_no || ai.employee_id || ''}}</td>
+                                                <td class="text-end">₫${{aiIncentive.toLocaleString('ko-KR')}}</td>
+                                                <td class="text-center">${{isReceiving ? '✅' : '❌'}}</td>
+                                            </tr>
+                                        `;
+                                    }}).join('')}}
+                                </tbody>
+                                <tfoot class="table-secondary">
+                                    <tr>
+                                        <th colspan="2">합계</th>
+                                        <th class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2">평균 (수령자 ${{receivingInspectors.length}}명 / 전체 ${{assemblyInspectors.length}}명)</th>
+                                        <th class="text-end">₫${{receivingInspectors.length > 0 ? Math.round(totalSubIncentive / receivingInspectors.length).toLocaleString('ko-KR') : '0'}}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+                }}
+
+                calculationDetails = `
+                    <div class="calculation-details">
+                        <h6>📊 계산 과정 상세 (LINE LEADER)</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>계산 공식:</td>
+                                <td class="text-end"><strong>부하직원 합계 × 12% × 수령율</strong></td>
+                            </tr>
+                            <tr>
+                                <td>ASSEMBLY INSPECTOR 수:</td>
+                                <td class="text-end">${{assemblyInspectors.length}}명 (수령: ${{receivingInspectors.length}}명)</td>
+                            </tr>
+                            <tr>
+                                <td>인센티브 합계:</td>
+                                <td class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}}</td>
+                            </tr>
+                            <tr>
+                                <td>수령 비율:</td>
+                                <td class="text-end">${{receivingInspectors.length}}/${{assemblyInspectors.length}} = ${{(receivingRatio * 100).toFixed(1)}}%</td>
+                            </tr>
+                            <tr>
+                                <td>계산식:</td>
+                                <td class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}} × 12% × ${{(receivingRatio * 100).toFixed(1)}}%</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
+                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                        </table>
+                        ${{inspectorDetails}}
+                    </div>
+                `;
+                }} else if (position.includes('GROUP LEADER')) {{
+                // GROUP LEADER 계산 상세 - 팀 내 LINE LEADER 평균 × 2
+                const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
+                const receivingLineLeaders = teamLineLeaders.filter(ll =>
+                    Number(ll[dashboardMonth + '_incentive'] || 0) > 0
+                );
+                const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
+                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
+                const expectedIncentive = Math.round(avgLineLeaderIncentive * 2);
+
+                // LINE LEADER별 상세 내역 생성
+                let lineLeaderDetails = '';
+                if (teamLineLeaders.length > 0) {{
+                    lineLeaderDetails = `
+                        <div class="mt-3">
+                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>이름</th>
+                                        <th>ID</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">평균 계산 포함</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${{teamLineLeaders.map(ll => {{
+                                        const llIncentive = Number(ll[dashboardMonth + '_incentive'] || 0);
+                                        const included = llIncentive > 0;
+                                        return `
+                                            <tr class="${{included ? '' : 'text-muted'}}">
+                                                <td>${{ll.name}}</td>
+                                                <td>${{ll.emp_no}}</td>
+                                                <td class="text-end">${{included ? '₫' + llIncentive.toLocaleString('ko-KR') : '-'}}</td>
+                                                <td class="text-center">${{included ? '✅' : '❌'}}</td>
+                                            </tr>
+                                        `;
+                                    }}).join('')}}
+                                </tbody>
+                                <tfoot class="table-secondary">
+                                    <tr>
+                                        <th colspan="2">합계</th>
+                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2">평균 (수령자 ${{receivingLineLeaders.length}}명 / 전체 ${{teamLineLeaders.length}}명)</th>
+                                        <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+                }}
+
+                calculationDetails = `
+                    <div class="calculation-details">
+                        <h6>📊 계산 과정 상세 (GROUP LEADER)</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>계산 공식:</td>
+                                <td class="text-end"><strong>LINE LEADER 평균 × 2</strong></td>
+                            </tr>
+                            <tr>
+                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
+                                <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
+                            </tr>
+                            <tr>
+                                <td>LINE LEADER 평균 인센티브:</td>
+                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
+                            </tr>
+                            <tr>
+                                <td>계산식:</td>
+                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
+                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                        </table>
+                        ${{lineLeaderDetails}}
+                    </div>
+                `;
+                }} else if (position.includes('SUPERVISOR')) {{
+                // SUPERVISOR 계산 상세 - 팀 내 LINE LEADER만
+                const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
+                const receivingLineLeaders = teamLineLeaders.filter(ll =>
+                    Number(ll[dashboardMonth + '_incentive'] || 0) > 0
+                );
+                const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
+                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
+                const expectedIncentive = Math.round(avgLineLeaderIncentive * 2.5);
+
+                // 팀 내 LINE LEADER 상세 내역 생성
+                let allLineLeaderDetails = '';
+                if (teamLineLeaders.length > 0) {{
+                    // LINE LEADER를 GROUP별로 그룹화
+                    const lineLeadersByGroup = {{}};
+                    teamLineLeaders.forEach(ll => {{
+                        const groupLeader = employeeData.find(emp => emp.emp_no === ll.boss_id);
+                        const groupName = groupLeader ? groupLeader.name : 'Unknown';
+                        if (!lineLeadersByGroup[groupName]) {{
+                            lineLeadersByGroup[groupName] = [];
+                        }}
+                        lineLeadersByGroup[groupName].push(ll);
+                    }});
+
+                    allLineLeaderDetails = `
+                        <div class="mt-3">
+                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>GROUP</th>
+                                        <th>LINE LEADER</th>
+                                        <th>ID</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">평균 계산 포함</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
+                                        return leaders.map((ll, idx) => {{
+                                            const llIncentive = Number(ll[dashboardMonth + '_incentive'] || 0);
+                                            const included = llIncentive > 0;
+                                            return `
+                                                <tr class="${{included ? '' : 'text-muted'}}">
+                                                    ${{idx === 0 ? `<td rowspan="${{leaders.length}}">${{groupName}}</td>` : ''}}
+                                                    <td>${{ll.name}}</td>
+                                                    <td>${{ll.emp_no}}</td>
+                                                    <td class="text-end">${{included ? '₫' + llIncentive.toLocaleString('ko-KR') : '-'}}</td>
+                                                    <td class="text-center">${{included ? '✅' : '❌'}}</td>
+                                                </tr>
+                                            `;
+                                        }}).join('');
+                                    }}).join('')}}
+                                </tbody>
+                                <tfoot class="table-secondary">
+                                    <tr>
+                                        <th colspan="3">합계</th>
+                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3">평균 (수령자 ${{receivingLineLeaders.length}}명 / 전체 ${{teamLineLeaders.length}}명)</th>
+                                        <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+                }}
+
+                calculationDetails = `
+                    <div class="calculation-details">
+                        <h6>📊 계산 과정 상세 (SUPERVISOR)</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>계산 공식:</td>
+                                <td class="text-end"><strong>LINE LEADER 평균 × 2.5</strong></td>
+                            </tr>
+                            <tr>
+                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
+                                <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
+                            </tr>
+                            <tr>
+                                <td>LINE LEADER 평균 인센티브:</td>
+                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
+                            </tr>
+                            <tr>
+                                <td>계산식:</td>
+                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2.5</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
+                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                        </table>
+                        ${{allLineLeaderDetails}}
+                    </div>
+                `;
+                }} else if (position.includes('A.MANAGER') || position.includes('ASSISTANT')) {{
+                // A.MANAGER 계산 상세 - 팀 내 LINE LEADER 평균 × 3
+                let teamLineLeaders = [];
+                let receivingLineLeaders = [];
+                let avgLineLeaderIncentive = 0;
+                let expectedIncentive = 0;
+
+                // 에러 핸들링을 추가한 팀 LINE LEADER 찾기
+                try {{
+                    teamLineLeaders = findTeamLineLeaders(employee.emp_no);
+                    receivingLineLeaders = teamLineLeaders.filter(ll =>
+                        Number(ll[dashboardMonth + '_incentive'] || 0) > 0
+                    );
+                    avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
+                        receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
+                    expectedIncentive = Math.round(avgLineLeaderIncentive * 3);
+                }} catch (err) {{
+                    console.error('❌ A.MANAGER 계산 중 오류:', err);
+                    teamLineLeaders = [];
+                    receivingLineLeaders = [];
+                }}
+
+                // LINE LEADER 인센티브 합계 계산
+                const lineLeaderTotal = receivingLineLeaders.reduce((sum, ll) =>
+                    sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0);
+
+                // 팀 내 LINE LEADER 상세 내역 생성
+                let lineLeaderBreakdown = '';
+                if (teamLineLeaders.length > 0) {{
+                    // LINE LEADER를 GROUP별로 그룹화
+                    const lineLeadersByGroup = {{}};
+                    teamLineLeaders.forEach(ll => {{
+                        const groupLeader = employeeData.find(emp => emp.emp_no === ll.boss_id);
+                        const groupName = groupLeader ? groupLeader.name : 'Unknown';
+                        if (!lineLeadersByGroup[groupName]) {{
+                            lineLeadersByGroup[groupName] = [];
+                        }}
+                        lineLeadersByGroup[groupName].push(ll);
+                    }});
+
+                    lineLeaderBreakdown = `
+                        <div class="mt-3">
+                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>GROUP LEADER</th>
+                                        <th>LINE LEADER</th>
+                                        <th>ID</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">평균 계산 포함</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
+                                        return leaders.map((ll, idx) => {{
+                                            const llIncentive = Number(ll[dashboardMonth + '_incentive'] || 0);
+                                            const included = llIncentive > 0;
+                                            return `
+                                                <tr class="${{included ? '' : 'text-muted'}}">
+                                                    ${{idx === 0 ? `<td rowspan="${{leaders.length}}">${{groupName}}</td>` : ''}}
+                                                    <td>${{ll.name || ll.employee_name || 'Unknown'}}</td>
+                                                    <td>${{ll.emp_no || ll.employee_id || ''}}</td>
+                                                    <td class="text-end">₫${{llIncentive.toLocaleString('ko-KR')}}</td>
+                                                    <td class="text-center">${{included ? '✅' : '❌'}}</td>
+                                                </tr>
+                                            `;
+                                        }}).join('');
+                                    }}).join('')}}
+                                </tbody>
+                                <tfoot class="table-secondary">
+                                    <tr>
+                                        <th colspan="3">합계</th>
+                                        <th class="text-end">₫${{lineLeaderTotal.toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3">평균 (수령자 ${{receivingLineLeaders.length}}명 / 전체 ${{teamLineLeaders.length}}명)</th>
+                                        <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+                }}
+
+                calculationDetails = `
+                    <div class="calculation-details">
+                        <h6>📊 계산 과정 상세 (A.MANAGER)</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>계산 공식:</td>
+                                <td class="text-end"><strong>LINE LEADER 평균 × 3</strong></td>
+                            </tr>
+                            <tr>
+                                <td>LINE LEADER 수:</td>
+                                <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
+                            </tr>
+                            <tr>
+                                <td>LINE LEADER 평균 인센티브:</td>
+                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
+                            </tr>
+                            <tr>
+                                <td>계산식:</td>
+                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
+                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                        </table>
+                        ${{lineLeaderBreakdown}}
+                    </div>
+                `;
+                }} else if (position.includes('MANAGER') && !position.includes('A.MANAGER') && !position.includes('ASSISTANT')) {{
+                // MANAGER 계산 상세 - 팀 내 LINE LEADER 평균 기준
+                const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
+                const receivingLineLeaders = teamLineLeaders.filter(ll =>
+                    Number(ll[dashboardMonth + '_incentive'] || 0) > 0
+                );
+                const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
+                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
+                const expectedIncentive = Math.round(avgLineLeaderIncentive * 3.5);
+
+                // 팀 내 LINE LEADER 상세 내역 생성
+                let lineLeaderBreakdown = '';
+                if (teamLineLeaders.length > 0) {{
+                    // LINE LEADER를 GROUP별로 그룹화
+                    const lineLeadersByGroup = {{}};
+                    teamLineLeaders.forEach(ll => {{
+                        const groupLeader = employeeData.find(emp => emp.emp_no === ll.boss_id);
+                        const groupName = groupLeader ? groupLeader.name : 'Unknown';
+                        if (!lineLeadersByGroup[groupName]) {{
+                            lineLeadersByGroup[groupName] = [];
+                        }}
+                        lineLeadersByGroup[groupName].push(ll);
+                    }});
+
+                    lineLeaderBreakdown = `
+                        <div class="mt-3">
+                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>GROUP LEADER</th>
+                                        <th>LINE LEADER</th>
+                                        <th>ID</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">평균 계산 포함</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
+                                        return leaders.map((ll, idx) => {{
+                                            const llIncentive = Number(ll[dashboardMonth + '_incentive'] || 0);
+                                            const included = llIncentive > 0;
+                                            return `
+                                                <tr class="${{included ? '' : 'text-muted'}}">
+                                                    ${{idx === 0 ? `<td rowspan="${{leaders.length}}">${{groupName}}</td>` : ''}}
+                                                    <td>${{ll.name}}</td>
+                                                    <td>${{ll.emp_no}}</td>
+                                                    <td class="text-end">${{included ? '₫' + llIncentive.toLocaleString('ko-KR') : '-'}}</td>
+                                                    <td class="text-center">${{included ? '✅' : '❌'}}</td>
+                                                </tr>
+                                            `;
+                                        }}).join('');
+                                    }}).join('')}}
+                                </tbody>
+                                <tfoot class="table-secondary">
+                                    <tr>
+                                        <th colspan="3">합계</th>
+                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3">평균 (수령자 ${{receivingLineLeaders.length}}명 / 전체 ${{teamLineLeaders.length}}명)</th>
+                                        <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    `;
+                }}
+
+                calculationDetails = `
+                    <div class="calculation-details">
+                        <h6>📊 계산 과정 상세 (MANAGER)</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
+                                <td class="text-end">${{teamLineLeaders.length}}명</td>
+                            </tr>
+                            <tr>
+                                <td>인센티브 받은 LINE LEADER:</td>
+                                <td class="text-end">${{receivingLineLeaders.length}}명</td>
+                            </tr>
+                            <tr>
+                                <td>LINE LEADER 평균 인센티브:</td>
+                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td><strong>계산식:</strong></td>
+                                <td class="text-end"><strong>₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3.5</strong></td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
+                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                        </table>
+                        ${{lineLeaderBreakdown}}
+                    </div>
+                `;
+                }}
+
+                // 모달 HTML 생성
+                const monthNumber = dashboardMonth === 'september' ? '9' : dashboardMonth === 'august' ? '8' : dashboardMonth === 'july' ? '7' : '?';
+                const modalHtml = `
+                <div class="modal fade" id="incentiveModal" tabindex="-1" style="z-index: 1055;">
+                    <div class="modal-dialog modal-lg" style="z-index: 1056;">
+                        <div class="modal-content" style="z-index: 1057; position: relative; user-select: text; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text;">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalTitle">${{getTranslation('modal.modalTitle', currentLanguage)}} - ${{dashboardYear}}년 ${{monthNumber}}월</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="employee-info mb-3">
+                                    <h5>${{employee.name}}</h5>
+                                    <p class="mb-1"><strong>직급:</strong> ${{employee.position}}</p>
+                                    <p class="mb-1"><strong>ID:</strong> ${{employee.emp_no}}</p>
+                                    <p class="mb-1"><strong>Type:</strong> ${{employee.type}}</p>
+                                </div>
+                                <hr>
+                                <div class="incentive-summary mb-3">
+                                    <h5 class="${{employeeIncentive > 0 ? 'text-success' : 'text-danger'}}">
+                                        <span class="modal-actual-incentive">${{getTranslation('orgChart.modalLabels.actualIncentive', currentLanguage)}}</span>: ₫${{employeeIncentive.toLocaleString('ko-KR')}}
+                                    </h5>
+                                    <p class="text-muted"><span class="modal-calc-method">${{getTranslation('orgChart.modalLabels.calculationMethod', currentLanguage)}}</span>: ${{getCalculationFormula(employee.position) || '특별 계산'}}</p>
+                                    ${{(() => {{
+                                        if (employeeIncentive === 0) {{
+                                            const failureReasons = getIncentiveFailureReasons(employee);
+                                            if (failureReasons.length > 0) {{
+                                                return `
+                                                    <div class="alert alert-warning mt-3">
+                                                        <h6 class="alert-heading">📋 <span class="modal-no-payment-reason">${{getTranslation('orgChart.modalLabels.noPaymentReason', currentLanguage)}}</span></h6>
+                                                        <ul class="mb-0">
+                                                            ${{failureReasons.map(reason => `<li>${{reason}}</li>`).join('')}}
+                                                        </ul>
+                                                    </div>
+                                                `;
+                                            }}
+                                        }}
+                                        return '';
+                                    }})()}}
+                                </div>
+                                ${{calculationDetails}}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span class="modal-close-btn">${{getTranslation('buttons.close', currentLanguage) || '닫기'}}</span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+                // 기존 모달 제거 (인스턴스 포함)
+                const existingModal = document.getElementById('incentiveModal');
+                if (existingModal) {{
+                    try {{
+                        // 기존 Bootstrap 모달 인스턴스 제거
+                        const existingModalInstance = bootstrap.Modal.getInstance(existingModal);
+                        if (existingModalInstance) {{
+                            existingModalInstance.dispose();
+                        }}
+                        existingModal.remove();
+                    }} catch (e) {{
+                        console.error('기존 모달 제거 중 오류:', e);
+                        existingModal.remove();
+                    }}
+                }}
+
+                // 모달 추가
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                const modalElement = document.getElementById('incentiveModal');
+
+                // Bootstrap 모달 인스턴스 생성 및 표시
+                try {{
+                    // 모달을 보여주기 전에 tabindex 설정
+                    modalElement.setAttribute('tabindex', '-1');
+                    modalElement.setAttribute('aria-hidden', 'true');
+
+                    // 모달 컨텐츠에 텍스트 선택 가능하도록 설정
+                    const modalContent = modalElement.querySelector('.modal-content');
+                    if (modalContent) {{
+                        modalContent.style.userSelect = 'text';
+                        modalContent.style.webkitUserSelect = 'text';
+                        modalContent.style.mozUserSelect = 'text';
+                        modalContent.style.msUserSelect = 'text';
+                        modalContent.style.position = 'relative';
+                        modalContent.style.zIndex = '1057';
+                    }}
+
+                    const modal = new bootstrap.Modal(modalElement, {{
+                        backdrop: true,      // 배경 클릭으로 닫기 가능
+                        keyboard: true,      // ESC 키로 닫기 가능
+                        focus: true
+                    }});
+
+                    // 모달 표시
+                    modal.show();
+
+                    // 수동으로 백드롭 클릭 이벤트 추가 (Bootstrap이 제대로 처리 안 될 경우 대비)
+                    setTimeout(() => {{
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {{
+                        backdrop.style.cursor = 'pointer';
+                        backdrop.style.zIndex = '1050';  // 모달보다 낮은 z-index
+                        backdrop.addEventListener('click', function() {{
+                            console.log('백드롭 클릭 감지');
+                            modal.hide();
+                        }});
+                    }}
+
+                    // 모달 자체의 z-index 확인
+                    if (modalElement) {{
+                        modalElement.style.zIndex = '1055';
+                        const modalDialog = modalElement.querySelector('.modal-dialog');
+                        if (modalDialog) {{
+                            modalDialog.style.zIndex = '1056';
+                        }}
+                    }}
+
+                    // ESC 키 이벤트도 수동 추가
+                    document.addEventListener('keydown', function escHandler(e) {{
+                        if (e.key === 'Escape') {{
+                            console.log('ESC 키 감지');
+                            modal.hide();
+                            document.removeEventListener('keydown', escHandler);
+                        }}
+                    }});
+                    }}, 100);
+
+                    // 모달이 완전히 닫힌 후 정리
+                    modalElement.addEventListener('hidden.bs.modal', function onHidden() {{
+                    console.log('모달 완전히 닫힘 - 정리 작업 실행');
+
+                    // 이벤트 리스너 제거
+                    modalElement.removeEventListener('hidden.bs.modal', onHidden);
+
+                    try {{
+                        // 모달 인스턴스 정리
+                        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        if (modalInstance) {{
+                            modalInstance.dispose();
+                        }}
+                    }} catch (e) {{
+                        console.error('모달 dispose 오류:', e);
+                    }}
+
+                    // 모달 DOM 요소 제거
+                    setTimeout(() => {{
+                        if (modalElement && modalElement.parentNode) {{
+                            modalElement.parentNode.removeChild(modalElement);
+                        }}
+                        // 백드롭이 남아있다면 제거
+                        const backdrops = document.querySelectorAll('.modal-backdrop');
+                        backdrops.forEach(backdrop => backdrop.remove());
+                        // body 상태 초기화
+                        document.body.classList.remove('modal-open');
+                        document.body.style.removeProperty('overflow');
+                        document.body.style.removeProperty('padding-right');
+                        // 추가로 body의 padding도 제거
+                        document.body.style.paddingRight = '';
+                        document.body.style.overflow = '';
+                    }}, 300);  // Bootstrap 애니메이션이 완료될 때까지 대기
+                    }});
+
+                    // 모달이 표시된 후 포커스 설정
+                    modalElement.addEventListener('shown.bs.modal', function() {{
+                    console.log('모달 표시 완료');
+                    // 닫기 버튼에 포커스 설정
+                    const closeBtn = modalElement.querySelector('[data-bs-dismiss="modal"]');
+                    if (closeBtn) {{
+                            closeBtn.focus();
+                        }}
+                    }});
+
+                }} catch (error) {{
+                    console.error('모달 생성 오류:', error);
+                    // 오류 발생 시 정리 작업
+                    if (modalElement) {{
+                        modalElement.remove();
+                    }}
+                    // 백드롭도 제거
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+                    // body 상태 초기화
+                    document.body.classList.remove('modal-open');
+                    document.body.style.removeProperty('overflow');
+                    document.body.style.removeProperty('padding-right');
+                    document.body.style.paddingRight = '';
+                    document.body.style.overflow = '';
+                }}
+            }} catch (mainError) {{
+                console.error('showIncentiveModal 메인 오류:', mainError);
+                alert('모달을 표시하는 중 오류가 발생했습니다.');
+            }}
+        }}
+
+        // 계산 공식 가져오기
+        function getCalculationFormula(position) {{
+            const pos = (position || '').toUpperCase();
+
+            if (pos.includes('LINE LEADER')) {{
+                return getTranslation('orgChart.calculationFormulas.lineLeader');
+            }} else if (pos.includes('GROUP LEADER')) {{
+                return getTranslation('orgChart.calculationFormulas.groupLeader');
+            }} else if (pos.includes('SUPERVISOR')) {{
+                return getTranslation('orgChart.calculationFormulas.supervisor');
+            }} else if (pos.includes('A.MANAGER') || pos.includes('ASSISTANT')) {{
+                return getTranslation('orgChart.calculationFormulas.assistantManager');
+            }} else if (pos.includes('MANAGER')) {{
+                return getTranslation('orgChart.calculationFormulas.manager');
+            }}
+            return '';
+        }}
+
+        // UI 텍스트 업데이트
+        function updateOrgChartUIText() {{
+            // 제목 및 설명 업데이트
+            const titleEl = document.getElementById('orgChartTitle');
+            if (titleEl) titleEl.textContent = getTranslation('tabs.orgchart');
+
+            const subtitleEl = document.getElementById('orgChartSubtitle');
+            if (subtitleEl) subtitleEl.textContent = getTranslation('orgChart.subtitle');
+
+            // 검색 placeholder
+            const searchEl = document.getElementById('orgSearchInput');
+            if (searchEl) searchEl.placeholder = getTranslation('orgChart.searchPlaceholder');
+
+            // 버튼 텍스트
+            const expandEl = document.getElementById('expandAllText');
+            if (expandEl) expandEl.textContent = getTranslation('orgChart.expandAll');
+
+            const collapseEl = document.getElementById('collapseAllText');
+            if (collapseEl) collapseEl.textContent = getTranslation('orgChart.collapseAll');
+
+            // 범례
+            const legendTitleEl = document.getElementById('legendTitle');
+            if (legendTitleEl) legendTitleEl.textContent = getTranslation('orgChart.legendTitle');
+
+            const legendReceivedEl = document.getElementById('legendIncentiveReceived');
+            if (legendReceivedEl) legendReceivedEl.textContent = getTranslation('orgChart.incentiveReceived');
+
+            const legendNoIncentiveEl = document.getElementById('legendNoIncentive');
+            if (legendNoIncentiveEl) legendNoIncentiveEl.textContent = getTranslation('orgChart.noIncentive');
+        }}
+
+        // 조직도 초기화 함수
+        function resetOrgChart() {{
+            drawCollapsibleOrgChart();
+        }}
+
+        // 이전 drawCollapsibleTree 함수는 제거
+        function drawCollapsibleTree() {{
+            console.log('This function is deprecated. Using drawCollapsibleOrgChart instead.');
+            drawCollapsibleOrgChart();
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const width = Math.max(1200, containerWidth);
+            const height = 800;
+            const margin = {{ top: 20, right: 120, bottom: 20, left: 200 }};
+
+            // SVG 초기화
+            d3.select("#orgChartSvg").selectAll("*").remove();
+
+            const svg = d3.select("#orgChartSvg")
+                .attr("width", width)
+                .attr("height", height);
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${{margin.left}},${{height / 2}})`);
+
+            const tree = d3.tree()
+                .size([height - margin.top - margin.bottom, width - margin.left - margin.right - 200]);
+
+            const hierarchyData = prepareHierarchyData();
+            if (!hierarchyData || hierarchyData.length === 0) {{
+                console.log('No hierarchy data available');
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
+                    .attr("text-anchor", "middle")
+                    .text("조직도 데이터를 불러올 수 없습니다.");
+                return;
+            }}
+
+            try {{
+                const root = d3.stratify()
+                    .id(d => d.id)
+                    .parentId(d => d.parentId)(hierarchyData);
+
+                root.x0 = (height - margin.top - margin.bottom) / 2;
+                root.y0 = 0;
+
+                // 초기에 2레벨까지만 펼치기
+                root.descendants().forEach((d, i) => {{
+                    d.id = i;
+                    d._children = d.children;
+                    if (d.depth && d.depth > 1) {{
+                        d.children = null;
+                    }}
+                }});
+
+                function update(source) {{
+                    const treeData = tree(root);
+                    const nodes = treeData.descendants();
+                    const links = treeData.descendants().slice(1);
+
+                    // 노드 위치 조정
+                    nodes.forEach(d => {{ d.y = d.depth * 180; }});
+
+                    // 노드 업데이트
+                    const node = g.selectAll("g.node")
+                        .data(nodes, d => d.id || (d.id = ++i));
+
+                    // 새 노드 추가
+                    const nodeEnter = node.enter().append("g")
+                        .attr("class", "node")
+                        .attr("transform", d => `translate(${{source.y0}},${{source.x0}})`)
+                        .on("click", click);
+
+                    nodeEnter.append("circle")
+                        .attr("class", "node")
+                        .attr("r", 1e-6)
+                        .style("fill", d => d._children ? "lightsteelblue" : "#fff")
+                        .style("stroke", d => getPositionColor(d.data.position))
+                        .style("stroke-width", "2px");
+
+                    nodeEnter.append("text")
+                        .attr("dy", ".35em")
+                        .attr("x", d => d.children || d._children ? -13 : 13)
+                        .attr("text-anchor", d => d.children || d._children ? "end" : "start")
+                        .style("font-size", "12px")
+                        .text(d => d.data.name);
+
+                    // 노드 위치 업데이트
+                    const nodeUpdate = nodeEnter.merge(node);
+
+                    nodeUpdate.transition()
+                        .duration(750)
+                        .attr("transform", d => `translate(${{d.y}},${{d.x}})`);
+
+                    nodeUpdate.select("circle.node")
+                        .attr("r", 10)
+                        .style("fill", d => d._children ? "lightsteelblue" : "#fff")
+                        .attr("cursor", "pointer");
+
+                    // 노드 제거
+                    const nodeExit = node.exit().transition()
+                        .duration(750)
+                        .attr("transform", d => `translate(${{source.y}},${{source.x}})`)
+                        .remove();
+
+                    nodeExit.select("circle")
+                        .attr("r", 1e-6);
+
+                    nodeExit.select("text")
+                        .style("fill-opacity", 1e-6);
+
+                    // 링크 업데이트
+                    const link = g.selectAll("path.link")
+                        .data(links, d => d.id);
+
+                    const linkEnter = link.enter().insert("path", "g")
+                        .attr("class", "link")
+                        .style("fill", "none")
+                        .style("stroke", "#ccc")
+                        .style("stroke-width", "2px")
+                        .attr("d", d => {{
+                            const o = {{ x: source.x0, y: source.y0 }};
+                            return diagonal(o, o);
+                        }});
+
+                    const linkUpdate = linkEnter.merge(link);
+
+                    linkUpdate.transition()
+                        .duration(750)
+                        .attr("d", d => diagonal(d, d.parent));
+
+                    const linkExit = link.exit().transition()
+                        .duration(750)
+                        .attr("d", d => {{
+                            const o = {{ x: source.x, y: source.y }};
+                            return diagonal(o, o);
+                        }})
+                        .remove();
+
+                    // 이전 위치 저장
+                    nodes.forEach(d => {{
+                        d.x0 = d.x;
+                        d.y0 = d.y;
+                    }});
+
+                    // 대각선 링크 생성 함수
+                    function diagonal(s, d) {{
+                        const path = `M ${{s.y}} ${{s.x}}
+                                C ${{(s.y + d.y) / 2}} ${{s.x}},
+                                  ${{(s.y + d.y) / 2}} ${{d.x}},
+                                  ${{d.y}} ${{d.x}}`;
+                        return path;
+                    }}
+
+                    // 클릭 이벤트 핸들러
+                    function click(event, d) {{
+                        if (d.children) {{
+                            d._children = d.children;
+                            d.children = null;
+                        }} else {{
+                            d.children = d._children;
+                            d._children = null;
+                        }}
+                        update(d);
+                    }}
+                }}
+
+                var i = 0;
+                update(root);
+
+                // Breadcrumb 업데이트
+                updateBreadcrumb("접을 수 있는 트리");
+
+                // 범례 추가
+                const legend = svg.append("g")
+                    .attr("class", "legend")
+                    .attr("transform", `translate(${{width - 200}}, 20)`);
+
+                const legendItems = [
+                    {{ color: "#1f77b4", label: "Manager" }},
+                    {{ color: "#2ca02c", label: "Supervisor" }},
+                    {{ color: "#ff7f0e", label: "Group Leader" }},
+                    {{ color: "#d62728", label: "Line Leader" }},
+                    {{ color: "#9467bd", label: "Inspector" }},
+                    {{ color: "#8c564b", label: "Others" }}
+                ];
+
+                legendItems.forEach((item, i) => {{
+                    const legendItem = legend.append("g")
+                        .attr("transform", `translate(0, ${{i * 20}})`);
+
+                    legendItem.append("circle")
+                        .attr("r", 6)
+                        .style("fill", "white")
+                        .style("stroke", item.color)
+                        .style("stroke-width", "2px");
+
+                    legendItem.append("text")
+                        .attr("x", 15)
+                        .attr("y", 5)
+                        .style("font-size", "12px")
+                        .text(item.label);
+                }});
+
+            }} catch (error) {{
+                console.error("조직도 생성 오류:", error);
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
+                    .attr("text-anchor", "middle")
+                    .text("조직도 생성 중 오류가 발생했습니다: " + error.message);
+            }}
+        }}
+
+        function drawRadialTree() {{
+            const container = d3.select("#orgChartContainer");
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const radius = Math.min(containerWidth, 1200) / 2; // 더 큰 반경
+            const width = radius * 2;
+            const height = radius * 2;
+
+            const svg = d3.select("#orgChartSvg")
+                .attr("width", width)
+                .attr("height", height);
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${{width / 2}},${{height / 2}})`);
+
+            const tree = d3.tree()
+                .size([2 * Math.PI, radius - 150]) // 더 큰 반경
+                .separation((a, b) => {{
+                    // 레벨별로 다른 간격 적용
+                    if (a.depth <= 2) return 2;
+                    if (a.depth === 3) return 1.5;
+                    if (a.depth >= 4) return 1.2;
+                    return (a.parent == b.parent ? 1 : 2) / a.depth;
+                }});
+
+            const hierarchyData = prepareHierarchyData();
+            if (!hierarchyData || hierarchyData.length === 0) {{
+                console.log('No hierarchy data available');
+                return;
+            }}
+
+            try {{
+                const root = d3.stratify()
+                    .id(d => d.id)
+                    .parentId(d => d.parentId)(hierarchyData);
+
+                tree(root);
+
+                // 링크 그리기
+                const link = g.selectAll(".link")
+                    .data(root.links())
+                    .enter().append("path")
+                    .attr("class", "link")
+                    .style("fill", "none")
+                    .style("stroke", "#ccc")
+                    .style("stroke-width", d => Math.max(1, 3 - d.target.depth)) // 깊이에 따라 두께 조정
+                    .style("opacity", d => Math.max(0.3, 1 - d.target.depth * 0.15)) // 깊이에 따라 투명도
+                    .attr("d", d3.linkRadial()
+                        .angle(d => d.x)
+                        .radius(d => d.y));
+
+                // 노드 그리기
+                const node = g.selectAll(".node")
+                    .data(root.descendants())
+                    .enter().append("g")
+                    .attr("class", d => "node" + (d.children ? " node--internal" : " node--leaf"))
+                    .attr("transform", d => `
+                        rotate(${{(d.x * 180 / Math.PI - 90)}})
+                        translate(${{d.y}},0)
+                    `);
+
+                // 노드 원 (크기를 깊이에 따라 조정, 인센티브 여부에 따라 색상)
+                node.append("circle")
+                    .attr("r", d => Math.max(4, 8 - d.depth)) // 깊이에 따라 크기 조정
+                    .style("fill", d => {{
+                        const baseColor = getPositionColor(d.data.position);
+                        // 인센티브 여부에 따라 채우기 색상
+                        if (hasIncentive(d.data)) {{
+                            return d.children ? "#fff" : baseColor + "30";
+                        }} else {{
+                            return "#ffcccc"; // 연한 빨간색
+                        }}
+                    }})
+                    .style("stroke", d => hasIncentive(d.data) ? "#28a745" : "#dc3545")
+                    .style("stroke-width", d => Math.max(2, 4 - d.depth * 0.5))
+                    .style("cursor", "pointer")
+                    .on("mouseover", function(event, d) {{
+                        // 툴팁 표시
+                        const tooltip = d3.select("body").append("div")
+                            .attr("class", "radial-tooltip")
+                            .style("position", "absolute")
+                            .style("padding", "10px")
+                            .style("background", "rgba(0, 0, 0, 0.8)")
+                            .style("color", "white")
+                            .style("border-radius", "5px")
+                            .style("pointer-events", "none")
+                            .style("opacity", 0);
+
+                        tooltip.transition()
+                            .duration(200)
+                            .style("opacity", 0.9);
+
+                        tooltip.html(`
+                            <strong>${{d.data.name}}</strong><br/>
+                            ID: ${{d.data.id}}<br/>
+                            ${{d.data.position}}<br/>
+                            타입: ${{d.data.type || 'N/A'}}<br/>
+                            인센티브: ${{hasIncentive(d.data) ? '수령' : '미수령'}}
+                        `)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 28) + "px");
+                    }})
+                    .on("mouseout", function() {{
+                        d3.selectAll(".radial-tooltip").remove();
+                    }});
+
+                // 텍스트 라벨 (깊이에 따라 크기와 표시 조정)
+                node.append("text")
+                    .attr("dy", "0.31em")
+                    .attr("x", d => d.x < Math.PI === !d.children ? 10 : -10) // 더 큰 간격
+                    .attr("text-anchor", d => d.x < Math.PI === !d.children ? "start" : "end")
+                    .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
+                    .style("font-size", d => {{
+                        // 깊이에 따라 폰트 크기 조정
+                        if (d.depth === 0) return "16px";
+                        if (d.depth === 1) return "14px";
+                        if (d.depth === 2) return "12px";
+                        if (d.depth === 3) return "11px";
+                        return "10px";
+                    }})
+                    .style("font-weight", d => d.depth <= 1 ? "bold" : "normal")
+                    .text(d => {{
+                        // 깊이가 깊을수록 텍스트 줄이기
+                        if (d.depth >= 4) {{
+                            // Inspector 레벨에서는 이름만 표시하고 줄임
+                            const names = d.data.name.split(' ');
+                            return names[names.length - 1]; // 성만 표시
+                        }}
+                        return d.data.name;
+                    }});
+
+                // 깊이가 얕은 노드에 대해 포지션 텍스트 추가
+                node.filter(d => d.depth < 3)
+                    .append("text")
+                    .attr("dy", "1.5em")
+                    .attr("x", d => d.x < Math.PI === !d.children ? 10 : -10)
+                    .attr("text-anchor", d => d.x < Math.PI === !d.children ? "start" : "end")
+                    .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
+                    .style("font-size", "9px")
+                    .style("fill", "#666")
+                    .text(d => d.data.position);
+
+                // 줌 기능 추가 (개선된 초기 줌)
+                const zoom = d3.zoom()
+                    .scaleExtent([0.3, 4])
+                    .on("zoom", (event) => {{
+                        g.attr("transform", `translate(${{width / 2}},${{height / 2}}) scale(${{event.transform.k}})`);
+                    }});
+
+                svg.call(zoom);
+
+                // 초기 줌을 전체가 잘 보이도록 설정
+                svg.call(zoom.transform, d3.zoomIdentity.scale(0.8));
+
+                // Breadcrumb 업데이트
+                updateBreadcrumb("방사형 트리");
+
+            }} catch (error) {{
+                console.error("방사형 조직도 생성 오류:", error);
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
+                    .attr("text-anchor", "middle")
+                    .text("조직도 생성 중 오류가 발생했습니다: " + error.message);
+            }}
+        }}
+
+        // Old D3.js visualization functions - replaced with collapsible tree
+        function drawHorizontalTree() {{
+            console.log('Horizontal tree deprecated - using collapsible tree');
+            return;
+
+            const container = d3.select("#orgChartContainer");
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const width = Math.max(2000, containerWidth); // 더 넓게
+            const height = 3000; // 더 높게
+            const margin = {{ top: 50, right: 300, bottom: 50, left: 150 }};
+            const duration = 750; // 애니메이션 지속 시간
+
+            const svg = d3.select("#orgChartSvg")
+                .style("display", "block")  // SVG 다시 표시
+                .attr("width", width)
+                .attr("height", height);
+
+            svg.selectAll("*").remove(); // 기존 내용 제거
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${{margin.left}},${{margin.top}})`);
+
+            // nodeSize를 사용하여 고정된 노드 간격 설정
+            const treeLayout = d3.tree()
+                .nodeSize([50, 200]) // [수직 간격, 수평 간격] 늘림
+                .separation((a, b) => {{
+                    // 같은 부모를 가진 노드들 사이의 간격
+                    if (a.parent === b.parent) {{
+                        // Inspector 레벨에서는 더 넓은 간격
+                        if (a.data.position && a.data.position.includes('INSPECTOR')) {{
+                            return 2;
+                        }}
+                        return 1.2;
+                    }}
+                    return 1.5;
+                }});
+
+            const hierarchyData = prepareHierarchyData();
+            if (!hierarchyData || hierarchyData.length === 0) {{
+                console.log('No hierarchy data available');
+                return;
+            }}
+
+            try {{
+                const root = d3.stratify()
+                    .id(d => d.id)
+                    .parentId(d => d.parentId)(hierarchyData);
+
+                // 초기 위치 설정
+                root.x0 = height / 2;
+                root.y0 = 0;
+
+                // 처음에는 1단계 깊이까지만 열어둠
+                root.descendants().forEach((d, i) => {{
+                    d.id = i; // 고유 ID 할당
+                    if (d.depth > 1) {{
+                        d._children = d.children;
+                        d.children = null;
+                    }}
+                }});
+
+                // 업데이트 함수 정의
+                function update(source) {{
+                    // 트리 레이아웃 계산
+                    const treeData = treeLayout(root);
+                    const nodes = treeData.descendants();
+                    const links = treeData.links();
+
+                    // 노드 위치 조정 (중앙 정렬)
+                    const minY = Math.min(...nodes.map(d => d.x));
+                    const maxY = Math.max(...nodes.map(d => d.x));
+                    const centerY = (height - margin.top - margin.bottom) / 2;
+                    const offsetY = centerY - (maxY + minY) / 2;
+
+                    nodes.forEach(d => {{
+                        d.x += offsetY;
+                    }});
+
+                    // 노드 업데이트
+                    const node = g.selectAll("g.node")
+                        .data(nodes, d => d.id || (d.id = ++i));
+
+                    // 새로운 노드 추가
+                    const nodeEnter = node.enter().append("g")
+                        .attr("class", "node")
+                        .attr("transform", d => `translate(${{source.y0}},${{source.x0}})`)
+                        .style("cursor", d => d._children || d.children ? "pointer" : "default")
+                        .on("click", (event, d) => {{
+                            if (d.children) {{
+                                d._children = d.children;
+                                d.children = null;
+                            }} else if (d._children) {{
+                                d.children = d._children;
+                                d._children = null;
+                            }}
+                            update(d);
+                        }});
+
+                    // 노드 박스 및 내용 추가
+                    let boxWidth = 140;
+                    let boxHeight = 45;
+                    let fontSize = 11;
+                    let positionFontSize = 9;
+
+                    // 깊이에 따라 크기 조정
+                    if (d.data.depth === 0) {{
+                        boxWidth = 160;
+                        boxHeight = 50;
+                        fontSize = 13;
+                        positionFontSize = 10;
+                    }} else if (d.data.depth === 1) {{
+                        boxWidth = 150;
+                        boxHeight = 48;
+                        fontSize = 12;
+                        positionFontSize = 10;
+                    }} else if (d.data.depth >= 4) {{
+                        boxWidth = 100;
+                        boxHeight = 35;
+                        fontSize = 9;
+                        positionFontSize = 8;
+                    }}
+
+                    // 배경 사각형
+                    nodeEnter.append("rect")
+                        .attr("x", -boxWidth / 2)
+                        .attr("y", -boxHeight / 2)
+                        .attr("width", boxWidth)
+                        .attr("height", boxHeight)
+                        .attr("rx", 5)
+                        .style("fill", () => {{
+                            const color = getPositionColor(d.data.position);
+                            return hasIncentive(d.data) ? color + "30" : color + "10";
+                        }})
+                        .style("stroke", d => hasIncentive(d.data) ? "#28a745" : "#dc3545")
+                        .style("stroke-width", "2px");
+
+                    // 접기/펼치기 심볼
+                    nodeEnter.append("circle")
+                        .attr("class", "expand-symbol")
+                        .attr("r", 8)
+                        .attr("cx", boxWidth / 2 + 10)
+                        .attr("cy", 0)
+                        .style("fill", d => d._children ? "#ff7f0e" : "#2ca02c")
+                        .style("stroke", "#333")
+                        .style("stroke-width", "1.5px")
+                        .style("display", d => d._children || d.children ? "block" : "none");
+
+                    nodeEnter.append("text")
+                        .attr("class", "expand-text")
+                        .attr("x", boxWidth / 2 + 10)
+                        .attr("dy", "0.35em")
+                        .attr("text-anchor", "middle")
+                        .style("font-size", "12px")
+                        .style("font-weight", "bold")
+                        .style("fill", "white")
+                        .style("pointer-events", "none")
+                        .style("display", d => d._children || d.children ? "block" : "none")
+                        .text(d => d._children ? "+" : "−");
+
+                    // 텍스트 추가
+                    const nameText = d => d.data.depth >= 4 ?
+                        d.data.name.split(' ').slice(-1)[0] :
+                        d.data.name;
+
+                    // 포지션
+                    nodeEnter.append("text")
+                        .attr("class", "position-text")
+                        .attr("dy", "-0.7em")
+                        .attr("text-anchor", "middle")
+                        .style("font-size", positionFontSize + "px")
+                        .style("fill", "#333")
+                        .style("font-weight", "bold")
+                        .text(d => d.data.depth < 4 ? d.data.position : "");
+
+                    // 이름
+                    nodeEnter.append("text")
+                        .attr("class", "name-text")
+                        .attr("dy", d => d.data.depth < 4 ? "0.3em" : "0em")
+                        .attr("text-anchor", "middle")
+                        .style("font-size", fontSize + "px")
+                        .style("font-weight", d => d.data.depth <= 1 ? "bold" : "normal")
+                        .text(nameText);
+
+                    // ID
+                    nodeEnter.append("text")
+                        .attr("class", "id-text")
+                        .attr("dy", "1.4em")
+                        .attr("text-anchor", "middle")
+                        .style("font-size", (positionFontSize - 1) + "px")
+                        .style("fill", "#666")
+                        .text(d => d.data.depth < 4 && boxWidth >= 140 ? `ID: ${{d.data.id}}` : "");
+
+                    // 노드 위치 업데이트 (애니메이션)
+                    const nodeUpdate = nodeEnter.merge(node);
+
+                    nodeUpdate.transition()
+                        .duration(duration)
+                        .attr("transform", d => `translate(${{d.y}},${{d.x}})`);
+
+                    // 종료 노드 처리
+                    const nodeExit = node.exit().transition()
+                        .duration(duration)
+                        .attr("transform", d => `translate(${{source.y}},${{source.x}})`)
+                        .remove();
+
+                    nodeExit.select("rect")
+                        .style("opacity", 0);
+
+                    nodeExit.selectAll("text")
+                        .style("opacity", 0);
+
+                    // 링크 업데이트
+                    const link = g.selectAll("path.link")
+                        .data(links, d => d.target.id);
+
+                    // 새로운 링크 추가
+                    const linkEnter = link.enter().insert("path", "g")
+                        .attr("class", "link")
+                        .style("fill", "none")
+                        .style("stroke", "#ccc")
+                        .style("stroke-width", 2)
+                        .style("opacity", 0.7)
+                        .attr("d", d => {{
+                            const o = {{x: source.x0, y: source.y0}};
+                            return diagonal(o, o);
+                        }});
+
+                    // 링크 위치 업데이트
+                    const linkUpdate = linkEnter.merge(link);
+
+                    linkUpdate.transition()
+                        .duration(duration)
+                        .attr("d", d => diagonal(d.source, d.target));
+
+                    // 종료 링크 처리
+                    const linkExit = link.exit().transition()
+                        .duration(duration)
+                        .attr("d", d => {{
+                            const o = {{x: source.x, y: source.y}};
+                            return diagonal(o, o);
+                        }})
+                        .remove();
+
+                    // 이전 위치 저장
+                    nodes.forEach(d => {{
+                        d.x0 = d.x;
+                        d.y0 = d.y;
+                    }});
+
+                    // 대각선 경로 생성 함수
+                    function diagonal(s, d) {{
+                        return `M ${{s.y}} ${{s.x}}
+                                C ${{(s.y + d.y) / 2}} ${{s.x}},
+                                  ${{(s.y + d.y) / 2}} ${{d.x}},
+                                  ${{d.y}} ${{d.x}}`;
+                    }}
+                }}
+
+                // 초기 렌더링
+                update(root);
+
+                // 줌 기능 추가
+                currentZoomBehavior = d3.zoom()
+                    .scaleExtent([0.2, 3])
+                    .on("zoom", (event) => {{
+                        g.attr("transform", event.transform);
+                    }});
+
+                svg.call(currentZoomBehavior);
+
+                // 초기 줌 설정 (전체가 보이도록)
+                setTimeout(() => {{
+                    const bounds = g.node().getBBox();
+                    const fullWidth = width - margin.left - margin.right;
+                    const fullHeight = height - margin.top - margin.bottom;
+                    const midX = bounds.x + bounds.width / 2;
+                    const midY = bounds.y + bounds.height / 2;
+                    const scale = Math.min(fullWidth / bounds.width, fullHeight / bounds.height) * 0.8;
+
+                    svg.call(currentZoomBehavior.transform, d3.zoomIdentity
+                        .translate(width / 2, height / 2)
+                        .scale(scale)
+                        .translate(-midX, -midY));
+                }}, 100);
+
+                // Breadcrumb 업데이트
+                updateBreadcrumb("수평 트리 (클릭하여 접기/펼치기)");
+
+            }} catch (error) {{
+                console.error("수평 조직도 생성 오류:", error);
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
+                    .attr("text-anchor", "middle")
+                    .text("조직도 생성 중 오류가 발생했습니다: " + error.message);
+            }}
+        }}
+
+        function drawTreemap() {{
+            console.log('Treemap deprecated - using collapsible tree');
+            return;
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const width = Math.max(1200, containerWidth);
+            const height = 800;
+
+            // 기존 SVG 숨기고 내용 제거
+            d3.select("#orgChartSvg")
+                .style("display", "none")
+                .selectAll("*").remove();
+
+            // 기존 treemap div 제거
+            d3.select("#treemapDiv").remove();
+
+            // treemap을 위한 컨테이너 div 생성
+            const treemapDiv = d3.select("#orgChartContainer")
+                .append("div")
+                .attr("id", "treemapDiv")
+                .style("width", width + "px")
+                .style("height", height + "px")
+                .style("position", "relative")
+                .style("margin", "20px auto")
+                .style("border", "1px solid #dee2e6")
+                .style("border-radius", "8px")
+                .style("overflow", "hidden")
+                .style("background", "#f8f9fa");
+
+            const hierarchyData = prepareHierarchyData();
+            if (!hierarchyData || hierarchyData.length === 0) {{
+                console.log('No hierarchy data available for treemap');
+                return;
+            }}
+
+            try {{
+                // 계층 구조 생성
+                const root = d3.stratify()
+                    .id(d => d.id)
+                    .parentId(d => d.parentId)(hierarchyData);
+
+                // 각 노드의 value 계산 (자식이 없으면 1, 있으면 자식 수)
+                root.sum(d => d.children ? 0 : 1)
+                    .sort((a, b) => b.value - a.value);
+
+                // Treemap 레이아웃 생성
+                d3.treemap()
+                    .size([width, height])
+                    .padding(2)
+                    .round(true)(root);
+
+                // 색상 맵핑
+                const colorScale = d3.scaleOrdinal()
+                    .domain(['MANAGER', 'SUPERVISOR', 'GROUP LEADER', 'LINE LEADER', 'INSPECTOR', 'Others'])
+                    .range(['#1f77b4', '#2ca02c', '#ff7f0e', '#d62728', '#9467bd', '#8c564b']);
+
+                // 노드 생성
+                const nodes = treemapDiv.selectAll(".treemap-node")
+                    .data(root.leaves())
+                    .enter().append("div")
+                    .attr("class", "treemap-node")
+                    .style("position", "absolute")
+                    .style("left", d => d.x0 + "px")
+                    .style("top", d => d.y0 + "px")
+                    .style("width", d => Math.max(0, d.x1 - d.x0 - 1) + "px")
+                    .style("height", d => Math.max(0, d.y1 - d.y0 - 1) + "px")
+                    .style("background", d => {{
+                        const color = getPositionColor(d.data.position);
+                        // 인센티브 여부에 따라 그라데이션 조정
+                        if (hasIncentive(d.data)) {{
+                            return `linear-gradient(135deg, ${{color}}, ${{d3.color(color).darker(0.3)}})`;
+                        }} else {{
+                            // 인센티브 미수령자는 더 어두운 색상
+                            return `linear-gradient(135deg, ${{d3.color(color).darker(0.5)}}, ${{d3.color(color).darker(0.8)}})`;
+                        }}
+                    }})
+                    .style("border", d => {{
+                        // 인센티브 여부에 따라 테두리 색상
+                        return hasIncentive(d.data) ? "3px solid #28a745" : "3px solid #dc3545";
+                    }})
+                    .style("overflow", "hidden")
+                    .style("cursor", "pointer")
+                    .style("transition", "all 0.3s ease")
+                    .on("mouseover", function(event, d) {{
+                        d3.select(this)
+                            .style("z-index", 100)
+                            .style("transform", "scale(1.02)")
+                            .style("box-shadow", "0 4px 20px rgba(0,0,0,0.3)");
+
+                        // Tooltip 표시
+                        showTooltip(event, d);
+                    }})
+                    .on("mouseout", function() {{
+                        d3.select(this)
+                            .style("z-index", 1)
+                            .style("transform", "scale(1)")
+                            .style("box-shadow", "none");
+
+                        hideTooltip();
+                    }});
+
+                // 라벨 추가
+                nodes.append("div")
+                    .style("padding", "8px")
+                    .style("color", "white")
+                    .style("font-size", d => {{
+                        const width = d.x1 - d.x0;
+                        const height = d.y1 - d.y0;
+                        if (width > 100 && height > 60) return "14px";
+                        if (width > 60 && height > 40) return "12px";
+                        return "10px";
+                    }})
+                    .style("text-shadow", "1px 1px 2px rgba(0,0,0,0.5)")
+                    .style("line-height", "1.3")
+                    .html(d => {{
+                        const width = d.x1 - d.x0;
+                        const height = d.y1 - d.y0;
+
+                        if (width > 100 && height > 100) {{
+                            return `
+                                <div style="font-weight: bold; font-size: 14px;">${{d.data.name}}</div>
+                                <div style="font-size: 10px; margin-top: 2px;">ID: ${{d.data.id}}</div>
+                                <div style="font-size: 11px; margin-top: 2px;">${{d.data.position}}</div>
+                                <div style="font-size: 10px; opacity: 0.9; margin-top: 2px;">
+                                    ${{hasIncentive(d.data) ? `✅ ${{getTranslation('orgChart.incentiveReceived', currentLanguage)}}` : `❌ ${{getTranslation('orgChart.incentiveNotReceived', currentLanguage)}}`}}
+                                </div>
+                            `;
+                        }} else if (width > 60 && height > 60) {{
+                            return `
+                                <div style="font-weight: bold; font-size: 11px;">${{d.data.name}}</div>
+                                <div style="font-size: 9px;">ID: ${{d.data.id}}</div>
+                            `;
+                        }} else if (width > 40 && height > 40) {{
+                            const names = d.data.name.split(' ');
+                            return `<div style="font-size: 10px;">${{names[names.length - 1]}}</div>`;
+                        }}
+                        return '';
+                    }});
+
+                // Tooltip 함수들
+                function showTooltip(event, d) {{
+                    const tooltip = d3.select("body").append("div")
+                        .attr("class", "treemap-tooltip")
+                        .style("position", "absolute")
+                        .style("padding", "12px")
+                        .style("background", "rgba(0, 0, 0, 0.9)")
+                        .style("color", "white")
+                        .style("border-radius", "8px")
+                        .style("font-size", "14px")
+                        .style("pointer-events", "none")
+                        .style("opacity", 0)
+                        .style("z-index", 1000);
+
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+
+                    tooltip.html(`
+                        <strong>${{d.data.name}}</strong><br/>
+                        ID: ${{d.data.id}}<br/>
+                        직위: ${{d.data.position}}<br/>
+                        타입: ${{d.data.type}}<br/>
+                        인센티브: ${{hasIncentive(d.data) ?
+                            parseIncentive(d.data.incentive).toLocaleString() + ' VND ✅' :
+                            '미수령 ❌'}}
+                    `)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                }}
+
+                function hideTooltip() {{
+                    d3.selectAll(".treemap-tooltip").remove();
+                }}
+
+                // Breadcrumb 업데이트
+                updateBreadcrumb("Treemap 시각화");
+
+            }} catch (error) {{
+                console.error("트리맵 생성 오류:", error);
+                treemapDiv.append("div")
+                    .style("text-align", "center")
+                    .style("padding", "20px")
+                    .text("트리맵 생성 중 오류가 발생했습니다: " + error.message);
+            }}
+        }}
+
+        function drawVerticalTree() {{
+            console.log('Vertical tree deprecated - using collapsible tree');
+            return;
+
+            const container = d3.select("#orgChartContainer");
+            if (!container.node()) {{
+                console.error('Container not found in drawVerticalTree');
+                return;
+            }}
+            const containerWidth = container.node().getBoundingClientRect().width;
+            console.log('Container width in drawVerticalTree:', containerWidth);
+            const width = Math.max(6000, containerWidth); // 더 넓게 설정하여 오버랩 방지
+            const height = 3000; // 더 높게 설정하여 충분한 공간 확보
+            const margin = {{ top: 120, right: 200, bottom: 200, left: 200 }};
+
+            const svg = d3.select("#orgChartSvg")
+                .style("display", "block")  // SVG 다시 표시
+                .attr("width", width)
+                .attr("height", height);
+
+            // Breadcrumb 업데이트
+            updateBreadcrumb("수직 트리 (기본)");
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${{width / 2}},${{margin.top}})`); // 중앙 정렬
+
+            // 데이터 준비
+            let hierarchyData;
+            try {{
+                hierarchyData = prepareHierarchyData();
+                console.log('Hierarchy data prepared:', hierarchyData ? hierarchyData.length : 0, 'nodes');
+            }} catch (error) {{
+                console.error('Error preparing hierarchy data:', error);
+                console.error('Stack trace:', error.stack);
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "16px")
+                    .style("fill", "#dc3545")
+                    .text("데이터 준비 중 오류: " + error.message);
+                return;
+            }}
+
+            if (!hierarchyData || hierarchyData.length === 0) {{
+                console.error('No hierarchy data available');
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "16px")
+                    .style("fill", "#dc3545")
+                    .text("조직도 데이터를 불러올 수 없습니다. 데이터를 확인해주세요.");
+                return;
+            }}
+
+            // D3 계층 구조 생성
+            try {{
+                console.log('Creating D3 hierarchy...');
+                console.log('Hierarchy data length:', hierarchyData.length);
+                if (hierarchyData.length > 0) {{
+                    console.log('Sample nodes:', hierarchyData.slice(0, 3));
+                }}
+
+                const stratify = d3.stratify()
+                    .id(d => d.id)
+                    .parentId(d => d.parentId);
+
+                orgChartRoot = stratify(hierarchyData);
+                console.log('Root created with', orgChartRoot.descendants().length, 'descendants');
+
+                // 수직 트리 레이아웃 생성 - nodeSize 사용으로 더 유연한 간격
+                const treeLayout = d3.tree()
+                    .nodeSize([250, 200]) // [수평 간격, 수직 간격] - 크게 증가시켜 오버랩 방지
+                    .separation((a, b) => {{
+                        // Inspector 레벨에서는 훨씬 더 넓은 간격
+                        const aIsInspector = a.data.position && a.data.position.includes('INSPECTOR');
+                        const bIsInspector = b.data.position && b.data.position.includes('INSPECTOR');
+
+                        if (aIsInspector || bIsInspector) {{
+                            return 3.0; // Inspector는 3배 간격으로 더 넓게
+                        }}
+
+                        // Line Leader도 더 넓게
+                        const aIsLineLeader = a.data.position && a.data.position.includes('LINE LEADER');
+                        const bIsLineLeader = b.data.position && b.data.position.includes('LINE LEADER');
+
+                        if (aIsLineLeader || bIsLineLeader) {{
+                            return 2.5; // Line Leader는 2.5배 간격
+                        }}
+
+                        // Supervisor 레벨
+                        const aIsSupervisor = a.data.position && a.data.position.includes('SUPERVISOR');
+                        const bIsSupervisor = b.data.position && b.data.position.includes('SUPERVISOR');
+
+                        if (aIsSupervisor || bIsSupervisor) {{
+                            return 2.0;
+                        }}
+
+                        if (a.parent === b.parent) return 1.8; // 같은 부모 노드들도 간격 증가
+                        return 2.0; // 기본 간격도 증가
+                    }});
+
+                treeLayout(orgChartRoot);
+
+                // Inspector 레벨 노드들을 그리드 형태로 재배치
+                const inspectorNodes = orgChartRoot.descendants().filter(d =>
+                    d.data.position && d.data.position.includes('INSPECTOR')
+                );
+
+                if (inspectorNodes.length > 0) {{
+                    // Inspector들을 부모별로 그룹화
+                    const inspectorsByParent = {{}};
+                    inspectorNodes.forEach(node => {{
+                        const parentId = node.parent ? node.parent.data.id : 'root';
+                        if (!inspectorsByParent[parentId]) {{
+                            inspectorsByParent[parentId] = [];
+                        }}
+                        inspectorsByParent[parentId].push(node);
+                    }});
+
+                    // 각 그룹 내에서 Inspector들을 여러 줄로 배치
+                    Object.keys(inspectorsByParent).forEach(parentId => {{
+                        const group = inspectorsByParent[parentId];
+                        const maxPerRow = 8; // 한 줄에 최대 8명
+
+                        group.forEach((node, index) => {{
+                            const row = Math.floor(index / maxPerRow);
+                            const col = index % maxPerRow;
+                            const groupCenter = group[0].parent ? group[0].parent.x : 0;
+
+                            // 수평 위치: 그룹 중앙을 기준으로 배치
+                            const totalWidth = Math.min(maxPerRow, group.length) * 100;
+                            const startX = groupCenter - totalWidth / 2;
+                            node.x = startX + col * 100;
+
+                            // 수직 위치: 행에 따라 조정
+                            if (row > 0) {{
+                                node.y = node.y + row * 100;
+                            }}
+                        }});
+                    }});
+                }}
+
+                // 링크 그리기 - 수직 연결선
+                const link = g.selectAll(".link")
+                    .data(orgChartRoot.links())
+                    .enter().append("g")
+                    .attr("class", "link");
+
+                // 계단식 연결선 (더 명확한 계층 표현)
+                link.append("path")
+                    .attr("fill", "none")
+                    .attr("stroke", "#999")
+                    .attr("stroke-width", 2)
+                    .attr("d", d => {{
+                        // 수직 계단식 경로
+                        const sourceX = d.source.x - width / 2 + margin.left;
+                        const sourceY = d.source.y;
+                        const targetX = d.target.x - width / 2 + margin.left;
+                        const targetY = d.target.y;
+                        const midY = (sourceY + targetY) / 2;
+
+                        return `M ${{sourceX}} ${{sourceY}}
+                                L ${{sourceX}} ${{midY}}
+                                L ${{targetX}} ${{midY}}
+                                L ${{targetX}} ${{targetY}}`;
+                    }});
+
+                // 노드 그룹 생성
+                const node = g.selectAll(".node")
+                    .data(orgChartRoot.descendants())
+                    .enter().append("g")
+                    .attr("class", "node")
+                    .attr("transform", d => `translate(${{d.x - width / 2 + margin.left}},${{d.y}})`)
+                    .on("mouseover", showTooltip)
+                    .on("mouseout", hideTooltip)
+                    .on("click", nodeClick);
+
+                // 노드 박스 그리기 (인센티브 여부에 따라 색상 변경)
+                node.append("rect")
+                    .attr("width", 180)  // 박스 폭 더 크게 (ID 추가를 위해)
+                    .attr("height", 90)  // 박스 높이 더 크게
+                    .attr("x", -90)
+                    .attr("y", -45)
+                    .attr("fill", d => {{
+                        const baseColor = getNodeColor(d.data);
+                        // 인센티브 수령 여부에 따라 색상 조정
+                        if (hasIncentive(d.data)) {{
+                            return baseColor; // 원래 색상 유지
+                        }} else {{
+                            return baseColor + "40"; // 40% 투명도로 희미하게
+                        }}
+                    }})
+                    .attr("stroke", d => hasIncentive(d.data) ? "#28a745" : "#dc3545")
+                    .attr("stroke-width", 3)
+                    .attr("rx", 5)
+                    .attr("ry", 5)
+                    .style("filter", "drop-shadow(2px 2px 4px rgba(0,0,0,0.2))");
+
+                // 직급 텍스트
+                node.append("text")
+                    .attr("dy", "-22px")  // 상단 위치
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "11px")
+                    .style("font-weight", "bold")
+                    .style("fill", "white")
+                    .text(d => d.data.position);
+
+                // 이름 텍스트
+                node.append("text")
+                    .attr("dy", "0px")  // 중간 위치
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "12px")
+                    .style("fill", "white")
+                    .style("font-weight", "bold")
+                    .text(d => d.data.name);
+
+                // ID 텍스트 추가
+                node.append("text")
+                    .attr("dy", "22px")  // 하단 위치
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "10px")
+                    .style("fill", "white")
+                    .text(d => `ID: ${{d.data.id}}`);
+
+                // 줌 및 패닝 기능 추가
+                currentZoomBehavior = d3.zoom()
+                    .scaleExtent([0.1, 3])  // 더 작게 축소 가능
+                    .on("zoom", (event) => {{
+                        g.attr("transform", event.transform);
+                    }});
+
+                svg.call(currentZoomBehavior);
+
+                // 초기 줌 레벨 설정 (전체가 보이도록) - 더 작게
+                const initialScale = 0.4;  // 더 작은 초기 줌 (전체 조직도가 보이도록)
+                svg.call(currentZoomBehavior.transform, d3.zoomIdentity
+                    .translate(width / 2, margin.top)
+                    .scale(initialScale));
+
+            }} catch (error) {{
+                console.error("조직도 생성 오류:", error);
+                console.error("Error details:", error.message);
+                console.error("Error stack:", error.stack);
+                console.error("Problematic data sample:", hierarchyData ? hierarchyData.slice(0, 5) : 'No data');
+
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
+                    .attr("text-anchor", "middle")
+                    .text("조직도 생성 중 오류가 발생했습니다: " + error.message);
+            }}
+        }}
+
+        function prepareHierarchyData() {{
+            console.log('Preparing organization hierarchy data...');
+            console.log('Total employees:', employeeData.length);
+
+            // 먼저 데이터가 비어있는지 확인
+            if (!employeeData || employeeData.length === 0) {{
+                console.error('No employee data available!');
+                return [];
+            }}
+
+            // 첫 몇 명의 직원 데이터 확인
+            console.log('First employee sample:', employeeData[0]);
+
+            // 제외할 포지션 정의
+            const excludedPositions = ['MODEL MASTER', 'AUDIT & TRAINING TEAM', 'AQL INSPECTOR'];
+
+            // TYPE-1 직원 중 특정 포지션 제외
+            const type1Employees = employeeData.filter(e =>
+                e.type === 'TYPE-1' &&
+                !excludedPositions.includes(e.position)
+            );
+            console.log('TYPE-1 employees (excluding excluded positions):', type1Employees.length);
+
+            // 전략 결정: TYPE-1이 너무 적으면 전체 조직도 표시
+            let useAllEmployees = false;
+            let requiredIds = new Set();
+
+            if (type1Employees.length < 5) {{
+                console.log('Too few TYPE-1 employees, showing full organization chart');
+                useAllEmployees = true;
+
+                // 모든 직원 추가 (제외 포지션 제외)
+                employeeData.forEach(emp => {{
+                    if (!excludedPositions.includes(emp.position)) {{
+                        requiredIds.add(emp.emp_no);
+                    }}
+                }});
+            }} else {{
+                // TYPE-1 직원들을 먼저 추가
+                type1Employees.forEach(emp => {{
+                    requiredIds.add(emp.emp_no);
+                }});
+
+                // 상사 체인을 재귀적으로 추가 (실제 존재하는 직원만)
+                const addBossChain = (empId) => {{
+                    const emp = employeeData.find(e => e.emp_no === empId);
+                    if (!emp) return;
+
+                    if (emp.boss_id && emp.boss_id !== '' && emp.boss_id !== 'nan' && emp.boss_id !== '0') {{
+                        // 상사가 실제로 employeeData에 존재하는지 확인
+                        const bossExists = employeeData.some(e => e.emp_no === emp.boss_id);
+
+                        if (bossExists && !requiredIds.has(emp.boss_id)) {{
+                            requiredIds.add(emp.boss_id);
+                            addBossChain(emp.boss_id); // 재귀적으로 상사의 상사 추가
+                        }} else if (!bossExists) {{
+                            console.log(`Boss ID ${{emp.boss_id}} not found in data for employee ${{emp.name}} (${{emp.emp_no}})`);
+                        }}
+                    }}
+                }};
+
+                // 모든 TYPE-1 직원의 상사 체인 추가
+                type1Employees.forEach(emp => {{
+                    addBossChain(emp.emp_no);
+                }});
+            }}
+
+            console.log('Total required nodes:', requiredIds.size, useAllEmployees ? '(showing all employees)' : '(TYPE-1 + bosses)');
+
+            // 디버깅: 첫 5개 직원 데이터 확인
+            if (employeeData.length > 0) {{
+                console.log('Sample employee data:', employeeData.slice(0, 5).map(e => ({{
+                    name: e.name,
+                    position: e.position,
+                    boss_id: e.boss_id,
+                    boss_name: e.boss_name
+                }})));
+            }}
+
+            const data = [];
+            const employeeById = {{}};
+
+            // 직원 ID 맵 생성 (빈 데이터 필터링)
+            employeeData.forEach(emp => {{
+                // nan이거나 빈 emp_no는 제외
+                if (emp.emp_no && emp.emp_no !== 'nan' && emp.emp_no !== '') {{
+                    employeeById[emp.emp_no] = emp;
+                }}
+            }});
+
+            // 모든 직원을 노드로 추가 (실제 boss_id 사용)
+            let noParentCount = 0;
+            let hasParentCount = 0;
+
+            employeeData.forEach(emp => {{
+                // 빈 데이터 건너뛰기
+                if (!emp.emp_no || emp.emp_no === 'nan' || emp.emp_no === '') {{
+                    return;
+                }}
+
+                // 제외할 포지션이면 건너뛰기
+                if (excludedPositions.includes(emp.position)) {{
+                    console.log(`Excluding ${{emp.name}} (${{emp.position}}) from org chart`);
+                    return;
+                }}
+
+                // 필요한 직원이 아니면 건너뛰기 (TYPE-1이거나 TYPE-1의 상사 체인에 포함)
+                if (!requiredIds.has(emp.emp_no)) {{
+                    return;
+                }}
+
+                // boss_id가 있으면 사용, 없으면 boss_name으로 찾기
+                let parentId = null;
+
+                if (emp.boss_id && emp.boss_id !== '' && emp.boss_id !== 'nan' && emp.boss_id !== 'None' && emp.boss_id !== '0') {{
+                    // boss_id가 직원 목록에 있고 requiredIds에도 포함되어 있는지 확인
+                    if (employeeById[emp.boss_id] && requiredIds.has(emp.boss_id)) {{
+                        parentId = emp.boss_id;
+                    }} else if (employeeById[emp.boss_id]) {{
+                        // 상사가 존재하지만 TYPE-1 체인에 포함되지 않음
+                        console.log(`Boss ${{emp.boss_id}} exists but not in TYPE-1 chain for ${{emp.name}}`);
+                    }} else {{
+                        console.log(`Warning: Boss ${{emp.boss_id}} not found in data for ${{emp.name}}`);
+                        // 상사가 목록에 없으면 parent 없음으로 처리
+                    }}
+                }}
+
+                if (!parentId && emp.boss_name && emp.boss_name !== '') {{
+                    // boss_name으로 boss 찾기
+                    const boss = employeeData.find(e => e.name === emp.boss_name);
+                    if (boss) {{
+                        parentId = boss.emp_no;
+                    }}
+                }}
+
+                if (parentId) {{
+                    hasParentCount++;
+                }} else {{
+                    noParentCount++;
+                }}
+
+                data.push({{
+                    id: emp.emp_no,
+                    name: emp.name,
+                    position: emp.position || 'Unknown',
+                    type: emp.type || '',
+                    incentive: emp[dashboardMonth + '_incentive'] || '0',
+                    parentId: parentId
+                }});
+            }});
+
+            console.log(`Created ${{data.length}} nodes: ${{hasParentCount}} with parent, ${{noParentCount}} without parent`);
+
+            // 루트 노드 확인
+            const rootNodes = data.filter(d => !d.parentId);
+            console.log('Root nodes found:', rootNodes.length);
+
+            // 항상 가상 루트 생성 (조직도의 시작점)
+            const rootTitle = requiredIds.size > 100 ? "Hwaseung Organization" : "Hwaseung TYPE-1 Organization";
+            const rootSubtitle = requiredIds.size > 100 ? "Full Organization Chart" : "TYPE-1 Management";
+            data.unshift({{
+                id: "root",
+                name: rootTitle,
+                position: rootSubtitle,
+                type: "ROOT",
+                incentive: "0",
+                parentId: null
+            }});
+
+            if (rootNodes.length === 0) {{
+                console.log('No natural root found, connecting managers to virtual root...');
+                // Manager 레벨 직원들을 루트에 연결
+                const managers = data.filter(d => {{
+                    if (d.id === "root") return false;
+                    const pos = (d.position || '').toUpperCase();
+                    return pos.includes('MANAGER') && !pos.includes('A.') && !pos.includes('ASSISTANT');
+                }});
+
+                if (managers.length === 0) {{
+                    // Manager가 없으면 A.Manager를 찾음
+                    const aManagers = data.filter(d => {{
+                        if (d.id === "root") return false;
+                        const pos = (d.position || '').toUpperCase();
+                        return pos.includes('A.MANAGER') || pos.includes('ASSISTANT MANAGER');
+                    }});
+
+                    aManagers.forEach(manager => {{
+                        const idx = data.findIndex(d => d.id === manager.id);
+                        if (idx !== -1) {{
+                            data[idx].parentId = "root";
+                        }}
+                    }});
+                }} else {{
+                    managers.forEach(manager => {{
+                        const idx = data.findIndex(d => d.id === manager.id);
+                        if (idx !== -1) {{
+                            data[idx].parentId = "root";
+                        }}
+                    }});
+                }}
+            }} else {{
+                console.log(`${{rootNodes.length}} natural root nodes found, connecting to virtual root...`);
+
+                // 루트 노드들을 가상 루트에 연결
+                rootNodes.forEach(node => {{
+                    // Manager 또는 상위 직급만 루트에 직접 연결
+                    const pos = (node.position || '').toUpperCase();
+                    if (pos.includes('MANAGER') || pos.includes('SUPERVISOR') || rootNodes.length <= 5) {{
+                        const idx = data.findIndex(d => d.id === node.id);
+                        if (idx !== -1) {{
+                            data[idx].parentId = "root";
+                        }}
+                    }}
+                    // 그 외는 적절한 상위 직급 찾기
+                    else {{
+                        // 같은 타입의 상위 직급 찾기
+                        const superiors = data.filter(d => {{
+                            if (d.id === "root" || d.id === node.id) return false;
+                            const dPos = (d.position || '').toUpperCase();
+                            return dPos.includes('MANAGER') || dPos.includes('SUPERVISOR');
+                        }});
+
+                        if (superiors.length > 0) {{
+                            const idx = data.findIndex(d => d.id === node.id);
+                            if (idx !== -1) {{
+                                data[idx].parentId = superiors[0].id;
+                            }}
+                        }} else {{
+                            // 상위 직급이 없으면 루트에 연결
+                            const idx = data.findIndex(d => d.id === node.id);
+                            if (idx !== -1) {{
+                                data[idx].parentId = "root";
+                            }}
+                        }}
+                    }}
+                }});
+            }}
+
+
+
+
+            // 필터 적용
+            const typeFilterElement = document.getElementById('orgTypeFilter');
+            const incentiveFilterElement = document.getElementById('orgIncentiveFilter');
+
+            const typeFilter = typeFilterElement ? typeFilterElement.value : '';
+            const incentiveFilter = incentiveFilterElement ? incentiveFilterElement.value : '';
+
+            let filteredData = data;
+
+            if (typeFilter) {{
+                filteredData = filteredData.filter(d => d.type === typeFilter || d.id === "root");
+            }}
+
+            if (incentiveFilter === 'paid') {{
+                filteredData = filteredData.filter(d => parseIncentive(d.incentive) > 0 || d.id === "root");
+            }} else if (incentiveFilter === 'unpaid') {{
+                filteredData = filteredData.filter(d => parseIncentive(d.incentive) === 0 || d.id === "root");
+            }}
+
+            console.log('Hierarchy data prepared:', filteredData.length, 'nodes');
+            return filteredData;
+        }}
+
+        function getNodeColor(node) {{
+            const position = node.position.toUpperCase();
+            if (position.includes('MANAGER')) return '#1f77b4';
+            if (position.includes('SUPERVISOR')) return '#2ca02c';
+            if (position.includes('GROUP') && position.includes('LEADER')) return '#ff7f0e';
+            if (position.includes('LINE') && position.includes('LEADER')) return '#d62728';
+            if (position.includes('INSPECTOR')) return '#9467bd';
+            return '#8c564b';
+        }}
+
+        function showTooltip(event, d) {{
+            const tooltip = d3.select("#orgTooltip");
+            const incentive = parseIncentive(d.data.incentive);
+
+            tooltip.html(`
+                <strong>${{d.data.name}}</strong><br/>
+                사번: ${{d.data.id}}<br/>
+                직급: ${{d.data.position}}<br/>
+                Type: ${{d.data.type}}<br/>
+                인센티브: ${{incentive.toLocaleString()}} VND<br/>
+                상사: ${{d.data.boss_name || '없음'}}
+            `);
+
+            tooltip.style("visibility", "visible")
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+        }}
+
+        function hideTooltip() {{
+            d3.select("#orgTooltip").style("visibility", "hidden");
+        }}
+
+        function nodeClick(event, d) {{
+            // 노드 클릭시 해당 직원 상세 정보 표시
+            const emp = employeeData.find(e => e.emp_no === d.data.id);
+            if (emp) {{
+                showEmployeeDetail(emp);
+            }}
+        }}
+
+        function updateOrgChart() {{
+            drawOrgChart();
+        }}
+
+        function resetOrgChart() {{
+            const typeFilterElement = document.getElementById('orgTypeFilter');
+            const incentiveFilterElement = document.getElementById('orgIncentiveFilter');
+
+            if (typeFilterElement) typeFilterElement.value = '';
+            if (incentiveFilterElement) incentiveFilterElement.value = '';
+            drawOrgChart();
+        }}
+
+        function exportOrgChart() {{
+            // SVG를 이미지로 저장
+            const svg = document.getElementById('orgChartSvg');
+            const serializer = new XMLSerializer();
+            const svgStr = serializer.serializeToString(svg);
+            const svgBlob = new Blob([svgStr], {{ type: 'image/svg+xml;charset=utf-8' }});
+            const url = URL.createObjectURL(svgBlob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `organization_chart_${{new Date().toISOString().slice(0,10)}}.svg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }}
+
         window.onload = function() {{
             // 저장된 언어 설정 복원
             const savedLang = localStorage.getItem('dashboardLanguage') || 'ko';
@@ -5136,10 +9066,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             document.querySelectorAll('.tab-content').forEach(content => {{
                 content.classList.remove('active');
             }});
-            
+
             // 선택된 탭과 컨텐츠 표시
             document.querySelector(`[data-tab="${{tabName}}"]`).classList.add('active');
             document.getElementById(tabName).classList.add('active');
+
+            // 조직도 탭이면 조직도 그리기
+            if (tabName === 'orgchart') {{
+                console.log('Organization chart tab selected');
+                setTimeout(() => {{
+                    console.log('Calling drawOrgChart from showTab...');
+                    drawOrgChart();
+                }}, 100);
+            }}
         }}
         
         // 직원 테이블 생성
@@ -5148,7 +9087,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             tbody.innerHTML = '';
             
             employeeData.forEach(emp => {{
-                const amount = parseInt(emp.august_incentive);
+                const amount = parseInt(emp[dashboardMonth + '_incentive']);
                 const isPaid = amount > 0;
                 const tr = document.createElement('tr');
                 tr.style.cursor = 'pointer';
@@ -5210,7 +9149,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                 
                 positionData[key].total++;
                 positionData[key].employees.push(emp);
-                const amount = parseInt(emp.august_incentive) || 0;
+                const amount = parseInt(emp[dashboardMonth + '_incentive']) || 0;
                 if (amount > 0) {{
                     positionData[key].paid++;
                     positionData[key].totalAmount += amount;
@@ -5342,8 +9281,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             
             // 요약 통계 계산
             const totalEmployees = employees.length;
-            const paidEmployees = employees.filter(e => parseInt(e.august_incentive) > 0).length;
-            const avgIncentive = Math.round(employees.reduce((sum, e) => sum + parseInt(e.august_incentive), 0) / totalEmployees);
+            const paidEmployees = employees.filter(e => parseInt(e[dashboardMonth + '_incentive']) > 0).length;
+            const avgIncentive = Math.round(employees.reduce((sum, e) => sum + parseInt(e[dashboardMonth + '_incentive']), 0) / totalEmployees);
             const paidRate = Math.round(paidEmployees/totalEmployees*100);
             
             // 조건 ID를 번역 키로 매핑
@@ -5361,8 +9300,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             }};
             
             // 실제 인센티브 기준으로 통계 계산 (방안 2 적용)
-            const actualPassCount = employees.filter(emp => parseInt(emp.august_incentive) > 0).length;
-            const actualFailCount = employees.filter(emp => parseInt(emp.august_incentive) === 0).length;
+            const actualPassCount = employees.filter(emp => parseInt(emp[dashboardMonth + '_incentive']) > 0).length;
+            const actualFailCount = employees.filter(emp => parseInt(emp[dashboardMonth + '_incentive']) === 0).length;
 
             // 각 직원의 조건 충족 통계 계산 (참고용 유지)
             const conditionStats = {{}};
@@ -5397,7 +9336,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             }}
             
             // 인센티브 통계 계산
-            const incentiveAmounts = employees.map(emp => parseInt(emp.august_incentive)).filter(amt => amt > 0);
+            const incentiveAmounts = employees.map(emp => parseInt(emp[dashboardMonth + '_incentive'])).filter(amt => amt > 0);
             const maxIncentive = incentiveAmounts.length > 0 ? Math.max(...incentiveAmounts) : 0;
             const minIncentive = incentiveAmounts.length > 0 ? Math.min(...incentiveAmounts) : 0;
             const medianIncentive = incentiveAmounts.length > 0 ? 
@@ -5537,7 +9476,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             `;
             
             employees.forEach(emp => {{
-                const amount = parseInt(emp.august_incentive);
+                const amount = parseInt(emp[dashboardMonth + '_incentive']);
                 const isPaid = amount > 0;
                 modalContent += `
                     <tr class="employee-row ${{isPaid ? 'paid-row' : 'unpaid-row'}}" data-emp-no="${{emp.emp_no}}" style="cursor: pointer;">
@@ -5786,7 +9725,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
-                            <div class="stat-value">${{parseInt(emp.august_incentive).toLocaleString()}} VND</div>
+                            <div class="stat-value">${{parseInt(emp[dashboardMonth + '_incentive']).toLocaleString()}} VND</div>
                             <div class="stat-label">${{getTranslation('modal.incentiveInfo.amount')}}</div>
                         </div>
                     </div>
@@ -5812,17 +9751,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
                         <div class="card">
                             <div class="card-body">
                                 <h6 class="card-title">` + getTranslation('modal.detailPopup.paymentStatus', currentLanguage) + `</h6>
-                                <div class="payment-status ${{parseInt(emp.august_incentive) > 0 ? 'paid' : 'unpaid'}}">
-                                    ${{parseInt(emp.august_incentive) > 0 ? `
+                                <div class="payment-status ${{parseInt(emp[dashboardMonth + '_incentive']) > 0 ? 'paid' : 'unpaid'}}">
+                                    ${{parseInt(emp[dashboardMonth + '_incentive']) > 0 ? `
                                     <div>
                                         <i class="fas fa-check-circle"></i>
                                         <h5>` + getTranslation('modal.payment.paid', currentLanguage) + `</h5>
-                                        <p class="mb-1">${{parseInt(emp.august_incentive).toLocaleString()}} VND</p>
+                                        <p class="mb-1">${{parseInt(emp[dashboardMonth + '_incentive']).toLocaleString()}} VND</p>
                                         ${{emp.Talent_Pool_Member === 'Y' ? `
                                         <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px; border-radius: 8px; margin-top: 10px;">
                                             <small style="color: white; font-weight: bold;">
                                                 🌟 Talent Pool 보너스 포함<br>
-                                                기본: ${{(parseInt(emp.august_incentive) - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()}} VND<br>
+                                                기본: ${{(parseInt(emp[dashboardMonth + '_incentive']) - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()}} VND<br>
                                                 보너스: +${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND
                                             </small>
                                         </div>` : ''}}
@@ -5983,7 +9922,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8):
             tbody.innerHTML = '';
             
             employeeData.forEach(emp => {{
-                const amount = parseInt(emp.august_incentive);
+                const amount = parseInt(emp[dashboardMonth + '_incentive']);
                 const isPaid = amount > 0;
                 
                 // 필터 조건 확인
@@ -6147,8 +10086,13 @@ def main():
     # 동적 인센티브 컬럼 찾기
     incentive_col = f'{month_name}_incentive'
     if incentive_col not in df.columns:
-        # august_incentive 컬럼명 사용 (하드코딩된 경우)
-        incentive_col = 'august_incentive'
+        # 대체 컬럼명 시도
+        print(f"⚠️ {incentive_col} 컬럼을 찾을 수 없습니다. 사용 가능한 컬럼을 확인합니다.")
+        # 가장 최근 월의 인센티브 컬럼을 찾음
+        possible_cols = [col for col in df.columns if '_incentive' in col.lower() or '_Incentive' in col]
+        if possible_cols:
+            incentive_col = possible_cols[-1]  # 가장 마지막 인센티브 컬럼 사용
+            print(f"   → {incentive_col} 컬럼을 사용합니다.")
     
     paid_employees = sum(1 for _, row in df.iterrows() if int(row.get(incentive_col, 0)) > 0)
     total_amount = sum(int(row.get(incentive_col, 0)) for _, row in df.iterrows())

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Organization Chart Test</title>
+    <meta charset="UTF-8">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .node circle {
+            cursor: pointer;
+        }
+        .node text {
+            font-size: 12px;
+        }
+        #orgChartContainer {
+            width: 100%;
+            height: 800px;
+            overflow: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Organization Chart Test</h2>
+
+    <div id="orgChartContainer">
+        <svg id="orgChartSvg"></svg>
+    </div>
+
+    <div id="log" style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+        <h3>Debug Log:</h3>
+        <pre id="logContent"></pre>
+    </div>
+
+    <script>
+        const logContent = document.getElementById('logContent');
+        function log(msg) {
+            logContent.textContent += msg + '\n';
+            console.log(msg);
+        }
+
+        // Test data
+        const testData = [
+            { id: "root", name: "Organization", position: "ROOT", parentId: null },
+            { id: "sm1", name: "S.Manager Kim", position: "S.MANAGER", parentId: "root" },
+            { id: "m1", name: "Manager Lee", position: "MANAGER", parentId: "sm1" },
+            { id: "m2", name: "Manager Park", position: "MANAGER", parentId: "sm1" },
+            { id: "am1", name: "A.Manager Choi", position: "A.MANAGER", parentId: "m1" },
+            { id: "am2", name: "A.Manager Jung", position: "A.MANAGER", parentId: "m1" },
+            { id: "sv1", name: "Supervisor Kim", position: "SUPERVISOR", parentId: "am1" },
+            { id: "gl1", name: "Group Leader Park", position: "GROUP LEADER", parentId: "sv1" },
+            { id: "ll1", name: "Line Leader Lee", position: "LINE LEADER", parentId: "gl1" }
+        ];
+
+        log('Test data created: ' + testData.length + ' nodes');
+
+        // Draw org chart
+        function drawOrgChart() {
+            const container = d3.select("#orgChartContainer");
+            const width = container.node().getBoundingClientRect().width;
+            const height = 800;
+            const margin = { top: 40, right: 120, bottom: 40, left: 120 };
+
+            log('Container width: ' + width);
+
+            // Clear existing SVG
+            d3.select("#orgChartSvg").selectAll("*").remove();
+
+            // Setup SVG
+            const svg = d3.select("#orgChartSvg")
+                .attr("width", width)
+                .attr("height", height);
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            try {
+                // Create hierarchy
+                const stratify = d3.stratify()
+                    .id(d => d.id)
+                    .parentId(d => d.parentId);
+
+                const root = stratify(testData);
+                log('Hierarchy created: ' + root.descendants().length + ' nodes');
+
+                // Create tree layout
+                const treeLayout = d3.tree()
+                    .size([height - margin.top - margin.bottom, width - margin.left - margin.right]);
+
+                treeLayout(root);
+                log('Tree layout applied');
+
+                // Draw links
+                const links = g.selectAll(".link")
+                    .data(root.links())
+                    .enter().append("path")
+                    .attr("class", "link")
+                    .attr("fill", "none")
+                    .attr("stroke", "#ccc")
+                    .attr("stroke-width", 2)
+                    .attr("d", d3.linkHorizontal()
+                        .x(d => d.y)
+                        .y(d => d.x));
+                log('Links drawn: ' + root.links().length);
+
+                // Draw nodes
+                const node = g.selectAll(".node")
+                    .data(root.descendants())
+                    .enter().append("g")
+                    .attr("class", "node")
+                    .attr("transform", d => `translate(${d.y},${d.x})`);
+
+                // Add circles
+                node.append("circle")
+                    .attr("r", d => d.children ? 8 : 6)
+                    .attr("fill", d => {
+                        const position = d.data.position.toUpperCase();
+                        if (position.includes('MANAGER')) return '#1f77b4';
+                        if (position.includes('SUPERVISOR')) return '#2ca02c';
+                        if (position.includes('GROUP') && position.includes('LEADER')) return '#ff7f0e';
+                        if (position.includes('LINE') && position.includes('LEADER')) return '#d62728';
+                        return '#8c564b';
+                    })
+                    .attr("stroke", "#333")
+                    .attr("stroke-width", 2);
+
+                // Add text
+                node.append("text")
+                    .attr("dy", ".31em")
+                    .attr("x", d => d.children ? -12 : 12)
+                    .style("text-anchor", d => d.children ? "end" : "start")
+                    .style("font-size", "12px")
+                    .text(d => d.data.name);
+
+                log('Nodes drawn: ' + root.descendants().length);
+                log('Organization chart rendered successfully!');
+
+            } catch (error) {
+                log('ERROR: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        // Draw the chart
+        drawOrgChart();
+    </script>
+</body>
+</html>
