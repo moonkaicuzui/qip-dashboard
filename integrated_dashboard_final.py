@@ -248,116 +248,49 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             # 담당구역 매핑 로드
             area_mapping = load_area_mapping()
             
-            # AQL 데이터 로드 및 병합
-            aql_file = f"input_files/AQL history/1.HSRG AQL REPORT-{month.upper()}.{year}.csv"
-            if os.path.exists(aql_file):
-                print(f"✅ AQL 데이터 로드: {aql_file}")
-                aql_df = pd.read_csv(aql_file, encoding='utf-8-sig')
-                
-                # Employee NO 기준으로 FAIL 집계
-                aql_df['EMPLOYEE NO'] = aql_df['EMPLOYEE NO'].fillna(0).astype(float).astype(int).astype(str).str.zfill(9)
-                
-                # 각 직원별 실패 건수 계산
-                aql_summary = aql_df[aql_df['RESULT'] == 'FAIL'].groupby('EMPLOYEE NO').size().reset_index(name='aql_failures')
-                aql_summary.columns = ['emp_no', 'aql_failures']
-                
-                # Building별 통계 계산
-                if 'BUILDING' in aql_df.columns:
-                    building_stats = aql_df.groupby('BUILDING')['RESULT'].apply(
-                        lambda x: (x == 'FAIL').sum() / len(x) * 100
-                    ).to_frame('area_reject_rate')
-                    
-                    total_reject_rate = (aql_df['RESULT'] == 'FAIL').mean() * 100
-                    
-                    # 3개월 연속 실패 체크
-                    building_consecutive_fail = check_consecutive_failures(
-                        month, year, 'BUILDING', 'input_files/AQL history'
-                    )
-                    
-                    # 직원별 담당구역 매핑 및 계산
-                    if area_mapping:
-                        emp_area_stats = [
-                            calculate_employee_area_stats(
-                                str(emp_no).zfill(9), area_mapping, building_stats, 
-                                building_consecutive_fail, total_reject_rate, aql_df
-                            )
-                            for emp_no in df['emp_no'].unique()
-                        ]
-                    
-                    # DataFrame으로 변환
-                    if emp_area_stats:
-                        emp_area_df = pd.DataFrame(emp_area_stats)
-                        aql_summary = aql_summary.merge(emp_area_df, on='emp_no', how='left')
-                    
-                    # NaN 값 처리
-                    if 'area_reject_rate' not in aql_summary.columns:
-                        aql_summary['area_reject_rate'] = 0
-                    if 'area_consecutive_fail' not in aql_summary.columns:
-                        aql_summary['area_consecutive_fail'] = 'NO'
-                    
-                    aql_summary['area_reject_rate'] = aql_summary['area_reject_rate'].fillna(0)
-                    aql_summary['area_consecutive_fail'] = aql_summary['area_consecutive_fail'].fillna('NO')
-                
-                # 개인별 3개월 연속 실패 체크
-                continuous_fail_dict = check_consecutive_failures(
-                    month, year, 'EMPLOYEE NO', 'input_files/AQL history', is_employee=True
-                )
-                
-                # DataFrame과 병합
-                df['emp_no'] = df['emp_no'].astype(str).str.zfill(9)
-                df = df.merge(aql_summary, on='emp_no', how='left')
-                
-                # NaN 값을 0으로 채우기
-                df['aql_failures'] = df['aql_failures'].fillna(0).astype(int)
-                df['area_reject_rate'] = df['area_reject_rate'].fillna(0)
-                df['area_consecutive_fail'] = df['area_consecutive_fail'].fillna('NO')
-                
-                # 3개월 연속 실패 정보 추가
-                df['continuous_fail'] = df['emp_no'].map(continuous_fail_dict).fillna('NO')
-                
-                print(f"✅ AQL 데이터 병합 완료: {len(aql_summary)}명 실패 기록")
-                print(f"   - 팀/구역 reject rate 데이터 포함")
+            # Single Source of Truth: AQL 데이터는 이미 Excel에 포함됨
+            # Excel의 데이터를 그대로 사용 (별도 CSV 로드 없음)
+            print("✅ AQL 데이터: Excel 파일에서 직접 사용 (Single Source of Truth)")
+
+            # Excel에 이미 있는 AQL 관련 컬럼들 확인 및 매핑
+            if 'September AQL Failures' in df.columns:
+                df['aql_failures'] = df['September AQL Failures'].fillna(0).astype(int)
             else:
-                print(f"⚠️ AQL 데이터 파일이 없습니다: {aql_file}")
                 df['aql_failures'] = 0
-                df['continuous_fail'] = 'NO'
-                df['area_reject_rate'] = 0
-                df['area_consecutive_fail'] = 'NO'
-            
-            # 5PRS 데이터 로드 및 병합
-            prs_file = f"input_files/5prs data {month.lower()}.csv"
-            if os.path.exists(prs_file):
-                print(f"✅ 5PRS 데이터 로드: {prs_file}")
-                prs_df = pd.read_csv(prs_file, encoding='utf-8-sig')
-                
-                # TQC ID 기준으로 집계
-                prs_summary = prs_df.groupby('TQC ID').agg({
-                    'Valiation Qty': 'sum',
-                    'Pass Qty': 'sum'
-                }).reset_index()
-                
-                prs_summary.columns = ['emp_no', 'validation_qty', 'pass_qty']
-                prs_summary['emp_no'] = prs_summary['emp_no'].astype(str)
-                
-                # Pass rate 계산
-                prs_summary['pass_rate'] = 0.0
-                mask = prs_summary['validation_qty'] > 0
-                prs_summary.loc[mask, 'pass_rate'] = (prs_summary.loc[mask, 'pass_qty'] / prs_summary.loc[mask, 'validation_qty']) * 100
-                
-                # DataFrame과 병합
-                df['emp_no'] = df['emp_no'].astype(str)
-                df = df.merge(prs_summary[['emp_no', 'pass_rate', 'validation_qty']], 
-                            on='emp_no', how='left')
-                
-                # NaN 값을 0으로 채우기
-                df['pass_rate'] = df['pass_rate'].fillna(0)
-                df['validation_qty'] = df['validation_qty'].fillna(0)
-                
-                print(f"✅ 5PRS 데이터 병합 완료: {len(prs_summary)}명 데이터")
+
+            if 'Continuous_FAIL' in df.columns:
+                df['continuous_fail'] = df['Continuous_FAIL'].fillna('NO')
             else:
-                print(f"⚠️ 5PRS 데이터 파일이 없습니다: {prs_file}")
+                df['continuous_fail'] = 'NO'
+
+            if 'Area_Reject_Rate' in df.columns:
+                df['area_reject_rate'] = df['Area_Reject_Rate'].fillna(0)
+            else:
+                df['area_reject_rate'] = 0
+
+            # area_consecutive_fail은 Excel에 없으면 기본값 사용
+            df['area_consecutive_fail'] = 'NO'  # Excel에 이 컬럼이 없으므로 기본값
+
+            print(f"   - AQL 실패 기록이 있는 직원: {(df['aql_failures'] > 0).sum()}명")
+            print(f"   - 3개월 연속 실패: {(df['continuous_fail'] == 'YES').sum()}명")
+            
+            # Single Source of Truth: 5PRS 데이터는 이미 Excel에 포함됨
+            # Excel의 데이터를 그대로 사용 (별도 CSV 로드 없음)
+            print("✅ 5PRS 데이터: Excel 파일에서 직접 사용 (Single Source of Truth)")
+
+            # Excel에 이미 있는 5PRS 관련 컬럼들 확인 및 매핑
+            if '5PRS_Pass_Rate' in df.columns:
+                df['pass_rate'] = df['5PRS_Pass_Rate'].fillna(0)
+            else:
                 df['pass_rate'] = 0
+
+            if '5PRS_Inspection_Qty' in df.columns:
+                df['validation_qty'] = df['5PRS_Inspection_Qty'].fillna(0)
+            else:
                 df['validation_qty'] = 0
+
+            print(f"   - 5PRS 검사 데이터가 있는 직원: {(df['validation_qty'] > 0).sum()}명")
+            print(f"   - 5PRS 통과율 95% 이상: {(df['pass_rate'] >= 95).sum()}명")
             
             # 출근 관련 컬럼 - Excel 데이터를 그대로 사용 (하드코딩 제거)
             # Excel이 단일 진실 소스(Single Source of Truth)
@@ -658,76 +591,16 @@ def evaluate_area_reject(emp_data):
         return rate < 3.0, f"{rate:.1f}%"
     return True, '0.0%'
 
+# Single Source of Truth: 이 함수들은 더 이상 필요하지 않음
+# Excel에서 모든 데이터가 처리되므로 Dashboard는 읽기만 함
+'''
 def check_consecutive_failures(month, year, group_col, data_path, is_employee=False):
-    """3개월 연속 실패 체크 (통합 함수)"""
-    months_map = {
-        'august': ['JUNE', 'JULY', 'AUGUST'],
-        'july': ['MAY', 'JUNE', 'JULY']
-    }
-    months_to_check = months_map.get(month.lower(), [])
-    
-    if not months_to_check:
-        return {}
-    
-    monthly_fails = {}
-    for check_month in months_to_check:
-        check_file = f"{data_path}/1.HSRG AQL REPORT-{check_month}.{year}.csv"
-        if os.path.exists(check_file):
-            month_df = pd.read_csv(check_file, encoding='utf-8-sig')
-            
-            if is_employee:
-                month_df['EMPLOYEE NO'] = month_df['EMPLOYEE NO'].fillna(0).astype(float).astype(int).astype(str).str.zfill(9)
-                fails = month_df[month_df['RESULT'] == 'FAIL'].groupby('EMPLOYEE NO').size()
-                monthly_fails[check_month] = set(fails[fails > 0].index)
-            else:
-                if group_col in month_df.columns:
-                    fails = month_df[month_df['RESULT'] == 'FAIL'][group_col].unique()
-                    monthly_fails[check_month] = set(fails)
-    
-    # 3개월 모두 실패한 항목 찾기
-    if len(monthly_fails) == 3:
-        consecutive_fails = set.intersection(*monthly_fails.values())
-        return {item: 'YES' for item in consecutive_fails}
-    
-    return {}
+    pass
 
-def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats, 
-                                 building_consecutive_fail, total_reject_rate, aql_df):
-    """직원별 담당구역 통계 계산"""
-    emp_stats = {'emp_no': emp_no_str}
-    
-    # MODEL MASTER
-    if emp_no_str in area_mapping.get('model_master', {}).get('employees', {}):
-        emp_stats['area_reject_rate'] = total_reject_rate
-        emp_stats['area_consecutive_fail'] = 'YES' if any(v == 'YES' for v in building_consecutive_fail.values()) else 'NO'
-    
-    # AUDIT & TRAINING
-    elif emp_no_str in area_mapping.get('auditor_trainer_areas', {}):
-        emp_info = area_mapping['auditor_trainer_areas'][emp_no_str]
-        for condition in emp_info.get('conditions', []):
-            for filter_item in condition.get('filters', []):
-                if filter_item.get('column') == 'BUILDING':
-                    building = filter_item.get('value')
-                    emp_stats['area_reject_rate'] = building_stats.get(building, {}).get('area_reject_rate', 0) if isinstance(building_stats, dict) else building_stats.loc[building, 'area_reject_rate'] if building in building_stats.index else 0
-                    emp_stats['area_consecutive_fail'] = building_consecutive_fail.get(building, 'NO')
-                    break
-    
-    # 기타 직원
-    else:
-        emp_df = aql_df[aql_df['EMPLOYEE NO'] == emp_no_str]
-        if not emp_df.empty and 'BUILDING' in emp_df.columns:
-            emp_building = emp_df['BUILDING'].iloc[0]
-            if emp_building and emp_building in building_stats.index:
-                emp_stats['area_reject_rate'] = building_stats.loc[emp_building, 'area_reject_rate']
-                emp_stats['area_consecutive_fail'] = building_consecutive_fail.get(emp_building, 'NO')
-            else:
-                emp_stats['area_reject_rate'] = 0
-                emp_stats['area_consecutive_fail'] = 'NO'
-        else:
-            emp_stats['area_reject_rate'] = 0
-            emp_stats['area_consecutive_fail'] = 'NO'
-    
-    return emp_stats
+def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
+                                building_consecutive_fail, total_reject_rate, aql_df):
+    pass
+'''
 
 def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None):
     """dashboard_version4.html과 완전히 동일한 대시보드 생성 - Excel 데이터 기반"""
