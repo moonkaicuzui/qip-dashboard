@@ -87,21 +87,29 @@ def create_config():
                 print(f"   📁 파일 찾음: {attendance_file}")
 
                 # Date 컬럼이 있는 경우 고유한 날짜 수 계산
-                if 'Date' in df_attendance.columns:
-                    df_attendance['Date'] = pd.to_datetime(df_attendance['Date'], errors='coerce')
-                    unique_dates = df_attendance['Date'].dropna().nunique()
-                    if unique_dates > 0:
-                        working_days = unique_dates
-                        print(f"   ✅ Attendance 파일에서 자동 계산: {working_days}일")
-                        break
-                # 날짜 컬럼이 다른 이름일 수 있음
-                elif '날짜' in df_attendance.columns:
-                    df_attendance['날짜'] = pd.to_datetime(df_attendance['날짜'], errors='coerce')
-                    unique_dates = df_attendance['날짜'].dropna().nunique()
-                    if unique_dates > 0:
-                        working_days = unique_dates
-                        print(f"   ✅ Attendance 파일에서 자동 계산: {working_days}일")
-                        break
+                date_columns = ['Date', 'Work Date', '날짜', 'date', 'DATE']
+                for date_col in date_columns:
+                    if date_col in df_attendance.columns:
+                        # 날짜 파싱 (다양한 형식 지원)
+                        df_attendance[date_col] = pd.to_datetime(
+                            df_attendance[date_col],
+                            errors='coerce',
+                            format='%Y.%m.%d' if '.' in str(df_attendance[date_col].iloc[0]) else None
+                        )
+
+                        # 해당 월의 데이터만 필터링
+                        month_data = df_attendance[
+                            (df_attendance[date_col].dt.year == year) &
+                            (df_attendance[date_col].dt.month == month_num)
+                        ]
+
+                        # 고유한 날짜 수 계산
+                        unique_dates = month_data[date_col].dropna().dt.date.nunique()
+                        if unique_dates > 0:
+                            working_days = unique_dates
+                            print(f"   ✅ Attendance 파일에서 자동 계산: {working_days}일")
+                            print(f"      (컬럼: {date_col}, {year}년 {month_num}월 데이터)")
+                            break
             except Exception as e:
                 print(f"   ⚠️ 파일 읽기 실패 ({attendance_file}): {e}")
                 continue

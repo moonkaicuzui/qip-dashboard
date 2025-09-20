@@ -1,0 +1,106 @@
+{
+  "description": "Improved Position-based condition matrix with clear policy indicators",
+  "version": "2.0.0",
+  "last_updated": "2025-01-27",
+  "improvement_notes": "Added explicit policy fields to prevent confusion between configuration and implementation",
+
+  "policy_definitions": {
+    "TYPE-1": {
+      "name": "정규직 검사원",
+      "eligible_for_incentive": true,
+      "base_amount": "150,000-1,000,000 VND",
+      "description": "조건 충족시 인센티브 지급"
+    },
+    "TYPE-2": {
+      "name": "계약직 검사원",
+      "eligible_for_incentive": true,
+      "base_amount": "150,000 VND",
+      "description": "조건 충족시 인센티브 지급"
+    },
+    "TYPE-3": {
+      "name": "신입 직원",
+      "eligible_for_incentive": false,
+      "base_amount": "0 VND",
+      "policy_status": "EXCLUDED",
+      "exclusion_reason": "신입직원 정책상 3개월간 인센티브 제외",
+      "future_eligibility": {
+        "upgrades_to": "TYPE-2",
+        "after_months": 3,
+        "auto_transition": true
+      },
+      "description": "입사 후 3개월간 인센티브 미지급, 이후 TYPE-2로 전환"
+    }
+  },
+
+  "validation_rules": {
+    "TYPE-1": {
+      "check_conditions": true,
+      "payment_requires_validation": true,
+      "skip_if_failed": false
+    },
+    "TYPE-2": {
+      "check_conditions": true,
+      "payment_requires_validation": true,
+      "skip_if_failed": false
+    },
+    "TYPE-3": {
+      "check_conditions": false,
+      "payment_requires_validation": false,
+      "skip_if_failed": true,
+      "override_payment": 0,
+      "override_reason": "POLICY_EXCLUSION"
+    }
+  },
+
+  "ui_messages": {
+    "TYPE-3": {
+      "dashboard": {
+        "ko": "신입직원 - 인센티브 제외 (3개월)",
+        "en": "New Employee - Incentive Excluded (3 months)",
+        "vi": "Nhân viên mới - Không có khuyến khích (3 tháng)"
+      },
+      "tooltip": {
+        "ko": "입사 3개월 후 TYPE-2로 전환되어 인센티브 대상이 됩니다",
+        "en": "Will be eligible for incentive after 3 months when upgraded to TYPE-2",
+        "vi": "Sẽ đủ điều kiện nhận khuyến khích sau 3 tháng khi chuyển sang TYPE-2"
+      },
+      "modal": {
+        "ko": "현재 신입직원 정책에 따라 인센티브가 지급되지 않습니다",
+        "en": "Currently not eligible for incentive due to new employee policy",
+        "vi": "Hiện không đủ điều kiện nhận khuyến khích do chính sách nhân viên mới"
+      }
+    }
+  },
+
+  "condition_consistency_check": {
+    "TYPE-3": {
+      "expected_behavior": {
+        "condition_check": "SKIP_ALL",
+        "payment_amount": 0,
+        "dashboard_display": "EXCLUDED",
+        "reason_code": "NEW_EMPLOYEE_POLICY"
+      },
+      "warnings": [
+        "If amount_range is not 0, display warning",
+        "If eligible_for_incentive is not false, display error",
+        "Log any payment attempts for TYPE-3"
+      ]
+    }
+  },
+
+  "documentation": {
+    "TYPE-3_handling": {
+      "summary": "TYPE-3 employees are completely excluded from incentive payments",
+      "implementation_notes": [
+        "Do not evaluate any conditions for TYPE-3",
+        "Always return 0 for incentive amount",
+        "Display clear exclusion message in UI",
+        "Track months for automatic upgrade to TYPE-2"
+      ],
+      "common_misunderstandings": [
+        "Empty conditions array does NOT mean 'no conditions required for payment'",
+        "It means 'skip all condition checks because payment is blocked by policy'"
+      ]
+    }
+  }
+}
