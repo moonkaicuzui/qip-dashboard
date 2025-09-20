@@ -127,9 +127,20 @@ def generate_previous_month_data(current_month='august', current_year=2025):
     prev_month_name = month_names[current_month_num - 1] if current_month_num > 0 else 'december'
     prev_year = current_year if current_month_num > 0 else current_year - 1
     
-    # Single Source of Truth: Excel 파일에 이전 월 데이터가 포함되어 있음
-    # 별도 파일 로드 불필요
-    print(f"✅ 이전 월({prev_month_name}) 데이터는 Excel의 Previous_Incentive 컬럼 사용")
+    # 이전 월 파일 확인
+    prev_patterns = [
+        f"input_files/{prev_year}년 {get_korean_month(prev_month_name)} 인센티브 지급 세부 정보.csv",
+        f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_*.csv"
+    ]
+    
+    for pattern in prev_patterns:
+        files = glob.glob(pattern)
+        if files:
+            print(f"✅ 이전 월({prev_month_name}) 데이터 발견: {files[0]}")
+            return prev_month_name, prev_year
+    
+    # 이전 월 데이터가 없으면 빈 데이터로 처리
+    print(f"⚠️ {prev_month_name} 데이터가 없습니다. 빈 데이터로 처리됩니다.")
     
     # 가짜 데이터를 생성하지 않고 빈 값으로 반환
     # 실제 데이터가 없을 때는 0 또는 빈 값으로 표시
@@ -371,34 +382,15 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     df.loc[df['Total Working Days'] == 0, 'attendance_rate'] = 0
                 else:
                     df['attendance_rate'] = 0  # 데이터 없음을 명시적으로 표시
-            # Check for column variations and normalize
             if 'actual_working_days' not in df.columns:
-                if 'Actual Working Days' in df.columns:
-                    df['actual_working_days'] = df['Actual Working Days']
-                else:
-                    missing_columns.append('actual_working_days')
-                    df['actual_working_days'] = 0  # 데이터 없음을 명시적으로 표시
-
+                missing_columns.append('actual_working_days')
+                df['actual_working_days'] = 0  # 데이터 없음을 명시적으로 표시
             if 'unapproved_absences' not in df.columns:
-                if 'Unapproved Absences' in df.columns:
-                    df['unapproved_absences'] = df['Unapproved Absences']
-                else:
-                    missing_columns.append('unapproved_absences')
-                    df['unapproved_absences'] = 0  # 데이터 없음을 명시적으로 표시
-
+                missing_columns.append('unapproved_absences')
+                df['unapproved_absences'] = 0  # 데이터 없음을 명시적으로 표시
             if 'absence_rate' not in df.columns:
-                if 'Absence Rate (raw)' in df.columns:
-                    df['absence_rate'] = df['Absence Rate (raw)']
-                else:
-                    missing_columns.append('absence_rate')
-                    df['absence_rate'] = 0  # 데이터 없음을 명시적으로 표시
-
-            # Previous_Incentive 컬럼 매핑 추가
-            if 'previous_incentive' not in df.columns:
-                if 'Previous_Incentive' in df.columns:
-                    df['previous_incentive'] = df['Previous_Incentive']
-                else:
-                    df['previous_incentive'] = 0  # 데이터 없음
+                missing_columns.append('absence_rate')
+                df['absence_rate'] = 0  # 데이터 없음을 명시적으로 표시
 
             if missing_columns:
                 print(f"⚠️ 누락된 출근 관련 컬럼: {missing_columns}")
@@ -436,21 +428,69 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 except Exception as e:
                     print(f"⚠️ JSON 설정 파일 로드 실패: {e}")
             
-            # Single Source of Truth: Excel의 Previous_Incentive 컬럼 사용
-            # 이전 월 인센티브는 Excel 파일에 이미 포함되어 있음
-            # 컬럼 이름이 이미 'previous_incentive'로 변경되었으므로 이를 확인
-            if 'previous_incentive' in df.columns:
-                # previous_incentive 컬럼을 prev_month_incentive로 매핑
-                df[f'{prev_month_name}_incentive'] = df['previous_incentive'].fillna(0).astype(str)
-                print(f"✅ Excel의 Previous_Incentive 컬럼 사용 (Single Source of Truth)")
+            # 이전 월 데이터 로드 시도 (다른 직급을 위해)
+            prev_patterns = [
+                f"input_files/{prev_year}년 {get_korean_month(prev_month_name)} 인센티브 지급 세부 정보.csv",
+                f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_*.csv"
+            ]
+            
+            prev_df = pd.DataFrame()
+            for pattern in prev_patterns:
+                prev_files = glob.glob(pattern)
+                if prev_files:
+                    try:
+                        prev_df = pd.read_csv(prev_files[0], encoding='utf-8-sig')
+                        print(f"✅ {prev_month_name} 인센티브 데이터 로드: {prev_files[0]}")
+                        break
+                    except:
+                        pass
+            
+            # 이전 월 데이터와 병합
+            if not prev_df.empty:
+                # 직원번호를 기준으로 이전 월 인센티브 매칭
+                for col in prev_df.columns:
+                    if 'employee' in col.lower() and 'no' in col.lower():
+                        prev_df.rename(columns={col: 'emp_no'}, inplace=True)
+                        break
+                
+                # 이전 월 인센티브 컬럼 찾기
+                incentive_col_found = False
+                for col in prev_df.columns:
+                    col_lower = col.lower()
+                    # 다양한 형식 처리: August_Incentive, august_incentive, Final Incentive amount 등
+                    if (f'{prev_month_name.lower()}_incentive' in col_lower or
+                        f'{prev_month_name.lower()} incentive' in col_lower or
+                        f'{prev_month_name.capitalize()}_Incentive' in col or
+                        (prev_month_name.lower() == 'august' and 'August_Incentive' in col)):
+                        prev_df.rename(columns={col: f'{prev_month_name}_incentive'}, inplace=True)
+                        incentive_col_found = True
+                        print(f"   - 이전 월 인센티브 컬럼 찾음: {col} → {prev_month_name}_incentive")
+                        break
 
-                # 실제 데이터가 있는 직원 수 확인
-                non_zero_count = (pd.to_numeric(df['previous_incentive'], errors='coerce') > 0).sum()
-                total_amount = pd.to_numeric(df['previous_incentive'], errors='coerce').sum()
-                print(f"   - {prev_month_name} 인센티브: {non_zero_count}명, 총 {total_amount:,.0f} VND")
+                # Final Incentive amount를 대체로 사용
+                if not incentive_col_found and 'Final Incentive amount' in prev_df.columns:
+                    prev_df.rename(columns={'Final Incentive amount': f'{prev_month_name}_incentive'}, inplace=True)
+                    print(f"   - Final Incentive amount를 {prev_month_name}_incentive로 사용")
+                
+                # 사번 기준으로 병합
+                if 'emp_no' in prev_df.columns and f'{prev_month_name}_incentive' in prev_df.columns:
+                    prev_df['emp_no'] = prev_df['emp_no'].astype(str)
+                    df['emp_no'] = df['emp_no'].astype(str)
+                    
+                    # 이전 월 인센티브 데이터 병합
+                    df = df.merge(
+                        prev_df[['emp_no', f'{prev_month_name}_incentive']], 
+                        on='emp_no', 
+                        how='left',
+                        suffixes=('', '_prev')
+                    )
+                    
+                    # NaN 값을 '0'으로 대체
+                    df[f'{prev_month_name}_incentive'] = df[f'{prev_month_name}_incentive'].fillna('0')
+                    print(f"✅ {prev_month_name} 인센티브 데이터 병합 완료")
+                else:
+                    df[f'{prev_month_name}_incentive'] = '0'
             else:
-                # Previous_Incentive 컬럼이 없는 경우 (이전 버전 Excel)
-                print(f"⚠️ Excel에 Previous_Incentive 컬럼이 없습니다.")
                 df[f'{prev_month_name}_incentive'] = '0'
             
             # 다른 월 인센티브도 기본값 설정
@@ -729,8 +769,8 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
     
     return emp_stats
 
-def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None):
-    """dashboard_version4.html과 완전히 동일한 대시보드 생성 - Excel 데이터 기반"""
+def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13):
+    """dashboard_version4.html과 완전히 동일한 대시보드 생성"""
 
     # 이전 월 계산
     month_map = {
@@ -828,10 +868,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             'july_incentive': str(row_dict.get('july_incentive', '0')) if 'july_incentive' in row_dict else '0',
             'september_incentive': str(row_dict.get('september_incentive', '0')) if 'september_incentive' in row_dict else '0',
             'june_incentive': str(row_dict.get('june_incentive', '0')),
-            'attendance_rate': float(row_dict.get('attendance_rate', 0) if pd.notna(row_dict.get('attendance_rate')) else 0),
-            'actual_working_days': int(row_dict.get('actual_working_days', 0) if pd.notna(row_dict.get('actual_working_days')) else 0),
-            'unapproved_absences': int(row_dict.get('unapproved_absences', 0) if pd.notna(row_dict.get('unapproved_absences')) else 0),
-            'absence_rate': float(row_dict.get('absence_rate', 0) if pd.notna(row_dict.get('absence_rate')) else 0),
+            'attendance_rate': float(row_dict.get('attendance_rate', 0)),
+            'actual_working_days': int(row_dict.get('actual_working_days', 0)),
+            'unapproved_absences': int(row_dict.get('unapproved_absences', 0)),
+            'absence_rate': float(row_dict.get('absence_rate', 0)),
             'condition1': str(row_dict.get('condition1', 'no')),
             'condition2': str(row_dict.get('condition2', 'no')),
             'condition3': str(row_dict.get('condition3', 'no')),
@@ -1019,10 +1059,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     # JavaScript용 번역 데이터 생성
     translations_js = json.dumps(TRANSLATIONS, ensure_ascii=False, indent=2)
-
-    # Excel 기반 대시보드 데이터를 JavaScript용으로 준비
-    excel_data_js = json.dumps(excel_dashboard_data, ensure_ascii=False) if excel_dashboard_data else 'null'
-
+    
     html_content = f'''<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -1033,593 +1070,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Bootstrap JavaScript Bundle with Popper (필수!) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    '''
-
-    # 모달 함수들 추가 (f-string 밖에서 정의)
-    modal_scripts = """
-    function showTotalWorkingDaysDetails() {
-        /* Excel 데이터에서 실제 근무일 정보 가져오기 (Single Source of Truth) */
-        let workDays = [];
-        let holidays = [];
-        let totalWorkingDays = 13; /* Default fallback */
-
-        if (window.excelDashboardData && window.excelDashboardData.attendance) {
-            /* 실제 출근 데이터에서 근무일과 휴일 추출 */
-            const dailyData = window.excelDashboardData.attendance.daily_data;
-            totalWorkingDays = window.excelDashboardData.attendance.total_working_days;
-
-            /* 일별 데이터 분석 */
-            for (let day = 1; day <= 19; day++) {
-                if (dailyData && dailyData[day]) {
-                    if (dailyData[day].is_working_day) {
-                        workDays.push(day);
-                    } else {
-                        holidays.push(day);
-                    }
-                } else {
-                    /* 데이터가 없는 날은 휴일로 처리 */
-                    holidays.push(day);
-                }
-            }
-            console.log('실제 근무일:', workDays);
-            console.log('휴일:', holidays);
-            console.log('총 근무일수:', totalWorkingDays);
-        } else {
-            /* Fallback: 기본 근무일 데이터 사용 */
-            console.warn('Excel 대시보드 데이터가 없습니다. 기본값 사용.');
-            workDays = [2,3,4,5,6,9,10,11,12,13,16,17,18,19];
-            holidays = [1,7,8,14,15];
-        }
-
-        /* 2025년 9월 요일 계산 (9월 1일은 월요일) */
-        const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-        const getWeekday = (day) => {
-            /* 2025년 9월 1일은 월요일(index 1) */
-            const firstDayOfWeek = 1; /* 월요일 = 1 */
-            const dayIndex = (firstDayOfWeek + day - 1) % 7;
-            return weekdays[dayIndex];
-        };
-
-        let calendarHTML = '<div class="calendar-grid">';
-        for (let day = 1; day <= 19; day++) {
-            const isWorkDay = workDays.includes(day);
-            const hasNoData = !isWorkDay;
-            const dayClass = isWorkDay ? 'work-day' : 'no-data';
-            const icon = isWorkDay ? '💼' : '❌';
-            const weekday = getWeekday(day);
-
-            /* Excel 데이터에서 해당 날짜의 출근 인원 수 가져오기 */
-            let attendanceCount = '';
-            if (isWorkDay && window.excelDashboardData && window.excelDashboardData.attendance && window.excelDashboardData.attendance.daily_data && window.excelDashboardData.attendance.daily_data[day]) {
-                const count = window.excelDashboardData.attendance.daily_data[day].count;
-                if (count > 0) {
-                    attendanceCount = `<div class="attendance-count">${count}명</div>`;
-                }
-            } else if (hasNoData) {
-                attendanceCount = `<div class="attendance-count">데이터 없음</div>`;
-            }
-
-            calendarHTML += `
-                <div class="calendar-day ${dayClass}">
-                    <div class="day-number">${day}</div>
-                    <div class="day-weekday">${weekday}요일</div>
-                    <div class="day-icon">${icon}</div>
-                    ${attendanceCount}
-                </div>
-            `;
-        }
-        calendarHTML += '</div>';
-
-        const modalContent = `
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-calendar-alt"></i> 2025년 9월 근무일 현황
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="stat-card text-center p-3 border rounded">
-                            <div class="stat-icon">💼</div>
-                            <div class="stat-label">총 근무일 (실제)</div>
-                            <div class="stat-value text-primary h3">${totalWorkingDays}일</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-card text-center p-3 border rounded">
-                            <div class="stat-icon">📅</div>
-                            <div class="stat-label">총 일수</div>
-                            <div class="stat-value text-info h3">19일</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="stat-card text-center p-3 border rounded">
-                            <div class="stat-icon">❌</div>
-                            <div class="stat-label">데이터 없음</div>
-                            <div class="stat-value text-secondary h3">${holidays.length}일</div>
-                        </div>
-                    </div>
-                </div>
-                ${calendarHTML}
-                <div class="mt-3">
-                    <span class="badge badge-primary">💼 근무일 (출근 데이터 있음)</span>
-                    <span class="badge badge-secondary">❌ 데이터 없음</span>
-                </div>
-            </div>
-        `;
-
-        let modal = document.getElementById('detailModal');
-        if (!modal) {
-            const modalHTML = `
-                <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content" id="detailModalContent"></div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            modal = document.getElementById('detailModal');
-        }
-
-        document.getElementById('detailModalContent').innerHTML = modalContent;
-
-        /* Bootstrap 5 Modal 처리 */
-        const modalElement = document.getElementById('detailModal');
-
-        // 기존 모달 인스턴스 정리
-        const existingModal = bootstrap.Modal.getInstance(modalElement);
-        if (existingModal) {
-            existingModal.dispose();
-        }
-
-        // 새 모달 인스턴스 생성 with proper options
-        const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
-            keyboard: true,      // ESC 키로 닫기
-            focus: true
-        });
-
-        bsModal.show();
-
-        // 모달 닫기 이벤트 리스너 추가
-        modalElement.addEventListener('hidden.bs.modal', function () {
-            // 모달이 닫힌 후 정리 작업
-            const backdrop = document.querySelector('.modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-            document.body.classList.remove('modal-open');
-            document.body.style.removeProperty('overflow');
-            document.body.style.removeProperty('padding-right');
-        });
-    }
-
-    function showZeroWorkingDaysDetails() {
-        // Excel 데이터 우선 사용
-        let zeroWorkingEmployees = [];
-
-        if (window.excelDashboardData && window.excelDashboardData.modal_data && window.excelDashboardData.modal_data.zero_working_days_employees) {
-            // Excel 기반 데이터 사용
-            zeroWorkingEmployees = window.excelDashboardData.modal_data.zero_working_days_employees;
-        } else if (window.employeeData) {
-            // Fallback to employeeData
-            zeroWorkingEmployees = window.employeeData.filter(emp => {
-                const actualDays = parseFloat(emp.actual_working_days || emp['Actual Working Days'] || 0);
-                return actualDays === 0;
-            });
-        }
-
-        let tableRows = '';
-        if (zeroWorkingEmployees.length === 0) {
-            tableRows = '<tr><td colspan="6" class="text-center">0일 근무자가 없습니다</td></tr>';
-        } else {
-            tableRows = zeroWorkingEmployees.map(emp => {
-                const stopDate = emp['Stop working Date'] || emp.stop_working_date || '';
-                const isResigned = stopDate && stopDate !== '' && stopDate !== 'NaN' && stopDate !== null;
-
-                return `
-                    <tr>
-                        <td>${emp['Employee No'] || emp.employee_no || ''}</td>
-                        <td>${emp['Full Name'] || emp.full_name || ''}</td>
-                        <td>${emp['QIP POSITION 1ST  NAME'] || emp.qip_position || '-'}</td>
-                        <td class="text-center">${window.excelDashboardData && window.excelDashboardData.attendance ? window.excelDashboardData.attendance.total_working_days : 15}</td>
-                        <td class="text-center">0</td>
-                        <td>
-                            <span class="badge ${isResigned ? 'badge-warning' : 'badge-danger'}">
-                                ${isResigned ? `퇴사 (${stopDate})` : '전체 결근'}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        const modalContent = `
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-exclamation-triangle"></i> 0일 근무자 상세
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>사번</th>
-                                <th>이름</th>
-                                <th>직책</th>
-                                <th>총 근무일</th>
-                                <th>실 근무일</th>
-                                <th>상태</th>
-                            </tr>
-                        </thead>
-                        <tbody>${tableRows}</tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        let modal = document.getElementById('detailModal');
-        if (!modal) {
-            const modalHTML = `
-                <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content" id="detailModalContent"></div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            modal = document.getElementById('detailModal');
-        }
-
-        document.getElementById('detailModalContent').innerHTML = modalContent;
-
-        /* Bootstrap 5 Modal 처리 */
-        const modalElement = document.getElementById('detailModal');
-
-        // 기존 모달 인스턴스 정리
-        const existingModal = bootstrap.Modal.getInstance(modalElement);
-        if (existingModal) {
-            existingModal.dispose();
-        }
-
-        // 새 모달 인스턴스 생성 with proper options
-        const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
-            keyboard: true,      // ESC 키로 닫기
-            focus: true
-        });
-
-        bsModal.show();
-
-        // 모달 닫기 이벤트 리스너 추가
-        modalElement.addEventListener('hidden.bs.modal', function () {
-            // 모달이 닫힌 후 정리 작업
-            const backdrop = document.querySelector('.modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-            document.body.classList.remove('modal-open');
-            document.body.style.removeProperty('overflow');
-            document.body.style.removeProperty('padding-right');
-        });
-    }
-
-    function showAbsentWithoutInformDetails() {
-        const absentEmployees = window.employeeData.filter(emp => {
-            const unapproved = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
-            return unapproved >= 1;
-        }).sort((a, b) => {
-            const aVal = parseFloat(a.unapproved_absences || a['Unapproved Absences'] || 0);
-            const bVal = parseFloat(b.unapproved_absences || b['Unapproved Absences'] || 0);
-            return bVal - aVal;
-        });
-
-        let tableRows = absentEmployees.map(emp => {
-            const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
-            const rowClass = days > 2 ? 'table-danger' : (days > 1 ? 'table-warning' : '');
-            const status = days > 2 ?
-                '<span class="badge badge-danger">인센티브 제외</span>' :
-                '<span class="badge badge-warning">경고</span>';
-
-            return `
-                <tr class="${rowClass}">
-                    <td>${emp.employee_no || emp['Employee No'] || ''}</td>
-                    <td>${emp.full_name || emp['Full Name'] || ''}</td>
-                    <td>${emp.qip_position || emp['QIP POSITION 1ST  NAME'] || '-'}</td>
-                    <td class="text-center">
-                        <span class="badge badge-pill badge-danger">${days}일</span>
-                    </td>
-                    <td class="text-center">${status}</td>
-                </tr>
-            `;
-        }).join('') || '<tr><td colspan="5" class="text-center">무단결근자가 없습니다</td></tr>';
-
-        const modalContent = `
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title">
-                    <i class="fas fa-user-times"></i> 무단결근 직원 상세
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>사번</th>
-                                <th>이름</th>
-                                <th>직책</th>
-                                <th class="text-center">무단결근</th>
-                                <th class="text-center">상태</th>
-                            </tr>
-                        </thead>
-                        <tbody>${tableRows}</tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        let modal = document.getElementById('detailModal');
-        if (!modal) {
-            const modalHTML = `
-                <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content" id="detailModalContent"></div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            modal = document.getElementById('detailModal');
-        }
-
-        document.getElementById('detailModalContent').innerHTML = modalContent;
-
-        /* Bootstrap 5 Modal 처리 */
-        const modalElement = document.getElementById('detailModal');
-
-        // 기존 모달 인스턴스 정리
-        const existingModal = bootstrap.Modal.getInstance(modalElement);
-        if (existingModal) {
-            existingModal.dispose();
-        }
-
-        // 새 모달 인스턴스 생성 with proper options
-        const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
-            keyboard: true,      // ESC 키로 닫기
-            focus: true
-        });
-
-        bsModal.show();
-
-        // 모달 닫기 이벤트 리스너 추가
-        modalElement.addEventListener('hidden.bs.modal', function () {
-            // 모달이 닫힌 후 정리 작업
-            const backdrop = document.querySelector('.modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-            document.body.classList.remove('modal-open');
-            document.body.style.removeProperty('overflow');
-            document.body.style.removeProperty('padding-right');
-        });
-    }
-
-    function showMinimumDaysNotMetDetails() {
-        const currentDay = new Date().getDate();
-        const minimumRequired = currentDay < 20 ? 7 : 12;
-
-        const notMetEmployees = window.employeeData.filter(emp => {
-            const actualDays = parseFloat(emp.actual_working_days || emp['Actual Working Days'] || 0);
-            return actualDays > 0 && actualDays < minimumRequired;
-        }).sort((a, b) => {
-            const aVal = parseFloat(a.actual_working_days || a['Actual Working Days'] || 0);
-            const bVal = parseFloat(b.actual_working_days || b['Actual Working Days'] || 0);
-            return aVal - bVal;
-        });
-
-        let tableRows = notMetEmployees.map(emp => {
-            const actualDays = parseFloat(emp.actual_working_days || emp['Actual Working Days'] || 0);
-            const shortage = minimumRequired - actualDays;
-            const percentage = (actualDays / minimumRequired * 100).toFixed(1);
-            const progressColor = percentage < 50 ? 'danger' : (percentage < 75 ? 'warning' : 'info');
-
-            return `
-                <tr>
-                    <td>${emp.employee_no || emp['Employee No'] || ''}</td>
-                    <td>${emp.full_name || emp['Full Name'] || ''}</td>
-                    <td>${emp.qip_position || emp['QIP POSITION 1ST  NAME'] || '-'}</td>
-                    <td class="text-center">
-                        <div class="progress" style="height: 25px;">
-                            <div class="progress-bar bg-${progressColor}" style="width: ${percentage}%">
-                                ${actualDays}일
-                            </div>
-                        </div>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge badge-primary">${minimumRequired}일</span>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge badge-danger">-${shortage}일</span>
-                    </td>
-                </tr>
-            `;
-        }).join('') || `<tr><td colspan="6" class="text-center">모든 직원이 최소 근무일(${minimumRequired}일)을 충족했습니다</td></tr>`;
-
-        const modalContent = `
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-clock"></i> 최소 근무일 미충족 직원 상세
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>사번</th>
-                                <th>이름</th>
-                                <th>직책</th>
-                                <th class="text-center">실제 근무일</th>
-                                <th class="text-center">최소 요구</th>
-                                <th class="text-center">부족</th>
-                            </tr>
-                        </thead>
-                        <tbody>${tableRows}</tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-
-        let modal = document.getElementById('detailModal');
-        if (!modal) {
-            const modalHTML = `
-                <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content" id="detailModalContent"></div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            modal = document.getElementById('detailModal');
-        }
-
-        document.getElementById('detailModalContent').innerHTML = modalContent;
-
-        /* Bootstrap 5 Modal 처리 */
-        const modalElement = document.getElementById('detailModal');
-
-        // 기존 모달 인스턴스 정리
-        const existingModal = bootstrap.Modal.getInstance(modalElement);
-        if (existingModal) {
-            existingModal.dispose();
-        }
-
-        // 새 모달 인스턴스 생성 with proper options
-        const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
-            keyboard: true,      // ESC 키로 닫기
-            focus: true
-        });
-
-        bsModal.show();
-
-        // 모달 닫기 이벤트 리스너 추가
-        modalElement.addEventListener('hidden.bs.modal', function () {
-            // 모달이 닫힌 후 정리 작업
-            const backdrop = document.querySelector('.modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-            document.body.classList.remove('modal-open');
-            document.body.style.removeProperty('overflow');
-            document.body.style.removeProperty('padding-right');
-        });
-    }
-    """
-
-    # 모달 CSS 추가
-    modal_styles = """
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 8px;
-        margin-top: 20px;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 10px;
-    }
-    .calendar-day {
-        min-height: 100px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        padding: 8px;
-        transition: all 0.2s ease;
-        position: relative;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    }
-    .calendar-day:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    .calendar-day.work-day {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-    }
-    .calendar-day.no-data {
-        background: #fff;
-        color: #868e96;
-        border: 2px dashed #dee2e6;
-    }
-    .day-number {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 2px;
-        line-height: 1;
-    }
-    .day-weekday {
-        font-size: 0.75rem;
-        font-weight: 500;
-        opacity: 0.85;
-        margin-bottom: 4px;
-        letter-spacing: -0.3px;
-    }
-    .day-icon {
-        font-size: 1.2rem;
-        margin: 4px 0;
-    }
-    .attendance-count {
-        font-size: 0.85rem !important;
-        font-weight: 600;
-        padding: 2px 8px;
-        border-radius: 12px;
-        margin-top: 3px;
-    }
-    .calendar-day.work-day .attendance-count {
-        background: rgba(255,255,255,0.25);
-        color: white !important;
-    }
-    .calendar-day.no-data .attendance-count {
-        background: rgba(108, 117, 125, 0.08);
-        color: #adb5bd !important;
-        font-size: 0.7rem !important;
-    }
-    .stat-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        border: 1px solid #e9ecef;
-        transition: all 0.2s;
-    }
-    .stat-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.12);
-    }
-    .stat-icon {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-    }
-    .stat-label {
-        color: #495057;
-        font-size: 0.95rem;
-        font-weight: 500;
-    }
-    .stat-value {
-        color: #212529;
-        font-weight: 700;
-    }
-    """
-
-    # Continue HTML content with modal scripts included
-    html_content += f'''
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
@@ -2100,42 +1550,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         .modal-backdrop {{
-            z-index: 1040 !important;
-            background-color: rgba(0, 0, 0, 0.5) !important;
-        }}
-
-        #detailModal {{
             z-index: 1050 !important;
-        }}
-
-        #detailModal .modal-dialog {{
-            z-index: 1051 !important;
-        }}
-
-        #detailModal .modal-content {{
-            z-index: 1052 !important;
-        }}
-
-        #detailModal .modal-header {{
-            position: relative;
-            z-index: 1053 !important;
-        }}
-
-        #detailModal .btn-close {{
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 1054 !important;
-            opacity: 1;
-            cursor: pointer;
-        }}
-
-        #detailModal .btn-close-white::after {{
-            content: '×';
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
+            background-color: rgba(0, 0, 0, 0.5) !important;
         }}
 
         .modal.show .modal-dialog {{
@@ -2584,9 +2000,48 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 transform: rotate(360deg);
             }}
         }}
-
-        /* Modal Styles for improved validation modals */
-        {modal_styles}
+    
+        /* Modal Improvements CSS */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            padding: 10px;
+            transition: transform 0.2s;
+        }
+        .calendar-day:hover { transform: scale(1.05); }
+        .calendar-day.work-day {
+            background-color: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+        .calendar-day.weekend {
+            background-color: #f3e5f5;
+            border: 2px solid #9c27b0;
+        }
+        .calendar-day.holiday {
+            background-color: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+        .day-number { font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+        .day-icon { font-size: 1.5rem; }
+        .stat-card { transition: transform 0.2s; }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .stat-icon { font-size: 2rem; margin-bottom: 10px; }
+        .stat-label { color: #666; font-size: 0.9rem; }
+        .progress { background-color: #f0f0f0; }
+        .modal-body .table td { vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -4357,11 +3812,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const employeeData = window.employeeData;
         const translations = {translations_js};
         const positionMatrix = {position_matrix_json};
-
-        // Excel 기반 대시보드 데이터 (Single Source of Truth)
-        window.excelDashboardData = {excel_data_js};
-        const excelDashboardData = window.excelDashboardData;
-
         let currentLanguage = 'ko';
         const dashboardMonth = '{month.lower()}';
         const dashboardYear = {year};
@@ -6668,29 +6118,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
 
-        // 개선된 모달 함수들 추가
-        {modal_scripts}
-
         // 검증 모달 표시 함수
         function showValidationModal(conditionType) {{
             console.log('Showing validation modal for:', conditionType);
 
-            // 새로운 개선된 모달 함수 호출
-            if (conditionType === 'totalWorkingDays') {{
-                showTotalWorkingDaysDetails();
-                return;
-            }} else if (conditionType === 'zeroWorkingDays') {{
-                showZeroWorkingDaysDetails();
-                return;
-            }} else if (conditionType === 'absentWithoutInform') {{
-                showAbsentWithoutInformDetails();
-                return;
-            }} else if (conditionType === 'minimumDaysNotMet') {{
-                showMinimumDaysNotMetDetails();
-                return;
-            }}
-
-            // 기존 모달 처리 (다른 타입의 경우)
+            // 모달 HTML 생성
             const modalHtml = createValidationModalContent(conditionType);
 
             // 기존 모달 제거
@@ -6748,12 +6180,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
                     ];
                     tableData = employeeData
-                        .filter(emp => parseFloat(emp['Unapproved Absences'] || 0) > 2)
+                        .filter(emp => parseFloat(emp['Unapproved Absence Days'] || 0) > 2)
                         .map(emp => [
                             emp['Employee No'],
                             emp['Full Name'],
                             emp['FINAL QIP POSITION NAME CODE'],
-                            emp['Unapproved Absences'],
+                            emp['Unapproved Absence Days'],
                             emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || 'FAIL'
                         ]);
                     break;
@@ -11306,6 +10738,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
     </script>
+        <!-- Detail Modal -->
+        <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content" id="detailModalContent">
+                    <!-- Content will be dynamically loaded -->
+                </div>
+            </div>
+        </div>
+        
 </body>
 </html>'''
     
@@ -11337,55 +10778,39 @@ def main():
     """메인 실행 함수"""
     # 번역 파일 로드
     load_translations()
-
+    
     parser = argparse.ArgumentParser(description='통합 인센티브 대시보드 생성')
     parser.add_argument('--month', type=int, default=8, help='월 (1-12)')
     parser.add_argument('--year', type=int, default=2025, help='연도')
     parser.add_argument('--sync', action='store_true', help='Google Drive 동기화')
     args = parser.parse_args()
-
+    
     print("=" * 80)
     print("통합 인센티브 대시보드 생성 - 최종 버전")
     print(f"대상: {args.year}년 {args.month}월")
     print("=" * 80)
-
+    
     # Google Drive 동기화 (옵션)
     if args.sync:
         if not sync_google_drive_data(args.month, args.year):
             print("Google Drive 동기화 실패. 로컬 파일 사용.")
-
+    
     # 월 이름 변환
     month_names = ['', 'january', 'february', 'march', 'april', 'may', 'june',
                   'july', 'august', 'september', 'october', 'november', 'december']
     month_name = month_names[args.month]
-
+    
     # 데이터 로드
     df = load_incentive_data(month_name, args.year)
-
+    
     if df.empty:
         print("❌ 데이터 로드 실패")
         return
-
-    # Excel 기반 대시보드 데이터 로드 (단일 진실 소스)
-    excel_dashboard_data = None
-    dashboard_json_path = 'output_files/dashboard_data_from_excel.json'
-    if os.path.exists(dashboard_json_path):
-        try:
-            with open(dashboard_json_path, 'r', encoding='utf-8') as f:
-                excel_dashboard_data = json.load(f)
-            print(f"✅ Excel 기반 대시보드 데이터 로드: {dashboard_json_path}")
-            # 실제 근무일수를 Excel 데이터에서 가져옴
-            working_days = excel_dashboard_data['attendance']['total_working_days']
-            print(f"📊 실제 총 근무일수 (출근 데이터 기반): {working_days}일")
-        except Exception as e:
-            print(f"⚠️ Excel 대시보드 데이터 로드 실패: {e}")
-            working_days = 13  # Fallback
-    else:
-        print("⚠️ Excel 기반 대시보드 데이터 파일이 없습니다. 기본값 사용.")
-        working_days = 13  # Fallback
-
-    # 대시보드 생성 - Excel 데이터를 전달
-    html_content = generate_dashboard_html(df, month_name, args.year, args.month, working_days, excel_dashboard_data)
+    
+    # 대시보드 생성
+    # TODO: Load working_days from config file
+    working_days = 13  # September 2025 working days
+    html_content = generate_dashboard_html(df, month_name, args.year, args.month, working_days)
     
     # 파일 저장
     # 파일명 형식 변경: Incentive_Dashboard_YYYY_MM_Version_5.html

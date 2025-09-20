@@ -1844,7 +1844,7 @@ class CompleteQIPCalculator:
         if 'Total Working Days' not in self.month_data.columns:
             self.month_data['Total Working Days'] = self.config.working_days
             self.month_data['Actual Working Days'] = 0  # 기본값 0으로 변경 (기존 23)
-            self.month_data['Unapproved Absence Days'] = 0
+            # Unapproved Absence Days 컬럼 제거 - Unapproved Absences 컬럼만 사용
             self.month_data['Absence Rate (raw)'] = 0.0
             print("  → 출석 데이터 없는 직원들에게 기본값 0 적용")
         
@@ -1882,7 +1882,7 @@ class CompleteQIPCalculator:
             '5prs condition 2 - Total Valiation Qty is zero': 'yes',
             'Total Working Days': self.config.working_days,
             'Actual Working Days': 0,  # 기본값 0으로 변경
-            'Unapproved Absence Days': 0,
+            # 'Unapproved Absence Days' 제거 - Unapproved Absences 사용
             'Absence Rate (raw)': 0.0,
             'Continuous_FAIL': 'NO'
         }
@@ -3773,7 +3773,7 @@ class CompleteQIPCalculator:
             self.month_data.loc[idx, 'cond_1_threshold'] = 88
 
             # 조건 2: 무단결근 <= 2일
-            unapproved_absence = self.month_data.loc[idx, 'Unapproved Absence Days'] if 'Unapproved Absence Days' in self.month_data.columns else 0
+            unapproved_absence = self.month_data.loc[idx, 'Unapproved Absences'] if 'Unapproved Absences' in self.month_data.columns else 0
             cond_2_result = 'PASS' if unapproved_absence <= 2 else 'FAIL'
             cond_2_applicable = 'Y' if 2 in applicable_conditions else 'N/A'
             self.month_data.loc[idx, 'cond_2_unapproved_absence'] = cond_2_applicable if cond_2_applicable == 'N/A' else cond_2_result
@@ -3928,25 +3928,40 @@ class CompleteQIPCalculator:
                     try:
                         prev_incentive_data = pd.read_csv(prev_file_path, encoding='utf-8-sig')
                         
-                        # 직원번호로 6월 인센티브 매칭
-                        if 'June_Incentive' in prev_incentive_data.columns:
-                            # Employee No를 숫자로 변환하여 매핑
-                            prev_incentive_data['Employee No'] = pd.to_numeric(prev_incentive_data['Employee No'], errors='coerce')
-                            self.month_data['Employee No'] = pd.to_numeric(self.month_data['Employee No'], errors='coerce')
-                            
-                            prev_incentive_map = prev_incentive_data.set_index('Employee No')['June_Incentive'].to_dict()
+                        # Employee No를 숫자로 변환하여 매핑
+                        prev_incentive_data['Employee No'] = pd.to_numeric(prev_incentive_data['Employee No'], errors='coerce')
+                        self.month_data['Employee No'] = pd.to_numeric(self.month_data['Employee No'], errors='coerce')
+
+                        # 이전 월 인센티브 컬럼 찾기 (우선순위: 월 이름 기반 → Final Incentive amount)
+                        prev_incentive_col = None
+                        possible_cols = [
+                            f'{prev_month.full_name.capitalize()}_Incentive',
+                            f'{prev_month.full_name.upper()}_Incentive',
+                            f'{prev_month.full_name.lower()}_incentive',
+                            'Final Incentive amount',
+                            f'{prev_month.korean_name} 인센티브'
+                        ]
+
+                        for col in possible_cols:
+                            if col in prev_incentive_data.columns:
+                                prev_incentive_col = col
+                                print(f"  → 이전 월 인센티브 컬럼 발견: {col}")
+                                break
+
+                        if prev_incentive_col:
+                            prev_incentive_map = prev_incentive_data.set_index('Employee No')[prev_incentive_col].to_dict()
                             self.month_data['Previous_Incentive'] = self.month_data['Employee No'].map(prev_incentive_map).fillna(0)
-                            print(f"  → {prev_month.korean_name} 인센티브 매핑 완료: {len(prev_incentive_map)} 건")
-                            # 디버그: 618030024 확인
-                            if 618030024 in prev_incentive_map:
-                                print(f"    618030024의 {prev_month.korean_name} 인센티브: {prev_incentive_map[618030024]}")
-                            # Employee No 타입 확인 및 변환
-                            print(f"    Employee No 타입: {self.month_data['Employee No'].dtype}")
-                            emp_data = self.month_data[self.month_data['Employee No'] == 618030024]
-                            if not emp_data.empty:
-                                print(f"    매핑 후 Previous_Incentive: {emp_data['Previous_Incentive'].values[0]}")
-                            else:
-                                print(f"    618030024 직원을 찾을 수 없음")
+
+                            # 매핑 결과 확인
+                            mapped_count = (self.month_data['Previous_Incentive'] > 0).sum()
+                            print(f"  → {prev_month.korean_name} 인센티브 매핑 완료: {mapped_count}/{len(self.month_data)} 명")
+
+                            # 샘플 데이터 확인
+                            sample_data = self.month_data[self.month_data['Previous_Incentive'] > 0].head(3)
+                            if not sample_data.empty:
+                                print(f"  → 샘플 데이터:")
+                                for idx, row in sample_data.iterrows():
+                                    print(f"    - {row['Employee No']}: {row['Previous_Incentive']:,.0f} VND")
                         elif f'{prev_month.full_name.capitalize()}_Incentive' in prev_incentive_data.columns:
                             col_name = f'{prev_month.full_name.capitalize()}_Incentive'
                             prev_incentive_map = prev_incentive_data.set_index('Employee No')[col_name].to_dict()
@@ -4066,8 +4081,8 @@ class CompleteQIPCalculator:
                         'applicable': True
                     },
                     'unapproved_absence': {
-                        'passed': row.get('Unapproved Absence Days', 0) <= 2 if pd.notna(row.get('Unapproved Absence Days')) else True,
-                        'value': int(row.get('Unapproved Absence Days', 0)) if pd.notna(row.get('Unapproved Absence Days')) else 0,
+                        'passed': row.get('Unapproved Absences', 0) <= 2 if pd.notna(row.get('Unapproved Absences')) else True,
+                        'value': int(row.get('Unapproved Absences', 0)) if pd.notna(row.get('Unapproved Absences')) else 0,
                         'threshold': 2,
                         'applicable': True
                     },
