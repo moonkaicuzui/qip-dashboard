@@ -146,6 +146,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
     # 가능한 파일 패턴들 - output_files를 먼저 확인
     month_str = 'august' if month == 8 else 'september' if month == 9 else str(month)
     patterns = [
+        f"output_files/output_QIP_incentive_{month_str}_{year}_최종완성버전_v6.0_Complete_enhanced.csv",
         f"output_files/output_QIP_incentive_{month_str}_{year}_최종완성버전_v6.0_Complete.csv",
         f"output_files/output_QIP_incentive_{month}_{year}_최종완성버전_v6.0_Complete.csv",
         f"output_files/output_QIP_incentive_{month_str}_{year}_*.csv",
@@ -175,7 +176,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 col_lower = col.lower()
                 if 'employee' in col_lower and 'no' in col_lower:
                     column_mapping[col] = 'emp_no'
-                elif col_lower in ['name', 'full name', 'employee name']:
+                elif col_lower in ['name', 'full name', 'employee name'] or col == 'Full Name':
                     column_mapping[col] = 'name'
                 elif position_col and col == position_col:
                     column_mapping[col] = 'position'
@@ -183,6 +184,10 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     column_mapping[col] = 'type'
                 elif col_lower == 'type':
                     column_mapping[col] = 'type'
+                elif col == 'Unapproved Absences':
+                    column_mapping[col] = 'unapproved_absences'
+                elif col == 'Actual Working Days':
+                    column_mapping[col] = 'actual_working_days'
                 elif f'{month.lower()}_incentive' in col_lower or f'{month.lower()} incentive' in col_lower:
                     column_mapping[col] = f'{month.lower()}_incentive'
                 elif f'{month.capitalize()}_Incentive' in col:  # Handle capitalized month names
@@ -332,6 +337,14 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     df['previous_incentive'] = df['Previous_Incentive']
                 else:
                     df['previous_incentive'] = 0  # 데이터 없음
+
+            # AQL 통계 컬럼 매핑 추가
+            if 'AQL_Total_Tests' not in df.columns:
+                df['AQL_Total_Tests'] = df.get('AQL_Total_Tests', 0)
+            if 'AQL_Pass_Count' not in df.columns:
+                df['AQL_Pass_Count'] = df.get('AQL_Pass_Count', 0)
+            if 'AQL_Fail_Percent' not in df.columns:
+                df['AQL_Fail_Percent'] = df.get('AQL_Fail_Percent', 0)
 
             if missing_columns:
                 print(f"⚠️ 누락된 출근 관련 컬럼: {missing_columns}")
@@ -605,6 +618,9 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
 def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None):
     """dashboard_version4.html과 완전히 동일한 대시보드 생성 - Excel 데이터 기반"""
 
+    # AQL 통계는 이제 엑셀 파일에서 직접 가져옴 (Single Source of Truth)
+    print("📊 AQL 통계는 엑셀 파일에서 직접 사용 (Single Source of Truth)")
+
     # 이전 월 계산
     month_map = {
         'january': 0, 'february': 1, 'march': 2, 'april': 3,
@@ -688,11 +704,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         emp = {
             'emp_no': emp_no,
+            'employee_no': emp_no,  # JavaScript 호환성을 위한 중복 필드
+            'Employee No': emp_no,  # CSV 컬럼명과 일치
             'name': str(row_dict.get('name', '')),
+            'full_name': str(row_dict.get('name', '')),  # JavaScript 호환성을 위한 중복 필드
+            'Full Name': str(row_dict.get('name', '')),  # CSV 컬럼명과 일치
             'position': str(row_dict.get('position', '')),
+            'qip_position': str(row_dict.get('position', '')),  # JavaScript 호환성을 위한 중복 필드
+            'QIP POSITION 1ST  NAME': str(row_dict.get('position', '')),  # CSV 컬럼명과 일치
             'type': str(row_dict.get('type', 'TYPE-2')),
             'boss_id': boss_id,  # Basic manpower에서 가져온 상사 ID
             'boss_name': boss_name,  # Basic manpower에서 가져온 상사 이름
+            'MST direct boss name': boss_id,  # JavaScript에서 찾는 Excel 컬럼명
+            'direct boss name': boss_name,  # JavaScript에서 찾는 Excel 컬럼명
             # 동적 월 인센티브 매핑
             f'{month.lower()}_incentive': str(row_dict.get(f'{month.lower()}_incentive', '0')),  # 현재 월 인센티브
             f'{prev_month_name.lower()}_incentive': str(row_dict.get(f'{prev_month_name.lower()}_incentive', '0')),  # 이전 월 인센티브
@@ -703,12 +727,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             'june_incentive': str(row_dict.get('june_incentive', '0')),
             'attendance_rate': float(row_dict.get('attendance_rate', 0) if pd.notna(row_dict.get('attendance_rate')) else 0),
             'actual_working_days': int(row_dict.get('actual_working_days', 0) if pd.notna(row_dict.get('actual_working_days')) else 0),
+            'Actual Working Days': int(row_dict.get('actual_working_days', 0) if pd.notna(row_dict.get('actual_working_days')) else 0),  # JavaScript 호환성
             'unapproved_absences': int(row_dict.get('unapproved_absences', 0) if pd.notna(row_dict.get('unapproved_absences')) else 0),
+            'Unapproved Absences': int(row_dict.get('unapproved_absences', 0) if pd.notna(row_dict.get('unapproved_absences')) else 0),  # JavaScript 호환성
             'absence_rate': float(row_dict.get('absence_rate', 0) if pd.notna(row_dict.get('absence_rate')) else 0),
-            'condition1': str(row_dict.get('condition1', 'no')),
-            'condition2': str(row_dict.get('condition2', 'no')),
-            'condition3': str(row_dict.get('condition3', 'no')),
-            'condition4': str(row_dict.get('condition4', 'no')),
+            'condition1': str(row_dict.get('attendancy condition 1 - acctual working days is zero', 'no')),
+            'condition2': str(row_dict.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no')),
+            'condition3': str(row_dict.get('attendancy condition 3 - absent % is over 12%', 'no')),
+            'condition4': str(row_dict.get('attendancy condition 4 - minimum working days', 'no')),
             'aql_failures': int(row_dict.get('aql_failures', 0)),
             'continuous_fail': str(row_dict.get('continuous_fail', 'NO')),
             'area_reject_rate': float(row_dict.get('area_reject_rate', 0)),  # 이 값은 metadata에서 덮어씌워짐
@@ -759,6 +785,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
         emp['September AQL Failures'] = int(row_dict.get('September AQL Failures', row_dict.get('aql_failures', 0)))
         emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
+        emp['Consecutive_Fail_Months'] = int(row_dict.get('Consecutive_Fail_Months', 0))
 
         # 5PRS 조건 필드 추가
         emp['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] = str(row_dict.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%', 'yes'))
@@ -771,6 +798,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         # Working Days 필드 추가
         emp['Working Days'] = int(row_dict.get('actual_working_days', 0))
+
+        # AQL 통계 필드 추가 (Excel에서 가져온 실제 데이터)
+        emp['AQL_Total_Tests'] = int(row_dict.get('AQL_Total_Tests', 0))
+        emp['AQL_Pass_Count'] = int(row_dict.get('AQL_Pass_Count', 0))
+        emp['AQL_Fail_Percent'] = float(row_dict.get('AQL_Fail_Percent', 0))
 
         employees.append(emp)
     
@@ -958,7 +990,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const isWorkDay = workDays.includes(day);
             const hasNoData = !isWorkDay;
             const dayClass = isWorkDay ? 'work-day' : 'no-data';
-            const icon = isWorkDay ? '💼' : '❌';
+            const icon = isWorkDay ? '💼' : '';
             const weekday = getWeekday(day);
 
             /* Excel 데이터에서 해당 날짜의 출근 인원 수 가져오기 */
@@ -969,14 +1001,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     attendanceCount = `<div class="attendance-count">${count}명</div>`;
                 }
             } else if (hasNoData) {
-                attendanceCount = `<div class="attendance-count">데이터 없음</div>`;
+                attendanceCount = `<div class="attendance-count no-data-text">
+                    <i class="fas fa-times-circle"></i>
+                    <span>데이터 없음</span>
+                </div>`;
             }
 
             calendarHTML += `
                 <div class="calendar-day ${dayClass}">
                     <div class="day-number">${day}</div>
                     <div class="day-weekday">${weekday}요일</div>
-                    <div class="day-icon">${icon}</div>
+                    ${icon ? `<div class="day-icon">${icon}</div>` : ''}
                     ${attendanceCount}
                 </div>
             `;
@@ -984,11 +1019,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         calendarHTML += '</div>';
 
         const modalContent = `
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-calendar-alt"></i> 2025년 9월 근무일 현황
+            <div class="unified-modal-header">
+                <h5 class="unified-modal-title">
+                    <i class="fas fa-calendar-alt me-2"></i> 2025년 9월 근무일 현황
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row mb-4">
@@ -1016,8 +1051,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
                 ${calendarHTML}
                 <div class="mt-3">
-                    <span class="badge badge-primary">💼 근무일 (출근 데이터 있음)</span>
-                    <span class="badge badge-secondary">❌ 데이터 없음</span>
+                    <span class="legend-badge legend-workday">💼 근무일 (출근 데이터 있음)</span>
+                    <span class="legend-badge legend-nodata">❌ 데이터 없음</span>
                 </div>
             </div>
         `;
@@ -1026,7 +1061,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         if (!modal) {
             const modalHTML = `
                 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content" id="detailModalContent"></div>
                     </div>
                 </div>
@@ -1069,87 +1104,162 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     }
 
     function showZeroWorkingDaysDetails() {
-        // Excel 데이터 우선 사용
+        // Excel 데이터 사용 (Single Source of Truth)
         let zeroWorkingEmployees = [];
 
         if (window.excelDashboardData && window.excelDashboardData.modal_data && window.excelDashboardData.modal_data.zero_working_days_employees) {
-            // Excel 기반 데이터 사용
+            // Excel에서 이미 필터링된 데이터 사용
             zeroWorkingEmployees = window.excelDashboardData.modal_data.zero_working_days_employees;
         } else if (window.employeeData) {
             // Fallback to employeeData
             zeroWorkingEmployees = window.employeeData.filter(emp => {
-                const actualDays = parseFloat(emp.actual_working_days || emp['Actual Working Days'] || 0);
+                const actualDays = parseFloat(emp['Actual Working Days'] || emp['actual_working_days'] || 0);
                 return actualDays === 0;
             });
         }
 
-        let tableRows = '';
-        if (zeroWorkingEmployees.length === 0) {
-            tableRows = '<tr><td colspan="6" class="text-center">0일 근무자가 없습니다</td></tr>';
-        } else {
-            tableRows = zeroWorkingEmployees.map(emp => {
-                const stopDate = emp['Stop working Date'] || emp.stop_working_date || '';
-                const isResigned = stopDate && stopDate !== '' && stopDate !== 'NaN' && stopDate !== null;
+        // 정렬 상태 관리
+        let sortColumn = 'empNo';
+        let sortOrder = 'asc';
 
-                return `
-                    <tr>
-                        <td>${emp['Employee No'] || emp.employee_no || ''}</td>
-                        <td>${emp['Full Name'] || emp.full_name || ''}</td>
-                        <td>${emp['QIP POSITION 1ST  NAME'] || emp.qip_position || '-'}</td>
-                        <td class="text-center">${window.excelDashboardData && window.excelDashboardData.attendance ? window.excelDashboardData.attendance.total_working_days : 15}</td>
-                        <td class="text-center">0</td>
-                        <td>
-                            <span class="badge ${isResigned ? 'badge-warning' : 'badge-danger'}">
-                                ${isResigned ? `퇴사 (${stopDate})` : '전체 결근'}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+        function sortData(column) {
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = 'asc';
+            }
+
+            zeroWorkingEmployees.sort((a, b) => {
+                let aVal, bVal;
+
+                switch(column) {
+                    case 'empNo':
+                        aVal = a['Employee No'] || '';
+                        bVal = b['Employee No'] || '';
+                        break;
+                    case 'name':
+                        aVal = a['Full Name'] || '';
+                        bVal = b['Full Name'] || '';
+                        break;
+                    case 'position':
+                        aVal = a['FINAL QIP POSITION NAME CODE'] || '';
+                        bVal = b['FINAL QIP POSITION NAME CODE'] || '';
+                        break;
+                    case 'totalDays':
+                        aVal = a['Total Working Days'] || 15;
+                        bVal = b['Total Working Days'] || 15;
+                        break;
+                    case 'actualDays':
+                        aVal = a['Actual Working Days'] || 0;
+                        bVal = b['Actual Working Days'] || 0;
+                        break;
+                    case 'status':
+                        const aType = a['Stop_Working_Type'] || 'active';
+                        const bType = b['Stop_Working_Type'] || 'active';
+                        aVal = aType === 'resigned' ? '퇴사' : aType === 'contract_end' ? '계약종료' : '전체 결근';
+                        bVal = bType === 'resigned' ? '퇴사' : bType === 'contract_end' ? '계약종료' : '전체 결근';
+                        break;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortOrder === 'asc' ? aVal.localeCompare(bVal, 'ko') : bVal.localeCompare(aVal, 'ko');
+                } else {
+                    return sortOrder === 'asc' ? (aVal - bVal) : (bVal - aVal);
+                }
+            });
+
+            renderTable();
         }
 
-        const modalContent = `
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-exclamation-triangle"></i> 0일 근무자 상세
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>사번</th>
-                                <th>이름</th>
-                                <th>직책</th>
-                                <th>총 근무일</th>
-                                <th>실 근무일</th>
-                                <th>상태</th>
-                            </tr>
-                        </thead>
-                        <tbody>${tableRows}</tbody>
-                    </table>
-                </div>
-            </div>
-        `;
+        function renderTable() {
+            let tableRows = '';
+            if (zeroWorkingEmployees.length === 0) {
+                tableRows = '<tr><td colspan="6" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>0일 근무자가 없습니다</td></tr>';
+            } else {
+                tableRows = zeroWorkingEmployees.map(emp => {
+                    // Excel에서 가져온 필드 사용 (Single Source of Truth)
+                    const actualDays = emp['Actual Working Days'] || 0;
+                    const totalDays = emp['Total Working Days'] || 15;
+                    const stopDate = emp['Stop working Date'] || '';
+                    const workingType = emp['Stop_Working_Type'] || 'active';
+                    const position = emp['FINAL QIP POSITION NAME CODE'] || '-';
 
-        let modal = document.getElementById('detailModal');
-        if (!modal) {
-            const modalHTML = `
-                <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content" id="detailModalContent"></div>
+                    return `
+                        <tr class="unified-table-row">
+                            <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
+                            <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
+                            <td class="unified-table-cell">${position}</td>
+                            <td class="unified-table-cell text-center">${totalDays}</td>
+                            <td class="unified-table-cell text-center">
+                                <span class="badge bg-danger">${actualDays}</span>
+                            </td>
+                            <td class="unified-table-cell text-center">
+                                <span class="badge ${workingType === 'resigned' ? 'bg-warning text-dark' : workingType === 'contract_end' ? 'bg-info text-white' : 'bg-danger'}">
+                                    ${workingType === 'resigned' ? `퇴사 (${stopDate})` : workingType === 'contract_end' ? `계약종료예정 (${stopDate})` : '전체 결근'}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            const modalContent = `
+                <div class="unified-modal-header">
+                    <h5 class="unified-modal-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i> 0일 근무자 상세
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-light border-start border-4 border-danger mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle text-danger me-2"></i>
+                            <span>실제 근무일이 0일인 직원 목록입니다.</span>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="unified-table-header">
+                                <tr>
+                                    <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.zeroModalSort('empNo')">사번</th>
+                                    <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.zeroModalSort('name')">이름</th>
+                                    <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.zeroModalSort('position')">직책</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'totalDays' ? sortOrder : ''}" onclick="window.zeroModalSort('totalDays')">총 근무일</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'actualDays' ? sortOrder : ''}" onclick="window.zeroModalSort('actualDays')">실 근무일</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.zeroModalSort('status')">상태</th>
+                                </tr>
+                            </thead>
+                            <tbody>${tableRows}</tbody>
+                        </table>
                     </div>
                 </div>
             `;
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            modal = document.getElementById('detailModal');
+
+            // 모달이 없으면 생성
+            let modal = document.getElementById('detailModal');
+            if (!modal) {
+                const modalHTML = `
+                    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
+                        <div class="modal-dialog modal-xl">
+                            <div class="modal-content" id="detailModalContent"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+                modal = document.getElementById('detailModal');
+            }
+
+            document.getElementById('detailModalContent').innerHTML = modalContent;
         }
 
-        document.getElementById('detailModalContent').innerHTML = modalContent;
+        // 전역 정렬 함수 등록
+        window.zeroModalSort = sortData;
 
-        /* Bootstrap 5 Modal 처리 */
+        // 초기 렌더링
+        renderTable();
+
+        // Bootstrap 5 Modal 처리
         const modalElement = document.getElementById('detailModal');
 
         // 기존 모달 인스턴스 정리
@@ -1181,65 +1291,249 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     }
 
     function showAbsentWithoutInformDetails() {
-        const absentEmployees = window.employeeData.filter(emp => {
+        let absentEmployees = window.employeeData.filter(emp => {
             const unapproved = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
             return unapproved >= 1;
-        }).sort((a, b) => {
-            const aVal = parseFloat(a.unapproved_absences || a['Unapproved Absences'] || 0);
-            const bVal = parseFloat(b.unapproved_absences || b['Unapproved Absences'] || 0);
-            return bVal - aVal;
         });
+
+        // 정렬 상태 관리
+        let sortColumn = 'days';
+        let sortOrder = 'desc';
+
+        function sortData(column) {
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = 'asc';
+            }
+
+            absentEmployees.sort((a, b) => {
+                let aVal, bVal;
+
+                switch(column) {
+                    case 'empNo':
+                        aVal = a.employee_no || a['Employee No'] || '';
+                        bVal = b.employee_no || b['Employee No'] || '';
+                        break;
+                    case 'name':
+                        aVal = a.full_name || a['Full Name'] || '';
+                        bVal = b.full_name || b['Full Name'] || '';
+                        break;
+                    case 'position':
+                        aVal = a.qip_position || a['QIP POSITION 1ST  NAME'] || '';
+                        bVal = b.qip_position || b['QIP POSITION 1ST  NAME'] || '';
+                        break;
+                    case 'days':
+                        aVal = parseFloat(a.unapproved_absences || a['Unapproved Absences'] || 0);
+                        bVal = parseFloat(b.unapproved_absences || b['Unapproved Absences'] || 0);
+                        break;
+                    case 'status':
+                        const aDays = parseFloat(a.unapproved_absences || a['Unapproved Absences'] || 0);
+                        const bDays = parseFloat(b.unapproved_absences || b['Unapproved Absences'] || 0);
+                        aVal = aDays > 2 ? 3 : (aDays === 2 ? 2 : 1); // 제외=3, 경고=2, 주의=1
+                        bVal = bDays > 2 ? 3 : (bDays === 2 ? 2 : 1);
+                        break;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortOrder === 'asc' ? aVal.localeCompare(bVal, 'ko') : bVal.localeCompare(aVal, 'ko');
+                } else {
+                    return sortOrder === 'asc' ? (aVal - bVal) : (bVal - aVal);
+                }
+            });
+
+            renderTable();
+        }
+
+        function renderTable() {
 
         let tableRows = absentEmployees.map(emp => {
             const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
-            const rowClass = days > 2 ? 'table-danger' : (days > 1 ? 'table-warning' : '');
-            const status = days > 2 ?
-                '<span class="badge badge-danger">인센티브 제외</span>' :
-                '<span class="badge badge-warning">경고</span>';
+
+            // 개선된 색상 체계와 아이콘
+            let rowStyle = '';
+            let daysBadgeClass = '';
+            let statusBadge = '';
+            let statusIcon = '';
+
+            if (days > 2) {
+                // 3일 이상 - 인센티브 제외 (위험)
+                rowStyle = 'background: linear-gradient(90deg, #fff5f5 0%, #ffe0e0 100%); border-left: 4px solid #dc3545;';
+                daysBadgeClass = 'bg-danger text-white fw-bold';
+                statusBadge = `
+                    <div class="d-flex align-items-center justify-content-center">
+                        <span class="badge bg-danger px-3 py-2">
+                            <i class="fas fa-ban me-1"></i>
+                            인센티브 제외
+                        </span>
+                    </div>`;
+                statusIcon = '<i class="fas fa-exclamation-circle text-danger me-2"></i>';
+            } else if (days === 2) {
+                // 2일 - 경고 (주의)
+                rowStyle = 'background: linear-gradient(90deg, #fffaf0 0%, #fff4e0 100%); border-left: 4px solid #fd7e14;';
+                daysBadgeClass = 'bg-warning text-dark fw-bold';
+                statusBadge = `
+                    <div class="d-flex align-items-center justify-content-center">
+                        <span class="badge bg-warning text-dark px-3 py-2">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            경고
+                        </span>
+                    </div>`;
+                statusIcon = '<i class="fas fa-exclamation-triangle text-warning me-2"></i>';
+            } else {
+                // 1일 - 주의
+                rowStyle = 'background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%); border-left: 4px solid #ffc107;';
+                daysBadgeClass = 'bg-info text-white';
+                statusBadge = `
+                    <div class="d-flex align-items-center justify-content-center">
+                        <span class="badge bg-info px-3 py-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            주의
+                        </span>
+                    </div>`;
+                statusIcon = '<i class="fas fa-info-circle text-info me-2"></i>';
+            }
 
             return `
-                <tr class="${rowClass}">
-                    <td>${emp.employee_no || emp['Employee No'] || ''}</td>
-                    <td>${emp.full_name || emp['Full Name'] || ''}</td>
-                    <td>${emp.qip_position || emp['QIP POSITION 1ST  NAME'] || '-'}</td>
-                    <td class="text-center">
-                        <span class="badge badge-pill badge-danger">${days}일</span>
+                <tr style="${rowStyle} transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';"
+                    onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none';">
+                    <td style="width: 15%; padding: 12px;">
+                        <span class="text-muted small">No.</span>
+                        <div class="fw-semibold">${emp.employee_no || emp['Employee No'] || ''}</div>
                     </td>
-                    <td class="text-center">${status}</td>
+                    <td style="width: 25%; padding: 12px;">
+                        ${statusIcon}
+                        <span class="fw-semibold">${emp.full_name || emp['Full Name'] || ''}</span>
+                    </td>
+                    <td style="width: 25%; padding: 12px;">
+                        <span class="text-secondary">${emp.qip_position || emp['QIP POSITION 1ST  NAME'] || '-'}</span>
+                    </td>
+                    <td style="width: 15%; padding: 12px; text-align: center;">
+                        <div class="d-flex flex-column align-items-center">
+                            <span class="badge ${daysBadgeClass} px-3 py-2 fs-6">
+                                ${days}일
+                            </span>
+                            ${days > 2 ? '<small class="text-danger mt-1">초과</small>' : ''}
+                        </div>
+                    </td>
+                    <td style="width: 20%; padding: 12px; text-align: center;">
+                        ${statusBadge}
+                    </td>
                 </tr>
             `;
-        }).join('') || '<tr><td colspan="5" class="text-center">무단결근자가 없습니다</td></tr>';
+        }).join('') || `
+            <tr>
+                <td colspan="5" class="text-center py-5">
+                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                    <div class="text-muted">무단결근자가 없습니다</div>
+                </td>
+            </tr>`;
+
+        // 통계 섹션 추가
+        const total = absentEmployees.length;
+        const excluded = absentEmployees.filter(emp => {
+            const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
+            return days > 2;
+        }).length;
+        const warning = absentEmployees.filter(emp => {
+            const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
+            return days === 2;
+        }).length;
+        const caution = total - excluded - warning;
+
+        const statsSection = total > 0 ? `
+            <div class="alert alert-light border-start border-4 border-warning mb-4">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="d-flex flex-column">
+                            <span class="text-muted small">전체</span>
+                            <span class="fs-4 fw-bold text-dark">${total}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex flex-column">
+                            <span class="text-muted small">주의 (1일)</span>
+                            <span class="fs-4 fw-bold text-info">${caution}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex flex-column">
+                            <span class="text-muted small">경고 (2일)</span>
+                            <span class="fs-4 fw-bold text-warning">${warning}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex flex-column">
+                            <span class="text-muted small">제외 (3일+)</span>
+                            <span class="fs-4 fw-bold text-danger">${excluded}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        ` : '';
 
         const modalContent = `
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title">
-                    <i class="fas fa-user-times"></i> 무단결근 직원 상세
+            <div class="modal-header" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-bottom: 3px solid #2196f3;">
+                <h5 class="modal-title" style="color: #1565c0; font-weight: 700;">
+                    <i class="fas fa-user-times me-2" style="color: #1976d2;"></i>무단결근 직원 상세
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                ${statsSection}
                 <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="thead-light">
+                    <table class="table table-hover align-middle">
+                        <thead class="unified-table-header">
                             <tr>
-                                <th>사번</th>
-                                <th>이름</th>
-                                <th>직책</th>
-                                <th class="text-center">무단결근</th>
-                                <th class="text-center">상태</th>
+                                <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.absentModalSort('empNo')" style="width: 15%;">
+                                    사번
+                                </th>
+                                <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.absentModalSort('name')" style="width: 25%;">
+                                    이름
+                                </th>
+                                <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.absentModalSort('position')" style="width: 25%;">
+                                    직책
+                                </th>
+                                <th class="sortable-header text-center ${sortColumn === 'days' ? sortOrder : ''}" onclick="window.absentModalSort('days')" style="width: 15%;">
+                                    <div style="line-height: 1.2;">
+                                        <div>무단결근</div>
+                                        <div style="font-size: 0.75rem; font-weight: 400; color: #757575;">(일수)</div>
+                                    </div>
+                                </th>
+                                <th class="sortable-header text-center ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.absentModalSort('status')" style="width: 20%;">
+                                    상태
+                                </th>
                             </tr>
                         </thead>
                         <tbody>${tableRows}</tbody>
                     </table>
                 </div>
             </div>
+            <div class="modal-footer" style="background: #fafafa; border-top: 1px solid #e0e0e0;">
+                <small style="color: #616161; font-weight: 500;">
+                    <i class="fas fa-info-circle me-1" style="color: #9e9e9e;"></i>
+                    무단결근 3일 이상 시 인센티브가 자동 제외됩니다
+                </small>
+            </div>
         `;
 
+            document.getElementById('detailModalContent').innerHTML = modalContent;
+        }
+
+        // 전역 정렬 함수 등록
+        window.absentModalSort = sortData;
+
+        // 초기 정렬 상태로 렌더링
+        sortData('days');
+
+        // 모달 표시 처리
         let modal = document.getElementById('detailModal');
         if (!modal) {
             const modalHTML = `
                 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content" id="detailModalContent"></div>
                     </div>
                 </div>
@@ -1247,8 +1541,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             modal = document.getElementById('detailModal');
         }
-
-        document.getElementById('detailModalContent').innerHTML = modalContent;
 
         /* Bootstrap 5 Modal 처리 */
         const modalElement = document.getElementById('detailModal');
@@ -1282,77 +1574,185 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     }
 
     function showMinimumDaysNotMetDetails() {
-        const currentDay = new Date().getDate();
-        const minimumRequired = currentDay < 20 ? 7 : 12;
+        // Excel의 Minimum_Working_Days_Required 사용 (Single Source of Truth)
+        const firstEmp = window.employeeData[0] || {};
+        const minimumRequired = firstEmp['Minimum_Working_Days_Required'] || 12;
 
-        const notMetEmployees = window.employeeData.filter(emp => {
+        // Excel의 Minimum_Days_Met 필드 사용 (Single Source of Truth)
+        let notMetEmployees = window.employeeData.filter(emp => {
+            // 방법 1: Excel의 Minimum_Days_Met 필드 직접 사용
+            const minimumDaysMet = emp['Minimum_Days_Met'];
+            if (minimumDaysMet !== undefined) {
+                return minimumDaysMet === false || minimumDaysMet === 'False' || minimumDaysMet === 0;
+            }
+            // 방법 2: Fallback - condition4 필드 사용 (yes = 미충족)
+            if (emp['condition4'] !== undefined) {
+                return emp['condition4'] === 'yes';
+            }
+            // 방법 3: Fallback - 실제 계산
             const actualDays = parseFloat(emp.actual_working_days || emp['Actual Working Days'] || 0);
-            return actualDays > 0 && actualDays < minimumRequired;
-        }).sort((a, b) => {
-            const aVal = parseFloat(a.actual_working_days || a['Actual Working Days'] || 0);
-            const bVal = parseFloat(b.actual_working_days || b['Actual Working Days'] || 0);
-            return aVal - bVal;
+            return actualDays < minimumRequired;
         });
 
-        let tableRows = notMetEmployees.map(emp => {
-            const actualDays = parseFloat(emp.actual_working_days || emp['Actual Working Days'] || 0);
-            const shortage = minimumRequired - actualDays;
-            const percentage = (actualDays / minimumRequired * 100).toFixed(1);
-            const progressColor = percentage < 50 ? 'danger' : (percentage < 75 ? 'warning' : 'info');
+        // 정렬 상태 관리
+        let sortColumn = 'actualDays';
+        let sortOrder = 'asc';
 
-            return `
-                <tr>
-                    <td>${emp.employee_no || emp['Employee No'] || ''}</td>
-                    <td>${emp.full_name || emp['Full Name'] || ''}</td>
-                    <td>${emp.qip_position || emp['QIP POSITION 1ST  NAME'] || '-'}</td>
-                    <td class="text-center">
-                        <div class="progress" style="height: 25px;">
-                            <div class="progress-bar bg-${progressColor}" style="width: ${percentage}%">
-                                ${actualDays}일
+        function renderTable() {
+            // 정렬 적용
+            const sorted = [...notMetEmployees].sort((a, b) => {
+                let aVal, bVal;
+
+                switch(sortColumn) {
+                    case 'empNo':
+                        aVal = a.employee_no || a['Employee No'] || '';
+                        bVal = b.employee_no || b['Employee No'] || '';
+                        break;
+                    case 'name':
+                        aVal = a.full_name || a['Full Name'] || '';
+                        bVal = b.full_name || b['Full Name'] || '';
+                        break;
+                    case 'position':
+                        aVal = a.qip_position || a['QIP POSITION 1ST  NAME'] || '';
+                        bVal = b.qip_position || b['QIP POSITION 1ST  NAME'] || '';
+                        break;
+                    case 'actualDays':
+                        aVal = parseFloat(a.actual_working_days || a['Actual Working Days'] || 0);
+                        bVal = parseFloat(b.actual_working_days || b['Actual Working Days'] || 0);
+                        break;
+                    case 'shortage':
+                        aVal = minimumRequired - parseFloat(a.actual_working_days || a['Actual Working Days'] || 0);
+                        bVal = minimumRequired - parseFloat(b.actual_working_days || b['Actual Working Days'] || 0);
+                        break;
+                    case 'status':
+                        aVal = parseFloat(a.actual_working_days || a['Actual Working Days'] || 0) >= minimumRequired ? 1 : 0;
+                        bVal = parseFloat(b.actual_working_days || b['Actual Working Days'] || 0) >= minimumRequired ? 1 : 0;
+                        break;
+                    default:
+                        aVal = 0;
+                        bVal = 0;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                } else {
+                    return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+                }
+            });
+
+            let tableRows = sorted.map(emp => {
+                const actualDays = parseFloat(emp.actual_working_days || emp['Actual Working Days'] || 0);
+                const shortage = minimumRequired - actualDays;
+                const percentage = (actualDays / minimumRequired * 100).toFixed(1);
+
+                // 더 명확한 색상 구분
+                let progressColor = 'danger';
+                let textColor = 'text-white';
+                if (percentage >= 75) {
+                    progressColor = 'info';
+                    textColor = 'text-dark';  // 하늘색 배경에 검은색 텍스트
+                } else if (percentage >= 50) {
+                    progressColor = 'warning';
+                    textColor = 'text-dark';  // 노란색 배경에 검은색 텍스트
+                }
+                // percentage < 50은 danger (빨간색) 유지
+
+                const isMet = actualDays >= minimumRequired;
+
+                return `
+                    <tr class="unified-table-row">
+                        <td style="padding: 12px 8px; font-weight: 500;">${emp.employee_no || emp['Employee No'] || ''}</td>
+                        <td style="padding: 12px 8px; font-weight: 500;">${emp.full_name || emp['Full Name'] || ''}</td>
+                        <td style="padding: 12px 8px; font-size: 13px;">${emp.qip_position || emp['QIP POSITION 1ST  NAME'] || '-'}</td>
+                        <td class="text-center" style="padding: 10px 8px;">
+                            <div class="d-flex align-items-center justify-content-center">
+                                <span class="badge bg-${progressColor} ${textColor}" style="font-size: 14px; padding: 8px 12px;">
+                                    ${actualDays}일
+                                </span>
                             </div>
-                        </div>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge badge-primary">${minimumRequired}일</span>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge badge-danger">-${shortage}일</span>
-                    </td>
-                </tr>
-            `;
-        }).join('') || `<tr><td colspan="6" class="text-center">모든 직원이 최소 근무일(${minimumRequired}일)을 충족했습니다</td></tr>`;
+                        </td>
+                        <td class="text-center" style="padding: 10px 8px;">
+                            <span class="badge bg-primary" style="font-size: 14px; padding: 8px 12px;">${minimumRequired}일</span>
+                        </td>
+                        <td class="text-center" style="padding: 10px 8px;">
+                            <span class="badge bg-danger" style="font-size: 14px; padding: 8px 12px;">-${shortage}일</span>
+                        </td>
+                        <td class="text-center" style="padding: 10px 8px;">
+                            <span class="badge ${isMet ? 'bg-success' : 'bg-danger'}" style="font-size: 13px; padding: 6px 10px;">
+                                ${isMet ? '충족' : '미충족'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('') || `<tr><td colspan="7" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>모든 직원이 최소 근무일(${minimumRequired}일)을 충족했습니다</td></tr>`;
+
+            return tableRows;
+        }
+
+        function setSorting(column) {
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = 'asc';
+            }
+
+            const tbody = document.querySelector('#detailModal tbody');
+            if (tbody) {
+                tbody.innerHTML = renderTable();
+            }
+
+            // 헤더 클래스 업데이트
+            document.querySelectorAll('#detailModal .sortable-header').forEach(th => {
+                th.classList.remove('asc', 'desc');
+            });
+            const currentHeader = document.querySelector(`#detailModal .sortable-header[data-sort="${column}"]`);
+            if (currentHeader) {
+                currentHeader.classList.add(sortOrder);
+            }
+        }
 
         const modalContent = `
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-clock"></i> 최소 근무일 미충족 직원 상세
+            <div class="unified-modal-header">
+                <h5 class="unified-modal-title">
+                    <i class="fas fa-clock me-2"></i> 최소 근무일 미충족 직원 상세
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-light border-start border-4 border-warning mb-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-info-circle text-warning me-2"></i>
+                        <span>최소 요구 근무일: ${minimumRequired}일</span>
+                    </div>
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="thead-light">
+                    <table class="table table-hover" id="minimumDaysTable" style="font-size: 14px;">
+                        <thead class="unified-table-header">
                             <tr>
-                                <th>사번</th>
-                                <th>이름</th>
-                                <th>직책</th>
-                                <th class="text-center">실제 근무일</th>
-                                <th class="text-center">최소 요구</th>
-                                <th class="text-center">부족</th>
+                                <th class="sortable-header" data-sort="empNo" onclick="window.minDaysSort('empNo')" style="min-width: 100px;">사번</th>
+                                <th class="sortable-header" data-sort="name" onclick="window.minDaysSort('name')" style="min-width: 130px;">이름</th>
+                                <th class="sortable-header" data-sort="position" onclick="window.minDaysSort('position')" style="min-width: 150px;">직책</th>
+                                <th class="text-center sortable-header asc" data-sort="actualDays" onclick="window.minDaysSort('actualDays')" style="min-width: 110px;">실제<br>근무일</th>
+                                <th class="text-center" style="min-width: 80px;">최소<br>요구</th>
+                                <th class="text-center sortable-header" data-sort="shortage" onclick="window.minDaysSort('shortage')" style="min-width: 70px;">부족</th>
+                                <th class="text-center sortable-header" data-sort="status" onclick="window.minDaysSort('status')" style="min-width: 80px;">상태</th>
                             </tr>
                         </thead>
-                        <tbody>${tableRows}</tbody>
+                        <tbody>${renderTable()}</tbody>
                     </table>
                 </div>
             </div>
         `;
 
+        // 전역 정렬 함수 설정
+        window.minDaysSort = setSorting;
+
         let modal = document.getElementById('detailModal');
         if (!modal) {
             const modalHTML = `
                 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-lg">
+                    <div class="modal-dialog modal-xl">
                         <div class="modal-content" id="detailModalContent"></div>
                     </div>
                 </div>
@@ -1393,10 +1793,1506 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.body.style.removeProperty('padding-right');
         });
     }
+
+    function showAttendanceBelow88Details() {
+        // 출근율 88% 미만 직원 필터링
+        let below88Employees = window.employeeData.filter(emp => {
+            const attendanceRate = parseFloat(emp['attendance_rate'] || 0);
+            return attendanceRate < 88;
+        });
+
+        let sortColumn = 'attendanceRate';
+        let sortOrder = 'asc';
+
+        function sortData(column) {
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = column === 'attendanceRate' ? 'asc' : 'desc';
+            }
+            updateTableBody();
+        }
+
+        function updateTableBody() {
+            const tbody = document.querySelector('#attendanceModal tbody');
+            if (!tbody) return;
+
+            // 정렬
+            below88Employees.sort((a, b) => {
+                let aVal, bVal;
+                switch (sortColumn) {
+                    case 'empNo':
+                        aVal = a['Employee No'] || a['emp_no'];
+                        bVal = b['Employee No'] || b['emp_no'];
+                        break;
+                    case 'name':
+                        aVal = a['Full Name'] || a['name'];
+                        bVal = b['Full Name'] || b['name'];
+                        break;
+                    case 'attendanceRate':
+                        aVal = parseFloat(a['attendance_rate'] || 0);
+                        bVal = parseFloat(b['attendance_rate'] || 0);
+                        break;
+                    case 'actualDays':
+                        aVal = parseFloat(a['Actual Working Days'] || a['actual_working_days'] || 0);
+                        bVal = parseFloat(b['Actual Working Days'] || b['actual_working_days'] || 0);
+                        break;
+                    case 'totalDays':
+                        aVal = parseFloat(a['Total Working Days'] || 13);
+                        bVal = parseFloat(b['Total Working Days'] || 13);
+                        break;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                }
+                return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+
+            // 테이블 업데이트
+            tbody.innerHTML = '';
+            below88Employees.forEach(emp => {
+                const empNo = emp['Employee No'] || emp['emp_no'];
+                const name = emp['Full Name'] || emp['name'];
+                const attendanceRate = parseFloat(emp['attendance_rate'] || 0).toFixed(1);
+                const actualDays = parseFloat(emp['Actual Working Days'] || emp['actual_working_days'] || 0);
+                const totalDays = parseFloat(emp['Total Working Days'] || 13);
+
+                // 출근율에 따른 색상과 텍스트 색상 - 더 명확한 구분
+                let badgeClass = 'bg-danger';
+                let textColor = 'text-white';
+                let customStyle = '';
+
+                if (attendanceRate >= 70) {
+                    badgeClass = 'bg-info';  // 70% 이상은 하늘색
+                    textColor = 'text-dark';
+                } else if (attendanceRate >= 50) {
+                    badgeClass = 'bg-warning';  // 50-70%는 노란색
+                    textColor = 'text-dark';
+                } else if (attendanceRate >= 30) {
+                    // 30-50%는 주황색 (커스텀 스타일)
+                    badgeClass = '';
+                    customStyle = 'background-color: #ff6b35 !important; color: white !important;';
+                }
+                // attendanceRate < 30은 bg-danger (빨간색) 유지
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding: 10px; font-weight: 500;">${empNo}</td>
+                    <td style="padding: 10px; font-weight: 500;">${name}</td>
+                    <td style="padding: 10px;"><span class="badge ${badgeClass} ${textColor}" style="font-size: 14px; padding: 6px 10px; ${customStyle}">${attendanceRate}%</span></td>
+                    <td style="padding: 10px;">${actualDays}일</td>
+                    <td style="padding: 10px;">${totalDays}일</td>
+                    <td style="padding: 10px;"><span class="badge ${attendanceRate < 88 ? 'bg-danger' : 'bg-success'}" style="font-size: 13px; padding: 4px 8px;">${attendanceRate < 88 ? '미충족' : '충족'}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getSortIcon(column) {
+            if (sortColumn !== column) return '';
+            return sortOrder === 'asc' ? '▲' : '▼';
+        }
+
+        // Bootstrap 모달 HTML 생성
+        const modalHTML = `
+            <div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-labelledby="attendanceModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header unified-modal-header">
+                            <h5 class="modal-title unified-modal-title" id="attendanceModalLabel">
+                                <i class="fas fa-percentage me-2"></i> 출근율 88% 미만 직원 상세
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <div class="alert alert-info">
+                                    <strong>조건 설명:</strong> 출근율이 88% 미만인 직원은 인센티브를 받을 수 없습니다.
+                                    <br>출근율 = (실제 근무일 ÷ 총 근무일) × 100%
+                                </div>
+                                <p>총 ${below88Employees.length}명이 출근율 88% 미만입니다.</p>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover" style="font-size: 14px;">
+                                    <thead class="unified-table-header">
+                                        <tr>
+                                            <th class="sortable-header" data-sort="empNo" style="min-width: 100px; padding: 12px; cursor: pointer;">사번 ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name" style="min-width: 130px; padding: 12px; cursor: pointer;">이름 ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="attendanceRate" style="min-width: 100px; padding: 12px; cursor: pointer;">출근율 ${getSortIcon('attendanceRate')}</th>
+                                            <th class="sortable-header" data-sort="actualDays" style="min-width: 110px; padding: 12px; cursor: pointer;">실제<br>근무일 ${getSortIcon('actualDays')}</th>
+                                            <th class="sortable-header" data-sort="totalDays" style="min-width: 100px; padding: 12px; cursor: pointer;">총<br>근무일 ${getSortIcon('totalDays')}</th>
+                                            <th style="min-width: 90px; padding: 12px;">조건<br>충족</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 기존 모달이 있으면 제거
+        const existingModal = document.getElementById('attendanceModal');
+        if (existingModal) {
+            const existingBsModal = bootstrap.Modal.getInstance(existingModal);
+            if (existingBsModal) {
+                existingBsModal.dispose();
+            }
+            existingModal.remove();
+        }
+
+        // 모달을 body에 추가
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // 모달 엘리먼트 참조
+        const modalElement = document.getElementById('attendanceModal');
+
+        // Bootstrap 모달 인스턴스 생성 및 표시
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true,      // 배경 클릭으로 닫기 활성화
+            keyboard: true,      // ESC 키로 닫기 활성화
+            focus: true
+        });
+
+        // 정렬 이벤트 추가
+        modalElement.querySelectorAll('.sortable-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const column = this.getAttribute('data-sort');
+                sortData(column);
+
+                // 헤더 업데이트
+                modalElement.querySelectorAll('.sortable-header').forEach(h => {
+                    const col = h.getAttribute('data-sort');
+                    const icon = getSortIcon(col);
+                    h.innerHTML = h.textContent.replace(/[▲▼]/g, '').trim() + ' ' + icon;
+                });
+            });
+        });
+
+        // 초기 데이터 로드
+        updateTableBody();
+
+        // 모달 표시
+        bsModal.show();
+
+        // 백드롭 클릭 이벤트 명시적 처리 (출근율 모달)
+        setTimeout(() => {
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.style.cursor = 'pointer';
+                backdrop.addEventListener('click', function(e) {
+                    if (e.target === backdrop) {
+                        bsModal.hide();
+                    }
+                });
+            }
+        }, 100);
+
+        // 모달이 닫힐 때 DOM에서 제거
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            modalElement.remove();
+        });
+    }
+
+
+    function showConsecutiveAqlFailDetails() {
+        // 3개월 연속 실패자와 2개월 연속 실패자 분리
+        const threeMonthFails = window.employeeData.filter(emp =>
+            emp['Continuous_FAIL'] === 'YES_3MONTHS'
+        );
+
+        const twoMonthFails = window.employeeData.filter(emp =>
+            emp['Continuous_FAIL'] && emp['Continuous_FAIL'].includes('2MONTHS')
+        );
+
+        // Custom HTML for this specific modal
+        const existingModal = document.getElementById('consecutiveAqlFailModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        let modalHTML = `
+            <div id="consecutiveAqlFailModal" class="modal" style="display: block; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+                <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">
+                    <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0;">
+                        <span class="close" onclick="document.getElementById('consecutiveAqlFailModal').remove()" style="color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+                        <h2>3개월 연속 AQL FAIL 현황</h2>
+                    </div>
+                    <div class="modal-body" style="padding: 20px;">
+        `;
+
+        // 3개월 연속 실패 섹션
+        modalHTML += '<div class="section-container" style="margin-bottom: 30px;">';
+        modalHTML += '<h3 style="color: #c0392b; margin-bottom: 15px;">🔴 3개월 연속 AQL 실패</h3>';
+
+        if (threeMonthFails.length === 0) {
+            modalHTML += '<div class="alert alert-success" style="padding: 15px; background: #d4edda; color: #155724; border-radius: 5px;">';
+            modalHTML += '✅ 현재 3개월 연속 실패자가 없습니다.';
+            modalHTML += '</div>';
+        } else {
+            modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
+            modalHTML += '<thead><tr style="background: #f8f9fa;">';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직원번호</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">이름</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직책</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직속상사</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">실패 패턴</th>';
+            modalHTML += '</tr></thead><tbody>';
+
+            threeMonthFails.forEach(emp => {
+                modalHTML += '<tr>';
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Employee No'] || emp['emp_no']}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Full Name'] || emp['name']}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['position'] || '-'}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['boss_name'] || '-'}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['AQL_Fail_Pattern'] || 'Jul-Aug-Sep'}</td>`;
+                modalHTML += '</tr>';
+            });
+
+            modalHTML += '</tbody></table>';
+        }
+        modalHTML += '</div>';
+
+        // 2개월 연속 실패 섹션
+        modalHTML += '<div class="section-container">';
+        modalHTML += '<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ 2개월 연속 AQL 실패 - 주의 관찰 대상</h3>';
+
+        if (twoMonthFails.length === 0) {
+            modalHTML += '<div class="alert alert-info" style="padding: 15px; background: #d1ecf1; color: #0c5460; border-radius: 5px;">';
+            modalHTML += '현재 2개월 연속 실패자가 없습니다.';
+            modalHTML += '</div>';
+        } else {
+            modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
+            modalHTML += '<thead><tr style="background: #f8f9fa;">';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직원번호</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">이름</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직책</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직속상사</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">실패 패턴</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">위험도</th>';
+            modalHTML += '</tr></thead><tbody>';
+
+            // 8-9월 연속 실패자를 먼저 표시 (높은 위험)
+            const augSepFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('AUG_SEP'));
+            const julAugFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('JUL_AUG'));
+
+            augSepFails.forEach(emp => {
+                modalHTML += '<tr style="background: #fff5f5;">';
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Employee No'] || emp['emp_no']}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Full Name'] || emp['name']}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-'}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['MST direct boss name'] || emp['boss_name'] || '-'}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['AQL_Fail_Pattern'] || 'Aug-Sep'}</td>`;
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">🔴 높음</span></td>';
+                modalHTML += '</tr>';
+            });
+
+            julAugFails.forEach(emp => {
+                modalHTML += '<tr>';
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Employee No'] || emp['emp_no']}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Full Name'] || emp['name']}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-'}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['MST direct boss name'] || emp['boss_name'] || '-'}</td>`;
+                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['AQL_Fail_Pattern'] || 'Jul-Aug'}</td>`;
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 3px;">🟡 보통</span></td>';
+                modalHTML += '</tr>';
+            });
+
+            modalHTML += '</tbody></table>';
+
+            // 범례 추가
+            modalHTML += '<div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">';
+            modalHTML += '<strong>위험도 설명:</strong><br>';
+            modalHTML += '🔴 <strong>높음 (Aug-Sep):</strong> 10월에 실패 시 3개월 연속 실패가 됩니다. 즉시 조치 필요!<br>';
+            modalHTML += '🟡 <strong>보통 (Jul-Aug):</strong> 9월에 회복했지만 지속적인 모니터링이 필요합니다.';
+            modalHTML += '</div>';
+        }
+        modalHTML += '</div>';
+
+        // 요약 통계
+        modalHTML += '<div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 5px;">';
+        modalHTML += '<strong>📊 요약:</strong><br>';
+        modalHTML += `• 3개월 연속 실패: ${threeMonthFails.length}명<br>`;
+        modalHTML += `• 2개월 연속 실패: ${twoMonthFails.length}명<br>`;
+        const augSepCount = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('AUG_SEP')).length;
+        modalHTML += `&nbsp;&nbsp;- 8-9월 연속 (높은 위험): ${augSepCount}명<br>`;
+        modalHTML += `&nbsp;&nbsp;- 7-8월 연속 (모니터링): ${twoMonthFails.length - augSepCount}명`;
+        modalHTML += '</div>';
+
+        // Close modal HTML
+        modalHTML += `
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // Add click outside to close functionality
+        const modal = document.getElementById('consecutiveAqlFailModal');
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.remove();
+            }
+        };
+    }
+
+    function showAqlFailDetails() {
+        // AQL FAIL이 있는 직원 필터링
+        let aqlFailEmployees = window.employeeData.filter(emp => {
+            const aqlFailures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
+            return aqlFailures > 0;
+        });
+
+        // 정렬 상태 관리
+        let sortColumn = 'failPercent';
+        let sortOrder = 'desc';
+        let modalDiv = null;
+        let backdrop = null;
+
+        function sortData(column) {
+            console.log('sortData called with column:', column, 'current sortColumn:', sortColumn, 'sortOrder:', sortOrder);
+
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = 'asc';
+            }
+
+            aqlFailEmployees.sort((a, b) => {
+                let aVal, bVal;
+
+                switch(column) {
+                    case 'empNo':
+                        aVal = a['Employee No'] || a.employee_no || '';
+                        bVal = b['Employee No'] || b.employee_no || '';
+                        break;
+                    case 'name':
+                        aVal = a['Full Name'] || a.full_name || '';
+                        bVal = b['Full Name'] || b.full_name || '';
+                        break;
+                    case 'manager':
+                        // 모든 가능한 직속 상사 필드 체크
+                        aVal = a['MST direct boss name'] || a['direct boss name'] || a['Direct Boss Name'] || a.direct_boss_name || '-';
+                        bVal = b['MST direct boss name'] || b['direct boss name'] || b['Direct Boss Name'] || b.direct_boss_name || '-';
+                        break;
+                    case 'passCount':
+                        // 엑셀에서 직접 PASS 횟수 가져오기
+                        aVal = parseFloat(a['AQL_Pass_Count'] || 0);
+                        bVal = parseFloat(b['AQL_Pass_Count'] || 0);
+                        break;
+                    case 'failures':
+                        aVal = parseFloat(a['September AQL Failures'] || a['aql_failures'] || 0);
+                        bVal = parseFloat(b['September AQL Failures'] || b['aql_failures'] || 0);
+                        break;
+                    case 'failPercent':
+                        // 엑셀에서 직접 FAIL % 가져오기
+                        aVal = parseFloat(a['AQL_Fail_Percent'] || 0);
+                        bVal = parseFloat(b['AQL_Fail_Percent'] || 0);
+                        break;
+                    default:
+                        aVal = '';
+                        bVal = '';
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortOrder === 'asc' ? aVal.localeCompare(bVal, 'ko') : bVal.localeCompare(aVal, 'ko');
+                } else {
+                    return sortOrder === 'asc' ? (aVal - bVal) : (bVal - aVal);
+                }
+            });
+
+            updateTableBody();
+        }
+
+        function updateTableBody() {
+            // 테이블 바디만 업데이트 (이벤트 리스너 유지)
+            const tbody = document.querySelector('#detailModal tbody');
+            if (!tbody) return;
+
+            let tableRows = aqlFailEmployees.map(emp => {
+                const failures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
+                // 모든 가능한 직속 상사 필드 체크
+                const managerName = emp['MST direct boss name'] || emp['direct boss name'] || emp['Direct Boss Name'] || emp.direct_boss_name || '-';
+
+                // 엑셀 파일에서 AQL 통계 데이터 가져오기 (Single Source of Truth)
+                const totalTests = emp['AQL_Total_Tests'] || 10;
+                const passCount = emp['AQL_Pass_Count'] || Math.max(0, totalTests - failures);
+                const failPercent = emp['AQL_Fail_Percent'] ? emp['AQL_Fail_Percent'].toFixed(1) : ((failures / totalTests * 100).toFixed(1));
+
+                // 실패율에 따른 색상 구분
+                let failBadgeClass = '';
+                let failBadgeText = '';
+                if (failPercent >= 30) {
+                    failBadgeClass = 'bg-danger';
+                    failBadgeText = `${failPercent}% (심각)`;
+                } else if (failPercent >= 20) {
+                    failBadgeClass = 'bg-warning text-dark';
+                    failBadgeText = `${failPercent}% (경고)`;
+                } else {
+                    failBadgeClass = 'bg-info';
+                    failBadgeText = `${failPercent}%`;
+                }
+
+                return `
+                    <tr class="unified-table-row">
+                        <td class="unified-table-cell">${emp['Employee No'] || emp.employee_no || ''}</td>
+                        <td class="unified-table-cell">${emp['Full Name'] || emp.full_name || ''}</td>
+                        <td class="unified-table-cell">${managerName}</td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-success">${passCount}건</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-danger">${failures}건</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge ${failBadgeClass}">${failBadgeText}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = tableRows || '<tr><td colspan="6" class="text-center text-muted">AQL FAIL이 없습니다</td></tr>';
+
+            // 정렬 아이콘 업데이트
+            document.querySelectorAll('#detailModal th[data-sort]').forEach(th => {
+                const column = th.getAttribute('data-sort');
+                const sortIcon = th.querySelector('.sort-icon');
+                if (sortIcon) {
+                    if (sortColumn === column) {
+                        sortIcon.textContent = sortOrder === 'asc' ? ' ▲' : ' ▼';
+                    } else {
+                        sortIcon.textContent = ' ⇅';
+                    }
+                }
+            });
+        }
+
+        function createModal() {
+            // 정렬 아이콘 업데이트 함수
+            function getSortIcon(column) {
+                if (sortColumn === column) {
+                    return sortOrder === 'asc' ? ' ▲' : ' ▼';
+                }
+                return ' ⇅';
+            }
+
+            let tableRows = aqlFailEmployees.map(emp => {
+                const failures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
+                // 모든 가능한 직속 상사 필드 체크
+                const managerName = emp['MST direct boss name'] || emp['direct boss name'] || emp['Direct Boss Name'] || emp.direct_boss_name || '-';
+
+                // 엑셀 파일에서 AQL 통계 데이터 가져오기
+                const totalTests = emp['AQL_Total_Tests'] || 10;
+                const passCount = emp['AQL_Pass_Count'] || Math.max(0, totalTests - failures);
+                const failPercent = emp['AQL_Fail_Percent'] ? emp['AQL_Fail_Percent'].toFixed(1) : ((failures / totalTests * 100).toFixed(1));
+
+                // 실패율에 따른 색상 구분
+                let failBadgeClass = '';
+                let failBadgeText = '';
+                if (failPercent >= 30) {
+                    failBadgeClass = 'bg-danger';
+                    failBadgeText = `${failPercent}% (심각)`;
+                } else if (failPercent >= 20) {
+                    failBadgeClass = 'bg-warning text-dark';
+                    failBadgeText = `${failPercent}% (경고)`;
+                } else {
+                    failBadgeClass = 'bg-info';
+                    failBadgeText = `${failPercent}%`;
+                }
+
+                return `
+                    <tr class="unified-table-row">
+                        <td class="unified-table-cell">${emp['Employee No'] || emp.employee_no || ''}</td>
+                        <td class="unified-table-cell">${emp['Full Name'] || emp.full_name || ''}</td>
+                        <td class="unified-table-cell">${managerName}</td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-success">${passCount}건</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-danger">${failures}건</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge ${failBadgeClass}">${failBadgeText}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            let modalContent = `
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header unified-modal-header">
+                            <h5 class="modal-title unified-modal-title">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                AQL FAIL 보유자 상세
+                            </h5>
+                            <button type="button" class="btn-close" onclick="window.closeAqlModal()"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-warning d-flex align-items-center mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <div>
+                                    <strong>AQL (Acceptable Quality Level) FAIL</strong>은 품질 검사에서 불합격을 받은 경우를 의미합니다.<br>
+                                    총 <strong>${aqlFailEmployees.length}명</strong>의 직원이 9월에 AQL FAIL을 기록했습니다.
+                                </div>
+                            </div>
+
+                            <table class="table table-hover">
+                                <thead class="unified-table-header">
+                                    <tr>
+                                        <th style="cursor: pointer;" data-sort="empNo">
+                                            사번<span class="sort-icon">${getSortIcon('empNo')}</span>
+                                        </th>
+                                        <th style="cursor: pointer;" data-sort="name">
+                                            이름<span class="sort-icon">${getSortIcon('name')}</span>
+                                        </th>
+                                        <th style="cursor: pointer;" data-sort="manager">
+                                            직속 상사<span class="sort-icon">${getSortIcon('manager')}</span>
+                                        </th>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="passCount">
+                                            AQL PASS<span class="sort-icon">${getSortIcon('passCount')}</span>
+                                        </th>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="failures">
+                                            AQL FAIL<span class="sort-icon">${getSortIcon('failures')}</span>
+                                        </th>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="failPercent">
+                                            FAIL %<span class="sort-icon">${getSortIcon('failPercent')}</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRows || '<tr><td colspan="6" class="text-center text-muted">AQL FAIL이 없습니다</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 기존 모달 제거
+            const existingModal = document.getElementById('detailModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // 백드롭 제거
+            const existingBackdrop = document.querySelector('.modal-backdrop');
+            if (existingBackdrop) {
+                existingBackdrop.remove();
+            }
+
+            // 새 모달 생성
+            modalDiv = document.createElement('div');
+            modalDiv.className = 'modal fade show';
+            modalDiv.id = 'detailModal';
+            modalDiv.style.display = 'block';
+            modalDiv.style.position = 'fixed';
+            modalDiv.style.top = '0';
+            modalDiv.style.left = '0';
+            modalDiv.style.width = '100%';
+            modalDiv.style.height = '100%';
+            modalDiv.style.zIndex = '1050';
+            modalDiv.innerHTML = modalContent;
+            document.body.appendChild(modalDiv);
+
+            // 백드롭 추가
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            backdrop.style.position = 'fixed';
+            backdrop.style.top = '0';
+            backdrop.style.left = '0';
+            backdrop.style.width = '100%';
+            backdrop.style.height = '100%';
+            backdrop.style.zIndex = '1040';
+            backdrop.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            document.body.appendChild(backdrop);
+
+            // body 스타일 조정
+            document.body.classList.add('modal-open');
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = '17px';
+
+            // 전역 closeModal 함수 정의
+            window.closeAqlModal = function() {
+                console.log('Closing modal...');
+                if (modalDiv) modalDiv.remove();
+                if (backdrop) backdrop.remove();
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                delete window.closeAqlModal;
+            };
+
+            // 백드롭 클릭 이벤트 (모달 밖 클릭으로 닫기)
+            backdrop.onclick = function(e) {
+                if (e.target === backdrop) {
+                    console.log('Backdrop clicked');
+                    window.closeAqlModal();
+                }
+            };
+
+            // 모달 자체 클릭 이벤트 (모달 콘텐츠 밖 클릭 시 닫기)
+            modalDiv.onclick = function(e) {
+                if (e.target === modalDiv) {
+                    console.log('Modal outer area clicked');
+                    window.closeAqlModal();
+                }
+            };
+
+            // 정렬 헤더 클릭 이벤트
+            setTimeout(() => {
+                const sortHeaders = document.querySelectorAll('#detailModal th[data-sort]');
+                sortHeaders.forEach(header => {
+                    header.onclick = function(e) {
+                        e.stopPropagation();
+                        const column = this.getAttribute('data-sort');
+                        console.log('Header clicked:', column);
+                        sortData(column);
+                    };
+                });
+            }, 100);
+        }
+
+        // 초기 모달 생성
+        createModal();
+    }
+
+    // Area AQL Reject Rate 상세 모달 (조건 7번, 8번 구분 표시)
+    function showAreaRejectRateDetails() {
+        // 구역 매핑 데이터
+        const areaMapping = {
+            '618110087': 'Building C',
+            '623080475': 'Building C',
+            '619070185': 'Building D',
+            '620070020': 'Building D',
+            '620070013': 'Building A',
+            '618060092': 'Building B & Repacking',
+            '620080295': 'All Buildings',
+            '618030241': 'All Buildings',  // 전체 구역이 아닌 All Buildings로 변경
+            '618110097': 'All Buildings',  // 전체 구역이 아닌 All Buildings로 변경
+            '620120386': 'All Buildings'   // 전체 구역이 아닌 All Buildings로 변경
+        };
+
+        // AQL Building 정보를 사용하여 매핑 확장
+        window.employeeData.forEach(emp => {
+            const building = emp['AQL_Building'];
+            const empNo = emp['Employee No'] || emp['emp_no'];
+            if (building && empNo && !areaMapping[empNo]) {
+                areaMapping[empNo] = 'Building ' + building;
+            }
+        });
+
+        // 조건 7번: 팀/구역 AQL 3개월 연속 실패
+        let cond7FailEmployees = window.employeeData.filter(emp => {
+            const cond7 = emp['cond_7_aql_team_area'] || 'PASS';
+            return cond7 === 'FAIL';
+        });
+
+        // 조건 8번: 구역 reject rate > 3%
+        let cond8FailEmployees = window.employeeData.filter(emp => {
+            const cond8 = emp['cond_8_area_reject'] || 'PASS';
+            const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || emp['area_reject_rate'] || 0);
+            return cond8 === 'FAIL' || areaRejectRate > 3;
+        });
+
+        // 구역별 통계 계산
+        function calculateAreaStatistics() {
+            const areaStats = {};
+            let totalInspected = 0;
+            let totalRejects = 0;
+
+            // 모든 직원 데이터를 순회하며 구역별 통계 수집
+            window.employeeData.forEach(emp => {
+                const empNo = emp['Employee No'] || emp['emp_no'];
+                const area = areaMapping[empNo] || 'AUDIT & TRAINING TEAM';
+
+                // 실제 AQL 데이터 사용 (Excel의 Single Source of Truth)
+                const aqlTotalTests = parseFloat(emp['AQL_Total_Tests'] || 0);
+                const aqlPassCount = parseFloat(emp['AQL_Pass_Count'] || 0);
+                const aqlFailPercent = parseFloat(emp['AQL_Fail_Percent'] || 0);
+                const aqlBuilding = emp['AQL_Building'] || '';
+
+                // 테스트 건수 기반 계산
+                const totalTests = aqlTotalTests;
+                const passTests = aqlPassCount;
+                const failTests = totalTests > 0 ? Math.round(totalTests * aqlFailPercent / 100) : 0;
+
+                if (!areaStats[area]) {
+                    areaStats[area] = {
+                        totalEmployees: 0,  // 전체 직원수
+                        cond7FailCount: 0,   // 조건 7번 미충족 인원
+                        cond8FailCount: 0,   // 조건 8번 미충족 인원
+                        totalPassTests: 0,
+                        totalFailTests: 0,
+                        totalTests: 0,
+                        rejectRate: 0
+                    };
+                }
+
+                // 전체 직원수 카운트
+                areaStats[area].totalEmployees += 1;
+
+                // 조건별 카운트
+                const cond7 = emp['cond_7_aql_team_area'] || 'PASS';
+                const cond8 = emp['cond_8_area_reject'] || 'PASS';
+                const personalRejectRate = parseFloat(emp['Area_Reject_Rate'] || emp['area_reject_rate'] || 0);
+
+                if (cond7 === 'FAIL') {
+                    areaStats[area].cond7FailCount += 1;
+                }
+                if (cond8 === 'FAIL' || personalRejectRate > 3) {
+                    areaStats[area].cond8FailCount += 1;
+                }
+
+                // 테스트 통계는 전체 직원 대상
+                if (totalTests > 0) {
+                    areaStats[area].totalPassTests += passTests;
+                    areaStats[area].totalFailTests += failTests;
+                    areaStats[area].totalTests += totalTests;
+
+                    totalInspected += totalTests;
+                    totalRejects += failTests;
+                }
+            });
+
+            // 각 구역의 Reject Rate 계산
+            for (const area in areaStats) {
+                const stats = areaStats[area];
+                stats.rejectRate = stats.totalTests > 0
+                    ? (stats.totalFailTests / stats.totalTests * 100).toFixed(2)
+                    : 0;
+            }
+
+            // 전체 통계 추가
+            const totalPassTests = Object.values(areaStats).reduce((sum, stats) => sum + stats.totalPassTests, 0);
+            const totalFailTests = Object.values(areaStats).reduce((sum, stats) => sum + stats.totalFailTests, 0);
+            const totalTestsAll = totalPassTests + totalFailTests;
+            const totalEmployees = Object.values(areaStats).reduce((sum, stats) => sum + stats.totalEmployees, 0);
+            const totalCond7Fail = Object.values(areaStats).reduce((sum, stats) => sum + stats.cond7FailCount, 0);
+            const totalCond8Fail = Object.values(areaStats).reduce((sum, stats) => sum + stats.cond8FailCount, 0);
+
+            areaStats['전체'] = {
+                totalEmployees: totalEmployees,
+                cond7FailCount: totalCond7Fail,
+                cond8FailCount: totalCond8Fail,
+                totalPassTests: totalPassTests,
+                totalFailTests: totalFailTests,
+                totalTests: totalTestsAll,
+                rejectRate: totalTestsAll > 0
+                    ? (totalFailTests / totalTestsAll * 100).toFixed(2)
+                    : 0
+            };
+
+            return areaStats;
+        }
+
+        const areaStatistics = calculateAreaStatistics();
+
+        // Bootstrap 모달 생성 및 표시
+        const modalContent = `
+            <div class="modal-header unified-modal-header">
+                <h5 class="modal-title unified-modal-title">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    구역별 AQL 상태 및 조건 7번/8번 분석
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <div class="alert alert-info">
+                        <strong>조건 7번:</strong> 팀/구역 AQL 3개월 연속 실패 - ${cond7FailEmployees.length}명<br>
+                        <strong>조건 8번:</strong> 구역 Reject Rate 3% 초과 - ${cond8FailEmployees.length}명
+                    </div>
+                    <p>구역별 AQL 상세 현황과 조건 충족 상태를 확인할 수 있습니다.</p>
+                </div>
+
+                <!-- 구역별 Reject Rate 통계 테이블 -->
+                <div class="mb-4">
+                                <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>구역별 Reject Rate 통계</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" style="font-size: 13px;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="padding: 10px;">구역</th>
+                                                <th style="padding: 10px; text-align: center;">전체<br>인원</th>
+                                                <th style="padding: 10px; text-align: center;">조건7<br>미충족</th>
+                                                <th style="padding: 10px; text-align: center;">조건8<br>미충족</th>
+                                                <th style="padding: 10px; text-align: center;">총 AQL<br>건수</th>
+                                                <th style="padding: 10px; text-align: center;">PASS<br>건수</th>
+                                                <th style="padding: 10px; text-align: center;">FAIL<br>건수</th>
+                                                <th style="padding: 10px; text-align: center;">Reject<br>Rate</th>
+                                                <th style="padding: 10px; text-align: center;">상태</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${Object.entries(areaStatistics).map(([area, stats]) => {
+                                                const isTotal = area === '전체';
+                                                const rejectRate = parseFloat(stats.rejectRate);
+                                                let badgeClass = 'bg-success';
+                                                let statusText = '정상';
+                                                if (rejectRate > 3) {
+                                                    badgeClass = 'bg-danger';
+                                                    statusText = '초과';
+                                                } else if (rejectRate > 2.5) {
+                                                    badgeClass = 'bg-warning';
+                                                    statusText = '주의';
+                                                }
+                                                return `
+                                                    <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
+                                                        <td style="padding: 8px;">${area}</td>
+                                                        <td style="padding: 8px; text-align: center;">${stats.totalEmployees}</td>
+                                                        <td style="padding: 8px; text-align: center;">
+                                                            ${stats.cond7FailCount > 0 ?
+                                                                `<span class="badge bg-warning">${stats.cond7FailCount}</span>` :
+                                                                '<span class="text-muted">0</span>'}
+                                                        </td>
+                                                        <td style="padding: 8px; text-align: center;">
+                                                            ${stats.cond8FailCount > 0 ?
+                                                                `<span class="badge bg-danger">${stats.cond8FailCount}</span>` :
+                                                                '<span class="text-muted">0</span>'}
+                                                        </td>
+                                                        <td style="padding: 8px; text-align: center;">${(stats.totalTests || 0).toLocaleString()}</td>
+                                                        <td style="padding: 8px; text-align: center;">${(stats.totalPassTests || 0).toLocaleString()}</td>
+                                                        <td style="padding: 8px; text-align: center;">${(stats.totalFailTests || 0).toLocaleString()}</td>
+                                                        <td style="padding: 8px; text-align: center;">
+                                                            <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
+                                                                ${stats.rejectRate}%
+                                                            </span>
+                                                        </td>
+                                                        <td style="padding: 8px; text-align: center;">
+                                                            <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
+                                                                ${statusText}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 조건별 직원 목록 -->
+                            <div class="mb-4">
+                                <h6 class="mb-3"><i class="fas fa-users me-2"></i>조건 미충족 직원 상세</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" style="font-size: 13px;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th style="padding: 10px;">구역</th>
+                                                <th style="padding: 10px; text-align: center;">인원수</th>
+                                                <th style="padding: 10px; text-align: center;">PASS 건수</th>
+                                                <th style="padding: 10px; text-align: center;">FAIL 건수</th>
+                                                <th style="padding: 10px; text-align: center;">전체 테스트</th>
+                                                <th style="padding: 10px; text-align: center;">Pass Rate</th>
+                                                <th style="padding: 10px; text-align: center;">상태</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${Object.entries(areaStatistics).map(([area, stats]) => {
+                                                const isTotal = area === '전체';
+                                                const passRate = (100 - parseFloat(stats.rejectRate)).toFixed(2);
+                                                let badgeClass = 'bg-danger';
+                                                let statusText = '저조';
+                                                if (passRate >= 97) {
+                                                    badgeClass = 'bg-success';
+                                                    statusText = '우수';
+                                                } else if (passRate >= 95) {
+                                                    badgeClass = 'bg-info';
+                                                    statusText = '양호';
+                                                } else if (passRate >= 90) {
+                                                    badgeClass = 'bg-warning';
+                                                    statusText = '보통';
+                                                }
+                                                return `
+                                                    <tr class="${isTotal ? 'table-success fw-bold' : ''}">
+                                                        <td style="padding: 8px;">${area}</td>
+                                                        <td style="padding: 8px; text-align: center;">${stats.employees}명</td>
+                                                        <td style="padding: 8px; text-align: center;">${(stats.totalPassTests || 0).toLocaleString()}</td>
+                                                        <td style="padding: 8px; text-align: center;">${(stats.totalFailTests || 0).toLocaleString()}</td>
+                                                        <td style="padding: 8px; text-align: center;">${(stats.totalTests || 0).toLocaleString()}</td>
+                                                        <td style="padding: 8px; text-align: center;">
+                                                            <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
+                                                                ${passRate}%
+                                                            </span>
+                                                        </td>
+                                                        <td style="padding: 8px; text-align: center;">
+                                                            <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
+                                                                ${statusText}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                `;
+                                            }).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        // Bootstrap 모달 처리
+        let modal = document.getElementById('detailModal');
+        if (!modal) {
+            const modalHTML = `
+                <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content" id="detailModalContent"></div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            modal = document.getElementById('detailModal');
+        }
+
+        document.getElementById('detailModalContent').innerHTML = modalContent;
+
+        // Bootstrap 5 Modal 처리
+        const modalElement = document.getElementById('detailModal');
+
+        // 기존 모달 인스턴스 정리
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+
+        // 새 모달 인스턴스 생성 with proper options
+        const bsModal = new bootstrap.Modal(modalElement, {
+            backdrop: true,      // 배경 클릭으로 닫기
+            keyboard: true,      // ESC 키로 닫기
+            focus: true
+        });
+
+        bsModal.show();
+
+        // 백드롭 클릭 이벤트 명시적 처리 (구역 AQL 모달)
+        setTimeout(() => {
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.style.cursor = 'pointer';
+                backdrop.addEventListener('click', function(e) {
+                    if (e.target === backdrop) {
+                        bsModal.hide();
+                    }
+                });
+            }
+        }, 100);
+
+        // 모달 닫기 이벤트 리스너 추가
+        modalElement.addEventListener('hidden.bs.modal', function () {
+            // 모달이 닫힌 후 정리 작업
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+        });
+    }
+
+    // 5PRS 통과율 < 95% 상세 모달
+    function showLowPassRateDetails() {
+        // TYPE-1 ASSEMBLY INSPECTOR with pass rate < 95% 필터링
+        let lowPassEmployees = window.employeeData.filter(emp => {
+            const isType1 = emp['type'] === 'TYPE-1' || emp['ROLE TYPE STD'] === 'TYPE-1';
+            const position = (emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '').toUpperCase();
+            const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+            const passRate = parseFloat(emp['pass_rate'] || emp['5PRS Pass Rate'] || 100);
+            return isType1 && isAssemblyInspector && passRate < 95;
+        });
+
+        let sortColumn = 'passRate';
+        let sortOrder = 'asc';
+        let modalDiv = null;
+        let backdrop = null;
+
+        function sortData(column) {
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = column === 'passRate' ? 'asc' : 'desc';
+            }
+            updateTableBody();
+        }
+
+        function updateTableBody() {
+            const tbody = document.querySelector('#lowPassRateModal tbody');
+            if (!tbody) return;
+
+            // 정렬
+            lowPassEmployees.sort((a, b) => {
+                let aVal, bVal;
+                switch (sortColumn) {
+                    case 'empNo':
+                        aVal = a['Employee No'] || a['emp_no'];
+                        bVal = b['Employee No'] || b['emp_no'];
+                        break;
+                    case 'name':
+                        aVal = a['Full Name'] || a['name'];
+                        bVal = b['Full Name'] || b['name'];
+                        break;
+                    case 'position':
+                        aVal = a['position'] || a['FINAL QIP POSITION NAME CODE'] || '';
+                        bVal = b['position'] || b['FINAL QIP POSITION NAME CODE'] || '';
+                        break;
+                    case 'passRate':
+                        aVal = parseFloat(a['pass_rate'] || a['5PRS Pass Rate'] || 100);
+                        bVal = parseFloat(b['pass_rate'] || b['5PRS Pass Rate'] || 100);
+                        break;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                }
+                return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+
+            // 테이블 업데이트
+            tbody.innerHTML = '';
+            lowPassEmployees.forEach(emp => {
+                const empNo = emp['Employee No'] || emp['emp_no'];
+                const name = emp['Full Name'] || emp['name'];
+                const position = emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '-';
+                const passRate = parseFloat(emp['pass_rate'] || emp['5PRS Pass Rate'] || 0).toFixed(1);
+
+                // Pass Rate에 따른 색상
+                let badgeClass = 'bg-danger';
+                if (passRate >= 90) badgeClass = 'bg-warning';
+                else if (passRate >= 80) badgeClass = 'bg-orange';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${empNo}</td>
+                    <td>${name}</td>
+                    <td>${position}</td>
+                    <td>TYPE-1</td>
+                    <td><span class="badge ${badgeClass}">${passRate}%</span></td>
+                    <td>${passRate < 95 ? '미충족' : '충족'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function createModal() {
+            // 백드롭 생성
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            backdrop.style.zIndex = '1040';
+            document.body.appendChild(backdrop);
+
+            // 모달 생성
+            modalDiv = document.createElement('div');
+            modalDiv.className = 'modal fade show d-block';
+            modalDiv.style.zIndex = '1050';
+            modalDiv.setAttribute('id', 'lowPassRateModal');
+
+            const modalHTML = `
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header unified-modal-header">
+                            <h5 class="modal-title unified-modal-title">
+                                <i class="bi bi-graph-down"></i>
+                                5PRS 통과율 95% 미만 상세
+                            </h5>
+                            <button type="button" class="btn-close" onclick="window.closeLowPassRateModal()"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <div class="alert alert-warning">
+                                    <strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 통과율이 95% 미만인 경우 인센티브를 받을 수 없습니다.
+                                </div>
+                                <p>총 ${lowPassEmployees.length}명이 5PRS 통과율 95% 미만입니다.</p>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="unified-table-header">
+                                        <tr>
+                                            <th class="sortable-header" data-sort="empNo">사번 ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name">이름 ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="position">직책 ${getSortIcon('position')}</th>
+                                            <th>타입</th>
+                                            <th class="sortable-header" data-sort="passRate">통과율 ${getSortIcon('passRate')}</th>
+                                            <th>조건 충족</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modalDiv.innerHTML = modalHTML;
+            document.body.appendChild(modalDiv);
+            document.body.classList.add('modal-open');
+
+            // 정렬 이벤트 추가
+            modalDiv.querySelectorAll('.sortable-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    sortData(column);
+
+                    // 헤더 업데이트
+                    modalDiv.querySelectorAll('.sortable-header').forEach(h => {
+                        const col = h.getAttribute('data-sort');
+                        const icon = getSortIcon(col);
+                        h.innerHTML = h.textContent.replace(/[▲▼]/g, '').trim() + ' ' + icon;
+                    });
+                });
+            });
+
+            // 초기 데이터 로드
+            updateTableBody();
+
+            // 닫기 함수
+            window.closeLowPassRateModal = function() {
+                if (modalDiv) {
+                    modalDiv.remove();
+                    modalDiv = null;
+                }
+                if (backdrop) {
+                    backdrop.remove();
+                    backdrop = null;
+                }
+                document.body.classList.remove('modal-open');
+                window.closeLowPassRateModal = null;
+            };
+
+            // 백드롭 클릭으로 닫기
+            backdrop.onclick = function(e) {
+                if (e.target === backdrop) {
+                    window.closeLowPassRateModal();
+                }
+            };
+
+            // 모달 내부 클릭 시 이벤트 전파 중단
+            modalDiv.querySelector('.modal-content').onclick = function(e) {
+                e.stopPropagation();
+            };
+        }
+
+        function getSortIcon(column) {
+            if (sortColumn !== column) return '';
+            return sortOrder === 'asc' ? '▲' : '▼';
+        }
+
+        createModal();
+    }
+
+    // 5PRS 검사량 < 100족 상세 모달
+    function showLowInspectionQtyDetails() {
+        // TYPE-1 ASSEMBLY INSPECTOR with inspection qty < 100 필터링
+        let lowQtyEmployees = window.employeeData.filter(emp => {
+            const isType1 = emp['type'] === 'TYPE-1' || emp['ROLE TYPE STD'] === 'TYPE-1';
+            const position = (emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '').toUpperCase();
+            const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+            const inspectionQty = parseFloat(emp['validation_qty'] || emp['5PRS Inspection Quantity'] || 0);
+            return isType1 && isAssemblyInspector && inspectionQty < 100;
+        });
+
+        let sortColumn = 'inspectionQty';
+        let sortOrder = 'asc';
+        let modalDiv = null;
+        let backdrop = null;
+
+        function sortData(column) {
+            if (sortColumn === column) {
+                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortOrder = column === 'inspectionQty' ? 'asc' : 'desc';
+            }
+            updateTableBody();
+        }
+
+        function updateTableBody() {
+            const tbody = document.querySelector('#lowInspectionQtyModal tbody');
+            if (!tbody) return;
+
+            // 정렬
+            lowQtyEmployees.sort((a, b) => {
+                let aVal, bVal;
+                switch (sortColumn) {
+                    case 'empNo':
+                        aVal = a['Employee No'] || a['emp_no'];
+                        bVal = b['Employee No'] || b['emp_no'];
+                        break;
+                    case 'name':
+                        aVal = a['Full Name'] || a['name'];
+                        bVal = b['Full Name'] || b['name'];
+                        break;
+                    case 'position':
+                        aVal = a['position'] || a['FINAL QIP POSITION NAME CODE'] || '';
+                        bVal = b['position'] || b['FINAL QIP POSITION NAME CODE'] || '';
+                        break;
+                    case 'inspectionQty':
+                        aVal = parseFloat(a['validation_qty'] || a['5PRS Inspection Quantity'] || 0);
+                        bVal = parseFloat(b['validation_qty'] || b['5PRS Inspection Quantity'] || 0);
+                        break;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                }
+                return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+
+            // 테이블 업데이트
+            tbody.innerHTML = '';
+            lowQtyEmployees.forEach(emp => {
+                const empNo = emp['Employee No'] || emp['emp_no'];
+                const name = emp['Full Name'] || emp['name'];
+                const position = emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '-';
+                const inspectionQty = Math.round(parseFloat(emp['validation_qty'] || emp['5PRS Inspection Quantity'] || 0));
+
+                // Inspection Qty에 따른 색상
+                let badgeClass = 'bg-danger';
+                if (inspectionQty >= 80) badgeClass = 'bg-warning';
+                else if (inspectionQty >= 50) badgeClass = 'bg-orange';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${empNo}</td>
+                    <td>${name}</td>
+                    <td>${position}</td>
+                    <td>TYPE-1</td>
+                    <td><span class="badge ${badgeClass}">${inspectionQty}족</span></td>
+                    <td>${inspectionQty < 100 ? '미충족' : '충족'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function createModal() {
+            // 백드롭 생성
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            backdrop.style.zIndex = '1040';
+            document.body.appendChild(backdrop);
+
+            // 모달 생성
+            modalDiv = document.createElement('div');
+            modalDiv.className = 'modal fade show d-block';
+            modalDiv.style.zIndex = '1050';
+            modalDiv.setAttribute('id', 'lowInspectionQtyModal');
+
+            const modalHTML = `
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header unified-modal-header">
+                            <h5 class="modal-title unified-modal-title">
+                                <i class="bi bi-search"></i>
+                                5PRS 검사량 100족 미만 상세
+                            </h5>
+                            <button type="button" class="btn-close" onclick="window.closeLowInspectionQtyModal()"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <div class="alert alert-warning">
+                                    <strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 100족 미만인 경우 인센티브를 받을 수 없습니다.
+                                </div>
+                                <p>총 ${lowQtyEmployees.length}명이 5PRS 검사량 100족 미만입니다.</p>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="unified-table-header">
+                                        <tr>
+                                            <th class="sortable-header" data-sort="empNo">사번 ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name">이름 ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="position">직책 ${getSortIcon('position')}</th>
+                                            <th>타입</th>
+                                            <th class="sortable-header" data-sort="inspectionQty">검사량 ${getSortIcon('inspectionQty')}</th>
+                                            <th>조건 충족</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modalDiv.innerHTML = modalHTML;
+            document.body.appendChild(modalDiv);
+            document.body.classList.add('modal-open');
+
+            // 정렬 이벤트 추가
+            modalDiv.querySelectorAll('.sortable-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    sortData(column);
+
+                    // 헤더 업데이트
+                    modalDiv.querySelectorAll('.sortable-header').forEach(h => {
+                        const col = h.getAttribute('data-sort');
+                        const icon = getSortIcon(col);
+                        h.innerHTML = h.textContent.replace(/[▲▼]/g, '').trim() + ' ' + icon;
+                    });
+                });
+            });
+
+            // 초기 데이터 로드
+            updateTableBody();
+
+            // 닫기 함수
+            window.closeLowInspectionQtyModal = function() {
+                if (modalDiv) {
+                    modalDiv.remove();
+                    modalDiv = null;
+                }
+                if (backdrop) {
+                    backdrop.remove();
+                    backdrop = null;
+                }
+                document.body.classList.remove('modal-open');
+                window.closeLowInspectionQtyModal = null;
+            };
+
+            // 백드롭 클릭으로 닫기
+            backdrop.onclick = function(e) {
+                if (e.target === backdrop) {
+                    window.closeLowInspectionQtyModal();
+                }
+            };
+
+            // 모달 내부 클릭 시 이벤트 전파 중단
+            modalDiv.querySelector('.modal-content').onclick = function(e) {
+                e.stopPropagation();
+            };
+        }
+
+        function getSortIcon(column) {
+            if (sortColumn !== column) return '';
+            return sortOrder === 'asc' ? '▲' : '▼';
+        }
+
+        createModal();
+    }
     """
 
     # 모달 CSS 추가
     modal_styles = """
+    /* 통일된 모달 스타일 */
+    .unified-modal-header {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
+        border-bottom: 3px solid #2196f3 !important;
+        padding: 1.2rem 1.5rem !important;
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+    .unified-modal-title {
+        color: #1565c0 !important;
+        font-weight: 700 !important;
+        font-size: 1.25rem !important;
+        display: flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+    }
+    .unified-modal-content {
+        padding: 1.5rem !important;
+    }
+    .unified-summary-section {
+        display: flex !important;
+        justify-content: space-around !important;
+        padding: 1.5rem !important;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+        border-radius: 10px !important;
+        margin-bottom: 1.5rem !important;
+    }
+    .unified-stat-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    .unified-stat-label {
+        color: #6c757d !important;
+        font-size: 0.875rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .unified-stat-value {
+        color: #1565c0 !important;
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+    }
+    .unified-info-card {
+        padding: 1.25rem !important;
+        border-radius: 10px !important;
+        margin-bottom: 1rem !important;
+    }
+    .unified-section-title {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 0.75rem !important;
+        color: #495057 !important;
+    }
+    .unified-list-content {
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+    }
+    .unified-action-buttons {
+        display: flex !important;
+        justify-content: center !important;
+        gap: 0.75rem !important;
+        margin-top: 1.5rem !important;
+    }
+    .unified-table-header {
+        background: #f5f5f5 !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+    }
+    .unified-table-header th {
+        padding: 12px !important;
+        font-weight: 700 !important;
+        color: #424242 !important;
+        border-bottom: 2px solid #e0e0e0 !important;
+        white-space: nowrap !important;
+    }
+    .unified-table-row {
+        transition: all 0.3s ease !important;
+    }
+    .unified-table-row:hover {
+        transform: translateX(5px) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        background-color: #f8f9fa !important;
+    }
+    .sortable-header {
+        cursor: pointer !important;
+        user-select: none !important;
+        position: relative !important;
+        padding-right: 25px !important;
+    }
+    .sortable-header:hover {
+        background: #e9ecef !important;
+    }
+    .sortable-header::after {
+        content: '⇅' !important;
+        position: absolute !important;
+        right: 8px !important;
+        opacity: 0.3 !important;
+        font-size: 12px !important;
+    }
+    .sortable-header.asc::after {
+        content: '▲' !important;
+        opacity: 1 !important;
+    }
+    .sortable-header.desc::after {
+        content: '▼' !important;
+        opacity: 1 !important;
+    }
+
     .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -1428,8 +3324,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         border: none;
     }
     .calendar-day.no-data {
-        background: #fff;
-        color: #868e96;
+        background: #f8f9fa;
+        color: #495057;
         border: 2px dashed #dee2e6;
     }
     .day-number {
@@ -1461,9 +3357,42 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         color: white !important;
     }
     .calendar-day.no-data .attendance-count {
-        background: rgba(108, 117, 125, 0.08);
-        color: #adb5bd !important;
-        font-size: 0.7rem !important;
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545 !important;
+        font-size: 0.75rem !important;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+    .calendar-day.no-data .attendance-count i {
+        font-size: 0.65rem;
+        color: #dc3545;
+    }
+    .calendar-day.no-data .attendance-count span {
+        color: #495057 !important;
+    }
+    .legend-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        margin: 4px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border: 2px solid;
+    }
+    .legend-badge.legend-workday {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        border-color: #667eea;
+    }
+    .legend-badge.legend-nodata {
+        background: #f8f9fa;
+        color: #212529 !important;
+        border-color: #dee2e6;
+        border-style: dashed;
     }
     .stat-card {
         background: white;
@@ -1763,6 +3692,56 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             height: 100%;
             background-color: rgba(0,0,0,0.5);
             overflow: hidden; /* 모달 배경 스크롤 방지 */
+        }}
+
+        /* 최소 근무일 모달 가독성 개선 스타일 */
+        #minimumDaysTable {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }}
+
+        #minimumDaysTable thead th {{
+            background-color: #f8f9fa;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 12px 8px;
+            white-space: nowrap;
+            border-bottom: 2px solid #dee2e6;
+        }}
+
+        #minimumDaysTable tbody tr {{
+            transition: background-color 0.2s;
+        }}
+
+        #minimumDaysTable tbody tr:hover {{
+            background-color: #f8f9fa;
+        }}
+
+        #minimumDaysTable .badge {{
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }}
+
+        /* 진행률 색상 개선 */
+        .badge.bg-danger {{
+            background-color: #dc3545 !important;
+        }}
+
+        .badge.bg-warning {{
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }}
+
+        .badge.bg-info {{
+            background-color: #0dcaf0 !important;
+            color: #000 !important;
+        }}
+
+        .badge.bg-primary {{
+            background-color: #0d6efd !important;
+        }}
+
+        .badge.bg-success {{
+            background-color: #198754 !important;
         }}
         
         .modal-content {{
@@ -4173,35 +6152,42 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="kpi-label">최소 근무일 미충족</div>
                 </div>
 
-                <!-- KPI 카드 5: AQL FAIL 보유자 -->
+                <!-- KPI 카드 5: 출근율 88% 미만 -->
+                <div class="kpi-card" onclick="showValidationModal('attendanceBelow88')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-value" id="kpiAttendanceBelow88">-</div>
+                    <div class="kpi-label">출근율 88% 미만</div>
+                </div>
+
+                <!-- KPI 카드 6: AQL FAIL 보유자 -->
                 <div class="kpi-card" onclick="showValidationModal('aqlFail')" style="--card-color-1: #e67e22; --card-color-2: #d35400; box-shadow: 0 4px 15px rgba(230, 126, 34, 0.1);">
                     <div class="kpi-icon">❌</div>
                     <div class="kpi-value" id="kpiAqlFail">-</div>
                     <div class="kpi-label">AQL FAIL 보유자</div>
                 </div>
 
-                <!-- KPI 카드 6: 3개월 연속 AQL FAIL -->
+                <!-- KPI 카드 7: 3개월 연속 AQL FAIL -->
                 <div class="kpi-card" onclick="showValidationModal('consecutiveAqlFail')" style="--card-color-1: #c0392b; --card-color-2: #a93226; box-shadow: 0 4px 15px rgba(192, 57, 43, 0.1);">
                     <div class="kpi-icon">🔴</div>
                     <div class="kpi-value" id="kpiConsecutiveAqlFail">-</div>
                     <div class="kpi-label">3개월 연속 AQL FAIL</div>
                 </div>
 
-                <!-- KPI 카드 7: 구역 AQL Reject Rate -->
+                <!-- KPI 카드 8: 구역 AQL Reject 3% 이상 -->
                 <div class="kpi-card" onclick="showValidationModal('areaRejectRate')" style="--card-color-1: #3498db; --card-color-2: #2980b9; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-value" id="kpiAreaRejectRate">-</div>
-                    <div class="kpi-label">Area AQL Reject > 0.65%</div>
+                    <div class="kpi-label">구역 AQL Reject 3% 이상</div>
                 </div>
 
-                <!-- KPI 카드 8: 5PRS 통과율 < 95% -->
+                <!-- KPI 카드 9: 5PRS 통과율 < 95% -->
                 <div class="kpi-card" onclick="showValidationModal('lowPassRate')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);">
                     <div class="kpi-icon">📉</div>
                     <div class="kpi-value" id="kpiLowPassRate">-</div>
                     <div class="kpi-label">5PRS Pass Rate < 95%</div>
                 </div>
 
-                <!-- KPI 카드 9: 5PRS 검사량 < 100족 -->
+                <!-- KPI 카드 10: 5PRS 검사량 < 100족 -->
                 <div class="kpi-card" onclick="showValidationModal('lowInspectionQty')" style="--card-color-1: #1abc9c; --card-color-2: #16a085; box-shadow: 0 4px 15px rgba(26, 188, 156, 0.1);">
                     <div class="kpi-icon">🔍</div>
                     <div class="kpi-value" id="kpiLowInspectionQty">-</div>
@@ -4231,6 +6217,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const translations = {translations_js};
         const positionMatrix = {position_matrix_json};
 
+        // AQL 통계 데이터 (실제 검사 횟수)
+        // AQL 통계는 이제 엑셀 파일에서 직접 사용 (Single Source of Truth)
+
         // Excel 기반 대시보드 데이터 (Single Source of Truth)
         window.excelDashboardData = {excel_data_js};
         const excelDashboardData = window.excelDashboardData;
@@ -4238,6 +6227,33 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         let currentLanguage = 'ko';
         const dashboardMonth = '{month.lower()}';
         const dashboardYear = {year};
+
+        // Excel의 employee_data를 employeeData와 병합 (Single Source of Truth)
+        if (excelDashboardData && excelDashboardData.employee_data) {{
+            const excelEmployeeMap = {{}};
+            excelDashboardData.employee_data.forEach(excelEmp => {{
+                const empNo = excelEmp['Employee No'] || excelEmp.employee_no;
+                if (empNo) {{
+                    excelEmployeeMap[empNo] = excelEmp;
+                }}
+            }});
+
+            // employeeData에 Excel 데이터 병합
+            employeeData.forEach(emp => {{
+                const empNo = emp.employee_no || emp['Employee No'];
+                if (empNo && excelEmployeeMap[empNo]) {{
+                    const excelData = excelEmployeeMap[empNo];
+                    // Excel의 Minimum_Days_Met 필드 추가
+                    emp['Minimum_Days_Met'] = excelData['Minimum_Days_Met'];
+                    emp['Minimum_Working_Days_Required'] = excelData['Minimum_Working_Days_Required'];
+                    emp['Minimum_Days_Shortage'] = excelData['Minimum_Days_Shortage'];
+                    // 기타 Excel 필드도 병합
+                    emp['Actual Working Days'] = excelData['Actual Working Days'] || emp['Actual Working Days'];
+                    emp['Adjusted_Total_Working_Days'] = excelData['Adjusted_Total_Working_Days'];
+                    emp['Adjusted_Attendance_Rate'] = excelData['Adjusted_Attendance_Rate'];
+                }}
+            }});
+        }}
 
         // employeeData 필드 정규화 - boss_id 매핑 추가
         employeeData.forEach(emp => {{
@@ -6452,10 +8468,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             ).length;
             document.getElementById('kpiAbsentWithoutInform').textContent = ar1Over3 + '명';
 
-            // 3. 실제 근무일 0일
-            const zeroWorkingDays = employeeData.filter(emp =>
-                parseFloat(emp['actual_working_days'] || 0) === 0
-            ).length;
+            // 3. 실제 근무일 0일 (9월 현재 재직자만)
+            const zeroWorkingDays = employeeData.filter(emp => {{
+                const actualDays = parseFloat(emp['Actual Working Days'] || emp['actual_working_days'] || 0);
+                // employeeData는 이미 9월 기준 필터링된 401명
+                return actualDays === 0;
+            }}).length;
             document.getElementById('kpiZeroWorkingDays').textContent = zeroWorkingDays + '명';
 
             // 4. 최소 근무일 미충족 (중간 보고서면 N/A)
@@ -6463,39 +8481,51 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 document.getElementById('kpiMinimumDaysNotMet').textContent = 'N/A';
                 document.getElementById('kpiMinimumDaysNotMet').parentElement.style.opacity = '0.5';
             }} else {{
-                const minimumDaysNotMet = employeeData.filter(emp =>
-                    emp['condition4'] === 'no'
-                ).length;
+                const minimumDaysNotMet = employeeData.filter(emp => {{
+                    // Excel의 Minimum_Days_Met 필드 사용 (Single Source of Truth)
+                    const minimumDaysMet = emp['Minimum_Days_Met'];
+                    if (minimumDaysMet !== undefined) {{
+                        return minimumDaysMet === false || minimumDaysMet === 'False' || minimumDaysMet === 0;
+                    }}
+                    // 폴백: 이전 방식
+                    return emp['condition4'] === 'yes' || emp['attendancy condition 4 - minimum working days'] === 'yes';
+                }}).length;
                 document.getElementById('kpiMinimumDaysNotMet').textContent = minimumDaysNotMet + '명';
             }}
 
-            // 5. AQL FAIL 보유자 (TYPE-1 특정 직급만)
+            
+            
+            // 5. 출근율 88% 미만
+            const attendanceBelow88 = employeeData.filter(emp =>
+                parseFloat(emp['attendance_rate'] || 0) < 88
+            ).length;
+            document.getElementById('kpiAttendanceBelow88').textContent = attendanceBelow88 + '명';
+
+            // 6. AQL FAIL 보유자 (모든 직원 대상)
             const aqlFailEmployees = employeeData.filter(emp => {{
-                // TYPE-1이고 AQL 조건이 적용되는 직급만
-                const isType1 = emp['type'] === 'TYPE-1';
-                const position = (emp['position'] || '').toUpperCase();
-                const hasAQLCondition = position.includes('SUPERVISOR') ||
-                                       position.includes('GROUP LEADER') ||
-                                       position.includes('LINE LEADER') ||
-                                       position.includes('QA TEAM') ||
-                                       position.includes('MANAGER');
-                return isType1 && hasAQLCondition && parseFloat(emp['aql_failures'] || 0) > 0;
+                // September AQL Failures 컬럼 확인 (Excel 데이터에서 직접 가져옴)
+                const aqlFailures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
+                return aqlFailures > 0;
             }}).length;
             document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + '명';
 
-            // 6. 3개월 연속 AQL FAIL (continuous_fail이 'YES'인 경우)
-            const consecutiveFail = employeeData.filter(emp =>
-                (emp['continuous_fail'] || 'NO').toUpperCase() === 'YES'
-            ).length;
+            // 7. 3개월 연속 AQL FAIL (Excel의 Continuous_FAIL 컬럼 사용)
+            const consecutiveFail = employeeData.filter(emp => {{
+                const continuous_fail = emp['Continuous_FAIL'] || emp['continuous_fail'] || 'NO';
+                return continuous_fail === 'YES_3MONTHS';
+            }}).length;
             document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + '명';
 
-            // 7. 구역 AQL Reject Rate > 0.65%인 직원 수
-            const highRejectRate = employeeData.filter(emp =>
-                parseFloat(emp['area_reject_rate'] || 0) > 0.65
-            ).length;
+            // 8. 구역 AQL Reject Rate 3% 초과 직원 수 (조건 8번만 카운트)
+            const highRejectRate = employeeData.filter(emp => {{
+                // 조건 8번: 구역 reject rate > 3%만 체크 (조건 7번 제외)
+                const cond8 = emp['cond_8_area_reject'] || 'PASS';
+                const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || emp['area_reject_rate'] || 0);
+                return cond8 === 'FAIL' || areaRejectRate > 3;
+            }}).length;
             document.getElementById('kpiAreaRejectRate').textContent = highRejectRate + '명';
 
-            // 8. 5PRS 통과율 < 95% (TYPE-1 ASSEMBLY INSPECTOR만)
+            // 9. 5PRS 통과율 < 95% (TYPE-1 ASSEMBLY INSPECTOR만)
             const lowPassRate = employeeData.filter(emp => {{
                 const isType1 = emp['type'] === 'TYPE-1';
                 const position = (emp['position'] || '').toUpperCase();
@@ -6505,7 +8535,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}).length;
             document.getElementById('kpiLowPassRate').textContent = lowPassRate + '명';
 
-            // 9. 5PRS 검사량 < 100족 (TYPE-1 ASSEMBLY INSPECTOR만)
+            // 10. 5PRS 검사량 < 100족 (TYPE-1 ASSEMBLY INSPECTOR만)
             const lowInspectionQty = employeeData.filter(emp => {{
                 const isType1 = emp['type'] === 'TYPE-1';
                 const position = (emp['position'] || '').toUpperCase();
@@ -6532,7 +8562,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.querySelectorAll('.kpi-label').forEach((label, index) => {{
                 const kpiKeys = [
                     'totalWorkingDays', 'absentWithoutInform', 'zeroWorkingDays',
-                    'minimumDaysNotMet', 'aqlFail', 'consecutiveAqlFail',
+                    'minimumDaysNotMet', 'attendanceBelow88', 'aqlFail', 'consecutiveAqlFail',
                     'areaRejectRate', 'lowPassRate', 'lowInspectionQty'
                 ];
                 if (kpiKeys[index]) {{
@@ -6560,6 +8590,24 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return;
             }} else if (conditionType === 'minimumDaysNotMet') {{
                 showMinimumDaysNotMetDetails();
+                return;
+            }} else if (conditionType === 'attendanceBelow88') {{
+                showAttendanceBelow88Details();
+                return;
+            }} else if (conditionType === 'aqlFail') {{
+                showAqlFailDetails();
+                return;
+            }} else if (conditionType === 'consecutiveAqlFail') {{
+                showConsecutiveAqlFailDetails();
+                return;
+            }} else if (conditionType === 'areaRejectRate') {{
+                showAreaRejectRateDetails();
+                return;
+            }} else if (conditionType === 'lowPassRate') {{
+                showLowPassRateDetails();
+                return;
+            }} else if (conditionType === 'lowInspectionQty') {{
+                showLowInspectionQtyDetails();
                 return;
             }}
 
@@ -6716,25 +8764,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     break;
 
                 case 'consecutiveAqlFail':
+                    // This case is now handled by showConsecutiveAqlFailDetails()
+                    // But we still need to handle it here as a fallback
                     modalTitle = getTranslation('validationTab.modalTitles.consecutiveAqlFail', currentLanguage);
-                    tableHeaders = [
-                        getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.name', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.position', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.supervisor', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.continuousFail', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
-                    ];
-
+                    tableHeaders = ['직원번호', '이름', '직책', '연속 실패 개월'];
                     tableData = employeeData
-                        .filter(emp => (emp['Continuous_FAIL'] || 'NO').toUpperCase() === 'YES')
+                        .filter(emp => emp['Consecutive_Fail_Months'] > 0)
                         .map(emp => [
                             emp['Employee No'],
                             emp['Full Name'],
-                            emp['FINAL QIP POSITION NAME CODE'],
-                            emp['direct boss name'] || '-',
-                            emp['Continuous_FAIL'],
-                            emp['cond_6_aql_continuous'] || 'FAIL'
+                            emp['QIP POSITION 1ST  NAME'] || '-',
+                            emp['Consecutive_Fail_Months'] + '개월'
                         ]);
                     break;
 
@@ -6748,15 +8788,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
                     ];
 
-                    // Area AQL reject rate > 0.65% 필터링
+                    // Area AQL reject rate > 3% 필터링 (구역별 AQL Reject 3% 이상)
                     tableData = employeeData
-                        .filter(emp => parseFloat(emp['Area_Reject_Rate'] || 0) > 0.65)
+                        .filter(emp => parseFloat(emp['area_reject_rate'] || 0) > 3)
                         .map(emp => [
                             emp['Employee No'],
                             emp['Full Name'],
                             emp['area'] || '-',
-                            (parseFloat(emp['Area_Reject_Rate'] || 0).toFixed(2)) + '%',
-                            emp['cond_8_area_reject'] || 'FAIL'
+                            (parseFloat(emp['area_reject_rate'] || 0).toFixed(2)) + '%',
+                            emp['aql condition 7 - team area or reject'] || 'FAIL'
                         ]);
                     break;
 
@@ -6828,7 +8868,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 모달 HTML 생성
             return `
-                <div id="validationModal" class="modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+                <div id="validationModal" class="modal" onclick="if(event.target === this) closeValidationModal();" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
                     <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">
                         <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0;">
                             <span class="close" onclick="closeValidationModal()" style="color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
@@ -6967,6 +9007,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return;
             }}
             console.log('D3.js version:', d3.version);
+
+            // Validation 탭 초기화 - 항상 호출하여 KPI 카드가 비어있지 않도록 함
+            setTimeout(() => {{
+                console.log('Initializing validation tab KPIs on page load...');
+                initValidationTab();
+            }}, 100);
 
             // Bootstrap 탭 이벤트 리스너 등록
             // 다양한 선택자 시도
@@ -7700,8 +9746,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (employee['September AQL Failures'] > 0) {{
                     reasons.push(`9월 AQL 실패 ${{employee['September AQL Failures']}}건`);
                 }}
-                if (employee['Continuous_FAIL'] === 'YES') {{
+                if (employee['Continuous_FAIL'] === 'YES_3MONTHS') {{
                     reasons.push('3개월 연속 AQL 실패');
+                }} else if (employee['Continuous_FAIL'] && employee['Continuous_FAIL'].includes('2MONTHS')) {{
+                    reasons.push('2개월 연속 AQL 실패');
                 }}
             }}
 
@@ -8277,7 +10325,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const monthNumber = dashboardMonth === 'september' ? '9' : dashboardMonth === 'august' ? '8' : dashboardMonth === 'july' ? '7' : '?';
                 const modalHtml = `
                 <div class="modal fade" id="incentiveModal" tabindex="-1" style="z-index: 1055;">
-                    <div class="modal-dialog modal-lg" style="z-index: 1056;">
+                    <div class="modal-dialog modal-xl" style="z-index: 1056;">
                         <div class="modal-content" style="z-index: 1057; position: relative; user-select: text; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text;">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modalTitle">${{getTranslation('modal.modalTitle', currentLanguage)}} - ${{dashboardYear}}년 ${{monthNumber}}월</h5>
