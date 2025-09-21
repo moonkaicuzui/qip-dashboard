@@ -3907,6 +3907,56 @@ class CompleteQIPCalculator:
 
         print(f"✅ 10개 조건 평가 결과 추가 완료")
 
+    def add_aql_statistics_to_excel(self):
+        """AQL 통계 정보를 Excel에 추가"""
+        print("\n📊 AQL 통계 정보를 Excel에 추가 중...")
+
+        # AQL 통계 파일 로드
+        aql_stats = {}
+        stats_file = self.base_path / 'aql_employee_stats.json'
+        if stats_file.exists():
+            with open(stats_file, 'r') as f:
+                aql_stats = json.load(f)
+            print(f"  → AQL 통계 로드 완료: {len(aql_stats)}명")
+        else:
+            print("  → AQL 통계 파일이 없습니다. 기본값 사용")
+
+        # 새로운 컬럼 추가
+        self.month_data['AQL_Total_Tests'] = 0
+        self.month_data['AQL_Pass_Count'] = 0
+        self.month_data['AQL_Fail_Percent'] = 0.0
+
+        # 각 직원별로 AQL 통계 추가
+        for idx in self.month_data.index:
+            emp_no = str(self.month_data.loc[idx, 'Employee No'])
+
+            if emp_no in aql_stats:
+                stats = aql_stats[emp_no]
+                total_tests = stats.get('total', 0)
+                pass_count = stats.get('pass', 0)
+                fail_count = stats.get('fail', 0)
+
+                self.month_data.loc[idx, 'AQL_Total_Tests'] = total_tests
+                self.month_data.loc[idx, 'AQL_Pass_Count'] = pass_count
+
+                # FAIL % 계산
+                if total_tests > 0:
+                    fail_percent = (fail_count / total_tests) * 100
+                else:
+                    fail_percent = 0.0
+
+                self.month_data.loc[idx, 'AQL_Fail_Percent'] = round(fail_percent, 1)
+            else:
+                # 기본값 설정
+                aql_failures = self.month_data.loc[idx, 'September AQL Failures'] if 'September AQL Failures' in self.month_data.columns else 0
+                if aql_failures > 0:
+                    # AQL 실패가 있지만 통계가 없는 경우, 기본값 사용
+                    self.month_data.loc[idx, 'AQL_Total_Tests'] = 10
+                    self.month_data.loc[idx, 'AQL_Pass_Count'] = 10 - int(aql_failures)
+                    self.month_data.loc[idx, 'AQL_Fail_Percent'] = (aql_failures / 10) * 100
+
+        print(f"  → AQL 통계 추가 완료: Total Tests, Pass Count, Fail Percent 컬럼")
+
     def save_results(self):
         """결과 저장"""
         print(f"\n💾 결과 파일 저장 중...")
@@ -3998,6 +4048,9 @@ class CompleteQIPCalculator:
 
             # 10개 조건 평가 결과를 Excel과 CSV에 추가
             self.add_condition_evaluation_to_excel()
+
+            # AQL 통계 정보 추가
+            self.add_aql_statistics_to_excel()
 
             # CSV 저장 (조건 평가 후)
             csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_최종완성버전_v6.0_Complete.csv")
