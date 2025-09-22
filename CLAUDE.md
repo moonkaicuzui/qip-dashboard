@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 QIP (Quality Inspection Process) Incentive Dashboard System - A comprehensive incentive calculation and visualization system for factory workers with Google Drive integration, JSON-based business rule configuration, and multi-language support (Korean, English, Vietnamese).
 
+**System Purpose**: Calculate monthly incentives for quality inspection workers based on configurable business rules, generate interactive HTML dashboards with detailed analytics, and maintain historical tracking of performance metrics.
+
 ## Core Development Principles
 
 ### 1. No Fake Data Policy (절대 가짜 데이터 금지)
@@ -20,6 +22,19 @@ QIP (Quality Inspection Process) Incentive Dashboard System - A comprehensive in
 - Use `position_condition_matrix.json` for all condition definitions
 - Any business rule change should only require JSON file updates, not code changes
 - This ensures maintainability and flexibility without developer intervention
+
+## Quick Reference
+
+### File Structure Convention
+- Input data: `input_files/[year]년 [month] 인센티브 지급 세부 정보.csv`
+- Output Excel: `output_files/output_QIP_incentive_[month]_[year]_최종완성버전_v6.0_Complete.xlsx`
+- Dashboard HTML: `output_files/Incentive_Dashboard_[year]_[MM]_Version_5.html`
+- Config files: `config_files/config_[month]_[year].json`
+
+### Month Naming Convention
+- Korean files: Use Korean month names (e.g., "9월")
+- English files: Use lowercase full names (e.g., "september")
+- Config keys: Always lowercase (e.g., "september_2025")
 
 ## Key Commands
 
@@ -91,6 +106,15 @@ python validate_json_consistency.py
 ```
 
 ## High-Level Architecture
+
+### Key Architectural Decisions
+
+1. **Single-File HTML Dashboards**: All data and JavaScript embedded inline for portability
+2. **JSON-Driven Business Logic**: No business rules in code, only in JSON configuration files
+3. **Stateless Processing**: Each month processed independently (except Assembly Inspector tracking)
+4. **Fallback Design**: Google Drive sync optional - system works offline with local files
+5. **Multi-Source Data Integration**: Combines incentive, attendance, AQL, and 5PRS data sources
+6. **No External Dependencies for Viewing**: Dashboards use CDN-hosted libraries (Chart.js, Bootstrap)
 
 ### Processing Pipeline Flow
 ```
@@ -185,12 +209,20 @@ The system uses JSON-based configuration to define all business rules, eliminati
 - Each employee gets a `condition_results` array with detailed evaluation results
 - No hardcoded conditions - everything is configuration-driven
 - Special handling for Assembly Inspector AQL tracking
+- Conditions are grouped by TYPE (TYPE-1, TYPE-2, TYPE-3) for different validation rules
 
 #### Previous Month Data Handling
 - System attempts to load previous month data for comparison
 - Automatic generation of missing July data (special case)
 - If data doesn't exist, shows as 0 or empty (NO fake data generation)
 - Important: "우리사전에 가짜 데이타는 없다" (No fake data in our dictionary)
+- Historical data tracked in `assembly_inspector_continuous_months.json`
+
+#### Assembly Inspector Special Logic
+- Tracked for 3 consecutive months of AQL failures
+- Continuous failure counter resets on AQL pass
+- Automatic blocking after 3 consecutive failures
+- Separate handling in `src/common_condition_checker.py`
 
 #### JavaScript Generation in Python
 - Dashboard HTML is generated with embedded JavaScript
@@ -234,6 +266,10 @@ The system includes Google Drive sync capabilities:
 4. **Condition Evaluation**: Check `position_condition_matrix.json` for position mapping
 5. **Working Days Mismatch**: Verify attendance data conversion and calculation
 6. **Modal White Text Issue**: Use unified modal CSS classes for consistent styling
+7. **LINE LEADER Count Discrepancy**: Ensure consistent counting logic across all tabs (Overview, Org Chart)
+8. **Language Switch Not Working**: Verify `updateAllTexts()` includes all new UI elements
+9. **Attendance Rate = 0**: Check if working days calculation completed before incentive calculation
+10. **Google Drive Sync Failure**: Verify `credentials/service-account-key.json` exists and is valid
 
 ### Language Support
 
@@ -244,11 +280,31 @@ The system provides full multi-language support (Korean, English, Vietnamese):
 - Language preference persists in localStorage
 - Month references must use dynamic variables (e.g., `dashboardMonth + '_incentive'`), never hardcoded
 
+## Testing Strategy
+
+### Comprehensive Testing
+```bash
+# Full system test
+./test_final.sh
+
+# Component-specific tests
+python test_attendance_calculation.py  # Attendance rate validation
+python test_modal_functionality.py     # Modal window interactions
+python test_language_switching.py      # Multi-language support
+python test_orgchart_browser.py       # Organization chart rendering
+python test_aql_september.py          # AQL failure detection
+```
+
+### Validation Tools
+- `validate_dashboard.py`: Dashboard output integrity
+- `verify_all_positions.py`: Position-to-TYPE mapping validation
+- `verify_line_leader_counts.py`: LINE LEADER consistency across tabs
+- `validate_json_consistency.py`: JSON-code alignment verification
+
 ## Dependencies
 
-Core: pandas, numpy, openpyxl
-Google Drive: gspread, google-auth
-Scheduling: schedule
+Core: pandas>=1.3.0, numpy>=1.21.0, openpyxl>=3.0.9
+Google Drive: gspread>=5.7.0, google-auth>=2.16.0
 See `requirements.txt` for full list
 
 ## Development Notes
@@ -259,3 +315,6 @@ See `requirements.txt` for full list
 - Dashboard HTML includes all data inline - no external dependencies required for viewing
 - Use `action.sh` for production runs - it handles the complete pipeline
 - Validate all changes with `validate_json_consistency.py` to ensure JSON-code alignment
+- Use `{{}}` escaping in f-strings when generating JavaScript template literals
+- Always destroy Chart.js instances before recreation to prevent animation bugs
+- Maintain unified modal CSS classes for consistent styling across all tabs
