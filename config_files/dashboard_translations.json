@@ -1586,6 +1586,21 @@
         "ko": "충족/미충족",
         "en": "Met/Unmet",
         "vi": "Đạt/Không đạt"
+      },
+      "pass": {
+        "ko": "통과",
+        "en": "Pass",
+        "vi": "Đạt"
+      },
+      "fail": {
+        "ko": "실패",
+        "en": "Fail",
+        "vi": "Không đạt"
+      },
+      "consecutiveFail": {
+        "ko": "3개월 연속 실패",
+        "en": "3-month consecutive failure",
+        "vi": "Thất bại 3 tháng liên tiếp"
       }
     },
     "detailPopup": {
