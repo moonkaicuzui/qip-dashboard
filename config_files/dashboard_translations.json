@@ -30,6 +30,11 @@
       "en": "Org Chart",
       "vi": "Sơ đồ tổ chức"
     },
+    "orgchart": {
+      "ko": "조직도",
+      "en": "Org Chart",
+      "vi": "Sơ đồ tổ chức"
+    },
     "validation": {
       "ko": "요약 및 시스템 검증",
       "en": "Summary & System Validation",
@@ -103,6 +108,11 @@
         "en": "LINE LEADER Average × 2.5",
         "vi": "Trung bình LINE LEADER × 2.5"
       },
+      "assistantManager": {
+        "ko": "LINE LEADER 평균 × 3",
+        "en": "LINE LEADER Average × 3",
+        "vi": "Trung bình LINE LEADER × 3"
+      },
       "aManager": {
         "ko": "LINE LEADER 평균 × 3",
         "en": "LINE LEADER Average × 3",
@@ -113,6 +123,16 @@
         "en": "Lower Manager Average × 3.5",
         "vi": "Trung bình quản lý cấp dưới × 3.5"
       }
+    },
+    "entireOrganization": {
+      "ko": "전체 조직",
+      "en": "Entire Organization",
+      "vi": "Toàn bộ tổ chức"
+    },
+    "modalTitle": {
+      "ko": "인센티브 계산 상세",
+      "en": "Incentive Calculation Details",
+      "vi": "Chi tiết tính khen thưởng"
     },
     "filters": {
       "allTypes": {

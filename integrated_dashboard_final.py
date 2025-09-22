@@ -5894,12 +5894,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                         <!-- 제외된 직급 안내 -->
                         <div class="alert alert-info mb-3" style="background: #e3f2fd; border: 1px solid #1976d2; color: #0d47a1;">
-                            <i class="fas fa-info-circle"></i> <strong>참고:</strong> AQL INSPECTOR, AUDIT & TRAINING TEAM, MODEL MASTER 직급은 조직도에서 제외되었습니다.
+                            <i class="fas fa-info-circle"></i>
+                            <strong><span id="orgChartNoteLabel">참고</span>:</strong>
+                            <span id="orgChartExcludedPositions">AQL INSPECTOR, AUDIT & TRAINING TEAM, MODEL MASTER 직급은 조직도에서 제외되었습니다.</span>
                         </div>
 
                         <!-- 동적 경로 표시 (Breadcrumb) -->
                         <div id="orgBreadcrumb" class="breadcrumb mb-3" style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
-                            <span style="color: #666;">전체 조직</span>
+                            <span id="orgBreadcrumbText" style="color: #666;">전체 조직</span>
                         </div>
 
                         <!-- 필터 옵션 -->
@@ -5947,8 +5949,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div id="orgChartContainer" class="collapsible-tree">
                             <!-- 제목 및 설명 -->
                             <div class="org-header">
-                                <h4 id="orgChartTitle">TYPE-1 관리자 인센티브 구조</h4>
-                                <p id="orgChartSubtitle" class="text-muted">TYPE-1 managers receiving incentive based on subordinate performance</p>
+                                <h4 id="orgChartTitleMain">TYPE-1 관리자 인센티브 구조</h4>
+                                <p id="orgChartSubtitleMain" class="text-muted">TYPE-1 managers receiving incentive based on subordinate performance</p>
                             </div>
 
                             <!-- 검색 및 필터 컨트롤 -->
@@ -7518,7 +7520,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             // Talent Program 섹션 텍스트 업데이트
             updateTalentProgramTexts();
-            
+
+            // Org Chart 텍스트 업데이트
+            updateOrgChartUIText();
+
             // 차트 업데이트 (차트가 있는 경우)
             if (window.pieChart) {{
                 updateChartLabels();
@@ -10537,31 +10542,49 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function updateOrgChartUIText() {{
             // 제목 및 설명 업데이트
             const titleEl = document.getElementById('orgChartTitle');
-            if (titleEl) titleEl.textContent = getTranslation('tabs.orgchart');
+            if (titleEl) titleEl.textContent = getTranslation('tabs.orgChart', currentLanguage) || getTranslation('tabs.orgchart', currentLanguage);
 
             const subtitleEl = document.getElementById('orgChartSubtitle');
-            if (subtitleEl) subtitleEl.textContent = getTranslation('orgChart.subtitle');
+            if (subtitleEl) subtitleEl.textContent = getTranslation('orgChart.subtitle', currentLanguage);
+
+            // 메인 제목 업데이트
+            const titleMainEl = document.getElementById('orgChartTitleMain');
+            if (titleMainEl) titleMainEl.textContent = getTranslation('orgChart.title', currentLanguage);
+
+            const subtitleMainEl = document.getElementById('orgChartSubtitleMain');
+            if (subtitleMainEl) subtitleMainEl.textContent = getTranslation('orgChart.subtitle', currentLanguage);
+
+            // 참고 레이블 및 제외된 직급 안내
+            const noteLabelEl = document.getElementById('orgChartNoteLabel');
+            if (noteLabelEl) noteLabelEl.textContent = getTranslation('orgChart.noteLabel', currentLanguage);
+
+            const excludedEl = document.getElementById('orgChartExcludedPositions');
+            if (excludedEl) excludedEl.textContent = getTranslation('orgChart.excludedPositions', currentLanguage);
+
+            // 빵 부스러기 (전체 조직)
+            const breadcrumbEl = document.getElementById('orgBreadcrumbText');
+            if (breadcrumbEl) breadcrumbEl.textContent = getTranslation('orgChart.entireOrganization', currentLanguage);
 
             // 검색 placeholder
             const searchEl = document.getElementById('orgSearchInput');
-            if (searchEl) searchEl.placeholder = getTranslation('orgChart.searchPlaceholder');
+            if (searchEl) searchEl.placeholder = getTranslation('orgChart.searchPlaceholder', currentLanguage);
 
             // 버튼 텍스트
             const expandEl = document.getElementById('expandAllText');
-            if (expandEl) expandEl.textContent = getTranslation('orgChart.expandAll');
+            if (expandEl) expandEl.textContent = getTranslation('orgChart.expandAll', currentLanguage);
 
             const collapseEl = document.getElementById('collapseAllText');
-            if (collapseEl) collapseEl.textContent = getTranslation('orgChart.collapseAll');
+            if (collapseEl) collapseEl.textContent = getTranslation('orgChart.collapseAll', currentLanguage);
 
             // 범례
             const legendTitleEl = document.getElementById('legendTitle');
-            if (legendTitleEl) legendTitleEl.textContent = getTranslation('orgChart.legendTitle');
+            if (legendTitleEl) legendTitleEl.textContent = getTranslation('orgChart.legendTitle', currentLanguage);
 
             const legendReceivedEl = document.getElementById('legendIncentiveReceived');
-            if (legendReceivedEl) legendReceivedEl.textContent = getTranslation('orgChart.incentiveReceived');
+            if (legendReceivedEl) legendReceivedEl.textContent = getTranslation('orgChart.incentiveReceived', currentLanguage);
 
             const legendNoIncentiveEl = document.getElementById('legendNoIncentive');
-            if (legendNoIncentiveEl) legendNoIncentiveEl.textContent = getTranslation('orgChart.noIncentive');
+            if (legendNoIncentiveEl) legendNoIncentiveEl.textContent = getTranslation('orgChart.noIncentive', currentLanguage);
         }}
 
         // 조직도 초기화 함수
