@@ -258,9 +258,6 @@ fi
 # Step 2: Dashboard 생성 (최신 v5.0 버전)
 run_step "Step 2: HTML Dashboard 생성 (v5.0)" "python3 integrated_dashboard_final.py --month $month_choice --year $YEAR"
 
-# Step 3: Management Dashboard 생성 (v6.0 Enhanced - 데이터 오류 감지 포함)
-run_step "Step 3: Management Dashboard 생성 (v6.0 Enhanced)" "python3 generate_management_dashboard_v6_enhanced.py --month $month_choice --year $YEAR"
-
 # 완료 메시지
 echo ""
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -272,10 +269,8 @@ echo -e "  ${BLUE}• Excel: output_files/output_QIP_incentive_${MONTH}_${YEAR}_
 echo -e "  ${BLUE}• CSV: output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.csv${NC}"
 if [ "$month_choice" -lt 10 ]; then
     echo -e "  ${BLUE}• Incentive Dashboard: output_files/Incentive_Dashboard_${YEAR}_0${month_choice}_Version_5.html${NC}"
-    echo -e "  ${BLUE}• Management Dashboard: output_files/management_dashboard_${YEAR}_0${month_choice}.html${NC}"
 else
     echo -e "  ${BLUE}• Incentive Dashboard: output_files/Incentive_Dashboard_${YEAR}_${month_choice}_Version_5.html${NC}"
-    echo -e "  ${BLUE}• Management Dashboard: output_files/management_dashboard_${YEAR}_${month_choice}.html${NC}"
 fi
 echo ""
 echo -e "${YELLOW}💡 HTML 파일을 브라우저에서 열어 결과를 확인하세요.${NC}"
@@ -283,11 +278,9 @@ echo ""
 
 # HTML 파일 자동으로 열기 옵션
 echo -e "${CYAN}대시보드를 지금 열어보시겠습니까?${NC}"
-echo "  1) Incentive Dashboard"
-echo "  2) Management Dashboard"
-echo "  3) 모든 대시보드 열기"
-echo "  4) 열지 않음"
-echo -e "${WHITE}선택 (1-4): ${NC}\c"
+echo "  1) Incentive Dashboard 열기"
+echo "  2) 열지 않음"
+echo -e "${WHITE}선택 (1-2): ${NC}\c"
 read open_choice
 
 # 월 번호를 두 자리로 포맷
@@ -308,28 +301,6 @@ case $open_choice in
         fi
         ;;
     2)
-        HTML_FILE="output_files/management_dashboard_${YEAR}_${MONTH_PADDED}.html"
-        if [ -f "$HTML_FILE" ]; then
-            open "$HTML_FILE"
-            echo -e "${GREEN}✅ Management Dashboard가 브라우저에서 열렸습니다!${NC}"
-        else
-            echo -e "${YELLOW}⚠️ HTML 파일을 찾을 수 없습니다: $HTML_FILE${NC}"
-        fi
-        ;;
-    3)
-        HTML_FILE1="output_files/Incentive_Dashboard_${YEAR}_${MONTH_PADDED}_Version_5.html"
-        HTML_FILE2="output_files/management_dashboard_${YEAR}_${MONTH_PADDED}.html"
-
-        if [ -f "$HTML_FILE1" ]; then
-            open "$HTML_FILE1"
-            echo -e "${GREEN}✅ Incentive Dashboard가 브라우저에서 열렸습니다!${NC}"
-        fi
-        if [ -f "$HTML_FILE2" ]; then
-            open "$HTML_FILE2"
-            echo -e "${GREEN}✅ Management Dashboard가 브라우저에서 열렸습니다!${NC}"
-        fi
-        ;;
-    4)
         echo -e "${YELLOW}대시보드를 열지 않았습니다.${NC}"
         ;;
     *)

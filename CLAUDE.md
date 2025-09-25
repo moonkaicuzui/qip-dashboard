@@ -105,6 +105,22 @@ python src/validate_excel_json_consistency.py \
 python validate_json_consistency.py
 ```
 
+### 5PRS Dashboard Commands
+```bash
+# Start 5PRS Quality Dashboard with API server
+./5prs.sh
+
+# The 5prs.sh script provides options for:
+# 1. Running with current month data
+# 2. Selecting specific month
+# 3. Starting API server only (background)
+# 4. Terminating running server
+# Dashboard accessible at http://localhost:5003
+
+# Enhanced incentive generation (with attendance sync)
+./action_enhanced.sh  # Improved version with better attendance file handling
+```
+
 ## High-Level Architecture
 
 ### Key Architectural Decisions
