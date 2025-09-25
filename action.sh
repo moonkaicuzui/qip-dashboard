@@ -255,8 +255,36 @@ else
     echo -e "${YELLOW}⚠️ 데이터 불일치 발견 (validation_report 확인 필요)${NC}"
 fi
 
-# Step 2: Dashboard 생성 (최신 v5.0 버전)
-run_step "Step 2: HTML Dashboard 생성 (v5.0)" "python3 integrated_dashboard_final.py --month $month_choice --year $YEAR"
+# Step 2: Dashboard 생성 선택
+echo ""
+echo -e "${CYAN}📊 대시보드 버전을 선택하세요:${NC}"
+echo "  1) 새로운 모듈형 대시보드 v6.0 (권장 - Vibe 호환)"
+echo "  2) 기존 통합형 대시보드 v5.0"
+echo -e "${WHITE}선택 (기본값: 1): ${NC}\c"
+read dashboard_choice
+
+# 기본값 설정
+if [ -z "$dashboard_choice" ]; then
+    dashboard_choice=1
+fi
+
+case $dashboard_choice in
+    1)
+        echo -e "${GREEN}✨ 새로운 모듈형 대시보드 v6.0을 생성합니다${NC}"
+        run_step "Step 2: HTML Dashboard 생성 (v6.0 모듈형)" "python3 dashboard_v2/generate_dashboard.py --month $MONTH --year $YEAR"
+        DASHBOARD_VERSION="6"
+        ;;
+    2)
+        echo -e "${YELLOW}📌 기존 통합형 대시보드 v5.0을 생성합니다${NC}"
+        run_step "Step 2: HTML Dashboard 생성 (v5.0 통합형)" "python3 integrated_dashboard_final.py --month $month_choice --year $YEAR"
+        DASHBOARD_VERSION="5"
+        ;;
+    *)
+        echo -e "${YELLOW}잘못된 선택입니다. 기본값(모듈형 v6.0)을 사용합니다.${NC}"
+        run_step "Step 2: HTML Dashboard 생성 (v6.0 모듈형)" "python3 dashboard_v2/generate_dashboard.py --month $MONTH --year $YEAR"
+        DASHBOARD_VERSION="6"
+        ;;
+esac
 
 # 완료 메시지
 echo ""
@@ -268,9 +296,9 @@ echo -e "${WHITE}📁 생성된 파일:${NC}"
 echo -e "  ${BLUE}• Excel: output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.xlsx${NC}"
 echo -e "  ${BLUE}• CSV: output_files/output_QIP_incentive_${MONTH}_${YEAR}_최종완성버전_v6.0_Complete.csv${NC}"
 if [ "$month_choice" -lt 10 ]; then
-    echo -e "  ${BLUE}• Incentive Dashboard: output_files/Incentive_Dashboard_${YEAR}_0${month_choice}_Version_5.html${NC}"
+    echo -e "  ${BLUE}• Incentive Dashboard: output_files/Incentive_Dashboard_${YEAR}_0${month_choice}_Version_${DASHBOARD_VERSION}.html${NC}"
 else
-    echo -e "  ${BLUE}• Incentive Dashboard: output_files/Incentive_Dashboard_${YEAR}_${month_choice}_Version_5.html${NC}"
+    echo -e "  ${BLUE}• Incentive Dashboard: output_files/Incentive_Dashboard_${YEAR}_${month_choice}_Version_${DASHBOARD_VERSION}.html${NC}"
 fi
 echo ""
 echo -e "${YELLOW}💡 HTML 파일을 브라우저에서 열어 결과를 확인하세요.${NC}"
@@ -292,10 +320,10 @@ fi
 
 case $open_choice in
     1)
-        HTML_FILE="output_files/Incentive_Dashboard_${YEAR}_${MONTH_PADDED}_Version_5.html"
+        HTML_FILE="output_files/Incentive_Dashboard_${YEAR}_${MONTH_PADDED}_Version_${DASHBOARD_VERSION}.html"
         if [ -f "$HTML_FILE" ]; then
             open "$HTML_FILE"
-            echo -e "${GREEN}✅ Incentive Dashboard가 브라우저에서 열렸습니다!${NC}"
+            echo -e "${GREEN}✅ Incentive Dashboard v${DASHBOARD_VERSION}가 브라우저에서 열렸습니다!${NC}"
         else
             echo -e "${YELLOW}⚠️ HTML 파일을 찾을 수 없습니다: $HTML_FILE${NC}"
         fi
