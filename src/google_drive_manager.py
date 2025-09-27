@@ -299,7 +299,21 @@ class GoogleDriveManager:
                 error_message="" if success else f"{files_failed} files failed to sync",
                 details=sync_details
             )
-            
+
+            # Save sync status for tracking
+            if success or files_synced > 0:
+                sync_status = {
+                    'timestamp': datetime.now().isoformat(),
+                    'month': month,
+                    'year': year,
+                    'files_synced': files_synced,
+                    'files_failed': files_failed,
+                    'success': success
+                }
+                sync_status_file = self.cache_dir / 'last_sync.json'
+                with open(sync_status_file, 'w') as f:
+                    json.dump(sync_status, f, indent=2)
+
             logger.info(f"Sync completed: {files_synced} succeeded, {files_failed} failed")
             return result
             

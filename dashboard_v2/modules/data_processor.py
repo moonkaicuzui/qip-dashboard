@@ -56,6 +56,24 @@ class DataProcessor:
 
     def load_data(self):
         """Load and process incentive data"""
+        # Check for Google Drive sync status file
+        sync_status_file = Path('.cache/drive_sync/last_sync.json')
+        if sync_status_file.exists():
+            with open(sync_status_file, 'r') as f:
+                sync_info = json.load(f)
+                timestamp_str = sync_info.get('timestamp', '2000-01-01')
+                # Remove timezone info if present for comparison
+                if '+' in timestamp_str or 'T' in timestamp_str:
+                    timestamp_str = timestamp_str.split('+')[0].split('Z')[0]
+                    last_sync = datetime.fromisoformat(timestamp_str.replace('Z', ''))
+                else:
+                    last_sync = datetime.fromisoformat(timestamp_str)
+                # Check if sync is recent (within 24 hours)
+                if (datetime.now() - last_sync).days > 1:
+                    raise RuntimeError("❌ Data is outdated! Google Drive sync required.\nPlease run: python src/auto_run_with_drive.py --sync")
+        else:
+            raise RuntimeError("❌ No Google Drive sync detected!\nData must be synchronized from Google Drive before generating dashboard.\nPlease run: python src/auto_run_with_drive.py --sync")
+
         # Determine file path
         excel_file = f'output_files/output_QIP_incentive_{self.month}_{self.year}_최종완성버전_v6.0_Complete.xlsx'
         csv_file = excel_file.replace('.xlsx', '.csv')
@@ -66,14 +84,7 @@ class DataProcessor:
         elif os.path.exists(excel_file):
             self.df = pd.read_excel(excel_file)
         else:
-            # Try loading from dashboard JSON if available
-            json_file = 'output_files/dashboard_data_from_excel.json'
-            if os.path.exists(json_file):
-                with open(json_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    self.df = pd.DataFrame(data.get('employees', []))
-            else:
-                raise FileNotFoundError("No data file found")
+            raise FileNotFoundError("❌ No data file found. Please run the complete pipeline with Google Drive sync.")
 
         # Apply employee filter FIRST (before renaming columns)
         filter_obj = EmployeeFilter()

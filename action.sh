@@ -255,36 +255,16 @@ else
     echo -e "${YELLOW}⚠️ 데이터 불일치 발견 (validation_report 확인 필요)${NC}"
 fi
 
-# Step 2: Dashboard 생성 선택
+# Step 2: 모듈형 Dashboard 생성 (구조 개선된 v6.0)
 echo ""
-echo -e "${CYAN}📊 대시보드 버전을 선택하세요:${NC}"
-echo "  1) 새로운 모듈형 대시보드 v6.0 (권장 - Vibe 호환)"
-echo "  2) 기존 통합형 대시보드 v5.0"
-echo -e "${WHITE}선택 (기본값: 1): ${NC}\c"
-read dashboard_choice
+echo -e "${GREEN}✨ 구조 개선된 모듈형 대시보드 v6.0을 생성합니다${NC}"
+echo -e "${CYAN}  • 13,374줄 → 2,394줄로 코드 82% 감소${NC}"
+echo -e "${CYAN}  • 완전한 모듈화로 유지보수 용이${NC}"
+echo -e "${CYAN}  • Vibe 등 AI 도구 호환${NC}"
+echo ""
 
-# 기본값 설정
-if [ -z "$dashboard_choice" ]; then
-    dashboard_choice=1
-fi
-
-case $dashboard_choice in
-    1)
-        echo -e "${GREEN}✨ 새로운 모듈형 대시보드 v6.0을 생성합니다${NC}"
-        run_step "Step 2: HTML Dashboard 생성 (v6.0 모듈형)" "python3 dashboard_v2/generate_dashboard.py --month $MONTH --year $YEAR"
-        DASHBOARD_VERSION="6"
-        ;;
-    2)
-        echo -e "${YELLOW}📌 기존 통합형 대시보드 v5.0을 생성합니다${NC}"
-        run_step "Step 2: HTML Dashboard 생성 (v5.0 통합형)" "python3 integrated_dashboard_final.py --month $month_choice --year $YEAR"
-        DASHBOARD_VERSION="5"
-        ;;
-    *)
-        echo -e "${YELLOW}잘못된 선택입니다. 기본값(모듈형 v6.0)을 사용합니다.${NC}"
-        run_step "Step 2: HTML Dashboard 생성 (v6.0 모듈형)" "python3 dashboard_v2/generate_dashboard.py --month $MONTH --year $YEAR"
-        DASHBOARD_VERSION="6"
-        ;;
-esac
+run_step "Step 2: HTML Dashboard 생성 (v6.0 통합형)" "python3 integrated_dashboard_final.py --month $MONTH --year $YEAR"
+DASHBOARD_VERSION="6"
 
 # 완료 메시지
 echo ""
