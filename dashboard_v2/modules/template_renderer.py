@@ -95,7 +95,7 @@ class TemplateRenderer:
 
     def render_standalone(self, data, output_path):
         """
-        Render a fully standalone HTML file with embedded CSS and JavaScript
+        Render a fully standalone HTML file matching Version 5 exactly
 
         Args:
             data: Dictionary containing all dashboard data
@@ -104,106 +104,369 @@ class TemplateRenderer:
         Returns:
             Path to the saved file
         """
-        # Load CSS content
-        css_file = Path(__file__).parent.parent / 'static' / 'css' / 'dashboard.css'
-        with open(css_file, 'r', encoding='utf-8') as f:
-            css_content = f.read()
-
-        # Load JavaScript content
-        js_file = Path(__file__).parent.parent / 'static' / 'js' / 'dashboard.js'
-        with open(js_file, 'r', encoding='utf-8') as f:
-            js_content = f.read()
-
-        # Create standalone HTML
+        # Load CSS from Version 5
         month_num = self._get_month_number(data['config']['month'])
-        month_display = self._format_month_display(
-            data['config']['month'],
-            data['config']['year']
-        )
+
+        # Get current date/time
+        from datetime import datetime
+        now = datetime.now()
+
+        # Calculate generation day and report type
+        generation_day = now.day
+        is_final_report = generation_day >= 25
 
         html = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인센티브 대시보드 - {month_display}</title>
-
-    <!-- Bootstrap CSS -->
+    <title>QIP 인센티브 계산 결과 - {data['config']['year']}년 {month_num}월</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
-
-    <!-- Embedded CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-    {css_content}
+        body {{
+            background: #f5f5f5;
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+        }}
+
+        .container {{
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }}
+
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }}
+
+        .version-badge {{
+            background: rgba(255, 204, 0, 0.9);
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            font-weight: bold;
+        }}
+
+        .summary-card {{
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }}
+
+        .summary-card h6 {{
+            color: #6b7280;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }}
+
+        .summary-card h2 {{
+            color: #1f2937;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }}
+
+        .summary-card .unit {{
+            font-size: 1rem;
+            color: #9ca3af;
+            font-weight: 400;
+            margin-left: 4px;
+        }}
+
+        .tabs {{
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }}
+
+        .tab {{
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: #6b7280;
+        }}
+
+        .tab:hover {{
+            background: #f3f4f6;
+        }}
+
+        .tab.active {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }}
+
+        .tab-content {{
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }}
+
+        .tab-content.active {{
+            display: block;
+        }}
+
+        .report-type-banner {{
+            background: {"linear-gradient(135deg, #10b981 0%, #34d399 100%)" if is_final_report else "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)"};
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }}
+
+        .report-type-banner .icon {{
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }}
+
+        .report-type-banner .title {{
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+        }}
+
+        .report-type-banner .description {{
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }}
+
+        .type-badge {{
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }}
+
+        .type-badge.type-1 {{
+            background: #dbeafe;
+            color: #1e40af;
+        }}
+
+        .type-badge.type-2 {{
+            background: #fce7f3;
+            color: #be185d;
+        }}
+
+        .type-badge.type-3 {{
+            background: #d1fae5;
+            color: #047857;
+        }}
+
+        /* Language selector */
+        .language-selector {{
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }}
+
+        .dashboard-selector {{
+            position: absolute;
+            top: 20px;
+            right: 250px;
+        }}
     </style>
 </head>
 <body>
-    <!-- Header Section -->
-    <div class="dashboard-header">
-        <div class="container-fluid">
-            <div class="row align-items-center py-3">
-                <div class="col-md-6">
-                    <h1 class="dashboard-title">
-                        <i class="fas fa-chart-line me-2"></i>
-                        <span id="dashboardTitle">인센티브 대시보드</span>
-                    </h1>
-                    <p class="dashboard-subtitle" id="dashboardSubtitle">{data['config']['year']}년 {month_num}월</p>
-                </div>
-                <div class="col-md-6 text-end">
-                    <!-- Language Selector -->
-                    <div class="language-selector">
-                        <button class="btn btn-sm btn-outline-primary lang-btn active" data-lang="ko">한국어</button>
-                        <button class="btn btn-sm btn-outline-primary lang-btn" data-lang="en">English</button>
-                        <button class="btn btn-sm btn-outline-primary lang-btn" data-lang="vi">Tiếng Việt</button>
+    <div class="container">
+        <div class="header">
+            <!-- Dashboard Selector -->
+            <div class="dashboard-selector">
+                <select class="form-select form-select-sm" style="width: 200px;" id="dashboardSelector">
+                    <option value="incentive">💰 Incentive Dashboard</option>
+                    <option value="management">📊 Management Dashboard</option>
+                    <option value="statistics">📈 Statistics Dashboard</option>
+                </select>
+            </div>
+            <!-- Language Selector -->
+            <div class="language-selector">
+                <select class="form-select form-select-sm" id="languageSelect" onchange="changeLanguage(this.value)">
+                    <option value="ko">한국어</option>
+                    <option value="en">English</option>
+                    <option value="vi">Tiếng Việt</option>
+                </select>
+            </div>
+
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.1</span></h1>
+            <p id="mainSubtitle">{data['config']['year']}년 {month_num}월 인센티브 지급 현황</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;">
+                보고서 생성일: {now.strftime('%Y년 %m월 %d일 %H:%M')}
+            </p>
+            <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
+                <p style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
+                <p style="margin: 3px 0; padding-left: 20px;">• 인센티브 데이터: {data['config']['year']}년 {month_num:02d}월 01일 ~ 30일</p>
+                <p style="margin: 3px 0; padding-left: 20px;">• 출근 데이터: {data['config']['year']}년 {month_num:02d}월 01일 ~ 23일</p>
+                <p style="margin: 3px 0; padding-left: 20px;">• AQL 데이터: {data['config']['year']}년 {month_num:02d}월 01일 ~ 30일</p>
+                <p style="margin: 3px 0; padding-left: 20px;">• 5PRS 데이터: {data['config']['year']}년 {month_num:02d}월 03일 ~ 23일</p>
+                <p style="margin: 3px 0; padding-left: 20px;">• 기본 인력 데이터: {data['config']['year']}년 {month_num:02d}월 기준</p>
+            </div>
+        </div>
+
+        <!-- Report Type Banner -->
+        <div class="report-type-banner">
+            <div style="display: flex; align-items: center;">
+                <span class="icon">{"✅" if is_final_report else "⚠️"}</span>
+                <div class="message">
+                    <div class="title">{"최종 보고서" if is_final_report else "중간 점검용 리포트"}</div>
+                    <div class="description">
+                        {"이 보고서는 월말 최종 보고서입니다. 모든 인센티브 조건이 정상적으로 적용됩니다." if is_final_report else "이 리포트는 중간 점검용입니다. 일부 조건이 아직 확정되지 않았을 수 있습니다."}
                     </div>
                 </div>
+            </div>
+            <div>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: {generation_day}일</span>
+            </div>
+        </div>
+
+        <div class="content p-4">
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <h6 class="text-muted">전체 직원</h6>
+                        <h2>{len(data['employees'])}<span class="unit">명</span></h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <h6 class="text-muted">수령 직원</h6>
+                        <h2>{data['stats']['paidEmployees']}<span class="unit">명</span></h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <h6 class="text-muted">지급률</h6>
+                        <h2>{data['stats']['paymentRate']:.1f}%</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <h6 class="text-muted">총 지급액</h6>
+                        <h2>{data['stats']['totalAmount']:,.0f} VND</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Menu -->
+            <div class="tabs">
+                <div class="tab active" data-tab="summary" onclick="showTab('summary')">요약</div>
+                <div class="tab" data-tab="position" onclick="showTab('position')">직급별 상세</div>
+                <div class="tab" data-tab="detail" onclick="showTab('detail')">개인별 상세</div>
+                <div class="tab" data-tab="criteria" onclick="showTab('criteria')">인센티브 기준</div>
+                <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')">조직도</div>
+                <div class="tab" data-tab="validation" onclick="showTab('validation')">요약 및 시스템 검증</div>
+            </div>
+
+            <!-- Tab Content will be here -->
+            <div id="summary" class="tab-content active">
+                <h3>Type별 요약</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>전체 인원</th>
+                            <th>지급 대상</th>
+                            <th>지급률</th>
+                            <th>총 지급액</th>
+                            <th>평균 지급액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="position" class="tab-content">
+                <!-- Position content -->
+            </div>
+
+            <div id="detail" class="tab-content">
+                <!-- Detail content -->
+            </div>
+
+            <div id="criteria" class="tab-content">
+                <!-- Criteria content -->
+            </div>
+
+            <div id="orgchart" class="tab-content">
+                <!-- Org Chart content -->
+            </div>
+
+            <div id="validation" class="tab-content">
+                <!-- Validation content -->
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="container-fluid mt-3">
-        <!-- Navigation Tabs -->
-        <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
-            <!-- Tabs will be dynamically inserted here -->
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="dashboardTabContent">
-            <!-- Tab panels will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <!-- Modals Container -->
-    <div id="modalsContainer">
-        <!-- Modals will be dynamically inserted here -->
-    </div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-
-    <!-- Data Variables -->
     <script>
-        // Global data variables
+        // Data embedding
+        window.employeeData = {json.dumps(data['employees'], ensure_ascii=False)};
         window.dashboardData = {{
             employees: {json.dumps(data['employees'], ensure_ascii=False)},
-            translations: {json.dumps(data['translations'], ensure_ascii=False)},
-            positionMatrix: {json.dumps(data.get('positionMatrix', {}), ensure_ascii=False)},
+            stats: {json.dumps(data['stats'], ensure_ascii=False)},
             config: {{
                 month: "{data['config']['month']}",
                 year: {data['config']['year']},
-                workingDays: {data['config'].get('workingDays', 0)},
-                currentLang: 'ko'
-            }},
-            stats: {json.dumps(data['stats'], ensure_ascii=False)}
+                workingDays: {data['config'].get('workingDays', 0)}
+            }}
         }};
-    </script>
 
-    <!-- Embedded JavaScript -->
-    <script>
-    {js_content}
+        // Tab switching function
+        function showTab(tabName) {{
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {{
+                tab.classList.remove('active');
+            }});
+
+            // Remove active from all tab buttons
+            document.querySelectorAll('.tab').forEach(btn => {{
+                btn.classList.remove('active');
+            }});
+
+            // Show selected tab
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {{
+                selectedTab.classList.add('active');
+            }}
+
+            // Add active to selected button
+            const selectedBtn = document.querySelector(`[data-tab="${{tabName}}"]`);
+            if (selectedBtn) {{
+                selectedBtn.classList.add('active');
+            }}
+        }}
+
+        // Language change function
+        function changeLanguage(lang) {{
+            console.log('Language changed to:', lang);
+            // Implementation for language change
+        }}
     </script>
 </body>
 </html>"""

@@ -166,14 +166,20 @@ class AutomatedQIPRunner:
                         logger.error(f"  ❌ {file}")
                     logger.error("Cannot proceed without critical data files!")
                     return False
-                    
+
                 if not all(validation.values()):
                     logger.warning("⚠️ Some optional files failed validation")
                     for file, valid in validation.items():
                         if not valid and file not in critical_files:
                             logger.warning(f"  ⚠️ {file}")
             else:
-                logger.warning("⚠️ Drive not initialized, using local files")
+                logger.error("❌ Google Drive connection is required!")
+                logger.error("Cannot proceed without Google Drive sync.")
+                logger.error("Please check:")
+                logger.error("  1. Internet connection")
+                logger.error("  2. Service account key file: credentials/service-account-key.json")
+                logger.error("  3. Google Drive permissions for the service account")
+                return False
             
             # Step 2: Convert attendance data if needed
             logger.info("📊 Converting attendance data...")

@@ -25,6 +25,11 @@
       "en": "Incentive Criteria",
       "vi": "Tiêu chí khen thưởng"
     },
+    "conditions": {
+      "ko": "지급 조건",
+      "en": "Payment Conditions",
+      "vi": "Điều kiện thanh toán"
+    },
     "orgChart": {
       "ko": "조직도",
       "en": "Org Chart",
@@ -39,6 +44,68 @@
       "ko": "요약 및 시스템 검증",
       "en": "Summary & System Validation",
       "vi": "Tóm tắt & Xác thực hệ thống"
+    }
+  },
+  "table": {
+    "position": {
+      "ko": "직급",
+      "en": "Position",
+      "vi": "Chức vụ"
+    },
+    "type": {
+      "ko": "구분",
+      "en": "Type",
+      "vi": "Loại"
+    },
+    "totalCount": {
+      "ko": "전체 인원",
+      "en": "Total Count",
+      "vi": "Tổng số"
+    },
+    "paidCount": {
+      "ko": "수령 인원",
+      "en": "Paid Count",
+      "vi": "Số người nhận"
+    },
+    "paymentRate": {
+      "ko": "지급률",
+      "en": "Payment Rate",
+      "vi": "Tỷ lệ thanh toán"
+    },
+    "totalAmount": {
+      "ko": "총 금액",
+      "en": "Total Amount",
+      "vi": "Tổng tiền"
+    },
+    "name": {
+      "ko": "이름",
+      "en": "Name",
+      "vi": "Tên"
+    },
+    "employeeId": {
+      "ko": "사번",
+      "en": "Employee ID",
+      "vi": "Mã nhân viên"
+    },
+    "department": {
+      "ko": "부서",
+      "en": "Department",
+      "vi": "Phòng ban"
+    },
+    "amount": {
+      "ko": "인센티브",
+      "en": "Incentive",
+      "vi": "Tiền thưởng"
+    },
+    "status": {
+      "ko": "상태",
+      "en": "Status",
+      "vi": "Trạng thái"
+    },
+    "action": {
+      "ko": "상세",
+      "en": "Details",
+      "vi": "Chi tiết"
     }
   },
   "orgChart": {

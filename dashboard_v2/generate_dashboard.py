@@ -17,6 +17,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from dashboard_v2.modules.data_processor import DataProcessor
 from dashboard_v2.modules.template_renderer import TemplateRenderer
+from dashboard_v2.modules.complete_renderer import CompleteRenderer
 
 
 def generate_dashboard(month, year, output_path=None):
@@ -63,18 +64,18 @@ def generate_dashboard(month, year, output_path=None):
         print(f"  • Payment Rate: {data['stats']['paymentRate']:.1f}%")
         print(f"  • Total Amount: {data['stats']['totalAmount']:,.0f} VND")
 
-        # Initialize renderer
-        print("\n🎨 Initializing template renderer...")
-        renderer = TemplateRenderer()
+        # Use CompleteRenderer instead of TemplateRenderer for Version 6
+        print("\n🎨 Using CompleteRenderer for Version 6...")
+        renderer = CompleteRenderer()
 
         # Determine output path
         if not output_path:
             month_num = str(processor._get_month_number(month)).zfill(2)
             output_path = f"output_files/Incentive_Dashboard_{year}_{month_num}_Version_6.html"
 
-        # Render dashboard
-        print(f"\n📝 Rendering dashboard...")
-        renderer.render_standalone(data, output_path)
+        # Render dashboard using CompleteRenderer
+        print(f"\n📝 Rendering dashboard with CompleteRenderer...")
+        renderer.save_dashboard(month, year, output_path)
 
         # Report file size
         file_size = os.path.getsize(output_path) / 1024 / 1024
