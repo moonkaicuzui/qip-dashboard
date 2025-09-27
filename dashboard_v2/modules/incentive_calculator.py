@@ -390,8 +390,29 @@ class IncentiveCalculator:
         # 4. 통계 계산
         stats = self.calculate_statistics()
 
+        # 5. employees 데이터에 필요한 필드 추가
+        employees_data = self.df_incentive.to_dict('records') if self.df_incentive is not None else []
+
+        # type, position, name, emp_no 등의 필드 매핑
+        for emp in employees_data:
+            # type 필드 매핑 (ROLE TYPE STD -> type)
+            if 'type' not in emp and 'ROLE TYPE STD' in emp:
+                emp['type'] = emp['ROLE TYPE STD']
+
+            # position 필드 매핑
+            if 'position' not in emp and 'FINAL QIP POSITION NAME CODE' in emp:
+                emp['position'] = emp['FINAL QIP POSITION NAME CODE']
+
+            # name 필드 매핑
+            if 'name' not in emp and 'Full Name' in emp:
+                emp['name'] = emp['Full Name']
+
+            # emp_no 필드 매핑
+            if 'emp_no' not in emp and 'Employee No' in emp:
+                emp['emp_no'] = str(emp['Employee No']).zfill(9) if emp['Employee No'] else ''
+
         return {
-            'employees': self.df_incentive.to_dict('records') if self.df_incentive is not None else [],
+            'employees': employees_data,
             'stats': stats,
             'translations': self.translations,
             'condition_matrix': self.condition_matrix,

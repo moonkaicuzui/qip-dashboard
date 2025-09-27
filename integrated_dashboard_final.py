@@ -192,6 +192,8 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     column_mapping[col] = f'{month.lower()}_incentive'
                 elif f'{month.capitalize()}_Incentive' in col:  # Handle capitalized month names
                     column_mapping[col] = f'{month.lower()}_incentive'
+                elif col == 'Final Incentive amount':  # Map Final Incentive amount to current month's incentive
+                    column_mapping[col] = f'{month.lower()}_incentive'
                 elif 'August_Incentive' in col:  # For other months showing August data
                     column_mapping[col] = 'august_incentive'
                 elif 'July_Incentive' in col:
@@ -1522,13 +1524,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.getElementById('detailModalContent').innerHTML = modalContent;
         }
 
-        // 전역 정렬 함수 등록
-        window.absentModalSort = sortData;
-
-        // 초기 정렬 상태로 렌더링
-        sortData('days');
-
-        // 모달 표시 처리
+        // 모달 표시 처리 (sortData 호출 전에 생성)
         let modal = document.getElementById('detailModal');
         if (!modal) {
             const modalHTML = `
@@ -1541,6 +1537,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             modal = document.getElementById('detailModal');
         }
+
+        // 전역 정렬 함수 등록
+        window.absentModalSort = sortData;
+
+        // 초기 정렬 상태로 렌더링
+        sortData('days');
 
         /* Bootstrap 5 Modal 처리 */
         const modalElement = document.getElementById('detailModal');
@@ -8368,12 +8370,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 직원 데이터 순회하며 집계
             employeeData.forEach(emp => {{
-                const type = emp.type;
+                // type 필드를 여러 가능한 이름에서 찾기
+                const type = emp.type || emp['ROLE TYPE STD'] || emp['Type'] || 'UNKNOWN';
                 if (typeData[type]) {{
                     typeData[type].total++;
                     grandTotal++;
 
-                    const amount = parseInt(emp[dashboardMonth + '_incentive']) || 0;
+                    // 여러 가능한 인센티브 필드명 확인
+                    const amount = parseInt(
+                        emp['Final Incentive amount'] ||
+                        emp['September_Incentive'] ||
+                        emp['september_incentive'] ||
+                        emp[dashboardMonth + '_incentive'] ||
+                        emp[dashboardMonth.charAt(0).toUpperCase() + dashboardMonth.slice(1) + '_Incentive'] ||
+                        0
+                    );
+
+                    console.log('Type 확인:', type, '직원:', emp.name || emp['Full Name'], '금액:', amount);
                     if (amount > 0) {{
                         typeData[type].paid++;
                         typeData[type].totalAmount += amount;
@@ -12051,6 +12064,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             updateAllTexts();
             updateTalentPoolSection();
             updateTypeSummaryTable();  // Type별 요약 테이블 업데이트 추가
+
+            // Type별 테이블 강제 업데이트 함수
+            window.forceUpdateTypeSummary = function() {{
+            console.log('=== Type별 요약 테이블 강제 업데이트 실행 ===');
+            updateTypeSummaryTable();
+        }};
+
+        // 페이지 로드 후 1초 뒤 자동 실행
+        setTimeout(function() {{
+            console.log('Type별 테이블 자동 업데이트 시도...');
+            if (typeof updateTypeSummaryTable === 'function') {{
+                updateTypeSummaryTable();
+            }}
+            if (window.forceUpdateTypeSummary) {{
+                window.forceUpdateTypeSummary();
+            }}
+        }}, 1000);
         }};
         
         // Talent Program 텍스트 업데이트 함수
@@ -13364,8 +13394,20 @@ def main():
             incentive_col = possible_cols[-1]  # 가장 마지막 인센티브 컬럼 사용
             print(f"   → {incentive_col} 컬럼을 사용합니다.")
     
-    paid_employees = sum(1 for _, row in df.iterrows() if int(row.get(incentive_col, 0)) > 0)
-    total_amount = sum(int(row.get(incentive_col, 0)) for _, row in df.iterrows())
+    # Handle potential duplicate columns or Series values
+    def get_incentive_value(row, col):
+        val = row.get(col, 0)
+        # If it's a Series (due to duplicate columns), take the first value
+        if hasattr(val, 'iloc'):
+            val = val.iloc[0] if len(val) > 0 else 0
+        # Convert to number safely
+        try:
+            return int(float(val)) if pd.notna(val) else 0
+        except (ValueError, TypeError):
+            return 0
+
+    paid_employees = sum(1 for _, row in df.iterrows() if get_incentive_value(row, incentive_col) > 0)
+    total_amount = sum(get_incentive_value(row, incentive_col) for _, row in df.iterrows())
     
     print(f"   - 전체 직원: {total_employees}명")
     print(f"   - 지급 대상: {paid_employees}명")

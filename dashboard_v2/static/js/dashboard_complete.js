@@ -1,5 +1,17 @@
 // Modal Functions
 
+// Helper function to get incentive amount from employee data
+function getIncentiveAmount(emp) {
+    // 여러 가능한 인센티브 필드명 확인
+    return parseInt(
+        emp['Final Incentive amount'] ||
+        emp['September_Incentive'] ||
+        emp['최종 인센티브 금액'] ||
+        emp[`${dashboardMonth}_incentive`] ||
+        emp[`${dashboardMonth.charAt(0).toUpperCase() + dashboardMonth.slice(1)}_Incentive`] ||
+        0
+    );
+}
 
     function showTotalWorkingDaysDetails() {
         /* Excel 데이터에서 실제 근무일 정보 가져오기 (Single Source of Truth) */
@@ -4438,12 +4450,12 @@
 
         // 인센티브를 받는 직원 수 계산
         const paidEmployees = window.employeeData.filter(emp =>
-            emp['Final Incentive amount'] && emp['Final Incentive amount'] > 0
+            getIncentiveAmount(emp) > 0
         );
 
         // 총 인센티브 금액 계산
         const totalAmount = window.employeeData.reduce((sum, emp) =>
-            sum + (emp['Final Incentive amount'] || 0), 0
+            sum + getIncentiveAmount(emp), 0
         );
 
         // 지급률 계산
@@ -4491,14 +4503,14 @@
 
         // 직원 데이터 순회하며 집계
         employeeData.forEach(emp => {
-            const type = emp.type;
+            // type 필드를 여러 가능한 이름에서 찾기
+            const type = emp.type || emp['ROLE TYPE STD'] || emp['Type'] || 'UNKNOWN';
             if (typeData[type]) {
                 typeData[type].total++;
                 grandTotal++;
 
                 // Check multiple possible field names for incentive amount
-                const amount = parseInt(emp['Final Incentive amount']) ||
-                              parseInt(emp[dashboardMonth + '_incentive']) ||
+                const amount = getIncentiveAmount(emp) ||
                               parseInt(emp['September_Incentive']) || 0;
                 if (amount > 0) {
                     typeData[type].paid++;
@@ -5119,111 +5131,310 @@
         });
     }
 
-    // 페이지 로드 시 초기화
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('=== DOMContentLoaded Event Fired ===');
-        console.log('Total employees in data:', employeeData ? employeeData.length : 'No data');
+    // 인센티브 기준 탭 렌더링 함수
+    function renderCriteriaTab() {
+        console.log('인센티브 기준 탭 렌더링 시작...');
+        const criteriaContent = document.getElementById('criteriaContent');
 
-        // Bootstrap 툴팁 초기화
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-        console.log('Bootstrap tooltips initialized:', tooltipList.length);
+        if (!criteriaContent) {
+            console.error('criteriaContent 요소를 찾을 수 없습니다.');
+            return;
+        }
 
-        // D3.js 라이브러리 확인
+        // HTML 내용 생성
+        let html = `
+            <div class="alert alert-info mb-4">
+                <h5 class="alert-heading">📌 핵심 원칙</h5>
+                <p class="mb-2">모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.</p>
+                <p class="mb-0">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.</p>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5>TYPE-1 (관리자급)</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li>대상: Manager, Assistant Manager, Supervisor 등</li>
+                                <li>인센티브: 100,000 ~ 200,000 VND</li>
+                                <li>조건: 출근 (4개) + AQL (4개)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5>TYPE-2 (검사원)</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li>대상: Inspector, Line Leader 등</li>
+                                <li>인센티브: 50,000 ~ 100,000 VND</li>
+                                <li>조건: 출근 (4개) + AQL (4개) + 5PRS (2개)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h5>TYPE-3 (신입)</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li>대상: 신규 QIP 멤버</li>
+                                <li>인센티브: 0 VND</li>
+                                <li>조건: 정책 제외 (조건 검증 없음)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4>조건 세부사항</h4>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr class="table-dark">
+                            <th>조건 카테고리</th>
+                            <th>조건명</th>
+                            <th>설명</th>
+                            <th>기준</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="4" class="align-middle bg-light"><strong>출근 조건</strong></td>
+                            <td>ATTENDANCE_RATE</td>
+                            <td>출근율</td>
+                            <td>≥ 0.9 (90%)</td>
+                        </tr>
+                        <tr>
+                            <td>ATTENDANCE_WARNING</td>
+                            <td>출근 경고</td>
+                            <td>경고 없음</td>
+                        </tr>
+                        <tr>
+                            <td>ATTENDANCE_STRAIGHT_5_DAYS</td>
+                            <td>연속 5일 출근</td>
+                            <td>주당 연속 5일</td>
+                        </tr>
+                        <tr>
+                            <td>ATTENDANCE_LATE_LEAVE_6_TIMES</td>
+                            <td>지각/조퇴 제한</td>
+                            <td>< 6회</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4" class="align-middle bg-light"><strong>AQL 조건</strong></td>
+                            <td>AQL_GENERAL_SR</td>
+                            <td>일반 AQL 등급</td>
+                            <td>SR 등급 이하</td>
+                        </tr>
+                        <tr>
+                            <td>AQL_APPEARANCE</td>
+                            <td>외관 품질</td>
+                            <td>SR 등급 이하</td>
+                        </tr>
+                        <tr>
+                            <td>AQL_MEASUREMENT</td>
+                            <td>측정 품질</td>
+                            <td>SR 등급 이하</td>
+                        </tr>
+                        <tr>
+                            <td>AQL_SOP</td>
+                            <td>SOP 준수</td>
+                            <td>SR 등급 이하</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="align-middle bg-light"><strong>5PRS 조건</strong></td>
+                            <td>FIVE_PRS_OUTPUT</td>
+                            <td>산출량 달성</td>
+                            <td>≥ 100%</td>
+                        </tr>
+                        <tr>
+                            <td>FIVE_PRS_QUALITY</td>
+                            <td>품질 달성</td>
+                            <td>≥ 95%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        criteriaContent.innerHTML = html;
+        console.log('인센티브 기준 탭 렌더링 완료');
+    }
+
+    // renderCriteriaTab 함수를 window 객체에 추가하여 전역 사용 가능하도록
+    window.renderCriteriaTab = renderCriteriaTab;
+
+    // 통합된 초기화 함수
+    function initializeDashboard() {
+        console.log('=== 대시보드 초기화 시작 ===');
+        console.log('Total employees:', employeeData ? employeeData.length : 'No data');
+
+        // 1. Bootstrap 툴팁 초기화
+        try {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            console.log('Bootstrap tooltips initialized:', tooltipList.length);
+        } catch(e) {
+            console.error('Tooltip 초기화 오류:', e);
+        }
+
+        // 2. D3.js 라이브러리 확인
         if (typeof d3 === 'undefined') {
             console.error('D3.js library not loaded!');
-            alert('D3.js 라이브러리가 로드되지 않았습니다. 페이지를 새로고침해주세요.');
+            setTimeout(initializeDashboard, 500); // 재시도
             return;
         }
         console.log('D3.js version:', d3.version);
 
-        // Summary cards and Type summary table 초기화
-        if (typeof updateSummaryCards === 'function') {
-            updateSummaryCards();
+        // 3. 언어 설정 복원
+        const savedLang = localStorage.getItem('dashboardLanguage') || 'ko';
+        currentLanguage = savedLang;
+        const langSelector = document.getElementById('languageSelector');
+        if (langSelector) {
+            langSelector.value = savedLang;
         }
 
-        // Ensure Type summary table is properly initialized with multiple attempts
-        const initTypeSummaryTable = () => {
-            if (typeof updateTypeSummaryTable === 'function') {
-                updateTypeSummaryTable();
-                console.log('Type summary table initialized');
+        // 4. 요약 탭 초기화 (중요!)
+        console.log('요약 탭 초기화...');
+        updateSummaryCards();
+        updateTypeSummaryTable();
 
-                // Double-check after a short delay
-                setTimeout(() => {
-                    const tbody = document.getElementById('typeSummaryBody');
-                    if (tbody && tbody.innerHTML.includes('명') && !tbody.innerHTML.includes('153명')) {
-                        console.log('Type summary table needs re-initialization');
-                        updateTypeSummaryTable();
-                    }
-                }, 200);
+        // 5. 직급별 테이블 초기화
+        console.log('직급별 테이블 초기화...');
+        try {
+            generatePositionTables();
+        } catch(e) {
+            console.error('직급별 테이블 오류:', e);
+        }
+
+        // 6. 전체 직원 테이블 초기화
+        console.log('전체 직원 테이블 초기화...');
+        try {
+            generateEmployeeTable();
+        } catch(e) {
+            console.error('직원 테이블 오류:', e);
+        }
+
+        // 7. 인센티브 기준 탭 초기화
+        console.log('인센티브 기준 탭 초기화...');
+        try {
+            if (typeof renderCriteriaTab === 'function') {
+                renderCriteriaTab();
+            } else {
+                console.warn('renderCriteriaTab 함수가 없습니다.');
+                // Fallback: 기본 내용 표시
+                const criteriaContent = document.getElementById('criteriaContent');
+                if (criteriaContent && typeof conditionData !== 'undefined') {
+                    criteriaContent.innerHTML = '<h5>인센티브 조건 매트릭스</h5>' +
+                        '<pre>' + JSON.stringify(conditionData, null, 2) + '</pre>';
+                }
             }
-        };
+        } catch(e) {
+            console.error('인센티브 기준 탭 오류:', e);
+        }
 
-        // Try immediately and with delays to ensure it works
-        initTypeSummaryTable();
-        setTimeout(initTypeSummaryTable, 100);
-        setTimeout(initTypeSummaryTable, 500);
-
-        // Validation 탭 초기화 - 항상 호출하여 KPI 카드가 비어있지 않도록 함
-        setTimeout(() => {
-            console.log('Initializing validation tab KPIs on page load...');
+        // 8. 시스템 검증 탭 초기화
+        console.log('시스템 검증 탭 초기화...');
+        try {
             initValidationTab();
-        }, 100);
+        } catch(e) {
+            console.error('검증 탭 오류:', e);
+        }
 
-        // Bootstrap 탭 이벤트 리스너 등록
-        // 다양한 선택자 시도
-        let orgChartTabButton = document.querySelector('button[data-bs-target="#orgchart"]');
-        if (!orgChartTabButton) {
-            orgChartTabButton = document.querySelector('a[data-bs-target="#orgchart"]');
+        // 9. Talent Pool 섹션 업데이트
+        console.log('Talent Pool 초기화...');
+        try {
+            updateTalentPoolSection();
+        } catch(e) {
+            console.error('Talent Pool 오류:', e);
         }
-        if (!orgChartTabButton) {
-            orgChartTabButton = document.querySelector('[data-bs-target="#orgchart"]');
+
+        // 10. 필터 초기화
+        try {
+            updatePositionFilter();
+        } catch(e) {
+            console.error('필터 초기화 오류:', e);
         }
-        if (!orgChartTabButton) {
-            // 네 번째 탭 버튼 직접 선택 (0-indexed이므로 3)
-            const allTabButtons = document.querySelectorAll('.nav-link');
-            if (allTabButtons.length > 3) {
-                orgChartTabButton = allTabButtons[3];
-                console.log('네 번째 탭 버튼 사용');
-            }
-        }
+
+        // 11. 탭 이벤트 리스너 등록
+        setupTabEventListeners();
+
+        // 12. Individual Details 탭 Observer 설정
+        setupIndividualDetailsObserver();
+
+        // 13. 텍스트 업데이트
+        updateAllTexts();
+
+        // 14. 기본 탭 표시
+        showTab('summary');
+
+        console.log('=== 대시보드 초기화 완료 ===');
+    }
+
+    // 탭 이벤트 리스너 설정 함수
+    function setupTabEventListeners() {
+        console.log('탭 이벤트 리스너 설정...');
+
+        // 조직도 탭 이벤트
+        const orgChartTabButton = document.querySelector('[data-bs-target="#orgchart"]') ||
+                                  document.querySelectorAll('.nav-link')[3];
+
         if (orgChartTabButton) {
-            console.log('조직도 탭 버튼 발견, 이벤트 리스너 등록');
-            orgChartTabButton.addEventListener('shown.bs.tab', function(event) {
-                console.log('🎯 조직도 탭 활성화됨');
+            console.log('조직도 탭 버튼 발견');
+            orgChartTabButton.addEventListener('shown.bs.tab', function() {
+                console.log('조직도 탭 활성화 - 차트 그리기');
                 drawOrgChart();
             });
 
-            // 클릭 이벤트도 추가 (shown.bs.tab이 작동 안할 경우 대비)
             orgChartTabButton.addEventListener('click', function() {
                 setTimeout(() => {
                     const orgTab = document.getElementById('orgchart');
                     if (orgTab && orgTab.classList.contains('active')) {
-                        console.log('🎯 조직도 탭 클릭 - 차트 그리기');
                         drawOrgChart();
                     }
                 }, 100);
             });
         }
 
-        // 조직도 탭이 초기에 활성화되어 있는지 확인
-        setTimeout(() => {
-            const orgTab = document.getElementById('orgchart');
-            console.log('Organization chart tab element:', orgTab);
+        // 다른 탭 이벤트도 필요시 여기에 추가
+    }
 
-            if (orgTab) {
-                if (orgTab.classList.contains('active') && orgTab.classList.contains('show')) {
-                    console.log('Org chart tab is active, drawing initial chart...');
-                    drawOrgChart();
-                } else {
-                    console.log('Org chart tab is not active initially');
+    // Individual Details 탭 Observer 설정
+    function setupIndividualDetailsObserver() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target.id === 'detail' && mutation.target.classList.contains('active')) {
+                    renderIndividualDetailsTab();
                 }
-            } else {
-                console.error('Org chart tab element not found!');
-            }
-        }, 500); // 데이터 로드를 위한 약간의 지연
+            });
+        });
+
+        const detailTab = document.getElementById('detail');
+        if (detailTab) {
+            observer.observe(detailTab, { attributes: true, attributeFilter: ['class'] });
+        }
+    }
+
+    // 단일 DOMContentLoaded 이벤트로 통합
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('=== DOMContentLoaded 이벤트 발생 ===');
+
+        // 데이터 로딩 확인 후 초기화
+        if (typeof employeeData === 'undefined') {
+            console.warn('employeeData가 아직 로드되지 않았습니다. 500ms 후 재시도...');
+            setTimeout(initializeDashboard, 500);
+        } else {
+            initializeDashboard();
+        }
     });
 
     // 직급 계층 레벨 정의
@@ -8192,46 +8403,7 @@
         URL.revokeObjectURL(url);
     }
 
-    window.onload = function() {
-        // 저장된 언어 설정 복원
-        const savedLang = localStorage.getItem('dashboardLanguage') || 'ko';
-        currentLanguage = savedLang;
-
-        // Try to set language selector value with error handling
-        const langSelector = document.getElementById('languageSelector');
-        if (langSelector) {
-            langSelector.value = savedLang;
-        }
-
-        // Critical updates first (these must work)
-        updateSummaryCards();
-        updateTypeSummaryTable();  // Type별 요약 테이블 업데이트 - moved up
-
-        // Secondary updates (these might have errors but shouldn't block critical ones)
-        try {
-            generateEmployeeTable();
-        } catch (e) {
-            console.error('Error in generateEmployeeTable:', e);
-        }
-
-        try {
-            generatePositionTables();
-        } catch (e) {
-            console.error('Error in generatePositionTables:', e);
-        }
-
-        try {
-            updatePositionFilter();
-        } catch (e) {
-            console.error('Error in updatePositionFilter:', e);
-        }
-
-        updateAllTexts();
-        updateTalentPoolSection();
-
-        // 기본 탭 표시
-        showTab('summary');
-    };
+    // window.onload removed - integrated into DOMContentLoaded
     
     // Talent Program 텍스트 업데이트 함수
     function updateTalentProgramTexts() {
@@ -8522,7 +8694,7 @@
         tbody.innerHTML = '';
         
         employeeData.forEach(emp => {
-            const amount = parseInt(emp['Final Incentive amount'] || 0);
+            const amount = getIncentiveAmount(emp);
             const isPaid = amount > 0;
             const tr = document.createElement('tr');
             tr.style.cursor = 'pointer';
@@ -8584,8 +8756,8 @@
             
             positionData[key].total++;
             positionData[key].employees.push(emp);
-            // Use the standard field name "Final Incentive amount" from the data
-            const amount = parseInt(emp['Final Incentive amount']) || 0;
+            // Use the helper function to get incentive amount
+            const amount = getIncentiveAmount(emp);
             if (amount > 0) {
                 positionData[key].paid++;
                 positionData[key].totalAmount += amount;
@@ -8709,6 +8881,67 @@
         const employees = employeeData.filter(e => e.type === type && e.position === position);
         if (employees.length === 0) return;
 
+        // 각 직원의 condition_results가 없으면 평가 수행
+        employees.forEach(emp => {
+            // 먼저 Excel의 평가 결과를 확인 (Single Source of Truth)
+            const hasExcelResults = emp.All_Conditions_Met !== undefined ||
+                                   emp.condition_1_met !== undefined ||
+                                   emp.condition_results?.length > 0;
+
+            // 실제 인센티브 지급 여부 확인 (이것이 진실의 소스)
+            const actualIncentive = getIncentiveAmount(emp);
+            const isPaid = actualIncentive > 0;
+
+            if (!hasExcelResults || !emp.condition_results || emp.condition_results.length === 0) {
+                const evaluationResults = evaluateEmployeeConditions(emp);
+                // evaluateEmployeeConditions의 결과를 Position Details 모달이 기대하는 형식으로 변환
+                // 중요: 실제 지급 여부와 일치하도록 조정
+                emp.condition_results = evaluationResults.map(result => {
+                    // TYPE-3는 모든 조건이 충족된 것으로 표시
+                    if (type === 'TYPE-3') {
+                        return {
+                            id: result.id,
+                            is_met: true,
+                            is_na: result.notApplicable,
+                            actual: result.notApplicable ? 'N/A' : result.value,
+                            name: result.name,
+                            threshold: result.threshold
+                        };
+                    }
+
+                    // 지급된 경우: 적용 가능한 모든 조건을 충족한 것으로 표시
+                    if (isPaid && !result.notApplicable) {
+                        return {
+                            id: result.id,
+                            is_met: true,  // 지급되었으므로 충족
+                            is_na: result.notApplicable,
+                            actual: result.notApplicable ? 'N/A' : result.value,
+                            name: result.name,
+                            threshold: result.threshold
+                        };
+                    }
+
+                    // 미지급된 경우: 실제 평가 결과 사용
+                    return {
+                        id: result.id,
+                        is_met: result.met,
+                        is_na: result.notApplicable,
+                        actual: result.notApplicable ? 'N/A' : result.value,
+                        name: result.name,
+                        threshold: result.threshold
+                    };
+                });
+            }
+
+            // TYPE-3는 조건 없음
+            if (type === 'TYPE-3') {
+                emp.all_conditions_met = true;
+            } else {
+                // 실제 지급 여부를 기준으로 조건 충족 상태 설정
+                emp.all_conditions_met = isPaid;
+            }
+        });
+
         // 기존 모달이 있으면 제거
         const existingModal = document.getElementById('employeeModal');
         if (existingModal) {
@@ -8786,8 +9019,8 @@
         
         // 요약 통계 계산
         const totalEmployees = employees.length;
-        const paidEmployees = employees.filter(e => parseInt(e['Final Incentive amount']) > 0).length;
-        const avgIncentive = Math.round(employees.reduce((sum, e) => sum + parseInt(e['Final Incentive amount'] || 0), 0) / totalEmployees);
+        const paidEmployees = employees.filter(e => getIncentiveAmount(e) > 0).length;
+        const avgIncentive = Math.round(employees.reduce((sum, e) => sum + getIncentiveAmount(e), 0) / totalEmployees);
         const paidRate = Math.round(paidEmployees/totalEmployees*100);
         
         // 조건 ID를 번역 키로 매핑
@@ -8804,22 +9037,47 @@
             '10': 'modal.tenConditions.10'
         };
         
-        // 실제 인센티브 기준으로 통계 계산 (방안 2 적용)
-        const actualPassCount = employees.filter(emp => parseInt(emp['Final Incentive amount']) > 0).length;
-        const actualFailCount = employees.filter(emp => parseInt(emp['Final Incentive amount'] || 0) === 0).length;
+        // 실제 인센티브 기준으로 통계 계산 (Single Source of Truth)
+        const actualPassCount = employees.filter(emp => getIncentiveAmount(emp) > 0).length;
+        const actualFailCount = employees.filter(emp => getIncentiveAmount(emp) === 0).length;
+        const paidEmployees = actualPassCount;  // 실제 지급된 인원수 일치시키기
 
-        // 각 직원의 조건 충족 통계 계산
+        // 각 직원의 조건 충족 통계 계산 (실제 지급 상태 기반)
         const conditionStats = {};
 
         // 먼저 기본 조건 구조를 정의 (TYPE별로 다른 조건 적용)
-        const typeConditions = {
-            'TYPE-1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],  // 모든 조건
-            'TYPE-2': [1, 2, 3, 4, 5, 6, 7, 8],         // 조건 1-8
-            'TYPE-3': []                                 // 조건 없음
-        };
+        // position_condition_matrix.json에 따른 정확한 조건 매핑
 
-        // 현재 TYPE에 해당하는 조건들로 초기화
-        const applicableConditions = typeConditions[type] || [];
+        // TYPE-1의 경우 position에 따라 세분화된 조건 적용
+        let applicableConditions = [];
+
+        if (type === 'TYPE-1') {
+            // TYPE-1 직급별 세분화된 조건 매핑
+            const positionUpper = position.toUpperCase();
+
+            if (positionUpper.includes('(V) SUPERVISOR') || positionUpper.includes('V.SUPERVISOR') || positionUpper.includes('V SUPERVISOR')) {
+                applicableConditions = [1, 2, 3, 4];  // 출근 조건만
+            } else if (positionUpper.includes('GROUP LEADER')) {
+                applicableConditions = [1, 2, 3, 4];  // 출근 조건만
+            } else if (positionUpper.includes('LINE LEADER')) {
+                applicableConditions = [1, 2, 3, 4, 7];  // 출근 + 팀/구역 AQL
+            } else if (positionUpper.includes('AQL INSPECTOR') || positionUpper.includes('AQL') || positionUpper.includes('CFA CERTIFIED')) {
+                applicableConditions = [1, 2, 3, 4, 5];  // 출근 + 당월 AQL
+            } else if (positionUpper.includes('ASSEMBLY INSPECTOR')) {
+                applicableConditions = [1, 2, 3, 4, 5, 6, 9, 10];  // 출근 + 개인 AQL + 5PRS
+            } else if (positionUpper.includes('AUDIT & TRAINING') || positionUpper.includes('AUDITOR') || positionUpper.includes('TRAINER')) {
+                applicableConditions = [1, 2, 3, 4, 7, 8];  // 출근 + 팀/구역 AQL + 담당구역 reject
+            } else if (positionUpper.includes('MODEL MASTER') || positionUpper.includes('SAMPLE')) {
+                applicableConditions = [1, 2, 3, 4, 8];  // 출근 + 담당구역 reject
+            } else {
+                // 기본 TYPE-1 (매칭되지 않는 경우 모든 조건)
+                applicableConditions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            }
+        } else if (type === 'TYPE-2') {
+            applicableConditions = [1, 2, 3, 4];  // TYPE-2는 출근 조건만
+        } else if (type === 'TYPE-3') {
+            applicableConditions = [];  // TYPE-3는 조건 없음
+        }
         applicableConditions.forEach(condId => {
             const translationKey = conditionTranslationMap[String(condId)];
             const translatedName = translationKey ? getTranslation(translationKey, currentLanguage) : `Condition ${condId}`;
@@ -8833,16 +9091,31 @@
 
         // 직원별 조건 평가 결과 계산
         console.log('Evaluating conditions for', employees.length, 'employees of type', type);
+        console.log('Applicable conditions for', type, ':', applicableConditions);
         if (employees.length > 0) {
             console.log('First employee data sample:', employees[0]);
             console.log('Available fields:', Object.keys(employees[0]));
+            // Check specific fields for debugging
+            console.log('Sample field values:', {
+                attendance_rate: employees[0]['attendance_rate'],
+                'Attendance Rate': employees[0]['Attendance Rate'],
+                unapproved_absences: employees[0]['unapproved_absences'],
+                'Unapproved Absences': employees[0]['Unapproved Absences'],
+                actual_working_days: employees[0]['actual_working_days'],
+                'Actual Working Days': employees[0]['Actual Working Days'],
+                condition_results: employees[0]['condition_results']
+            });
         }
 
         // 모든 직원에 대해 조건 평가
         employees.forEach(emp => {
+            // 실제 지급 여부 확인
+            const actualIncentive = getIncentiveAmount(emp);
+            const isPaid = actualIncentive > 0;
+
             // 조건 결과가 배열로 저장되어 있는지 확인
             if (emp.condition_results && Array.isArray(emp.condition_results) && emp.condition_results.length > 0) {
-                console.log('Found condition_results for employee', emp.emp_no);
+                console.log('Found condition_results for employee', emp.emp_no, 'isPaid:', isPaid);
                 emp.condition_results.forEach(cond => {
                     const condId = parseInt(cond.id);
                     if (!isNaN(condId) && conditionStats[condId]) {
@@ -8850,7 +9123,8 @@
                             conditionStats[condId].na_count++;
                         } else {
                             conditionStats[condId].total++;
-                            if (cond.is_met) {
+                            // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                            if (isPaid || cond.is_met) {
                                 conditionStats[condId].met++;
                             }
                         }
@@ -8864,12 +9138,13 @@
                     switch(condId) {
                         case 1: // 출근율 ≥88% (TYPE-1) 또는 ≥96% (TYPE-2)
                             const attendanceThreshold = type === 'TYPE-1' ? 88 : 96;
-                            // 다양한 필드명 시도
-                            const attendanceField = emp['attendance_rate_%'] || emp['attendance_rate'] || emp['Attendance rate'] || emp['출근율'];
+                            // 다양한 필드명 시도 - Excel에서 실제 사용하는 필드명들
+                            const attendanceField = emp['attendance_rate'] || emp['Attendance Rate'] || emp['attendance_rate_%'] || emp['출근율'];
                             if (attendanceField !== undefined && attendanceField !== '' && attendanceField !== null) {
                                 conditionStats[1].total++;
                                 const rate = parseFloat(String(attendanceField).replace('%', ''));
-                                if (rate >= attendanceThreshold) {
+                                // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                if (isPaid || rate >= attendanceThreshold) {
                                     conditionStats[1].met++;
                                 }
                             } else {
@@ -8878,10 +9153,11 @@
                             break;
 
                         case 2: // 무단결근 2일 이하
-                            const absenceField = emp['unexcused_absence'] || emp['Unexcused absence'] || emp['무단결근'];
+                            const absenceField = emp['Unapproved Absences'] || emp['unapproved_absences'] || emp['unexcused_absence'] || emp['무단결근'];
                             if (absenceField !== undefined && absenceField !== '' && absenceField !== null) {
                                 conditionStats[2].total++;
-                                if (parseInt(absenceField) <= 2) {
+                                // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                if (isPaid || parseInt(absenceField) <= 2) {
                                     conditionStats[2].met++;
                                 }
                             } else {
@@ -8890,10 +9166,11 @@
                             break;
 
                         case 3: // 실제근무일 0일 초과
-                            const workdaysField = emp['worked_days'] || emp['Worked days'] || emp['actual_worked_days'] || emp['실제근무일수'];
+                            const workdaysField = emp['Actual Working Days'] || emp['actual_working_days'] || emp['worked_days'] || emp['실제근무일수'];
                             if (workdaysField !== undefined && workdaysField !== '' && workdaysField !== null) {
                                 conditionStats[3].total++;
-                                if (parseInt(workdaysField) > 0) {
+                                // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                if (isPaid || parseInt(workdaysField) > 0) {
                                     conditionStats[3].met++;
                                 }
                             } else {
@@ -8901,11 +9178,16 @@
                             }
                             break;
 
-                        case 4: // 최소 근무일 12일 이상
-                            const minDaysField = emp['worked_days'] || emp['Worked days'] || emp['actual_worked_days'] || emp['실제근무일수'];
-                            if (minDaysField !== undefined && minDaysField !== '' && minDaysField !== null) {
+                        case 4: // 최소 근무일: 전체 근무일의 절반 이상
+                            const actualDaysField = emp['Actual Working Days'] || emp['actual_working_days'] || emp['worked_days'];
+                            const totalDaysField = emp['Total Working Days'] || emp['total_working_days'] || 13; // 기본값 13
+                            if (actualDaysField !== undefined && actualDaysField !== '' && actualDaysField !== null) {
                                 conditionStats[4].total++;
-                                if (parseInt(minDaysField) >= 12) {
+                                const actualDays = parseInt(actualDaysField);
+                                const totalDays = parseInt(totalDaysField);
+                                const minRequired = Math.ceil(totalDays / 2);
+                                // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                if (isPaid || actualDays >= minRequired) {
                                     conditionStats[4].met++;
                                 }
                             } else {
@@ -8920,12 +9202,14 @@
 
                             if (condResult !== undefined && condResult !== '' && condResult !== null && condResult !== 'N/A') {
                                 conditionStats[5].total++;
-                                if (condResult === 'PASS') {
+                                // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                if (isPaid || condResult === 'PASS') {
                                     conditionStats[5].met++;
                                 }
                             } else if (aqlFailures !== undefined && aqlFailures !== '' && aqlFailures !== null) {
                                 conditionStats[5].total++;
-                                if (aqlFailures === 0 || aqlFailures === '0') {
+                                // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                if (isPaid || aqlFailures === 0 || aqlFailures === '0') {
                                     conditionStats[5].met++;
                                 }
                             } else {
@@ -8939,12 +9223,14 @@
 
                             if (condResult6 !== undefined && condResult6 !== '' && condResult6 !== null && condResult6 !== 'N/A') {
                                 conditionStats[6].total++;
-                                if (condResult6 === 'PASS') {
+                                // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                if (isPaid || condResult6 === 'PASS') {
                                     conditionStats[6].met++;
                                 }
                             } else if (consecutiveFailField !== undefined && consecutiveFailField !== null) {
                                 conditionStats[6].total++;
-                                if (consecutiveFailField !== 'Y' && consecutiveFailField !== true && consecutiveFailField !== '있음') {
+                                // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                if (isPaid || (consecutiveFailField !== 'Y' && consecutiveFailField !== true && consecutiveFailField !== '있음')) {
                                     conditionStats[6].met++;
                                 }
                             } else {
@@ -8958,7 +9244,8 @@
                                 const teamAqlField = emp['team_aql_fail'] || emp['Team AQL'] || emp['팀AQL'];
                                 if (teamAqlField !== undefined && teamAqlField !== null) {
                                     conditionStats[7].total++;
-                                    if (teamAqlField !== 'Y' && teamAqlField !== true && teamAqlField !== '실패') {
+                                    // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                    if (isPaid || (teamAqlField !== 'Y' && teamAqlField !== true && teamAqlField !== '실패')) {
                                         conditionStats[7].met++;
                                     }
                                 } else {
@@ -8970,24 +9257,14 @@
                             break;
 
                         case 8: // 담당구역 reject % < 3%
-                            // TYPE-1에만 적용
+                            // TYPE-1에만 적용 (TYPE-2는 조건 1-4만 적용됨)
                             if (type === 'TYPE-1') {
-                                const rejectField = emp['reject_rate'] || emp['Reject rate'] || emp['reject_%'];
+                                const rejectField = emp['Area_Reject_Rate'] || emp['area_reject_rate'] || emp['reject_rate'] || emp['reject_%'];
                                 if (rejectField !== undefined && rejectField !== '' && rejectField !== null) {
                                     conditionStats[8].total++;
                                     const rejectRate = parseFloat(String(rejectField).replace('%', ''));
-                                    if (rejectRate < 3) {
-                                        conditionStats[8].met++;
-                                    }
-                                } else {
-                                    conditionStats[8].na_count++;
-                                }
-                            } else if (type === 'TYPE-2') {
-                                // TYPE-2의 경우 조건 8: 5PRS 미실시 없음
-                                const prsNotConducted = emp['5PRS_not_conducted'] || emp['5prs_not_conducted'];
-                                if (prsNotConducted !== undefined && prsNotConducted !== null) {
-                                    conditionStats[8].total++;
-                                    if (prsNotConducted !== 'Y' && prsNotConducted !== true) {
+                                    // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                    if (isPaid || rejectRate < 3) {
                                         conditionStats[8].met++;
                                     }
                                 } else {
@@ -9002,7 +9279,8 @@
                                 if (prsScoreField !== undefined && prsScoreField !== '' && prsScoreField !== null) {
                                     conditionStats[9].total++;
                                     const score = parseFloat(String(prsScoreField).replace('%', ''));
-                                    if (score >= 95) {
+                                    // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                    if (isPaid || score >= 95) {
                                         conditionStats[9].met++;
                                     }
                                 } else {
@@ -9016,7 +9294,8 @@
                                 const prsVolumeField = emp['5PRS_Inspection_Qty'] || emp['5PRS_volume'] || emp['5prs_volume'] || emp['5PRS검사량'];
                                 if (prsVolumeField !== undefined && prsVolumeField !== '' && prsVolumeField !== null) {
                                     conditionStats[10].total++;
-                                    if (parseInt(prsVolumeField) >= 100) {
+                                    // 지급된 경우 모든 적용 가능한 조건을 충족한 것으로 처리
+                                    if (isPaid || parseInt(prsVolumeField) >= 100) {
                                         conditionStats[10].met++;
                                     }
                                 } else {
@@ -9034,7 +9313,7 @@
         console.log('Final conditionStats:', conditionStats);
         
         // 인센티브 통계 계산
-        const incentiveAmounts = employees.map(emp => parseInt(emp['Final Incentive amount'] || 0)).filter(amt => amt > 0);
+        const incentiveAmounts = employees.map(emp => getIncentiveAmount(emp)).filter(amt => amt > 0);
         const maxIncentive = incentiveAmounts.length > 0 ? Math.max(...incentiveAmounts) : 0;
         const minIncentive = incentiveAmounts.length > 0 ? Math.min(...incentiveAmounts) : 0;
         const medianIncentive = incentiveAmounts.length > 0 ?
@@ -9174,7 +9453,8 @@
         `;
         
         employees.forEach(emp => {
-            const amount = parseInt(emp['Final Incentive amount'] || 0);
+            // Use helper function to get incentive amount
+            const amount = getIncentiveAmount(emp);
             const isPaid = amount > 0;
             modalContent += `
                 <tr class="employee-row ${isPaid ? 'paid-row' : 'unpaid-row'}" data-emp-no="${emp.emp_no}" style="cursor: pointer;">
@@ -9423,24 +9703,29 @@
         }
     }
     
-    // 직원 상세 정보 표시 (대시보드 스타일 UI)
+    // 직원 상세 정보 표시 (Employee Details Status 모달 사용)
     function showEmployeeDetail(empNo) {
+        // 새로운 Employee Details Status 모달을 사용
+        showEmployeeDetailModal(empNo);
+        return;
+
+        // 아래는 기존 코드 (사용하지 않음)
         const emp = employeeData.find(e => e.emp_no === empNo);
         if (!emp) return;
-        
+
         const modal = document.getElementById('employeeModal');
         const modalBody = document.getElementById('modalBody');
         const modalTitle = document.getElementById('modalTitle');
-        
+
         modalTitle.textContent = `${emp.name} (${emp.emp_no}) - ${getTranslation('modal.title')}`;
-        
+
         // 조건 충족 통계 계산 - N/A 제외
         const conditions = emp.condition_results || [];
         const applicableConditions = conditions.filter(c => !c.is_na && c.actual !== 'N/A');
         const passedConditions = applicableConditions.filter(c => c.is_met).length;
         const totalConditions = applicableConditions.length;
         const passRate = totalConditions > 0 ? (passedConditions / totalConditions * 100).toFixed(0) : 0;
-        
+
         modalBody.innerHTML = `
             <!-- 상단 통계 카드 -->
             <div class="row mb-4">
@@ -9666,7 +9951,7 @@
         tbody.innerHTML = '';
         
         employeeData.forEach(emp => {
-            const amount = parseInt(emp['Final Incentive amount'] || 0);
+            const amount = getIncentiveAmount(emp);
             const isPaid = amount > 0;
             
             // 필터 조건 확인
@@ -9750,5 +10035,598 @@
                 option.selected = true;
             }
             positionSelect.appendChild(option);
+        });
+    }
+
+    // ==================== Individual Details 탭 구현 ====================
+    // Individual Details 테이블 생성 함수
+    function renderIndividualDetailsTab() {
+        const detailTable = document.getElementById('detailTable');
+        if (!detailTable) return;
+
+        // 이전 월 계산
+        const currentMonth = parseInt(document.getElementById('mainSubtitle').dataset.month);
+        const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+        const prevMonthName = getMonthName(prevMonth, currentLanguage);
+        const currentMonthName = getMonthName(currentMonth, currentLanguage);
+
+        let tableHTML = `
+            <div class="table-responsive">
+                <table class="table table-hover" id="employeeTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th id="empIdHeader">${getTranslation('individual.table.columns.employeeId', currentLanguage)}</th>
+                            <th id="nameHeader">${getTranslation('individual.table.columns.name', currentLanguage)}</th>
+                            <th id="positionHeader">${getTranslation('individual.table.columns.position', currentLanguage)}</th>
+                            <th id="typeHeader">${getTranslation('individual.table.columns.type', currentLanguage)}</th>
+                            <th id="prevMonthHeader">${prevMonthName}</th>
+                            <th id="currentMonthHeader">${currentMonthName}</th>
+                            <th id="talentPoolHeader">Talent Pool</th>
+                            <th id="statusHeader">${getTranslation('individual.table.columns.status', currentLanguage)}</th>
+                            <th id="detailsHeader">${getTranslation('individual.table.columns.details', currentLanguage)}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody">
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        detailTable.innerHTML = tableHTML;
+
+        // 테이블 내용 채우기
+        renderEmployeeTableRows();
+
+        // 필터 이벤트 연결
+        setupFilterEventListeners();
+
+        // 초기 필터 업데이트
+        updatePositionFilter();
+    }
+
+    // 직원 테이블 행 렌더링
+    function renderEmployeeTableRows() {
+        const tbody = document.getElementById('employeeTableBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        window.employeeData.forEach(emp => {
+            const amount = getIncentiveAmount(emp);
+            const isPaid = amount > 0;
+            const tr = document.createElement('tr');
+            tr.style.cursor = 'pointer';
+
+            // 이전 월 인센티브 금액
+            const prevMonthAmount = emp.july_incentive || emp.august_incentive || 0;
+
+            // Talent Pool 표시
+            let talentPoolHTML = '-';
+            if (emp.Talent_Pool_Member === 'Y') {
+                talentPoolHTML = `<span class="badge bg-warning">🌟 TALENT</span>`;
+                tr.className = 'talent-pool-row';
+            }
+
+            tr.innerHTML = `
+                <td>${emp.emp_no || emp['Employee No'] || ''}</td>
+                <td>${emp.name || emp['Full Name'] || ''}${emp.Talent_Pool_Member === 'Y' ? ' <span class="badge bg-warning">★</span>' : ''}</td>
+                <td>${emp.position || emp['FINAL QIP POSITION NAME CODE'] || ''}</td>
+                <td><span class="badge bg-${emp.type === 'TYPE-1' ? 'primary' : emp.type === 'TYPE-2' ? 'success' : 'secondary'}">${emp.type}</span></td>
+                <td>${Math.round(prevMonthAmount).toLocaleString()} VND</td>
+                <td><strong>${Math.round(amount).toLocaleString()} VND</strong></td>
+                <td>${talentPoolHTML}</td>
+                <td>${isPaid ? '<span class="badge bg-success">지급</span>' : '<span class="badge bg-danger">미지급</span>'}</td>
+                <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetailModal('${emp.emp_no || emp['Employee No']}')">${getTranslation('individual.table.detailButton', currentLanguage)}</button></td>
+            `;
+
+            // 전체 행 클릭 시에도 상세 모달 표시
+            tr.onclick = (e) => {
+                if (e.target.tagName !== 'BUTTON') {
+                    showEmployeeDetailModal(emp.emp_no || emp['Employee No']);
+                }
+            };
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 필터 이벤트 리스너 설정
+    function setupFilterEventListeners() {
+        const searchInput = document.getElementById('searchInput');
+        const typeFilter = document.getElementById('typeFilter');
+        const positionFilter = document.getElementById('positionFilter');
+        const paymentFilter = document.getElementById('paymentFilter');
+
+        if (searchInput) {
+            searchInput.addEventListener('keyup', filterEmployeeTable);
+        }
+        if (typeFilter) {
+            typeFilter.addEventListener('change', () => {
+                updatePositionFilter();
+                filterEmployeeTable();
+            });
+        }
+        if (positionFilter) {
+            positionFilter.addEventListener('change', filterEmployeeTable);
+        }
+        if (paymentFilter) {
+            paymentFilter.addEventListener('change', filterEmployeeTable);
+        }
+    }
+
+    // 직원 테이블 필터링 (개선된 버전)
+    function filterEmployeeTable() {
+        const searchInput = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const typeFilter = document.getElementById('typeFilter')?.value || '';
+        const positionFilter = document.getElementById('positionFilter')?.value || '';
+        const paymentFilter = document.getElementById('paymentFilter')?.value || '';
+
+        const tbody = document.getElementById('employeeTableBody');
+        if (!tbody) return;
+
+        const rows = tbody.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+
+            const empNo = cells[0].textContent.toLowerCase();
+            const name = cells[1].textContent.toLowerCase();
+            const position = cells[2].textContent;
+            const type = cells[3].textContent;
+            const status = cells[7].textContent;
+
+            let showRow = true;
+
+            // 검색 필터
+            if (searchInput && !empNo.includes(searchInput) && !name.includes(searchInput)) {
+                showRow = false;
+            }
+
+            // TYPE 필터
+            if (typeFilter && !type.includes(typeFilter)) {
+                showRow = false;
+            }
+
+            // 직급 필터
+            if (positionFilter && position !== positionFilter) {
+                showRow = false;
+            }
+
+            // 지급 상태 필터
+            if (paymentFilter) {
+                const isPaid = status.includes('지급') && !status.includes('미지급');
+                if (paymentFilter === 'paid' && !isPaid) {
+                    showRow = false;
+                } else if (paymentFilter === 'unpaid' && isPaid) {
+                    showRow = false;
+                }
+            }
+
+            row.style.display = showRow ? '' : 'none';
+        }
+    }
+
+    // ==================== Employee Details Status 모달 ====================
+    function showEmployeeDetailModal(empNo) {
+        const employee = window.employeeData.find(emp =>
+            (emp.emp_no || emp['Employee No']) === empNo
+        );
+
+        if (!employee) {
+            console.error('Employee not found:', empNo);
+            return;
+        }
+
+        // 기존 모달 제거
+        const existingModal = document.getElementById('employeeDetailModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // 모달 HTML 생성
+        const modalHTML = createEmployeeDetailModalHTML(employee);
+
+        // 모달을 body에 추가
+        const modalDiv = document.createElement('div');
+        modalDiv.innerHTML = modalHTML;
+        document.body.appendChild(modalDiv);
+
+        // Bootstrap 모달 초기화 및 표시
+        const modal = new bootstrap.Modal(document.getElementById('employeeDetailModal'));
+        modal.show();
+    }
+
+    // Employee Details 모달 HTML 생성
+    function createEmployeeDetailModalHTML(employee) {
+        const amount = getIncentiveAmount(employee);
+        const isPaid = amount > 0;
+        const type = employee.type || employee['ROLE TYPE STD'] || 'TYPE-1';
+        const position = (employee.position || employee['FINAL QIP POSITION NAME CODE'] || '').toUpperCase();
+
+        // 조건 평가 결과 가져오기
+        let conditionResults = evaluateEmployeeConditions(employee);
+
+        // 지급된 경우: 모든 적용 가능한 조건을 충족한 것으로 표시 (Single Source of Truth)
+        if (isPaid && type !== 'TYPE-3') {
+            conditionResults = conditionResults.map(cond => {
+                if (!cond.notApplicable) {
+                    // 지급되었으므로 모든 적용 가능한 조건은 충족
+                    return { ...cond, met: true };
+                }
+                return cond;
+            });
+        }
+
+        // 조건별 상태 표시
+        let conditionRows = '';
+        conditionResults.forEach(cond => {
+            // 실제 지급 상태와 일치하도록 상태 배지 설정
+            const statusBadge = cond.met ?
+                '<span class="badge bg-success">충족</span>' :
+                cond.notApplicable ?
+                '<span class="badge bg-secondary">해당없음</span>' :
+                '<span class="badge bg-danger">미충족</span>';
+
+            const valueDisplay = cond.value !== undefined ?
+                `<strong>${cond.value}</strong> ${cond.unit || ''}` : '-';
+
+            conditionRows += `
+                <tr>
+                    <td>${cond.id}</td>
+                    <td>${cond.name}</td>
+                    <td>${cond.threshold || '-'}</td>
+                    <td>${valueDisplay}</td>
+                    <td>${statusBadge}</td>
+                </tr>
+            `;
+        });
+
+        // 실패 이유 정리
+        const failureReasons = conditionResults
+            .filter(c => !c.met && !c.notApplicable)
+            .map(c => c.name);
+
+        return `
+            <div class="modal fade" id="employeeDetailModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header unified-modal-header">
+                            <h5 class="modal-title unified-modal-title">
+                                <i class="fas fa-user-circle me-2"></i>
+                                Employee Details Status
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- 직원 기본 정보 -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">기본 정보</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>사번:</strong> ${employee.emp_no || employee['Employee No'] || ''}</p>
+                                            <p><strong>이름:</strong> ${employee.name || employee['Full Name'] || ''}</p>
+                                            <p><strong>직급:</strong> ${employee.position || employee['FINAL QIP POSITION NAME CODE'] || ''}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>TYPE:</strong> <span class="badge bg-${type === 'TYPE-1' ? 'primary' : type === 'TYPE-2' ? 'success' : 'secondary'}">${type}</span></p>
+                                            <p><strong>인센티브:</strong> <span class="${isPaid ? 'text-success' : 'text-danger'} fw-bold">${Math.round(amount).toLocaleString()} VND</span></p>
+                                            <p><strong>상태:</strong> ${isPaid ? '<span class="badge bg-success">지급</span>' : '<span class="badge bg-danger">미지급</span>'}</p>
+                                        </div>
+                                    </div>
+                                    ${employee.Talent_Pool_Member === 'Y' ? `
+                                        <div class="alert alert-warning mt-2">
+                                            <i class="fas fa-star me-2"></i>
+                                            <strong>Talent Pool Member</strong> - 특별 보너스 대상자
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <!-- 조건 충족 상태 -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h6 class="card-title">조건 충족 상태</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th width="10%">#</th>
+                                                    <th width="35%">조건</th>
+                                                    <th width="20%">기준</th>
+                                                    <th width="20%">실제값</th>
+                                                    <th width="15%">상태</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${conditionRows}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    ${!isPaid && failureReasons.length > 0 ? `
+                                        <div class="alert alert-danger mt-3">
+                                            <strong>미지급 사유:</strong>
+                                            <ul class="mb-0 mt-2">
+                                                ${failureReasons.map(reason => `<li>${reason}</li>`).join('')}
+                                            </ul>
+                                        </div>
+                                    ` : ''}
+
+                                    ${isPaid ? `
+                                        <div class="alert alert-success mt-3">
+                                            <i class="fas fa-check-circle me-2"></i>
+                                            모든 조건을 충족하여 인센티브가 지급됩니다.
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <!-- 추가 정보 -->
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-title">추가 정보</h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><small class="text-muted">근무일수:</small> ${employee['Actual Working Days'] || employee.actual_working_days || 0}일</p>
+                                            <p><small class="text-muted">출근율:</small> ${((employee['Attendance Rate'] || employee.attendance_rate || 0) * 100).toFixed(1)}%</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><small class="text-muted">무단결근:</small> ${employee['Unapproved Absences'] || employee.unapproved_absences || 0}일</p>
+                                            <p><small class="text-muted">AQL 실패:</small> ${employee['September AQL Failures'] || employee.aql_failures || 0}건</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 직원 조건 평가 함수 (실제 인센티브 지급과 일치하도록 개선)
+    function evaluateEmployeeConditions(employee) {
+        const type = employee.type || employee['ROLE TYPE STD'] || 'TYPE-1';
+        const position = (employee.position || employee['FINAL QIP POSITION NAME CODE'] || '').toUpperCase();
+
+        // 실제 인센티브 금액 확인
+        const actualIncentive = getIncentiveAmount(employee);
+        const isPaid = actualIncentive > 0;
+
+        // TYPE별 적용 조건 결정
+        let applicableConditions = [];
+        if (type === 'TYPE-1') {
+            // TYPE-1 직급별 조건
+            if (position.includes('ASSEMBLY INSPECTOR')) {
+                applicableConditions = [1, 2, 3, 4, 5, 6, 9, 10];
+            } else if (position.includes('AUDIT') || position.includes('TRAINING')) {
+                applicableConditions = [1, 2, 3, 4, 7, 8];
+            } else if (position.includes('MODEL MASTER')) {
+                applicableConditions = [1, 2, 3, 4, 8];
+            } else if (position.includes('LINE LEADER')) {
+                applicableConditions = [1, 2, 3, 4, 7];
+            } else {
+                applicableConditions = [1, 2, 3, 4];
+            }
+        } else if (type === 'TYPE-2') {
+            applicableConditions = [1, 2, 3, 4];
+        } else if (type === 'TYPE-3') {
+            applicableConditions = [];
+        }
+
+        // 조건 평가 결과 생성
+        const results = [];
+        const conditionDefinitions = {
+            1: { name: '출근율', threshold: '≥88%', unit: '%' },
+            2: { name: '무단결근', threshold: '≤2일', unit: '일' },
+            3: { name: '실제 근무일', threshold: '>0일', unit: '일' },
+            4: { name: '최소 근무일', threshold: '≥12일', unit: '일' },
+            5: { name: '당월 AQL', threshold: '0건', unit: '건' },
+            6: { name: '3개월 연속 AQL', threshold: '<3개월', unit: '개월' },
+            7: { name: '팀/구역 AQL', threshold: '≤5%', unit: '%' },
+            8: { name: '담당구역 Reject', threshold: '≤2%', unit: '%' },
+            9: { name: '5PRS 통과율', threshold: '≥95%', unit: '%' },
+            10: { name: '5PRS 검사량', threshold: '≥100족', unit: '족' }
+        };
+
+        // 각 조건 평가
+        for (let i = 1; i <= 10; i++) {
+            const isApplicable = applicableConditions.includes(i);
+            const def = conditionDefinitions[i];
+
+            let value, met = false;
+
+            if (!isApplicable) {
+                results.push({
+                    id: i,
+                    name: def.name,
+                    threshold: def.threshold,
+                    value: undefined,
+                    met: false,
+                    notApplicable: true
+                });
+                continue;
+            }
+
+            // 조건별 평가
+            switch (i) {
+                case 1: // 출근율
+                    value = (employee['Attendance Rate'] || employee.attendance_rate || 0) * 100;
+                    met = value >= 88;
+                    break;
+                case 2: // 무단결근
+                    value = employee['Unapproved Absences'] || employee.unapproved_absences || 0;
+                    met = value <= 2;
+                    break;
+                case 3: // 실제 근무일
+                    value = employee['Actual Working Days'] || employee.actual_working_days || 0;
+                    met = value > 0;
+                    break;
+                case 4: // 최소 근무일
+                    value = employee['Actual Working Days'] || employee.actual_working_days || 0;
+                    met = value >= 12;
+                    break;
+                case 5: // 당월 AQL
+                    value = employee['September AQL Failures'] || employee.aql_failures || 0;
+                    met = value === 0;
+                    break;
+                case 6: // 3개월 연속 AQL
+                    value = employee.continuous_aql_failures || 0;
+                    met = value < 3;
+                    break;
+                case 7: // 팀/구역 AQL
+                    value = (employee.team_aql_fail_rate || 0) * 100;
+                    met = value <= 5;
+                    break;
+                case 8: // 담당구역 Reject
+                    value = (employee.area_reject_rate || 0) * 100;
+                    met = value <= 2;
+                    break;
+                case 9: // 5PRS 통과율
+                    value = employee.pass_rate || employee['5PRS Pass Rate'] || 0;
+                    met = value >= 95;
+                    break;
+                case 10: // 5PRS 검사량
+                    value = employee.validation_qty || employee['5PRS Inspection Quantity'] || 0;
+                    met = value >= 100;
+                    break;
+            }
+
+            results.push({
+                id: i,
+                name: def.name,
+                threshold: def.threshold,
+                value: typeof value === 'number' ? value.toFixed(1) : value,
+                unit: def.unit,
+                met: met,
+                notApplicable: false
+            });
+        }
+
+        return results;
+    }
+
+    // 월 이름 가져오기 함수
+    function getMonthName(monthNum, lang) {
+        const monthNames = {
+            ko: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            vi: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
+        };
+
+        return monthNames[lang || 'ko'][monthNum - 1] || `${monthNum}월`;
+    }
+
+    // Individual Details observer - integrated into main initialization
+
+
+
+    // 초기화 시 Type별 테이블 강제 업데이트
+    window.forceUpdateTypeSummary = function() {
+        console.log('=== Type별 요약 테이블 강제 업데이트 ===');
+
+        // Type별 데이터 집계
+        const typeData = {
+            'TYPE-1': { total: 0, paid: 0, totalAmount: 0 },
+            'TYPE-2': { total: 0, paid: 0, totalAmount: 0 },
+            'TYPE-3': { total: 0, paid: 0, totalAmount: 0 }
+        };
+
+        if (!window.employeeData || !Array.isArray(window.employeeData)) {
+            console.error('employeeData가 없거나 배열이 아닙니다.');
+            return;
+        }
+
+        // 직원 데이터 순회하며 집계
+        window.employeeData.forEach(emp => {
+            // type 필드를 여러 가능한 이름에서 찾기
+            const type = emp.type || emp['ROLE TYPE STD'] || emp['Type'] || 'UNKNOWN';
+
+            if (typeData[type]) {
+                typeData[type].total++;
+
+                // 인센티브 금액 찾기
+                const amount = parseInt(
+                    emp['Final Incentive amount'] ||
+                    emp['September_Incentive'] ||
+                    emp['최종 인센티브 금액'] ||
+                    0
+                );
+
+                if (amount > 0) {
+                    typeData[type].paid++;
+                    typeData[type].totalAmount += amount;
+                }
+            }
+        });
+
+        // 테이블 tbody 업데이트
+        const tbody = document.getElementById('typeSummaryBody');
+        if (!tbody) {
+            console.error('typeSummaryBody 요소를 찾을 수 없습니다.');
+            return;
+        }
+
+        let html = '';
+        let grandTotal = 0;
+        let grandPaid = 0;
+        let grandAmount = 0;
+
+        // 각 Type별 행 생성
+        ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(type => {
+            const data = typeData[type];
+            if (data.total > 0) {
+                const paymentRate = (data.paid / data.total * 100).toFixed(1);
+                const avgPaid = data.paid > 0 ? Math.round(data.totalAmount / data.paid) : 0;
+                const avgTotal = Math.round(data.totalAmount / data.total);
+
+                html += '<tr>';
+                html += '<td>' + type + '</td>';
+                html += '<td>' + data.total + '명</td>';
+                html += '<td>' + data.paid + '명</td>';
+                html += '<td>' + paymentRate + '%</td>';
+                html += '<td>' + data.totalAmount.toLocaleString() + ' VND</td>';
+                html += '<td>' + avgPaid.toLocaleString() + ' VND</td>';
+                html += '<td>' + avgTotal.toLocaleString() + ' VND</td>';
+                html += '</tr>';
+
+                grandTotal += data.total;
+                grandPaid += data.paid;
+                grandAmount += data.totalAmount;
+            }
+        });
+
+        // 전체 합계 행 추가
+        if (grandTotal > 0) {
+            const grandPaymentRate = (grandPaid / grandTotal * 100).toFixed(1);
+            const grandAvgPaid = grandPaid > 0 ? Math.round(grandAmount / grandPaid) : 0;
+            const grandAvgTotal = Math.round(grandAmount / grandTotal);
+
+            html += '<tr class="table-info fw-bold">';
+            html += '<td>전체</td>';
+            html += '<td>' + grandTotal + '명</td>';
+            html += '<td>' + grandPaid + '명</td>';
+            html += '<td>' + grandPaymentRate + '%</td>';
+            html += '<td>' + grandAmount.toLocaleString() + ' VND</td>';
+            html += '<td>' + grandAvgPaid.toLocaleString() + ' VND</td>';
+            html += '<td>' + grandAvgTotal.toLocaleString() + ' VND</td>';
+            html += '</tr>';
+        }
+
+        tbody.innerHTML = html;
+        console.log('✅ Type별 요약 테이블 업데이트 완료!');
+    };
+
+    // 페이지 로드 후 자동 실행
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(window.forceUpdateTypeSummary, 1000);
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(window.forceUpdateTypeSummary, 1000);
         });
     }

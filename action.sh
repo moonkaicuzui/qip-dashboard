@@ -73,18 +73,18 @@ read month_choice
 
 # 월 이름 매핑
 case $month_choice in
-    1) MONTH="january" ; MONTH_KR="1월" ;;
-    2) MONTH="february" ; MONTH_KR="2월" ;;
-    3) MONTH="march" ; MONTH_KR="3월" ;;
-    4) MONTH="april" ; MONTH_KR="4월" ;;
-    5) MONTH="may" ; MONTH_KR="5월" ;;
-    6) MONTH="june" ; MONTH_KR="6월" ;;
-    7) MONTH="july" ; MONTH_KR="7월" ;;
-    8) MONTH="august" ; MONTH_KR="8월" ;;
-    9) MONTH="september" ; MONTH_KR="9월" ;;
-    10) MONTH="october" ; MONTH_KR="10월" ;;
-    11) MONTH="november" ; MONTH_KR="11월" ;;
-    12) MONTH="december" ; MONTH_KR="12월" ;;
+    1) MONTH="january" ; MONTH_KR="1월" ; MONTH_NUM=1 ;;
+    2) MONTH="february" ; MONTH_KR="2월" ; MONTH_NUM=2 ;;
+    3) MONTH="march" ; MONTH_KR="3월" ; MONTH_NUM=3 ;;
+    4) MONTH="april" ; MONTH_KR="4월" ; MONTH_NUM=4 ;;
+    5) MONTH="may" ; MONTH_KR="5월" ; MONTH_NUM=5 ;;
+    6) MONTH="june" ; MONTH_KR="6월" ; MONTH_NUM=6 ;;
+    7) MONTH="july" ; MONTH_KR="7월" ; MONTH_NUM=7 ;;
+    8) MONTH="august" ; MONTH_KR="8월" ; MONTH_NUM=8 ;;
+    9) MONTH="september" ; MONTH_KR="9월" ; MONTH_NUM=9 ;;
+    10) MONTH="october" ; MONTH_KR="10월" ; MONTH_NUM=10 ;;
+    11) MONTH="november" ; MONTH_KR="11월" ; MONTH_NUM=11 ;;
+    12) MONTH="december" ; MONTH_KR="12월" ; MONTH_NUM=12 ;;
     *)
         echo -e "${RED}❌ 잘못된 선택입니다.${NC}"
         exit 1
@@ -263,7 +263,7 @@ echo -e "${CYAN}  • 완전한 모듈화로 유지보수 용이${NC}"
 echo -e "${CYAN}  • Vibe 등 AI 도구 호환${NC}"
 echo ""
 
-run_step "Step 2: HTML Dashboard 생성 (v6.0 통합형)" "python3 integrated_dashboard_final.py --month $MONTH --year $YEAR"
+run_step "Step 2: HTML Dashboard 생성 (v6.0 통합형)" "python3 integrated_dashboard_final.py --month $MONTH_NUM --year $YEAR"
 DASHBOARD_VERSION="6"
 
 # 완료 메시지
