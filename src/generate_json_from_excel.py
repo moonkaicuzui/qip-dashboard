@@ -95,7 +95,7 @@ def generate_json_from_excel(excel_path: str, month: str, year: int, output_path
             "position": row.get('QIP POSITION 1ST  NAME', row.get('Position', '')),
             "type": row.get('ROLE TYPE STD', row.get('Type', 'TYPE-1')),
             f"{month.lower()}_incentive": float(row.get('Final Incentive amount', 0)),
-            f"{month.lower()}_continuous_months": int(row.get('Continuous_Months', 0))
+            f"{month.lower()}_continuous_months": int(row.get('Continuous_Months', 0)) if pd.notna(row.get('Continuous_Months')) else 0
         }
 
         # Next_Month_Expected 컬럼이 있으면 추가
@@ -109,15 +109,17 @@ def generate_json_from_excel(excel_path: str, month: str, year: int, output_path
                 next_month_idx = (current_month_idx + 1) % 12
                 next_month_name = month_names[next_month_idx]
 
-                employee_data[f"{next_month_name}_expected_months"] = int(next_month_expected)
+                employee_data[f"{next_month_name}_expected_months"] = int(next_month_expected) if pd.notna(next_month_expected) else 0
 
         # 출근 관련 정보 추가 (실제 CSV 컬럼명 사용)
         if 'Actual Working Days' in row:
-            employee_data["actual_working_days"] = int(row.get('Actual Working Days', 0))
+            employee_data["actual_working_days"] = int(row.get('Actual Working Days', 0)) if pd.notna(row.get('Actual Working Days')) else 0
 
-        # Unapproved Absence Days (실제 컬럼명)
-        if 'Unapproved Absence Days' in row:
-            employee_data["unapproved_absences"] = int(row.get('Unapproved Absence Days', 0))
+        # Unapproved Absences (실제 컬럼명 수정)
+        if 'Unapproved Absences' in row:
+            employee_data["unapproved_absences"] = int(row.get('Unapproved Absences', 0)) if pd.notna(row.get('Unapproved Absences')) else 0
+        elif 'Unapproved Absence Days' in row:  # 대체 컬럼명
+            employee_data["unapproved_absences"] = int(row.get('Unapproved Absence Days', 0)) if pd.notna(row.get('Unapproved Absence Days')) else 0
         else:
             # 컬럼이 없으면 기본값 0 (하드코딩 아님)
             if 'unapproved_absences' not in employee_data:
@@ -185,7 +187,8 @@ def validate_json_vs_excel(json_path: str, excel_path: str):
 
             # Next_Month_Expected 비교
             if 'Next_Month_Expected' in excel_row:
-                excel_expected = int(excel_row.get('Next_Month_Expected', 0))
+                val = excel_row.get('Next_Month_Expected', 0)
+                excel_expected = int(val) if pd.notna(val) else 0
                 json_expected = emp_data.get('august_expected_months', 0)  # 예시로 august 사용
 
                 if excel_expected != json_expected:

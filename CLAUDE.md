@@ -99,6 +99,21 @@ AQL/5PRS       JSON rules          metadata JSON         (self-contained)
 3. **Chart.js bugs**: Always destroy existing instances before recreation
 4. **Syntax errors at line 9267**: Fixed in dashboard_v2/static/js/dashboard_complete.js
 
+### Position Modal Issues (Fixed Sep 27, 2025)
+1. **TYPE-2 Condition Mapping**:
+   - **Issue**: TYPE-2 employees incorrectly showed conditions 5-8 (AQL conditions)
+   - **Fix**: Updated `dashboard_complete.js:8818` to map TYPE-2 to `[1, 2, 3, 4]` only (출근 조건만)
+   - **Reference**: `position_condition_matrix.json` defines TYPE-2 should only have attendance conditions
+
+2. **Statistics Mismatch**:
+   - **Issue**: Condition Fulfillment table showed 0 for all conditions
+   - **Fix**: Updated field name mappings in `dashboard_complete.js:8866-8919` to match Excel column names
+   - **Key fields**: `Attendance Rate`, `Unapproved Absences`, `Actual Working Days`, `Total Working Days`
+
+3. **Employee Details Status**:
+   - **Issue**: Condition badges not displaying correctly
+   - **Fix**: Removed TYPE-2 specific logic for conditions 5-8 at `dashboard_complete.js:8978`
+
 ### Data Processing Issues
 1. **Working days = 0**: Run attendance calculation before incentive calculation
 2. **Missing previous month**: System shows 0 (never generates fake data)

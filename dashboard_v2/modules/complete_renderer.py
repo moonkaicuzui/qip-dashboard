@@ -55,7 +55,8 @@ class CompleteRenderer:
             js_content = f.read()
 
         # JSON 데이터 준비 (NaN 값을 JavaScript용으로 변환)
-        employees_data = self._convert_nan_to_js(data['employees'])
+        # employees를 배열로 확인 (이미 list 형태)
+        employees_data = self._convert_nan_to_js(data['employees']) if isinstance(data['employees'], list) else []
         translations_data = self._convert_nan_to_js(data['translations'])
         condition_matrix_data = self._convert_nan_to_js(data.get('condition_matrix', {}))
         excel_data = self._convert_nan_to_js(data.get('excel_dashboard_data', {}))

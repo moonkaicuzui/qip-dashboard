@@ -1279,7 +1279,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.1</span></h1>
             <p id="mainSubtitle">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="09" data-day="27" data-hour="14" data-minute="20">보고서 생성일: 2025년 09월 27일 14:20</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="09" data-day="27" data-hour="18" data-minute="58">보고서 생성일: 2025년 09월 27일 18:58</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="09" data-startday="01" data-endday="30">• 인센티브 데이터: 2025년 09월 01일 ~ 30일</p>
@@ -9705,12 +9705,23 @@
 
             // 직원 데이터 순회하며 집계
             employeeData.forEach(emp => {
-                const type = emp.type;
+                // type 필드를 여러 가능한 이름에서 찾기
+                const type = emp.type || emp['ROLE TYPE STD'] || emp['Type'] || 'UNKNOWN';
                 if (typeData[type]) {
                     typeData[type].total++;
                     grandTotal++;
 
-                    const amount = parseInt(emp[dashboardMonth + '_incentive']) || 0;
+                    // 여러 가능한 인센티브 필드명 확인
+                    const amount = parseInt(
+                        emp['Final Incentive amount'] ||
+                        emp['September_Incentive'] ||
+                        emp['september_incentive'] ||
+                        emp[dashboardMonth + '_incentive'] ||
+                        emp[dashboardMonth.charAt(0).toUpperCase() + dashboardMonth.slice(1) + '_Incentive'] ||
+                        0
+                    );
+
+                    console.log('Type 확인:', type, '직원:', emp.name || emp['Full Name'], '금액:', amount);
                     if (amount > 0) {
                         typeData[type].paid++;
                         typeData[type].totalAmount += amount;
@@ -10495,13 +10506,7 @@
             document.getElementById('detailModalContent').innerHTML = modalContent;
         }
 
-        // 전역 정렬 함수 등록
-        window.absentModalSort = sortData;
-
-        // 초기 정렬 상태로 렌더링
-        sortData('days');
-
-        // 모달 표시 처리
+        // 모달 표시 처리 (sortData 호출 전에 생성)
         let modal = document.getElementById('detailModal');
         if (!modal) {
             const modalHTML = `
@@ -10514,6 +10519,12 @@
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             modal = document.getElementById('detailModal');
         }
+
+        // 전역 정렬 함수 등록
+        window.absentModalSort = sortData;
+
+        // 초기 정렬 상태로 렌더링
+        sortData('days');
 
         /* Bootstrap 5 Modal 처리 */
         const modalElement = document.getElementById('detailModal');
@@ -15628,6 +15639,23 @@
             updateAllTexts();
             updateTalentPoolSection();
             updateTypeSummaryTable();  // Type별 요약 테이블 업데이트 추가
+
+            // Type별 테이블 강제 업데이트 함수
+            window.forceUpdateTypeSummary = function() {
+            console.log('=== Type별 요약 테이블 강제 업데이트 실행 ===');
+            updateTypeSummaryTable();
+        };
+
+        // 페이지 로드 후 1초 뒤 자동 실행
+        setTimeout(function() {
+            console.log('Type별 테이블 자동 업데이트 시도...');
+            if (typeof updateTypeSummaryTable === 'function') {
+                updateTypeSummaryTable();
+            }
+            if (window.forceUpdateTypeSummary) {
+                window.forceUpdateTypeSummary();
+            }
+        }, 1000);
         };
         
         // Talent Program 텍스트 업데이트 함수
