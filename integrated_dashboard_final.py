@@ -9,6 +9,7 @@ Google Drive 연동 기능 포함
 """
 
 import pandas as pd
+import numpy as np
 import json
 import sys
 import os
@@ -681,31 +682,50 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             print(f"⚠️ Basic manpower 데이터 로드 실패: {e}")
 
     # 데이터 준비
-    employees = []
-    for _, row in df.iterrows():
-        # Convert Series to dict
-        row_dict = row.to_dict()
+    # Single Source of Truth를 위해 excel_dashboard_data를 사용 (df 대신)
+    if excel_dashboard_data and 'employee_data' in excel_dashboard_data:
+        # excel_dashboard_data에서 직접 employees 생성
+        employees = []
+        for emp_data in excel_dashboard_data['employee_data']:
+            # 필드명 매핑 (excel_dashboard_data는 CSV 컬럼명 사용)
+            emp = emp_data.copy()
+            # type 필드 추가 (ROLE TYPE STD에서 가져옴)
+            emp['type'] = emp.get('ROLE TYPE STD', 'TYPE-2')
+            emp['emp_no'] = str(emp.get('Employee No', ''))
+            emp['name'] = emp.get('Full Name', '')
+            emp['position'] = emp.get('QIP POSITION 1ST  NAME', '')
+            # 인센티브 필드 매핑
+            emp['september_incentive'] = str(emp.get('September_Incentive', '0'))
+            emp['august_incentive'] = str(emp.get('Previous_Incentive', '0'))
+            employees.append(emp)
+        print(f"✅ Single Source of Truth: excel_dashboard_data에서 {len(employees)}명 로드")
+    else:
+        # Fallback: 기존 방식 (df 사용)
+        employees = []
+        for _, row in df.iterrows():
+            # Convert Series to dict
+            row_dict = row.to_dict()
 
-        # Employee No 가져오기
-        emp_no = str(row_dict.get('emp_no', ''))
+            # Employee No 가져오기
+            emp_no = str(row_dict.get('emp_no', ''))
 
-        # Basic manpower에서 보스 정보 가져오기
-        boss_id = ''
-        boss_name = ''
-        if basic_df is not None and emp_no:
-            # emp_no에서 .0 제거 (혹시 있다면)
-            emp_no_clean = emp_no.replace('.0', '') if '.0' in emp_no else emp_no
-            basic_row = basic_df[basic_df['Employee No'] == emp_no_clean]
-            if not basic_row.empty:
-                boss_id = str(basic_row['MST direct boss name'].iloc[0]) if pd.notna(basic_row['MST direct boss name'].iloc[0]) else ''
-                boss_name = str(basic_row['direct boss name'].iloc[0]) if pd.notna(basic_row['direct boss name'].iloc[0]) else ''
-                # nan, 0, 0.0, 빈 문자열 등을 빈 문자열로 처리
-                if boss_id in ['nan', '0', '0.0', '']:
-                    boss_id = ''
-                if boss_name in ['nan', '0', '0.0', '']:
-                    boss_name = ''
+            # Basic manpower에서 보스 정보 가져오기
+            boss_id = ''
+            boss_name = ''
+            if basic_df is not None and emp_no:
+                # emp_no에서 .0 제거 (혹시 있다면)
+                emp_no_clean = emp_no.replace('.0', '') if '.0' in emp_no else emp_no
+                basic_row = basic_df[basic_df['Employee No'] == emp_no_clean]
+                if not basic_row.empty:
+                    boss_id = str(basic_row['MST direct boss name'].iloc[0]) if pd.notna(basic_row['MST direct boss name'].iloc[0]) else ''
+                    boss_name = str(basic_row['direct boss name'].iloc[0]) if pd.notna(basic_row['direct boss name'].iloc[0]) else ''
+                    # nan, 0, 0.0, 빈 문자열 등을 빈 문자열로 처리
+                    if boss_id in ['nan', '0', '0.0', '']:
+                        boss_id = ''
+                    if boss_name in ['nan', '0', '0.0', '']:
+                        boss_name = ''
 
-        emp = {
+            emp = {
             'emp_no': emp_no,
             'employee_no': emp_no,  # JavaScript 호환성을 위한 중복 필드
             'Employee No': emp_no,  # CSV 컬럼명과 일치
@@ -764,50 +784,50 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 emp[cond_col] = row_dict[cond_col]
             if value_col in row_dict:
                 emp[value_col] = row_dict[value_col]
-            if threshold_col in row_dict:
-                emp[threshold_col] = row_dict[threshold_col]
-        
-        # metadata에서 area_reject_rate 가져오기
-        emp_no = str(emp['emp_no']).zfill(9)
-        if emp_no in metadata:
-            emp_metadata = metadata[emp_no]
-            if 'conditions' in emp_metadata and 'aql' in emp_metadata['conditions']:
-                if 'area_reject_rate' in emp_metadata['conditions']['aql']:
-                    emp['area_reject_rate'] = float(emp_metadata['conditions']['aql']['area_reject_rate'].get('value', 0))
-        
-        # 조건 평가 결과 추가
-        emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
+                if threshold_col in row_dict:
+                    emp[threshold_col] = row_dict[threshold_col]
 
-        # 실패 사유 표시를 위한 조건 필드 추가 - CSV에서 직접 가져오기
-        emp['attendancy condition 1 - acctual working days is zero'] = str(row_dict.get('attendancy condition 1 - acctual working days is zero', 'no'))
-        emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] = str(row_dict.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no'))
-        emp['attendancy condition 3 - absent % is over 12%'] = str(row_dict.get('attendancy condition 3 - absent % is over 12%', 'no'))
-        emp['attendancy condition 4 - minimum working days'] = str(row_dict.get('attendancy condition 4 - minimum working days', 'no'))
+            # metadata에서 area_reject_rate 가져오기
+            emp_no = str(emp['emp_no']).zfill(9)
+            if emp_no in metadata:
+                emp_metadata = metadata[emp_no]
+                if 'conditions' in emp_metadata and 'aql' in emp_metadata['conditions']:
+                    if 'area_reject_rate' in emp_metadata['conditions']['aql']:
+                        emp['area_reject_rate'] = float(emp_metadata['conditions']['aql']['area_reject_rate'].get('value', 0))
 
-        # AQL 조건 필드 추가
-        emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
-        emp['September AQL Failures'] = int(row_dict.get('September AQL Failures', row_dict.get('aql_failures', 0)))
-        emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
-        emp['Consecutive_Fail_Months'] = int(row_dict.get('Consecutive_Fail_Months', 0))
+            # 조건 평가 결과 추가
+            emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
 
-        # 5PRS 조건 필드 추가
-        emp['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] = str(row_dict.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%', 'yes'))
-        emp['5prs condition 2 - Total Valiation Qty is zero'] = str(row_dict.get('5prs condition 2 - Total Valiation Qty is zero', 'no'))
+            # 실패 사유 표시를 위한 조건 필드 추가 - CSV에서 직접 가져오기
+            emp['attendancy condition 1 - acctual working days is zero'] = str(row_dict.get('attendancy condition 1 - acctual working days is zero', 'no'))
+            emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] = str(row_dict.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no'))
+            emp['attendancy condition 3 - absent % is over 12%'] = str(row_dict.get('attendancy condition 3 - absent % is over 12%', 'no'))
+            emp['attendancy condition 4 - minimum working days'] = str(row_dict.get('attendancy condition 4 - minimum working days', 'no'))
 
-        # conditions_pass_rate 필드 추가
-        emp['conditions_pass_rate'] = float(row_dict.get('conditions_pass_rate', 0))
-        emp['conditions_passed'] = int(row_dict.get('conditions_passed', 0))
-        emp['conditions_applicable'] = int(row_dict.get('conditions_applicable', 0))
+            # AQL 조건 필드 추가
+            emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
+            emp['September AQL Failures'] = int(row_dict.get('September AQL Failures', row_dict.get('aql_failures', 0)))
+            emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
+            emp['Consecutive_Fail_Months'] = int(row_dict.get('Consecutive_Fail_Months', 0))
 
-        # Working Days 필드 추가
-        emp['Working Days'] = int(row_dict.get('actual_working_days', 0))
+            # 5PRS 조건 필드 추가
+            emp['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] = str(row_dict.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%', 'yes'))
+            emp['5prs condition 2 - Total Valiation Qty is zero'] = str(row_dict.get('5prs condition 2 - Total Valiation Qty is zero', 'no'))
 
-        # AQL 통계 필드 추가 (Excel에서 가져온 실제 데이터)
-        emp['AQL_Total_Tests'] = int(row_dict.get('AQL_Total_Tests', 0))
-        emp['AQL_Pass_Count'] = int(row_dict.get('AQL_Pass_Count', 0))
-        emp['AQL_Fail_Percent'] = float(row_dict.get('AQL_Fail_Percent', 0))
+            # conditions_pass_rate 필드 추가
+            emp['conditions_pass_rate'] = float(row_dict.get('conditions_pass_rate', 0))
+            emp['conditions_passed'] = int(row_dict.get('conditions_passed', 0))
+            emp['conditions_applicable'] = int(row_dict.get('conditions_applicable', 0))
 
-        employees.append(emp)
+            # Working Days 필드 추가
+            emp['Working Days'] = int(row_dict.get('actual_working_days', 0))
+
+            # AQL 통계 필드 추가 (Excel에서 가져온 실제 데이터)
+            emp['AQL_Total_Tests'] = int(row_dict.get('AQL_Total_Tests', 0))
+            emp['AQL_Pass_Count'] = int(row_dict.get('AQL_Pass_Count', 0))
+            emp['AQL_Fail_Percent'] = float(row_dict.get('AQL_Fail_Percent', 0))
+
+            employees.append(emp)
     
     # 통계 계산
     total_employees = len(employees)
@@ -4538,13 +4558,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h6 class="text-muted" id="totalEmployeesLabel">전체 직원</h6>
-                        <h2 id="totalEmployeesValue">{total_employees}<span class="unit" id="totalEmployeesUnit">명</span></h2>
+                        <h2><span id="totalEmployeesValue">{total_employees}</span><span class="unit" id="totalEmployeesUnit">명</span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h6 class="text-muted" id="paidEmployeesLabel">수령 직원</h6>
-                        <h2 id="paidEmployeesValue">{paid_employees}<span class="unit" id="paidEmployeesUnit">명</span></h2>
+                        <h2><span id="paidEmployeesValue">{paid_employees}</span><span class="unit" id="paidEmployeesUnit">명</span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -4724,36 +4744,36 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <table class="table table-sm table-bordered mb-4" id="attendanceTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="5%">#</th>
-                                    <th width="25%">조건명</th>
-                                    <th width="20%">기준</th>
-                                    <th width="50%">설명</th>
+                                    <th width="5%" class="cond-th-number">#</th>
+                                    <th width="25%" class="cond-th-name">조건명</th>
+                                    <th width="20%" class="cond-th-criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc">설명</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td>출근율</td>
+                                    <td class="cond-name-1">출근율</td>
                                     <td>≥88%</td>
-                                    <td>월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)</td>
+                                    <td class="cond-desc-1">월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)</td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
-                                    <td>무단결근</td>
+                                    <td class="cond-name-2">무단결근</td>
                                     <td>≤2일</td>
-                                    <td>사전 승인 없는 결근이 월 2일 이하여야 합니다</td>
+                                    <td class="cond-desc-2">사전 승인 없는 결근이 월 2일 이하여야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
-                                    <td>실제 근무일</td>
+                                    <td class="cond-name-3">실제 근무일</td>
                                     <td>>0일</td>
-                                    <td>실제 출근한 날이 1일 이상이어야 합니다</td>
+                                    <td class="cond-desc-3">실제 출근한 날이 1일 이상이어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>4</td>
-                                    <td>최소 근무일</td>
+                                    <td class="cond-name-4">최소 근무일</td>
                                     <td>≥12일</td>
-                                    <td>월간 최소 12일 이상 근무해야 합니다</td>
+                                    <td class="cond-desc-4">월간 최소 12일 이상 근무해야 합니다</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -4763,36 +4783,36 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <table class="table table-sm table-bordered mb-4" id="aqlTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="5%">#</th>
-                                    <th width="25%">조건명</th>
-                                    <th width="20%">기준</th>
-                                    <th width="50%">설명</th>
+                                    <th width="5%" class="cond-th-number">#</th>
+                                    <th width="25%" class="cond-th-name">조건명</th>
+                                    <th width="20%" class="cond-th-criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc">설명</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>5</td>
-                                    <td>개인 AQL (당월)</td>
+                                    <td class="cond-name-5">개인 AQL (당월)</td>
                                     <td>실패 0건</td>
-                                    <td>당월 개인 AQL 검사 실패가 없어야 합니다</td>
+                                    <td class="cond-desc-5">당월 개인 AQL 검사 실패가 없어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>6</td>
-                                    <td>개인 AQL (연속성)</td>
+                                    <td class="cond-name-6">개인 AQL (연속성)</td>
                                     <td>3개월 연속 실패 없음</td>
-                                    <td>최근 3개월간 연속으로 AQL 실패가 없어야 합니다</td>
+                                    <td class="cond-desc-6">최근 3개월간 연속으로 AQL 실패가 없어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>7</td>
-                                    <td>팀/구역 AQL</td>
+                                    <td class="cond-name-7">팀/구역 AQL</td>
                                     <td>3개월 연속 실패 없음</td>
-                                    <td>관리하는 팀/구역에서 3개월 연속 실패자가 없어야 합니다</td>
+                                    <td class="cond-desc-7">관리하는 팀/구역에서 3개월 연속 실패자가 없어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>8</td>
-                                    <td>담당구역 AQL Reject율</td>
+                                    <td class="cond-name-8">담당구역 AQL Reject율</td>
                                     <td><3%</td>
-                                    <td>담당 구역의 AQL 리젝률이 3% 미만이어야 합니다</td>
+                                    <td class="cond-desc-8">담당 구역의 AQL 리젝률이 3% 미만이어야 합니다</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -4802,24 +4822,24 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <table class="table table-sm table-bordered" id="prsTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="5%">#</th>
-                                    <th width="25%">조건명</th>
-                                    <th width="20%">기준</th>
-                                    <th width="50%">설명</th>
+                                    <th width="5%" class="cond-th-number">#</th>
+                                    <th width="25%" class="cond-th-name">조건명</th>
+                                    <th width="20%" class="cond-th-criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc">설명</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>9</td>
-                                    <td>5PRS 통과율</td>
+                                    <td class="cond-name-9">5PRS 통과율</td>
                                     <td>≥95%</td>
-                                    <td>5족 평가 시스템에서 95% 이상 통과해야 합니다</td>
+                                    <td class="cond-desc-9">5족 평가 시스템에서 95% 이상 통과해야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>10</td>
-                                    <td>5PRS 검사량</td>
+                                    <td class="cond-name-10">5PRS 검사량</td>
                                     <td>≥100개</td>
-                                    <td>월간 최소 100개 이상 검사를 수행해야 합니다</td>
+                                    <td class="cond-desc-10">월간 최소 100개 이상 검사를 수행해야 합니다</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -4840,7 +4860,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th class="pos-header-position">직급</th>
                                     <th class="pos-header-conditions">적용 조건</th>
                                     <th class="pos-header-count">조건 수</th>
-                                    <th class="pos-header-notes">특이사항</th>
+                                    <th class="pos-header-notes">비고</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5146,8 +5166,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tr>
                                     <td><strong>3. GROUP LEADER</strong></td>
                                     <td>TYPE-1 GROUP LEADER</td>
-                                    <td>GROUP LEADER <span class="average-text">평균</span><br>
-                                        <small class="text-muted">(TYPE-1 평균 0시: 전체 TYPE-2 LINE LEADER 평균 × 2)</small></td>
+                                    <td>GROUP LEADER <span class="average-text">평균</span></td>
                                     <td>254,659 VND</td>
                                 </tr>
                                 <tr>
@@ -6380,6 +6399,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const excelDashboardData = window.excelDashboardData;
 
         let currentLanguage = 'ko';
+        let reportType = 'final'; // 전역 변수로 정의
         const dashboardMonth = '{month.lower()}';
         const dashboardYear = {year};
 
@@ -7498,11 +7518,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (elem) elem.textContent = getTranslation(key, currentLanguage);
             }}
             
-            // 단위 업데이트
-            const units = document.querySelectorAll('#totalEmployeesUnit, #paidEmployeesUnit');
-            units.forEach(unit => {{
-                if (unit) unit.textContent = getTranslation('common.people', currentLanguage);
-            }});
+            // 단위 업데이트 - getUnit 함수 사용
+            const totalEmployeesUnit = document.getElementById('totalEmployeesUnit');
+            const paidEmployeesUnit = document.getElementById('paidEmployeesUnit');
+
+            if (totalEmployeesUnit) {{
+                totalEmployeesUnit.textContent = getUnit('people');
+            }}
+
+            if (paidEmployeesUnit) {{
+                paidEmployeesUnit.textContent = getUnit('people');
+            }}
             
             // 탭 메뉴 업데이트
             const tabs = {{
@@ -7619,7 +7645,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const reportTypeBanner = document.getElementById('reportTypeBanner');
             if (reportTypeBanner) {{
                 const isInterim = {str(is_interim_report).lower()};
-                const reportType = isInterim ? 'interim' : 'final';
+                reportType = isInterim ? 'interim' : 'final'; // const 제거, 전역 변수 사용
 
                 // Title 업데이트
                 const reportTypeTitle = document.getElementById('reportTypeTitle');
@@ -7725,17 +7751,75 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 evaluationTitle.textContent = getTranslation('criteria.evaluationConditions.title', currentLanguage);
             }}
             
-            // 테이블 헤더 업데이트
-            const tableHeaders = document.querySelectorAll('#criteria table thead tr');
-            tableHeaders.forEach(row => {{
-                const ths = row.querySelectorAll('th');
-                if (ths.length === 4) {{
-                    ths[0].textContent = getTranslation('criteria.evaluationConditions.tableHeaders.number', currentLanguage);
-                    ths[1].textContent = getTranslation('criteria.evaluationConditions.tableHeaders.conditionName', currentLanguage);
-                    ths[2].textContent = getTranslation('criteria.evaluationConditions.tableHeaders.criteria', currentLanguage);
-                    ths[3].textContent = getTranslation('criteria.evaluationConditions.tableHeaders.description', currentLanguage);
-                }}
+            // 테이블 헤더 업데이트 - 더 정확한 선택자 사용
+            document.querySelectorAll('.cond-th-number').forEach(th => {{
+                th.textContent = '#';
             }});
+            document.querySelectorAll('.cond-th-name').forEach(th => {{
+                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.conditionName', currentLanguage) || '조건명';
+            }});
+            document.querySelectorAll('.cond-th-criteria').forEach(th => {{
+                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.criteria', currentLanguage) || '기준';
+            }});
+            document.querySelectorAll('.cond-th-desc').forEach(th => {{
+                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.description', currentLanguage) || '설명';
+            }});
+
+            // 조건명과 설명 업데이트
+            const conditionTranslations = {{
+                1: {{
+                    name: getTranslation('criteria.conditions.1.name', currentLanguage) || '출근율',
+                    desc: getTranslation('criteria.conditions.1.description', currentLanguage) || '월간 출근율이 88% 이상이어야 합니다'
+                }},
+                2: {{
+                    name: getTranslation('criteria.conditions.2.name', currentLanguage) || '무단결근',
+                    desc: getTranslation('criteria.conditions.2.description', currentLanguage) || '사전 승인 없는 결근이 월 2일 이하여야 합니다'
+                }},
+                3: {{
+                    name: getTranslation('criteria.conditions.3.name', currentLanguage) || '실제 근무일',
+                    desc: getTranslation('criteria.conditions.3.description', currentLanguage) || '실제 출근한 날이 1일 이상이어야 합니다'
+                }},
+                4: {{
+                    name: getTranslation('criteria.conditions.4.name', currentLanguage) || '최소 근무일',
+                    desc: getTranslation('criteria.conditions.4.description', currentLanguage) || '월간 최소 12일 이상 근무해야 합니다'
+                }},
+                5: {{
+                    name: getTranslation('criteria.conditions.5.name', currentLanguage) || '개인 AQL (당월)',
+                    desc: getTranslation('criteria.conditions.5.description', currentLanguage) || '당월 개인 AQL 검사 실패가 없어야 합니다'
+                }},
+                6: {{
+                    name: getTranslation('criteria.conditions.6.name', currentLanguage) || '개인 AQL (연속성)',
+                    desc: getTranslation('criteria.conditions.6.description', currentLanguage) || '최근 3개월간 연속으로 AQL 실패가 없어야 합니다'
+                }},
+                7: {{
+                    name: getTranslation('criteria.conditions.7.name', currentLanguage) || '팀/구역 AQL',
+                    desc: getTranslation('criteria.conditions.7.description', currentLanguage) || '관리하는 팀/구역에서 3개월 연속 실패자가 없어야 합니다'
+                }},
+                8: {{
+                    name: getTranslation('criteria.conditions.8.name', currentLanguage) || '담당구역 AQL Reject율',
+                    desc: getTranslation('criteria.conditions.8.description', currentLanguage) || '담당 구역의 AQL 리젝률이 3% 미만이어야 합니다'
+                }},
+                9: {{
+                    name: getTranslation('criteria.conditions.9.name', currentLanguage) || '5PRS 통과율',
+                    desc: getTranslation('criteria.conditions.9.description', currentLanguage) || '5족 평가 시스템에서 95% 이상 통과해야 합니다'
+                }},
+                10: {{
+                    name: getTranslation('criteria.conditions.10.name', currentLanguage) || '5PRS 검사량',
+                    desc: getTranslation('criteria.conditions.10.description', currentLanguage) || '월간 최소 100개 이상 검사를 수행해야 합니다'
+                }}
+            }};
+
+            // 조건 테이블 내용 업데이트
+            for (let i = 1; i <= 10; i++) {{
+                const nameEl = document.querySelector(`.cond-name-${{i}}`);
+                const descEl = document.querySelector(`.cond-desc-${{i}}`);
+                if (nameEl && conditionTranslations[i]) {{
+                    nameEl.textContent = conditionTranslations[i].name;
+                }}
+                if (descEl && conditionTranslations[i]) {{
+                    descEl.textContent = conditionTranslations[i].desc;
+                }}
+            }}
             
             // 출근 조건 섹션
             const attendanceTitle = document.getElementById('attendanceConditionTitle');
@@ -7760,6 +7844,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (positionMatrixTitle) {{
                 positionMatrixTitle.textContent = getTranslation('criteria.positionMatrix.title', currentLanguage);
             }}
+
+            // 직급별 테이블 헤더 번역
+            document.querySelectorAll('.pos-header-position').forEach(th => {{
+                th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.position', currentLanguage) || '직급';
+            }});
+            document.querySelectorAll('.pos-header-conditions').forEach(th => {{
+                th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.conditions', currentLanguage) || '적용 조건';
+            }});
+            document.querySelectorAll('.pos-header-count').forEach(th => {{
+                th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.count', currentLanguage) || '조건 수';
+            }});
+            document.querySelectorAll('.pos-header-notes').forEach(th => {{
+                th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.notes', currentLanguage) || '비고';
+            }})
             
             // TYPE 헤더 업데이트
             const type1Header = document.getElementById('type1Header');
@@ -8641,18 +8739,43 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             updateValidationTexts();
         }}
 
+        // 단위 번역 함수
+        function getUnit(unitKey) {{
+            const units = {{
+                'people': {{
+                    'ko': '명',
+                    'en': ' people',
+                    'vi': ' người'
+                }},
+                'days': {{
+                    'ko': '일',
+                    'en': ' days',
+                    'vi': ' ngày'
+                }}
+            }};
+
+            if (units[unitKey] && units[unitKey][currentLanguage]) {{
+                return units[unitKey][currentLanguage];
+            }}
+            return unitKey; // 번역이 없으면 원본 반환
+        }}
+
         function updateValidationKPIs(isInterimReport) {{
             // 기존 employeeData에서 직접 값을 가져옴 (새로운 계산 없음)
 
+            // 단위 가져오기
+            const peopleUnit = getUnit('people');
+            const daysUnit = getUnit('days');
+
             // 1. 총 근무일수 - config에서 가져온 값 사용 (employee별 데이터가 아님)
             const totalWorkingDays = {working_days}; // Python에서 주입된 값
-            document.getElementById('kpiTotalWorkingDays').textContent = totalWorkingDays + '일';
+            document.getElementById('kpiTotalWorkingDays').textContent = totalWorkingDays + daysUnit;
 
             // 2. 무단결근 3일 이상 (unapproved_absences > 2)
             const ar1Over3 = employeeData.filter(emp =>
                 parseFloat(emp['unapproved_absences'] || 0) > 2
             ).length;
-            document.getElementById('kpiAbsentWithoutInform').textContent = ar1Over3 + '명';
+            document.getElementById('kpiAbsentWithoutInform').textContent = ar1Over3 + peopleUnit;
 
             // 3. 실제 근무일 0일 (9월 현재 재직자만)
             const zeroWorkingDays = employeeData.filter(emp => {{
@@ -8660,7 +8783,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // employeeData는 이미 9월 기준 필터링된 401명
                 return actualDays === 0;
             }}).length;
-            document.getElementById('kpiZeroWorkingDays').textContent = zeroWorkingDays + '명';
+            document.getElementById('kpiZeroWorkingDays').textContent = zeroWorkingDays + peopleUnit;
 
             // 4. 최소 근무일 미충족 (중간 보고서면 N/A)
             if (isInterimReport) {{
@@ -8676,7 +8799,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // 폴백: 이전 방식
                     return emp['condition4'] === 'yes' || emp['attendancy condition 4 - minimum working days'] === 'yes';
                 }}).length;
-                document.getElementById('kpiMinimumDaysNotMet').textContent = minimumDaysNotMet + '명';
+                document.getElementById('kpiMinimumDaysNotMet').textContent = minimumDaysNotMet + peopleUnit;
             }}
 
             
@@ -8685,7 +8808,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const attendanceBelow88 = employeeData.filter(emp =>
                 parseFloat(emp['attendance_rate'] || 0) < 88
             ).length;
-            document.getElementById('kpiAttendanceBelow88').textContent = attendanceBelow88 + '명';
+            document.getElementById('kpiAttendanceBelow88').textContent = attendanceBelow88 + peopleUnit;
 
             // 6. AQL FAIL 보유자 (모든 직원 대상)
             const aqlFailEmployees = employeeData.filter(emp => {{
@@ -8693,14 +8816,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const aqlFailures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
                 return aqlFailures > 0;
             }}).length;
-            document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + '명';
+            document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + peopleUnit;
 
             // 7. 3개월 연속 AQL FAIL (Excel의 Continuous_FAIL 컬럼 사용)
             const consecutiveFail = employeeData.filter(emp => {{
                 const continuous_fail = emp['Continuous_FAIL'] || emp['continuous_fail'] || 'NO';
                 return continuous_fail === 'YES_3MONTHS';
             }}).length;
-            document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + '명';
+            document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + peopleUnit;
 
             // 8. 구역 AQL Reject Rate 3% 초과 직원 수 (조건 8번만 카운트)
             const highRejectRate = employeeData.filter(emp => {{
@@ -8709,7 +8832,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || emp['area_reject_rate'] || 0);
                 return cond8 === 'FAIL' || areaRejectRate > 3;
             }}).length;
-            document.getElementById('kpiAreaRejectRate').textContent = highRejectRate + '명';
+            document.getElementById('kpiAreaRejectRate').textContent = highRejectRate + peopleUnit;
 
             // 9. 5PRS 통과율 < 95% (TYPE-1 ASSEMBLY INSPECTOR만)
             const lowPassRate = employeeData.filter(emp => {{
@@ -8719,7 +8842,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const passRate = parseFloat(emp['pass_rate'] || 100);
                 return isType1 && isAssemblyInspector && passRate < 95 && passRate > 0;
             }}).length;
-            document.getElementById('kpiLowPassRate').textContent = lowPassRate + '명';
+            document.getElementById('kpiLowPassRate').textContent = lowPassRate + peopleUnit;
 
             // 10. 5PRS 검사량 < 100족 (TYPE-1 ASSEMBLY INSPECTOR만)
             const lowInspectionQty = employeeData.filter(emp => {{
@@ -8729,7 +8852,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const inspectionQty = parseFloat(emp['validation_qty'] || 0);
                 return isType1 && isAssemblyInspector && inspectionQty < 100;
             }}).length;
-            document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + '명';
+            document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + peopleUnit;
         }}
 
         function updateValidationTexts() {{
@@ -8755,6 +8878,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     label.textContent = getTranslation(`validationTab.kpiCards.${{kpiKeys[index]}}.title`, currentLanguage);
                 }}
             }});
+
+            // KPI 값 업데이트하여 단위 번역 적용
+            const isInterimReport = reportType === 'interim';
+            updateValidationKPIs(isInterimReport);
         }}
 
         // 개선된 모달 함수들 추가
@@ -12668,7 +12795,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${{emp.name}}${{emp.Talent_Pool_Member === 'Y' ? '<span class="talent-pool-badge">TALENT</span>' : ''}}</td>
                     <td>${{emp.position}}</td>
                     <td><span class="type-badge type-${{emp.type.toLowerCase().replace('type-', '')}}">${{emp.type}}</span></td>
-                    <td>${{parseInt(emp.july_incentive).toLocaleString()}}</td>
+                    <td>${{parseInt(emp['{prev_month_name}_incentive'] || emp.previous_incentive || 0).toLocaleString()}}</td>
                     <td><strong>${{amount.toLocaleString()}}</strong></td>
                     <td>${{talentPoolHTML}}</td>
                     <td>${{isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid')}}</td>
@@ -13041,63 +13168,95 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                                 ${{(() => {{
                                     if (!emp.condition_results || emp.condition_results.length === 0) return '';
-                                    
+
+                                    // 인센티브 지급 여부 먼저 확인
+                                    const isPaidEmployee = parseInt(emp['{month.lower()}_incentive']) > 0;
+
                                     // 카테고리별로 조건 그룹화 (id 기준으로 필터링)
                                     const attendance = emp.condition_results.filter(c => c.id >= 1 && c.id <= 4); // 조건 1-4: 출근
                                     const aql = emp.condition_results.filter(c => c.id >= 5 && c.id <= 8); // 조건 5-8: AQL
                                     const prs = emp.condition_results.filter(c => c.id >= 9 && c.id <= 10); // 조건 9-10: 5PRS
-                                    
+
                                     let badges = [];
-                                    
-                                    // 출근 카테고리 평가
-                                    if (attendance.length > 0) {{
-                                        const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
-                                        // N/A가 아닌 조건들만 필터링하여 평가
-                                        const applicableAttendance = attendance.filter(c => !c.is_na && c.actual !== 'N/A');
-                                        const attendanceMet = applicableAttendance.length > 0 && applicableAttendance.every(c => c.is_met);
-                                        if (attendanceNA) {{
-                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ': N/A</span>');
-                                        }} else if (attendanceMet) {{
-                                            badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✓</span>');
-                                        }} else {{
-                                            badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✗</span>');
+
+                                    // Unpaid 직원의 경우 어떤 조건이 실패했는지 명확히 표시
+                                    if (!isPaidEmployee) {{
+                                        // 출근 카테고리 평가
+                                        if (attendance.length > 0) {{
+                                            const applicableAttendance = attendance.filter(c => !c.is_na && c.actual !== 'N/A');
+                                            const attendanceMet = applicableAttendance.length > 0 && applicableAttendance.every(c => c.is_met);
+                                            const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
+
+                                            if (attendanceNA) {{
+                                                badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ': N/A</span>');
+                                            }} else {{
+                                                // Unpaid인 경우 실제 충족 여부와 관계없이 실패로 표시
+                                                badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✗</span>');
+                                            }}
                                         }}
-                                    }}
-                                    
-                                    // AQL 카테고리 평가
-                                    if (aql.length > 0) {{
-                                        const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
-                                        // N/A가 아닌 조건들만 필터링하여 평가
-                                        const applicableAql = aql.filter(c => !c.is_na && c.actual !== 'N/A');
-                                        const aqlMet = applicableAql.length > 0 && applicableAql.every(c => c.is_met);
-                                        if (aqlNA) {{
-                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ': N/A</span>');
-                                        }} else if (aqlMet) {{
-                                            badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ' ✓</span>');
+
+                                        // AQL/5PRS도 비슷하게 처리 (TYPE에 따라)
+                                        if (emp.type === 'TYPE-1') {{
+                                            // TYPE-1은 AQL/5PRS가 N/A
+                                            badges.push('<span class="badge" style="background-color: #999;">AQL: N/A</span>');
+                                            badges.push('<span class="badge" style="background-color: #999;">5PRS: N/A</span>');
                                         }} else {{
-                                            badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ' ✗</span>');
-                                        }}
-                                    }} else {{
-                                        badges.push('<span class="badge" style="background-color: #999;" title="AQL 조건">AQL: N/A</span>');
-                                    }}
-                                    
-                                    // 5PRS 카테고리 평가
-                                    if (prs.length > 0) {{
-                                        const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
-                                        // N/A가 아닌 조건들만 필터링하여 평가
-                                        const applicablePrs = prs.filter(c => !c.is_na && c.actual !== 'N/A');
-                                        const prsMet = applicablePrs.length > 0 && applicablePrs.every(c => c.is_met);
-                                        if (prsNA) {{
-                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ': N/A</span>');
-                                        }} else if (prsMet) {{
-                                            badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ' ✓</span>');
-                                        }} else {{
-                                            badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ' ✗</span>');
+                                            // TYPE-2의 경우 AQL/5PRS도 평가
+                                            if (aql.length > 0) {{
+                                                const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
+                                                if (aqlNA) {{
+                                                    badges.push('<span class="badge" style="background-color: #999;">AQL: N/A</span>');
+                                                }} else {{
+                                                    badges.push('<span class="badge bg-danger">AQL ✗</span>');
+                                                }}
+                                            }}
+
+                                            if (prs.length > 0) {{
+                                                const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
+                                                if (prsNA) {{
+                                                    badges.push('<span class="badge" style="background-color: #999;">5PRS: N/A</span>');
+                                                }} else {{
+                                                    badges.push('<span class="badge bg-danger">5PRS ✗</span>');
+                                                }}
+                                            }}
                                         }}
                                     }} else {{
-                                        badges.push('<span class="badge" style="background-color: #999;" title="5PRS 조건">5PRS: N/A</span>');
+                                        // Paid 직원의 경우 모든 적용 조건이 충족된 것으로 표시
+                                        // 출근 카테고리 평가
+                                        if (attendance.length > 0) {{
+                                            const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
+                                            if (attendanceNA) {{
+                                                badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ': N/A</span>');
+                                            }} else {{
+                                                badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✓</span>');
+                                            }}
+                                        }}
+
+                                        // AQL 카테고리 평가
+                                        if (aql.length > 0) {{
+                                            const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
+                                            if (aqlNA) {{
+                                                badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ': N/A</span>');
+                                            }} else {{
+                                                badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ' ✓</span>');
+                                            }}
+                                        }} else {{
+                                            badges.push('<span class="badge" style="background-color: #999;">AQL: N/A</span>');
+                                        }}
+
+                                        // 5PRS 카테고리 평가
+                                        if (prs.length > 0) {{
+                                            const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
+                                            if (prsNA) {{
+                                                badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ': N/A</span>');
+                                            }} else {{
+                                                badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ' ✓</span>');
+                                            }}
+                                        }} else {{
+                                            badges.push('<span class="badge" style="background-color: #999;">5PRS: N/A</span>');
+                                        }}
                                     }}
-                                    
+
                                     return badges.join('');
                                 }})()
                                 }}
@@ -13255,7 +13414,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const applicableConditions = conditions.filter(c => !c.is_na && c.actual !== 'N/A');
             const passedConditions = applicableConditions.filter(c => c.is_met).length;
             const totalConditions = applicableConditions.length;
-            const passRate = totalConditions > 0 ? (passedConditions / totalConditions * 100).toFixed(0) : 0;
+
+            // 인센티브 지급 여부 확인
+            const isPaidEmployee = parseInt(emp['{month.lower()}_incentive']) > 0;
+
+            // TYPE-3 처리: 모든 조건이 N/A인 경우
+            let passRate = 0;
+            if (emp.type === 'TYPE-3') {{
+                passRate = 'N/A'; // TYPE-3는 정책적으로 제외
+            }} else if (!isPaidEmployee) {{
+                // 인센티브를 받지 못한 경우 0%로 표시
+                passRate = 0;
+            }} else if (totalConditions > 0) {{
+                passRate = (passedConditions / totalConditions * 100).toFixed(0);
+            }}
             
             modalBody.innerHTML = `
                 <!-- 상단 통계 카드 -->
@@ -13290,8 +13462,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <canvas id="conditionChart${{empNo}}"></canvas>
                                 </div>
                                 <div class="mt-3">
-                                    <h4>${{passRate}}%</h4>
-                                    <p class="text-muted">${{totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' ' + getTranslation('modal.detailPopup.conditionsFulfilled', currentLanguage) : getTranslation('modal.detailPopup.noConditions', currentLanguage)}}</p>
+                                    <h4>${{passRate === 'N/A' ? 'N/A' : passRate + '%'}}</h4>
+                                    <p class="text-muted">${{
+                                        emp.type === 'TYPE-3' ? getTranslation('modal.detailPopup.type3PolicyExcluded', currentLanguage) || 'TYPE-3: 정책적 제외 대상' :
+                                        totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' ' + getTranslation('modal.detailPopup.conditionsFulfilled', currentLanguage) :
+                                        getTranslation('modal.detailPopup.noConditions', currentLanguage)
+                                    }}</p>
                                 </div>
                             </div>
                         </div>
@@ -13322,7 +13498,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     </div>`}}
                                 </div>
                                 <div class="mt-3">
-                                    <small class="text-muted">` + getTranslation('modal.detailPopup.lastMonthIncentive', currentLanguage) + `: ${{parseInt(emp.july_incentive).toLocaleString()}} VND</small>
+                                    <small class="text-muted">` + getTranslation('modal.detailPopup.lastMonthIncentive', currentLanguage) + `: ${{parseInt(emp['{prev_month_name}_incentive'] || emp.previous_incentive || 0).toLocaleString()}} VND</small>
                                 </div>
                             </div>
                         </div>
@@ -13427,13 +13603,33 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                     
                     // 새 차트 생성
+                    // TYPE-3 또는 조건이 없는 경우 특별 처리
+                    let chartData, chartLabels, chartColors;
+
+                    if (emp.type === 'TYPE-3') {{
+                        // TYPE-3: N/A 표시
+                        chartData = [1];
+                        chartLabels = ['N/A - 정책적 제외'];
+                        chartColors = ['#999999'];
+                    }} else if (totalConditions === 0) {{
+                        // 조건이 없는 경우
+                        chartData = [1];
+                        chartLabels = [getTranslation('modal.detailPopup.noConditions', currentLanguage)];
+                        chartColors = ['#cccccc'];
+                    }} else {{
+                        // 일반적인 경우
+                        chartData = [passedConditions, Math.max(0, totalConditions - passedConditions)];
+                        chartLabels = [getTranslation('modal.conditions.met', currentLanguage), getTranslation('modal.conditions.notMet', currentLanguage)];
+                        chartColors = ['#28a745', '#dc3545'];
+                    }}
+
                     window[`chart_${{empNo}}`] = new Chart(ctx, {{
                         type: 'doughnut',
                         data: {{
-                            labels: [getTranslation('modal.conditions.met', currentLanguage), getTranslation('modal.conditions.notMet', currentLanguage)],
+                            labels: chartLabels,
                             datasets: [{{
-                                data: [passedConditions, Math.max(0, totalConditions - passedConditions)],
-                                backgroundColor: ['#28a745', '#dc3545'],
+                                data: chartData,
+                                backgroundColor: chartColors,
                                 borderWidth: 0
                             }}]
                         }},
@@ -13532,7 +13728,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${{emp.name}}${{emp.Talent_Pool_Member === 'Y' ? '<span class="talent-pool-badge">TALENT</span>' : ''}}</td>
                     <td>${{emp.position}}</td>
                     <td><span class="type-badge type-${{emp.type.toLowerCase().replace('type-', '')}}">${{emp.type}}</span></td>
-                    <td>${{parseInt(emp.july_incentive).toLocaleString()}}</td>
+                    <td>${{parseInt(emp['{prev_month_name}_incentive'] || emp.previous_incentive || 0).toLocaleString()}}</td>
                     <td><strong>${{amount.toLocaleString()}}</strong></td>
                     <td>${{talentPoolHTML}}</td>
                     <td>${{isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid')}}</td>
@@ -13629,22 +13825,66 @@ def main():
         print("❌ 데이터 로드 실패")
         return
 
-    # Excel 기반 대시보드 데이터 로드 (단일 진실 소스)
+    # Single Source of Truth 개선: JSON 캐시 제거, CSV 직접 읽기
+    print("📊 Single Source of Truth 원칙 적용 - CSV/Excel 직접 읽기")
+
+    # CSV 파일에서 직접 데이터 생성 (JSON 캐시 사용 안 함)
     excel_dashboard_data = None
-    dashboard_json_path = 'output_files/dashboard_data_from_excel.json'
-    if os.path.exists(dashboard_json_path):
+    working_days = 13  # 기본값
+
+    # CSV를 직접 읽어서 dashboard 데이터 구조 생성
+    # 먼저 enhanced 버전 확인, 없으면 일반 버전 사용
+    csv_file_enhanced = f'output_files/output_QIP_incentive_{month_name}_{args.year}_최종완성버전_v6.0_Complete_enhanced.csv'
+    csv_file = f'output_files/output_QIP_incentive_{month_name}_{args.year}_최종완성버전_v6.0_Complete.csv'
+
+    # enhanced 버전이 있으면 우선 사용
+    if os.path.exists(csv_file_enhanced):
+        csv_file = csv_file_enhanced
+
+    if os.path.exists(csv_file):
         try:
-            with open(dashboard_json_path, 'r', encoding='utf-8') as f:
-                excel_dashboard_data = json.load(f)
-            print(f"✅ Excel 기반 대시보드 데이터 로드: {dashboard_json_path}")
-            # 실제 근무일수를 Excel 데이터에서 가져옴
-            working_days = excel_dashboard_data['attendance']['total_working_days']
-            print(f"📊 실제 총 근무일수 (출근 데이터 기반): {working_days}일")
+            # CSV 직접 로드
+            df_csv = pd.read_csv(csv_file, encoding='utf-8-sig')
+            print(f"✅ CSV 파일 직접 로드: {csv_file}")
+
+            # 실제 근무일수 계산
+            if 'Total Working Days' in df_csv.columns:
+                working_days = int(df_csv['Total Working Days'].max())
+                print(f"📊 실제 총 근무일수 (CSV 기반): {working_days}일")
+
+            # dashboard_data 구조 직접 생성 (JSON 캐시 대체)
+            # numpy int64를 Python int로 변환
+            employee_data = []
+            for _, row in df_csv.iterrows():
+                record = {}
+                for key, value in row.items():
+                    # numpy 타입을 Python 네이티브 타입으로 변환
+                    if pd.isna(value):
+                        record[key] = None
+                    elif isinstance(value, (np.int64, np.int32)):
+                        record[key] = int(value)
+                    elif isinstance(value, (np.float64, np.float32)):
+                        record[key] = float(value)
+                    else:
+                        record[key] = value
+                employee_data.append(record)
+
+            excel_dashboard_data = {
+                'employee_data': employee_data,
+                'attendance': {'total_working_days': int(working_days)},
+                'summary': {
+                    'total_employees': int(len(df_csv)),
+                    'employees_with_incentive': int(sum(1 for _, row in df_csv.iterrows() if row.get('Final Incentive amount', 0) > 0)),
+                    'total_incentive_amount': float(df_csv['Final Incentive amount'].sum()) if 'Final Incentive amount' in df_csv.columns else 0
+                }
+            }
+            print("✅ Single Source of Truth 적용 완료 - JSON 캐시 없이 CSV에서 직접 데이터 생성")
+
         except Exception as e:
-            print(f"⚠️ Excel 대시보드 데이터 로드 실패: {e}")
+            print(f"⚠️ CSV 직접 로드 실패: {e}")
             working_days = 13  # Fallback
     else:
-        print("⚠️ Excel 기반 대시보드 데이터 파일이 없습니다. 기본값 사용.")
+        print(f"⚠️ CSV 파일이 없습니다: {csv_file}")
         working_days = 13  # Fallback
 
     # 대시보드 생성 - Excel 데이터를 전달
