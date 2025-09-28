@@ -1288,7 +1288,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v6.01</span></h1>
             <p id="mainSubtitle">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="09" data-day="28" data-hour="15" data-minute="32">보고서 생성일: 2025년 09월 28일 15:32</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="09" data-day="28" data-hour="16" data-minute="25">보고서 생성일: 2025년 09월 28일 16:25</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="09" data-startday="01" data-endday="30">• 인센티브 데이터: 2025년 09월 01일 ~ 30일</p>
@@ -7576,6 +7576,24 @@
     </script>
 
     <script>
+        // UTF-8 Base64 디코딩 함수 추가
+        function base64DecodeUnicode(str) {
+            // Base64 디코딩 후 UTF-8 처리
+            try {
+                const binaryString = atob(str);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const decoder = new TextDecoder('utf-8');
+                return decoder.decode(bytes);
+            } catch (e) {
+                console.error('UTF-8 decoding failed:', e);
+                // Fallback to regular atob
+                return atob(str);
+            }
+        }
+
         // Make employeeData globally accessible for validation tab
         // Decode base64 and parse JSON safely
         let employeeData = [];
@@ -7583,7 +7601,7 @@
             // DOM에서 Base64 데이터 읽기
             const base64Element = document.getElementById('employeeDataBase64');
             const base64Data = base64Element ? base64Element.textContent.trim() : '';
-            const jsonStr = atob(base64Data);
+            const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 사용
             employeeData = JSON.parse(jsonStr);
             window.employeeData = employeeData;
             console.log('Employee data loaded successfully:', employeeData.length, 'employees');
