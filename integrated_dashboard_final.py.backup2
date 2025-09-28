@@ -1,11 +1,3 @@
-
-# Translation helper function to avoid syntax errors
-def tr(key, default):
-    """Safe translation function for JavaScript generation"""
-    js_key = key.replace('.', '?.')
-    # Return with proper escaping for f-strings
-    return "${{{{translations.{0}?.[lang] || '{1}'}}}}".format(js_key, default)
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -23,6 +15,7 @@ import os
 from datetime import datetime
 import glob
 import argparse
+import base64
 from src.google_drive_manager import GoogleDriveManager
 
 # 전역 변수로 번역 데이터 저장
@@ -199,6 +192,8 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 elif f'{month.lower()}_incentive' in col_lower or f'{month.lower()} incentive' in col_lower:
                     column_mapping[col] = f'{month.lower()}_incentive'
                 elif f'{month.capitalize()}_Incentive' in col:  # Handle capitalized month names
+                    column_mapping[col] = f'{month.lower()}_incentive'
+                elif col == 'Final Incentive amount':  # Map Final Incentive amount to current month's incentive
                     column_mapping[col] = f'{month.lower()}_incentive'
                 elif 'August_Incentive' in col:  # For other months showing August data
                     column_mapping[col] = 'august_incentive'
@@ -536,9 +531,9 @@ def evaluate_conditions(emp_data, condition_matrix):
             if excel_result == 'PASS':
                 # 조건별로 적절한 표시 값 설정
                 if cond_id == 7:  # 팀/구역 AQL
-                    actual_display = '통과' if value == 'NO' else str(value)
+                    actual_display = '[PASS]' if value == 'NO' else str(value)
                 else:
-                    actual_display = str(value) if value else '통과'
+                    actual_display = str(value) if value else '[PASS]'
 
                 results.append({
                     'id': cond_id,
@@ -550,9 +545,9 @@ def evaluate_conditions(emp_data, condition_matrix):
             elif excel_result == 'FAIL':
                 # 조건별로 적절한 표시 값 설정
                 if cond_id == 7:  # 팀/구역 AQL
-                    actual_display = '실패' if value == 'YES' else str(value)
+                    actual_display = '[FAIL]' if value == 'YES' else str(value)
                 else:
-                    actual_display = str(value) if value else '실패'
+                    actual_display = str(value) if value else '[FAIL]'
 
                 results.append({
                     'id': cond_id,
@@ -574,8 +569,8 @@ def evaluate_conditions(emp_data, condition_matrix):
                 3: lambda d: (d.get('actual_working_days', 0) > 0, f"{d.get('actual_working_days', 0)}일"),
                 4: lambda d: (d.get('actual_working_days', 0) >= 12, f"{d.get('actual_working_days', 0)}일"),
                 5: lambda d: (d.get('aql_failures', 0) == 0, f"{d.get('aql_failures', 0)}건"),
-                6: lambda d: (d.get('continuous_fail', 'NO') != 'YES', '통과' if d.get('continuous_fail', 'NO') != 'YES' else '실패'),
-                7: lambda d: (d.get('area_consecutive_fail', 'NO') != 'YES', '통과' if d.get('area_consecutive_fail', 'NO') != 'YES' else '3개월 연속 실패'),
+                6: lambda d: (d.get('continuous_fail', 'NO') != 'YES', '[PASS]' if d.get('continuous_fail', 'NO') != 'YES' else '[FAIL]'),
+                7: lambda d: (d.get('area_consecutive_fail', 'NO') != 'YES', '[PASS]' if d.get('area_consecutive_fail', 'NO') != 'YES' else '[CONSECUTIVE_FAIL]'),
                 8: lambda d: evaluate_area_reject(d),
                 9: lambda d: (d.get('pass_rate', 0) >= 95, f"{d.get('pass_rate', 0):.1f}%"),
                 10: lambda d: (d.get('validation_qty', 0) >= 100, f"{d.get('validation_qty', 0)}족")
@@ -840,8 +835,38 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             type_stats[emp_type]['amount'] += amount
             type_stats[emp_type]['paid_amounts'].append(amount)
     
-    # 직원 데이터 JSON
-    employees_json = json.dumps(employees, ensure_ascii=False)
+    # 직원 데이터 JSON - NaN 값을 null로 변환
+    import math
+    def convert_nan(obj):
+        """Convert NaN values to null for JSON"""
+        if isinstance(obj, float) and math.isnan(obj):
+            return None
+        elif isinstance(obj, dict):
+            return {k: convert_nan(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_nan(item) for item in obj]
+        # Convert any string that might have special characters
+        elif isinstance(obj, str):
+            # Remove any control characters and ensure proper escaping
+            return obj.replace('\r', '').replace('\n', ' ').replace('\t', ' ')
+        return obj
+
+    # Clean up field names with double spaces
+    for emp in employees:
+        # Create new dict with cleaned keys
+        cleaned_emp = {}
+        for key, value in emp.items():
+            # Replace double spaces with single space in keys
+            clean_key = ' '.join(key.split()) if isinstance(key, str) else key
+            cleaned_emp[clean_key] = value
+        # Update the employee record
+        emp.clear()
+        emp.update(cleaned_emp)
+
+    employees_clean = convert_nan(employees)
+    # Use base64 encoding for safe JavaScript embedding
+    employees_json_str = json.dumps(employees_clean, ensure_ascii=False, separators=(',', ':'))
+    employees_json_base64 = base64.b64encode(employees_json_str.encode('utf-8')).decode('ascii')
 
     # Position matrix 데이터 로드
     position_matrix = load_condition_matrix()
@@ -934,7 +959,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     translations_js = json.dumps(TRANSLATIONS, ensure_ascii=False, indent=2)
 
     # Excel 기반 대시보드 데이터를 JavaScript용으로 준비
-    excel_data_js = json.dumps(excel_dashboard_data, ensure_ascii=False) if excel_dashboard_data else 'null'
+    # 큰 JSON 데이터는 Base64로 인코딩하여 파싱 오류 방지
+    if excel_dashboard_data:
+        excel_data_json = json.dumps(excel_dashboard_data, ensure_ascii=False)
+        excel_data_b64 = base64.b64encode(excel_data_json.encode('utf-8')).decode('utf-8')
+    else:
+        excel_data_b64 = ''
 
     html_content = f'''<!DOCTYPE html>
 <html lang="ko">
@@ -1230,9 +1260,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <table class="table table-hover">
                             <thead class="unified-table-header">
                                 <tr>
-                                    <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.zeroModalSort('empNo')">${{translations.common?.tableHeaders?.employeeNo?.[lang] || '사번'}}</th>
-                                    <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.zeroModalSort('name')">${{translations.common?.tableHeaders?.name?.[lang] || '이름'}}</th>
-                                    <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.zeroModalSort('position')">${{translations.common?.tableHeaders?.position?.[lang] || '직책'}}</th>
+                                    <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.zeroModalSort('empNo')">사번</th>
+                                    <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.zeroModalSort('name')">이름</th>
+                                    <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.zeroModalSort('position')">직책</th>
                                     <th class="text-center sortable-header ${sortColumn === 'totalDays' ? sortOrder : ''}" onclick="window.zeroModalSort('totalDays')">총 근무일</th>
                                     <th class="text-center sortable-header ${sortColumn === 'actualDays' ? sortOrder : ''}" onclick="window.zeroModalSort('actualDays')">실 근무일</th>
                                     <th class="text-center sortable-header ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.zeroModalSort('status')">상태</th>
@@ -1373,7 +1403,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="d-flex align-items-center justify-content-center">
                         <span class="badge bg-danger px-3 py-2">
                             <i class="fas fa-ban me-1"></i>
-                            인센티브 제외
+                            ${{getTranslation('validationTab.status.excluded', currentLanguage) || 'Excluded'}}
                         </span>
                     </div>`;
                 statusIcon = '<i class="fas fa-exclamation-circle text-danger me-2"></i>';
@@ -1385,7 +1415,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="d-flex align-items-center justify-content-center">
                         <span class="badge bg-warning text-dark px-3 py-2">
                             <i class="fas fa-exclamation-triangle me-1"></i>
-                            경고
+                            ${{getTranslation('validationTab.status.warning', currentLanguage) || 'Warning'}}
                         </span>
                     </div>`;
                 statusIcon = '<i class="fas fa-exclamation-triangle text-warning me-2"></i>';
@@ -1397,7 +1427,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="d-flex align-items-center justify-content-center">
                         <span class="badge bg-info px-3 py-2">
                             <i class="fas fa-info-circle me-1"></i>
-                            주의
+                            ${{getTranslation('validationTab.status.caution', currentLanguage) || 'Caution'}}
                         </span>
                     </div>`;
                 statusIcon = '<i class="fas fa-info-circle text-info me-2"></i>';
@@ -1421,9 +1451,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td style="width: 15%; padding: 12px; text-align: center;">
                         <div class="d-flex flex-column align-items-center">
                             <span class="badge ${daysBadgeClass} px-3 py-2 fs-6">
-                                ${days}일
+                                ${days}${{getTranslation('validationTab.units.days', currentLanguage) || ' days'}}
                             </span>
-                            ${days > 2 ? '<small class="text-danger mt-1">초과</small>' : ''}
+                            ${days > 2 ? '<small class="text-danger mt-1">' + (getTranslation('validationTab.status.exceeded', currentLanguage) || 'Exceeded') + '</small>' : ''}
                         </div>
                     </td>
                     <td style="width: 20%; padding: 12px; text-align: center;">
@@ -1456,25 +1486,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="row text-center">
                     <div class="col-md-3">
                         <div class="d-flex flex-column">
-                            <span class="text-muted small">전체</span>
+                            <span class="text-muted small">${{getTranslation('validationTab.stats.total', currentLanguage) || 'Total'}}</span>
                             <span class="fs-4 fw-bold text-dark">${total}</span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="d-flex flex-column">
-                            <span class="text-muted small">주의 (1일)</span>
+                            <span class="text-muted small">${{getTranslation('validationTab.stats.caution', currentLanguage) || 'Caution'}} (1${{getTranslation('validationTab.units.day', currentLanguage) || ' day'}})</span>
                             <span class="fs-4 fw-bold text-info">${caution}</span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="d-flex flex-column">
-                            <span class="text-muted small">경고 (2일)</span>
+                            <span class="text-muted small">${{getTranslation('validationTab.stats.warning', currentLanguage) || 'Warning'}} (2${{getTranslation('validationTab.units.days', currentLanguage) || ' days'}})</span>
                             <span class="fs-4 fw-bold text-warning">${warning}</span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="d-flex flex-column">
-                            <span class="text-muted small">제외 (3일+)</span>
+                            <span class="text-muted small">${{getTranslation('validationTab.stats.excluded', currentLanguage) || 'Excluded'}} (3${{getTranslation('validationTab.units.days', currentLanguage) || ' days'}}+)</span>
                             <span class="fs-4 fw-bold text-danger">${excluded}</span>
                         </div>
                     </div>
@@ -1485,7 +1515,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const modalContent = `
             <div class="modal-header" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-bottom: 3px solid #2196f3;">
                 <h5 class="modal-title" style="color: #1565c0; font-weight: 700;">
-                    <i class="fas fa-user-times me-2" style="color: #1976d2;"></i>무단결근 직원 상세
+                    <i class="fas fa-user-times me-2" style="color: #1976d2;"></i>${{getTranslation('validationTab.modals.absentWithoutInform.title', currentLanguage) || 'Absent Employee Details'}}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1496,22 +1526,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <thead class="unified-table-header">
                             <tr>
                                 <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.absentModalSort('empNo')" style="width: 15%;">
-                                    사번
+                                    ${{getTranslation('validationTab.tableHeaders.empNo', currentLanguage) || 'Emp No.'}}
                                 </th>
                                 <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.absentModalSort('name')" style="width: 25%;">
-                                    이름
+                                    ${{getTranslation('validationTab.tableHeaders.name', currentLanguage) || 'Name'}}
                                 </th>
                                 <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.absentModalSort('position')" style="width: 25%;">
-                                    직책
+                                    ${{getTranslation('validationTab.tableHeaders.position', currentLanguage) || 'Position'}}
                                 </th>
                                 <th class="sortable-header text-center ${sortColumn === 'days' ? sortOrder : ''}" onclick="window.absentModalSort('days')" style="width: 15%;">
                                     <div style="line-height: 1.2;">
-                                        <div>무단결근</div>
-                                        <div style="font-size: 0.75rem; font-weight: 400; color: #757575;">(일수)</div>
+                                        <div>${{getTranslation('validationTab.tableHeaders.absentDays', currentLanguage) || 'Absent Days'}}</div>
+                                        <div style="font-size: 0.75rem; font-weight: 400; color: #757575;">${{getTranslation('validationTab.tableHeaders.daysUnit', currentLanguage) || '(Days)'}}</div>
                                     </div>
                                 </th>
                                 <th class="sortable-header text-center ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.absentModalSort('status')" style="width: 20%;">
-                                    상태
+                                    ${{getTranslation('validationTab.tableHeaders.status', currentLanguage) || 'Status'}}
                                 </th>
                             </tr>
                         </thead>
@@ -1522,7 +1552,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div class="modal-footer" style="background: #fafafa; border-top: 1px solid #e0e0e0;">
                 <small style="color: #616161; font-weight: 500;">
                     <i class="fas fa-info-circle me-1" style="color: #9e9e9e;"></i>
-                    무단결근 3일 이상 시 인센티브가 자동 제외됩니다
+                    ${{getTranslation('validationTab.warnings.absentExclusion', currentLanguage) || 'Incentive automatically excluded for 3+ days absent without inform'}}
                 </small>
             </div>
         `;
@@ -1530,13 +1560,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.getElementById('detailModalContent').innerHTML = modalContent;
         }
 
-        // 전역 정렬 함수 등록
-        window.absentModalSort = sortData;
-
-        // 초기 정렬 상태로 렌더링
-        sortData('days');
-
-        // 모달 표시 처리
+        // 모달 표시 처리 (sortData 호출 전에 생성)
         let modal = document.getElementById('detailModal');
         if (!modal) {
             const modalHTML = `
@@ -1549,6 +1573,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             modal = document.getElementById('detailModal');
         }
+
+        // 전역 정렬 함수 등록
+        window.absentModalSort = sortData;
+
+        // 초기 정렬 상태로 렌더링
+        sortData('days');
 
         /* Bootstrap 5 Modal 처리 */
         const modalElement = document.getElementById('detailModal');
@@ -1738,9 +1768,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <table class="table table-hover" id="minimumDaysTable" style="font-size: 14px;">
                         <thead class="unified-table-header">
                             <tr>
-                                <th class="sortable-header" data-sort="empNo" onclick="window.minDaysSort('empNo')" style="min-width: 100px;">${{translations.common?.tableHeaders?.employeeNo?.[lang] || '사번'}}</th>
-                                <th class="sortable-header" data-sort="name" onclick="window.minDaysSort('name')" style="min-width: 130px;">${{translations.common?.tableHeaders?.name?.[lang] || '이름'}}</th>
-                                <th class="sortable-header" data-sort="position" onclick="window.minDaysSort('position')" style="min-width: 150px;">${{translations.common?.tableHeaders?.position?.[lang] || '직책'}}</th>
+                                <th class="sortable-header" data-sort="empNo" onclick="window.minDaysSort('empNo')" style="min-width: 100px;">사번</th>
+                                <th class="sortable-header" data-sort="name" onclick="window.minDaysSort('name')" style="min-width: 130px;">이름</th>
+                                <th class="sortable-header" data-sort="position" onclick="window.minDaysSort('position')" style="min-width: 150px;">직책</th>
                                 <th class="text-center sortable-header asc" data-sort="actualDays" onclick="window.minDaysSort('actualDays')" style="min-width: 110px;">실제<br>근무일</th>
                                 <th class="text-center" style="min-width: 80px;">최소<br>요구</th>
                                 <th class="text-center sortable-header" data-sort="shortage" onclick="window.minDaysSort('shortage')" style="min-width: 70px;">부족</th>
@@ -1892,7 +1922,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td style="padding: 10px;"><span class="badge ${badgeClass} ${textColor}" style="font-size: 14px; padding: 6px 10px; ${customStyle}">${attendanceRate}%</span></td>
                     <td style="padding: 10px;">${actualDays}일</td>
                     <td style="padding: 10px;">${totalDays}일</td>
-                    <td style="padding: 10px;"><span class="badge ${attendanceRate < 88 ? 'bg-danger' : 'bg-success'}" style="font-size: 13px; padding: 4px 8px;">${attendanceRate < 88 ? ${{translations.modals?.fprs?.conditionNotMet?.[lang] || '미충족'}} : ${{translations.modals?.fprs?.met?.[lang] || '충족'}}}</span></td>
+                    <td style="padding: 10px;"><span class="badge ${attendanceRate < 88 ? 'bg-danger' : 'bg-success'}" style="font-size: 13px; padding: 4px 8px;">${attendanceRate < 88 ? '미충족' : '충족'}</span></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1926,8 +1956,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <table class="table table-hover" style="font-size: 14px;">
                                     <thead class="unified-table-header">
                                         <tr>
-                                            <th class="sortable-header" data-sort="empNo" style="min-width: 100px; padding: 12px; cursor: pointer;">${{translations.common?.tableHeaders?.employeeNo?.[lang] || '사번'}} ${getSortIcon('empNo')}</th>
-                                            <th class="sortable-header" data-sort="name" style="min-width: 130px; padding: 12px; cursor: pointer;">${{translations.common?.tableHeaders?.name?.[lang] || '이름'}} ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="empNo" style="min-width: 100px; padding: 12px; cursor: pointer;">사번 ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name" style="min-width: 130px; padding: 12px; cursor: pointer;">이름 ${getSortIcon('name')}</th>
                                             <th class="sortable-header" data-sort="attendanceRate" style="min-width: 100px; padding: 12px; cursor: pointer;">출근율 ${getSortIcon('attendanceRate')}</th>
                                             <th class="sortable-header" data-sort="actualDays" style="min-width: 110px; padding: 12px; cursor: pointer;">실제<br>근무일 ${getSortIcon('actualDays')}</th>
                                             <th class="sortable-header" data-sort="totalDays" style="min-width: 100px; padding: 12px; cursor: pointer;">총<br>근무일 ${getSortIcon('totalDays')}</th>
@@ -2045,8 +2075,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
             modalHTML += '<thead><tr style="background: #f8f9fa;">';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직원번호</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">${{translations.common?.tableHeaders?.name?.[lang] || '이름'}}</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">${{translations.common?.tableHeaders?.position?.[lang] || '직책'}}</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">이름</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직책</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직속상사</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">실패 패턴</th>';
             modalHTML += '</tr></thead><tbody>';
@@ -2077,8 +2107,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
             modalHTML += '<thead><tr style="background: #f8f9fa;">';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직원번호</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">${{translations.common?.tableHeaders?.name?.[lang] || '이름'}}</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">${{translations.common?.tableHeaders?.position?.[lang] || '직책'}}</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">이름</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직책</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직속상사</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">실패 패턴</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">위험도</th>';
@@ -2615,8 +2645,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div class="modal-body">
                 <div class="mb-3">
                     <div class="alert alert-info">
-                        <strong>${{translations.modals?.areaAQL?.condition7?.[lang]?.split(':')[0] || '조건 7번'}}:</strong> ${{translations.modals?.areaAQL?.condition7?.[lang]?.split(': ')[1] || '팀/구역 AQL 3개월 연속 실패'}} - ${cond7FailEmployees.length}명<br>
-                        <strong>${{translations.modals?.areaAQL?.condition8?.[lang]?.split(':')[0] || '조건 8번'}}:</strong> ${{translations.modals?.areaAQL?.condition8?.[lang]?.split(': ')[1] || '구역 Reject Rate 3% 초과'}} - ${cond8FailEmployees.length}명
+                        <strong>조건 7번:</strong> 팀/구역 AQL 3개월 연속 실패 - ${cond7FailEmployees.length}명<br>
+                        <strong>조건 8번:</strong> 구역 Reject Rate 3% 초과 - ${cond8FailEmployees.length}명
                     </div>
                     <p>구역별 AQL 상세 현황과 조건 충족 상태를 확인할 수 있습니다.</p>
                 </div>
@@ -2628,8 +2658,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <table class="table table-bordered" style="font-size: 13px;">
                                         <thead class="table-light">
                                             <tr>
-                                                <th style="padding: 10px;">${{translations.modals?.areaAQL?.area?.[lang] || '구역'}}</th>
-                                                <th style="padding: 10px; text-align: center;">${{translations.modals?.areaAQL?.totalEmployees?.[lang] || '전체 인원'}}</th>
+                                                <th style="padding: 10px;">구역</th>
+                                                <th style="padding: 10px; text-align: center;">전체<br>인원</th>
                                                 <th style="padding: 10px; text-align: center;">조건7<br>미충족</th>
                                                 <th style="padding: 10px; text-align: center;">조건8<br>미충족</th>
                                                 <th style="padding: 10px; text-align: center;">총 AQL<br>건수</th>
@@ -2694,7 +2724,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <table class="table table-bordered" style="font-size: 13px;">
                                         <thead class="table-light">
                                             <tr>
-                                                <th style="padding: 10px;">${{translations.modals?.areaAQL?.area?.[lang] || '구역'}}</th>
+                                                <th style="padding: 10px;">구역</th>
                                                 <th style="padding: 10px; text-align: center;">인원수</th>
                                                 <th style="padding: 10px; text-align: center;">PASS 건수</th>
                                                 <th style="padding: 10px; text-align: center;">FAIL 건수</th>
@@ -2871,15 +2901,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             lowPassEmployees.forEach(emp => {
                 const empNo = emp['Employee No'] || emp['emp_no'];
                 const name = emp['Full Name'] || emp['name'];
-                // 직책 1/2/3단계 모두 표시
-                const position1 = emp['QIP POSITION 1ST  NAME'] || '';
-                const position2 = emp['QIP POSITION 2ND  NAME'] || '';
-                const position3 = emp['QIP POSITION 3RD  NAME'] || '';
-                const positionDisplay = `${position1}${position2 ? ' > ' + position2 : ''}${position3 ? ' > ' + position3 : ''}`;
-
-                // 통과율 계산 근거 데이터
-                const totalTests = parseInt(emp['5PRS_Inspection_Qty'] || emp['validation_qty'] || 0);
-                const passTests = Math.round(totalTests * parseFloat(emp['pass_rate'] || emp['5PRS Pass Rate'] || 0) / 100);
+                const position = emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '-';
                 const passRate = parseFloat(emp['pass_rate'] || emp['5PRS Pass Rate'] || 0).toFixed(1);
 
                 // Pass Rate에 따른 색상
@@ -2891,12 +2913,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 row.innerHTML = `
                     <td>${empNo}</td>
                     <td>${name}</td>
-                    <td style="font-size: 12px;">${positionDisplay}</td>
+                    <td>${position}</td>
                     <td>TYPE-1</td>
-                    <td>${totalTests}족</td>
-                    <td>${passTests}족</td>
                     <td><span class="badge ${badgeClass}">${passRate}%</span></td>
-                    <td>${passRate < 95 ? '<span class="badge bg-danger">미충족</span>' : '<span class="badge bg-success">충족</span>'}</td>
+                    <td>${passRate < 95 ? '미충족' : '충족'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -2907,10 +2927,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop fade show';
             backdrop.style.zIndex = '1040';
-            // 백드롭 클릭시 모달 닫기
-            backdrop.addEventListener('click', function() {
-                window.closeLowPassRateModal();
-            });
             document.body.appendChild(backdrop);
 
             // 모달 생성
@@ -2940,14 +2956,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <table class="table table-hover">
                                     <thead class="unified-table-header">
                                         <tr>
-                                            <th class="sortable-header" data-sort="empNo">${{translations.common?.tableHeaders?.employeeNo?.[lang] || '사번'}} ${getSortIcon('empNo')}</th>
-                                            <th class="sortable-header" data-sort="name">${{translations.common?.tableHeaders?.name?.[lang] || '이름'}} ${getSortIcon('name')}</th>
-                                            <th class="sortable-header" data-sort="position">${{translations.modals?.fprs?.positionHierarchy?.[lang] || '직책 (1단계 > 2단계 > 3단계)'}} ${getSortIcon('position')}</th>
+                                            <th class="sortable-header" data-sort="empNo">사번 ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name">이름 ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="position">직책 ${getSortIcon('position')}</th>
                                             <th>타입</th>
-                                            <th>${{translations.modals?.fprs?.totalTests?.[lang] || '총 검증'}}</th>
-                                            <th>PASS</th>
                                             <th class="sortable-header" data-sort="passRate">통과율 ${getSortIcon('passRate')}</th>
-                                            <th>${{translations.modals?.fprs?.conditionMet?.[lang] || '조건 충족'}}</th>
+                                            <th>조건 충족</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -3078,11 +3092,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             lowQtyEmployees.forEach(emp => {
                 const empNo = emp['Employee No'] || emp['emp_no'];
                 const name = emp['Full Name'] || emp['name'];
-                // 직책 1/2/3단계 모두 표시
-                const position1 = emp['QIP POSITION 1ST  NAME'] || '';
-                const position2 = emp['QIP POSITION 2ND  NAME'] || '';
-                const position3 = emp['QIP POSITION 3RD  NAME'] || '';
-                const positionDisplay = `${position1}${position2 ? ' > ' + position2 : ''}${position3 ? ' > ' + position3 : ''}`;
+                const position = emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '-';
                 const inspectionQty = Math.round(parseFloat(emp['validation_qty'] || emp['5PRS Inspection Quantity'] || 0));
 
                 // Inspection Qty에 따른 색상
@@ -3094,10 +3104,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 row.innerHTML = `
                     <td>${empNo}</td>
                     <td>${name}</td>
-                    <td style="font-size: 12px;">${positionDisplay}</td>
+                    <td>${position}</td>
                     <td>TYPE-1</td>
                     <td><span class="badge ${badgeClass}">${inspectionQty}족</span></td>
-                    <td>${inspectionQty < 100 ? '<span class="badge bg-danger">미충족</span>' : '<span class="badge bg-success">충족</span>'}</td>
+                    <td>${inspectionQty < 100 ? '미충족' : '충족'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -3108,10 +3118,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop fade show';
             backdrop.style.zIndex = '1040';
-            // 백드롭 클릭시 모달 닫기
-            backdrop.addEventListener('click', function() {
-                window.closeLowInspectionQtyModal();
-            });
             document.body.appendChild(backdrop);
 
             // 모달 생성
@@ -3141,12 +3147,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <table class="table table-hover">
                                     <thead class="unified-table-header">
                                         <tr>
-                                            <th class="sortable-header" data-sort="empNo">${{translations.common?.tableHeaders?.employeeNo?.[lang] || '사번'}} ${getSortIcon('empNo')}</th>
-                                            <th class="sortable-header" data-sort="name">${{translations.common?.tableHeaders?.name?.[lang] || '이름'}} ${getSortIcon('name')}</th>
-                                            <th class="sortable-header" data-sort="position">${{translations.modals?.fprs?.positionHierarchy?.[lang] || '직책 (1단계 > 2단계 > 3단계)'}} ${getSortIcon('position')}</th>
+                                            <th class="sortable-header" data-sort="empNo">사번 ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name">이름 ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="position">직책 ${getSortIcon('position')}</th>
                                             <th>타입</th>
                                             <th class="sortable-header" data-sort="inspectionQty">검사량 ${getSortIcon('inspectionQty')}</th>
-                                            <th>${{translations.modals?.fprs?.conditionMet?.[lang] || '조건 충족'}}</th>
+                                            <th>조건 충족</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -4488,7 +4494,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v5.1</span></h1>
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v6.01</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
@@ -4554,7 +4560,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual">개인별 상세</div>
                 <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria">인센티브 기준</div>
                 <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart">조직도</div>
-                <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation">${{translations.tabs?.validation?.[lang] || '요약 및 시스템 검증'}}</div>
+                <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation">요약 및 시스템 검증</div>
             </div>
             
             <!-- 요약 탭 -->
@@ -4667,8 +4673,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <table class="table" id="employeeTable">
                         <thead>
                             <tr>
-                                <th id="empIdHeader">${{translations.common?.tableHeaders?.employeeNo?.[lang] || '사번'}}</th>
-                                <th id="nameHeader">${{translations.common?.tableHeaders?.name?.[lang] || '이름'}}</th>
+                                <th id="empIdHeader">사번</th>
+                                <th id="nameHeader">이름</th>
                                 <th id="positionHeader">직급</th>
                                 <th id="typeHeader">Type</th>
                                 <th id="prevMonthHeader">{get_korean_month(prev_month_name)}</th>
@@ -5013,7 +5019,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         Part1: 1,000,000 (<span class="calc-months-text" data-months="12">12개월</span>)<br>
                                         Part2: 700,000 (<span class="calc-cfa-holder">CFA 보유</span>)<br>
                                         Part3: 900,000 (<span class="calc-months-text" data-months="13">13개월</span>)<br>
-                                        <span class="calc-total-label">${{translations.orgChartModal?.total?.[lang] || '합계'}}</span>: 2,600,000 VND</td>
+                                        <span class="calc-total-label">합계</span>: 2,600,000 VND</td>
                                 </tr>
                                 <tr style="background-color: #f0f4ff;">
                                     <td><strong><span class="calc-position-assemblyinspector">7. ASSEMBLY INSPECTOR</span></strong></td>
@@ -5926,12 +5932,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                         <!-- 제외된 직급 안내 -->
                         <div class="alert alert-info mb-3" style="background: #e3f2fd; border: 1px solid #1976d2; color: #0d47a1;">
-                            <i class="fas fa-info-circle"></i> <strong>참고:</strong> AQL INSPECTOR, AUDIT & TRAINING TEAM, MODEL MASTER 직급은 조직도에서 제외되었습니다.
+                            <i class="fas fa-info-circle"></i>
+                            <strong><span id="orgChartNoteLabel">참고</span>:</strong>
+                            <span id="orgChartExcludedPositions">AQL INSPECTOR, AUDIT & TRAINING TEAM, MODEL MASTER 직급은 조직도에서 제외되었습니다.</span>
                         </div>
 
                         <!-- 동적 경로 표시 (Breadcrumb) -->
                         <div id="orgBreadcrumb" class="breadcrumb mb-3" style="background: #f8f9fa; padding: 10px; border-radius: 4px;">
-                            <span style="color: #666;">전체 조직</span>
+                            <span id="orgBreadcrumbText" style="color: #666;">전체 조직</span>
                         </div>
 
                         <!-- 필터 옵션 -->
@@ -5979,8 +5987,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div id="orgChartContainer" class="collapsible-tree">
                             <!-- 제목 및 설명 -->
                             <div class="org-header">
-                                <h4 id="orgChartTitle">${{translations.orgChart?.type1ManagerStructure?.[lang] || 'TYPE-1 관리자 인센티브 구조'}}</h4>
-                                <p id="orgChartSubtitle" class="text-muted">TYPE-1 managers receiving incentive based on subordinate performance</p>
+                                <h4 id="orgChartTitleMain">TYPE-1 관리자 인센티브 구조</h4>
+                                <p id="orgChartSubtitleMain" class="text-muted">TYPE-1 managers receiving incentive based on subordinate performance</p>
                             </div>
 
                             <!-- 검색 및 필터 컨트롤 -->
@@ -6062,7 +6070,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         <!-- 검증 탭 -->
         <div id="validation" class="tab-content">
-            <h3 id="validationTabTitle">${{translations.tabs?.validation?.[lang] || '요약 및 시스템 검증'}}</h3>
+            <h3 id="validationTabTitle">요약 및 시스템 검증</h3>
 
             <!-- 중간 보고서 알림 (20일 이전 보고서인 경우에만 표시) -->
             <div id="interimReportNotice" class="alert alert-warning" style="display: none;">
@@ -6160,7 +6168,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="kpi-card" onclick="showValidationModal('totalWorkingDays')" style="--card-color-1: #4a90e2; --card-color-2: #5ca0f2; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.1);">
                     <div class="kpi-icon">📅</div>
                     <div class="kpi-value" id="kpiTotalWorkingDays">-</div>
-                    <div class="kpi-label">${{translations.validationTab?.kpiCards?.totalWorkingDays?.title?.[lang] || '총 근무일수'}}</div>
+                    <div class="kpi-label">총 근무일수</div>
                 </div>
 
                 <!-- KPI 카드 2: 무단결근 3일 이상 -->
@@ -6181,14 +6189,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="kpi-card" onclick="showValidationModal('minimumDaysNotMet')" style="--card-color-1: #95a5a6; --card-color-2: #7f8c8d; box-shadow: 0 4px 15px rgba(149, 165, 166, 0.1);">
                     <div class="kpi-icon">📉</div>
                     <div class="kpi-value" id="kpiMinimumDaysNotMet">-</div>
-                    <div class="kpi-label">${{translations.validationTab?.kpiCards?.minWorkingDays?.title?.[lang] || '최소 근무일 미충족'}}</div>
+                    <div class="kpi-label">최소 근무일 미충족</div>
                 </div>
 
                 <!-- KPI 카드 5: 출근율 88% 미만 -->
                 <div class="kpi-card" onclick="showValidationModal('attendanceBelow88')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-value" id="kpiAttendanceBelow88">-</div>
-                    <div class="kpi-label">${{translations.validationTab?.kpiCards?.lowAttendance?.title?.[lang] || '출근율 88% 미만'}}</div>
+                    <div class="kpi-label">출근율 88% 미만</div>
                 </div>
 
                 <!-- KPI 카드 6: AQL FAIL 보유자 -->
@@ -6209,7 +6217,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="kpi-card" onclick="showValidationModal('areaRejectRate')" style="--card-color-1: #3498db; --card-color-2: #2980b9; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-value" id="kpiAreaRejectRate">-</div>
-                    <div class="kpi-label">${{translations.validationTab?.kpiCards?.areaRejectRate?.title?.[lang] || '구역 AQL Reject 3% 이상'}}</div>
+                    <div class="kpi-label">구역 AQL Reject 3% 이상</div>
                 </div>
 
                 <!-- KPI 카드 9: 5PRS 통과율 < 95% -->
@@ -6241,19 +6249,107 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             </div>
         </div>
     </div>
-    
+
+    <!-- 모든 JSON 데이터를 별도의 script 태그에 저장 -->
+    <script type="application/json" id="employeeDataBase64">
+        {employees_json_base64}
+    </script>
+
+    <script type="application/json" id="translationsData">
+        {translations_js}
+    </script>
+
+    <script type="application/json" id="positionMatrixData">
+        {position_matrix_json}
+    </script>
+
+    <script type="application/json" id="excelDashboardDataBase64">
+        {excel_data_b64}
+    </script>
+
     <script>
         // Make employeeData globally accessible for validation tab
-        window.employeeData = {employees_json};
-        const employeeData = window.employeeData;
-        const translations = {translations_js};
-        const positionMatrix = {position_matrix_json};
+        // Decode base64 and parse JSON safely
+        let employeeData = [];
+        try {{
+            // DOM에서 Base64 데이터 읽기
+            const base64Element = document.getElementById('employeeDataBase64');
+            const base64Data = base64Element ? base64Element.textContent.trim() : '';
+            const jsonStr = atob(base64Data);
+            employeeData = JSON.parse(jsonStr);
+            window.employeeData = employeeData;
+            console.log('Employee data loaded successfully:', employeeData.length, 'employees');
+
+            // 데이터 로드 후 즉시 상단 카드 업데이트
+            let totalCount = employeeData.length;
+            let paidCount = 0;
+            let totalAmount = 0;
+
+            employeeData.forEach(emp => {{
+                const amount = parseInt(
+                    emp['{month.lower()}_incentive'] ||
+                    emp['{month.lower().capitalize()}_Incentive'] ||
+                    emp['Final Incentive amount'] ||
+                    0
+                );
+                if (amount > 0) {{
+                    paidCount++;
+                    totalAmount += amount;
+                }}
+            }});
+
+            // 초기 통계 저장
+            window.dashboardStats = {{
+                total: totalCount,
+                paid: paidCount,
+                amount: totalAmount,
+                rate: totalCount > 0 ? (paidCount / totalCount * 100).toFixed(1) : '0.0'
+            }};
+
+            console.log('초기 통계: 전체 ' + totalCount + '명, 지급 ' + paidCount + '명, 총액 ' + totalAmount + ' VND');
+
+        }} catch (e) {{
+            console.error("Failed to parse employee data:", e);
+            window.employeeData = [];
+            window.dashboardStats = {{ total: 0, paid: 0, amount: 0, rate: '0.0' }};
+        }}
+
+        // DOM에서 translations 데이터 읽기
+        let translations = {{}};
+        try {{
+            const translationsElement = document.getElementById('translationsData');
+            translations = JSON.parse(translationsElement ? translationsElement.textContent.trim() : '{{}}');
+            console.log('Translations loaded successfully');
+        }} catch (e) {{
+            console.error("Failed to parse translations data:", e);
+        }}
+
+        // DOM에서 positionMatrix 데이터 읽기
+        let positionMatrix = {{}};
+        try {{
+            const positionMatrixElement = document.getElementById('positionMatrixData');
+            positionMatrix = JSON.parse(positionMatrixElement ? positionMatrixElement.textContent.trim() : '{{}}');
+            console.log('Position matrix loaded successfully');
+        }} catch (e) {{
+            console.error("Failed to parse position matrix data:", e);
+        }}
 
         // AQL 통계 데이터 (실제 검사 횟수)
         // AQL 통계는 이제 엑셀 파일에서 직접 사용 (Single Source of Truth)
 
-        // Excel 기반 대시보드 데이터 (Single Source of Truth)
-        window.excelDashboardData = {excel_data_js};
+        // DOM에서 Excel 대시보드 데이터 읽기 (Base64 디코딩)
+        window.excelDashboardData = {{}};
+        try {{
+            const excelDataElement = document.getElementById('excelDashboardDataBase64');
+            if (excelDataElement && excelDataElement.textContent.trim()) {{
+                const base64Data = excelDataElement.textContent.trim();
+                const jsonStr = atob(base64Data);
+                window.excelDashboardData = JSON.parse(jsonStr);
+                console.log('Excel dashboard data loaded successfully');
+            }}
+        }} catch (e) {{
+            console.error("Failed to parse excel dashboard data:", e);
+        }}
         const excelDashboardData = window.excelDashboardData;
 
         let currentLanguage = 'ko';
@@ -6535,7 +6631,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const memberNote = document.getElementById('faqMemberNote');
             if (memberNote) {{
-                const monthText = dashboardMonth === 'september' ? '9월' : dashboardMonth === 'august' ? '8월' : dashboardMonth === 'july' ? '7월' : dashboardMonth;
+                const monthText = '{month.lower()}' === 'september' ? '9월' : '{month.lower()}' === 'august' ? '8월' : '{month.lower()}' === 'july' ? '7월' : '{month.lower()}';
                 memberNote.textContent = translations.incentiveCalculation?.faq?.memberNote?.[lang] || `* ${{monthText}} 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원`;
             }}
             
@@ -7274,7 +7370,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
-                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v5.1</span>';
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v6.01</span>';
             }}
             
             // 날짜 관련 업데이트
@@ -7387,7 +7483,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 'tabPosition': 'tabs.position',
                 'tabIndividual': 'tabs.individual',
                 'tabCriteria': 'tabs.criteria',
-                'tabOrgChart': 'tabs.orgChart'
+                'tabOrgChart': 'tabs.orgChart',
+                'tabValidation': 'tabs.validation'
             }};
             
             for (const [id, key] of Object.entries(tabs)) {{
@@ -7399,7 +7496,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const tabTitles = {{
                 'summaryTabTitle': 'summary.typeTable.title',
                 'positionTabTitle': 'position.title',
-                'individualDetailTitle': 'individual.title'
+                'individualDetailTitle': 'individual.title',
+                'validationTabTitle': 'tabs.validation'
             }};
             
             for (const [id, key] of Object.entries(tabTitles)) {{
@@ -7550,7 +7648,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             // Talent Program 섹션 텍스트 업데이트
             updateTalentProgramTexts();
-            
+
+            // Org Chart 텍스트 업데이트
+            updateOrgChartUIText();
+
             // 차트 업데이트 (차트가 있는 경우)
             if (window.pieChart) {{
                 updateChartLabels();
@@ -8381,6 +8482,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         
         // Type별 요약 테이블 업데이트 함수
         function updateTypeSummaryTable() {{
+            try {{
+                // employeeData가 없으면 window.employeeData 사용
+                const dataSource = window.employeeData || employeeData || [];
+
+                if (!dataSource || dataSource.length === 0) {{
+                    console.warn('No employee data available for Type summary');
+                    return;
+                }}
+
             // Type별 데이터 집계
             const typeData = {{
                 'TYPE-1': {{ total: 0, paid: 0, totalAmount: 0 }},
@@ -8394,13 +8504,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let grandAmount = 0;
 
             // 직원 데이터 순회하며 집계
-            employeeData.forEach(emp => {{
-                const type = emp.type;
+            dataSource.forEach(emp => {{
+                // type 필드를 여러 가능한 이름에서 찾기
+                const type = emp.type || emp['ROLE TYPE STD'] || emp['Type'] || 'UNKNOWN';
                 if (typeData[type]) {{
                     typeData[type].total++;
                     grandTotal++;
 
-                    const amount = parseInt(emp[dashboardMonth + '_incentive']) || 0;
+                    // 여러 가능한 인센티브 필드명 확인
+                    const amount = parseInt(
+                        emp['{month.lower()}_incentive'] ||
+                        emp['{month.lower().capitalize()}_Incentive'] ||
+                        emp['Final Incentive amount'] ||
+                        0
+                    );
+
+                    console.log('Type 확인:', type, '직원:', emp.name || emp['Full Name'], '금액:', amount);
                     if (amount > 0) {{
                         typeData[type].paid++;
                         typeData[type].totalAmount += amount;
@@ -8455,6 +8574,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 html += '</tr>';
 
                 tbody.innerHTML = html;
+                console.log('Type별 요약 테이블 업데이트 완료');
+            }}
+            }} catch (e) {{
+                console.error('updateTypeSummaryTable 오류:', e);
+                // 오류 발생 시에도 기본 동작 시도
+                if (window.employeeData && window.employeeData.length > 0) {{
+                    console.log('오류 복구 시도 중...');
+                }}
             }}
         }}
         
@@ -8685,7 +8812,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // 실제로는 일별 데이터가 없으므로 총 근무일수만 표시
                     const totalDays = employeeData[0]?.['Total Working Days'] || 13;
                     tableData = [[
-                        `${{dashboardYear}}년 ${{dashboardMonth}}월`,
+                        `{year}년 {get_korean_month(month)}월`,
                         '-',
                         `총 ${{totalDays}}일`
                     ]];
@@ -9174,9 +9301,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return isNaN(parsed) ? 0 : parsed;
         }}
 
-        // 인센티브 ${{translations.orgChartModal?.receivingStatus?.[lang] || '수령 여부'}} 확인 함수
+        // 인센티브 수령 여부 확인 함수
         function hasIncentive(data) {{
-            const amount = parseIncentive(data.incentive || data[dashboardMonth + '_incentive'] || 0);
+            const amount = parseIncentive(data.incentive || data['{month.lower()}_incentive'] || 0);
             return amount > 0;
         }}
 
@@ -9333,7 +9460,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     name: emp.name,
                     position: emp.position,
                     type: emp.type,
-                    incentive: emp[dashboardMonth + '_incentive'] || 0,
+                    incentive: emp['{month.lower()}_incentive'] || 0,
                     boss_id: emp.boss_id,
                     calculationMethod: calculationMethod,
                     children: []
@@ -9413,7 +9540,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     );
 
                     const receivingCount = subordinates.filter(sub => {{
-                        const incentive = sub[dashboardMonth + '_incentive'] || 0;
+                        const incentive = sub['{month.lower()}_incentive'] || 0;
                         return Number(incentive) > 0;
                     }}).length;
 
@@ -9758,22 +9885,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 출근 조건 체크 (모든 직급 공통)
             if (employee['attendancy condition 1 - acctual working days is zero'] === 'yes') {{
-                reasons.push('${{translations.orgChartModal?.nonPaymentReasons?.actualWorkingDays0?.[lang] || '실제 근무일 0일 (출근 조건 1번 미충족)'}}');
+                reasons.push('실제 근무일 0일 (출근 조건 1번 미충족)');
             }}
             if (employee['attendancy condition 2 - unapproved Absence Day is more than 2 days'] === 'yes') {{
-                reasons.push('${{translations.orgChartModal?.nonPaymentReasons?.unauthorizedAbsence?.[lang] || '무단결근 2일 초과 (출근 조건 2번 미충족)'}}');
+                reasons.push('무단결근 2일 초과 (출근 조건 2번 미충족)');
             }}
             if (employee['attendancy condition 3 - absent % is over 12%'] === 'yes') {{
-                reasons.push('${{translations.orgChartModal?.nonPaymentReasons?.absenceRate12?.[lang] || '결근율 12% 초과 (출근 조건 3번 미충족)'}}');
+                reasons.push('결근율 12% 초과 (출근 조건 3번 미충족)');
             }}
             if (employee['attendancy condition 4 - minimum working days'] === 'yes') {{
-                reasons.push('${{translations.orgChartModal?.nonPaymentReasons?.minWorkingDays?.[lang] || '최소 근무일 미달 (출근 조건 4번 미충족)'}}');
+                reasons.push('최소 근무일 미달 (출근 조건 4번 미충족)');
             }}
 
             // LINE LEADER의 경우 AQL 조건 추가 체크
             if (position.includes('LINE') && position.includes('LEADER')) {{
                 if (employee['aql condition 7 - team/area fail AQL'] === 'yes') {{
-                    reasons.push('${{translations.orgChartModal?.nonPaymentReasons?.teamAreaAQL?.[lang] || '팀/구역 AQL 실패 (AQL 조건 7번 미충족)'}}');
+                    reasons.push('팀/구역 AQL 실패 (AQL 조건 7번 미충족)');
                 }}
                 if (employee['September AQL Failures'] > 0) {{
                     reasons.push(`9월 AQL 실패 ${{employee['September AQL Failures']}}건`);
@@ -9787,10 +9914,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 5PRS 조건 체크 (해당 직급만)
             if (employee['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] === 'no') {{
-                reasons.push('${{translations.orgChartModal?.nonPaymentReasons?.fprsPassRate?.[lang] || '5PRS 검증 부족 또는 합격률 95% 미달 (5PRS 조건 1번 미충족)'}}');
+                reasons.push('5PRS 검증 부족 또는 합격률 95% 미달 (5PRS 조건 1번 미충족)');
             }}
             if (employee['5prs condition 2 - Total Valiation Qty is zero'] === 'yes') {{
-                reasons.push('${{translations.orgChartModal?.nonPaymentReasons?.fprsZeroQty?.[lang] || '5PRS 총 검증 수량 0 (5PRS 조건 2번 미충족)'}}');
+                reasons.push('5PRS 총 검증 수량 0 (5PRS 조건 2번 미충족)');
             }}
 
             // 조건 통과율 체크
@@ -9805,7 +9932,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 사유가 없는 경우 기본 메시지
             if (reasons.length === 0) {{
-                if (employee[dashboardMonth + '_incentive'] === 0) {{
+                if (employee['{month.lower()}_incentive'] === 0) {{
                     reasons.push('조건 정보를 확인할 수 없습니다');
                 }}
             }}
@@ -9830,16 +9957,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 console.log('✅ 직원 발견:', employee.name, employee.position);
 
                 const position = (employee.position || '').toUpperCase();
-                const employeeIncentive = Number(employee[dashboardMonth + '_incentive'] || 0);
+                const employeeIncentive = Number(employee['{month.lower()}_incentive'] || 0);
 
                 // 부하 직원 찾기 (TYPE-1만)
                 const subordinates = employeeData.filter(emp => emp.boss_id === nodeId && emp.type === 'TYPE-1');
                 const receivingSubordinates = subordinates.filter(sub => {{
-                    const incentive = sub[dashboardMonth + '_incentive'] || 0;
+                    const incentive = sub['{month.lower()}_incentive'] || 0;
                     return Number(incentive) > 0;
                 }});
 
-                // ${{translations.orgChartModal?.calculationDetails?.[lang] || '계산 과정 상세'}} 내용 생성
+                // 계산 과정 상세 내용 생성
                 let calculationDetails = '';
 
                 if (position.includes('LINE LEADER')) {{
@@ -9848,10 +9975,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     sub.position && sub.position.toUpperCase().includes('ASSEMBLY INSPECTOR')
                 );
                 const totalSubIncentive = assemblyInspectors.reduce((sum, sub) => {{
-                    return sum + Number(sub[dashboardMonth + '_incentive'] || 0);
+                    return sum + Number(sub['{month.lower()}_incentive'] || 0);
                 }}, 0);
                 const receivingInspectors = assemblyInspectors.filter(ai =>
-                    Number(ai[dashboardMonth + '_incentive'] || 0) > 0
+                    Number(ai['{month.lower()}_incentive'] || 0) > 0
                 );
                 const receivingRatio = assemblyInspectors.length > 0 ? receivingInspectors.length / assemblyInspectors.length : 0;
                 const expectedIncentive = Math.round(totalSubIncentive * 0.12 * receivingRatio);
@@ -9861,19 +9988,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (assemblyInspectors.length > 0) {{
                     inspectorDetails = `
                         <div class="mt-3">
-                            <h6>📋 ${{translations.orgChartModal?.assemblyInspectorDetails?.[lang] || 'ASSEMBLY INSPECTOR 인센티브 내역 (합계 계산 대상)'}}</h6>
+                            <h6>📋 ASSEMBLY INSPECTOR 인센티브 내역 (합계 계산 대상)</h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>${{translations.common?.tableHeaders?.name?.[lang] || '이름'}}</th>
+                                        <th>이름</th>
                                         <th>ID</th>
-                                        <th class="text-end">${{translations.orgChartModal?.incentive?.[lang] || '인센티브'}}</th>
-                                        <th class="text-center">${{translations.orgChartModal?.receivingStatus?.[lang] || '수령 여부'}}</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">수령 여부</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${{assemblyInspectors.map(ai => {{
-                                        const aiIncentive = Number(ai[dashboardMonth + '_incentive'] || 0);
+                                        const aiIncentive = Number(ai['{month.lower()}_incentive'] || 0);
                                         const isReceiving = aiIncentive > 0;
                                         return `
                                             <tr class="${{isReceiving ? '' : 'text-muted'}}">
@@ -9887,7 +10014,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="2">${{translations.orgChartModal?.total?.[lang] || '합계'}}</th>
+                                        <th colspan="2">합계</th>
                                         <th class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
@@ -9904,7 +10031,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 ${{translations.orgChartModal?.calculationDetails?.[lang] || '계산 과정 상세'}} (LINE LEADER)</h6>
+                        <h6>📊 계산 과정 상세 (LINE LEADER)</h6>
                         <table class="table table-sm">
                             <tr>
                                 <td>계산 공식:</td>
@@ -9923,7 +10050,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <td class="text-end">${{receivingInspectors.length}}/${{assemblyInspectors.length}} = ${{(receivingRatio * 100).toFixed(1)}}%</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.calculationFormula?.[lang] || '계산식'}}:</td>
+                                <td>계산식:</td>
                                 <td class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}} × 12% × ${{(receivingRatio * 100).toFixed(1)}}%</td>
                             </tr>
                             <tr class="table-primary">
@@ -9942,10 +10069,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // GROUP LEADER 계산 상세 - 팀 내 LINE LEADER 평균 × 2
                 const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
                 const receivingLineLeaders = teamLineLeaders.filter(ll =>
-                    Number(ll[dashboardMonth + '_incentive'] || 0) > 0
+                    Number(ll['{month.lower()}_incentive'] || 0) > 0
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
-                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
+                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
                 const expectedIncentive = Math.round(avgLineLeaderIncentive * 2);
 
                 // LINE LEADER별 상세 내역 생성
@@ -9953,19 +10080,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (teamLineLeaders.length > 0) {{
                     lineLeaderDetails = `
                         <div class="mt-3">
-                            <h6>📋 <span class="modal-team-line-leader-list">${{translations.orgChartModal?.teamLineLeaderDetails?.[lang] || '팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)'}}</span></h6>
+                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>${{translations.common?.tableHeaders?.name?.[lang] || '이름'}}</th>
+                                        <th>이름</th>
                                         <th>ID</th>
-                                        <th class="text-end">${{translations.orgChartModal?.incentive?.[lang] || '인센티브'}}</th>
-                                        <th class="text-center">${{translations.orgChartModal?.includeInAverage?.[lang] || '평균 계산 포함'}}</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">평균 계산 포함</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${{teamLineLeaders.map(ll => {{
-                                        const llIncentive = Number(ll[dashboardMonth + '_incentive'] || 0);
+                                        const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
                                         const included = llIncentive > 0;
                                         return `
                                             <tr class="${{included ? '' : 'text-muted'}}">
@@ -9979,8 +10106,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="2">${{translations.orgChartModal?.total?.[lang] || '합계'}}</th>
-                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
+                                        <th colspan="2">합계</th>
+                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
                                     <tr>
@@ -9996,22 +10123,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 ${{translations.orgChartModal?.calculationDetails?.[lang] || '계산 과정 상세'}} (GROUP LEADER)</h6>
+                        <h6>📊 계산 과정 상세 (GROUP LEADER)</h6>
                         <table class="table table-sm">
                             <tr>
                                 <td>계산 공식:</td>
                                 <td class="text-end"><strong>LINE LEADER 평균 × 2</strong></td>
                             </tr>
                             <tr>
-                                <td><span class="modal-team-line-leader-count">${{translations.orgChartModal?.teamLineLeaderCount?.[lang] || '팀 내 LINE LEADER 수'}}:</span></td>
+                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
                                 <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.lineLeaderAverage?.[lang] || 'LINE LEADER 평균 인센티브'}}:</td>
+                                <td>LINE LEADER 평균 인센티브:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.calculationFormula?.[lang] || '계산식'}}:</td>
+                                <td>계산식:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2</td>
                             </tr>
                             <tr class="table-primary">
@@ -10030,10 +10157,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // SUPERVISOR 계산 상세 - 팀 내 LINE LEADER만
                 const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
                 const receivingLineLeaders = teamLineLeaders.filter(ll =>
-                    Number(ll[dashboardMonth + '_incentive'] || 0) > 0
+                    Number(ll['{month.lower()}_incentive'] || 0) > 0
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
-                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
+                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
                 const expectedIncentive = Math.round(avgLineLeaderIncentive * 2.5);
 
                 // 팀 내 LINE LEADER 상세 내역 생성
@@ -10052,21 +10179,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     allLineLeaderDetails = `
                         <div class="mt-3">
-                            <h6>📋 <span class="modal-team-line-leader-list">${{translations.orgChartModal?.teamLineLeaderDetails?.[lang] || '팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)'}}</span></h6>
+                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
                                         <th>GROUP</th>
                                         <th>LINE LEADER</th>
                                         <th>ID</th>
-                                        <th class="text-end">${{translations.orgChartModal?.incentive?.[lang] || '인센티브'}}</th>
-                                        <th class="text-center">${{translations.orgChartModal?.includeInAverage?.[lang] || '평균 계산 포함'}}</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">평균 계산 포함</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
                                         return leaders.map((ll, idx) => {{
-                                            const llIncentive = Number(ll[dashboardMonth + '_incentive'] || 0);
+                                            const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
                                             const included = llIncentive > 0;
                                             return `
                                                 <tr class="${{included ? '' : 'text-muted'}}">
@@ -10082,8 +10209,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="3">${{translations.orgChartModal?.total?.[lang] || '합계'}}</th>
-                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
+                                        <th colspan="3">합계</th>
+                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
                                     <tr>
@@ -10099,22 +10226,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 ${{translations.orgChartModal?.calculationDetails?.[lang] || '계산 과정 상세'}} (SUPERVISOR)</h6>
+                        <h6>📊 계산 과정 상세 (SUPERVISOR)</h6>
                         <table class="table table-sm">
                             <tr>
                                 <td>계산 공식:</td>
                                 <td class="text-end"><strong>LINE LEADER 평균 × 2.5</strong></td>
                             </tr>
                             <tr>
-                                <td><span class="modal-team-line-leader-count">${{translations.orgChartModal?.teamLineLeaderCount?.[lang] || '팀 내 LINE LEADER 수'}}:</span></td>
+                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
                                 <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.lineLeaderAverage?.[lang] || 'LINE LEADER 평균 인센티브'}}:</td>
+                                <td>LINE LEADER 평균 인센티브:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.calculationFormula?.[lang] || '계산식'}}:</td>
+                                <td>계산식:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2.5</td>
                             </tr>
                             <tr class="table-primary">
@@ -10140,10 +10267,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 try {{
                     teamLineLeaders = findTeamLineLeaders(employee.emp_no);
                     receivingLineLeaders = teamLineLeaders.filter(ll =>
-                        Number(ll[dashboardMonth + '_incentive'] || 0) > 0
+                        Number(ll['{month.lower()}_incentive'] || 0) > 0
                     );
                     avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
-                        receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
+                        receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
                     expectedIncentive = Math.round(avgLineLeaderIncentive * 3);
                 }} catch (err) {{
                     console.error('❌ A.MANAGER 계산 중 오류:', err);
@@ -10153,7 +10280,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // LINE LEADER 인센티브 합계 계산
                 const lineLeaderTotal = receivingLineLeaders.reduce((sum, ll) =>
-                    sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0);
+                    sum + Number(ll['{month.lower()}_incentive'] || 0), 0);
 
                 // 팀 내 LINE LEADER 상세 내역 생성
                 let lineLeaderBreakdown = '';
@@ -10171,21 +10298,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     lineLeaderBreakdown = `
                         <div class="mt-3">
-                            <h6>📋 <span class="modal-team-line-leader-list">${{translations.orgChartModal?.teamLineLeaderDetails?.[lang] || '팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)'}}</span></h6>
+                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
                                         <th>GROUP LEADER</th>
                                         <th>LINE LEADER</th>
                                         <th>ID</th>
-                                        <th class="text-end">${{translations.orgChartModal?.incentive?.[lang] || '인센티브'}}</th>
-                                        <th class="text-center">${{translations.orgChartModal?.includeInAverage?.[lang] || '평균 계산 포함'}}</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">평균 계산 포함</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
                                         return leaders.map((ll, idx) => {{
-                                            const llIncentive = Number(ll[dashboardMonth + '_incentive'] || 0);
+                                            const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
                                             const included = llIncentive > 0;
                                             return `
                                                 <tr class="${{included ? '' : 'text-muted'}}">
@@ -10201,7 +10328,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="3">${{translations.orgChartModal?.total?.[lang] || '합계'}}</th>
+                                        <th colspan="3">합계</th>
                                         <th class="text-end">₫${{lineLeaderTotal.toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
@@ -10218,7 +10345,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 ${{translations.orgChartModal?.calculationDetails?.[lang] || '계산 과정 상세'}} (A.MANAGER)</h6>
+                        <h6>📊 계산 과정 상세 (A.MANAGER)</h6>
                         <table class="table table-sm">
                             <tr>
                                 <td>계산 공식:</td>
@@ -10229,11 +10356,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.lineLeaderAverage?.[lang] || 'LINE LEADER 평균 인센티브'}}:</td>
+                                <td>LINE LEADER 평균 인센티브:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.calculationFormula?.[lang] || '계산식'}}:</td>
+                                <td>계산식:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3</td>
                             </tr>
                             <tr class="table-primary">
@@ -10252,10 +10379,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // MANAGER 계산 상세 - 팀 내 LINE LEADER 평균 기준
                 const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
                 const receivingLineLeaders = teamLineLeaders.filter(ll =>
-                    Number(ll[dashboardMonth + '_incentive'] || 0) > 0
+                    Number(ll['{month.lower()}_incentive'] || 0) > 0
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
-                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
+                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
                 const expectedIncentive = Math.round(avgLineLeaderIncentive * 3.5);
 
                 // 팀 내 LINE LEADER 상세 내역 생성
@@ -10274,21 +10401,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     lineLeaderBreakdown = `
                         <div class="mt-3">
-                            <h6>📋 <span class="modal-team-line-leader-list">${{translations.orgChartModal?.teamLineLeaderDetails?.[lang] || '팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)'}}</span></h6>
+                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
                                         <th>GROUP LEADER</th>
                                         <th>LINE LEADER</th>
                                         <th>ID</th>
-                                        <th class="text-end">${{translations.orgChartModal?.incentive?.[lang] || '인센티브'}}</th>
-                                        <th class="text-center">${{translations.orgChartModal?.includeInAverage?.[lang] || '평균 계산 포함'}}</th>
+                                        <th class="text-end">인센티브</th>
+                                        <th class="text-center">평균 계산 포함</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
                                         return leaders.map((ll, idx) => {{
-                                            const llIncentive = Number(ll[dashboardMonth + '_incentive'] || 0);
+                                            const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
                                             const included = llIncentive > 0;
                                             return `
                                                 <tr class="${{included ? '' : 'text-muted'}}">
@@ -10304,8 +10431,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="3">${{translations.orgChartModal?.total?.[lang] || '합계'}}</th>
-                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll[dashboardMonth + '_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
+                                        <th colspan="3">합계</th>
+                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
                                     <tr>
@@ -10321,22 +10448,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 ${{translations.orgChartModal?.calculationDetails?.[lang] || '계산 과정 상세'}} (MANAGER)</h6>
+                        <h6>📊 계산 과정 상세 (MANAGER)</h6>
                         <table class="table table-sm">
                             <tr>
-                                <td><span class="modal-team-line-leader-count">${{translations.orgChartModal?.teamLineLeaderCount?.[lang] || '팀 내 LINE LEADER 수'}}:</span></td>
+                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
                                 <td class="text-end">${{teamLineLeaders.length}}명</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.lineLeadersReceiving?.[lang] || '인센티브 받은 LINE LEADER'}}:</td>
+                                <td>인센티브 받은 LINE LEADER:</td>
                                 <td class="text-end">${{receivingLineLeaders.length}}명</td>
                             </tr>
                             <tr>
-                                <td>${{translations.orgChartModal?.lineLeaderAverage?.[lang] || 'LINE LEADER 평균 인센티브'}}:</td>
+                                <td>LINE LEADER 평균 인센티브:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
                             </tr>
                             <tr class="table-warning">
-                                <td><strong>${{translations.orgChartModal?.calculationFormula?.[lang] || '계산식'}}:</strong></td>
+                                <td><strong>계산식:</strong></td>
                                 <td class="text-end"><strong>₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3.5</strong></td>
                             </tr>
                             <tr class="table-primary">
@@ -10354,7 +10481,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
 
                 // 모달 HTML 생성
-                const monthNumber = dashboardMonth === 'september' ? '9' : dashboardMonth === 'august' ? '8' : dashboardMonth === 'july' ? '7' : '?';
+                const monthNumber = '{month.lower()}' === 'september' ? '9' : '{month.lower()}' === 'august' ? '8' : '{month.lower()}' === 'july' ? '7' : '?';
                 const modalHtml = `
                 <div class="modal fade" id="incentiveModal" tabindex="-1" style="z-index: 1055;">
                     <div class="modal-dialog modal-xl" style="z-index: 1056;">
@@ -10366,7 +10493,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div class="modal-body">
                                 <div class="employee-info mb-3">
                                     <h5>${{employee.name}}</h5>
-                                    <p class="mb-1"><strong>${{translations.orgChartModal?.position?.[lang] || '직급'}}:</strong> ${{employee.position}}</p>
+                                    <p class="mb-1"><strong>직급:</strong> ${{employee.position}}</p>
                                     <p class="mb-1"><strong>ID:</strong> ${{employee.emp_no}}</p>
                                     <p class="mb-1"><strong>Type:</strong> ${{employee.type}}</p>
                                 </div>
@@ -10569,31 +10696,49 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function updateOrgChartUIText() {{
             // 제목 및 설명 업데이트
             const titleEl = document.getElementById('orgChartTitle');
-            if (titleEl) titleEl.textContent = getTranslation('tabs.orgchart');
+            if (titleEl) titleEl.textContent = getTranslation('tabs.orgChart', currentLanguage) || getTranslation('tabs.orgchart', currentLanguage);
 
             const subtitleEl = document.getElementById('orgChartSubtitle');
-            if (subtitleEl) subtitleEl.textContent = getTranslation('orgChart.subtitle');
+            if (subtitleEl) subtitleEl.textContent = getTranslation('orgChart.subtitle', currentLanguage);
+
+            // 메인 제목 업데이트
+            const titleMainEl = document.getElementById('orgChartTitleMain');
+            if (titleMainEl) titleMainEl.textContent = getTranslation('orgChart.title', currentLanguage);
+
+            const subtitleMainEl = document.getElementById('orgChartSubtitleMain');
+            if (subtitleMainEl) subtitleMainEl.textContent = getTranslation('orgChart.subtitle', currentLanguage);
+
+            // 참고 레이블 및 제외된 직급 안내
+            const noteLabelEl = document.getElementById('orgChartNoteLabel');
+            if (noteLabelEl) noteLabelEl.textContent = getTranslation('orgChart.noteLabel', currentLanguage);
+
+            const excludedEl = document.getElementById('orgChartExcludedPositions');
+            if (excludedEl) excludedEl.textContent = getTranslation('orgChart.excludedPositions', currentLanguage);
+
+            // 빵 부스러기 (전체 조직)
+            const breadcrumbEl = document.getElementById('orgBreadcrumbText');
+            if (breadcrumbEl) breadcrumbEl.textContent = getTranslation('orgChart.entireOrganization', currentLanguage);
 
             // 검색 placeholder
             const searchEl = document.getElementById('orgSearchInput');
-            if (searchEl) searchEl.placeholder = getTranslation('orgChart.searchPlaceholder');
+            if (searchEl) searchEl.placeholder = getTranslation('orgChart.searchPlaceholder', currentLanguage);
 
             // 버튼 텍스트
             const expandEl = document.getElementById('expandAllText');
-            if (expandEl) expandEl.textContent = getTranslation('orgChart.expandAll');
+            if (expandEl) expandEl.textContent = getTranslation('orgChart.expandAll', currentLanguage);
 
             const collapseEl = document.getElementById('collapseAllText');
-            if (collapseEl) collapseEl.textContent = getTranslation('orgChart.collapseAll');
+            if (collapseEl) collapseEl.textContent = getTranslation('orgChart.collapseAll', currentLanguage);
 
             // 범례
             const legendTitleEl = document.getElementById('legendTitle');
-            if (legendTitleEl) legendTitleEl.textContent = getTranslation('orgChart.legendTitle');
+            if (legendTitleEl) legendTitleEl.textContent = getTranslation('orgChart.legendTitle', currentLanguage);
 
             const legendReceivedEl = document.getElementById('legendIncentiveReceived');
-            if (legendReceivedEl) legendReceivedEl.textContent = getTranslation('orgChart.incentiveReceived');
+            if (legendReceivedEl) legendReceivedEl.textContent = getTranslation('orgChart.incentiveReceived', currentLanguage);
 
             const legendNoIncentiveEl = document.getElementById('legendNoIncentive');
-            if (legendNoIncentiveEl) legendNoIncentiveEl.textContent = getTranslation('orgChart.noIncentive');
+            if (legendNoIncentiveEl) legendNoIncentiveEl.textContent = getTranslation('orgChart.noIncentive', currentLanguage);
         }}
 
         // 조직도 초기화 함수
@@ -10665,19 +10810,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 새 노드 추가
                     const nodeEnter = node.enter().append("g")
-                        .at'\1'
+                        .attr("class", "node")
                         .attr("transform", d => `translate(${{source.y0}},${{source.x0}})`)
                         .on("click", click);
 
                     nodeEnter.append("circle")
-                        .at'\1'
+                        .attr("class", "node")
                         .attr("r", 1e-6)
                         .style("fill", d => d._children ? "lightsteelblue" : "#fff")
                         .style("stroke", d => getPositionColor(d.data.position))
                         .style("stroke-width", "2px");
 
                     nodeEnter.append("text")
-                        .at'\1'
+                        .attr("dy", ".35em")
                         .attr("x", d => d.children || d._children ? -13 : 13)
                         .attr("text-anchor", d => d.children || d._children ? "end" : "start")
                         .style("font-size", "12px")
@@ -10693,7 +10838,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     nodeUpdate.select("circle.node")
                         .attr("r", 10)
                         .style("fill", d => d._children ? "lightsteelblue" : "#fff")
-                        .at'\1';
+                        .attr("cursor", "pointer");
 
                     // 노드 제거
                     const nodeExit = node.exit().transition()
@@ -10712,7 +10857,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         .data(links, d => d.id);
 
                     const linkEnter = link.enter().insert("path", "g")
-                        .at'\1'
+                        .attr("class", "link")
                         .style("fill", "none")
                         .style("stroke", "#ccc")
                         .style("stroke-width", "2px")
@@ -10771,7 +10916,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 범례 추가
                 const legend = svg.append("g")
-                    .at'\1'
+                    .attr("class", "legend")
                     .attr("transform", `translate(${{width - 200}}, 20)`);
 
                 const legendItems = [
@@ -10851,7 +10996,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const link = g.selectAll(".link")
                     .data(root.links())
                     .enter().append("path")
-                    .at'\1'
+                    .attr("class", "link")
                     .style("fill", "none")
                     .style("stroke", "#ccc")
                     .style("stroke-width", d => Math.max(1, 3 - d.target.depth)) // 깊이에 따라 두께 조정
@@ -10888,7 +11033,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     .on("mouseover", function(event, d) {{
                         // 툴팁 표시
                         const tooltip = d3.select("body").append("div")
-                            .at'\1'
+                            .attr("class", "radial-tooltip")
                             .style("position", "absolute")
                             .style("padding", "10px")
                             .style("background", "rgba(0, 0, 0, 0.8)")
@@ -10917,7 +11062,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 텍스트 라벨 (깊이에 따라 크기와 표시 조정)
                 node.append("text")
-                    .at'\1'
+                    .attr("dy", "0.31em")
                     .attr("x", d => d.x < Math.PI === !d.children ? 10 : -10) // 더 큰 간격
                     .attr("text-anchor", d => d.x < Math.PI === !d.children ? "start" : "end")
                     .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
@@ -10943,7 +11088,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 깊이가 얕은 노드에 대해 포지션 텍스트 추가
                 node.filter(d => d.depth < 3)
                     .append("text")
-                    .at'\1'
+                    .attr("dy", "1.5em")
                     .attr("x", d => d.x < Math.PI === !d.children ? 10 : -10)
                     .attr("text-anchor", d => d.x < Math.PI === !d.children ? "start" : "end")
                     .attr("transform", d => d.x >= Math.PI ? "rotate(180)" : null)
@@ -11060,7 +11205,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 새로운 노드 추가
                     const nodeEnter = node.enter().append("g")
-                        .at'\1'
+                        .attr("class", "node")
                         .attr("transform", d => `translate(${{source.y0}},${{source.x0}})`)
                         .style("cursor", d => d._children || d.children ? "pointer" : "default")
                         .on("click", (event, d) => {{
@@ -11114,7 +11259,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 접기/펼치기 심볼
                     nodeEnter.append("circle")
-                        .at'\1'
+                        .attr("class", "expand-symbol")
                         .attr("r", 8)
                         .attr("cx", boxWidth / 2 + 10)
                         .attr("cy", 0)
@@ -11124,9 +11269,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         .style("display", d => d._children || d.children ? "block" : "none");
 
                     nodeEnter.append("text")
-                        .at'\1'
+                        .attr("class", "expand-text")
                         .attr("x", boxWidth / 2 + 10)
-                        .at'\1'
+                        .attr("dy", "0.35em")
                         .attr("text-anchor", "middle")
                         .style("font-size", "12px")
                         .style("font-weight", "bold")
@@ -11142,8 +11287,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 포지션
                     nodeEnter.append("text")
-                        .at'\1'
-                        .at'\1'
+                        .attr("class", "position-text")
+                        .attr("dy", "-0.7em")
                         .attr("text-anchor", "middle")
                         .style("font-size", positionFontSize + "px")
                         .style("fill", "#333")
@@ -11152,7 +11297,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 이름
                     nodeEnter.append("text")
-                        .at'\1'
+                        .attr("class", "name-text")
                         .attr("dy", d => d.data.depth < 4 ? "0.3em" : "0em")
                         .attr("text-anchor", "middle")
                         .style("font-size", fontSize + "px")
@@ -11161,8 +11306,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // ID
                     nodeEnter.append("text")
-                        .at'\1'
-                        .at'\1'
+                        .attr("class", "id-text")
+                        .attr("dy", "1.4em")
                         .attr("text-anchor", "middle")
                         .style("font-size", (positionFontSize - 1) + "px")
                         .style("fill", "#666")
@@ -11193,7 +11338,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 새로운 링크 추가
                     const linkEnter = link.enter().insert("path", "g")
-                        .at'\1'
+                        .attr("class", "link")
                         .style("fill", "none")
                         .style("stroke", "#ccc")
                         .style("stroke-width", 2)
@@ -11292,7 +11437,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // treemap을 위한 컨테이너 div 생성
             const treemapDiv = d3.select("#orgChartContainer")
                 .append("div")
-                .at'\1'
+                .attr("id", "treemapDiv")
                 .style("width", width + "px")
                 .style("height", height + "px")
                 .style("position", "relative")
@@ -11333,7 +11478,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const nodes = treemapDiv.selectAll(".treemap-node")
                     .data(root.leaves())
                     .enter().append("div")
-                    .at'\1'
+                    .attr("class", "treemap-node")
                     .style("position", "absolute")
                     .style("left", d => d.x0 + "px")
                     .style("top", d => d.y0 + "px")
@@ -11415,7 +11560,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // Tooltip 함수들
                 function showTooltip(event, d) {{
                     const tooltip = d3.select("body").append("div")
-                        .at'\1'
+                        .attr("class", "treemap-tooltip")
                         .style("position", "absolute")
                         .style("padding", "12px")
                         .style("background", "rgba(0, 0, 0, 0.9)")
@@ -11607,12 +11752,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const link = g.selectAll(".link")
                     .data(orgChartRoot.links())
                     .enter().append("g")
-                    .at'\1';
+                    .attr("class", "link");
 
                 // 계단식 연결선 (더 명확한 계층 표현)
                 link.append("path")
-                    .at'\1'
-                    .at'\1'
+                    .attr("fill", "none")
+                    .attr("stroke", "#999")
                     .attr("stroke-width", 2)
                     .attr("d", d => {{
                         // 수직 계단식 경로
@@ -11632,7 +11777,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const node = g.selectAll(".node")
                     .data(orgChartRoot.descendants())
                     .enter().append("g")
-                    .at'\1'
+                    .attr("class", "node")
                     .attr("transform", d => `translate(${{d.x - width / 2 + margin.left}},${{d.y}})`)
                     .on("mouseover", showTooltip)
                     .on("mouseout", hideTooltip)
@@ -11646,7 +11791,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     .attr("y", -45)
                     .attr("fill", d => {{
                         const baseColor = getNodeColor(d.data);
-                        // 인센티브 ${{translations.orgChartModal?.receivingStatus?.[lang] || '수령 여부'}}에 따라 색상 조정
+                        // 인센티브 수령 여부에 따라 색상 조정
                         if (hasIncentive(d.data)) {{
                             return baseColor; // 원래 색상 유지
                         }} else {{
@@ -11661,7 +11806,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 직급 텍스트
                 node.append("text")
-                    .at'\1'  // 상단 위치
+                    .attr("dy", "-22px")  // 상단 위치
                     .attr("text-anchor", "middle")
                     .style("font-size", "11px")
                     .style("font-weight", "bold")
@@ -11670,7 +11815,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 이름 텍스트
                 node.append("text")
-                    .at'\1'  // 중간 위치
+                    .attr("dy", "0px")  // 중간 위치
                     .attr("text-anchor", "middle")
                     .style("font-size", "12px")
                     .style("fill", "white")
@@ -11679,7 +11824,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // ID 텍스트 추가
                 node.append("text")
-                    .at'\1'  // 하단 위치
+                    .attr("dy", "22px")  // 하단 위치
                     .attr("text-anchor", "middle")
                     .style("font-size", "10px")
                     .style("fill", "white")
@@ -11860,7 +12005,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     name: emp.name,
                     position: emp.position || 'Unknown',
                     type: emp.type || '',
-                    incentive: emp[dashboardMonth + '_incentive'] || '0',
+                    incentive: emp['{month.lower()}_incentive'] || '0',
                     parentId: parentId
                 }});
             }});
@@ -12049,19 +12194,140 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         window.onload = function() {{
-            // 저장된 언어 설정 복원
-            const savedLang = localStorage.getItem('dashboardLanguage') || 'ko';
-            currentLanguage = savedLang;
-            document.getElementById('languageSelector').value = savedLang;
-            
-            generateEmployeeTable();
-            generatePositionTables();
-            updatePositionFilter();
-            updateAllTexts();
-            updateTalentPoolSection();
-            updateTypeSummaryTable();  // Type별 요약 테이블 업데이트 추가
+            try {{
+                // 저장된 언어 설정 복원
+                const savedLang = localStorage.getItem('dashboardLanguage') || 'ko';
+                currentLanguage = savedLang;
+                document.getElementById('languageSelector').value = savedLang;
+
+                // 상단 카드 초기화 - 이미 로드된 통계 사용
+                if (window.dashboardStats) {{
+                    const lang = currentLanguage;
+                    const personUnit = lang === 'ko' ? '명' : lang === 'en' ? ' people' : ' người';
+
+                    document.getElementById('totalEmployees').textContent = window.dashboardStats.total + personUnit;
+                    document.getElementById('paidEmployees').textContent = window.dashboardStats.paid + personUnit;
+                    document.getElementById('paymentRate').textContent = window.dashboardStats.rate + '%';
+                    document.getElementById('totalAmount').textContent = window.dashboardStats.amount.toLocaleString() + ' VND';
+
+                    console.log('상단 카드 초기화 완료:', window.dashboardStats);
+                }}
+
+                generateEmployeeTable();
+                generatePositionTables();
+                updatePositionFilter();
+                updateAllTexts();
+                updateTalentPoolSection();
+
+                // Type별 테이블 업데이트 시도
+                if (typeof updateTypeSummaryTable === 'function') {{
+                    updateTypeSummaryTable();
+                }} else {{
+                    console.error('updateTypeSummaryTable 함수가 정의되지 않았습니다.');
+                    // 함수가 없으면 직접 실행
+                    console.log('Type 테이블 직접 업데이트 시작...');
+                    if (window.employeeData && window.employeeData.length > 0) {{
+                        const typeData = {{
+                            'TYPE-1': {{ total: 0, paid: 0, totalAmount: 0 }},
+                            'TYPE-2': {{ total: 0, paid: 0, totalAmount: 0 }},
+                            'TYPE-3': {{ total: 0, paid: 0, totalAmount: 0 }}
+                        }};
+
+                        let grandTotal = 0;
+                        let grandPaid = 0;
+                        let grandAmount = 0;
+
+                        window.employeeData.forEach(emp => {{
+                            const type = emp.type || emp['ROLE TYPE STD'] || 'UNKNOWN';
+                            if (typeData[type]) {{
+                                typeData[type].total++;
+                                grandTotal++;
+
+                                const amount = parseInt(
+                                    emp['{month.lower()}_incentive'] ||
+                                    emp['{month.capitalize()}_Incentive'] ||
+                                    emp['Final Incentive amount'] ||
+                                    0
+                                );
+
+                                if (amount > 0) {{
+                                    typeData[type].paid++;
+                                    typeData[type].totalAmount += amount;
+                                    grandPaid++;
+                                    grandAmount += amount;
+                                }}
+                            }}
+                        }});
+
+                        const tbody = document.getElementById('typeSummaryBody');
+                        if (tbody) {{
+                            const lang = currentLanguage || 'ko';
+                            const personUnit = lang === 'ko' ? '명' : lang === 'en' ? ' people' : ' người';
+                            let html = '';
+
+                            ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(type => {{
+                                const data = typeData[type];
+                                if (data.total > 0) {{
+                                    const paymentRate = ((data.paid / data.total) * 100).toFixed(1);
+                                    const avgPaid = data.paid > 0 ? Math.round(data.totalAmount / data.paid) : 0;
+                                    const avgTotal = Math.round(data.totalAmount / data.total);
+
+                                    html += '<tr>';
+                                    html += '<td><span class="badge bg-primary">' + type + '</span></td>';
+                                    html += '<td>' + data.total + personUnit + '</td>';
+                                    html += '<td>' + data.paid + personUnit + '</td>';
+                                    html += '<td>' + paymentRate + '%</td>';
+                                    html += '<td>' + data.totalAmount.toLocaleString() + ' VND</td>';
+                                    html += '<td>' + avgPaid.toLocaleString() + ' VND</td>';
+                                    html += '<td>' + avgTotal.toLocaleString() + ' VND</td>';
+                                    html += '</tr>';
+                                }}
+                            }});
+
+                            // 합계 행
+                            if (grandTotal > 0) {{
+                                const totalPaymentRate = ((grandPaid / grandTotal) * 100).toFixed(1);
+                                const totalAvgPaid = grandPaid > 0 ? Math.round(grandAmount / grandPaid) : 0;
+                                const totalAvgTotal = Math.round(grandAmount / grandTotal);
+
+                                html += '<tr class="table-active fw-bold">';
+                                html += '<td>Total</td>';
+                                html += '<td>' + grandTotal + personUnit + '</td>';
+                                html += '<td>' + grandPaid + personUnit + '</td>';
+                                html += '<td>' + totalPaymentRate + '%</td>';
+                                html += '<td>' + grandAmount.toLocaleString() + ' VND</td>';
+                                html += '<td>' + totalAvgPaid.toLocaleString() + ' VND</td>';
+                                html += '<td>' + totalAvgTotal.toLocaleString() + ' VND</td>';
+                                html += '</tr>';
+                            }}
+
+                            tbody.innerHTML = html;
+                            console.log('Type 테이블 직접 업데이트 완료');
+                        }}
+                    }}
+                }}
+            }} catch (e) {{
+                console.error('window.onload 에러:', e);
+            }}
+
+            // Type별 테이블 강제 업데이트 함수
+            window.forceUpdateTypeSummary = function() {{
+                console.log('=== Type별 요약 테이블 강제 업데이트 실행 ===');
+                updateTypeSummaryTable();
+            }};
+
+            // 페이지 로드 후 1초 뒤 자동 실행
+            setTimeout(function() {{
+                console.log('Type별 테이블 자동 업데이트 시도...');
+                if (typeof updateTypeSummaryTable === 'function') {{
+                    updateTypeSummaryTable();
+                }}
+                if (window.forceUpdateTypeSummary) {{
+                    window.forceUpdateTypeSummary();
+                }}
+            }}, 1000);
         }};
-        
+
         // Talent Program 텍스트 업데이트 함수
         function updateTalentProgramTexts() {{
             const lang = currentLanguage;
@@ -12337,7 +12603,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             tbody.innerHTML = '';
             
             employeeData.forEach(emp => {{
-                const amount = parseInt(emp[dashboardMonth + '_incentive']);
+                const amount = parseInt(emp['{month.lower()}_incentive']);
                 const isPaid = amount > 0;
                 const tr = document.createElement('tr');
                 tr.style.cursor = 'pointer';
@@ -12399,7 +12665,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 positionData[key].total++;
                 positionData[key].employees.push(emp);
-                const amount = parseInt(emp[dashboardMonth + '_incentive']) || 0;
+                const amount = parseInt(emp['{month.lower()}_incentive']) || 0;
                 if (amount > 0) {{
                     positionData[key].paid++;
                     positionData[key].totalAmount += amount;
@@ -12531,8 +12797,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             // 요약 통계 계산
             const totalEmployees = employees.length;
-            const paidEmployees = employees.filter(e => parseInt(e[dashboardMonth + '_incentive']) > 0).length;
-            const avgIncentive = Math.round(employees.reduce((sum, e) => sum + parseInt(e[dashboardMonth + '_incentive']), 0) / totalEmployees);
+            const paidEmployees = employees.filter(e => parseInt(e['{month.lower()}_incentive']) > 0).length;
+            const avgIncentive = Math.round(employees.reduce((sum, e) => sum + parseInt(e['{month.lower()}_incentive']), 0) / totalEmployees);
             const paidRate = Math.round(paidEmployees/totalEmployees*100);
             
             // 조건 ID를 번역 키로 매핑
@@ -12550,8 +12816,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }};
             
             // 실제 인센티브 기준으로 통계 계산 (방안 2 적용)
-            const actualPassCount = employees.filter(emp => parseInt(emp[dashboardMonth + '_incentive']) > 0).length;
-            const actualFailCount = employees.filter(emp => parseInt(emp[dashboardMonth + '_incentive']) === 0).length;
+            const actualPassCount = employees.filter(emp => parseInt(emp['{month.lower()}_incentive']) > 0).length;
+            const actualFailCount = employees.filter(emp => parseInt(emp['{month.lower()}_incentive']) === 0).length;
 
             // 각 직원의 조건 충족 통계 계산 (참고용 유지)
             const conditionStats = {{}};
@@ -12586,7 +12852,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             
             // 인센티브 통계 계산
-            const incentiveAmounts = employees.map(emp => parseInt(emp[dashboardMonth + '_incentive'])).filter(amt => amt > 0);
+            const incentiveAmounts = employees.map(emp => parseInt(emp['{month.lower()}_incentive'])).filter(amt => amt > 0);
             const maxIncentive = incentiveAmounts.length > 0 ? Math.max(...incentiveAmounts) : 0;
             const minIncentive = incentiveAmounts.length > 0 ? Math.min(...incentiveAmounts) : 0;
             const medianIncentive = incentiveAmounts.length > 0 ? 
@@ -12726,7 +12992,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             `;
             
             employees.forEach(emp => {{
-                const amount = parseInt(emp[dashboardMonth + '_incentive']);
+                const amount = parseInt(emp['{month.lower()}_incentive']);
                 const isPaid = amount > 0;
                 modalContent += `
                     <tr class="employee-row ${{isPaid ? 'paid-row' : 'unpaid-row'}}" data-emp-no="${{emp.emp_no}}" style="cursor: pointer;">
@@ -12975,7 +13241,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
-                            <div class="stat-value">${{parseInt(emp[dashboardMonth + '_incentive']).toLocaleString()}} VND</div>
+                            <div class="stat-value">${{parseInt(emp['{month.lower()}_incentive']).toLocaleString()}} VND</div>
                             <div class="stat-label">${{getTranslation('modal.incentiveInfo.amount')}}</div>
                         </div>
                     </div>
@@ -13001,17 +13267,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="card">
                             <div class="card-body">
                                 <h6 class="card-title">` + getTranslation('modal.detailPopup.paymentStatus', currentLanguage) + `</h6>
-                                <div class="payment-status ${{parseInt(emp[dashboardMonth + '_incentive']) > 0 ? 'paid' : 'unpaid'}}">
-                                    ${{parseInt(emp[dashboardMonth + '_incentive']) > 0 ? `
+                                <div class="payment-status ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? 'paid' : 'unpaid'}}">
+                                    ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? `
                                     <div>
                                         <i class="fas fa-check-circle"></i>
                                         <h5>` + getTranslation('modal.payment.paid', currentLanguage) + `</h5>
-                                        <p class="mb-1">${{parseInt(emp[dashboardMonth + '_incentive']).toLocaleString()}} VND</p>
+                                        <p class="mb-1">${{parseInt(emp['{month.lower()}_incentive']).toLocaleString()}} VND</p>
                                         ${{emp.Talent_Pool_Member === 'Y' ? `
                                         <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px; border-radius: 8px; margin-top: 10px;">
                                             <small style="color: white; font-weight: bold;">
                                                 🌟 Talent Pool 보너스 포함<br>
-                                                기본: ${{(parseInt(emp[dashboardMonth + '_incentive']) - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()}} VND<br>
+                                                기본: ${{(parseInt(emp['{month.lower()}_incentive']) - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()}} VND<br>
                                                 보너스: +${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND
                                             </small>
                                         </div>` : ''}}
@@ -13060,15 +13326,26 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             // 실적 값의 단위 번역 처리
                                             let actualValue = cond.actual;
                                             if (actualValue && typeof actualValue === 'string') {{
+                                                // Placeholder 번역 처리
+                                                actualValue = actualValue.replace('[PASS]', getTranslation('modal.conditions.pass', currentLanguage));
+                                                actualValue = actualValue.replace('[FAIL]', getTranslation('modal.conditions.fail', currentLanguage));
+                                                actualValue = actualValue.replace('[CONSECUTIVE_FAIL]', getTranslation('modal.conditions.consecutiveFail', currentLanguage));
+
                                                 // "0일" -> "0 days" / "0 ngày"
                                                 actualValue = actualValue.replace(/(\\d+)일/g, function(match, num) {{
                                                     const dayUnit = parseInt(num) <= 1 ? getTranslation('common.day', currentLanguage) : getTranslation('common.days', currentLanguage);
                                                     return num + (currentLanguage === 'ko' ? dayUnit : ' ' + dayUnit);
                                                 }});
-                                                // "0건" -> "0 cases" / "0 trường hợp"  
+                                                // "0건" -> "0 cases" / "0 trường hợp"
                                                 actualValue = actualValue.replace(/(\\d+)건/g, function(match, num) {{
                                                     if (currentLanguage === 'en') return num + (parseInt(num) <= 1 ? ' case' : ' cases');
                                                     if (currentLanguage === 'vi') return num + ' trường hợp';
+                                                    return match;
+                                                }});
+                                                // "0족" -> "0 pairs" / "0 đôi"
+                                                actualValue = actualValue.replace(/(\\d+)족/g, function(match, num) {{
+                                                    if (currentLanguage === 'en') return num + (parseInt(num) <= 1 ? ' pair' : ' pairs');
+                                                    if (currentLanguage === 'vi') return num + ' đôi';
                                                     return match;
                                                 }});
                                             }}
@@ -13172,7 +13449,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             tbody.innerHTML = '';
             
             employeeData.forEach(emp => {{
-                const amount = parseInt(emp[dashboardMonth + '_incentive']);
+                const amount = parseInt(emp['{month.lower()}_incentive']);
                 const isPaid = amount > 0;
                 
                 // 필터 조건 확인
@@ -13341,8 +13618,8 @@ def main():
     html_content = generate_dashboard_html(df, month_name, args.year, args.month, working_days, excel_dashboard_data)
     
     # 파일 저장
-    # 파일명 형식 변경: Incentive_Dashboard_YYYY_MM_Version_5.html
-    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_5.html'
+    # 파일명 형식 변경: Incentive_Dashboard_YYYY_MM_Version_6.html
+    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_6.html'
     os.makedirs('output_files', exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
@@ -13362,8 +13639,20 @@ def main():
             incentive_col = possible_cols[-1]  # 가장 마지막 인센티브 컬럼 사용
             print(f"   → {incentive_col} 컬럼을 사용합니다.")
     
-    paid_employees = sum(1 for _, row in df.iterrows() if int(row.get(incentive_col, 0)) > 0)
-    total_amount = sum(int(row.get(incentive_col, 0)) for _, row in df.iterrows())
+    # Handle potential duplicate columns or Series values
+    def get_incentive_value(row, col):
+        val = row.get(col, 0)
+        # If it's a Series (due to duplicate columns), take the first value
+        if hasattr(val, 'iloc'):
+            val = val.iloc[0] if len(val) > 0 else 0
+        # Convert to number safely
+        try:
+            return int(float(val)) if pd.notna(val) else 0
+        except (ValueError, TypeError):
+            return 0
+
+    paid_employees = sum(1 for _, row in df.iterrows() if get_incentive_value(row, incentive_col) > 0)
+    total_amount = sum(get_incentive_value(row, incentive_col) for _, row in df.iterrows())
     
     print(f"   - 전체 직원: {total_employees}명")
     print(f"   - 지급 대상: {paid_employees}명")
