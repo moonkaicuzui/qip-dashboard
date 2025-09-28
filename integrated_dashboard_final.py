@@ -6277,6 +6277,24 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     </script>
 
     <script>
+        // UTF-8 Base64 디코딩 함수 추가
+        function base64DecodeUnicode(str) {{
+            // Base64 디코딩 후 UTF-8 처리
+            try {{
+                const binaryString = atob(str);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {{
+                    bytes[i] = binaryString.charCodeAt(i);
+                }}
+                const decoder = new TextDecoder('utf-8');
+                return decoder.decode(bytes);
+            }} catch (e) {{
+                console.error('UTF-8 decoding failed:', e);
+                // Fallback to regular atob
+                return atob(str);
+            }}
+        }}
+
         // Make employeeData globally accessible for validation tab
         // Decode base64 and parse JSON safely
         let employeeData = [];
@@ -6284,7 +6302,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // DOM에서 Base64 데이터 읽기
             const base64Element = document.getElementById('employeeDataBase64');
             const base64Data = base64Element ? base64Element.textContent.trim() : '';
-            const jsonStr = atob(base64Data);
+            const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 사용
             employeeData = JSON.parse(jsonStr);
             window.employeeData = employeeData;
             console.log('Employee data loaded successfully:', employeeData.length, 'employees');
