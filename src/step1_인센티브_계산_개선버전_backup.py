@@ -1516,13 +1516,6 @@ class CompleteQIPCalculator:
                 lambda x: self.data_processor.standardize_employee_id(x) if pd.notna(x) else ''
             )
         
-        # 소스 CSV의 Final Incentive amount를 백업하고 제거
-        if 'Final Incentive amount' in self.month_data.columns:
-            self.month_data['Source_Final_Incentive'] = self.month_data['Final Incentive amount']
-            # 소스 값 제거 - 재계산 후 새로 설정
-            del self.month_data['Final Incentive amount']
-            print(f"  → 소스 CSV의 Final Incentive amount 백업 및 제거")
-
         # 인센티브 칼럼 초기화
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
         self.month_data[incentive_col] = 0
@@ -3178,26 +3171,9 @@ class CompleteQIPCalculator:
         return 0
     
     def calculate_type2_incentive(self):
-        """Type-2 인센티브 계산 - 2단계 방식"""
-        print("\n📊 TYPE-2 인센티브 계산 (2단계 방식)...")
+        """Type-2 인센티브 계산"""
+        print("\n📊 TYPE-2 인센티브 계산...")
 
-        # STEP 1: LINE LEADER 및 일반 직원 먼저 계산
-        print("  [STEP 1] TYPE-2 LINE LEADER 및 일반 직원 계산...")
-        self.calculate_type2_non_group_leaders()
-
-        # STEP 2: GROUP LEADER 계산 (LINE LEADER 평균 사용)
-        print("  [STEP 2] TYPE-2 GROUP LEADER 계산...")
-        self.calculate_type2_group_leaders_final()
-
-        # 통계 출력
-        type2_mask = self.month_data['ROLE TYPE STD'] == 'TYPE-2'
-        incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
-        receiving_count = (self.month_data[type2_mask][incentive_col] > 0).sum()
-        total_amount = self.month_data[type2_mask][incentive_col].sum()
-        print(f"  → 전체 TYPE-2 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
-
-    def calculate_type2_non_group_leaders(self):
-        """TYPE-2 GROUP LEADER를 제외한 모든 직원 계산"""
         type2_mask = self.month_data['ROLE TYPE STD'] == 'TYPE-2'
 
         # Type-1 참조 맵 생성
@@ -3211,7 +3187,6 @@ class CompleteQIPCalculator:
 
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
 
-        # GROUP LEADER를 제외한 직원들만 계산
         for idx, row in self.month_data[type2_mask].iterrows():
             # 이미 계산된 경우 스킵
             if row[incentive_col] > 0:
@@ -3220,10 +3195,6 @@ class CompleteQIPCalculator:
             position = row.get('QIP POSITION 1ST  NAME', '')
             position_upper = position.upper() if pd.notna(position) else ''
             emp_id = row.get('Employee No', '')
-
-            # GROUP LEADER는 STEP 2에서 처리하므로 여기서는 스킵
-            if position_upper == 'GROUP LEADER' or (position_upper == 'QA3A'):
-                continue
 
             # Stop Working Date 체크 추가
             stop_working_check = False
@@ -3258,14 +3229,19 @@ class CompleteQIPCalculator:
                 # 매칭된 TYPE-1 포지션 찾기
                 mapped_position = self.get_mapped_type1_position(position_upper, row, type2_mapping)
 
-                # LINE LEADER 계산
-                if 'LINE' in position_upper and 'LEADER' in position_upper:
-                    # LINE LEADER는 TYPE-1의 LINE LEADER 평균 사용
-                    if mapped_position and mapped_position in type1_reference:
-                        incentive = type1_reference[mapped_position]
+                # GROUP LEADER 특별 처리 (QA3A도 GROUP LEADER로 매핑됨)
+                if mapped_position == 'GROUP LEADER':
+                    # TYPE-1 GROUP LEADER 평균 확인
+                    type1_group_avg = type1_reference.get('GROUP LEADER', 0)
+
+                    if type1_group_avg > 0:
+                        # TYPE-1 평균이 있으면 그대로 사용
+                        incentive = type1_group_avg
                     else:
-                        # 기본값 사용
-                        incentive = 107360  # position_condition_matrix.json 참조
+                        # TYPE-1 평균이 0이면 독립적으로 계산
+                        incentive = self.calculate_type2_group_leader_independent(emp_id, subordinate_mapping)
+                        if incentive > 0:
+                            print(f"  → TYPE-2 GROUP LEADER {row.get('Full Name', 'Unknown')} ({emp_id}): 독립 계산 → {incentive:,} VND")
 
                 # SUPERVISOR 특별 처리 - TYPE-1 평균이 0일 때 독립 계산
                 elif 'SUPERVISOR' in position_upper:
@@ -3292,135 +3268,11 @@ class CompleteQIPCalculator:
 
             self.month_data.loc[idx, incentive_col] = incentive
 
-    def calculate_type2_group_leaders_final(self):
-        """TYPE-2 GROUP LEADER 최종 계산 (STEP 2)"""
-        type2_group_mask = (
-            (self.month_data['ROLE TYPE STD'] == 'TYPE-2') &
-            ((self.month_data['QIP POSITION 1ST  NAME'] == 'GROUP LEADER') |
-             (self.month_data['QIP POSITION 1ST  NAME'] == 'QA3A'))
-        )
-
-        incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
-
-        print(f"    TYPE-2 GROUP LEADER 수: {type2_group_mask.sum()}명")
-
-        # Type-1 GROUP LEADER 평균
-        type1_group_leaders = self.month_data[
-            (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
-            (self.month_data['QIP POSITION 1ST  NAME'] == 'GROUP LEADER')
-        ]
-
-        if len(type1_group_leaders) > 0 and incentive_col in self.month_data.columns:
-            type1_group_avg = type1_group_leaders[incentive_col].mean()
-        else:
-            type1_group_avg = 0
-
-        # TYPE-2 LINE LEADER 평균 계산
-        type2_line_leaders = self.month_data[
-            (self.month_data['ROLE TYPE STD'] == 'TYPE-2') &
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
-        ]
-
-        receiving_line_leaders = type2_line_leaders[type2_line_leaders[incentive_col] > 0]
-        if len(receiving_line_leaders) > 0:
-            type2_line_avg = receiving_line_leaders[incentive_col].mean()
-        else:
-            type2_line_avg = 0
-
-        print(f"    TYPE-1 GROUP LEADER 평균: {type1_group_avg:,.0f} VND")
-        print(f"    TYPE-2 LINE LEADER 평균: {type2_line_avg:,.0f} VND")
-
-        # 각 GROUP LEADER 계산
-        for idx, row in self.month_data[type2_group_mask].iterrows():
-            emp_id = row.get('Employee No', '')
-            name = row.get('Full Name', '')
-
-            # 모든 GROUP LEADER 출력으로 ĐINH KIM NGOAN 포함 확인
-            print(f"    처리 중: {name} ({emp_id}) - Type: {type(emp_id)}")
-
-            # ĐINH KIM NGOAN 특별 디버깅 - 다양한 형태로 확인
-            if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                print(f"\n    🔍 ĐINH KIM NGOAN 발견! 특별 디버깅:")
-                print(f"      emp_id: {emp_id} (type: {type(emp_id)})")
-                print(f"      name: {name}")
-                print(f"      현재 September_Incentive: {self.month_data.loc[idx, incentive_col]}")
-                print(f"      조건1: {row.get('attendancy condition 1 - acctual working days is zero', 'no')}")
-                print(f"      조건2: {row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no')}")
-                print(f"      조건3: {row.get('attendancy condition 3 - absent % is over 12%', 'no')}")
-                print(f"      조건4: {row.get('attendancy condition 4 - minimum working days', 'no')}")
-
-            # 출근 조건 체크
-            attendance_fail = (
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                row.get('attendancy condition 4 - minimum working days') == 'yes'
-            )
-
-            # 디버깅용 현재 값 확인
-            current_value = self.month_data.loc[idx, incentive_col]
-
-            # ĐINH KIM NGOAN 특별 추적
-            if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                print(f"      [DEBUG] 현재 값(무시됨): {current_value}")
-                print(f"      [DEBUG] attendance_fail: {attendance_fail}")
-                print(f"      [DEBUG] type1_group_avg: {type1_group_avg}")
-                print(f"      [DEBUG] type2_line_avg: {type2_line_avg}")
-
-            # 무조건 재계산 - 기존 값 완전 무시
-            if attendance_fail:
-                incentive = 0
-                if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      ❌ attendance_fail = True → 0원")
-            elif type1_group_avg > 0:
-                # TYPE-1 평균 사용
-                incentive = type1_group_avg
-                if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      → TYPE-1 평균 사용: {type1_group_avg}")
-            elif type2_line_avg > 0:
-                # TYPE-2 LINE LEADER 평균 × 2
-                incentive = int(type2_line_avg * 2)
-                if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      → TYPE-2 LINE LEADER 평균 × 2: {type2_line_avg} × 2 = {incentive}")
-            else:
-                # 기본값 (LINE LEADER 기본값 × 2)
-                incentive = 107360 * 2
-                if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      → 기본값 사용: 107360 × 2 = {incentive}")
-
-            self.month_data.loc[idx, incentive_col] = incentive
-
-            if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                print(f"      최종 계산값: {incentive}")
-
-            # 디버깅 정보 - 모든 GROUP LEADER 출력
-            print(f"    {name} ({emp_id}):")
-            print(f"      조건 충족: {'NO' if attendance_fail else 'YES'}")
-            print(f"      TYPE-1 평균: {type1_group_avg:,.0f}, TYPE-2 LINE 평균: {type2_line_avg:,.0f}")
-            print(f"      계산된 인센티브: {incentive:,.0f} VND")
-
-        # ĐINH KIM NGOAN 특별 보정 - 버그 수정
-        # 직접 테스트에서 214,720 VND를 받아야 함이 확인됨
-        ngoan_mask = (self.month_data['Employee No'] == 617100049) | (self.month_data['Employee No'] == '617100049')
-        if ngoan_mask.any():
-            ngoan_idx = ngoan_mask.idxmax()
-            ngoan_row = self.month_data.loc[ngoan_idx]
-
-            # 출근 조건 재확인
-            ngoan_attendance_fail = (
-                ngoan_row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                ngoan_row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                ngoan_row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                ngoan_row.get('attendancy condition 4 - minimum working days') == 'yes'
-            )
-
-            if not ngoan_attendance_fail:
-                # 다른 GROUP LEADER들과 동일한 금액 적용
-                correct_incentive = 325312  # 다른 GROUP LEADER와 동일
-                self.month_data.loc[ngoan_idx, incentive_col] = correct_incentive
-                print(f"\n    ✅ ĐINH KIM NGOAN 보정: {correct_incentive:,.0f} VND 적용 (다른 GROUP LEADER와 동일)")
-
+        # 통계 출력
+        receiving_count = (self.month_data[type2_mask][incentive_col] > 0).sum()
+        total_amount = self.month_data[type2_mask][incentive_col].sum()
+        print(f"  → 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
+    
     def calculate_type2_group_leader_independent(self, emp_id: str, subordinate_mapping: Dict[str, List[str]]) -> int:
         """TYPE-2 GROUP LEADER 독립 인센티브 계산
         TYPE-1 평균이 0일 때 독립적으로 계산
@@ -4199,35 +4051,6 @@ class CompleteQIPCalculator:
 
             # AQL 통계 정보 추가
             self.add_aql_statistics_to_excel()
-
-            # ĐINH KIM NGOAN 최종 보정 (CSV 저장 직전)
-            # 버그 수정: GROUP LEADER 계산이 제대로 적용되지 않는 문제
-            ngoan_mask = (self.month_data['Employee No'] == 617100049) | (self.month_data['Employee No'] == '617100049')
-            if ngoan_mask.any():
-                ngoan_idx = self.month_data[ngoan_mask].index[0]
-                ngoan_row = self.month_data.loc[ngoan_idx]
-
-                # 조건 확인
-                if ngoan_row['ROLE TYPE STD'] == 'TYPE-2' and ngoan_row['QIP POSITION 1ST  NAME'] == 'GROUP LEADER':
-                    # 출근 조건 확인
-                    attendance_fail = (
-                        ngoan_row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                        ngoan_row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                        ngoan_row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                        ngoan_row.get('attendancy condition 4 - minimum working days') == 'yes'
-                    )
-
-                    if not attendance_fail and ngoan_row.get('conditions_pass_rate', 0) == 100:
-                        # 다른 GROUP LEADER들과 동일한 금액 적용
-                        correct_incentive = 325312
-                        incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
-
-                        # September_Incentive와 Final Incentive amount 모두 수정
-                        self.month_data.loc[ngoan_idx, incentive_col] = correct_incentive
-                        self.month_data.loc[ngoan_idx, 'Final Incentive amount'] = correct_incentive
-
-                        print(f"\n✅ ĐINH KIM NGOAN 최종 보정: {correct_incentive:,.0f} VND")
-                        print(f"   - 100% 조건 충족 GROUP LEADER로서 다른 GROUP LEADER와 동일 금액 적용")
 
             # CSV 저장 (조건 평가 후)
             csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_최종완성버전_v6.0_Complete.csv")

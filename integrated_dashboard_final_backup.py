@@ -9,7 +9,6 @@ Google Drive 연동 기능 포함
 """
 
 import pandas as pd
-import numpy as np
 import json
 import sys
 import os
@@ -682,50 +681,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             print(f"⚠️ Basic manpower 데이터 로드 실패: {e}")
 
     # 데이터 준비
-    # Single Source of Truth를 위해 excel_dashboard_data를 사용 (df 대신)
-    if excel_dashboard_data and 'employee_data' in excel_dashboard_data:
-        # excel_dashboard_data에서 직접 employees 생성
-        employees = []
-        for emp_data in excel_dashboard_data['employee_data']:
-            # 필드명 매핑 (excel_dashboard_data는 CSV 컬럼명 사용)
-            emp = emp_data.copy()
-            # type 필드 추가 (ROLE TYPE STD에서 가져옴)
-            emp['type'] = emp.get('ROLE TYPE STD', 'TYPE-2')
-            emp['emp_no'] = str(emp.get('Employee No', ''))
-            emp['name'] = emp.get('Full Name', '')
-            emp['position'] = emp.get('QIP POSITION 1ST  NAME', '')
-            # 인센티브 필드 매핑
-            emp['september_incentive'] = str(emp.get('September_Incentive', '0'))
-            emp['august_incentive'] = str(emp.get('Previous_Incentive', '0'))
-            employees.append(emp)
-        print(f"✅ Single Source of Truth: excel_dashboard_data에서 {len(employees)}명 로드")
-    else:
-        # Fallback: 기존 방식 (df 사용)
-        employees = []
-        for _, row in df.iterrows():
-            # Convert Series to dict
-            row_dict = row.to_dict()
+    employees = []
+    for _, row in df.iterrows():
+        # Convert Series to dict
+        row_dict = row.to_dict()
 
-            # Employee No 가져오기
-            emp_no = str(row_dict.get('emp_no', ''))
+        # Employee No 가져오기
+        emp_no = str(row_dict.get('emp_no', ''))
 
-            # Basic manpower에서 보스 정보 가져오기
-            boss_id = ''
-            boss_name = ''
-            if basic_df is not None and emp_no:
-                # emp_no에서 .0 제거 (혹시 있다면)
-                emp_no_clean = emp_no.replace('.0', '') if '.0' in emp_no else emp_no
-                basic_row = basic_df[basic_df['Employee No'] == emp_no_clean]
-                if not basic_row.empty:
-                    boss_id = str(basic_row['MST direct boss name'].iloc[0]) if pd.notna(basic_row['MST direct boss name'].iloc[0]) else ''
-                    boss_name = str(basic_row['direct boss name'].iloc[0]) if pd.notna(basic_row['direct boss name'].iloc[0]) else ''
-                    # nan, 0, 0.0, 빈 문자열 등을 빈 문자열로 처리
-                    if boss_id in ['nan', '0', '0.0', '']:
-                        boss_id = ''
-                    if boss_name in ['nan', '0', '0.0', '']:
-                        boss_name = ''
+        # Basic manpower에서 보스 정보 가져오기
+        boss_id = ''
+        boss_name = ''
+        if basic_df is not None and emp_no:
+            # emp_no에서 .0 제거 (혹시 있다면)
+            emp_no_clean = emp_no.replace('.0', '') if '.0' in emp_no else emp_no
+            basic_row = basic_df[basic_df['Employee No'] == emp_no_clean]
+            if not basic_row.empty:
+                boss_id = str(basic_row['MST direct boss name'].iloc[0]) if pd.notna(basic_row['MST direct boss name'].iloc[0]) else ''
+                boss_name = str(basic_row['direct boss name'].iloc[0]) if pd.notna(basic_row['direct boss name'].iloc[0]) else ''
+                # nan, 0, 0.0, 빈 문자열 등을 빈 문자열로 처리
+                if boss_id in ['nan', '0', '0.0', '']:
+                    boss_id = ''
+                if boss_name in ['nan', '0', '0.0', '']:
+                    boss_name = ''
 
-            emp = {
+        emp = {
             'emp_no': emp_no,
             'employee_no': emp_no,  # JavaScript 호환성을 위한 중복 필드
             'Employee No': emp_no,  # CSV 컬럼명과 일치
@@ -784,50 +764,50 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 emp[cond_col] = row_dict[cond_col]
             if value_col in row_dict:
                 emp[value_col] = row_dict[value_col]
-                if threshold_col in row_dict:
-                    emp[threshold_col] = row_dict[threshold_col]
+            if threshold_col in row_dict:
+                emp[threshold_col] = row_dict[threshold_col]
+        
+        # metadata에서 area_reject_rate 가져오기
+        emp_no = str(emp['emp_no']).zfill(9)
+        if emp_no in metadata:
+            emp_metadata = metadata[emp_no]
+            if 'conditions' in emp_metadata and 'aql' in emp_metadata['conditions']:
+                if 'area_reject_rate' in emp_metadata['conditions']['aql']:
+                    emp['area_reject_rate'] = float(emp_metadata['conditions']['aql']['area_reject_rate'].get('value', 0))
+        
+        # 조건 평가 결과 추가
+        emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
 
-            # metadata에서 area_reject_rate 가져오기
-            emp_no = str(emp['emp_no']).zfill(9)
-            if emp_no in metadata:
-                emp_metadata = metadata[emp_no]
-                if 'conditions' in emp_metadata and 'aql' in emp_metadata['conditions']:
-                    if 'area_reject_rate' in emp_metadata['conditions']['aql']:
-                        emp['area_reject_rate'] = float(emp_metadata['conditions']['aql']['area_reject_rate'].get('value', 0))
+        # 실패 사유 표시를 위한 조건 필드 추가 - CSV에서 직접 가져오기
+        emp['attendancy condition 1 - acctual working days is zero'] = str(row_dict.get('attendancy condition 1 - acctual working days is zero', 'no'))
+        emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] = str(row_dict.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no'))
+        emp['attendancy condition 3 - absent % is over 12%'] = str(row_dict.get('attendancy condition 3 - absent % is over 12%', 'no'))
+        emp['attendancy condition 4 - minimum working days'] = str(row_dict.get('attendancy condition 4 - minimum working days', 'no'))
 
-            # 조건 평가 결과 추가
-            emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
+        # AQL 조건 필드 추가
+        emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
+        emp['September AQL Failures'] = int(row_dict.get('September AQL Failures', row_dict.get('aql_failures', 0)))
+        emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
+        emp['Consecutive_Fail_Months'] = int(row_dict.get('Consecutive_Fail_Months', 0))
 
-            # 실패 사유 표시를 위한 조건 필드 추가 - CSV에서 직접 가져오기
-            emp['attendancy condition 1 - acctual working days is zero'] = str(row_dict.get('attendancy condition 1 - acctual working days is zero', 'no'))
-            emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] = str(row_dict.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no'))
-            emp['attendancy condition 3 - absent % is over 12%'] = str(row_dict.get('attendancy condition 3 - absent % is over 12%', 'no'))
-            emp['attendancy condition 4 - minimum working days'] = str(row_dict.get('attendancy condition 4 - minimum working days', 'no'))
+        # 5PRS 조건 필드 추가
+        emp['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] = str(row_dict.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%', 'yes'))
+        emp['5prs condition 2 - Total Valiation Qty is zero'] = str(row_dict.get('5prs condition 2 - Total Valiation Qty is zero', 'no'))
 
-            # AQL 조건 필드 추가
-            emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
-            emp['September AQL Failures'] = int(row_dict.get('September AQL Failures', row_dict.get('aql_failures', 0)))
-            emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
-            emp['Consecutive_Fail_Months'] = int(row_dict.get('Consecutive_Fail_Months', 0))
+        # conditions_pass_rate 필드 추가
+        emp['conditions_pass_rate'] = float(row_dict.get('conditions_pass_rate', 0))
+        emp['conditions_passed'] = int(row_dict.get('conditions_passed', 0))
+        emp['conditions_applicable'] = int(row_dict.get('conditions_applicable', 0))
 
-            # 5PRS 조건 필드 추가
-            emp['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] = str(row_dict.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%', 'yes'))
-            emp['5prs condition 2 - Total Valiation Qty is zero'] = str(row_dict.get('5prs condition 2 - Total Valiation Qty is zero', 'no'))
+        # Working Days 필드 추가
+        emp['Working Days'] = int(row_dict.get('actual_working_days', 0))
 
-            # conditions_pass_rate 필드 추가
-            emp['conditions_pass_rate'] = float(row_dict.get('conditions_pass_rate', 0))
-            emp['conditions_passed'] = int(row_dict.get('conditions_passed', 0))
-            emp['conditions_applicable'] = int(row_dict.get('conditions_applicable', 0))
+        # AQL 통계 필드 추가 (Excel에서 가져온 실제 데이터)
+        emp['AQL_Total_Tests'] = int(row_dict.get('AQL_Total_Tests', 0))
+        emp['AQL_Pass_Count'] = int(row_dict.get('AQL_Pass_Count', 0))
+        emp['AQL_Fail_Percent'] = float(row_dict.get('AQL_Fail_Percent', 0))
 
-            # Working Days 필드 추가
-            emp['Working Days'] = int(row_dict.get('actual_working_days', 0))
-
-            # AQL 통계 필드 추가 (Excel에서 가져온 실제 데이터)
-            emp['AQL_Total_Tests'] = int(row_dict.get('AQL_Total_Tests', 0))
-            emp['AQL_Pass_Count'] = int(row_dict.get('AQL_Pass_Count', 0))
-            emp['AQL_Fail_Percent'] = float(row_dict.get('AQL_Fail_Percent', 0))
-
-            employees.append(emp)
+        employees.append(emp)
     
     # 통계 계산
     total_employees = len(employees)
@@ -13825,66 +13805,22 @@ def main():
         print("❌ 데이터 로드 실패")
         return
 
-    # Single Source of Truth 개선: JSON 캐시 제거, CSV 직접 읽기
-    print("📊 Single Source of Truth 원칙 적용 - CSV/Excel 직접 읽기")
-
-    # CSV 파일에서 직접 데이터 생성 (JSON 캐시 사용 안 함)
+    # Excel 기반 대시보드 데이터 로드 (단일 진실 소스)
     excel_dashboard_data = None
-    working_days = 13  # 기본값
-
-    # CSV를 직접 읽어서 dashboard 데이터 구조 생성
-    # 먼저 enhanced 버전 확인, 없으면 일반 버전 사용
-    csv_file_enhanced = f'output_files/output_QIP_incentive_{month_name}_{args.year}_최종완성버전_v6.0_Complete_enhanced.csv'
-    csv_file = f'output_files/output_QIP_incentive_{month_name}_{args.year}_최종완성버전_v6.0_Complete.csv'
-
-    # enhanced 버전이 있으면 우선 사용
-    if os.path.exists(csv_file_enhanced):
-        csv_file = csv_file_enhanced
-
-    if os.path.exists(csv_file):
+    dashboard_json_path = 'output_files/dashboard_data_from_excel.json'
+    if os.path.exists(dashboard_json_path):
         try:
-            # CSV 직접 로드
-            df_csv = pd.read_csv(csv_file, encoding='utf-8-sig')
-            print(f"✅ CSV 파일 직접 로드: {csv_file}")
-
-            # 실제 근무일수 계산
-            if 'Total Working Days' in df_csv.columns:
-                working_days = int(df_csv['Total Working Days'].max())
-                print(f"📊 실제 총 근무일수 (CSV 기반): {working_days}일")
-
-            # dashboard_data 구조 직접 생성 (JSON 캐시 대체)
-            # numpy int64를 Python int로 변환
-            employee_data = []
-            for _, row in df_csv.iterrows():
-                record = {}
-                for key, value in row.items():
-                    # numpy 타입을 Python 네이티브 타입으로 변환
-                    if pd.isna(value):
-                        record[key] = None
-                    elif isinstance(value, (np.int64, np.int32)):
-                        record[key] = int(value)
-                    elif isinstance(value, (np.float64, np.float32)):
-                        record[key] = float(value)
-                    else:
-                        record[key] = value
-                employee_data.append(record)
-
-            excel_dashboard_data = {
-                'employee_data': employee_data,
-                'attendance': {'total_working_days': int(working_days)},
-                'summary': {
-                    'total_employees': int(len(df_csv)),
-                    'employees_with_incentive': int(sum(1 for _, row in df_csv.iterrows() if row.get('Final Incentive amount', 0) > 0)),
-                    'total_incentive_amount': float(df_csv['Final Incentive amount'].sum()) if 'Final Incentive amount' in df_csv.columns else 0
-                }
-            }
-            print("✅ Single Source of Truth 적용 완료 - JSON 캐시 없이 CSV에서 직접 데이터 생성")
-
+            with open(dashboard_json_path, 'r', encoding='utf-8') as f:
+                excel_dashboard_data = json.load(f)
+            print(f"✅ Excel 기반 대시보드 데이터 로드: {dashboard_json_path}")
+            # 실제 근무일수를 Excel 데이터에서 가져옴
+            working_days = excel_dashboard_data['attendance']['total_working_days']
+            print(f"📊 실제 총 근무일수 (출근 데이터 기반): {working_days}일")
         except Exception as e:
-            print(f"⚠️ CSV 직접 로드 실패: {e}")
+            print(f"⚠️ Excel 대시보드 데이터 로드 실패: {e}")
             working_days = 13  # Fallback
     else:
-        print(f"⚠️ CSV 파일이 없습니다: {csv_file}")
+        print("⚠️ Excel 기반 대시보드 데이터 파일이 없습니다. 기본값 사용.")
         working_days = 13  # Fallback
 
     # 대시보드 생성 - Excel 데이터를 전달
