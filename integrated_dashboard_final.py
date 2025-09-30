@@ -4618,13 +4618,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h6 class="text-muted" id="totalEmployeesLabel">전체 직원</h6>
-                        <h2><span id="totalEmployeesValue">{total_employees}</span><span class="unit" id="totalEmployeesUnit">명</span></h2>
+                        <h2><span id="totalEmployeesValue">{total_employees}</span> <span class="unit" id="totalEmployeesUnit">명</span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h6 class="text-muted" id="paidEmployeesLabel">수령 직원</h6>
-                        <h2><span id="paidEmployeesValue">{paid_employees}</span><span class="unit" id="paidEmployeesUnit">명</span></h2>
+                        <h2><span id="paidEmployeesValue">{paid_employees}</span> <span class="unit" id="paidEmployeesUnit">명</span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -8902,13 +8902,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const units = {{
                 'people': {{
                     'ko': '명',
-                    'en': ' people',
-                    'vi': ' người'
+                    'en': 'people',
+                    'vi': 'người'
                 }},
                 'days': {{
                     'ko': '일',
-                    'en': ' days',
-                    'vi': ' ngày'
+                    'en': 'days',
+                    'vi': 'ngày'
                 }}
             }};
 

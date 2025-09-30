@@ -18,6 +18,11 @@ QIP (Quality Inspection Process) Incentive Dashboard System - Factory worker inc
 - Use `position_condition_matrix.json` for all condition definitions
 - Business rule changes require only JSON updates, not code changes
 
+### 3. 100% Condition Fulfillment Rule (100% 조건 충족 필수)
+- **Incentives ONLY for 100% condition pass rate** - no partial incentives
+- 80-99% fulfillment = NO incentive (인센티브 지급조건을 100% 충족하지 못하는 경우는 인센티브를 받으면 안됨)
+- This is a strict business requirement - never apply thresholds like 80%
+
 ## Key Commands
 
 ### Full Pipeline Execution
@@ -45,6 +50,14 @@ python src/validate_hr_data.py 9 2025  # HR data integrity
 ```bash
 python simple_deep_test.py             # Browser-based dashboard testing
 python deep_verification.py             # Comprehensive functionality check
+```
+
+### Recovery Scripts (when issues occur)
+```bash
+python fix_remove_partial_incentives.py  # Remove incentives from <100% pass rate
+python fix_final_status_field.py         # Sync Final_Incentive_Status field
+python fix_continuous_months_issue.py    # Fix Continuous Months calculation
+python fix_all_positions_calculation.py  # Recalculate all positions
 ```
 
 ## High-Level Architecture
@@ -99,6 +112,11 @@ AQL/5PRS       JSON rules          metadata JSON         (self-contained)
 3. **Chart.js bugs**: Always destroy existing instances before recreation
 4. **Syntax errors at line 9267**: Fixed in dashboard_v2/static/js/dashboard_complete.js
 
+### Bootstrap 5 Modal Issues (Fixed Sep 30, 2025)
+- **Problem**: Modals not opening with jQuery `.modal('show')`
+- **Solution**: Use Bootstrap 5 native API: `new bootstrap.Modal(element).show()`
+- **Files**: `integrated_dashboard_final.py:13471`
+
 ### Position Modal Issues (Fixed Sep 27, 2025)
 1. **TYPE-2 Condition Mapping**:
    - **Issue**: TYPE-2 employees incorrectly showed conditions 5-8 (AQL conditions)
@@ -119,6 +137,12 @@ AQL/5PRS       JSON rules          metadata JSON         (self-contained)
 2. **Missing previous month**: System shows 0 (never generates fake data)
 3. **Assembly Inspector tracking**: Check `assembly_inspector_continuous_months.json`
 4. **LINE LEADER counts**: Ensure consistent logic across tabs
+
+### MODEL MASTER & Position Code Issues (Fixed Sep 30, 2025)
+1. **MODEL MASTER 0 Incentive**: Position code 'D' was missing from `position_condition_matrix.json`
+2. **Solution**: Added all 64 FINAL QIP POSITION NAME CODEs to the matrix
+3. **Calculation Fix**: `src/step1_인센티브_계산_개선버전.py:2441` - direct condition evaluation
+4. **Result**: 3 MODEL MASTER employees × 1,000,000 VND = 3,000,000 VND total
 
 ### Version 6 Specific
 - If dashboard shows 0 values: Check NaN serialization in `complete_renderer.py`

@@ -2386,13 +2386,14 @@ class CompleteQIPCalculator:
             self.auditor_area_reject_rates = {}
         
         # Auditor/Trainer 필터링
+        # NOTE: H (A.MANAGER), F (GROUP LEADER), G ((V) SUPERVISOR), E+LINE LEADER (LINE LEADER)는 제외 - 별도 함수에서 처리됨
         auditor_trainer_mask = (
             (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
             (
                 ((self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('AUDIT', na=False)) |
                  (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('TRAINER', na=False)) |
                  (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('TRAINING', na=False))) |
-                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper().str.match(r'^(QA[1-2][AB]?|E|F|G|H)$', na=False))  # AUDITOR/TRAINER codes
+                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper().str.match(r'^(QA[1-2][AB]?)$', na=False))  # AUDITOR/TRAINER codes only (QA1A/QA1B/QA2A/QA2B=AUDIT TEAM, E 제외됨 - LINE LEADER가 사용)
             )
         )
         
@@ -2469,60 +2470,28 @@ class CompleteQIPCalculator:
 
 
             # Model Master는 전체 공장 reject율 적용
-            # Pass rate 기반 인센티브 결정 (80% threshold)
-            position_code = row.get('FINAL QIP POSITION NAME CODE', '')
-            pass_rate_calculated = row.get('conditions_pass_rate', 0)
-
-            # position_matrix에서 threshold 가져오기
-            threshold = 80  # 기본값
-            if position_code in self.position_matrix.get('positions', {}):
-                threshold = self.position_matrix['positions'][position_code].get('pass_rate_threshold', 80)
-
-            if pass_rate_calculated < threshold:
+            # 100% 조건 충족 필수 (No Fake Data Policy)
+            if not all_conditions_pass:
                 incentive = 0
-                # 조건 미충족 시 Continuous_Months = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
-                print(f"    → {row.get('Full Name', 'Unknown')}: 조건 충족률 {pass_rate_calculated:.1f}% < {threshold}% → 0 VND")
-                incentive = 0
-                # 조건 미충족 시 Continuous_Months = 0
-                self.month_data.loc[idx, 'Continuous_Months'] = 0
+                failed_conditions = []
+                if not condition_1_pass: failed_conditions.append('1')
+                if not condition_2_pass: failed_conditions.append('2')
+                if not condition_3_pass: failed_conditions.append('3')
+                if not condition_4_pass: failed_conditions.append('4')
+                if not condition_8_pass: failed_conditions.append('8(reject율)')
+                print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): 조건 미충족 [{', '.join(failed_conditions)}] → 0 VND")
             elif total_factory_reject_rate >= 3.0:  # 전체 공장 reject율 3% 이상
                 incentive = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
                 print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): 전체 공장 AQL reject율 {total_factory_reject_rate:.1f}% → 0 VND")
-            elif pass_rate < 80:  # 80% 미충족 (threshold 변경)
-                incentive = 0
-                self.month_data.loc[idx, 'Continuous_Months'] = 0
-                print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): 조건 충족률 {pass_rate}% (100% 미달) → 0 VND")
             else:
-                # Check if using fallback configuration for MODEL MASTER
-                final_code = row.get('FINAL QIP POSITION NAME CODE', '')
-                if final_code not in self.position_matrix.get('positions', {}) and 'fallback_positions' in self.position_matrix:
-                    # Use fallback configuration
-                    fallback_config = self.position_matrix.get('fallback_positions', {}).get('MODEL MASTER', {})
-                    if fallback_config.get('use_progressive_table', False):
-                        # Use progressive table like Assembly Inspector
-                        continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
-                        incentive = self.get_assembly_inspector_amount(continuous_months)
-                        self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
-                        if continuous_months > 0:
-                            print(f"    → {row.get('Full Name', 'Unknown')} (Model Master - Fallback): {continuous_months}개월 연속 → {incentive:,} VND")
-                    else:
-                        # Use fixed amount from fallback
-                        incentive = fallback_config.get('base_amount', 200000)
-                        continuous_months = 1
-                        self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
-                        print(f"    → {row.get('Full Name', 'Unknown')} (Model Master - Fallback): 조건 충족 → {incentive:,} VND")
-                else:
-                    # Original logic: Assembly Inspector와 동일한 연속 충족 개월 기준 적용
-                    continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
-                    incentive = self.get_assembly_inspector_amount(continuous_months)
-
-                    # Continuous_Months 컬럼 업데이트
-                    self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
-
-                    if continuous_months > 0:
-                        print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): {continuous_months}개월 연속 → {incentive:,} VND")
+                # MODEL MASTER는 ASSEMBLY INSPECTOR와 같은 Progressive Table 사용
+                # position_condition_matrix.json의 incentive_progression.TYPE_1_PROGRESSIVE 적용
+                continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
+                incentive = self.get_assembly_inspector_amount(continuous_months)
+                self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
+                print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): {continuous_months}개월 연속 → {incentive:,} VND")
 
             self.month_data.loc[idx, incentive_col] = incentive
         
@@ -2609,10 +2578,6 @@ class CompleteQIPCalculator:
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
                 failed = [k for k,v in conditions_met.items() if not v]
                 print(f"    → {row.get('Full Name', 'Unknown')} failed conditions: {failed} → 0 VND")
-            else:
-                incentive = 0
-                # 조건 미충족 시 Continuous_Months = 0
-                self.month_data.loc[idx, 'Continuous_Months'] = 0
             elif area_reject_rate >= 3.0:  # 담당 구역 reject율 3% 이상으로 변경
                 incentive = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
@@ -2859,24 +2824,18 @@ class CompleteQIPCalculator:
             aql_fail = row.get(aql_col, 0) > 0
             continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
             
-            # 기본 조건 미충족 시 0원 (5PRS 조건 제외)
-            # Pass rate 기반 인센티브 결정 (80% threshold)
-            position_code = row.get('FINAL QIP POSITION NAME CODE', '')
-            pass_rate_calculated = row.get('conditions_pass_rate', 0)
-
-            # position_matrix에서 threshold 가져오기
-            threshold = 80  # 기본값
-            if position_code in self.position_matrix.get('positions', {}):
-                threshold = self.position_matrix['positions'][position_code].get('pass_rate_threshold', 80)
-
-            if pass_rate_calculated < threshold:
+            # AQL INSPECTOR는 출근 조건(1-4) + 당월 AQL 조건(5)만 체크
+            # 3-Part 계산은 기본 조건 충족 시에만 실행
+            if attendance_fail or aql_fail:
                 incentive = 0
                 # 조건 미충족 시 Continuous_Months = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
-                print(f"    → {row.get('Full Name', 'Unknown')}: 조건 충족률 {pass_rate_calculated:.1f}% < {threshold}% → 0 VND")
-                incentive = 0
-                # 조건 미충족 시 Continuous_Months = 0
-                self.month_data.loc[idx, 'Continuous_Months'] = 0
+                fail_reason = []
+                if attendance_fail:
+                    fail_reason.append("출근 조건 미충족")
+                if aql_fail:
+                    fail_reason.append("당월 AQL 실패")
+                print(f"    → {row.get('Full Name', 'Unknown')}: {', '.join(fail_reason)} → 0 VND")
                 self.month_data.loc[idx, incentive_col] = incentive
                 continue
             
@@ -3152,7 +3111,7 @@ class CompleteQIPCalculator:
     
     def calculate_line_leader_incentive_type1_only(self, subordinate_mapping: Dict[str, List[str]]):
         """Type-1 Line Leader 인센티브 계산"""
-        print("\n👥 TYPE-1 LINE LEADER 인센티브 계산 (7% 적용 + 인센티브 수령 비율 반영)...")
+        print("\n👥 TYPE-1 LINE LEADER 인센티브 계산 (12% 적용 + 인센티브 수령 비율 반영)...")
         
         # Type-1 Line Leader 필터링
         line_leader_mask = (
@@ -3162,7 +3121,7 @@ class CompleteQIPCalculator:
                     (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
                     (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
                 ) |
-                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper().str.match(r'^(L[1-5]|LL[AB]?)$', na=False))  # LINE LEADER codes
+                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper().str.match(r'^(E|L[1-5]|LL[AB]?)$', na=False))  # LINE LEADER codes (E는 실제로 LINE LEADER로 사용됨)
             )
         )
         
@@ -3289,15 +3248,33 @@ class CompleteQIPCalculator:
             else:
                 # 자신의 팀 내 Line Leader들 찾기 및 평균 계산
                 line_leaders = self._find_team_line_leaders(head_id, subordinate_mapping)
-                
+
+                avg_incentive = 0
                 if line_leaders:
                     avg_incentive = self._calculate_line_leader_average_unified(
                         line_leaders, head_id, 'HEAD'
                     )
+
+                # Line Leader 평균이 0인 경우 fallback 사용
+                if avg_incentive > 0:
                     # Line Leader 평균의 2배
                     incentive = int(avg_incentive * 2)
+                    print(f"    → Head/Group Leader {row.get('Full Name', 'Unknown')} ({head_id}): Line Leader 평균 {avg_incentive:,.0f} × 2 = {incentive:,} VND")
                 else:
-                    incentive = 0
+                    # Fallback: 전체 TYPE-1 LINE LEADER 평균 사용
+                    all_line_leaders = self.month_data[
+                        (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
+                        (self.month_data['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
+                    ]
+                    receiving_ll = all_line_leaders[all_line_leaders[incentive_col] > 0]
+
+                    if len(receiving_ll) > 0:
+                        avg_incentive = int(receiving_ll[incentive_col].mean())
+                        incentive = int(avg_incentive * 2)
+                        print(f"    → Head/Group Leader {row.get('Full Name', 'Unknown')} ({head_id}): 전체 LINE LEADER 평균 {avg_incentive:,.0f} × 2 = {incentive:,} VND (Fallback)")
+                    else:
+                        incentive = 0
+                        print(f"    → Head/Group Leader {row.get('Full Name', 'Unknown')} ({head_id}): LINE LEADER 없음 → 0 VND")
             
             self.month_data.loc[idx, incentive_col] = incentive
         
@@ -3338,37 +3315,83 @@ class CompleteQIPCalculator:
                 
                 manager_id = row.get('Employee No', '')
                 
-                # 출근 조건 체크 - 모든 직급에 공통 적용
-                attendance_fail = (
-                    row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                    row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                    row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                    row.get('attendancy condition 4 - minimum working days') == 'yes'
-                )
+                # 출근 조건 체크 - 모든 직급에 공통 적용 (100% 충족 필수)
+                condition_1_pass = row.get('attendancy condition 1 - acctual working days is zero') != 'yes'
+                condition_2_pass = row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') != 'yes'
+                condition_3_pass = row.get('attendancy condition 3 - absent % is over 12%') != 'yes'
+                condition_4_pass = row.get('attendancy condition 4 - minimum working days') != 'yes'
 
-                # 100% 충족 검증
-                pass_rate = row.get('conditions_pass_rate', 0)
+                all_conditions_pass = (condition_1_pass and condition_2_pass and
+                                      condition_3_pass and condition_4_pass)
 
-                # 출근 조건 미충족 또는 100% 미충족 시 인센티브 0
-                if attendance_fail:
+                # 100% 충족 여부 확인
+                if not all_conditions_pass:
                     incentive = 0
-                    print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): 출근 조건 미충족")
-                elif pass_rate < 100:
-                    incentive = 0
-                    print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): 조건 충족률 {pass_rate}% (100% 미달)")
+                    failed_conditions = []
+                    if not condition_1_pass: failed_conditions.append('1')
+                    if not condition_2_pass: failed_conditions.append('2')
+                    if not condition_3_pass: failed_conditions.append('3')
+                    if not condition_4_pass: failed_conditions.append('4')
+                    print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): 조건 미충족 [{', '.join(failed_conditions)}]")
                 else:
-                    # 자신의 팀 내 Line Leader들의 평균 계산
-                    line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
-                    
-                    if line_leaders:
-                        avg_incentive = self._calculate_line_leader_average_unified(
-                            line_leaders, manager_id, config['name']
-                        )
-                        # Line Leader 평균에 배수 적용
-                        incentive = int(avg_incentive * config['multiplier'])
+                    # JSON 설정에서 계산 방법 확인
+                    position_code = row.get('FINAL QIP POSITION NAME CODE', '')
+                    position_config = self.position_matrix.get('positions', {}).get(position_code, {})
+                    incentive_config = position_config.get('incentive_amount', {})
+
+                    # calculation_method 확인
+                    calc_method = incentive_config.get('calculation_method', '')
+
+                    if calc_method == 'line_leader_average':
+                        # Line Leader 평균 기반 계산 (JSON 동적 계산)
+                        multiplier = incentive_config.get('multiplier', config['multiplier'])
+                        line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
+
+                        if line_leaders:
+                            avg_incentive = self._calculate_line_leader_average_unified(
+                                line_leaders, manager_id, config['name']
+                            )
+                            incentive = int(avg_incentive * multiplier)
+                            print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): Line Leader 평균 {avg_incentive:,.0f} × {multiplier} = {incentive:,} VND")
+                        else:
+                            # Fallback: 전체 TYPE-1 LINE LEADER 평균 사용
+                            all_line_leaders = self.month_data[
+                                (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
+                                (self.month_data['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
+                            ]
+                            receiving_ll = all_line_leaders[all_line_leaders[incentive_col] > 0]
+
+                            if len(receiving_ll) > 0:
+                                avg_incentive = int(receiving_ll[incentive_col].mean())
+                                incentive = int(avg_incentive * multiplier)
+                                print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): 전체 LINE LEADER 평균 {avg_incentive:,.0f} × {multiplier} = {incentive:,} VND")
+                            else:
+                                incentive = 0
+                                print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): LINE LEADER 없음 → 0 VND")
                     else:
-                        incentive = 0
-                
+                        # 기존 로직 (고정 금액 등)
+                        min_amt = incentive_config.get('min', 0)
+                        max_amt = incentive_config.get('max', min_amt)
+
+                        if min_amt > 0 and min_amt == max_amt:
+                            incentive = min_amt
+                            print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): JSON 고정값 → {incentive:,} VND")
+                        else:
+                            # Line Leader 평균 기반 계산 (Fallback)
+                            line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
+
+                            if line_leaders:
+                                avg_incentive = self._calculate_line_leader_average_unified(
+                                    line_leaders, manager_id, config['name']
+                                )
+                                incentive = int(avg_incentive * config['multiplier'])
+                                print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): Line Leader 평균 기반 (fallback) → {incentive:,} VND")
+                            else:
+                                if min_amt > 0:
+                                    incentive = min_amt
+                                else:
+                                    incentive = 0
+
                 self.month_data.loc[idx, incentive_col] = incentive
         
         # 통계 출력 - 모든 관리자 대상
