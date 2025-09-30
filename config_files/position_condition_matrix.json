@@ -781,5 +781,1079 @@
     "maintenance": "Update this file when adding new positions or changing condition rules",
     "backward_compatibility": "Maintains compatibility with existing calculation logic"
   },
-  "improvement_notes": "TYPE-3 명확성 개선 - 정책 정보 추가"
+  "improvement_notes": "TYPE-3 명확성 개선 - 정책 정보 추가",
+  "fallback_positions": {
+    "MODEL MASTER": {
+      "type": "TYPE-1",
+      "base_amount": 200000,
+      "use_progressive_table": true,
+      "conditions": [
+        1,
+        2,
+        3,
+        4,
+        8
+      ],
+      "description": "Fallback for MODEL MASTER (Code D not in matrix)"
+    },
+    "MANAGER": {
+      "type": "TYPE-1",
+      "base_amount": 500000,
+      "use_progressive_table": false,
+      "conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "description": "Fallback for MANAGER positions"
+    },
+    "GROUP LEADER": {
+      "type": "TYPE-2",
+      "base_amount": 300000,
+      "use_progressive_table": false,
+      "conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "description": "Fallback for GROUP LEADER positions"
+    }
+  },
+  "positions": {
+    "OF2": {
+      "position_name": "GROUP LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "GROUP LEADER (OF2) - TYPE-2"
+    },
+    "T": {
+      "position_name": "(V) SUPERVISOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 200000,
+        "max": 400000
+      },
+      "description": "(V) SUPERVISOR (T) - TYPE-2"
+    },
+    "H": {
+      "position_name": "A.MANAGER",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 500000,
+        "max": 500000
+      },
+      "description": "A.MANAGER (H) - TYPE-1"
+    },
+    "BTS2B": {
+      "position_name": "BOTTOM INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "BOTTOM INSPECTOR (BTS2B) - TYPE-2"
+    },
+    "D": {
+      "position_name": "MODEL MASTER",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        8
+      ],
+      "incentive_amount": {
+        "min": 200000,
+        "max": 500000
+      },
+      "description": "MODEL MASTER (D) - TYPE-1"
+    },
+    "G": {
+      "position_name": "(V) SUPERVISOR",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 200000,
+        "max": 400000
+      },
+      "description": "(V) SUPERVISOR (G) - TYPE-1"
+    },
+    "QA2B": {
+      "position_name": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7,
+        8
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "AUDIT & TRAINING TEAM (QA2B) - TYPE-1"
+    },
+    "Y": {
+      "position_name": "LINE LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "LINE LEADER (Y) - TYPE-2"
+    },
+    "B": {
+      "position_name": "AQL INSPECTOR",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "AQL INSPECTOR (B) - TYPE-1",
+      "use_progressive_table": true
+    },
+    "A1A": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A1A) - TYPE-1",
+      "use_progressive_table": true
+    },
+    "S1A": {
+      "position_name": "STITCHING INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "STITCHING INSPECTOR (S1A) - TYPE-2"
+    },
+    "E": {
+      "position_name": "LINE LEADER",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "LINE LEADER (E) - TYPE-1"
+    },
+    "F": {
+      "position_name": "GROUP LEADER",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "GROUP LEADER (F) - TYPE-1"
+    },
+    "P": {
+      "position_name": "(V) SUPERVISOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 200000,
+        "max": 400000
+      },
+      "description": "(V) SUPERVISOR (P) - TYPE-2"
+    },
+    "X": {
+      "position_name": "GROUP LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "GROUP LEADER (X) - TYPE-2"
+    },
+    "W1": {
+      "position_name": "OSC INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "OSC INSPECTOR (W1) - TYPE-2"
+    },
+    "S1B": {
+      "position_name": "STITCHING INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "STITCHING INSPECTOR (S1B) - TYPE-2"
+    },
+    "B2A": {
+      "position_name": "AQL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "AQL INSPECTOR (B2A) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "R": {
+      "position_name": "LINE LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "LINE LEADER (R) - TYPE-2"
+    },
+    "Z": {
+      "position_name": "MANAGER",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 500000,
+        "max": 500000
+      },
+      "description": "MANAGER (Z) - TYPE-1"
+    },
+    "OCPT1": {
+      "position_name": "(V) SUPERVISOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 200000,
+        "max": 400000
+      },
+      "description": "(V) SUPERVISOR (OCPT1) - TYPE-2"
+    },
+    "QA2A": {
+      "position_name": "AUDIT & TRAINING TEAM",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7,
+        8
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "AUDIT & TRAINING TEAM (QA2A) - TYPE-1"
+    },
+    "XYX1": {
+      "position_name": "MTL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "MTL INSPECTOR (XYX1) - TYPE-2"
+    },
+    "QA1": {
+      "position_name": "(V) SUPERVISOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 200000,
+        "max": 400000
+      },
+      "description": "(V) SUPERVISOR (QA1) - TYPE-2"
+    },
+    "Q": {
+      "position_name": "GROUP LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "GROUP LEADER (Q) - TYPE-2"
+    },
+    "B4A": {
+      "position_name": "GROUP LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "GROUP LEADER (B4A) - TYPE-2"
+    },
+    "A1B": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A1B) - TYPE-1",
+      "use_progressive_table": true
+    },
+    "O": {
+      "position_name": "A.MANAGER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 500000,
+        "max": 500000
+      },
+      "description": "A.MANAGER (O) - TYPE-2"
+    },
+    "XYX2": {
+      "position_name": "MTL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "MTL INSPECTOR (XYX2) - TYPE-2"
+    },
+    "B2D": {
+      "position_name": "AQL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "AQL INSPECTOR (B2D) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "XY1": {
+      "position_name": "RQC",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "RQC (XY1) - TYPE-2"
+    },
+    "W2": {
+      "position_name": "OSC INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "OSC INSPECTOR (W2) - TYPE-2"
+    },
+    "XYX3": {
+      "position_name": "MTL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "MTL INSPECTOR (XYX3) - TYPE-2"
+    },
+    "BTS1": {
+      "position_name": "LINE LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "LINE LEADER (BTS1) - TYPE-2"
+    },
+    "BTS2A": {
+      "position_name": "BOTTOM INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "BOTTOM INSPECTOR (BTS2A) - TYPE-2"
+    },
+    "QA3A": {
+      "position_name": "QA TEAM",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "QA TEAM (QA3A) - TYPE-2"
+    },
+    "BTS": {
+      "position_name": "GROUP LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "GROUP LEADER (BTS) - TYPE-2"
+    },
+    "W3": {
+      "position_name": "OSC INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "OSC INSPECTOR (W3) - TYPE-2"
+    },
+    "XY3": {
+      "position_name": "RQC",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "RQC (XY3) - TYPE-2"
+    },
+    "XYX4": {
+      "position_name": "MTL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "MTL INSPECTOR (XYX4) - TYPE-2"
+    },
+    "B2C": {
+      "position_name": "AQL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "AQL INSPECTOR (B2C) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "CCCC": {
+      "position_name": "CUTTING INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "CUTTING INSPECTOR (CCCC) - TYPE-2"
+    },
+    "W4": {
+      "position_name": "OSC INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "OSC INSPECTOR (W4) - TYPE-2"
+    },
+    "XY2": {
+      "position_name": "RQC",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "RQC (XY2) - TYPE-2"
+    },
+    "OF3": {
+      "position_name": "GROUP LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "GROUP LEADER (OF3) - TYPE-2"
+    },
+    "A4B": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A4B) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "A4C": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A4C) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "A5A": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A5A) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "CC": {
+      "position_name": "(V) SUPERVISOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 200000,
+        "max": 400000
+      },
+      "description": "(V) SUPERVISOR (CC) - TYPE-2"
+    },
+    "B2E": {
+      "position_name": "AQL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "AQL INSPECTOR (B2E) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "A3B": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A3B) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "OCPT2": {
+      "position_name": "OCPT STFF",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "OCPT STFF (OCPT2) - TYPE-2"
+    },
+    "A1C": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A1C) - TYPE-1",
+      "use_progressive_table": true
+    },
+    "BTS3A": {
+      "position_name": "BOTTOM INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "BOTTOM INSPECTOR (BTS3A) - TYPE-2"
+    },
+    "QA3B": {
+      "position_name": "QA TEAM",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "QA TEAM (QA3B) - TYPE-2"
+    },
+    "W5": {
+      "position_name": "OSC INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "OSC INSPECTOR (W5) - TYPE-2"
+    },
+    "W6": {
+      "position_name": "OSC INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "incentive_amount": {
+        "min": 50000,
+        "max": 100000
+      },
+      "description": "OSC INSPECTOR (W6) - TYPE-2"
+    },
+    "A2A": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A2A) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "A3A": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A3A) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "V": {
+      "position_name": "LINE LEADER",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        7
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 500000
+      },
+      "description": "LINE LEADER (V) - TYPE-2"
+    },
+    "A4A": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A4A) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "A2B": {
+      "position_name": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "ASSEMBLY INSPECTOR (A2B) - TYPE-2",
+      "use_progressive_table": true
+    },
+    "NEW": {
+      "position_name": "NEW",
+      "type": "TYPE-3",
+      "applicable_conditions": [],
+      "incentive_amount": {
+        "min": 0,
+        "max": 0
+      },
+      "description": "NEW (NEW) - TYPE-3"
+    },
+    "B3A": {
+      "position_name": "AQL INSPECTOR",
+      "type": "TYPE-2",
+      "applicable_conditions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "incentive_amount": {
+        "min": 150000,
+        "max": 1000000
+      },
+      "description": "AQL INSPECTOR (B3A) - TYPE-2",
+      "use_progressive_table": true
+    }
+  },
+  "global_settings": {}
 }
