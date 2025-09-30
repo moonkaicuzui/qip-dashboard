@@ -52,7 +52,7 @@
     "name": "TRẦN KIỀU EM",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 462500.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -101,7 +101,7 @@
     "name": "LƯƠNG THỊ CẨM TIÊN",
     "position": "A.MANAGER",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 516000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -426,7 +426,7 @@
     "name": "THỊ BÍCH NGÀ",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 172000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -973,7 +973,7 @@
     "name": "THỊ KIM THO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 344000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1140,7 +1140,7 @@
     "name": "NGUYỄN THỊ BÍCH CHƯƠNG",
     "position": "GROUP LEADER",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 344000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1252,7 +1252,7 @@
     "name": "LÊ THỊ DIỄM LINH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 462500.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1468,7 +1468,7 @@
     "name": "THÁI UYỂN NHI",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 618750.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1802,7 +1802,7 @@
     "name": "VÕ THỊ TÝ NỊ",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 462500.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1851,7 +1851,7 @@
     "name": "NGUYỄN THỊ MỸ TRÂM",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 92000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2130,7 +2130,7 @@
     "name": "PHẠM MINH HUY",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 60000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2395,7 +2395,7 @@
     "name": "VÕ VĂN KIỆT",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 618750.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2458,7 +2458,7 @@
     "name": "NGUYỄN THỊ BÍCH PHƯỢNG",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 462500.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2657,7 +2657,7 @@
     "name": "NGUYỄN THỊ MỸ TIÊN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 172000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2769,7 +2769,7 @@
     "name": "NGUYỄN THỊ HẠNH",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 172000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2881,7 +2881,7 @@
     "name": "TRẦN THỊ BÍCH LY",
     "position": "MANAGER",
     "type": "TYPE-1",
-    "amount": 0.0,
+    "amount": 602000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3094,7 +3094,7 @@
     "name": "MAI TUYẾT ANH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 462500.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3442,7 +3442,7 @@
     "name": "TRẦN THỊ MỸ MIỀU",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 462500.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3491,7 +3491,7 @@
     "name": "ĐOÀN THỊ NGỌC THƠ",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 344000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3540,7 +3540,7 @@
     "name": "THỊ KIM THẢO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 344000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3876,7 +3876,7 @@
     "name": "NGUYỄN VĂN LUÂN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 297000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3939,7 +3939,7 @@
     "name": "PHÙNG THỊ THỦY",
     "position": "A.MANAGER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 516000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4836,7 +4836,7 @@
     "name": "LƯU GIA HÂN",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 344000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5060,7 +5060,7 @@
     "name": "VŨ HỒNG TIÊN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 213000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5462,7 +5462,7 @@
     "name": "HÀ THỊ MỘNG TUYỀN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 172000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6212,7 +6212,7 @@
     "name": "LÊ VĂN NAM",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 344000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8014,7 +8014,7 @@
     "name": "TRẦN NGÔ KIM TUYẾN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 198000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10459,7 +10459,7 @@
     "name": "NGUYỄN THỊ HUỲNH NHƯ",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 300000.0,
+    "amount": 494000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -19467,7 +19467,7 @@
     "name": "LƯU KIM TRỌN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 150000.0,
+    "amount": 172000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
