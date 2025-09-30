@@ -10462,6 +10462,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 계산 과정 상세 내용 생성
                 let calculationDetails = '';
+                let expectedIncentive = 0;
 
                 if (position.includes('LINE LEADER')) {{
                 // LINE LEADER 계산 상세 - 부하직원 합계 × 12% × 수령율
@@ -10475,7 +10476,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     Number(ai['{month.lower()}_incentive'] || 0) > 0
                 );
                 const receivingRatio = assemblyInspectors.length > 0 ? receivingInspectors.length / assemblyInspectors.length : 0;
-                const expectedIncentive = Math.round(totalSubIncentive * 0.12 * receivingRatio);
+                expectedIncentive = Math.round(totalSubIncentive * 0.12 * receivingRatio);
 
                 // ASSEMBLY INSPECTOR 상세 내역 생성
                 let inspectorDetails = '';
@@ -10548,11 +10549,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <td class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}} × 12% × ${{(receivingRatio * 100).toFixed(1)}}%</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage)}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                             <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage)}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                         </table>
@@ -10567,7 +10568,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
                     receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                const expectedIncentive = Math.round(avgLineLeaderIncentive * 2);
+                expectedIncentive = Math.round(avgLineLeaderIncentive * 2);
 
                 // LINE LEADER별 상세 내역 생성
                 let lineLeaderDetails = '';
@@ -10636,11 +10637,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage)}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                             <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage)}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                         </table>
@@ -10655,7 +10656,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
                     receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                const expectedIncentive = Math.round(avgLineLeaderIncentive * 2.5);
+                expectedIncentive = Math.round(avgLineLeaderIncentive * 2.5);
 
                 // 팀 내 LINE LEADER 상세 내역 생성
                 let allLineLeaderDetails = '';
@@ -10685,12 +10686,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
+                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders], groupIdx) => {{
+                                        const bgClass = groupIdx % 2 === 0 ? '' : 'table-light';
                                         return leaders.map((ll, idx) => {{
                                             const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
                                             const included = llIncentive > 0;
+                                            const rowClass = included ? bgClass : `text-muted ${{bgClass}}`;
                                             return `
-                                                <tr class="${{included ? '' : 'text-muted'}}">
+                                                <tr class="${{rowClass}}">
                                                     ${{idx === 0 ? `<td rowspan="${{leaders.length}}">${{groupName}}</td>` : ''}}
                                                     <td>${{ll.name}}</td>
                                                     <td>${{ll.emp_no}}</td>
@@ -10739,11 +10742,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2.5</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage)}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                             <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage)}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                         </table>
@@ -10860,11 +10863,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
                                 <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                             <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
                                 <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                         </table>
@@ -10879,7 +10882,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
                     receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                const expectedIncentive = Math.round(avgLineLeaderIncentive * 3.5);
+                expectedIncentive = Math.round(avgLineLeaderIncentive * 3.5);
 
                 // 팀 내 LINE LEADER 상세 내역 생성
                 let lineLeaderBreakdown = '';
@@ -10909,12 +10912,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
+                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders], groupIdx) => {{
+                                        const bgClass = groupIdx % 2 === 0 ? '' : 'table-light';
                                         return leaders.map((ll, idx) => {{
                                             const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
                                             const included = llIncentive > 0;
+                                            const rowClass = included ? bgClass : `text-muted ${{bgClass}}`;
                                             return `
-                                                <tr class="${{included ? '' : 'text-muted'}}">
+                                                <tr class="${{rowClass}}">
                                                     ${{idx === 0 ? `<td rowspan="${{leaders.length}}">${{groupName}}</td>` : ''}}
                                                     <td>${{ll.name}}</td>
                                                     <td>${{ll.emp_no}}</td>
@@ -10965,11 +10970,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3.5</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
                                 <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                             <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
                                 <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                         </table>
@@ -11006,14 +11011,35 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             const failureReasons = getIncentiveFailureReasons(employee);
                                             if (failureReasons.length > 0) {{
                                                 return `
-                                                    <div class="alert alert-warning mt-3">
-                                                        <h6 class="alert-heading">📋 <span class="modal-no-payment-reason">${{getTranslation('orgChart.modalLabels.noPaymentReason', currentLanguage)}}</span></h6>
+                                                    <div class="alert alert-danger mt-3">
+                                                        <h6 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> <span class="modal-no-payment-reason">${{getTranslation('orgChart.modal.alerts.nonPaymentTitle', currentLanguage)}}</span></h6>
                                                         <ul class="mb-0">
                                                             ${{failureReasons.map(reason => `<li>${{reason}}</li>`).join('')}}
                                                         </ul>
                                                     </div>
                                                 `;
                                             }}
+                                        }} else if (expectedIncentive > 0 && Math.abs(expectedIncentive - employeeIncentive) >= 1000) {{
+                                            return `
+                                                <div class="alert alert-warning mt-3">
+                                                    <h6 class="alert-heading"><i class="bi bi-info-circle-fill"></i> ${{getTranslation('orgChart.modal.alerts.differenceTitle', currentLanguage)}}</h6>
+                                                    <table class="table table-sm table-borderless mb-2" style="font-size: 0.9em;">
+                                                        <tr>
+                                                            <td>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}}:</td>
+                                                            <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}}:</td>
+                                                            <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
+                                                        </tr>
+                                                        <tr class="border-top">
+                                                            <td><strong>${{getTranslation('orgChart.modal.alerts.difference', currentLanguage)}}:</strong></td>
+                                                            <td class="text-end"><strong>₫${{Math.abs(expectedIncentive - employeeIncentive).toLocaleString('ko-KR')}}</strong></td>
+                                                        </tr>
+                                                    </table>
+                                                    <p class="mb-0"><small>💡 ${{getTranslation('orgChart.modal.alerts.differenceReason', currentLanguage)}}</small></p>
+                                                </div>
+                                            `;
                                         }}
                                         return '';
                                     }})()}}
