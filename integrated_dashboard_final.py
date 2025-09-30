@@ -4665,7 +4665,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v7.01</span></h1>
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v7.02</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
@@ -6687,20 +6687,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // employeeData 필드 정규화 - boss_id 매핑 추가
         employeeData.forEach(emp => {{
-            // boss_id 필드 생성 (여러 가능한 필드명 체크)
-            emp.boss_id = emp.boss_id ||
-                         emp.Direct_Manager_ID ||
-                         emp['Direct Manager ID'] ||
-                         emp.direct_manager_id ||
-                         '';
-
-            // emp_no도 문자열로 통일
+            // 기본 필드 정규화
             emp.emp_no = String(emp.emp_no || emp['Employee No'] || '');
-
-            // position과 name 필드도 확인
             emp.position = emp.position || emp['QIP POSITION 1ST  NAME'] || '';
             emp.name = emp.name || emp['Full Name'] || emp.employee_name || '';
             emp.type = emp.type || emp['ROLE TYPE STD'] || '';
+
+            // boss_id 설정 - MST direct boss name이 실제로는 상사의 emp_no임!
+            if (!emp.boss_id || emp.boss_id === '') {{
+                const mstBossId = String(emp['MST direct boss name'] || '').replace('.0', '').trim();
+                if (mstBossId && mstBossId !== 'nan' && mstBossId !== '0') {{
+                    emp.boss_id = mstBossId;
+                }}
+            }}
         }});
 
         console.log('Employee data normalized. Sample:', employeeData.slice(0, 2));
@@ -7684,7 +7683,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
-                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v7.01</span>';
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v7.02</span>';
             }}
             
             // 날짜 관련 업데이트
@@ -9899,14 +9898,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return false;
             }}
 
-            // TYPE-1 직원 중 관리자 포지션만 필터링 (special calculation 제외)
-            const filteredEmployees = employeeData.filter(emp => {{
+            // TYPE-1 직원 중 LINE LEADER 이상만 포함 (관리자 계층 구조)
+            const type1Employees = employeeData.filter(emp => {{
                 // TYPE-1이 아닌 경우 제외
                 if (emp.type !== 'TYPE-1') {{
                     return false;
                 }}
-
-                const position = (emp.position || '').toUpperCase();
 
                 // Special calculation positions 제외 (AQL INSPECTOR, AUDIT & TRAINING, MODEL MASTER)
                 if (hasSpecialCalculation(emp.position)) {{
@@ -9914,23 +9911,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     return false;
                 }}
 
-                // 관리자 포지션 확인 (부하 기반 계산하는 포지션)
-                const isManager = position.includes('MANAGER') ||
-                                 position.includes('SUPERVISOR') ||
-                                 position.includes('GROUP LEADER') ||
-                                 position.includes('LINE LEADER');
+                // LINE LEADER 이상의 관리자 포지션만 포함
+                const position = (emp.position || '').toUpperCase();
+                const isManagerLevel = position.includes('MANAGER') ||
+                                      position.includes('SUPERVISOR') ||
+                                      position.includes('GROUP LEADER') ||
+                                      position.includes('LINE LEADER');
 
-                return isManager;
+                if (!isManagerLevel) {{
+                    console.log(`Excluding non-manager position: ${{emp.position}} - ${{emp.name}}`);
+                    return false;
+                }}
+
+                return true;
             }});
 
-            console.log(`Filtered employees: ${{filteredEmployees.length}} (excluded ${{employeeData.length - filteredEmployees.length}})`);
+            console.log(`TYPE-1 employees for hierarchy: ${{type1Employees.length}} (excluded ${{employeeData.length - type1Employees.length}})`);
 
-            // 직원 ID로 매핑
+            // 직원 ID로 매핑 - 모든 TYPE-1 직원 포함
             const employeeMap = {{}};
             const rootNodes = [];
 
-            // 먼저 필터된 직원을 맵에 저장
-            filteredEmployees.forEach(emp => {{
+            // 모든 TYPE-1 직원을 맵에 저장 (계층 구조 형성을 위해)
+            type1Employees.forEach(emp => {{
                 // 인센티브 계산 방법 결정
                 let calculationMethod = '';
                 const pos = (emp.position || '').toUpperCase();
@@ -9959,19 +9962,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }};
             }});
 
-            // 부모-자식 관계 설정
-            filteredEmployees.forEach(emp => {{
-                if (emp.boss_id && emp.boss_id !== '' && emp.boss_id !== 'nan' && emp.boss_id !== '0') {{
-                    const boss = employeeMap[emp.boss_id];
+            // 부모-자식 관계 설정 - employeeMap의 모든 직원에 대해 처리
+            Object.values(employeeMap).forEach(node => {{
+                if (node.boss_id && node.boss_id !== '' && node.boss_id !== 'nan' && node.boss_id !== '0') {{
+                    const boss = employeeMap[node.boss_id];
                     if (boss) {{
-                        boss.children.push(employeeMap[emp.emp_no]);
+                        boss.children.push(node);
                     }} else {{
-                        // 보스가 없으면 루트 노드로 추가
-                        rootNodes.push(employeeMap[emp.emp_no]);
+                        // 보스가 employeeMap에 없으면 루트 노드로 추가
+                        rootNodes.push(node);
                     }}
                 }} else {{
                     // 보스 ID가 없으면 루트 노드
-                    rootNodes.push(employeeMap[emp.emp_no]);
+                    rootNodes.push(node);
                 }}
             }});
 
@@ -10434,6 +10437,335 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return reasons;
         }}
 
+        // Position Configuration Object
+        const POSITION_CONFIG = {{
+            'LINE LEADER': {{
+                multiplier: 0.12,
+                subordinateType: 'ASSEMBLY INSPECTOR',
+                formulaKey: 'orgChart.modal.formulas.lineLeader',
+                useGrouping: false,
+                useAlternatingColors: false,
+                subordinateLabel: 'assemblyInspectorList',
+                countLabel: 'inspectorCount',
+                findSubordinates: (nodeId) => {{
+                    return employeeData.filter(emp =>
+                        emp.boss_id === nodeId &&
+                        emp.position &&
+                        emp.position.toUpperCase().includes('ASSEMBLY INSPECTOR')
+                    );
+                }}
+            }},
+            'GROUP LEADER': {{
+                multiplier: 2,
+                subordinateType: 'LINE LEADER',
+                formulaKey: 'orgChart.modal.formulas.groupLeader',
+                useGrouping: false,
+                useAlternatingColors: false,
+                subordinateLabel: 'lineLeaderList',
+                countLabel: 'lineLeaderCount',
+                findSubordinates: (nodeId) => findTeamLineLeaders(nodeId)
+            }},
+            'SUPERVISOR': {{
+                multiplier: 2.5,
+                subordinateType: 'LINE LEADER',
+                formulaKey: 'orgChart.modal.formulas.supervisor',
+                useGrouping: true,
+                useAlternatingColors: true,
+                subordinateLabel: 'lineLeaderList',
+                countLabel: 'lineLeaderCount',
+                findSubordinates: (nodeId) => findTeamLineLeaders(nodeId)
+            }},
+            'A.MANAGER': {{
+                multiplier: 3,
+                subordinateType: 'LINE LEADER',
+                formulaKey: 'orgChart.modal.formulas.amanager',
+                useGrouping: true,
+                useAlternatingColors: false,
+                subordinateLabel: 'lineLeaderList',
+                countLabel: 'lineLeaderCount',
+                findSubordinates: (nodeId) => findTeamLineLeaders(nodeId)
+            }},
+            'MANAGER': {{
+                multiplier: 3.5,
+                subordinateType: 'LINE LEADER',
+                formulaKey: 'orgChart.modal.formulas.manager',
+                useGrouping: true,
+                useAlternatingColors: true,
+                subordinateLabel: 'lineLeaderList',
+                countLabel: 'lineLeaderCount',
+                findSubordinates: (nodeId) => findTeamLineLeaders(nodeId)
+            }}
+        }};
+
+        // Helper: Get position configuration
+        function getPositionConfig(position) {{
+            const posUpper = (position || '').toUpperCase();
+
+            // Exact match priority
+            if (posUpper.includes('LINE LEADER')) return POSITION_CONFIG['LINE LEADER'];
+            if (posUpper.includes('GROUP LEADER')) return POSITION_CONFIG['GROUP LEADER'];
+            if (posUpper.includes('SUPERVISOR')) return POSITION_CONFIG['SUPERVISOR'];
+            if (posUpper.includes('A.MANAGER') || posUpper.includes('ASSISTANT')) return POSITION_CONFIG['A.MANAGER'];
+            if (posUpper.includes('MANAGER') && !posUpper.includes('A.MANAGER') && !posUpper.includes('ASSISTANT')) return POSITION_CONFIG['MANAGER'];
+
+            return null;
+        }}
+
+        // Helper: Calculate expected incentive
+        function calculateExpectedIncentive(subordinates, config) {{
+            const receivingSubordinates = subordinates.filter(sub =>
+                Number(sub['{month.lower()}_incentive'] || 0) > 0
+            );
+
+            if (config.multiplier === 0.12) {{
+                // LINE LEADER: sum × 12% × receiving ratio
+                const totalIncentive = subordinates.reduce((sum, sub) =>
+                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                );
+                const receivingRatio = subordinates.length > 0 ?
+                    receivingSubordinates.length / subordinates.length : 0;
+                return {{
+                    expected: Math.round(totalIncentive * 0.12 * receivingRatio),
+                    metrics: {{
+                        total: totalIncentive,
+                        receiving: receivingSubordinates.length,
+                        count: subordinates.length,
+                        receivingRatio: receivingRatio,
+                        average: 0
+                    }}
+                }};
+            }} else {{
+                // Others: average × multiplier
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    receivingSubordinates.reduce((sum, sub) =>
+                        sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                    ) / receivingSubordinates.length : 0;
+                return {{
+                    expected: Math.round(avgIncentive * config.multiplier),
+                    metrics: {{
+                        total: 0,
+                        receiving: receivingSubordinates.length,
+                        count: subordinates.length,
+                        receivingRatio: 0,
+                        average: avgIncentive
+                    }}
+                }};
+            }}
+        }}
+
+        // Helper: Generate subordinate table HTML
+        function generateSubordinateTable(subordinates, config, currentLanguage) {{
+            if (subordinates.length === 0) return '';
+
+            const receivingSubordinates = subordinates.filter(sub =>
+                Number(sub['{month.lower()}_incentive'] || 0) > 0
+            );
+
+            if (config.useGrouping) {{
+                // Grouped table (SUPERVISOR, A.MANAGER, MANAGER)
+                const subordinatesByGroup = {{}};
+                subordinates.forEach(sub => {{
+                    const groupLeader = employeeData.find(emp => emp.emp_no === sub.boss_id);
+                    const groupName = groupLeader ? groupLeader.name : 'Unknown';
+                    if (!subordinatesByGroup[groupName]) {{
+                        subordinatesByGroup[groupName] = [];
+                    }}
+                    subordinatesByGroup[groupName].push(sub);
+                }});
+
+                const totalIncentive = receivingSubordinates.reduce((sum, sub) =>
+                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                );
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    totalIncentive / receivingSubordinates.length : 0;
+
+                return `
+                    <div class="mt-3">
+                        <h6>📋 ${{getTranslation(`orgChart.modal.${{config.subordinateLabel}}`, currentLanguage)}}</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>${{getTranslation('orgChart.modal.tableHeaders.groupLeader', currentLanguage)}}</th>
+                                    <th>${{getTranslation('orgChart.modal.tableHeaders.lineLeader', currentLanguage)}}</th>
+                                    <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
+                                    <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
+                                    <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${{Object.entries(subordinatesByGroup).map(([groupName, subs], groupIdx) => {{
+                                    const bgClass = config.useAlternatingColors && groupIdx % 2 === 0 ? '' : 'table-light';
+                                    return subs.map((sub, idx) => {{
+                                        const subIncentive = Number(sub['{month.lower()}_incentive'] || 0);
+                                        const included = subIncentive > 0;
+                                        const rowClass = included ? bgClass : `text-muted ${{bgClass}}`;
+                                        return `
+                                            <tr class="${{rowClass}}">
+                                                ${{idx === 0 ? `<td rowspan="${{subs.length}}">${{groupName}}</td>` : ''}}
+                                                <td>${{sub.name || sub.employee_name || 'Unknown'}}</td>
+                                                <td>${{sub.emp_no || sub.employee_id || ''}}</td>
+                                                <td class="text-end">${{included ? '₫' + subIncentive.toLocaleString('ko-KR') : '-'}}</td>
+                                                <td class="text-center">${{included ? '✅' : '❌'}}</td>
+                                            </tr>
+                                        `;
+                                    }}).join('');
+                                }}).join('')}}
+                            </tbody>
+                            <tfoot class="table-secondary">
+                                <tr>
+                                    <th colspan="3">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
+                                    <th class="text-end">₫${{totalIncentive.toLocaleString('ko-KR')}}</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
+                                        .replace('{{{{receiving}}}}', receivingSubordinates.length)
+                                        .replace('{{{{total}}}}', subordinates.length)}}</th>
+                                    <th class="text-end">₫${{Math.round(avgIncentive).toLocaleString('ko-KR')}}</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+            }} else {{
+                // Simple table (LINE LEADER, GROUP LEADER)
+                const totalIncentive = receivingSubordinates.reduce((sum, sub) =>
+                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                );
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    totalIncentive / receivingSubordinates.length : 0;
+
+                return `
+                    <div class="mt-3">
+                        <h6>📋 ${{getTranslation(`orgChart.modal.${{config.subordinateLabel}}`, currentLanguage)}}</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>${{getTranslation('orgChart.modal.tableHeaders.name', currentLanguage)}}</th>
+                                    <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
+                                    <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
+                                    <th class="text-center">${{getTranslation(`orgChart.modal.tableHeaders.${{config.subordinateType === 'ASSEMBLY INSPECTOR' ? 'received' : 'included'}}`, currentLanguage)}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${{subordinates.map(sub => {{
+                                    const subIncentive = Number(sub['{month.lower()}_incentive'] || 0);
+                                    const isReceiving = subIncentive > 0;
+                                    return `
+                                        <tr class="${{isReceiving ? '' : 'text-muted'}}">
+                                            <td>${{sub.name || sub.employee_name || 'Unknown'}}</td>
+                                            <td>${{sub.emp_no || sub.employee_id || ''}}</td>
+                                            <td class="text-end">${{isReceiving ? '₫' + subIncentive.toLocaleString('ko-KR') : '-'}}</td>
+                                            <td class="text-center">${{isReceiving ? '✅' : '❌'}}</td>
+                                        </tr>
+                                    `;
+                                }}).join('')}}
+                            </tbody>
+                            <tfoot class="table-secondary">
+                                <tr>
+                                    <th colspan="2">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
+                                    <th class="text-end">₫${{totalIncentive.toLocaleString('ko-KR')}}</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="2">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
+                                        .replace('{{{{receiving}}}}', receivingSubordinates.length)
+                                        .replace('{{{{total}}}}', subordinates.length)}}</th>
+                                    <th class="text-end">₫${{Math.round(avgIncentive).toLocaleString('ko-KR')}}</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+            }}
+        }}
+
+        // Helper: Generate calculation details HTML
+        function generateCalculationDetails(positionData, config, metrics, expectedIncentive, actualIncentive, currentLanguage) {{
+            const positionStr = positionData.positionStr || '';
+            const subordinateTable = generateSubordinateTable(
+                config.findSubordinates(positionData.nodeId),
+                config,
+                currentLanguage
+            );
+
+            if (config.multiplier === 0.12) {{
+                // LINE LEADER specific calculation
+                return `
+                    <div class="calculation-details">
+                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (LINE LEADER)</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
+                                <td class="text-end"><strong>${{getTranslation(config.formulaKey, currentLanguage)}}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>${{getTranslation(`orgChart.modal.labels.${{config.countLabel}}`, currentLanguage)}}:</td>
+                                <td class="text-end">${{metrics.count}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{metrics.receiving}}${{getTranslation('common.people', currentLanguage)}})</td>
+                            </tr>
+                            <tr>
+                                <td>${{getTranslation('orgChart.modal.labels.incentiveSum', currentLanguage)}}:</td>
+                                <td class="text-end">₫${{metrics.total.toLocaleString('ko-KR')}}</td>
+                            </tr>
+                            <tr>
+                                <td>${{getTranslation('orgChart.modal.labels.receivingRatio', currentLanguage)}}:</td>
+                                <td class="text-end">${{metrics.receiving}}/${{metrics.count}} = ${{(metrics.receivingRatio * 100).toFixed(1)}}%</td>
+                            </tr>
+                            <tr>
+                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
+                                <td class="text-end">₫${{metrics.total.toLocaleString('ko-KR')}} × 12% × ${{(metrics.receivingRatio * 100).toFixed(1)}}%</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}}:</strong></td>
+                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                            <tr class="${{Math.abs(actualIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
+                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}}:</strong></td>
+                                <td class="text-end"><strong>₫${{actualIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                        </table>
+                        ${{subordinateTable}}
+                    </div>
+                `;
+            }} else {{
+                // Others: average-based calculation
+                return `
+                    <div class="calculation-details">
+                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (${{positionStr.toUpperCase().includes('A.MANAGER') || positionStr.toUpperCase().includes('ASSISTANT') ? 'A.MANAGER' : positionStr.toUpperCase().includes('SUPERVISOR') ? 'SUPERVISOR' : positionStr.toUpperCase().includes('GROUP LEADER') ? 'GROUP LEADER' : 'MANAGER'}})</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
+                                <td class="text-end"><strong>${{getTranslation(config.formulaKey, currentLanguage)}}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>${{getTranslation(`orgChart.modal.labels.${{config.countLabel}}`, currentLanguage)}}:</td>
+                                <td class="text-end">${{metrics.count}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{metrics.receiving}}${{getTranslation('common.people', currentLanguage)}})</td>
+                            </tr>
+                            <tr>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
+                                <td class="text-end">₫${{Math.round(metrics.average).toLocaleString('ko-KR')}}</td>
+                            </tr>
+                            <tr>
+                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
+                                <td class="text-end">₫${{Math.round(metrics.average).toLocaleString('ko-KR')}} × ${{config.multiplier}}</td>
+                            </tr>
+                            <tr class="table-primary">
+                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                            <tr class="${{Math.abs(actualIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
+                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td class="text-end"><strong>₫${{actualIncentive.toLocaleString('ko-KR')}}</strong></td>
+                            </tr>
+                        </table>
+                        ${{subordinateTable}}
+                    </div>
+                `;
+            }}
+        }}
+
         // 인센티브 상세 모달 (전역 스코프)
         window.showIncentiveModal = function(nodeId) {{
             console.log('🔍 모달 함수 호출됨 - Node ID:', nodeId);
@@ -10460,527 +10792,30 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     return Number(incentive) > 0;
                 }});
 
-                // 계산 과정 상세 내용 생성
+                // Configuration-driven calculation
                 let calculationDetails = '';
                 let expectedIncentive = 0;
 
-                if (position.includes('LINE LEADER')) {{
-                // LINE LEADER 계산 상세 - 부하직원 합계 × 12% × 수령율
-                const assemblyInspectors = subordinates.filter(sub =>
-                    sub.position && sub.position.toUpperCase().includes('ASSEMBLY INSPECTOR')
-                );
-                const totalSubIncentive = assemblyInspectors.reduce((sum, sub) => {{
-                    return sum + Number(sub['{month.lower()}_incentive'] || 0);
-                }}, 0);
-                const receivingInspectors = assemblyInspectors.filter(ai =>
-                    Number(ai['{month.lower()}_incentive'] || 0) > 0
-                );
-                const receivingRatio = assemblyInspectors.length > 0 ? receivingInspectors.length / assemblyInspectors.length : 0;
-                expectedIncentive = Math.round(totalSubIncentive * 0.12 * receivingRatio);
+                // Get position configuration
+                const config = getPositionConfig(employee.position);
 
-                // ASSEMBLY INSPECTOR 상세 내역 생성
-                let inspectorDetails = '';
-                if (assemblyInspectors.length > 0) {{
-                    inspectorDetails = `
-                        <div class="mt-3">
-                            <h6>📋 ${{getTranslation('orgChart.modal.assemblyInspectorList', currentLanguage)}}</h6>
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.name', currentLanguage)}}</th>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
-                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
-                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.received', currentLanguage)}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${{assemblyInspectors.map(ai => {{
-                                        const aiIncentive = Number(ai['{month.lower()}_incentive'] || 0);
-                                        const isReceiving = aiIncentive > 0;
-                                        return `
-                                            <tr class="${{isReceiving ? '' : 'text-muted'}}">
-                                                <td>${{ai.name || ai.employee_name || 'Unknown'}}</td>
-                                                <td>${{ai.emp_no || ai.employee_id || ''}}</td>
-                                                <td class="text-end">₫${{aiIncentive.toLocaleString('ko-KR')}}</td>
-                                                <td class="text-center">${{isReceiving ? '✅' : '❌'}}</td>
-                                            </tr>
-                                        `;
-                                    }}).join('')}}
-                                </tbody>
-                                <tfoot class="table-secondary">
-                                    <tr>
-                                        <th colspan="2">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
-                                        <th class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="2">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage).replace('{{receiving}}', receivingInspectors.length).replace('{{total}}', assemblyInspectors.length)}}</th>
-                                        <th class="text-end">₫${{receivingInspectors.length > 0 ? Math.round(totalSubIncentive / receivingInspectors.length).toLocaleString('ko-KR') : '0'}}</th>
-                                        <th></th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    `;
-                }}
+                if (config) {{
+                    // Find subordinates using configuration
+                    const subordinates = config.findSubordinates(nodeId);
 
-                calculationDetails = `
-                    <div class="calculation-details">
-                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (LINE LEADER)</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
-                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.lineLeader', currentLanguage)}}</strong></td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.inspectorCount', currentLanguage)}}:</td>
-                                <td class="text-end">${{assemblyInspectors.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingInspectors.length}}${{getTranslation('common.people', currentLanguage)}})</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.incentiveSum', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}}</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.receivingRatio', currentLanguage)}}:</td>
-                                <td class="text-end">${{receivingInspectors.length}}/${{assemblyInspectors.length}} = ${{(receivingRatio * 100).toFixed(1)}}%</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}} × 12% × ${{(receivingRatio * 100).toFixed(1)}}%</td>
-                            </tr>
-                            <tr class="table-primary">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}}:</strong></td>
-                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}}:</strong></td>
-                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                        </table>
-                        ${{inspectorDetails}}
-                    </div>
-                `;
-                }} else if (position.includes('GROUP LEADER')) {{
-                // GROUP LEADER 계산 상세 - 팀 내 LINE LEADER 평균 × 2
-                const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
-                const receivingLineLeaders = teamLineLeaders.filter(ll =>
-                    Number(ll['{month.lower()}_incentive'] || 0) > 0
-                );
-                const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
-                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                expectedIncentive = Math.round(avgLineLeaderIncentive * 2);
+                    // Calculate expected incentive and metrics
+                    const result = calculateExpectedIncentive(subordinates, config);
+                    expectedIncentive = result.expected;
 
-                // LINE LEADER별 상세 내역 생성
-                let lineLeaderDetails = '';
-                if (teamLineLeaders.length > 0) {{
-                    lineLeaderDetails = `
-                        <div class="mt-3">
-                            <h6>📋 ${{getTranslation('orgChart.modal.lineLeaderList', currentLanguage)}}</h6>
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.name', currentLanguage)}}</th>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
-                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
-                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${{teamLineLeaders.map(ll => {{
-                                        const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
-                                        const included = llIncentive > 0;
-                                        return `
-                                            <tr class="${{included ? '' : 'text-muted'}}">
-                                                <td>${{ll.name}}</td>
-                                                <td>${{ll.emp_no}}</td>
-                                                <td class="text-end">${{included ? '₫' + llIncentive.toLocaleString('ko-KR') : '-'}}</td>
-                                                <td class="text-center">${{included ? '✅' : '❌'}}</td>
-                                            </tr>
-                                        `;
-                                    }}).join('')}}
-                                </tbody>
-                                <tfoot class="table-secondary">
-                                    <tr>
-                                        <th colspan="2">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
-                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="2">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage).replace('{{receiving}}', receivingLineLeaders.length).replace('{{total}}', teamLineLeaders.length)}}</th>
-                                        <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    `;
-                }}
-
-                calculationDetails = `
-                    <div class="calculation-details">
-                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (GROUP LEADER)</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
-                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.groupLeader', currentLanguage)}}</strong></td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderCount', currentLanguage)}}:</td>
-                                <td class="text-end">${{teamLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}})</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2</td>
-                            </tr>
-                            <tr class="table-primary">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}}:</strong></td>
-                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}}:</strong></td>
-                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                        </table>
-                        ${{lineLeaderDetails}}
-                    </div>
-                `;
-                }} else if (position.includes('SUPERVISOR')) {{
-                // SUPERVISOR 계산 상세 - 팀 내 LINE LEADER만
-                const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
-                const receivingLineLeaders = teamLineLeaders.filter(ll =>
-                    Number(ll['{month.lower()}_incentive'] || 0) > 0
-                );
-                const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
-                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                expectedIncentive = Math.round(avgLineLeaderIncentive * 2.5);
-
-                // 팀 내 LINE LEADER 상세 내역 생성
-                let allLineLeaderDetails = '';
-                if (teamLineLeaders.length > 0) {{
-                    // LINE LEADER를 GROUP별로 그룹화
-                    const lineLeadersByGroup = {{}};
-                    teamLineLeaders.forEach(ll => {{
-                        const groupLeader = employeeData.find(emp => emp.emp_no === ll.boss_id);
-                        const groupName = groupLeader ? groupLeader.name : 'Unknown';
-                        if (!lineLeadersByGroup[groupName]) {{
-                            lineLeadersByGroup[groupName] = [];
-                        }}
-                        lineLeadersByGroup[groupName].push(ll);
-                    }});
-
-                    allLineLeaderDetails = `
-                        <div class="mt-3">
-                            <h6>📋 ${{getTranslation('orgChart.modal.lineLeaderList', currentLanguage)}}</h6>
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.group', currentLanguage)}}</th>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.lineLeader', currentLanguage)}}</th>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
-                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
-                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders], groupIdx) => {{
-                                        const bgClass = groupIdx % 2 === 0 ? '' : 'table-light';
-                                        return leaders.map((ll, idx) => {{
-                                            const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
-                                            const included = llIncentive > 0;
-                                            const rowClass = included ? bgClass : `text-muted ${{bgClass}}`;
-                                            return `
-                                                <tr class="${{rowClass}}">
-                                                    ${{idx === 0 ? `<td rowspan="${{leaders.length}}">${{groupName}}</td>` : ''}}
-                                                    <td>${{ll.name}}</td>
-                                                    <td>${{ll.emp_no}}</td>
-                                                    <td class="text-end">${{included ? '₫' + llIncentive.toLocaleString('ko-KR') : '-'}}</td>
-                                                    <td class="text-center">${{included ? '✅' : '❌'}}</td>
-                                                </tr>
-                                            `;
-                                        }}).join('');
-                                    }}).join('')}}
-                                </tbody>
-                                <tfoot class="table-secondary">
-                                    <tr>
-                                        <th colspan="3">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
-                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage).replace('{{receiving}}', receivingLineLeaders.length).replace('{{total}}', teamLineLeaders.length)}}</th>
-                                        <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    `;
-                }}
-
-                calculationDetails = `
-                    <div class="calculation-details">
-                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (SUPERVISOR)</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
-                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.supervisor', currentLanguage)}}</strong></td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderCount', currentLanguage)}}:</td>
-                                <td class="text-end">${{teamLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}})</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2.5</td>
-                            </tr>
-                            <tr class="table-primary">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}}:</strong></td>
-                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}}:</strong></td>
-                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                        </table>
-                        ${{allLineLeaderDetails}}
-                    </div>
-                `;
-                }} else if (position.includes('A.MANAGER') || position.includes('ASSISTANT')) {{
-                // A.MANAGER 계산 상세 - 팀 내 LINE LEADER 평균 × 3
-                let teamLineLeaders = [];
-                let receivingLineLeaders = [];
-                let avgLineLeaderIncentive = 0;
-                let expectedIncentive = 0;
-
-                // 에러 핸들링을 추가한 팀 LINE LEADER 찾기
-                try {{
-                    teamLineLeaders = findTeamLineLeaders(employee.emp_no);
-                    receivingLineLeaders = teamLineLeaders.filter(ll =>
-                        Number(ll['{month.lower()}_incentive'] || 0) > 0
+                    // Generate calculation details HTML
+                    calculationDetails = generateCalculationDetails(
+                        {{ nodeId: nodeId, positionStr: employee.position }},
+                        config,
+                        result.metrics,
+                        expectedIncentive,
+                        employeeIncentive,
+                        currentLanguage
                     );
-                    avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
-                        receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                    expectedIncentive = Math.round(avgLineLeaderIncentive * 3);
-                }} catch (err) {{
-                    console.error('❌ A.MANAGER 계산 중 오류:', err);
-                    teamLineLeaders = [];
-                    receivingLineLeaders = [];
-                }}
-
-                // LINE LEADER 인센티브 합계 계산
-                const lineLeaderTotal = receivingLineLeaders.reduce((sum, ll) =>
-                    sum + Number(ll['{month.lower()}_incentive'] || 0), 0);
-
-                // 팀 내 LINE LEADER 상세 내역 생성
-                let lineLeaderBreakdown = '';
-                if (teamLineLeaders.length > 0) {{
-                    // LINE LEADER를 GROUP별로 그룹화
-                    const lineLeadersByGroup = {{}};
-                    teamLineLeaders.forEach(ll => {{
-                        const groupLeader = employeeData.find(emp => emp.emp_no === ll.boss_id);
-                        const groupName = groupLeader ? groupLeader.name : 'Unknown';
-                        if (!lineLeadersByGroup[groupName]) {{
-                            lineLeadersByGroup[groupName] = [];
-                        }}
-                        lineLeadersByGroup[groupName].push(ll);
-                    }});
-
-                    lineLeaderBreakdown = `
-                        <div class="mt-3">
-                            <h6>📋 ${{getTranslation('orgChart.modal.lineLeaderList', currentLanguage)}}</h6>
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.groupLeader', currentLanguage)}}</th>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.lineLeader', currentLanguage)}}</th>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
-                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
-                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {{
-                                        return leaders.map((ll, idx) => {{
-                                            const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
-                                            const included = llIncentive > 0;
-                                            return `
-                                                <tr class="${{included ? '' : 'text-muted'}}">
-                                                    ${{idx === 0 ? `<td rowspan="${{leaders.length}}">${{groupName}}</td>` : ''}}
-                                                    <td>${{ll.name || ll.employee_name || 'Unknown'}}</td>
-                                                    <td>${{ll.emp_no || ll.employee_id || ''}}</td>
-                                                    <td class="text-end">₫${{llIncentive.toLocaleString('ko-KR')}}</td>
-                                                    <td class="text-center">${{included ? '✅' : '❌'}}</td>
-                                                </tr>
-                                            `;
-                                        }}).join('');
-                                    }}).join('')}}
-                                </tbody>
-                                <tfoot class="table-secondary">
-                                    <tr>
-                                        <th colspan="3">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
-                                        <th class="text-end">₫${{lineLeaderTotal.toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
-                                            .replace('{{{{receiving}}}}', receivingLineLeaders.length)
-                                            .replace('{{{{total}}}}', teamLineLeaders.length)}}</th>
-                                        <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    `;
-                }}
-
-                calculationDetails = `
-                    <div class="calculation-details">
-                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (A.MANAGER)</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
-                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.amanager', currentLanguage)}}</strong></td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderCount', currentLanguage)}}:</td>
-                                <td class="text-end">${{teamLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}})</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3</td>
-                            </tr>
-                            <tr class="table-primary">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
-                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
-                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                        </table>
-                        ${{lineLeaderBreakdown}}
-                    </div>
-                `;
-                }} else if (position.includes('MANAGER') && !position.includes('A.MANAGER') && !position.includes('ASSISTANT')) {{
-                // MANAGER 계산 상세 - 팀 내 LINE LEADER 평균 기준
-                const teamLineLeaders = findTeamLineLeaders(employee.emp_no);
-                const receivingLineLeaders = teamLineLeaders.filter(ll =>
-                    Number(ll['{month.lower()}_incentive'] || 0) > 0
-                );
-                const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
-                    receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                expectedIncentive = Math.round(avgLineLeaderIncentive * 3.5);
-
-                // 팀 내 LINE LEADER 상세 내역 생성
-                let lineLeaderBreakdown = '';
-                if (teamLineLeaders.length > 0) {{
-                    // LINE LEADER를 GROUP별로 그룹화
-                    const lineLeadersByGroup = {{}};
-                    teamLineLeaders.forEach(ll => {{
-                        const groupLeader = employeeData.find(emp => emp.emp_no === ll.boss_id);
-                        const groupName = groupLeader ? groupLeader.name : 'Unknown';
-                        if (!lineLeadersByGroup[groupName]) {{
-                            lineLeadersByGroup[groupName] = [];
-                        }}
-                        lineLeadersByGroup[groupName].push(ll);
-                    }});
-
-                    lineLeaderBreakdown = `
-                        <div class="mt-3">
-                            <h6>📋 ${{getTranslation('orgChart.modal.lineLeaderList', currentLanguage)}}</h6>
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.groupLeader', currentLanguage)}}</th>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.lineLeader', currentLanguage)}}</th>
-                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
-                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
-                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${{Object.entries(lineLeadersByGroup).map(([groupName, leaders], groupIdx) => {{
-                                        const bgClass = groupIdx % 2 === 0 ? '' : 'table-light';
-                                        return leaders.map((ll, idx) => {{
-                                            const llIncentive = Number(ll['{month.lower()}_incentive'] || 0);
-                                            const included = llIncentive > 0;
-                                            const rowClass = included ? bgClass : `text-muted ${{bgClass}}`;
-                                            return `
-                                                <tr class="${{rowClass}}">
-                                                    ${{idx === 0 ? `<td rowspan="${{leaders.length}}">${{groupName}}</td>` : ''}}
-                                                    <td>${{ll.name}}</td>
-                                                    <td>${{ll.emp_no}}</td>
-                                                    <td class="text-end">${{included ? '₫' + llIncentive.toLocaleString('ko-KR') : '-'}}</td>
-                                                    <td class="text-center">${{included ? '✅' : '❌'}}</td>
-                                                </tr>
-                                            `;
-                                        }}).join('');
-                                    }}).join('')}}
-                                </tbody>
-                                <tfoot class="table-secondary">
-                                    <tr>
-                                        <th colspan="3">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
-                                        <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
-                                            .replace('{{{{receiving}}}}', receivingLineLeaders.length)
-                                            .replace('{{{{total}}}}', teamLineLeaders.length)}}</th>
-                                        <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
-                                        <th></th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    `;
-                }}
-
-                calculationDetails = `
-                    <div class="calculation-details">
-                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (MANAGER)</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
-                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.manager', currentLanguage)}}</strong></td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderCount', currentLanguage)}}:</td>
-                                <td class="text-end">${{teamLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}})</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
-                            </tr>
-                            <tr>
-                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
-                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3.5</td>
-                            </tr>
-                            <tr class="table-primary">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
-                                <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                            <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
-                                <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
-                            </tr>
-                        </table>
-                        ${{lineLeaderBreakdown}}
-                    </div>
-                `;
                 }}
 
                 // 모달 HTML 생성
