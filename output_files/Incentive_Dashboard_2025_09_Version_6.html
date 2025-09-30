@@ -1335,7 +1335,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v7.01</span></h1>
             <p id="mainSubtitle">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="09" data-day="30" data-hour="18" data-minute="57">보고서 생성일: 2025년 09월 30일 18:57</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="09" data-day="30" data-hour="20" data-minute="50">보고서 생성일: 2025년 09월 30일 20:50</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="09" data-startday="01" data-endday="30">• 인센티브 데이터: 2025년 09월 01일 ~ 30일</p>
@@ -3594,6 +3594,38 @@
           "ko": "LINE LEADER 평균",
           "en": "LINE LEADER Average",
           "vi": "Trung bình LINE LEADER"
+        },
+        "expectedIncentive": {
+          "ko": "예상 인센티브",
+          "en": "Expected Incentive",
+          "vi": "Khuyến khích dự kiến"
+        },
+        "actualIncentive": {
+          "ko": "실제 인센티브",
+          "en": "Actual Incentive",
+          "vi": "Khuyến khích thực tế"
+        }
+      },
+      "alerts": {
+        "nonPaymentTitle": {
+          "ko": "미지급 사유",
+          "en": "Non-Payment Reason",
+          "vi": "Lý do không thanh toán"
+        },
+        "differenceTitle": {
+          "ko": "인센티브 차이 안내",
+          "en": "Incentive Difference Notice",
+          "vi": "Thông báo sự khác biệt khuyến khích"
+        },
+        "difference": {
+          "ko": "차이",
+          "en": "Difference",
+          "vi": "Sự khác biệt"
+        },
+        "differenceReason": {
+          "ko": "차이 원인: 부하 직원 중 일부가 조건 미충족으로 인센티브를 받지 못했습니다.",
+          "en": "Reason: Some subordinates did not receive incentives due to unmet conditions.",
+          "vi": "Lý do: Một số nhân viên cấp dưới không nhận được khuyến khích do không đáp ứng điều kiện."
         }
       },
       "tableHeaders": {
@@ -14106,6 +14138,7 @@
 
                 // 계산 과정 상세 내용 생성
                 let calculationDetails = '';
+                let expectedIncentive = 0;
 
                 if (position.includes('LINE LEADER')) {
                 // LINE LEADER 계산 상세 - 부하직원 합계 × 12% × 수령율
@@ -14119,7 +14152,7 @@
                     Number(ai['september_incentive'] || 0) > 0
                 );
                 const receivingRatio = assemblyInspectors.length > 0 ? receivingInspectors.length / assemblyInspectors.length : 0;
-                const expectedIncentive = Math.round(totalSubIncentive * 0.12 * receivingRatio);
+                expectedIncentive = Math.round(totalSubIncentive * 0.12 * receivingRatio);
 
                 // ASSEMBLY INSPECTOR 상세 내역 생성
                 let inspectorDetails = '';
@@ -14192,11 +14225,11 @@
                                 <td class="text-end">₫${totalSubIncentive.toLocaleString('ko-KR')} × 12% × ${(receivingRatio * 100).toFixed(1)}%</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${getTranslation('modal.expectedIncentive', currentLanguage)}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}:</strong></td>
                                 <td class="text-end"><strong>₫${expectedIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                             <tr class="${Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}">
-                                <td><strong>${getTranslation('modal.actualIncentive', currentLanguage)}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}:</strong></td>
                                 <td class="text-end"><strong>₫${employeeIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                         </table>
@@ -14211,7 +14244,7 @@
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
                     receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['september_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                const expectedIncentive = Math.round(avgLineLeaderIncentive * 2);
+                expectedIncentive = Math.round(avgLineLeaderIncentive * 2);
 
                 // LINE LEADER별 상세 내역 생성
                 let lineLeaderDetails = '';
@@ -14280,11 +14313,11 @@
                                 <td class="text-end">₫${Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')} × 2</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${getTranslation('modal.expectedIncentive', currentLanguage)}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}:</strong></td>
                                 <td class="text-end"><strong>₫${expectedIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                             <tr class="${Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}">
-                                <td><strong>${getTranslation('modal.actualIncentive', currentLanguage)}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}:</strong></td>
                                 <td class="text-end"><strong>₫${employeeIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                         </table>
@@ -14299,7 +14332,7 @@
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
                     receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['september_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                const expectedIncentive = Math.round(avgLineLeaderIncentive * 2.5);
+                expectedIncentive = Math.round(avgLineLeaderIncentive * 2.5);
 
                 // 팀 내 LINE LEADER 상세 내역 생성
                 let allLineLeaderDetails = '';
@@ -14329,12 +14362,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {
+                                    ${Object.entries(lineLeadersByGroup).map(([groupName, leaders], groupIdx) => {
+                                        const bgClass = groupIdx % 2 === 0 ? '' : 'table-light';
                                         return leaders.map((ll, idx) => {
                                             const llIncentive = Number(ll['september_incentive'] || 0);
                                             const included = llIncentive > 0;
+                                            const rowClass = included ? bgClass : `text-muted ${bgClass}`;
                                             return `
-                                                <tr class="${included ? '' : 'text-muted'}">
+                                                <tr class="${rowClass}">
                                                     ${idx === 0 ? `<td rowspan="${leaders.length}">${groupName}</td>` : ''}
                                                     <td>${ll.name}</td>
                                                     <td>${ll.emp_no}</td>
@@ -14383,11 +14418,11 @@
                                 <td class="text-end">₫${Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')} × 2.5</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${getTranslation('modal.expectedIncentive', currentLanguage)}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}:</strong></td>
                                 <td class="text-end"><strong>₫${expectedIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                             <tr class="${Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}">
-                                <td><strong>${getTranslation('modal.actualIncentive', currentLanguage)}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}:</strong></td>
                                 <td class="text-end"><strong>₫${employeeIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                         </table>
@@ -14504,11 +14539,11 @@
                                 <td class="text-end">₫${Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')} × 3</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage) || '예상 인센티브'}:</strong></td>
                                 <td class="text-end"><strong>₫${expectedIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                             <tr class="${Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}">
-                                <td><strong>${getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage) || '실제 인센티브'}:</strong></td>
                                 <td class="text-end"><strong>₫${employeeIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                         </table>
@@ -14523,7 +14558,7 @@
                 );
                 const avgLineLeaderIncentive = receivingLineLeaders.length > 0 ?
                     receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['september_incentive'] || 0), 0) / receivingLineLeaders.length : 0;
-                const expectedIncentive = Math.round(avgLineLeaderIncentive * 3.5);
+                expectedIncentive = Math.round(avgLineLeaderIncentive * 3.5);
 
                 // 팀 내 LINE LEADER 상세 내역 생성
                 let lineLeaderBreakdown = '';
@@ -14553,12 +14588,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${Object.entries(lineLeadersByGroup).map(([groupName, leaders]) => {
+                                    ${Object.entries(lineLeadersByGroup).map(([groupName, leaders], groupIdx) => {
+                                        const bgClass = groupIdx % 2 === 0 ? '' : 'table-light';
                                         return leaders.map((ll, idx) => {
                                             const llIncentive = Number(ll['september_incentive'] || 0);
                                             const included = llIncentive > 0;
+                                            const rowClass = included ? bgClass : `text-muted ${bgClass}`;
                                             return `
-                                                <tr class="${included ? '' : 'text-muted'}">
+                                                <tr class="${rowClass}">
                                                     ${idx === 0 ? `<td rowspan="${leaders.length}">${groupName}</td>` : ''}
                                                     <td>${ll.name}</td>
                                                     <td>${ll.emp_no}</td>
@@ -14609,11 +14646,11 @@
                                 <td class="text-end">₫${Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')} × 3.5</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage) || '예상 인센티브'}:</strong></td>
                                 <td class="text-end"><strong>₫${expectedIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                             <tr class="${Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}">
-                                <td><strong>${getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}:</strong></td>
+                                <td><strong>${getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage) || '실제 인센티브'}:</strong></td>
                                 <td class="text-end"><strong>₫${employeeIncentive.toLocaleString('ko-KR')}</strong></td>
                             </tr>
                         </table>
@@ -14650,14 +14687,35 @@
                                             const failureReasons = getIncentiveFailureReasons(employee);
                                             if (failureReasons.length > 0) {
                                                 return `
-                                                    <div class="alert alert-warning mt-3">
-                                                        <h6 class="alert-heading">📋 <span class="modal-no-payment-reason">${getTranslation('orgChart.modalLabels.noPaymentReason', currentLanguage)}</span></h6>
+                                                    <div class="alert alert-danger mt-3">
+                                                        <h6 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> <span class="modal-no-payment-reason">${getTranslation('orgChart.modal.alerts.nonPaymentTitle', currentLanguage)}</span></h6>
                                                         <ul class="mb-0">
                                                             ${failureReasons.map(reason => `<li>${reason}</li>`).join('')}
                                                         </ul>
                                                     </div>
                                                 `;
                                             }
+                                        } else if (expectedIncentive > 0 && Math.abs(expectedIncentive - employeeIncentive) >= 1000) {
+                                            return `
+                                                <div class="alert alert-warning mt-3">
+                                                    <h6 class="alert-heading"><i class="bi bi-info-circle-fill"></i> ${getTranslation('orgChart.modal.alerts.differenceTitle', currentLanguage)}</h6>
+                                                    <table class="table table-sm table-borderless mb-2" style="font-size: 0.9em;">
+                                                        <tr>
+                                                            <td>${getTranslation('orgChart.modal.labels.expectedIncentive', currentLanguage)}:</td>
+                                                            <td class="text-end"><strong>₫${expectedIncentive.toLocaleString('ko-KR')}</strong></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>${getTranslation('orgChart.modal.labels.actualIncentive', currentLanguage)}:</td>
+                                                            <td class="text-end"><strong>₫${employeeIncentive.toLocaleString('ko-KR')}</strong></td>
+                                                        </tr>
+                                                        <tr class="border-top">
+                                                            <td><strong>${getTranslation('orgChart.modal.alerts.difference', currentLanguage)}:</strong></td>
+                                                            <td class="text-end"><strong>₫${Math.abs(expectedIncentive - employeeIncentive).toLocaleString('ko-KR')}</strong></td>
+                                                        </tr>
+                                                    </table>
+                                                    <p class="mb-0"><small>💡 ${getTranslation('orgChart.modal.alerts.differenceReason', currentLanguage)}</small></p>
+                                                </div>
+                                            `;
                                         }
                                         return '';
                                     })()}

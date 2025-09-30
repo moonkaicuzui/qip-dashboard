@@ -482,6 +482,38 @@
           "ko": "LINE LEADER 평균",
           "en": "LINE LEADER Average",
           "vi": "Trung bình LINE LEADER"
+        },
+        "expectedIncentive": {
+          "ko": "예상 인센티브",
+          "en": "Expected Incentive",
+          "vi": "Khuyến khích dự kiến"
+        },
+        "actualIncentive": {
+          "ko": "실제 인센티브",
+          "en": "Actual Incentive",
+          "vi": "Khuyến khích thực tế"
+        }
+      },
+      "alerts": {
+        "nonPaymentTitle": {
+          "ko": "미지급 사유",
+          "en": "Non-Payment Reason",
+          "vi": "Lý do không thanh toán"
+        },
+        "differenceTitle": {
+          "ko": "인센티브 차이 안내",
+          "en": "Incentive Difference Notice",
+          "vi": "Thông báo sự khác biệt khuyến khích"
+        },
+        "difference": {
+          "ko": "차이",
+          "en": "Difference",
+          "vi": "Sự khác biệt"
+        },
+        "differenceReason": {
+          "ko": "차이 원인: 부하 직원 중 일부가 조건 미충족으로 인센티브를 받지 못했습니다.",
+          "en": "Reason: Some subordinates did not receive incentives due to unmet conditions.",
+          "vi": "Lý do: Một số nhân viên cấp dưới không nhận được khuyến khích do không đáp ứng điều kiện."
         }
       },
       "tableHeaders": {
