@@ -513,6 +513,9 @@ def evaluate_conditions(emp_data, condition_matrix):
 
     results = []
 
+    # 해당 직급/타입에 적용되는 조건 목록 가져오기 (CRITICAL FIX)
+    applicable = get_applicable_conditions(emp_data.get('position', ''), type_name, condition_matrix)
+
     # Excel에서 조건 결과 가져오기 (있으면 사용, 없으면 자체 계산)
     condition_names = [
         'attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
@@ -522,6 +525,12 @@ def evaluate_conditions(emp_data, condition_matrix):
 
     for cond_id in range(1, 11):
         cond_col = f'cond_{cond_id}_{condition_names[cond_id-1]}'
+
+        # 먼저 적용 가능한 조건인지 확인 (CRITICAL FIX)
+        if cond_id not in applicable:
+            # excluded_conditions에 있는 조건은 Excel 결과와 관계없이 N/A
+            results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
+            continue
 
         # Excel에 조건 평가 결과가 있으면 사용
         if cond_col in emp_data:
@@ -561,7 +570,7 @@ def evaluate_conditions(emp_data, condition_matrix):
                 results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
         else:
             # Excel에 없으면 기존 자체 계산 로직 사용 (fallback)
-            applicable = get_applicable_conditions(emp_data.get('position', ''), type_name, condition_matrix)
+            # applicable은 이미 Line 517에서 가져옴
 
             # 조건 평가 함수 매핑 (기존 로직 유지)
             evaluators = {
@@ -577,17 +586,15 @@ def evaluate_conditions(emp_data, condition_matrix):
                 10: lambda d: (d.get('validation_qty', 0) >= 100, f"{d.get('validation_qty', 0)}족")
             }
 
-            if cond_id not in applicable:
-                results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
-            else:
-                is_met, actual = evaluators[cond_id](emp_data)
-                results.append({
-                    'id': cond_id,
-                    'name': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
-                    'is_met': is_met,
-                    'actual': actual,
-                    'is_na': False
-                })
+            # applicable 체크는 이미 Line 530-533에서 수행됨 (중복 제거)
+            is_met, actual = evaluators[cond_id](emp_data)
+            results.append({
+                'id': cond_id,
+                'name': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
+                'is_met': is_met,
+                'actual': actual,
+                'is_na': False
+            })
 
     return results
 
@@ -710,6 +717,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             # 인센티브 필드 매핑
             emp['september_incentive'] = str(emp.get('September_Incentive', '0'))
             emp['august_incentive'] = str(emp.get('Previous_Incentive', '0'))
+
+            # CRITICAL FIX: condition_results 추가
+            emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
+
             employees.append(emp)
         print(f"✅ Single Source of Truth: excel_dashboard_data에서 {len(excel_dashboard_data['employee_data'])}명 중 활성 직원 {len(employees)}명 로드 (퇴사자 {len(excel_dashboard_data['employee_data']) - len(employees)}명 제외)")
     else:
@@ -5199,15 +5210,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <!-- TYPE-2 인센티브 계산 방법 -->
                         <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type2CalculationTitle">TYPE-2 전체 직급 인센티브 계산 방법</h6>
                         <div class="alert" style="background-color: #f0f4ff; border-left: 4px solid #667eea; color: #333;" class="mb-3">
-                            <strong>📊 <span class="type2-principle-label">TYPE-2 계산 원칙:</span></strong> <span class="type2-principle-text">TYPE-2 직급은 해당하는 TYPE-1 직꺉의 평균 인센티브를 기준으로 계산됩니다.</span>
+                            <strong>📊 <span id="type2PrincipleLabel">TYPE-2 계산 원칙:</span></strong> <span id="type2PrincipleText">TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.</span>
                         </div>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
-                                    <th width="25%">TYPE-2 직급</th>
-                                    <th width="25%">참조 TYPE-1 직급</th>
-                                    <th width="25%">계산 방법</th>
-                                    <th width="25%">{year}년 {month_kor} 평균</th>
+                                    <th width="25%" class="type2-calc-header-position">TYPE-2 직급</th>
+                                    <th width="25%" class="type2-calc-header-reference">참조 TYPE-1 직급</th>
+                                    <th width="25%" class="type2-calc-header-method">계산 방법</th>
+                                    <th width="25%" class="type2-calc-header-average">{year}년 {month_kor} 평균</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -6410,77 +6421,92 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             console.log('Employee data loaded successfully:', employeeData.length, 'employees');
 
             // Build condition_results array from individual condition fields
+            // CRITICAL FIX: Python이 이미 condition_results를 생성했다면 그것을 사용
             employeeData.forEach(emp => {{
-                emp.condition_results = [];
+                // Python에서 이미 condition_results를 생성했는지 확인
+                if (!emp.condition_results || emp.condition_results.length === 0) {{
+                    // JavaScript에서 fallback으로 생성 (Python 데이터가 없는 경우)
+                    emp.condition_results = [];
 
-                // Map condition names for display
-                const conditionNames = {{
-                    1: '출근율 (Attendance Rate)',
-                    2: '무단결근 (Unapproved Absence)',
-                    3: '실제 근무일수 (Actual Working Days)',
-                    4: '최소 근무일수 (Minimum Working Days)',
-                    5: 'AQL 개인 실패 (Personal AQL Failure)',
-                    6: 'AQL 연속 실패 (Continuous AQL Failure)',
-                    7: 'AQL 팀 영역 (Team Area AQL)',
-                    8: '영역 거부 (Area Reject)',
-                    9: '5PRS 합격률 (5PRS Pass Rate)',
-                    10: '5PRS 검사 수량 (5PRS Inspection Qty)'
-                }};
+                    // Map condition names for display
+                    const conditionNames = {{
+                        1: '출근율 (Attendance Rate)',
+                        2: '무단결근 (Unapproved Absence)',
+                        3: '실제 근무일수 (Actual Working Days)',
+                        4: '최소 근무일수 (Minimum Working Days)',
+                        5: 'AQL 개인 실패 (Personal AQL Failure)',
+                        6: 'AQL 연속 실패 (Continuous AQL Failure)',
+                        7: 'AQL 팀 영역 (Team Area AQL)',
+                        8: '영역 거부 (Area Reject)',
+                        9: '5PRS 합격률 (5PRS Pass Rate)',
+                        10: '5PRS 검사 수량 (5PRS Inspection Qty)'
+                    }};
 
-                // Process up to 10 conditions
-                for (let i = 1; i <= 10; i++) {{
-                    const valueField = `cond_${{i}}_value`;
-                    const thresholdField = `cond_${{i}}_threshold`;
+                    // Process up to 10 conditions
+                    for (let i = 1; i <= 10; i++) {{
+                        const valueField = `cond_${{i}}_value`;
+                        const thresholdField = `cond_${{i}}_threshold`;
 
-                    // Check if this condition exists in the data
-                    if (emp[valueField] !== undefined) {{
-                        const value = emp[valueField];
-                        const threshold = emp[thresholdField];
+                        // statusField 먼저 확인 (CRITICAL FIX)
+                        let statusField = '';
+                        if (i === 1) statusField = 'cond_1_attendance_rate';
+                        else if (i === 2) statusField = 'cond_2_unapproved_absence';
+                        else if (i === 3) statusField = 'cond_3_actual_working_days';
+                        else if (i === 4) statusField = 'cond_4_minimum_days';
+                        else if (i === 5) statusField = 'cond_5_aql_personal_failure';
+                        else if (i === 6) statusField = 'cond_6_aql_continuous';
+                        else if (i === 7) statusField = 'cond_7_aql_team_area';
+                        else if (i === 8) statusField = 'cond_8_area_reject';
+                        else if (i === 9) statusField = 'cond_9_5prs_pass_rate';
+                        else if (i === 10) statusField = 'cond_10_5prs_inspection_qty';
 
-                        // Determine if condition is met
-                        let is_met = false;
-                        let is_na = false;
-
-                        // Check for N/A values
-                        if (value === 'N/A' || value === null || value === '' ||
-                            (typeof value === 'number' && isNaN(value))) {{
-                            is_na = true;
-                        }} else {{
-                            // Check condition-specific status fields
-                            // Each condition has its own status field name
-                            let statusField = '';
-                            if (i === 1) statusField = 'cond_1_attendance_rate';
-                            else if (i === 2) statusField = 'cond_2_unapproved_absence';
-                            else if (i === 3) statusField = 'cond_3_actual_working_days';
-                            else if (i === 4) statusField = 'cond_4_minimum_days';
-                            else if (i === 5) statusField = 'cond_5_aql_personal_failure';
-                            else if (i === 6) statusField = 'cond_6_aql_continuous';
-                            else if (i === 7) statusField = 'cond_7_aql_team_area';
-                            else if (i === 8) statusField = 'cond_8_area_reject';
-                            else if (i === 9) statusField = 'cond_9_5prs_pass_rate';
-                            else if (i === 10) statusField = 'cond_10_5prs_inspection_qty';
-
-                            // Check if condition is met
-                            if (emp[statusField] === 'PASS') {{
-                                is_met = true;
-                            }} else if (emp[`cond_${{i}}_met`] === 'PASS' || emp[`cond_${{i}}_met`] === true) {{
-                                is_met = true;
-                            }}
+                        // statusField가 null/undefined/'N/A'이면 이 조건은 해당 직원에게 적용되지 않음
+                        const statusValue = emp[statusField];
+                        if (statusValue === null || statusValue === undefined ||
+                            statusValue === 'N/A' || statusValue === '' ||
+                            (typeof statusValue === 'number' && isNaN(statusValue))) {{
+                            // excluded_conditions: 조건 자체가 N/A이므로 추가하지 않음
+                            continue;
                         }}
 
-                        // Add condition result
-                        emp.condition_results.push({{
-                            id: i,
-                            name: conditionNames[i] || `Condition ${{i}}`,
-                            actual: value,
-                            threshold: threshold,
-                            is_met: is_met,
-                            is_na: is_na
-                        }});
-                    }}
-                }}
+                        // Check if this condition exists in the data
+                        if (emp[valueField] !== undefined) {{
+                            const value = emp[valueField];
+                            const threshold = emp[thresholdField];
 
-                console.log(`Employee ${{emp['Employee No'] || emp.employee_no}} has ${{emp.condition_results.length}} conditions`);
+                            // Determine if condition is met
+                            let is_met = false;
+                            let is_na = false;
+
+                            // Check for N/A values
+                            if (value === 'N/A' || value === null || value === '' ||
+                                (typeof value === 'number' && isNaN(value))) {{
+                                is_na = true;
+                            }} else {{
+                                // Check if condition is met
+                                if (statusValue === 'PASS') {{
+                                    is_met = true;
+                                }} else if (emp[`cond_${{i}}_met`] === 'PASS' || emp[`cond_${{i}}_met`] === true) {{
+                                    is_met = true;
+                                }}
+                            }}
+
+                            // Add condition result
+                            emp.condition_results.push({{
+                                id: i,
+                                name: conditionNames[i] || `Condition ${{i}}`,
+                                actual: value,
+                                threshold: threshold,
+                                is_met: is_met,
+                                is_na: is_na
+                            }});
+                        }}
+                    }}
+
+                    console.log(`Employee ${{emp['Employee No'] || emp.employee_no}} - JavaScript generated ${{emp.condition_results.length}} conditions`);
+                }} else {{
+                    console.log(`Employee ${{emp['Employee No'] || emp.employee_no}} - Using Python's ${{emp.condition_results.length}} conditions`);
+                }}
             }});
 
             // 데이터 로드 후 즉시 상단 카드 업데이트
@@ -8099,7 +8125,44 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
             
-            // TYPE-1 테이블 조건 수 업데이트 
+            // TYPE-2 계산 방법 섹션 업데이트
+            const type2CalculationTitle = document.getElementById('type2CalculationTitle');
+            if (type2CalculationTitle) {{
+                type2CalculationTitle.textContent = getTranslation('criteria.type2Calculation.title', currentLanguage);
+            }}
+
+            const type2PrincipleLabel = document.getElementById('type2PrincipleLabel');
+            if (type2PrincipleLabel) {{
+                type2PrincipleLabel.textContent = getTranslation('criteria.type2Calculation.principleLabel', currentLanguage);
+            }}
+
+            const type2PrincipleText = document.getElementById('type2PrincipleText');
+            if (type2PrincipleText) {{
+                type2PrincipleText.textContent = getTranslation('criteria.type2Calculation.principleText', currentLanguage);
+            }}
+
+            // TYPE-2 계산 테이블 헤더
+            document.querySelectorAll('.type2-calc-header-position').forEach(th => {{
+                th.textContent = getTranslation('criteria.type2Calculation.tableHeaders.position', currentLanguage);
+            }});
+            document.querySelectorAll('.type2-calc-header-reference').forEach(th => {{
+                th.textContent = getTranslation('criteria.type2Calculation.tableHeaders.reference', currentLanguage);
+            }});
+            document.querySelectorAll('.type2-calc-header-method').forEach(th => {{
+                th.textContent = getTranslation('criteria.type2Calculation.tableHeaders.method', currentLanguage);
+            }});
+            document.querySelectorAll('.type2-calc-header-average').forEach(th => {{
+                // "2025년 9월 평균" → dynamic
+                const monthText = getTranslation('common.months.{month.lower()}', currentLanguage);
+                th.textContent = getTranslation('criteria.type2Calculation.tableHeaders.average', currentLanguage).replace('{{month}}', monthText).replace('{{year}}', '{year}');
+            }});
+
+            // "평균" 텍스트 업데이트
+            document.querySelectorAll('.average-text').forEach(span => {{
+                span.textContent = getTranslation('criteria.type2Calculation.average', currentLanguage);
+            }});
+
+            // TYPE-1 테이블 조건 수 업데이트
             const conditionCounts = document.querySelectorAll('.condition-count');
             conditionCounts.forEach(count => {{
                 const num = count.textContent.replace(/\\D/g, '');
@@ -10334,14 +10397,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (assemblyInspectors.length > 0) {{
                     inspectorDetails = `
                         <div class="mt-3">
-                            <h6>📋 ASSEMBLY INSPECTOR 인센티브 내역 (합계 계산 대상)</h6>
+                            <h6>📋 ${{getTranslation('orgChart.modal.assemblyInspectorList', currentLanguage)}}</h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>이름</th>
-                                        <th>ID</th>
-                                        <th class="text-end">인센티브</th>
-                                        <th class="text-center">수령 여부</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.name', currentLanguage)}}</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
+                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
+                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.received', currentLanguage)}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -10360,12 +10423,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="2">합계</th>
+                                        <th colspan="2">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
                                         <th class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
                                     <tr>
-                                        <th colspan="2">평균 (수령자 ${{receivingInspectors.length}}명 / 전체 ${{assemblyInspectors.length}}명)</th>
+                                        <th colspan="2">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage).replace('{{receiving}}', receivingInspectors.length).replace('{{total}}', assemblyInspectors.length)}}</th>
                                         <th class="text-end">₫${{receivingInspectors.length > 0 ? Math.round(totalSubIncentive / receivingInspectors.length).toLocaleString('ko-KR') : '0'}}</th>
                                         <th></th>
                                     </tr>
@@ -10377,34 +10440,34 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 계산 과정 상세 (LINE LEADER)</h6>
+                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (LINE LEADER)</h6>
                         <table class="table table-sm">
                             <tr>
-                                <td>계산 공식:</td>
-                                <td class="text-end"><strong>부하직원 합계 × 12% × 수령율</strong></td>
+                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
+                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.lineLeader', currentLanguage)}}</strong></td>
                             </tr>
                             <tr>
-                                <td>ASSEMBLY INSPECTOR 수:</td>
-                                <td class="text-end">${{assemblyInspectors.length}}명 (수령: ${{receivingInspectors.length}}명)</td>
+                                <td>${{getTranslation('orgChart.modal.labels.inspectorCount', currentLanguage)}}:</td>
+                                <td class="text-end">${{assemblyInspectors.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingInspectors.length}}${{getTranslation('common.people', currentLanguage)}})</td>
                             </tr>
                             <tr>
-                                <td>인센티브 합계:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.incentiveSum', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}}</td>
                             </tr>
                             <tr>
-                                <td>수령 비율:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.receivingRatio', currentLanguage)}}:</td>
                                 <td class="text-end">${{receivingInspectors.length}}/${{assemblyInspectors.length}} = ${{(receivingRatio * 100).toFixed(1)}}%</td>
                             </tr>
                             <tr>
-                                <td>계산식:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{totalSubIncentive.toLocaleString('ko-KR')}} × 12% × ${{(receivingRatio * 100).toFixed(1)}}%</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                             <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                         </table>
@@ -10426,14 +10489,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (teamLineLeaders.length > 0) {{
                     lineLeaderDetails = `
                         <div class="mt-3">
-                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
+                            <h6>📋 ${{getTranslation('orgChart.modal.lineLeaderList', currentLanguage)}}</h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>이름</th>
-                                        <th>ID</th>
-                                        <th class="text-end">인센티브</th>
-                                        <th class="text-center">평균 계산 포함</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.name', currentLanguage)}}</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
+                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
+                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -10452,12 +10515,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="2">합계</th>
+                                        <th colspan="2">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
                                         <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
                                     <tr>
-                                        <th colspan="2">평균 (수령자 ${{receivingLineLeaders.length}}명 / 전체 ${{teamLineLeaders.length}}명)</th>
+                                        <th colspan="2">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage).replace('{{receiving}}', receivingLineLeaders.length).replace('{{total}}', teamLineLeaders.length)}}</th>
                                         <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
@@ -10469,30 +10532,30 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 계산 과정 상세 (GROUP LEADER)</h6>
+                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (GROUP LEADER)</h6>
                         <table class="table table-sm">
                             <tr>
-                                <td>계산 공식:</td>
-                                <td class="text-end"><strong>LINE LEADER 평균 × 2</strong></td>
+                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
+                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.groupLeader', currentLanguage)}}</strong></td>
                             </tr>
                             <tr>
-                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
-                                <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderCount', currentLanguage)}}:</td>
+                                <td class="text-end">${{teamLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}})</td>
                             </tr>
                             <tr>
-                                <td>LINE LEADER 평균 인센티브:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
                             </tr>
                             <tr>
-                                <td>계산식:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                             <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                         </table>
@@ -10525,15 +10588,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     allLineLeaderDetails = `
                         <div class="mt-3">
-                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
+                            <h6>📋 ${{getTranslation('orgChart.modal.lineLeaderList', currentLanguage)}}</h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>GROUP</th>
-                                        <th>LINE LEADER</th>
-                                        <th>ID</th>
-                                        <th class="text-end">인센티브</th>
-                                        <th class="text-center">평균 계산 포함</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.group', currentLanguage)}}</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.lineLeader', currentLanguage)}}</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
+                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
+                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -10555,12 +10618,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="3">합계</th>
+                                        <th colspan="3">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
                                         <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
                                     <tr>
-                                        <th colspan="3">평균 (수령자 ${{receivingLineLeaders.length}}명 / 전체 ${{teamLineLeaders.length}}명)</th>
+                                        <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage).replace('{{receiving}}', receivingLineLeaders.length).replace('{{total}}', teamLineLeaders.length)}}</th>
                                         <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
@@ -10572,30 +10635,30 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 계산 과정 상세 (SUPERVISOR)</h6>
+                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (SUPERVISOR)</h6>
                         <table class="table table-sm">
                             <tr>
-                                <td>계산 공식:</td>
-                                <td class="text-end"><strong>LINE LEADER 평균 × 2.5</strong></td>
+                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
+                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.supervisor', currentLanguage)}}</strong></td>
                             </tr>
                             <tr>
-                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
-                                <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderCount', currentLanguage)}}:</td>
+                                <td class="text-end">${{teamLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}})</td>
                             </tr>
                             <tr>
-                                <td>LINE LEADER 평균 인센티브:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
                             </tr>
                             <tr>
-                                <td>계산식:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 2.5</td>
                             </tr>
                             <tr class="table-primary">
-                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{expectedIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                             <tr class="${{Math.abs(employeeIncentive - expectedIncentive) < 1000 ? 'table-success' : 'table-warning'}}">
-                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage) || '실제 인센티브'}}:</strong></td>
+                                <td><strong>${{getTranslation('modal.actualIncentive', currentLanguage)}}:</strong></td>
                                 <td class="text-end"><strong>₫${{employeeIncentive.toLocaleString('ko-KR')}}</strong></td>
                             </tr>
                         </table>
@@ -10644,15 +10707,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     lineLeaderBreakdown = `
                         <div class="mt-3">
-                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
+                            <h6>📋 ${{getTranslation('orgChart.modal.lineLeaderList', currentLanguage)}}</h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>GROUP LEADER</th>
-                                        <th>LINE LEADER</th>
-                                        <th>ID</th>
-                                        <th class="text-end">인센티브</th>
-                                        <th class="text-center">평균 계산 포함</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.groupLeader', currentLanguage)}}</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.lineLeader', currentLanguage)}}</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
+                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
+                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -10674,12 +10737,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="3">합계</th>
+                                        <th colspan="3">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
                                         <th class="text-end">₫${{lineLeaderTotal.toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
                                     <tr>
-                                        <th colspan="3">평균 (수령자 ${{receivingLineLeaders.length}}명 / 전체 ${{teamLineLeaders.length}}명)</th>
+                                        <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
+                                            .replace('{{{{receiving}}}}', receivingLineLeaders.length)
+                                            .replace('{{{{total}}}}', teamLineLeaders.length)}}</th>
                                         <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
@@ -10691,22 +10756,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 계산 과정 상세 (A.MANAGER)</h6>
+                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (A.MANAGER)</h6>
                         <table class="table table-sm">
                             <tr>
-                                <td>계산 공식:</td>
-                                <td class="text-end"><strong>LINE LEADER 평균 × 3</strong></td>
+                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
+                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.amanager', currentLanguage)}}</strong></td>
                             </tr>
                             <tr>
-                                <td>LINE LEADER 수:</td>
-                                <td class="text-end">${{teamLineLeaders.length}}명 (수령: ${{receivingLineLeaders.length}}명)</td>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderCount', currentLanguage)}}:</td>
+                                <td class="text-end">${{teamLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}})</td>
                             </tr>
                             <tr>
-                                <td>LINE LEADER 평균 인센티브:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
                             </tr>
                             <tr>
-                                <td>계산식:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3</td>
                             </tr>
                             <tr class="table-primary">
@@ -10747,15 +10812,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     lineLeaderBreakdown = `
                         <div class="mt-3">
-                            <h6>📋 <span class="modal-team-line-leader-list">팀 내 LINE LEADER 인센티브 내역 (평균 계산 대상)</span></h6>
+                            <h6>📋 ${{getTranslation('orgChart.modal.lineLeaderList', currentLanguage)}}</h6>
                             <table class="table table-sm table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>GROUP LEADER</th>
-                                        <th>LINE LEADER</th>
-                                        <th>ID</th>
-                                        <th class="text-end">인센티브</th>
-                                        <th class="text-center">평균 계산 포함</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.groupLeader', currentLanguage)}}</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.lineLeader', currentLanguage)}}</th>
+                                        <th>${{getTranslation('orgChart.modal.tableHeaders.id', currentLanguage)}}</th>
+                                        <th class="text-end">${{getTranslation('orgChart.modal.tableHeaders.incentive', currentLanguage)}}</th>
+                                        <th class="text-center">${{getTranslation('orgChart.modal.tableHeaders.included', currentLanguage)}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -10777,12 +10842,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                                 <tfoot class="table-secondary">
                                     <tr>
-                                        <th colspan="3">합계</th>
+                                        <th colspan="3">${{getTranslation('orgChart.modal.total', currentLanguage)}}</th>
                                         <th class="text-end">₫${{receivingLineLeaders.reduce((sum, ll) => sum + Number(ll['{month.lower()}_incentive'] || 0), 0).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
                                     <tr>
-                                        <th colspan="3">평균 (수령자 ${{receivingLineLeaders.length}}명 / 전체 ${{teamLineLeaders.length}}명)</th>
+                                        <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
+                                            .replace('{{{{receiving}}}}', receivingLineLeaders.length)
+                                            .replace('{{{{total}}}}', teamLineLeaders.length)}}</th>
                                         <th class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</th>
                                         <th></th>
                                     </tr>
@@ -10794,23 +10861,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 calculationDetails = `
                     <div class="calculation-details">
-                        <h6>📊 계산 과정 상세 (MANAGER)</h6>
+                        <h6>📊 ${{getTranslation('orgChart.modal.calculationDetails', currentLanguage)}} (MANAGER)</h6>
                         <table class="table table-sm">
                             <tr>
-                                <td><span class="modal-team-line-leader-count">팀 내 LINE LEADER 수:</span></td>
-                                <td class="text-end">${{teamLineLeaders.length}}명</td>
+                                <td>${{getTranslation('orgChart.modal.labels.formula', currentLanguage)}}:</td>
+                                <td class="text-end"><strong>${{getTranslation('orgChart.modal.formulas.manager', currentLanguage)}}</strong></td>
                             </tr>
                             <tr>
-                                <td>인센티브 받은 LINE LEADER:</td>
-                                <td class="text-end">${{receivingLineLeaders.length}}명</td>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderCount', currentLanguage)}}:</td>
+                                <td class="text-end">${{teamLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}} (${{getTranslation('orgChart.modal.labels.receiving', currentLanguage)}}: ${{receivingLineLeaders.length}}${{getTranslation('common.people', currentLanguage)}})</td>
                             </tr>
                             <tr>
-                                <td>LINE LEADER 평균 인센티브:</td>
+                                <td>${{getTranslation('orgChart.modal.labels.lineLeaderAvg', currentLanguage)}}:</td>
                                 <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}}</td>
                             </tr>
-                            <tr class="table-warning">
-                                <td><strong>계산식:</strong></td>
-                                <td class="text-end"><strong>₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3.5</strong></td>
+                            <tr>
+                                <td>${{getTranslation('orgChart.modal.labels.calculation', currentLanguage)}}:</td>
+                                <td class="text-end">₫${{Math.round(avgLineLeaderIncentive).toLocaleString('ko-KR')}} × 3.5</td>
                             </tr>
                             <tr class="table-primary">
                                 <td><strong>${{getTranslation('modal.expectedIncentive', currentLanguage) || '예상 인센티브'}}:</strong></td>
@@ -13200,9 +13267,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const actualFailCount = employees.filter(emp => parseInt(emp['{month.lower()}_incentive']) === 0).length;
 
             // 각 직원의 조건 충족 통계 계산 (참고용 유지)
+            // 해당 직급에 실제로 적용되는 조건만 표시 (모든 직원이 N/A인 조건 제외)
             const conditionStats = {{}};
             if (employees[0] && employees[0].condition_results) {{
+                // 첫 번째 직원의 조건 중 N/A가 아닌 것만 초기화
                 employees[0].condition_results.forEach(cond => {{
+                    // 모든 직원에게 N/A인 조건은 건너뛰기
+                    const allNA = employees.every(e => {{
+                        const empCond = e.condition_results?.find(c => c.id === cond.id);
+                        return empCond && (empCond.is_na || empCond.actual === 'N/A');
+                    }});
+
+                    if (allNA) return;  // 모든 직원이 N/A면 조건 제외
+
                     const translationKey = conditionTranslationMap[cond.id] || null;
                     const translatedName = translationKey ? getTranslation(translationKey, currentLanguage) : cond.name;
                     conditionStats[cond.id] = {{
@@ -13776,16 +13853,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${{conditions.map((cond, idx) => {{
-                                        const isNA = cond.is_na || cond.actual === 'N/A';
-                                        let rowClass = '';
+                                    ${{conditions
+                                        .filter(cond => !cond.is_na && cond.actual !== 'N/A')  // N/A 조건 제외
+                                        .map((cond, idx) => {{
+                                        let rowClass = 'table-success';
                                         let badgeHtml = '';
                                         let actualHtml = '';
-                                        
-                                        if (isNA) {{
-                                            actualHtml = '<span style="color: #999;">N/A</span>';
-                                            badgeHtml = '<span class="badge" style="background-color: #999;">N/A</span>';
-                                        }} else {{
+
+                                        // N/A는 이미 필터링되었으므로 else 블록만 실행
+                                        {{
                                             rowClass = cond.is_met ? 'table-success' : 'table-danger';
                                             
                                             // 실적 값의 단위 번역 처리

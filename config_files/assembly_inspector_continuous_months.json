@@ -1,7 +1,7 @@
 {
   "description": "Assembly Inspector and Progressive Position Continuous Months Tracking",
   "generated_from": "output_QIP_incentive_september_2025_최종완성버전_v6.0_Complete.csv",
-  "generated_date": "2025-09-30 07:28:05",
+  "generated_date": "2025-09-30 15:44:43",
   "month": "september",
   "year": 2025,
   "employees": {
@@ -9,9 +9,9 @@
       "name": "TRẦN THỊ THÚY ANH",
       "position": "MODEL MASTER",
       "type": "TYPE-1",
-      "september_incentive": 0.0,
-      "september_continuous_months": 0,
-      "october_expected_months": 1,
+      "september_incentive": 1000000.0,
+      "september_continuous_months": 12,
+      "october_expected_months": 2,
       "actual_working_days": 20,
       "unapproved_absences": 0,
       "absence_rate": 4.76
@@ -42,9 +42,9 @@
       "name": "DANH THỊ ANH ĐÀO",
       "position": "MODEL MASTER",
       "type": "TYPE-1",
-      "september_incentive": 0.0,
-      "september_continuous_months": 0,
-      "october_expected_months": 1,
+      "september_incentive": 1000000.0,
+      "september_continuous_months": 12,
+      "october_expected_months": 2,
       "actual_working_days": 19,
       "unapproved_absences": 1,
       "absence_rate": 9.52
@@ -218,9 +218,9 @@
       "name": "NGUYỄN NGỌC TUẤN",
       "position": "MODEL MASTER",
       "type": "TYPE-1",
-      "september_incentive": 0.0,
-      "september_continuous_months": 0,
-      "october_expected_months": 1,
+      "september_incentive": 1000000.0,
+      "september_continuous_months": 12,
+      "october_expected_months": 2,
       "actual_working_days": 21,
       "unapproved_absences": 0,
       "absence_rate": 0.0
