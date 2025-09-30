@@ -416,6 +416,196 @@
         "vi": "Số tiền chi trả thực tế"
       }
     },
+    "modal": {
+      "calculationDetails": {
+        "ko": "계산 상세",
+        "en": "Calculation Details",
+        "vi": "Chi tiết tính toán"
+      },
+      "assemblyInspectorList": {
+        "ko": "ASSEMBLY INSPECTOR 목록",
+        "en": "ASSEMBLY INSPECTOR List",
+        "vi": "Danh sách ASSEMBLY INSPECTOR"
+      },
+      "lineLeaderList": {
+        "ko": "LINE LEADER 목록",
+        "en": "LINE LEADER List",
+        "vi": "Danh sách LINE LEADER"
+      },
+      "total": {
+        "ko": "합계",
+        "en": "Total",
+        "vi": "Tổng cộng"
+      },
+      "averageReceiving": {
+        "ko": "평균 ({{receiving}}/{{total}}명 수령)",
+        "en": "Average ({{receiving}}/{{total}} receiving)",
+        "vi": "Trung bình ({{receiving}}/{{total}} nhận)"
+      },
+      "labels": {
+        "formula": {
+          "ko": "계산 공식",
+          "en": "Formula",
+          "vi": "Công thức"
+        },
+        "inspectorCount": {
+          "ko": "Inspector 수",
+          "en": "Inspector Count",
+          "vi": "Số lượng Inspector"
+        },
+        "lineLeaderCount": {
+          "ko": "LINE LEADER 수",
+          "en": "LINE LEADER Count",
+          "vi": "Số lượng LINE LEADER"
+        },
+        "receiving": {
+          "ko": "수령",
+          "en": "receiving",
+          "vi": "nhận"
+        },
+        "incentiveSum": {
+          "ko": "인센티브 합계",
+          "en": "Incentive Sum",
+          "vi": "Tổng khuyến khích"
+        },
+        "receivingRatio": {
+          "ko": "수령 비율",
+          "en": "Receiving Ratio",
+          "vi": "Tỷ lệ nhận"
+        },
+        "calculation": {
+          "ko": "계산식",
+          "en": "Calculation",
+          "vi": "Tính toán"
+        },
+        "lineLeaderAvg": {
+          "ko": "LINE LEADER 평균",
+          "en": "LINE LEADER Average",
+          "vi": "Trung bình LINE LEADER"
+        }
+      },
+      "tableHeaders": {
+        "name": {
+          "ko": "이름",
+          "en": "Name",
+          "vi": "Tên"
+        },
+        "id": {
+          "ko": "사번",
+          "en": "ID",
+          "vi": "Mã NV"
+        },
+        "incentive": {
+          "ko": "인센티브",
+          "en": "Incentive",
+          "vi": "Khuyến khích"
+        },
+        "received": {
+          "ko": "수령",
+          "en": "Received",
+          "vi": "Đã nhận"
+        },
+        "group": {
+          "ko": "그룹",
+          "en": "Group",
+          "vi": "Nhóm"
+        },
+        "groupLeader": {
+          "ko": "GROUP LEADER",
+          "en": "GROUP LEADER",
+          "vi": "GROUP LEADER"
+        },
+        "lineLeader": {
+          "ko": "LINE LEADER",
+          "en": "LINE LEADER",
+          "vi": "LINE LEADER"
+        },
+        "included": {
+          "ko": "포함",
+          "en": "Included",
+          "vi": "Bao gồm"
+        }
+      },
+      "formulas": {
+        "lineLeader": {
+          "ko": "TYPE-1 부하 인센티브 합 × 12% × 수령비율",
+          "en": "TYPE-1 Subordinate Incentive Sum × 12% × Receiving Rate",
+          "vi": "Tổng khuyến khích cấp dưới TYPE-1 × 12% × Tỷ lệ nhận"
+        },
+        "groupLeader": {
+          "ko": "팀 내 LINE LEADER 평균 × 2",
+          "en": "Team LINE LEADER Average × 2",
+          "vi": "Trung bình LINE LEADER trong nhóm × 2"
+        },
+        "supervisor": {
+          "ko": "LINE LEADER 평균 × 2.5",
+          "en": "LINE LEADER Average × 2.5",
+          "vi": "Trung bình LINE LEADER × 2.5"
+        },
+        "amanager": {
+          "ko": "LINE LEADER 평균 × 3",
+          "en": "LINE LEADER Average × 3",
+          "vi": "Trung bình LINE LEADER × 3"
+        },
+        "manager": {
+          "ko": "하위 관리자 평균 × 3.5",
+          "en": "Lower Manager Average × 3.5",
+          "vi": "Trung bình quản lý cấp dưới × 3.5"
+        }
+      },
+      "nonPaymentReasons": {
+        "actualWorkingDaysZero": {
+          "ko": "실제 근무일 0일 (출근 조건 1번 미충족)",
+          "en": "Actual working days 0 (Attendance condition 1 not met)",
+          "vi": "Ngày làm việc thực tế 0 (Điều kiện chấm công 1 không đáp ứng)"
+        },
+        "unapprovedAbsenceOver2": {
+          "ko": "무단결근 2일 초과 (출근 조건 2번 미충족)",
+          "en": "Unapproved absence over 2 days (Attendance condition 2 not met)",
+          "vi": "Vắng mặt không phép trên 2 ngày (Điều kiện chấm công 2 không đáp ứng)"
+        },
+        "absentRateOver12": {
+          "ko": "결근율 12% 초과 (출근 조건 3번 미충족)",
+          "en": "Absence rate over 12% (Attendance condition 3 not met)",
+          "vi": "Tỷ lệ vắng mặt trên 12% (Điều kiện chấm công 3 không đáp ứng)"
+        },
+        "minimumWorkingDays": {
+          "ko": "최소 근무일 미달 (출근 조건 4번 미충족)",
+          "en": "Minimum working days not met (Attendance condition 4 not met)",
+          "vi": "Ngày làm việc tối thiểu không đáp ứng (Điều kiện chấm công 4 không đáp ứng)"
+        },
+        "teamAreaAQLFail": {
+          "ko": "팀/구역 AQL 실패 (AQL 조건 7번 미충족)",
+          "en": "Team/Area AQL failure (AQL condition 7 not met)",
+          "vi": "Thất bại AQL nhóm/khu vực (Điều kiện AQL 7 không đáp ứng)"
+        },
+        "monthlyAQLFailures": {
+          "ko": "{{month}} AQL 실패 {{count}}건",
+          "en": "{{month}} AQL failures: {{count}}",
+          "vi": "Thất bại AQL {{month}}: {{count}}"
+        },
+        "continuous3MonthsAQLFail": {
+          "ko": "3개월 연속 AQL 실패",
+          "en": "3 consecutive months AQL failure",
+          "vi": "Thất bại AQL 3 tháng liên tiếp"
+        },
+        "continuous2MonthsAQLFail": {
+          "ko": "2개월 연속 AQL 실패",
+          "en": "2 consecutive months AQL failure",
+          "vi": "Thất bại AQL 2 tháng liên tiếp"
+        },
+        "prs5ValidationOrPassRate": {
+          "ko": "5PRS 검증 부족 또는 합격률 95% 미달 (5PRS 조건 1번 미충족)",
+          "en": "5PRS validation insufficient or pass rate below 95% (5PRS condition 1 not met)",
+          "vi": "Xác thực 5PRS không đủ hoặc tỷ lệ đạt dưới 95% (Điều kiện 5PRS 1 không đáp ứng)"
+        },
+        "prs5TotalQtyZero": {
+          "ko": "5PRS 총 검증 수량 0 (5PRS 조건 2번 미충족)",
+          "en": "5PRS total validation quantity 0 (5PRS condition 2 not met)",
+          "vi": "Tổng số lượng xác thực 5PRS 0 (Điều kiện 5PRS 2 không đáp ứng)"
+        }
+      }
+    },
     "expandAll": {
       "ko": "전체 펼치기",
       "en": "Expand All",
@@ -499,6 +689,11 @@
       "ko": "8월",
       "en": "August",
       "vi": "Tháng 8"
+    },
+    "september": {
+      "ko": "9월",
+      "en": "September",
+      "vi": "Tháng 9"
     }
   },
   "reportTypeBanner": {
@@ -1868,6 +2063,11 @@
       "en": "August",
       "vi": "Tháng 8"
     },
+    "september": {
+      "ko": "9월",
+      "en": "September",
+      "vi": "Tháng 9"
+    },
     "person": {
       "ko": "명",
       "en": "person",
@@ -2367,6 +2567,26 @@
       "ko": "TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.",
       "en": "TYPE-2 positions are calculated based on the average incentive of corresponding TYPE-1 positions.",
       "vi": "Chức vụ TYPE-2 được tính dựa trên thưởng trung bình của chức vụ TYPE-1 tương ứng."
+    },
+    "type2CalcHeaderPosition": {
+      "ko": "직급",
+      "en": "Position",
+      "vi": "Chức vụ"
+    },
+    "type2CalcHeaderReference": {
+      "ko": "참고 기준",
+      "en": "Reference",
+      "vi": "Tham chiếu"
+    },
+    "type2CalcHeaderMethod": {
+      "ko": "계산 방법",
+      "en": "Calculation Method",
+      "vi": "Phương pháp tính"
+    },
+    "type2CalcHeaderAverage": {
+      "ko": "{{year}}년 {{month}} 평균",
+      "en": "{{month}} {{year}} Average",
+      "vi": "Trung bình {{month}} {{year}}"
     },
     "average": {
       "ko": "평균",

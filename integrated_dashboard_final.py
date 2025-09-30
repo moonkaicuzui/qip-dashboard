@@ -538,12 +538,75 @@ def evaluate_conditions(emp_data, condition_matrix):
             value_col = f'cond_{cond_id}_value'
             value = emp_data.get(value_col, '')
 
+            # CRITICAL FIX: value가 없거나 의미없는 텍스트면 실제 데이터 필드에서 가져오기
+            # FAIL/Fail/[FAIL] 같은 텍스트도 실제 데이터로 교체
+            # 주의: 0, 0.0 같은 숫자는 falsy지만 유효한 값이므로 is None으로 체크
+            if value is None or value == '' or (isinstance(value, str) and str(value).upper() in ['FAIL', '[FAIL]', 'PASS', '[PASS]']):
+                value_mappings = {
+                    1: ('Attendance Rate', '%'),
+                    2: ('Unapproved Absences', '일'),
+                    3: ('Actual Working Days', '일'),
+                    4: ('Actual Working Days', '일'),
+                    5: ('personal_aql_failure', '건'),
+                    6: (None, None),  # 연속 실패는 PASS/FAIL만
+                    7: (None, None),  # 팀 AQL은 PASS/FAIL만
+                    8: ('area_reject_rate', '%'),
+                    9: ('pass_rate', '%'),
+                    10: ('validation_qty', '족')
+                }
+
+                if cond_id in value_mappings and value_mappings[cond_id][0]:
+                    field_name, unit = value_mappings[cond_id]
+                    raw_value = emp_data.get(field_name)
+                    if raw_value is not None and raw_value != '':
+                        # 숫자 포맷팅 (소수점은 첫째자리까지)
+                        try:
+                            num_value = float(raw_value)
+                            if cond_id in [1, 8, 9]:  # 퍼센트인 경우
+                                value = f"{num_value:.1f}{unit}"
+                            else:  # 일수, 건수, 족수
+                                value = f"{int(num_value)}{unit}"
+                        except (ValueError, TypeError):
+                            value = str(raw_value)
+
+            # CRITICAL FIX: Excel의 값이 숫자만 있고 단위가 없는 경우 단위 추가
+            # 예: "0.0" → "0.0%", "3" → "3일", "400" → "400족"
+            elif cond_id in [1, 2, 3, 4, 5, 8, 9, 10]:
+                # 조건 6, 7은 제외 (PASS/NO/YES 등 상태값)
+                unit_map = {
+                    1: '%', 2: '일', 3: '일', 4: '일', 5: '건',
+                    8: '%', 9: '%', 10: '족'
+                }
+
+                # value가 숫자만 있고 단위가 없으면 단위 추가
+                try:
+                    if isinstance(value, (int, float)):
+                        # value가 숫자형이면 단위 추가
+                        if cond_id in [1, 8, 9]:  # 퍼센트
+                            value = f"{float(value):.1f}{unit_map[cond_id]}"
+                        else:  # 일, 건, 족
+                            value = f"{int(value)}{unit_map[cond_id]}"
+                    elif isinstance(value, str):
+                        # 문자열이지만 숫자로만 구성되어 있고 단위가 없으면 단위 추가
+                        if value and not any(unit in str(value) for unit in ['%', '일', '건', '족', 'PASS', 'FAIL', 'YES', 'NO']):
+                            num_value = float(value)
+                            if cond_id in [1, 8, 9]:  # 퍼센트
+                                value = f"{num_value:.1f}{unit_map[cond_id]}"
+                            else:  # 일, 건, 족
+                                value = f"{int(num_value)}{unit_map[cond_id]}"
+                except (ValueError, TypeError):
+                    # 변환 실패시 원래 값 유지
+                    pass
+
             if excel_result == 'PASS':
                 # 조건별로 적절한 표시 값 설정
                 if cond_id == 7:  # 팀/구역 AQL
-                    actual_display = '[PASS]' if value == 'NO' else str(value)
+                    actual_display = '[PASS]' if value == 'NO' or value is None or value == '' else str(value)
+                elif cond_id == 6:  # 연속 실패
+                    actual_display = '[PASS]' if value is None or value == '' else str(value)
                 else:
-                    actual_display = str(value) if value else '[PASS]'
+                    # 0, 0.0 같은 falsy 값도 유효한 데이터이므로 None과 빈문자열만 체크
+                    actual_display = str(value) if (value is not None and value != '') else '[PASS]'
 
                 results.append({
                     'id': cond_id,
@@ -555,9 +618,17 @@ def evaluate_conditions(emp_data, condition_matrix):
             elif excel_result == 'FAIL':
                 # 조건별로 적절한 표시 값 설정
                 if cond_id == 7:  # 팀/구역 AQL
-                    actual_display = '[FAIL]' if value == 'YES' else str(value)
+                    if value == 'YES':
+                        actual_display = '[CONSECUTIVE_FAIL]'
+                    elif value is not None and value != '':
+                        actual_display = str(value)
+                    else:
+                        actual_display = '[FAIL]'
+                elif cond_id == 6:  # 연속 실패
+                    actual_display = '[CONSECUTIVE_FAIL]' if (value is None or value == '') else str(value)
                 else:
-                    actual_display = str(value) if value else '[FAIL]'
+                    # 0, 0.0 같은 falsy 값도 유효한 데이터이므로 None과 빈문자열만 체크
+                    actual_display = str(value) if (value is not None and value != '') else '[FAIL]'
 
                 results.append({
                     'id': cond_id,
@@ -4594,7 +4665,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v6.01</span></h1>
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v7.01</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
@@ -4629,13 +4700,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h6 class="text-muted" id="totalEmployeesLabel">전체 직원</h6>
-                        <h2><span id="totalEmployeesValue">{total_employees}</span> <span class="unit" id="totalEmployeesUnit">명</span></h2>
+                        <h2><span id="totalEmployeesValue">{total_employees}</span> <span class="unit" id="totalEmployeesUnit"></span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h6 class="text-muted" id="paidEmployeesLabel">수령 직원</h6>
-                        <h2><span id="paidEmployeesValue">{paid_employees}</span> <span class="unit" id="paidEmployeesUnit">명</span></h2>
+                        <h2><span id="paidEmployeesValue">{paid_employees}</span> <span class="unit" id="paidEmployeesUnit"></span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -6638,13 +6709,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function getTranslation(keyPath, lang = currentLanguage) {{
             const keys = keyPath.split('.');
             let value = translations;
-            
+
             try {{
                 for (const key of keys) {{
+                    if (value[key] === undefined) {{
+                        console.warn(`Translation key not found: ${{keyPath}} at segment "${{key}}"`);
+                        return keyPath;
+                    }}
                     value = value[key];
                 }}
-                return value[lang] || value['ko'] || keyPath;
+                if (typeof value === 'object' && value[lang]) {{
+                    return value[lang];
+                }} else if (typeof value === 'object' && value['ko']) {{
+                    return value['ko'];
+                }} else {{
+                    console.warn(`No translation found for: ${{keyPath}} in lang: ${{lang}}`);
+                    return keyPath;
+                }}
             }} catch (e) {{
+                console.error(`Translation error for ${{keyPath}}:`, e);
                 return keyPath;
             }}
         }}
@@ -7601,7 +7684,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
-                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v6.01</span>';
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v7.01</span>';
             }}
             
             // 날짜 관련 업데이트
@@ -8128,38 +8211,38 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // TYPE-2 계산 방법 섹션 업데이트
             const type2CalculationTitle = document.getElementById('type2CalculationTitle');
             if (type2CalculationTitle) {{
-                type2CalculationTitle.textContent = getTranslation('criteria.type2Calculation.title', currentLanguage);
+                type2CalculationTitle.textContent = getTranslation('incentiveCalculation.type2CalculationTitle', currentLanguage);
             }}
 
             const type2PrincipleLabel = document.getElementById('type2PrincipleLabel');
             if (type2PrincipleLabel) {{
-                type2PrincipleLabel.textContent = getTranslation('criteria.type2Calculation.principleLabel', currentLanguage);
+                type2PrincipleLabel.textContent = getTranslation('incentiveCalculation.type2CalculationPrincipleLabel', currentLanguage);
             }}
 
             const type2PrincipleText = document.getElementById('type2PrincipleText');
             if (type2PrincipleText) {{
-                type2PrincipleText.textContent = getTranslation('criteria.type2Calculation.principleText', currentLanguage);
+                type2PrincipleText.textContent = getTranslation('incentiveCalculation.type2CalculationPrincipleText', currentLanguage);
             }}
 
             // TYPE-2 계산 테이블 헤더
             document.querySelectorAll('.type2-calc-header-position').forEach(th => {{
-                th.textContent = getTranslation('criteria.type2Calculation.tableHeaders.position', currentLanguage);
+                th.textContent = getTranslation('incentiveCalculation.type2CalcHeaderPosition', currentLanguage);
             }});
             document.querySelectorAll('.type2-calc-header-reference').forEach(th => {{
-                th.textContent = getTranslation('criteria.type2Calculation.tableHeaders.reference', currentLanguage);
+                th.textContent = getTranslation('incentiveCalculation.type2CalcHeaderReference', currentLanguage);
             }});
             document.querySelectorAll('.type2-calc-header-method').forEach(th => {{
-                th.textContent = getTranslation('criteria.type2Calculation.tableHeaders.method', currentLanguage);
+                th.textContent = getTranslation('incentiveCalculation.type2CalcHeaderMethod', currentLanguage);
             }});
             document.querySelectorAll('.type2-calc-header-average').forEach(th => {{
                 // "2025년 9월 평균" → dynamic
-                const monthText = getTranslation('common.months.{month.lower()}', currentLanguage);
-                th.textContent = getTranslation('criteria.type2Calculation.tableHeaders.average', currentLanguage).replace('{{month}}', monthText).replace('{{year}}', '{year}');
+                const monthText = getTranslation('common.{month.lower()}', currentLanguage);
+                th.textContent = getTranslation('incentiveCalculation.type2CalcHeaderAverage', currentLanguage).replace('{{{{month}}}}', monthText).replace('{{{{year}}}}', '{year}');
             }});
 
             // "평균" 텍스트 업데이트
             document.querySelectorAll('.average-text').forEach(span => {{
-                span.textContent = getTranslation('criteria.type2Calculation.average', currentLanguage);
+                span.textContent = getTranslation('incentiveCalculation.average', currentLanguage);
             }});
 
             // TYPE-1 테이블 조건 수 업데이트
@@ -10294,39 +10377,41 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 출근 조건 체크 (모든 직급 공통)
             if (employee['attendancy condition 1 - acctual working days is zero'] === 'yes') {{
-                reasons.push('실제 근무일 0일 (출근 조건 1번 미충족)');
+                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.actualWorkingDaysZero', currentLanguage));
             }}
             if (employee['attendancy condition 2 - unapproved Absence Day is more than 2 days'] === 'yes') {{
-                reasons.push('무단결근 2일 초과 (출근 조건 2번 미충족)');
+                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.unapprovedAbsenceOver2', currentLanguage));
             }}
             if (employee['attendancy condition 3 - absent % is over 12%'] === 'yes') {{
-                reasons.push('결근율 12% 초과 (출근 조건 3번 미충족)');
+                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.absentRateOver12', currentLanguage));
             }}
             if (employee['attendancy condition 4 - minimum working days'] === 'yes') {{
-                reasons.push('최소 근무일 미달 (출근 조건 4번 미충족)');
+                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.minimumWorkingDays', currentLanguage));
             }}
 
             // LINE LEADER의 경우 AQL 조건 추가 체크
             if (position.includes('LINE') && position.includes('LEADER')) {{
                 if (employee['aql condition 7 - team/area fail AQL'] === 'yes') {{
-                    reasons.push('팀/구역 AQL 실패 (AQL 조건 7번 미충족)');
+                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.teamAreaAQLFail', currentLanguage));
                 }}
                 if (employee['September AQL Failures'] > 0) {{
-                    reasons.push(`9월 AQL 실패 ${{employee['September AQL Failures']}}건`);
+                    const monthText = currentLanguage === 'ko' ? '9월' : currentLanguage === 'vi' ? 'Tháng 9' : 'September';
+                    const reasonText = getTranslation('orgChart.modal.nonPaymentReasons.monthlyAQLFailures', currentLanguage);
+                    reasons.push(reasonText.replace('{{month}}', monthText).replace('{{count}}', employee['September AQL Failures']));
                 }}
                 if (employee['Continuous_FAIL'] === 'YES_3MONTHS') {{
-                    reasons.push('3개월 연속 AQL 실패');
+                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.continuous3MonthsAQLFail', currentLanguage));
                 }} else if (employee['Continuous_FAIL'] && employee['Continuous_FAIL'].includes('2MONTHS')) {{
-                    reasons.push('2개월 연속 AQL 실패');
+                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.continuous2MonthsAQLFail', currentLanguage));
                 }}
             }}
 
             // 5PRS 조건 체크 (해당 직급만)
             if (employee['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] === 'no') {{
-                reasons.push('5PRS 검증 부족 또는 합격률 95% 미달 (5PRS 조건 1번 미충족)');
+                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.prs5ValidationOrPassRate', currentLanguage));
             }}
             if (employee['5prs condition 2 - Total Valiation Qty is zero'] === 'yes') {{
-                reasons.push('5PRS 총 검증 수량 0 (5PRS 조건 2번 미충족)');
+                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.prs5TotalQtyZero', currentLanguage));
             }}
 
             // 조건 통과율 체크
@@ -10936,7 +11021,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 ${{calculationDetails}}
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span class="modal-close-btn">${{getTranslation('buttons.close', currentLanguage) || '닫기'}}</span></button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span class="modal-close-btn">${{getTranslation('orgChart.buttons.close', currentLanguage) || '닫기'}}</span></button>
                             </div>
                         </div>
                     </div>
@@ -13038,19 +13123,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function generateEmployeeTable() {{
             const tbody = document.getElementById('employeeTableBody');
             tbody.innerHTML = '';
-            
+
             employeeData.forEach(emp => {{
-                const amount = parseInt(emp['{month.lower()}_incentive']);
+                // CRITICAL FIX: 필드명 통일 - Employee No와 emp_no 모두 지원
+                const empNo = emp.emp_no || emp['Employee No'] || emp['emp_no'];
+                const empName = emp.name || emp['Full Name'];
+                const empPosition = emp.position || emp['QIP POSITION 1ST NAME'];
+                const empType = emp.type || emp['ROLE TYPE STD'] || 'TYPE-2';
+
+                const amount = parseInt(emp['{month.lower()}_incentive'] || emp.september_incentive || 0);
                 const isPaid = amount > 0;
                 const tr = document.createElement('tr');
                 tr.style.cursor = 'pointer';
-                tr.onclick = () => showEmployeeDetail(emp.emp_no);
-                
+
+                // CRITICAL FIX: empNo를 문자열로 전달
+                tr.onclick = () => showEmployeeDetail(String(empNo));
+
                 // Talent Pool 멤버인 경우 특별 스타일 적용
                 if (emp.Talent_Pool_Member === 'Y') {{
                     tr.className = 'talent-pool-row';
                 }}
-                
+
                 // Talent Pool 정보 HTML 생성
                 let talentPoolHTML = '-';
                 if (emp.Talent_Pool_Member === 'Y') {{
@@ -13066,17 +13159,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
                     `;
                 }}
-                
+
                 tr.innerHTML = `
-                    <td>${{emp.emp_no}}</td>
-                    <td>${{emp.name}}${{emp.Talent_Pool_Member === 'Y' ? '<span class="talent-pool-badge">TALENT</span>' : ''}}</td>
-                    <td>${{emp.position}}</td>
-                    <td><span class="type-badge type-${{emp.type.toLowerCase().replace('type-', '')}}">${{emp.type}}</span></td>
-                    <td>${{parseInt(emp['{prev_month_name}_incentive'] || emp.previous_incentive || 0).toLocaleString()}}</td>
+                    <td>${{empNo}}</td>
+                    <td>${{empName}}${{emp.Talent_Pool_Member === 'Y' ? '<span class="talent-pool-badge">TALENT</span>' : ''}}</td>
+                    <td>${{empPosition}}</td>
+                    <td><span class="type-badge type-${{empType.toLowerCase().replace('type-', '')}}">${{empType}}</span></td>
+                    <td>${{parseInt(emp['{prev_month_name}_incentive'] || emp.previous_incentive || emp.august_incentive || 0).toLocaleString()}}</td>
                     <td><strong>${{amount.toLocaleString()}}</strong></td>
                     <td>${{talentPoolHTML}}</td>
                     <td>${{isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid')}}</td>
-                    <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${{emp.emp_no}}')">${{getTranslation('individual.table.detailButton')}}</button></td>
+                    <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${{empNo}}')">${{getTranslation('individual.table.detailButton')}}</button></td>
                 `;
                 tbody.appendChild(tr);
             }});
@@ -13733,8 +13826,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         
         // 직원 상세 정보 표시 (대시보드 스타일 UI)
         function showEmployeeDetail(empNo) {{
-            const emp = employeeData.find(e => e['Employee No'] === empNo || e.emp_no === empNo);
-            if (!emp) return;
+            // CRITICAL FIX: 타입 통일하여 비교 (문자열로 통일)
+            const empNoStr = String(empNo);
+            const emp = employeeData.find(e => {{
+                const eEmpNo = String(e['Employee No'] || e.emp_no || e['emp_no'] || '');
+                return eEmpNo === empNoStr;
+            }});
+
+            if (!emp) {{
+                console.error('Employee not found:', empNo);
+                console.log('Available employee IDs:', employeeData.map(e => e['Employee No'] || e.emp_no).slice(0, 5));
+                return;
+            }}
 
             const modal = document.getElementById('employeeModal');
             const modalBody = document.getElementById('modalBody');
@@ -13773,7 +13876,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
-                            <div class="stat-value">${{translatePosition(emp['FINAL QIP POSITION NAME CODE'])}}</div>
+                            <div class="stat-value">${{emp['QIP POSITION 1ST NAME'] || emp.position || emp['FINAL QIP POSITION NAME CODE'] || 'N/A'}}</div>
                             <div class="stat-label">${{getTranslation('modal.basicInfo.position')}}</div>
                         </div>
                     </div>
@@ -13812,7 +13915,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="payment-status ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? 'paid' : 'unpaid'}}">
                                     ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? `
                                     <div>
-                                        <i class="fas fa-check-circle"></i>
+                                        <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
                                         <h5>` + getTranslation('modal.payment.paid', currentLanguage) + `</h5>
                                         <p class="mb-1">${{parseInt(emp['{month.lower()}_incentive']).toLocaleString()}} VND</p>
                                         ${{emp.Talent_Pool_Member === 'Y' ? `
@@ -13825,7 +13928,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         </div>` : ''}}
                                     </div>` : `
                                     <div>
-                                        <i class="fas fa-times-circle"></i>
+                                        <div style="font-size: 48px; margin-bottom: 10px;">❌</div>
                                         <h5>` + getTranslation('status.unpaid', currentLanguage) + `</h5>
                                         <p>` + getTranslation('modal.detailPopup.conditionNotMet', currentLanguage) + `</p>
                                     </div>`}}
@@ -13863,34 +13966,72 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         // N/A는 이미 필터링되었으므로 else 블록만 실행
                                         {{
                                             rowClass = cond.is_met ? 'table-success' : 'table-danger';
-                                            
+
                                             // 실적 값의 단위 번역 처리
                                             let actualValue = cond.actual;
+
+                                            // CRITICAL FIX: 소수점은 첫째자리까지만 표시
+                                            if (typeof actualValue === 'number') {{
+                                                actualValue = Number(actualValue).toFixed(1);
+                                            }} else if (typeof actualValue === 'string') {{
+                                                // 숫자 문자열인 경우 소수점 처리
+                                                const numMatch = actualValue.match(/^([0-9]+\\.[0-9]+)/);
+                                                if (numMatch) {{
+                                                    const roundedNum = Number(numMatch[1]).toFixed(1);
+                                                    actualValue = actualValue.replace(numMatch[1], roundedNum);
+                                                }}
+                                            }}
+
                                             if (actualValue && typeof actualValue === 'string') {{
-                                                // Placeholder 번역 처리
+                                                // Placeholder 번역 처리 - 하지만 실제 데이터를 우선 표시
                                                 actualValue = actualValue.replace('[PASS]', getTranslation('modal.conditions.pass', currentLanguage));
                                                 actualValue = actualValue.replace('[FAIL]', getTranslation('modal.conditions.fail', currentLanguage));
                                                 actualValue = actualValue.replace('[CONSECUTIVE_FAIL]', getTranslation('modal.conditions.consecutiveFail', currentLanguage));
 
-                                                // "0일" -> "0 days" / "0 ngày"
-                                                actualValue = actualValue.replace(/(\\d+)일/g, function(match, num) {{
-                                                    const dayUnit = parseInt(num) <= 1 ? getTranslation('common.day', currentLanguage) : getTranslation('common.days', currentLanguage);
-                                                    return num + (currentLanguage === 'ko' ? dayUnit : ' ' + dayUnit);
-                                                }});
-                                                // "0건" -> "0 cases" / "0 trường hợp"
-                                                actualValue = actualValue.replace(/(\\d+)건/g, function(match, num) {{
-                                                    if (currentLanguage === 'en') return num + (parseInt(num) <= 1 ? ' case' : ' cases');
-                                                    if (currentLanguage === 'vi') return num + ' trường hợp';
-                                                    return match;
-                                                }});
-                                                // "0족" -> "0 pairs" / "0 đôi"
-                                                actualValue = actualValue.replace(/(\\d+)족/g, function(match, num) {{
-                                                    if (currentLanguage === 'en') return num + (parseInt(num) <= 1 ? ' pair' : ' pairs');
-                                                    if (currentLanguage === 'vi') return num + ' đôi';
-                                                    return match;
-                                                }});
+                                                // 조건별 단위 추가/변환 (영어 표시 개선)
+                                                // 조건 1, 8, 9: % 앞에 공백 추가 "100.0%" → "100.0 %"
+                                                if (cond.id === 1 || cond.id === 8 || cond.id === 9) {{
+                                                    actualValue = actualValue.replace(/([0-9.]+)%/g, '$1 %');
+                                                }}
+
+                                                // 조건 2, 3, 4: "0일" → "0.0 days"
+                                                if (cond.id === 2 || cond.id === 3 || cond.id === 4) {{
+                                                    actualValue = actualValue.replace(/(\\d+\\.?\\d*)일/g, function(match, num) {{
+                                                        if (currentLanguage === 'en') {{
+                                                            return num + (parseFloat(num) === 1 ? ' day' : ' days');
+                                                        }} else if (currentLanguage === 'vi') {{
+                                                            return num + ' ngày';
+                                                        }} else {{
+                                                            return match;  // 한국어는 그대로
+                                                        }}
+                                                    }});
+                                                }}
+
+                                                // 조건 5: "0건" → "0.0 PO reject"
+                                                if (cond.id === 5) {{
+                                                    actualValue = actualValue.replace(/(\\d+\\.?\\d*)건/g, function(match, num) {{
+                                                        if (currentLanguage === 'en') {{
+                                                            return num + ' PO reject';
+                                                        }} else if (currentLanguage === 'vi') {{
+                                                            return num + ' PO từ chối';
+                                                        }} else {{
+                                                            return match;  // 한국어는 그대로
+                                                        }}
+                                                    }});
+                                                }}
+
+                                                // 조건 10: "400족" → "400.0 prs" (영어/베트남어에서 prs로 변경)
+                                                if (cond.id === 10) {{
+                                                    actualValue = actualValue.replace(/(\\d+\\.?\\d*)족/g, function(match, num) {{
+                                                        if (currentLanguage === 'en' || currentLanguage === 'vi') {{
+                                                            return num + ' prs';
+                                                        }} else {{
+                                                            return match;  // 한국어는 "족" 유지
+                                                        }}
+                                                    }});
+                                                }}
                                             }}
-                                            
+
                                             actualHtml = `<strong>${{actualValue}}</strong>`;
                                             badgeHtml = cond.is_met ? '<span class="badge bg-success">' + getTranslation('modal.conditions.met', currentLanguage) + '</span>' : '<span class="badge bg-danger">' + getTranslation('modal.conditions.notMet', currentLanguage) + '</span>';
                                         }}
