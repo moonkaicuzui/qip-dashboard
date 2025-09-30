@@ -1,0 +1,405 @@
+{
+  "position_mapping": {
+    "GROUP LEADER": [
+      "OF2",
+      "BTS",
+      "F",
+      "OF3",
+      "X",
+      "Q",
+      "B4A"
+    ],
+    "(V) SUPERVISOR": [
+      "G",
+      "CC",
+      "QA1",
+      "P",
+      "OCPT1",
+      "T"
+    ],
+    "A.MANAGER": [
+      "O",
+      "H"
+    ],
+    "BOTTOM INSPECTOR": [
+      "BTS2A",
+      "BTS3A",
+      "BTS2B"
+    ],
+    "MODEL MASTER": [
+      "D"
+    ],
+    "AUDIT & TRAINING TEAM": [
+      "QA2B",
+      "QA2A"
+    ],
+    "LINE LEADER": [
+      "BTS1",
+      "R",
+      "V",
+      "E",
+      "Y"
+    ],
+    "AQL INSPECTOR": [
+      "B",
+      "B3A",
+      "B2C",
+      "B2A",
+      "B2E",
+      "B2D"
+    ],
+    "ASSEMBLY INSPECTOR": [
+      "A3B",
+      "A2B",
+      "A1C",
+      "A3A",
+      "A2A",
+      "A4B",
+      "A5A",
+      "A1B",
+      "A4A",
+      "A1A",
+      "A4C"
+    ],
+    "STITCHING INSPECTOR": [
+      "S1A",
+      "S1B"
+    ],
+    "OSC INSPECTOR": [
+      "W2",
+      "W5",
+      "W4",
+      "W6",
+      "W3",
+      "W1"
+    ],
+    "MANAGER": [
+      "Z"
+    ],
+    "MTL INSPECTOR": [
+      "XYX4",
+      "XYX3",
+      "XYX2",
+      "XYX1"
+    ],
+    "RQC": [
+      "XY3",
+      "XY1",
+      "XY2"
+    ],
+    "QA TEAM": [
+      "QA3B",
+      "QA3A"
+    ],
+    "CUTTING INSPECTOR": [
+      "CCCC"
+    ],
+    "OCPT STFF": [
+      "OCPT2"
+    ],
+    "NEW": [
+      "NEW"
+    ]
+  },
+  "code_to_names": {
+    "OF2": [
+      "GROUP LEADER"
+    ],
+    "T": [
+      "(V) SUPERVISOR"
+    ],
+    "H": [
+      "A.MANAGER"
+    ],
+    "BTS2B": [
+      "BOTTOM INSPECTOR"
+    ],
+    "D": [
+      "MODEL MASTER"
+    ],
+    "G": [
+      "(V) SUPERVISOR"
+    ],
+    "QA2B": [
+      "AUDIT & TRAINING TEAM"
+    ],
+    "Y": [
+      "LINE LEADER"
+    ],
+    "B": [
+      "AQL INSPECTOR"
+    ],
+    "A1A": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "S1A": [
+      "STITCHING INSPECTOR"
+    ],
+    "E": [
+      "LINE LEADER"
+    ],
+    "F": [
+      "GROUP LEADER"
+    ],
+    "P": [
+      "(V) SUPERVISOR"
+    ],
+    "X": [
+      "GROUP LEADER"
+    ],
+    "W1": [
+      "OSC INSPECTOR"
+    ],
+    "S1B": [
+      "STITCHING INSPECTOR"
+    ],
+    "B2A": [
+      "AQL INSPECTOR"
+    ],
+    "R": [
+      "LINE LEADER"
+    ],
+    "Z": [
+      "MANAGER"
+    ],
+    "OCPT1": [
+      "(V) SUPERVISOR"
+    ],
+    "QA2A": [
+      "AUDIT & TRAINING TEAM"
+    ],
+    "XYX1": [
+      "MTL INSPECTOR"
+    ],
+    "QA1": [
+      "(V) SUPERVISOR"
+    ],
+    "Q": [
+      "GROUP LEADER"
+    ],
+    "B4A": [
+      "GROUP LEADER"
+    ],
+    "A1B": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "O": [
+      "A.MANAGER"
+    ],
+    "XYX2": [
+      "MTL INSPECTOR"
+    ],
+    "B2D": [
+      "AQL INSPECTOR"
+    ],
+    "XY1": [
+      "RQC"
+    ],
+    "W2": [
+      "OSC INSPECTOR"
+    ],
+    "XYX3": [
+      "MTL INSPECTOR"
+    ],
+    "BTS1": [
+      "LINE LEADER"
+    ],
+    "BTS2A": [
+      "BOTTOM INSPECTOR"
+    ],
+    "QA3A": [
+      "QA TEAM"
+    ],
+    "BTS": [
+      "GROUP LEADER"
+    ],
+    "W3": [
+      "OSC INSPECTOR"
+    ],
+    "XY3": [
+      "RQC"
+    ],
+    "XYX4": [
+      "MTL INSPECTOR"
+    ],
+    "B2C": [
+      "AQL INSPECTOR"
+    ],
+    "CCCC": [
+      "CUTTING INSPECTOR"
+    ],
+    "W4": [
+      "OSC INSPECTOR"
+    ],
+    "XY2": [
+      "RQC"
+    ],
+    "OF3": [
+      "GROUP LEADER"
+    ],
+    "A4B": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "A4C": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "A5A": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "CC": [
+      "(V) SUPERVISOR"
+    ],
+    "B2E": [
+      "AQL INSPECTOR"
+    ],
+    "A3B": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "OCPT2": [
+      "OCPT STFF"
+    ],
+    "A1C": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "BTS3A": [
+      "BOTTOM INSPECTOR"
+    ],
+    "QA3B": [
+      "QA TEAM"
+    ],
+    "W5": [
+      "OSC INSPECTOR"
+    ],
+    "W6": [
+      "OSC INSPECTOR"
+    ],
+    "A2A": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "A3A": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "V": [
+      "LINE LEADER"
+    ],
+    "A4A": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "A2B": [
+      "ASSEMBLY INSPECTOR"
+    ],
+    "NEW": [
+      "NEW"
+    ],
+    "B3A": [
+      "AQL INSPECTOR"
+    ]
+  },
+  "inconsistent_positions": {
+    "GROUP LEADER": [
+      "OF2",
+      "BTS",
+      "F",
+      "OF3",
+      "X",
+      "Q",
+      "B4A"
+    ],
+    "(V) SUPERVISOR": [
+      "G",
+      "CC",
+      "QA1",
+      "P",
+      "OCPT1",
+      "T"
+    ],
+    "A.MANAGER": [
+      "O",
+      "H"
+    ],
+    "BOTTOM INSPECTOR": [
+      "BTS2A",
+      "BTS3A",
+      "BTS2B"
+    ],
+    "AUDIT & TRAINING TEAM": [
+      "QA2B",
+      "QA2A"
+    ],
+    "LINE LEADER": [
+      "BTS1",
+      "R",
+      "V",
+      "E",
+      "Y"
+    ],
+    "AQL INSPECTOR": [
+      "B",
+      "B3A",
+      "B2C",
+      "B2A",
+      "B2E",
+      "B2D"
+    ],
+    "ASSEMBLY INSPECTOR": [
+      "A3B",
+      "A2B",
+      "A1C",
+      "A3A",
+      "A2A",
+      "A4B",
+      "A5A",
+      "A1B",
+      "A4A",
+      "A1A",
+      "A4C"
+    ],
+    "STITCHING INSPECTOR": [
+      "S1A",
+      "S1B"
+    ],
+    "OSC INSPECTOR": [
+      "W2",
+      "W5",
+      "W4",
+      "W6",
+      "W3",
+      "W1"
+    ],
+    "MTL INSPECTOR": [
+      "XYX4",
+      "XYX3",
+      "XYX2",
+      "XYX1"
+    ],
+    "RQC": [
+      "XY3",
+      "XY1",
+      "XY2"
+    ],
+    "QA TEAM": [
+      "QA3B",
+      "QA3A"
+    ]
+  },
+  "suggested_code_mapping": {
+    "progressive_incentive_codes": [
+      "D",
+      "A2B",
+      "A3B",
+      "A4C",
+      "QA2B",
+      "A1C",
+      "QA2A",
+      "A2A",
+      "A4B",
+      "A5A",
+      "A1B",
+      "A4A",
+      "A1A",
+      "A3A"
+    ],
+    "management_codes": [],
+    "basic_type1_codes": []
+  }
+}

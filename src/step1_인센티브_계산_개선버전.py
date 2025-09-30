@@ -1013,7 +1013,80 @@ class DataProcessor:
 
                 return continuous_months
 
-        # 9월 이후: 이전 월 Excel 파일에서 읽기
+        # 9월 계산: 8월 인센티브 지급 세부 정보 파일에서 읽기
+        if self.config.month.number == 9 and self.config.year == 2025:
+            # 8월 인센티브 CSV 파일 로드
+            august_file = 'input_files/2025년 8월 인센티브 지급 세부 정보.csv'
+
+            if os.path.exists(august_file):
+                try:
+                    # 8월 데이터 로드
+                    august_df = pd.read_csv(august_file, encoding='utf-8-sig')
+
+                    # Employee No를 9자리로 패딩
+                    if 'Employee No' in august_df.columns:
+                        august_df['Employee No'] = august_df['Employee No'].astype(str).str.zfill(9)
+
+                    # 해당 직원의 8월 인센티브 찾기
+                    emp_august = august_df[august_df['Employee No'] == emp_id_padded]
+
+                    if not emp_august.empty:
+                        # 8월 인센티브 금액 확인 - 여러 가능한 컬럼 이름 시도
+                        august_row = emp_august.iloc[0]
+                        august_incentive = august_row.get('August_Incentive',
+                                            august_row.get('Final Incentive amount',
+                                            august_row.get('인센티브 지급액', 0)))
+                        if pd.isna(august_incentive):
+                            august_incentive = 0
+
+                        # 8월 인센티브 금액으로 9월 연속 개월 계산
+                        # 원칙: 8월에 받은 금액 = 해당 개월 달성 → 9월은 +1개월
+                        if august_incentive == 0:
+                            continuous_months = 1  # 신규 시작
+                        elif august_incentive == 150000:
+                            continuous_months = 2  # 8월 1개월 달성 → 9월 2개월
+                        elif august_incentive == 250000:
+                            continuous_months = 3  # 8월 2개월 달성 → 9월 3개월
+                        elif august_incentive == 300000:
+                            continuous_months = 4  # 8월 3개월 달성 → 9월 4개월
+                        elif august_incentive == 350000:
+                            continuous_months = 5  # 8월 4개월 달성 → 9월 5개월
+                        elif august_incentive == 400000:
+                            continuous_months = 6  # 8월 5개월 달성 → 9월 6개월
+                        elif august_incentive == 450000:
+                            continuous_months = 7  # 8월 6개월 달성 → 9월 7개월
+                        elif august_incentive == 500000:
+                            continuous_months = 8  # 8월 7개월 달성 → 9월 8개월
+                        elif august_incentive == 650000:
+                            continuous_months = 9  # 8월 8개월 달성 → 9월 9개월
+                        elif august_incentive == 750000:
+                            continuous_months = 10  # 8월 9개월 달성 → 9월 10개월
+                        elif august_incentive == 850000:
+                            continuous_months = 11  # 8월 10개월 달성 → 9월 11개월
+                        elif august_incentive == 950000:
+                            continuous_months = 12  # 8월 11개월 달성 → 9월 12개월
+                        elif august_incentive == 1000000:
+                            continuous_months = 12  # 이미 최대값 유지
+                        else:
+                            continuous_months = 1  # 알 수 없는 금액은 1개월로 시작
+
+                        # 디버깅 출력
+                        if august_incentive > 0:
+                            print(f"[8월 Data] {emp_id_padded}: 8월 {august_incentive:,.0f}원 → 9월 {continuous_months}개월")
+
+                        return continuous_months
+                    else:
+                        # 8월 데이터에 없는 직원 → 신규
+                        return 1
+
+                except Exception as e:
+                    print(f"[8월 데이터 읽기 오류] {e}")
+                    return 1
+            else:
+                print(f"[경고] 8월 인센티브 파일 없음: {august_file}")
+                return 1
+
+        # 기타 월: 이전 월 Excel 파일에서 읽기
         prev_month_num = (self.config.month.number - 1) % 12 or 12
         prev_year = self.config.year if prev_month_num < self.config.month.number else self.config.year - 1
         prev_month_obj = Month.from_number(prev_month_num)
@@ -1749,8 +1822,20 @@ class CompleteQIPCalculator:
             emp_id = row.get('Employee No', '')
             position = str(row.get('QIP POSITION 1ST  NAME', '')).upper()
 
+            # MODEL MASTER인 경우 - 전체 구역 담당
+            if 'MODEL' in position and 'MASTER' in position:
+                # 전체 구역의 reject rate 계산
+                total_all = len(aql_data[aql_data['REPACKING PO'] == 'NORMAL PO'])
+                fails_all = len(aql_data[
+                    (aql_data['REPACKING PO'] == 'NORMAL PO') &
+                    (aql_data['RESULT'].str.upper() == 'FAIL')
+                ])
+                rate = (fails_all / total_all * 100) if total_all > 0 else 0
+                self.month_data.loc[idx, 'Area_Reject_Rate'] = rate
+                print(f"  → MODEL MASTER {emp_id}: 전체 구역 reject율 = {rate:.2f}%")
+
             # Auditor & Training Team인 경우
-            if 'AUDIT' in position or 'TRAINING' in position:
+            elif 'AUDIT' in position or 'TRAINING' in position:
                 # 담당 구역 찾기
                 if area_mapping and str(emp_id) in area_mapping.get('auditor_trainer_areas', {}):
                     config = area_mapping['auditor_trainer_areas'][str(emp_id)]
@@ -2295,7 +2380,7 @@ class CompleteQIPCalculator:
     def calculate_auditor_trainer_incentive(self, subordinate_mapping: Dict[str, List[str]]):
         """Auditor/Trainer 및 Model Master 인센티브 계산 (자동화)"""
         print("\n👥 TYPE-1 AUDITOR/TRAINER & MODEL MASTER 인센티브 계산...")
-        
+
         # 담당 구역 reject율을 저장할 딕셔너리
         if not hasattr(self, 'auditor_area_reject_rates'):
             self.auditor_area_reject_rates = {}
@@ -2303,16 +2388,22 @@ class CompleteQIPCalculator:
         # Auditor/Trainer 필터링
         auditor_trainer_mask = (
             (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
-            ((self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('AUDIT', na=False)) |
-             (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('TRAINER', na=False)) |
-             (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('TRAINING', na=False)))
+            (
+                ((self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('AUDIT', na=False)) |
+                 (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('TRAINER', na=False)) |
+                 (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('TRAINING', na=False))) |
+                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper().str.match(r'^(QA[1-2][AB]?|E|F|G|H)$', na=False))  # AUDITOR/TRAINER codes
+            )
         )
         
         # Model Master 필터링 - QIP POSITION NAME이 'MODEL MASTER'인 직원만
         # QA2A는 AUDIT & TRAINING TEAM LEADER이므로 제외
         model_master_mask = (
-            (self.month_data['ROLE TYPE STD'] == 'TYPE-1') & 
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('MODEL MASTER', na=False))
+            (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
+            (
+                (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('MODEL MASTER', na=False)) |
+                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper() == 'D')  # CODE 'D'도 MODEL MASTER로 인식
+            )
         )
         
         # 3개월 연속 실패자의 공장별 분포 찾기
@@ -2346,19 +2437,93 @@ class CompleteQIPCalculator:
             aql_fail = row.get(aql_col, 0) > 0
             continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
             
+            # 100% 충족 검증 - MODEL MASTER는 조건 1,2,3,4,8을 모두 충족해야 함
+            # MODEL MASTER 조건 체크 (1,2,3,4,8)
+            # position_condition_matrix.json의 CODE 'D' 설정에 따라 조건 확인
+            condition_1_pass = row.get('attendancy condition 1 - acctual working days is zero') != 'yes'
+            condition_2_pass = row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') != 'yes'
+            condition_3_pass = row.get('attendancy condition 3 - absent % is over 12%') != 'yes'
+            condition_4_pass = row.get('attendancy condition 4 - minimum working days') != 'yes'
+
+            # Condition 8: 담당 구역 reject율 < 3%
+            area_reject_rate = total_factory_reject_rate  # MODEL MASTER는 전체 공장 reject율 사용
+            condition_8_pass = area_reject_rate < 3.0
+
+            # MODEL MASTER는 모든 조건(1,2,3,4,8)을 충족해야 함
+            all_conditions_pass = (condition_1_pass and condition_2_pass and
+                                  condition_3_pass and condition_4_pass and
+                                  condition_8_pass)
+
+            # pass_rate 계산 (100% or 0%)
+            if all_conditions_pass:
+                pass_rate = 100
+            else:
+                failed_conditions = []
+                if not condition_1_pass: failed_conditions.append('1')
+                if not condition_2_pass: failed_conditions.append('2')
+                if not condition_3_pass: failed_conditions.append('3')
+                if not condition_4_pass: failed_conditions.append('4')
+                if not condition_8_pass: failed_conditions.append('8')
+                pass_rate = 0
+                print(f"    → {row.get('Full Name', 'Unknown')} failed conditions: {', '.join(failed_conditions)}")
+
+
             # Model Master는 전체 공장 reject율 적용
-            if attendance_fail or continuous_fail or aql_fail:
+            # Pass rate 기반 인센티브 결정 (80% threshold)
+            position_code = row.get('FINAL QIP POSITION NAME CODE', '')
+            pass_rate_calculated = row.get('conditions_pass_rate', 0)
+
+            # position_matrix에서 threshold 가져오기
+            threshold = 80  # 기본값
+            if position_code in self.position_matrix.get('positions', {}):
+                threshold = self.position_matrix['positions'][position_code].get('pass_rate_threshold', 80)
+
+            if pass_rate_calculated < threshold:
                 incentive = 0
+                # 조건 미충족 시 Continuous_Months = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
+                print(f"    → {row.get('Full Name', 'Unknown')}: 조건 충족률 {pass_rate_calculated:.1f}% < {threshold}% → 0 VND")
+                incentive = 0
+                # 조건 미충족 시 Continuous_Months = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
             elif total_factory_reject_rate >= 3.0:  # 전체 공장 reject율 3% 이상
                 incentive = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
                 print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): 전체 공장 AQL reject율 {total_factory_reject_rate:.1f}% → 0 VND")
+            elif pass_rate < 80:  # 80% 미충족 (threshold 변경)
+                incentive = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
+                print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): 조건 충족률 {pass_rate}% (100% 미달) → 0 VND")
             else:
-                # Assembly Inspector와 동일한 연속 충족 개월 기준 적용
-                continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
-                incentive = self.get_assembly_inspector_amount(continuous_months)
-                if continuous_months > 0:
-                    print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): {continuous_months}개월 연속 → {incentive:,} VND")
-            
+                # Check if using fallback configuration for MODEL MASTER
+                final_code = row.get('FINAL QIP POSITION NAME CODE', '')
+                if final_code not in self.position_matrix.get('positions', {}) and 'fallback_positions' in self.position_matrix:
+                    # Use fallback configuration
+                    fallback_config = self.position_matrix.get('fallback_positions', {}).get('MODEL MASTER', {})
+                    if fallback_config.get('use_progressive_table', False):
+                        # Use progressive table like Assembly Inspector
+                        continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
+                        incentive = self.get_assembly_inspector_amount(continuous_months)
+                        self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
+                        if continuous_months > 0:
+                            print(f"    → {row.get('Full Name', 'Unknown')} (Model Master - Fallback): {continuous_months}개월 연속 → {incentive:,} VND")
+                    else:
+                        # Use fixed amount from fallback
+                        incentive = fallback_config.get('base_amount', 200000)
+                        continuous_months = 1
+                        self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
+                        print(f"    → {row.get('Full Name', 'Unknown')} (Model Master - Fallback): 조건 충족 → {incentive:,} VND")
+                else:
+                    # Original logic: Assembly Inspector와 동일한 연속 충족 개월 기준 적용
+                    continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
+                    incentive = self.get_assembly_inspector_amount(continuous_months)
+
+                    # Continuous_Months 컬럼 업데이트
+                    self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
+
+                    if continuous_months > 0:
+                        print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): {continuous_months}개월 연속 → {incentive:,} VND")
+
             self.month_data.loc[idx, incentive_col] = incentive
         
         # 일반 Auditor/Trainer 처리 (Model Master 제외)
@@ -2400,22 +2565,74 @@ class CompleteQIPCalculator:
             continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
             
             # 인센티브 결정
-            if attendance_fail or continuous_fail or aql_fail:
+            # Direct condition evaluation for Auditor/Trainer positions
+            position_code = row.get('FINAL QIP POSITION NAME CODE', '')
+            position_name = row.get('QIP POSITION 1ST  NAME', '')
+
+            # Get applicable conditions from position matrix
+            if position_code in self.position_matrix.get('positions', {}):
+                applicable_conditions = self.position_matrix['positions'][position_code].get('applicable_conditions', [1,2,3,4])
+            else:
+                # Default conditions based on position name
+                if 'AUDIT' in position_name.upper():
+                    applicable_conditions = [1,2,3,4,7,8]
+                else:
+                    applicable_conditions = [1,2,3,4]
+
+            # Evaluate each condition
+            conditions_met = {}
+
+            # Attendance conditions (1-4)
+            if 1 in applicable_conditions:
+                conditions_met[1] = row.get('attendancy condition 1 - acctual working days is zero') != 'yes'
+            if 2 in applicable_conditions:
+                conditions_met[2] = row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') != 'yes'
+            if 3 in applicable_conditions:
+                conditions_met[3] = row.get('attendancy condition 3 - absent % is over 12%') != 'yes'
+            if 4 in applicable_conditions:
+                conditions_met[4] = row.get('attendancy condition 4 - minimum working days') != 'yes'
+
+            # Condition 7: 담당 구역 reject율 < 3%
+            if 7 in applicable_conditions:
+                conditions_met[7] = area_reject_rate < 3.0
+
+            # Condition 8: 담당 공장에 3개월 연속 실패자 없음
+            if 8 in applicable_conditions:
+                conditions_met[8] = not has_continuous_fail_in_factory
+
+            # Check if all applicable conditions are met
+            all_conditions_pass = all(conditions_met.values())
+
+            # 인센티브 결정
+            if not all_conditions_pass:
                 incentive = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
+                failed = [k for k,v in conditions_met.items() if not v]
+                print(f"    → {row.get('Full Name', 'Unknown')} failed conditions: {failed} → 0 VND")
+            else:
+                incentive = 0
+                # 조건 미충족 시 Continuous_Months = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
             elif area_reject_rate >= 3.0:  # 담당 구역 reject율 3% 이상으로 변경
                 incentive = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
                 print(f"    → {row.get('Full Name', 'Unknown')}: 담당 구역 AQL reject율 {area_reject_rate:.1f}% → 0 VND")
             elif has_continuous_fail_in_factory:  # 담당 공장에 3개월 연속 실패자 있음
                 incentive = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
                 fail_count = continuous_fail_by_factory.get(auditor_factory, 0)
                 print(f"    → {row.get('Full Name', 'Unknown')}: 담당 공장({auditor_factory})에 3개월 연속 AQL 실패자 {fail_count}명 → 0 VND")
             else:
                 # Assembly Inspector와 동일한 연속 충족 개월 기준 적용
                 continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
                 incentive = self.get_assembly_inspector_amount(continuous_months)
+
+                # Continuous_Months 컬럼 업데이트
+                self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
+
                 if continuous_months > 0:
                     print(f"    → {row.get('Full Name', 'Unknown')}: {continuous_months}개월 연속 → {incentive:,} VND")
-            
+
             self.month_data.loc[idx, incentive_col] = incentive
         
         # 통계 출력 (전체)
@@ -2643,8 +2860,23 @@ class CompleteQIPCalculator:
             continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
             
             # 기본 조건 미충족 시 0원 (5PRS 조건 제외)
-            if attendance_fail or continuous_fail or aql_fail:
+            # Pass rate 기반 인센티브 결정 (80% threshold)
+            position_code = row.get('FINAL QIP POSITION NAME CODE', '')
+            pass_rate_calculated = row.get('conditions_pass_rate', 0)
+
+            # position_matrix에서 threshold 가져오기
+            threshold = 80  # 기본값
+            if position_code in self.position_matrix.get('positions', {}):
+                threshold = self.position_matrix['positions'][position_code].get('pass_rate_threshold', 80)
+
+            if pass_rate_calculated < threshold:
                 incentive = 0
+                # 조건 미충족 시 Continuous_Months = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
+                print(f"    → {row.get('Full Name', 'Unknown')}: 조건 충족률 {pass_rate_calculated:.1f}% < {threshold}% → 0 VND")
+                incentive = 0
+                # 조건 미충족 시 Continuous_Months = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
                 self.month_data.loc[idx, incentive_col] = incentive
                 continue
             
@@ -2662,9 +2894,12 @@ class CompleteQIPCalculator:
             
             # 총 인센티브 계산
             total_incentive = part1_amount + part2_amount + part3_amount
-            
+
             self.month_data.loc[idx, incentive_col] = total_incentive
-            
+
+            # Continuous_Months 컬럼 업데이트 (Part 1 기준)
+            self.month_data.loc[idx, 'Continuous_Months'] = part1_months
+
             # 디버깅 출력
             print(f"    → {row.get('Full Name', 'Unknown')} ({emp_id}):")
             print(f"      Part 1 ({part1_months}개월): {part1_amount:,} VND")
@@ -2783,15 +3018,25 @@ class CompleteQIPCalculator:
         # Type-1 Assembly Inspector 필터링
         assembly_mask = (
             (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('ASSEMBLY', na=False)) &
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('INSPECTOR', na=False))
+            (
+                (
+                    (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('ASSEMBLY', na=False)) &
+                    (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('INSPECTOR', na=False))
+                ) |
+                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper().str.match(r'^A[1-5][AB]?$', na=False))  # A1A-A5B codes
+            )
         )
         
         # Type-1 AQL Inspector 필터링
         aql_mask = (
             (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('AQL', na=False)) &
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('INSPECTOR', na=False))
+            (
+                (
+                    (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('AQL', na=False)) &
+                    (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('INSPECTOR', na=False))
+                ) |
+                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper().str.match(r'^AQL[1-5]?[AB]?$', na=False))  # AQL codes
+            )
         )
         
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
@@ -2831,23 +3076,31 @@ class CompleteQIPCalculator:
             # 인센티브 결정 로직 - 모든 조건 충족 시만 지급
             if attendance_fail:
                 incentive = 0
+                # 조건 미충족 시 Continuous_Months = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
             elif continuous_fail:  # 3개월 연속 AQL 실패
                 incentive = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
             elif aql_fail:  # 당월 AQL 실패
                 incentive = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
             elif not prs_pass:  # 5PRS 조건 미충족
                 incentive = 0
+                self.month_data.loc[idx, 'Continuous_Months'] = 0
             else:
                 # 연속 충족 개월 수 계산
                 continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
-                
+
                 # 연속 충족 개월 수에 따른 차등 지급
                 incentive = self.get_assembly_inspector_amount(continuous_months)
-                
+
+                # Continuous_Months 컬럼 업데이트
+                self.month_data.loc[idx, 'Continuous_Months'] = continuous_months
+
                 # 디버깅을 위한 출력
                 if continuous_months > 0:
                     print(f"    → {row.get('Full Name', 'Unknown')} ({emp_id}): {continuous_months}개월 연속 → {incentive:,} VND")
-            
+
             self.month_data.loc[idx, incentive_col] = incentive
             
             # 디버깅: 619060201 직원 확인
@@ -2904,8 +3157,13 @@ class CompleteQIPCalculator:
         # Type-1 Line Leader 필터링
         line_leader_mask = (
             (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
-            (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
+            (
+                (
+                    (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
+                    (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
+                ) |
+                (self.month_data['FINAL QIP POSITION NAME CODE'].str.upper().str.match(r'^(L[1-5]|LL[AB]?)$', na=False))  # LINE LEADER codes
+            )
         )
         
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
@@ -3087,11 +3345,17 @@ class CompleteQIPCalculator:
                     row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
                     row.get('attendancy condition 4 - minimum working days') == 'yes'
                 )
-                
-                # 출근 조건 미충족 시 인센티브 0
+
+                # 100% 충족 검증
+                pass_rate = row.get('conditions_pass_rate', 0)
+
+                # 출근 조건 미충족 또는 100% 미충족 시 인센티브 0
                 if attendance_fail:
                     incentive = 0
                     print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): 출근 조건 미충족")
+                elif pass_rate < 100:
+                    incentive = 0
+                    print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): 조건 충족률 {pass_rate}% (100% 미달)")
                 else:
                     # 자신의 팀 내 Line Leader들의 평균 계산
                     line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
@@ -3867,7 +4131,14 @@ class CompleteQIPCalculator:
         # 컬럼 추가
         self.month_data['Previous_Continuous_Months'] = previous_continuous
         self.month_data['Current_Expected_Months'] = current_expected
-        self.month_data['Continuous_Months'] = current_expected  # save_results에서 참조하는 컬럼
+        # Continuous_Months는 이미 각 TYPE-1 계산 함수에서 정확히 설정됨
+        # 여기서 덮어쓰면 안됨!
+        # self.month_data['Continuous_Months'] = current_expected  # 이 줄이 문제였음!
+
+        # Continuous_Months 컬럼이 없는 경우에만 초기화
+        if 'Continuous_Months' not in self.month_data.columns:
+            self.month_data['Continuous_Months'] = 0
+
         self.month_data['Next_Month_Expected'] = next_month_expected
 
         print(f"✅ 연속 개월 추적 컬럼 추가 완료 (Next_Month_Expected 포함)")
@@ -4011,7 +4282,8 @@ class CompleteQIPCalculator:
             # 조건 8: 담당구역 reject < 3%
             if 8 in applicable_conditions:
                 reject_rate = self.month_data.loc[idx, 'Area_Reject_Rate'] if 'Area_Reject_Rate' in self.month_data.columns else 0
-                cond_8_result = 'yes' if reject_rate >= 3 else 'no'  # yes = condition failed (reject rate >= 3%)
+                # PASS = reject rate < 3%, FAIL = reject rate >= 3%
+                cond_8_result = 'PASS' if reject_rate < 3 else 'FAIL'
                 self.month_data.loc[idx, 'cond_8_area_reject'] = cond_8_result
                 self.month_data.loc[idx, 'cond_8_value'] = reject_rate
             else:
