@@ -2296,48 +2296,39 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             existingModal.remove();
         }
 
-        let modalHTML = `
-            <div id="consecutiveAqlFailModal" class="modal" style="display: block; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-                <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">
-                    <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
-                        <h2 style="margin: 0;">${t('validationTab.modals.consecutiveAqlFail.title')}</h2>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="btn-group btn-group-sm">
-                                <button type="button" class="btn ${currentLang === 'ko' ? 'btn-light' : 'btn-outline-light'}" onclick="window.switchConsecutiveLang('ko')" style="border: 1px solid white;">한국어</button>
-                                <button type="button" class="btn ${currentLang === 'en' ? 'btn-light' : 'btn-outline-light'}" onclick="window.switchConsecutiveLang('en')" style="border: 1px solid white;">English</button>
-                                <button type="button" class="btn ${currentLang === 'vi' ? 'btn-light' : 'btn-outline-light'}" onclick="window.switchConsecutiveLang('vi')" style="border: 1px solid white;">Tiếng Việt</button>
-                            </div>
-                            <span class="close" onclick="document.getElementById('consecutiveAqlFailModal').remove()" style="color: white; font-size: 28px; font-weight: bold; cursor: pointer; margin-left: 10px;">&times;</span>
-                        </div>
-                    </div>
-                    <div class="modal-body" style="padding: 20px;">
-        `;
+        let modalHTML = '<div id="consecutiveAqlFailModal" class="modal" style="display: block; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">';
+        modalHTML += '<div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">';
+        modalHTML += '<div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">';
+        modalHTML += '<h2 style="margin: 0;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.title') + '</h2>';
+        modalHTML += '<span class="close" onclick="document.getElementById(&apos;consecutiveAqlFailModal&apos;).remove()" style="color: white; font-size: 28px; font-weight: bold; cursor: pointer; margin-left: auto;">&times;</span>';
+        modalHTML += '</div>';
+        modalHTML += '<div class="modal-body" style="padding: 20px;">';
 
         // 3개월 연속 실패 섹션
         modalHTML += '<div class="section-container" style="margin-bottom: 30px;">';
-        modalHTML += `<h3 style="color: #c0392b; margin-bottom: 15px;">🔴 ${t('validationTab.modals.consecutiveAqlFail.threeMonthSection')}</h3>`;
+        modalHTML += '<h3 style="color: #c0392b; margin-bottom: 15px;">🔴 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.threeMonthSection') + '</h3>';
 
         if (threeMonthFails.length === 0) {
             modalHTML += '<div class="alert alert-success" style="padding: 15px; background: #d4edda; color: #155724; border-radius: 5px;">';
-            modalHTML += `✅ ${t('validationTab.modals.consecutiveAqlFail.noThreeMonth')}`;
+            modalHTML += '✅ ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.noThreeMonth');
             modalHTML += '</div>';
         } else {
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
             modalHTML += '<thead><tr style="background: #f8f9fa;">';
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.empNo')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.name')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.position')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.supervisor')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.failPattern')}</th>`;
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.empNo') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.name') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.position') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.supervisor') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.failPattern') + '</th>';
             modalHTML += '</tr></thead><tbody>';
 
             threeMonthFails.forEach(emp => {
                 modalHTML += '<tr>';
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Employee No'] || emp['emp_no']}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Full Name'] || emp['name']}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['position'] || '-'}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['boss_name'] || '-'}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['AQL_Fail_Pattern'] || 'Jul-Aug-Sep'}</td>`;
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['position'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['boss_name'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || 'Jul-Aug-Sep') + '</td>';
                 modalHTML += '</tr>';
             });
 
@@ -2347,21 +2338,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 2개월 연속 실패 섹션
         modalHTML += '<div class="section-container">';
-        modalHTML += `<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ ${t('validationTab.modals.consecutiveAqlFail.twoMonthSection')}</h3>`;
+        modalHTML += '<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.twoMonthSection') + '</h3>';
 
         if (twoMonthFails.length === 0) {
             modalHTML += '<div class="alert alert-info" style="padding: 15px; background: #d1ecf1; color: #0c5460; border-radius: 5px;">';
-            modalHTML += t('validationTab.modals.consecutiveAqlFail.noTwoMonth');
+            modalHTML += t('validationTab.modals.aqlFail.consecutiveAqlFail.noTwoMonth');
             modalHTML += '</div>';
         } else {
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
             modalHTML += '<thead><tr style="background: #f8f9fa;">';
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.empNo')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.name')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.position')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.supervisor')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.failPattern')}</th>`;
-            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.risk')}</th>`;
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.empNo') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.name') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.position') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.supervisor') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.failPattern') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.risk') + '</th>';
             modalHTML += '</tr></thead><tbody>';
 
             // 8-9월 연속 실패자를 먼저 표시 (높은 위험)
@@ -2370,23 +2361,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             augSepFails.forEach(emp => {
                 modalHTML += '<tr style="background: #fff5f5;">';
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Employee No'] || emp['emp_no']}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Full Name'] || emp['name']}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-'}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['MST direct boss name'] || emp['boss_name'] || '-'}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['AQL_Fail_Pattern'] || 'Aug-Sep'}</td>`;
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">🔴 높음</span></td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || 'Aug-Sep') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">🔴 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + '</span></td>';
                 modalHTML += '</tr>';
             });
 
             julAugFails.forEach(emp => {
                 modalHTML += '<tr>';
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Employee No'] || emp['emp_no']}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['Full Name'] || emp['name']}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-'}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['MST direct boss name'] || emp['boss_name'] || '-'}</td>`;
-                modalHTML += `<td style="border: 1px solid #dee2e6; padding: 8px;">${emp['AQL_Fail_Pattern'] || 'Jul-Aug'}</td>`;
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 3px;">🟡 보통</span></td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || 'Jul-Aug') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 3px;">🟡 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.medium') + '</span></td>';
                 modalHTML += '</tr>';
             });
 
@@ -2394,29 +2385,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 범례 추가
             modalHTML += '<div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">';
-            modalHTML += '<strong>위험도 설명:</strong><br>';
-            modalHTML += '🔴 <strong>높음 (Aug-Sep):</strong> 10월에 실패 시 3개월 연속 실패가 됩니다. 즉시 조치 필요!<br>';
-            modalHTML += '🟡 <strong>보통 (Jul-Aug):</strong> 9월에 회복했지만 지속적인 모니터링이 필요합니다.';
+            modalHTML += '<strong>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskExplanation.title') + '</strong><br>';
+            modalHTML += '🔴 <strong>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + ' (Aug-Sep):</strong> ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskExplanation.highDesc') + '<br>';
+            modalHTML += '🟡 <strong>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.medium') + ' (Jul-Aug):</strong> ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskExplanation.mediumDesc');
             modalHTML += '</div>';
         }
         modalHTML += '</div>';
 
         // 요약 통계
         modalHTML += '<div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 5px;">';
-        modalHTML += '<strong>📊 요약:</strong><br>';
-        modalHTML += `• 3개월 연속 실패: ${threeMonthFails.length}명<br>`;
-        modalHTML += `• 2개월 연속 실패: ${twoMonthFails.length}명<br>`;
+        modalHTML += '<strong>📊 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.title') + '</strong><br>';
+        modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.threeMonthFails') + ' ' + threeMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
+        modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.twoMonthFails') + ' ' + twoMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
         const augSepCount = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('AUG_SEP')).length;
-        modalHTML += `&nbsp;&nbsp;- 8-9월 연속 (높은 위험): ${augSepCount}명<br>`;
-        modalHTML += `&nbsp;&nbsp;- 7-8월 연속 (모니터링): ${twoMonthFails.length - augSepCount}명`;
+        modalHTML += '&nbsp;&nbsp;- ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.highRisk') + ' ' + augSepCount + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
+        modalHTML += '&nbsp;&nbsp;- ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.monitoring') + ' ' + (twoMonthFails.length - augSepCount) + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people');
         modalHTML += '</div>';
 
         // Close modal HTML
-        modalHTML += `
-                    </div>
-                </div>
-            </div>
-        `;
+        modalHTML += '</div>';
+        modalHTML += '</div>';
+        modalHTML += '</div>';
 
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHTML);
