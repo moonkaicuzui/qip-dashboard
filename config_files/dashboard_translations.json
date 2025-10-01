@@ -199,7 +199,7 @@
     "modalTitle": {
       "ko": "인센티브 계산 상세",
       "en": "Incentive Calculation Details",
-      "vi": "Chi tiết tính khen thưởng"
+      "vi": "Chi tiết tính khuyến khích"
     },
     "filters": {
       "allTypes": {
@@ -318,11 +318,6 @@
       "ko": "인센티브 미수령",
       "en": "Incentive Not Received",
       "vi": "Chưa nhận thưởng"
-    },
-    "modalTitle": {
-      "ko": "인센티브 계산 상세",
-      "en": "Incentive Calculation Details",
-      "vi": "Chi tiết tính khuyến khích"
     },
     "modalLabels": {
       "actualIncentive": {
@@ -1542,7 +1537,7 @@
     "modalTitle": {
       "ko": "인센티브 계산 상세",
       "en": "Incentive Calculation Details",
-      "vi": "Chi tiết tính khuyến khích"
+      "vi": "Chi tiết tính khen thưởng"
     },
     "expectedIncentive": {
       "ko": "예상 인센티브",
@@ -1615,11 +1610,6 @@
         "en": "Unpaid",
         "vi": "Chưa thanh toán"
       }
-    },
-    "modalTitle": {
-      "ko": "인센티브 계산 상세",
-      "en": "Incentive Calculation Details",
-      "vi": "Chi tiết tính khen thưởng"
     },
     "conditionFulfillmentDetails": {
       "ko": "조건 충족 상세",
@@ -2084,6 +2074,11 @@
       "ko": "VND",
       "en": "VND",
       "vi": "VND"
+    },
+    "total": {
+      "ko": "전체",
+      "en": "Total",
+      "vi": "Tổng cộng"
     },
     "people": {
       "ko": "명",
@@ -2569,11 +2564,6 @@
         "en": "12 months+",
         "vi": "12 tháng+"
       }
-    },
-    "levelA": {
-      "ko": "Level-A",
-      "en": "Level-A",
-      "vi": "Level-A"
     },
     "assemblyInspectorIncentiveTitle": {
       "ko": "TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브",
@@ -4550,6 +4540,26 @@
         "ko": "닫기",
         "en": "Close",
         "vi": "Đóng"
+      },
+      "empNo": {
+        "ko": "사번",
+        "en": "Emp No.",
+        "vi": "Mã NV"
+      },
+      "absentDays": {
+        "ko": "무단결근",
+        "en": "Absent Days",
+        "vi": "Ngày vắng"
+      },
+      "daysUnit": {
+        "ko": "(일)",
+        "en": "(Days)",
+        "vi": "(Ngày)"
+      },
+      "status": {
+        "ko": "상태",
+        "en": "Status",
+        "vi": "Trạng thái"
       }
     },
     "modalTitles": {
@@ -4603,6 +4613,382 @@
         "en": "Low 5PRS Inspection Quantity Details",
         "vi": "Chi tiết số lượng kiểm tra 5PRS thấp"
       }
+    },
+    "stats": {
+      "total": {
+        "ko": "전체",
+        "en": "Total",
+        "vi": "Tổng cộng"
+      },
+      "caution": {
+        "ko": "주의",
+        "en": "Caution",
+        "vi": "Chú ý"
+      },
+      "warning": {
+        "ko": "경고",
+        "en": "Warning",
+        "vi": "Cảnh báo"
+      },
+      "excluded": {
+        "ko": "제외",
+        "en": "Excluded",
+        "vi": "Loại trừ"
+      }
+    },
+    "status": {
+      "excluded": {
+        "ko": "제외",
+        "en": "Excluded",
+        "vi": "Loại trừ"
+      },
+      "warning": {
+        "ko": "경고",
+        "en": "Warning",
+        "vi": "Cảnh báo"
+      },
+      "caution": {
+        "ko": "주의",
+        "en": "Caution",
+        "vi": "Chú ý"
+      },
+      "exceeded": {
+        "ko": "초과",
+        "en": "Exceeded",
+        "vi": "Vượt quá"
+      }
+    },
+    "modals": {
+      "absentWithoutInform": {
+        "title": {
+          "ko": "무단결근 직원 상세",
+          "en": "Absent Employee Details",
+          "vi": "Chi tiết nhân viên vắng mặt"
+        }
+      },
+      "minimumDaysNotMet": {
+        "title": {
+          "ko": "최소 근무일 미충족 직원 상세",
+          "en": "Minimum Days Not Met Employee Details",
+          "vi": "Chi tiết nhân viên không đủ ngày làm tối thiểu"
+        },
+        "alertMessage": {
+          "ko": "최소 요구 근무일:",
+          "en": "Minimum Required Working Days:",
+          "vi": "Ngày làm việc tối thiểu yêu cầu:"
+        },
+        "excludeNote": {
+          "ko": "(TYPE-3는 인센티브 대상에서 제외됩니다)",
+          "en": "(TYPE-3 employees are excluded from incentive calculation)",
+          "vi": "(Nhân viên TYPE-3 được loại trừ khỏi tính toán khuyến khích)"
+        },
+        "headers": {
+          "empNo": {
+            "ko": "사번",
+            "en": "Emp No.",
+            "vi": "Mã NV"
+          },
+          "name": {
+            "ko": "이름",
+            "en": "Name",
+            "vi": "Họ tên"
+          },
+          "position": {
+            "ko": "직책",
+            "en": "Position",
+            "vi": "Chức vụ"
+          },
+          "type": {
+            "ko": "유형",
+            "en": "Type",
+            "vi": "Loại"
+          },
+          "actualDays": {
+            "ko": "실제 근무일",
+            "en": "Actual Working Days",
+            "vi": "Ngày làm việc thực tế"
+          },
+          "minimumRequired": {
+            "ko": "최소 요구",
+            "en": "Minimum Required",
+            "vi": "Tối thiểu yêu cầu"
+          },
+          "shortage": {
+            "ko": "부족",
+            "en": "Shortage",
+            "vi": "Thiếu"
+          },
+          "status": {
+            "ko": "상태",
+            "en": "Status",
+            "vi": "Trạng thái"
+          }
+        },
+        "statusLabels": {
+          "met": {
+            "ko": "충족",
+            "en": "Met",
+            "vi": "Đạt"
+          },
+          "notMet": {
+            "ko": "미충족",
+            "en": "Not Met",
+            "vi": "Chưa đạt"
+          }
+        },
+        "emptyMessage": {
+          "ko": "모든 직원이 최소 근무일을 충족했습니다",
+          "en": "All employees met the minimum working days requirement",
+          "vi": "Tất cả nhân viên đã đáp ứng yêu cầu ngày làm việc tối thiểu"
+        }
+      },
+      "attendanceBelow88": {
+        "title": {
+          "ko": "출근율 88% 미만 직원 상세",
+          "en": "Attendance < 88% Employee Details",
+          "vi": "Chi tiết nhân viên có tỷ lệ chuyên cần < 88%"
+        },
+        "alertMessage": {
+          "ko": "출근율 88% 미만인 직원은 인센티브 지급이 제한될 수 있습니다",
+          "en": "Employees with attendance rate below 88% may have incentive restrictions",
+          "vi": "Nhân viên có tỷ lệ chuyên cần dưới 88% có thể bị hạn chế khuyến khích"
+        },
+        "excludeNote": {
+          "ko": "(TYPE-3는 인센티브 대상에서 제외됩니다)",
+          "en": "(TYPE-3 employees are excluded from incentive calculation)",
+          "vi": "(Nhân viên TYPE-3 được loại trừ khỏi tính toán khuyến khích)"
+        },
+        "headers": {
+          "empNo": {
+            "ko": "사번",
+            "en": "Emp No.",
+            "vi": "Mã NV"
+          },
+          "name": {
+            "ko": "이름",
+            "en": "Name",
+            "vi": "Họ tên"
+          },
+          "position": {
+            "ko": "직책",
+            "en": "Position",
+            "vi": "Chức vụ"
+          },
+          "type": {
+            "ko": "유형",
+            "en": "Type",
+            "vi": "Loại"
+          },
+          "attendanceRate": {
+            "ko": "출근율",
+            "en": "Attendance Rate",
+            "vi": "Tỷ lệ chuyên cần"
+          },
+          "actualDays": {
+            "ko": "실제 근무일",
+            "en": "Actual Working Days",
+            "vi": "Ngày làm việc thực tế"
+          },
+          "totalDays": {
+            "ko": "총 근무일",
+            "en": "Total Working Days",
+            "vi": "Tổng số ngày làm việc"
+          },
+          "conditionMet": {
+            "ko": "조건 충족",
+            "en": "Condition Met",
+            "vi": "Đáp ứng điều kiện"
+          }
+        },
+        "statusLabels": {
+          "met": {
+            "ko": "충족",
+            "en": "Met",
+            "vi": "Đạt"
+          },
+          "notMet": {
+            "ko": "미충족",
+            "en": "Not Met",
+            "vi": "Chưa đạt"
+          }
+        },
+        "emptyMessage": {
+          "ko": "모든 직원이 출근율 88% 이상을 달성했습니다",
+          "en": "All employees achieved attendance rate of 88% or higher",
+          "vi": "Tất cả nhân viên đạt tỷ lệ chuyên cần từ 88% trở lên"
+        }
+      },
+      "aqlFail": {
+        "title": {
+          "ko": "AQL FAIL 보유자 상세",
+          "en": "AQL FAIL Details",
+          "vi": "Chi tiết AQL FAIL"
+        },
+        "alertMessage": {
+          "ko": "AQL (Acceptable Quality Level) FAIL은 품질 검사에서 불합격을 받은 경우를 의미합니다.",
+          "en": "AQL (Acceptable Quality Level) FAIL indicates quality inspection failures.",
+          "vi": "AQL (Acceptable Quality Level) FAIL cho thấy các trường hợp không đạt kiểm tra chất lượng."
+        },
+        "totalCount": {
+          "ko": "총 {count}명의 직원이 9월에 AQL FAIL을 기록했습니다.",
+          "en": "Total {count} employees recorded AQL FAIL in September.",
+          "vi": "Tổng cộng {count} nhân viên ghi nhận AQL FAIL trong tháng 9."
+        },
+        "headers": {
+          "empNo": {
+            "ko": "사번",
+            "en": "Emp No.",
+            "vi": "Mã NV"
+          },
+          "name": {
+            "ko": "이름",
+            "en": "Name",
+            "vi": "Họ tên"
+          },
+          "supervisor": {
+            "ko": "직속 상사",
+            "en": "Direct Supervisor",
+            "vi": "Quản lý trực tiếp"
+          },
+          "inspectorId": {
+            "ko": "적송 상사 ↕",
+            "en": "Inspector ID ↕",
+            "vi": "Mã thanh tra ↕"
+          },
+          "aqlPass": {
+            "ko": "AQL PASS ↕",
+            "en": "AQL PASS ↕",
+            "vi": "AQL ĐẠT ↕"
+          },
+          "aqlFail": {
+            "ko": "AQL FAIL ↕",
+            "en": "AQL FAIL ↕",
+            "vi": "AQL THẤT BẠI ↕"
+          },
+          "failPercent": {
+            "ko": "FAIL % ▼",
+            "en": "FAIL % ▼",
+            "vi": "TỈ LỆ THẤT BẠI % ▼"
+          }
+        },
+        "lineLeaderSummary": {
+          "title": {
+            "ko": "라인리더별 AQL 집계",
+            "en": "AQL Summary by Line Leader",
+            "vi": "Tổng hợp AQL theo Line Leader"
+          },
+          "description": {
+            "ko": "각 라인리더의 직속 부하직원 AQL 통계",
+            "en": "AQL statistics for direct reports of each Line Leader",
+            "vi": "Thống kê AQL cho nhân viên trực thuộc của mỗi Line Leader"
+          },
+          "headers": {
+            "leaderName": {
+              "ko": "라인리더 이름",
+              "en": "Line Leader Name",
+              "vi": "Tên Line Leader"
+            },
+            "leaderSupervisor": {
+              "ko": "라인리더 상사",
+              "en": "Leader's Supervisor",
+              "vi": "Quản lý của Line Leader"
+            },
+            "subordinatePass": {
+              "ko": "부하 AQL PASS",
+              "en": "Subordinate AQL PASS",
+              "vi": "AQL ĐẠT của nhân viên"
+            },
+            "subordinateFail": {
+              "ko": "부하 AQL FAIL",
+              "en": "Subordinate AQL FAIL",
+              "vi": "AQL THẤT BẠI của nhân viên"
+            },
+            "failPercent": {
+              "ko": "FAIL % ▼",
+              "en": "FAIL % ▼",
+              "vi": "TỈ LỆ THẤT BẠI % ▼"
+            }
+          }
+        },
+        "consecutiveAqlFail": {
+          "title": {
+            "ko": "3개월 연속 AQL FAIL 현황",
+            "en": "3-Month Consecutive AQL FAIL Status",
+            "vi": "Tình trạng AQL FAIL liên tiếp 3 tháng"
+          },
+          "threeMonthSection": {
+            "ko": "3개월 연속 AQL 실패",
+            "en": "3-Month Consecutive AQL Failures",
+            "vi": "Thất bại AQL liên tiếp 3 tháng"
+          },
+          "twoMonthSection": {
+            "ko": "2개월 연속 AQL 실패 - 주의 관찰 대상",
+            "en": "2-Month Consecutive AQL Failures - Under Observation",
+            "vi": "Thất bại AQL liên tiếp 2 tháng - Theo dõi cẩn thận"
+          },
+          "noThreeMonth": {
+            "ko": "현재 3개월 연속 실패자가 없습니다.",
+            "en": "Currently no 3-month consecutive failures.",
+            "vi": "Hiện tại không có người thất bại liên tiếp 3 tháng."
+          },
+          "noTwoMonth": {
+            "ko": "현재 2개월 연속 실패자가 없습니다.",
+            "en": "Currently no 2-month consecutive failures.",
+            "vi": "Hiện tại không có người thất bại liên tiếp 2 tháng."
+          },
+          "headers": {
+            "empNo": {
+              "ko": "직원번호",
+              "en": "Employee No.",
+              "vi": "Mã nhân viên"
+            },
+            "name": {
+              "ko": "이름",
+              "en": "Name",
+              "vi": "Họ tên"
+            },
+            "position": {
+              "ko": "직책",
+              "en": "Position",
+              "vi": "Chức vụ"
+            },
+            "supervisor": {
+              "ko": "직속상사",
+              "en": "Direct Supervisor",
+              "vi": "Quản lý trực tiếp"
+            },
+            "failPattern": {
+              "ko": "실패 패턴",
+              "en": "Failure Pattern",
+              "vi": "Mô hình thất bại"
+            },
+            "risk": {
+              "ko": "위험도",
+              "en": "Risk Level",
+              "vi": "Mức độ rủi ro"
+            }
+          }
+        }
+      }
+    },
+    "warnings": {
+      "absentExclusion": {
+        "ko": "무단결근 3일 이상 시 자동으로 인센티브 지급 제외",
+        "en": "Incentive automatically excluded for 3+ days absent without inform",
+        "vi": "Tự động loại trừ khuyến khích nếu vắng không phép từ 3 ngày trở lên"
+      }
+    },
+    "units": {
+      "day": {
+        "ko": "일",
+        "en": " day",
+        "vi": " ngày"
+      },
+      "days": {
+        "ko": "일",
+        "en": " days",
+        "vi": " ngày"
+      }
     }
   },
   "management": {
@@ -4639,25 +5025,25 @@
       }
     },
     "stats": {
-      "critical": {
-        "ko": "긴급 이슈",
-        "en": "Critical Issues",
-        "vi": "Vấn đề nghiêm trọng"
+      "total": {
+        "ko": "전체",
+        "en": "Total",
+        "vi": "Tổng cộng"
+      },
+      "caution": {
+        "ko": "주의",
+        "en": "Caution",
+        "vi": "Chú ý"
       },
       "warning": {
-        "ko": "경고 사항",
-        "en": "Warnings",
+        "ko": "경고",
+        "en": "Warning",
         "vi": "Cảnh báo"
       },
-      "total": {
-        "ko": "전체 직원",
-        "en": "Total Employees",
-        "vi": "Tổng số nhân viên"
-      },
-      "new_hires": {
-        "ko": "신규 입사",
-        "en": "New Hires",
-        "vi": "Nhân viên mới"
+      "excluded": {
+        "ko": "제외",
+        "en": "Excluded",
+        "vi": "Loại trừ"
       }
     },
     "consecutive_failures": {
@@ -4786,6 +5172,424 @@
       "ko": "출결 현황",
       "en": "Attendance Overview",
       "vi": "Tổng quan chấm công"
+    },
+    "tableHeaders": {
+      "empNo": {
+        "ko": "사번",
+        "en": "Emp No.",
+        "vi": "Mã NV"
+      },
+      "employeeNo": {
+        "ko": "사번",
+        "en": "Employee No.",
+        "vi": "Mã nhân viên"
+      },
+      "name": {
+        "ko": "성명",
+        "en": "Name",
+        "vi": "Tên"
+      },
+      "position": {
+        "ko": "직위",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "type": {
+        "ko": "TYPE",
+        "en": "TYPE",
+        "vi": "LOẠI"
+      },
+      "absentDays": {
+        "ko": "무단결근",
+        "en": "Absent Days",
+        "vi": "Ngày vắng"
+      },
+      "actualDays": {
+        "ko": "실제 근무일",
+        "en": "Actual Days",
+        "vi": "Ngày làm thực tế"
+      },
+      "totalDays": {
+        "ko": "총 근무일",
+        "en": "Total Days",
+        "vi": "Tổng ngày làm"
+      },
+      "minimumRequired": {
+        "ko": "최소 필요",
+        "en": "Minimum Required",
+        "vi": "Tối thiểu cần"
+      },
+      "ar1Days": {
+        "ko": "출근율",
+        "en": "Attendance Rate",
+        "vi": "Tỷ lệ chấm công"
+      },
+      "aqlFailures": {
+        "ko": "AQL 실패 횟수",
+        "en": "AQL Failures",
+        "vi": "Số lần AQL thất bại"
+      },
+      "area": {
+        "ko": "지역",
+        "en": "Area",
+        "vi": "Khu vực"
+      },
+      "rejectRate": {
+        "ko": "불합격률",
+        "en": "Reject Rate",
+        "vi": "Tỷ lệ loại bỏ"
+      },
+      "passRate": {
+        "ko": "합격률",
+        "en": "Pass Rate",
+        "vi": "Tỷ lệ đạt"
+      },
+      "inspectionQty": {
+        "ko": "검사 수량",
+        "en": "Inspection Qty",
+        "vi": "Số lượng kiểm tra"
+      },
+      "conditionStatus": {
+        "ko": "조건 상태",
+        "en": "Condition Status",
+        "vi": "Trạng thái điều kiện"
+      },
+      "daysUnit": {
+        "ko": "(일)",
+        "en": "(Days)",
+        "vi": "(Ngày)"
+      },
+      "status": {
+        "ko": "상태",
+        "en": "Status",
+        "vi": "Trạng thái"
+      },
+      "searchPlaceholder": {
+        "ko": "검색...",
+        "en": "Search...",
+        "vi": "Tìm kiếm..."
+      },
+      "close": {
+        "ko": "닫기",
+        "en": "Close",
+        "vi": "Đóng"
+      }
+    },
+    "modals": {
+      "absentWithoutInform": {
+        "title": {
+          "ko": "무단결근 직원 상세",
+          "en": "Absent Employee Details",
+          "vi": "Chi tiết nhân viên vắng mặt"
+        }
+      }
+    },
+    "modalTitles": {
+      "absentWithoutInform": {
+        "ko": "무단결근 직원 상세",
+        "en": "Absent Employee Details",
+        "vi": "Chi tiết nhân viên vắng mặt"
+      },
+      "zeroWorkingDays": {
+        "ko": "실제 근무일 0일 직원 상세",
+        "en": "Zero Working Days Details",
+        "vi": "Chi tiết nhân viên 0 ngày làm"
+      },
+      "minimumDaysNotMet": {
+        "ko": "최소 근무일 미충족 직원 상세",
+        "en": "Minimum Days Not Met Details",
+        "vi": "Chi tiết không đủ ngày tối thiểu"
+      },
+      "totalWorkingDays": {
+        "ko": "총 근무일수 상세",
+        "en": "Total Working Days Details",
+        "vi": "Chi tiết tổng ngày làm"
+      },
+      "aqlFail": {
+        "ko": "AQL FAIL 보유 직원 상세",
+        "en": "AQL Fail Details",
+        "vi": "Chi tiết nhân viên AQL thất bại"
+      },
+      "consecutiveAqlFail": {
+        "ko": "3개월 연속 AQL FAIL 직원 상세",
+        "en": "3-Month Consecutive AQL Fail Details",
+        "vi": "Chi tiết AQL thất bại 3 tháng liên tiếp"
+      },
+      "areaRejectRate": {
+        "ko": "지역별 불합격률 상세",
+        "en": "Area Reject Rate Details",
+        "vi": "Chi tiết tỷ lệ loại bỏ theo khu vực"
+      },
+      "lowPassRate": {
+        "ko": "낮은 합격률 직원 상세",
+        "en": "Low Pass Rate Details",
+        "vi": "Chi tiết tỷ lệ đạt thấp"
+      },
+      "lowInspectionQty": {
+        "ko": "낮은 검사 수량 직원 상세",
+        "en": "Low Inspection Quantity Details",
+        "vi": "Chi tiết số lượng kiểm tra thấp"
+      }
+    },
+    "status": {
+      "excluded": {
+        "ko": "제외",
+        "en": "Excluded",
+        "vi": "Loại trừ"
+      },
+      "warning": {
+        "ko": "경고",
+        "en": "Warning",
+        "vi": "Cảnh báo"
+      },
+      "caution": {
+        "ko": "주의",
+        "en": "Caution",
+        "vi": "Chú ý"
+      },
+      "exceeded": {
+        "ko": "초과",
+        "en": "Exceeded",
+        "vi": "Vượt quá"
+      }
+    },
+    "warnings": {
+      "absentExclusion": {
+        "ko": "무단결근 3일 이상 시 자동으로 인센티브 지급 제외",
+        "en": "Incentive automatically excluded for 3+ days absent without inform",
+        "vi": "Tự động loại trừ khuyến khích nếu vắng không phép từ 3 ngày trở lên"
+      }
+    },
+    "units": {
+      "day": {
+        "ko": "일",
+        "en": " day",
+        "vi": " ngày"
+      },
+      "days": {
+        "ko": "일",
+        "en": " days",
+        "vi": " ngày"
+      }
+    }
+  },
+  "validationKpi": {
+    "totalWorkingDays": {
+      "ko": "총 근무일수",
+      "en": "Total Working Days",
+      "vi": "Tổng số ngày làm việc"
+    },
+    "absentWithoutInform": {
+      "ko": "무단결근 ≥3일",
+      "en": "Absent w/o Notice ≥3 days",
+      "vi": "Nghỉ không phép ≥3 ngày"
+    },
+    "zeroWorkingDays": {
+      "ko": "실제 근무일 = 0",
+      "en": "Actual Working Days = 0",
+      "vi": "Ngày làm việc thực tế = 0"
+    },
+    "minimumDaysNotMet": {
+      "ko": "최소 근무일 미충족",
+      "en": "Minimum Days Not Met",
+      "vi": "Không đạt ngày tối thiểu"
+    },
+    "attendanceBelow88": {
+      "ko": "출근율 88% 미만",
+      "en": "Attendance < 88%",
+      "vi": "Chấm công < 88%"
+    },
+    "aqlFail": {
+      "ko": "AQL FAIL 보유자",
+      "en": "AQL FAIL Holders",
+      "vi": "Người có AQL FAIL"
+    },
+    "consecutiveAqlFail": {
+      "ko": "3개월 연속 AQL FAIL",
+      "en": "3 Months Consecutive AQL FAIL",
+      "vi": "3 tháng liên tiếp AQL FAIL"
+    },
+    "areaRejectRate": {
+      "ko": "구역 AQL Reject ≥3%",
+      "en": "Area AQL Reject ≥3%",
+      "vi": "Khu vực AQL từ chối ≥3%"
+    },
+    "lowPassRate": {
+      "ko": "5PRS Pass Rate < 95%",
+      "en": "5PRS Pass Rate < 95%",
+      "vi": "Tỷ lệ đạt 5PRS < 95%"
+    },
+    "lowInspectionQty": {
+      "ko": "5PRS Inspection < 100 pairs",
+      "en": "5PRS Inspection < 100 pairs",
+      "vi": "Kiểm tra 5PRS < 100 đôi"
+    }
+  },
+  "workingDaysModal": {
+    "title": {
+      "ko": "근무일 현황",
+      "en": "Working Days Status",
+      "vi": "Tình trạng ngày làm việc"
+    },
+    "totalWorkingDays": {
+      "ko": "총 근무일 (실제)",
+      "en": "Total Working Days (Actual)",
+      "vi": "Tổng ngày làm việc (Thực tế)"
+    },
+    "totalDays": {
+      "ko": "총 일수",
+      "en": "Total Days",
+      "vi": "Tổng số ngày"
+    },
+    "noData": {
+      "ko": "데이터 없음",
+      "en": "No Data",
+      "vi": "Không có dữ liệu"
+    },
+    "workDay": {
+      "ko": "근무일",
+      "en": "Work Day",
+      "vi": "Ngày làm việc"
+    },
+    "dayLabel": {
+      "ko": "일",
+      "en": "days",
+      "vi": "ngày"
+    },
+    "employeeCount": {
+      "ko": "명",
+      "en": "people",
+      "vi": "người"
+    },
+    "weekdays": {
+      "ko": [
+        "일",
+        "월",
+        "화",
+        "수",
+        "목",
+        "금",
+        "토"
+      ],
+      "en": [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ],
+      "vi": [
+        "CN",
+        "T2",
+        "T3",
+        "T4",
+        "T5",
+        "T6",
+        "T7"
+      ]
+    },
+    "weekdaySuffix": {
+      "ko": "요일",
+      "en": "",
+      "vi": ""
+    },
+    "legendWorkDay": {
+      "ko": "근무일 (출근 데이터 있음)",
+      "en": "Work Day (Attendance Data Available)",
+      "vi": "Ngày làm việc (Có dữ liệu chấm công)"
+    },
+    "legendNoData": {
+      "ko": "데이터 없음",
+      "en": "No Data",
+      "vi": "Không có dữ liệu"
+    }
+  },
+  "zeroWorkingDaysModal": {
+    "title": {
+      "ko": "0일 근무자 상세",
+      "en": "Zero Working Days Details",
+      "vi": "Chi tiết nhân viên làm 0 ngày"
+    },
+    "description": {
+      "ko": "실제 근무일이 0일인 직원 목록입니다.",
+      "en": "List of employees with zero actual working days.",
+      "vi": "Danh sách nhân viên có số ngày làm việc thực tế bằng 0."
+    },
+    "headers": {
+      "empNo": {
+        "ko": "사번",
+        "en": "Emp No.",
+        "vi": "Mã NV"
+      },
+      "name": {
+        "ko": "이름",
+        "en": "Name",
+        "vi": "Tên"
+      },
+      "position": {
+        "ko": "직책",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "totalDays": {
+        "ko": "총 근무일",
+        "en": "Total Days",
+        "vi": "Tổng ngày"
+      },
+      "actualDays": {
+        "ko": "실 근무일",
+        "en": "Actual Days",
+        "vi": "Ngày thực tế"
+      },
+      "status": {
+        "ko": "상태",
+        "en": "Status",
+        "vi": "Trạng thái"
+      },
+      "stopDate": {
+        "ko": "퇴사일",
+        "en": "Stop Date",
+        "vi": "Ngày nghỉ"
+      },
+      "pregnantVacation": {
+        "ko": "임신 휴가",
+        "en": "Pregnant Vacation",
+        "vi": "Nghỉ thai sản"
+      },
+      "remark": {
+        "ko": "비고",
+        "en": "Remark",
+        "vi": "Ghi chú"
+      }
+    },
+    "statusLabels": {
+      "resigned": {
+        "ko": "퇴사",
+        "en": "Resigned",
+        "vi": "Đã nghỉ"
+      },
+      "contractEnd": {
+        "ko": "계약종료",
+        "en": "Contract End",
+        "vi": "Hết hợp đồng"
+      },
+      "allAbsent": {
+        "ko": "전체 결근",
+        "en": "All Absent",
+        "vi": "Nghỉ toàn bộ"
+      },
+      "yes": {
+        "ko": "예",
+        "en": "Yes",
+        "vi": "Có"
+      },
+      "no": {
+        "ko": "아니오",
+        "en": "No",
+        "vi": "Không"
+      }
     }
   }
 }
