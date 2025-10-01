@@ -782,12 +782,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp = emp_data.copy()
             # type 필드 추가 (ROLE TYPE STD에서 가져옴)
             emp['type'] = emp.get('ROLE TYPE STD', 'TYPE-2')
+
             emp['emp_no'] = str(emp.get('Employee No', ''))
             emp['name'] = emp.get('Full Name', '')
             emp['position'] = emp.get('QIP POSITION 1ST  NAME', '')
             # 인센티브 필드 매핑
             emp['september_incentive'] = str(emp.get('September_Incentive', '0'))
             emp['august_incentive'] = str(emp.get('Previous_Incentive', '0'))
+
+            # CRITICAL FIX: condition4 필드 추가 (JavaScript 호환성)
+            emp['condition4'] = str(emp.get('attendancy condition 4 - minimum working days', 'no'))
 
             # CRITICAL FIX: condition_results 추가
             emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
@@ -1070,6 +1074,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         incentive_start_str = '01'
         incentive_end_str = f'{month_last_day:02d}'
 
+    # 보고서 타입 재결정 (인센티브 데이터 기간의 마지막 날 기준)
+    try:
+        incentive_end_day = int(incentive_end_str)
+        is_interim_report = incentive_end_day < 20
+        report_type_ko = '중간 점검용' if is_interim_report else '최종'
+        report_type_en = 'Interim' if is_interim_report else 'Final'
+        report_type_vi = 'Tạm thời' if is_interim_report else 'Cuối cùng'
+        print(f"📊 보고서 타입 결정: 데이터 마지막 날={incentive_end_day}일 → {'중간 보고서' if is_interim_report else '최종 보고서'}")
+    except ValueError:
+        print(f"⚠️ 인센티브 종료일 변환 실패, 기존 로직 사용: {incentive_end_str}")
+        pass  # 기존 값 유지 (current_day 기준)
+
     # JavaScript용 번역 데이터 생성
     translations_js = json.dumps(TRANSLATIONS, ensure_ascii=False, indent=2)
 
@@ -1097,21 +1113,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     '''
 
-    # 모달 함수들 추가 (f-string 밖에서 정의)
+    # 모달 함수들 추가 (template 방식으로 정의)
     modal_scripts = """
     function showTotalWorkingDaysDetails() {
         /* Excel 데이터에서 실제 근무일 정보 가져오기 (Single Source of Truth) */
         let workDays = [];
         let holidays = [];
-        let totalWorkingDays = 13; /* Default fallback */
+        let totalWorkingDays = __WORKING_DAYS__; /* Config에서 가져온 실제 값 */
+        const daysInMonth = 30; /* 9월은 30일까지 */
 
         if (window.excelDashboardData && window.excelDashboardData.attendance) {
             /* 실제 출근 데이터에서 근무일과 휴일 추출 */
             const dailyData = window.excelDashboardData.attendance.daily_data;
             totalWorkingDays = window.excelDashboardData.attendance.total_working_days;
 
-            /* 일별 데이터 분석 */
-            for (let day = 1; day <= 19; day++) {
+            /* 일별 데이터 분석 - 전체 월 범위 확인 */
+            for (let day = 1; day <= daysInMonth; day++) {
                 if (dailyData && dailyData[day]) {
                     if (dailyData[day].is_working_day) {
                         workDays.push(day);
@@ -1124,26 +1141,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }
             }
             console.log('실제 근무일:', workDays);
-            console.log('휴일:', holidays);
+            console.log('휴일/데이터없음:', holidays);
             console.log('총 근무일수:', totalWorkingDays);
         } else {
             /* Fallback: 기본 근무일 데이터 사용 */
             console.warn('Excel 대시보드 데이터가 없습니다. 기본값 사용.');
-            workDays = [2,3,4,5,6,9,10,11,12,13,16,17,18,19];
-            holidays = [1,7,8,14,15];
+            workDays = [2,3,4,5,6,9,10,11,12,13,16,17,18,19,20,23,24,25,26,27,30];
+            holidays = [1,7,8,14,15,21,22,28,29];
         }
 
-        /* 2025년 9월 요일 계산 (9월 1일은 월요일) */
-        const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+        /* 요일 번역 가져오기 */
+        const weekdaysArray = getTranslation('workingDaysModal.weekdays', currentLanguage);
+        const weekdaySuffix = getTranslation('workingDaysModal.weekdaySuffix', currentLanguage);
+        const dayLabel = getTranslation('workingDaysModal.dayLabel', currentLanguage);
+        const employeeCountLabel = getTranslation('workingDaysModal.employeeCount', currentLanguage);
+        const noDataText = getTranslation('workingDaysModal.noData', currentLanguage);
+
         const getWeekday = (day) => {
             /* 2025년 9월 1일은 월요일(index 1) */
             const firstDayOfWeek = 1; /* 월요일 = 1 */
             const dayIndex = (firstDayOfWeek + day - 1) % 7;
-            return weekdays[dayIndex];
+            return weekdaysArray[dayIndex];
         };
 
         let calendarHTML = '<div class="calendar-grid">';
-        for (let day = 1; day <= 19; day++) {
+        for (let day = 1; day <= daysInMonth; day++) {
             const isWorkDay = workDays.includes(day);
             const hasNoData = !isWorkDay;
             const dayClass = isWorkDay ? 'work-day' : 'no-data';
@@ -1155,19 +1177,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (isWorkDay && window.excelDashboardData && window.excelDashboardData.attendance && window.excelDashboardData.attendance.daily_data && window.excelDashboardData.attendance.daily_data[day]) {
                 const count = window.excelDashboardData.attendance.daily_data[day].count;
                 if (count > 0) {
-                    attendanceCount = `<div class="attendance-count">${count}명</div>`;
+                    attendanceCount = `<div class="attendance-count">${count}${employeeCountLabel}</div>`;
                 }
             } else if (hasNoData) {
                 attendanceCount = `<div class="attendance-count no-data-text">
                     <i class="fas fa-times-circle"></i>
-                    <span>데이터 없음</span>
+                    <span>${noDataText}</span>
                 </div>`;
             }
 
             calendarHTML += `
                 <div class="calendar-day ${dayClass}">
                     <div class="day-number">${day}</div>
-                    <div class="day-weekday">${weekday}요일</div>
+                    <div class="day-weekday">${weekday}${weekdaySuffix}</div>
                     ${icon ? `<div class="day-icon">${icon}</div>` : ''}
                     ${attendanceCount}
                 </div>
@@ -1175,10 +1197,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }
         calendarHTML += '</div>';
 
+        /* 모달 번역 텍스트 */
+        const modalTitle = getTranslation('workingDaysModal.title', currentLanguage);
+        const totalWorkingDaysLabel = getTranslation('workingDaysModal.totalWorkingDays', currentLanguage);
+        const totalDaysLabel = getTranslation('workingDaysModal.totalDays', currentLanguage);
+        const noDataLabel = getTranslation('workingDaysModal.noData', currentLanguage);
+        const legendWorkDay = getTranslation('workingDaysModal.legendWorkDay', currentLanguage);
+        const legendNoDataText = getTranslation('workingDaysModal.legendNoData', currentLanguage);
+
+        /* 월 이름 가져오기 */
+        const yearText = __YEAR__;
+        const monthNames = {
+            'ko': '__MONTH_KO__',
+            'en': '__MONTH_EN__',
+            'vi': 'Tháng 9'
+        };
+        const monthText = monthNames[currentLanguage] || monthNames['en'];
+
         const modalContent = `
             <div class="unified-modal-header">
                 <h5 class="unified-modal-title">
-                    <i class="fas fa-calendar-alt me-2"></i> 2025년 9월 근무일 현황
+                    <i class="fas fa-calendar-alt me-2"></i> ${yearText} ${monthText} ${modalTitle}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1187,29 +1226,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="col-md-4">
                         <div class="stat-card text-center p-3 border rounded">
                             <div class="stat-icon">💼</div>
-                            <div class="stat-label">총 근무일 (실제)</div>
-                            <div class="stat-value text-primary h3">${totalWorkingDays}일</div>
+                            <div class="stat-label">${totalWorkingDaysLabel}</div>
+                            <div class="stat-value text-primary h3">${totalWorkingDays}${dayLabel}</div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card text-center p-3 border rounded">
                             <div class="stat-icon">📅</div>
-                            <div class="stat-label">총 일수</div>
-                            <div class="stat-value text-info h3">19일</div>
+                            <div class="stat-label">${totalDaysLabel}</div>
+                            <div class="stat-value text-info h3">${daysInMonth}${dayLabel}</div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card text-center p-3 border rounded">
                             <div class="stat-icon">❌</div>
-                            <div class="stat-label">데이터 없음</div>
-                            <div class="stat-value text-secondary h3">${holidays.length}일</div>
+                            <div class="stat-label">${noDataLabel}</div>
+                            <div class="stat-value text-secondary h3">${holidays.length}${dayLabel}</div>
                         </div>
                     </div>
                 </div>
                 ${calendarHTML}
                 <div class="mt-3">
-                    <span class="legend-badge legend-workday">💼 근무일 (출근 데이터 있음)</span>
-                    <span class="legend-badge legend-nodata">❌ 데이터 없음</span>
+                    <span class="legend-badge legend-workday">💼 ${legendWorkDay}</span>
+                    <span class="legend-badge legend-nodata">❌ ${legendNoDataText}</span>
                 </div>
             </div>
         `;
@@ -1240,7 +1279,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 새 모달 인스턴스 생성 with proper options
         const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
+            backdrop: 'static',  // 모달 내부 클릭시 닫히지 않도록 설정
             keyboard: true,      // ESC 키로 닫기
             focus: true
         });
@@ -1300,8 +1339,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         bVal = b['Full Name'] || '';
                         break;
                     case 'position':
-                        aVal = a['FINAL QIP POSITION NAME CODE'] || '';
-                        bVal = b['FINAL QIP POSITION NAME CODE'] || '';
+                        aVal = a['QIP POSITION 1ST NAME'] || '';  // Fixed: single space (normalized)
+                        bVal = b['QIP POSITION 1ST NAME'] || '';  // Fixed: single space (normalized)
                         break;
                     case 'totalDays':
                         aVal = a['Total Working Days'] || {working_days};
@@ -1311,11 +1350,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         aVal = a['Actual Working Days'] || 0;
                         bVal = b['Actual Working Days'] || 0;
                         break;
+                    case 'stopDate':
+                        aVal = a['Stop working Date'] || '';
+                        bVal = b['Stop working Date'] || '';
+                        break;
+                    case 'pregnant':
+                        aVal = a['pregnant vacation-yes or no'] || '';
+                        bVal = b['pregnant vacation-yes or no'] || '';
+                        break;
+                    case 'remark':
+                        aVal = a['RE MARK'] || '';  // Fixed: no trailing space (normalized)
+                        bVal = b['RE MARK'] || '';  // Fixed: no trailing space (normalized)
+                        break;
                     case 'status':
                         const aType = a['Stop_Working_Type'] || 'active';
                         const bType = b['Stop_Working_Type'] || 'active';
-                        aVal = aType === 'resigned' ? '퇴사' : aType === 'contract_end' ? '계약종료' : '전체 결근';
-                        bVal = bType === 'resigned' ? '퇴사' : bType === 'contract_end' ? '계약종료' : '전체 결근';
+                        aVal = aType === 'resigned' ? 'resigned' : aType === 'contract_end' ? 'contract_end' : 'all_absent';
+                        bVal = bType === 'resigned' ? 'resigned' : bType === 'contract_end' ? 'contract_end' : 'all_absent';
                         break;
                 }
 
@@ -1330,17 +1381,41 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }
 
         function renderTable() {
+            const lang = currentLanguage || 'ko';
             let tableRows = '';
+
             if (zeroWorkingEmployees.length === 0) {
-                tableRows = '<tr><td colspan="6" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>0일 근무자가 없습니다</td></tr>';
+                tableRows = `<tr><td colspan="9" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>${getTranslation('zeroWorkingDaysModal.description', lang)}</td></tr>`;
             } else {
                 tableRows = zeroWorkingEmployees.map(emp => {
                     // Excel에서 가져온 필드 사용 (Single Source of Truth)
                     const actualDays = emp['Actual Working Days'] || 0;
                     const totalDays = emp['Total Working Days'] || {working_days};
-                    const stopDate = emp['Stop working Date'] || '';
+                    const stopDate = emp['Stop working Date'] || '-';
                     const workingType = emp['Stop_Working_Type'] || 'active';
-                    const position = emp['FINAL QIP POSITION NAME CODE'] || '-';
+                    const position = emp['QIP POSITION 1ST NAME'] || '-';  // Fixed: single space (normalized)
+                    const pregnant = emp['pregnant vacation-yes or no'] || '';
+                    const remark = emp['RE MARK'] || '-';  // Fixed: no trailing space (normalized)
+
+                    // 상태 라벨 번역
+                    let statusLabel, statusClass;
+                    if (workingType === 'resigned') {
+                        statusLabel = getTranslation('zeroWorkingDaysModal.statusLabels.resigned', lang);
+                        statusClass = 'bg-warning text-dark';
+                    } else if (workingType === 'contract_end') {
+                        statusLabel = getTranslation('zeroWorkingDaysModal.statusLabels.contractEnd', lang);
+                        statusClass = 'bg-info text-white';
+                    } else {
+                        statusLabel = getTranslation('zeroWorkingDaysModal.statusLabels.allAbsent', lang);
+                        statusClass = 'bg-danger';
+                    }
+
+                    // 임신 휴가 번역
+                    const pregnantLabel = pregnant === 'yes'
+                        ? getTranslation('zeroWorkingDaysModal.statusLabels.yes', lang)
+                        : pregnant === 'no'
+                        ? getTranslation('zeroWorkingDaysModal.statusLabels.no', lang)
+                        : '-';
 
                     return `
                         <tr class="unified-table-row">
@@ -1352,10 +1427,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <span class="badge bg-danger">${actualDays}</span>
                             </td>
                             <td class="unified-table-cell text-center">
-                                <span class="badge ${workingType === 'resigned' ? 'bg-warning text-dark' : workingType === 'contract_end' ? 'bg-info text-white' : 'bg-danger'}">
-                                    ${workingType === 'resigned' ? `퇴사 (${stopDate})` : workingType === 'contract_end' ? `계약종료예정 (${stopDate})` : '전체 결근'}
-                                </span>
+                                <span class="badge ${statusClass}">${statusLabel}</span>
                             </td>
+                            <td class="unified-table-cell text-center">${stopDate}</td>
+                            <td class="unified-table-cell text-center">${pregnantLabel}</td>
+                            <td class="unified-table-cell">${remark}</td>
                         </tr>
                     `;
                 }).join('');
@@ -1364,7 +1440,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const modalContent = `
                 <div class="unified-modal-header">
                     <h5 class="unified-modal-title">
-                        <i class="fas fa-exclamation-triangle me-2"></i> 0일 근무자 상세
+                        <i class="fas fa-exclamation-triangle me-2"></i><span data-i18n="zeroWorkingDaysModal.title">${getTranslation('zeroWorkingDaysModal.title', lang)}</span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -1372,19 +1448,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="alert alert-light border-start border-4 border-danger mb-3">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-info-circle text-danger me-2"></i>
-                            <span>실제 근무일이 0일인 직원 목록입니다.</span>
+                            <span data-i18n="zeroWorkingDaysModal.description">${getTranslation('zeroWorkingDaysModal.description', lang)}</span>
                         </div>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover table-sm">
                             <thead class="unified-table-header">
                                 <tr>
-                                    <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.zeroModalSort('empNo')">사번</th>
-                                    <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.zeroModalSort('name')">이름</th>
-                                    <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.zeroModalSort('position')">직책</th>
-                                    <th class="text-center sortable-header ${sortColumn === 'totalDays' ? sortOrder : ''}" onclick="window.zeroModalSort('totalDays')">총 근무일</th>
-                                    <th class="text-center sortable-header ${sortColumn === 'actualDays' ? sortOrder : ''}" onclick="window.zeroModalSort('actualDays')">실 근무일</th>
-                                    <th class="text-center sortable-header ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.zeroModalSort('status')">상태</th>
+                                    <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.zeroModalSort('empNo')" data-i18n="zeroWorkingDaysModal.headers.empNo">${getTranslation('zeroWorkingDaysModal.headers.empNo', lang)}</th>
+                                    <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.zeroModalSort('name')" data-i18n="zeroWorkingDaysModal.headers.name">${getTranslation('zeroWorkingDaysModal.headers.name', lang)}</th>
+                                    <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.zeroModalSort('position')" data-i18n="zeroWorkingDaysModal.headers.position">${getTranslation('zeroWorkingDaysModal.headers.position', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'totalDays' ? sortOrder : ''}" onclick="window.zeroModalSort('totalDays')" data-i18n="zeroWorkingDaysModal.headers.totalDays">${getTranslation('zeroWorkingDaysModal.headers.totalDays', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'actualDays' ? sortOrder : ''}" onclick="window.zeroModalSort('actualDays')" data-i18n="zeroWorkingDaysModal.headers.actualDays">${getTranslation('zeroWorkingDaysModal.headers.actualDays', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.zeroModalSort('status')" data-i18n="zeroWorkingDaysModal.headers.status">${getTranslation('zeroWorkingDaysModal.headers.status', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'stopDate' ? sortOrder : ''}" onclick="window.zeroModalSort('stopDate')" data-i18n="zeroWorkingDaysModal.headers.stopDate">${getTranslation('zeroWorkingDaysModal.headers.stopDate', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'pregnant' ? sortOrder : ''}" onclick="window.zeroModalSort('pregnant')" data-i18n="zeroWorkingDaysModal.headers.pregnantVacation">${getTranslation('zeroWorkingDaysModal.headers.pregnantVacation', lang)}</th>
+                                    <th class="sortable-header ${sortColumn === 'remark' ? sortOrder : ''}" onclick="window.zeroModalSort('remark')" data-i18n="zeroWorkingDaysModal.headers.remark">${getTranslation('zeroWorkingDaysModal.headers.remark', lang)}</th>
                                 </tr>
                             </thead>
                             <tbody>${tableRows}</tbody>
@@ -1397,9 +1476,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let modal = document.getElementById('detailModal');
             if (!modal) {
                 const modalHTML = `
-                    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                        <div class="modal-dialog modal-xl">
-                            <div class="modal-content" id="detailModalContent"></div>
+                    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true" style="z-index: 1055;">
+                        <div class="modal-dialog modal-fullscreen" style="margin: 0; width: 100vw; height: 100vh;">
+                            <div class="modal-content" id="detailModalContent" style="height: 100%; border: none; border-radius: 0; display: flex; flex-direction: column;"></div>
                         </div>
                     </div>
                 `;
@@ -1427,7 +1506,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 새 모달 인스턴스 생성 with proper options
         const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
+            backdrop: 'static',  // 모달 내부 클릭시 닫히지 않도록 설정
             keyboard: true,      // ESC 키로 닫기
             focus: true
         });
@@ -1470,25 +1549,37 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 switch(column) {
                     case 'empNo':
-                        aVal = a.employee_no || a['Employee No'] || '';
-                        bVal = b.employee_no || b['Employee No'] || '';
+                        aVal = a['Employee No'] || '';
+                        bVal = b['Employee No'] || '';
                         break;
                     case 'name':
-                        aVal = a.full_name || a['Full Name'] || '';
-                        bVal = b.full_name || b['Full Name'] || '';
+                        aVal = a['Full Name'] || '';
+                        bVal = b['Full Name'] || '';
                         break;
                     case 'position':
-                        aVal = a.qip_position || a['QIP POSITION 1ST  NAME'] || '';
-                        bVal = b.qip_position || b['QIP POSITION 1ST  NAME'] || '';
+                        aVal = a['QIP POSITION 1ST NAME'] || '';  // Fixed: single space (normalized)
+                        bVal = b['QIP POSITION 1ST NAME'] || '';  // Fixed: single space (normalized)
                         break;
                     case 'days':
-                        aVal = parseFloat(a.unapproved_absences || a['Unapproved Absences'] || 0);
-                        bVal = parseFloat(b.unapproved_absences || b['Unapproved Absences'] || 0);
+                        aVal = parseFloat(a['Unapproved Absences'] || 0);
+                        bVal = parseFloat(b['Unapproved Absences'] || 0);
+                        break;
+                    case 'stopDate':
+                        aVal = a['Stop working Date'] || '';
+                        bVal = b['Stop working Date'] || '';
+                        break;
+                    case 'pregnant':
+                        aVal = a['pregnant vacation-yes or no'] || '';
+                        bVal = b['pregnant vacation-yes or no'] || '';
+                        break;
+                    case 'remark':
+                        aVal = a['RE MARK'] || '';  // Fixed: no trailing space (normalized)
+                        bVal = b['RE MARK'] || '';  // Fixed: no trailing space (normalized)
                         break;
                     case 'status':
-                        const aDays = parseFloat(a.unapproved_absences || a['Unapproved Absences'] || 0);
-                        const bDays = parseFloat(b.unapproved_absences || b['Unapproved Absences'] || 0);
-                        aVal = aDays > 2 ? 3 : (aDays === 2 ? 2 : 1); // 제외=3, 경고=2, 주의=1
+                        const aDays = parseFloat(a['Unapproved Absences'] || 0);
+                        const bDays = parseFloat(b['Unapproved Absences'] || 0);
+                        aVal = aDays > 2 ? 3 : (aDays === 2 ? 2 : 1);
                         bVal = bDays > 2 ? 3 : (bDays === 2 ? 2 : 1);
                         break;
                 }
@@ -1504,89 +1595,58 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }
 
         function renderTable() {
+            const lang = currentLanguage || 'ko';
 
-        let tableRows = absentEmployees.map(emp => {
-            const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
+            let tableRows = absentEmployees.map(emp => {
+                const days = parseFloat(emp['Unapproved Absences'] || 0);
+                const position = emp['QIP POSITION 1ST NAME'] || '-';  // Fixed: single space (normalized)
+                const stopDate = emp['Stop working Date'] || '-';
+                const pregnant = emp['pregnant vacation-yes or no'] || '';
+                const remark = emp['RE MARK'] || '-';  // Fixed: no trailing space (normalized)
 
-            // 개선된 색상 체계와 아이콘
-            let rowStyle = '';
-            let daysBadgeClass = '';
-            let statusBadge = '';
-            let statusIcon = '';
+                // 상태 및 스타일
+                let statusLabel, statusClass;
+                if (days > 2) {
+                    statusLabel = getTranslation('validationTab.status.excluded', lang);
+                    statusClass = 'bg-danger';
+                } else if (days === 2) {
+                    statusLabel = getTranslation('validationTab.status.warning', lang);
+                    statusClass = 'bg-warning text-dark';
+                } else {
+                    statusLabel = getTranslation('validationTab.status.caution', lang);
+                    statusClass = 'bg-info';
+                }
 
-            if (days > 2) {
-                // 3일 이상 - 인센티브 제외 (위험)
-                rowStyle = 'background: linear-gradient(90deg, #fff5f5 0%, #ffe0e0 100%); border-left: 4px solid #dc3545;';
-                daysBadgeClass = 'bg-danger text-white fw-bold';
-                statusBadge = `
-                    <div class="d-flex align-items-center justify-content-center">
-                        <span class="badge bg-danger px-3 py-2">
-                            <i class="fas fa-ban me-1"></i>
-                            ${getTranslation('validationTab.status.excluded', currentLanguage) || 'Excluded'}
-                        </span>
-                    </div>`;
-                statusIcon = '<i class="fas fa-exclamation-circle text-danger me-2"></i>';
-            } else if (days === 2) {
-                // 2일 - 경고 (주의)
-                rowStyle = 'background: linear-gradient(90deg, #fffaf0 0%, #fff4e0 100%); border-left: 4px solid #fd7e14;';
-                daysBadgeClass = 'bg-warning text-dark fw-bold';
-                statusBadge = `
-                    <div class="d-flex align-items-center justify-content-center">
-                        <span class="badge bg-warning text-dark px-3 py-2">
-                            <i class="fas fa-exclamation-triangle me-1"></i>
-                            ${getTranslation('validationTab.status.warning', currentLanguage) || 'Warning'}
-                        </span>
-                    </div>`;
-                statusIcon = '<i class="fas fa-exclamation-triangle text-warning me-2"></i>';
-            } else {
-                // 1일 - 주의
-                rowStyle = 'background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%); border-left: 4px solid #ffc107;';
-                daysBadgeClass = 'bg-info text-white';
-                statusBadge = `
-                    <div class="d-flex align-items-center justify-content-center">
-                        <span class="badge bg-info px-3 py-2">
-                            <i class="fas fa-info-circle me-1"></i>
-                            ${getTranslation('validationTab.status.caution', currentLanguage) || 'Caution'}
-                        </span>
-                    </div>`;
-                statusIcon = '<i class="fas fa-info-circle text-info me-2"></i>';
-            }
+                // 임신 휴가 번역
+                const pregnantLabel = pregnant === 'yes'
+                    ? getTranslation('zeroWorkingDaysModal.statusLabels.yes', lang)
+                    : pregnant === 'no'
+                    ? getTranslation('zeroWorkingDaysModal.statusLabels.no', lang)
+                    : '-';
 
-            return `
-                <tr style="${rowStyle} transition: all 0.3s ease;"
-                    onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)';"
-                    onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none';">
-                    <td style="width: 15%; padding: 12px;">
-                        <span class="text-muted small">No.</span>
-                        <div class="fw-semibold">${emp.employee_no || emp['Employee No'] || ''}</div>
+                return `
+                    <tr class="unified-table-row">
+                        <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
+                        <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
+                        <td class="unified-table-cell">${position}</td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-danger">${days}</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge ${statusClass}">${statusLabel}</span>
+                        </td>
+                        <td class="unified-table-cell text-center">${stopDate}</td>
+                        <td class="unified-table-cell text-center">${pregnantLabel}</td>
+                        <td class="unified-table-cell">${remark}</td>
+                    </tr>
+                `;
+            }).join('') || `
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                        <div class="text-muted">무단결근자가 없습니다</div>
                     </td>
-                    <td style="width: 25%; padding: 12px;">
-                        ${statusIcon}
-                        <span class="fw-semibold">${emp.full_name || emp['Full Name'] || ''}</span>
-                    </td>
-                    <td style="width: 25%; padding: 12px;">
-                        <span class="text-secondary">${emp.qip_position || emp['QIP POSITION 1ST  NAME'] || '-'}</span>
-                    </td>
-                    <td style="width: 15%; padding: 12px; text-align: center;">
-                        <div class="d-flex flex-column align-items-center">
-                            <span class="badge ${daysBadgeClass} px-3 py-2 fs-6">
-                                ${days}${getTranslation('validationTab.units.days', currentLanguage) || ' days'}
-                            </span>
-                            ${days > 2 ? `<small class="text-danger mt-1">${getTranslation('validationTab.status.exceeded', currentLanguage) || 'Exceeded'}</small>` : ''}
-                        </div>
-                    </td>
-                    <td style="width: 20%; padding: 12px; text-align: center;">
-                        ${statusBadge}
-                    </td>
-                </tr>
-            `;
-        }).join('') || `
-            <tr>
-                <td colspan="5" class="text-center py-5">
-                    <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
-                    <div class="text-muted">무단결근자가 없습니다</div>
-                </td>
-            </tr>`;
+                </tr>`;
 
         // 통계 섹션 추가
         const total = absentEmployees.length;
@@ -1631,50 +1691,39 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             </div>
         ` : '';
 
-        const modalContent = `
-            <div class="modal-header" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-bottom: 3px solid #2196f3;">
-                <h5 class="modal-title" style="color: #1565c0; font-weight: 700;">
-                    <i class="fas fa-user-times me-2" style="color: #1976d2;"></i>${getTranslation('validationTab.modals.absentWithoutInform.title', currentLanguage) || 'Absent Employee Details'}
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                ${statsSection}
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="unified-table-header">
-                            <tr>
-                                <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.absentModalSort('empNo')" style="width: 15%;">
-                                    ${getTranslation('validationTab.tableHeaders.empNo', currentLanguage) || 'Emp No.'}
-                                </th>
-                                <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.absentModalSort('name')" style="width: 25%;">
-                                    ${getTranslation('validationTab.tableHeaders.name', currentLanguage) || 'Name'}
-                                </th>
-                                <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.absentModalSort('position')" style="width: 25%;">
-                                    ${getTranslation('validationTab.tableHeaders.position', currentLanguage) || 'Position'}
-                                </th>
-                                <th class="sortable-header text-center ${sortColumn === 'days' ? sortOrder : ''}" onclick="window.absentModalSort('days')" style="width: 15%;">
-                                    <div style="line-height: 1.2;">
-                                        <div>${getTranslation('validationTab.tableHeaders.absentDays', currentLanguage) || 'Absent Days'}</div>
-                                        <div style="font-size: 0.75rem; font-weight: 400; color: #757575;">${getTranslation('validationTab.tableHeaders.daysUnit', currentLanguage) || '(Days)'}</div>
-                                    </div>
-                                </th>
-                                <th class="sortable-header text-center ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.absentModalSort('status')" style="width: 20%;">
-                                    ${getTranslation('validationTab.tableHeaders.status', currentLanguage) || 'Status'}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>${tableRows}</tbody>
-                    </table>
+            const modalContent = `
+                <div class="unified-modal-header" style="flex-shrink: 0;">
+                    <h5 class="unified-modal-title">
+                        <i class="fas fa-user-times me-2"></i><span data-i18n="validationTab.modals.absentWithoutInform.title">${getTranslation('validationTab.modals.absentWithoutInform.title', lang)}</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </div>
-            <div class="modal-footer" style="background: #fafafa; border-top: 1px solid #e0e0e0;">
-                <small style="color: #616161; font-weight: 500;">
-                    <i class="fas fa-info-circle me-1" style="color: #9e9e9e;"></i>
-                    ${getTranslation('validationTab.warnings.absentExclusion', currentLanguage) || 'Incentive automatically excluded for 3+ days absent without inform'}
-                </small>
-            </div>
-        `;
+                <div class="modal-body" style="flex: 1; overflow-y: auto; overflow-x: hidden;">
+                    <div class="alert alert-light border-start border-4 border-danger mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-info-circle text-danger me-2"></i>
+                            <span data-i18n="validationTab.warnings.absentExclusion">${getTranslation('validationTab.warnings.absentExclusion', lang)}</span>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="unified-table-header">
+                                <tr>
+                                    <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.absentModalSort('empNo')" data-i18n="validationTab.tableHeaders.empNo">${getTranslation('validationTab.tableHeaders.empNo', lang)}</th>
+                                    <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.absentModalSort('name')" data-i18n="validationTab.tableHeaders.name">${getTranslation('validationTab.tableHeaders.name', lang)}</th>
+                                    <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.absentModalSort('position')" data-i18n="validationTab.tableHeaders.position">${getTranslation('validationTab.tableHeaders.position', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'days' ? sortOrder : ''}" onclick="window.absentModalSort('days')" data-i18n="validationTab.tableHeaders.absentDays">${getTranslation('validationTab.tableHeaders.absentDays', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.absentModalSort('status')" data-i18n="validationTab.tableHeaders.status">${getTranslation('validationTab.tableHeaders.status', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'stopDate' ? sortOrder : ''}" onclick="window.absentModalSort('stopDate')" data-i18n="zeroWorkingDaysModal.headers.stopDate">${getTranslation('zeroWorkingDaysModal.headers.stopDate', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'pregnant' ? sortOrder : ''}" onclick="window.absentModalSort('pregnant')" data-i18n="zeroWorkingDaysModal.headers.pregnantVacation">${getTranslation('zeroWorkingDaysModal.headers.pregnantVacation', lang)}</th>
+                                    <th class="sortable-header ${sortColumn === 'remark' ? sortOrder : ''}" onclick="window.absentModalSort('remark')" data-i18n="zeroWorkingDaysModal.headers.remark">${getTranslation('zeroWorkingDaysModal.headers.remark', lang)}</th>
+                                </tr>
+                            </thead>
+                            <tbody>${tableRows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
 
             document.getElementById('detailModalContent').innerHTML = modalContent;
         }
@@ -1684,7 +1733,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         if (!modal) {
             const modalHTML = `
                 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-xl">
+                    <div class="modal-dialog modal-fullscreen">
                         <div class="modal-content" id="detailModalContent"></div>
                     </div>
                 </div>
@@ -1710,7 +1759,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 새 모달 인스턴스 생성 with proper options
         const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
+            backdrop: 'static',  // 모달 내부 클릭시 닫히지 않도록 설정
             keyboard: true,      // ESC 키로 닫기
             focus: true
         });
@@ -1737,16 +1786,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // Excel의 Minimum_Days_Met 필드 사용 (Single Source of Truth)
         let notMetEmployees = window.employeeData.filter(emp => {
+            // TYPE-3 제외 (인센티브 대상 아님)
+            if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {
+                return false;
+            }
             // 방법 1: Excel의 Minimum_Days_Met 필드 직접 사용
             const minimumDaysMet = emp['Minimum_Days_Met'];
             if (minimumDaysMet !== undefined) {
                 return minimumDaysMet === false || minimumDaysMet === 'False' || minimumDaysMet === 0;
             }
-            // 방법 2: Fallback - condition4 필드 사용 (yes = 미충족)
-            if (emp['condition4'] !== undefined) {
+            // 방법 2: condition4 필드 사용 (yes = 미충족) - Single Source of Truth
+            if (emp['condition4'] !== undefined && emp['condition4'] !== null && emp['condition4'] !== '') {
                 return emp['condition4'] === 'yes';
             }
-            // 방법 3: Fallback - 실제 계산
+            // 방법 3: Fallback - 실제 계산 (condition4 필드가 없을 때만)
             const actualDays = parseFloat(emp.actual_working_days || emp['Actual Working Days'] || 0);
             return actualDays < minimumRequired;
         });
@@ -1756,6 +1809,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         let sortOrder = 'asc';
 
         function renderTable() {
+            const lang = currentLanguage || 'ko';
+            const daysUnit = getTranslation('validationTab.units.days', lang);
+
             // 정렬 적용
             const sorted = [...notMetEmployees].sort((a, b) => {
                 let aVal, bVal;
@@ -1770,8 +1826,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         bVal = b.full_name || b['Full Name'] || '';
                         break;
                     case 'position':
-                        aVal = a.qip_position || a['QIP POSITION 1ST  NAME'] || '';
-                        bVal = b.qip_position || b['QIP POSITION 1ST  NAME'] || '';
+                        aVal = a['QIP POSITION 1ST NAME'] || '';  // Fixed: single space (normalized)
+                        bVal = b['QIP POSITION 1ST NAME'] || '';  // Fixed: single space (normalized)
+                        break;
+                    case 'type':
+                        aVal = a['type'] || a['ROLE TYPE STD'] || '';
+                        bVal = b['type'] || b['ROLE TYPE STD'] || '';
                         break;
                     case 'actualDays':
                         aVal = parseFloat(a.actual_working_days || a['Actual Working Days'] || 0);
@@ -1816,32 +1876,38 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 const isMet = actualDays >= minimumRequired;
 
+                const empType = emp['type'] || emp['ROLE TYPE STD'] || '-';
+                const typeColor = empType === 'TYPE-3' ? 'bg-secondary' : (empType === 'TYPE-1' ? 'bg-primary' : 'bg-success');
+
                 return `
                     <tr class="unified-table-row">
-                        <td style="padding: 12px 8px; font-weight: 500;">${emp.employee_no || emp['Employee No'] || ''}</td>
-                        <td style="padding: 12px 8px; font-weight: 500;">${emp.full_name || emp['Full Name'] || ''}</td>
-                        <td style="padding: 12px 8px; font-size: 13px;">${emp.qip_position || emp['QIP POSITION 1ST  NAME'] || '-'}</td>
+                        <td style="padding: 12px 8px; font-weight: 500;">${emp['Employee No'] || ''}</td>
+                        <td style="padding: 12px 8px; font-weight: 500;">${emp['Full Name'] || ''}</td>
+                        <td style="padding: 12px 8px; font-size: 13px;">${emp['QIP POSITION 1ST NAME'] || '-'}</td>
+                        <td class="text-center" style="padding: 10px 8px;">
+                            <span class="badge ${typeColor}" style="font-size: 12px;">${empType}</span>
+                        </td>
                         <td class="text-center" style="padding: 10px 8px;">
                             <div class="d-flex align-items-center justify-content-center">
                                 <span class="badge bg-${progressColor} ${textColor}" style="font-size: 14px; padding: 8px 12px;">
-                                    ${actualDays}일
+                                    ${actualDays}${daysUnit}
                                 </span>
                             </div>
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
-                            <span class="badge bg-primary" style="font-size: 14px; padding: 8px 12px;">${minimumRequired}일</span>
+                            <span class="badge bg-primary" style="font-size: 14px; padding: 8px 12px;">${minimumRequired}${daysUnit}</span>
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
-                            <span class="badge bg-danger" style="font-size: 14px; padding: 8px 12px;">-${shortage}일</span>
+                            <span class="badge bg-danger" style="font-size: 14px; padding: 8px 12px;">-${shortage}${daysUnit}</span>
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
-                            <span class="badge ${isMet ? 'bg-success' : 'bg-danger'}" style="font-size: 13px; padding: 6px 10px;">
-                                ${isMet ? '충족' : '미충족'}
+                            <span class="badge ${isMet ? 'bg-success' : 'bg-danger'}" style="font-size: 13px; padding: 6px 10px;" data-i18n="validationTab.modals.minimumDaysNotMet.statusLabels.${isMet ? 'met' : 'notMet'}">
+                                ${isMet ? getTranslation('validationTab.modals.minimumDaysNotMet.statusLabels.met', lang) : getTranslation('validationTab.modals.minimumDaysNotMet.statusLabels.notMet', lang)}
                             </span>
                         </td>
                     </tr>
                 `;
-            }).join('') || `<tr><td colspan="7" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>모든 직원이 최소 근무일(${minimumRequired}일)을 충족했습니다</td></tr>`;
+            }).join('') || `<tr><td colspan="7" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i><div data-i18n="validationTab.modals.minimumDaysNotMet.emptyMessage">${getTranslation('validationTab.modals.minimumDaysNotMet.emptyMessage', lang)}</div></td></tr>`;
 
             return tableRows;
         }
@@ -1869,31 +1935,41 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }
         }
 
+        const lang = currentLanguage || 'ko';
+
         const modalContent = `
-            <div class="unified-modal-header">
+            <div class="unified-modal-header" style="flex-shrink: 0;">
                 <h5 class="unified-modal-title">
-                    <i class="fas fa-clock me-2"></i> 최소 근무일 미충족 직원 상세
+                    <i class="fas fa-clock me-2"></i><span data-i18n="validationTab.modals.minimumDaysNotMet.title">${getTranslation('validationTab.modals.minimumDaysNotMet.title', lang)}</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="flex: 1; overflow-y: auto; overflow-x: hidden;">
                 <div class="alert alert-light border-start border-4 border-warning mb-3">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-info-circle text-warning me-2"></i>
-                        <span>최소 요구 근무일: ${minimumRequired}일</span>
+                        <div>
+                            <div>
+                                <span data-i18n="validationTab.modals.minimumDaysNotMet.alertMessage">${getTranslation('validationTab.modals.minimumDaysNotMet.alertMessage', lang)}</span> ${minimumRequired}<span data-i18n="validationTab.units.days">${getTranslation('validationTab.units.days', lang)}</span>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <span data-i18n="validationTab.modals.minimumDaysNotMet.excludeNote">${getTranslation('validationTab.modals.minimumDaysNotMet.excludeNote', lang)}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover" id="minimumDaysTable" style="font-size: 14px;">
                         <thead class="unified-table-header">
                             <tr>
-                                <th class="sortable-header" data-sort="empNo" onclick="window.minDaysSort('empNo')" style="min-width: 100px;">사번</th>
-                                <th class="sortable-header" data-sort="name" onclick="window.minDaysSort('name')" style="min-width: 130px;">이름</th>
-                                <th class="sortable-header" data-sort="position" onclick="window.minDaysSort('position')" style="min-width: 150px;">직책</th>
-                                <th class="text-center sortable-header asc" data-sort="actualDays" onclick="window.minDaysSort('actualDays')" style="min-width: 110px;">실제<br>근무일</th>
-                                <th class="text-center" style="min-width: 80px;">최소<br>요구</th>
-                                <th class="text-center sortable-header" data-sort="shortage" onclick="window.minDaysSort('shortage')" style="min-width: 70px;">부족</th>
-                                <th class="text-center sortable-header" data-sort="status" onclick="window.minDaysSort('status')" style="min-width: 80px;">상태</th>
+                                <th class="sortable-header" data-sort="empNo" onclick="window.minDaysSort('empNo')" style="min-width: 100px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.empNo">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.empNo', lang)}</th>
+                                <th class="sortable-header" data-sort="name" onclick="window.minDaysSort('name')" style="min-width: 130px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.name">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.name', lang)}</th>
+                                <th class="sortable-header" data-sort="position" onclick="window.minDaysSort('position')" style="min-width: 150px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.position">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.position', lang)}</th>
+                                <th class="sortable-header" data-sort="type" onclick="window.minDaysSort('type')" style="min-width: 80px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.type">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.type', lang)}</th>
+                                <th class="text-center sortable-header asc" data-sort="actualDays" onclick="window.minDaysSort('actualDays')" style="min-width: 110px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.actualDays">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.actualDays', lang)}</th>
+                                <th class="text-center" style="min-width: 80px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.minimumRequired">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.minimumRequired', lang)}</th>
+                                <th class="text-center sortable-header" data-sort="shortage" onclick="window.minDaysSort('shortage')" style="min-width: 70px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.shortage">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.shortage', lang)}</th>
+                                <th class="text-center sortable-header" data-sort="status" onclick="window.minDaysSort('status')" style="min-width: 80px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.status">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.status', lang)}</th>
                             </tr>
                         </thead>
                         <tbody>${renderTable()}</tbody>
@@ -1931,7 +2007,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 새 모달 인스턴스 생성 with proper options
         const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
+            backdrop: 'static',  // 모달 내부 클릭시 닫히지 않도록 설정
             keyboard: true,      // ESC 키로 닫기
             focus: true
         });
@@ -1952,9 +2028,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     }
 
     function showAttendanceBelow88Details() {
-        // 출근율 88% 미만 직원 필터링
+        // 출근율 88% 미만 직원 필터링 (TYPE-3 제외)
         let below88Employees = window.employeeData.filter(emp => {
-            const attendanceRate = parseFloat(emp['attendance_rate'] || 0);
+            // TYPE-3 제외 (인센티브 대상 아님)
+            if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {
+                return false;
+            }
+            const attendanceRate = parseFloat(emp['attendance_rate'] || emp['Attendance Rate'] || 0);
             return attendanceRate < 88;
         });
 
@@ -1987,6 +2067,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         aVal = a['Full Name'] || a['name'];
                         bVal = b['Full Name'] || b['name'];
                         break;
+                    case 'position':
+                        aVal = a['QIP POSITION 1ST NAME'] || '';
+                        bVal = b['QIP POSITION 1ST NAME'] || '';
+                        break;
+                    case 'type':
+                        aVal = a['type'] || a['ROLE TYPE STD'] || '';
+                        bVal = b['type'] || b['ROLE TYPE STD'] || '';
+                        break;
                     case 'attendanceRate':
                         aVal = parseFloat(a['attendance_rate'] || 0);
                         bVal = parseFloat(b['attendance_rate'] || 0);
@@ -2007,12 +2095,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
             });
 
-            // 테이블 업데이트
+            // 테이블 업데이트 (다국어 지원)
+            const lang = currentLanguage || 'ko';
+            const dayText = getTranslation('validationTab.units.day', lang);
+            const metText = getTranslation('validationTab.modals.attendanceBelow88.statusLabels.met', lang);
+            const notMetText = getTranslation('validationTab.modals.attendanceBelow88.statusLabels.notMet', lang);
+
             tbody.innerHTML = '';
             below88Employees.forEach(emp => {
                 const empNo = emp['Employee No'] || emp['emp_no'];
                 const name = emp['Full Name'] || emp['name'];
-                const attendanceRate = parseFloat(emp['attendance_rate'] || 0).toFixed(1);
+                const attendanceRate = parseFloat(emp['Attendance Rate'] || emp['attendance_rate'] || 0).toFixed(1);
                 const actualDays = parseFloat(emp['Actual Working Days'] || emp['actual_working_days'] || 0);
                 const totalDays = parseFloat(emp['Total Working Days'] || {working_days});
 
@@ -2034,14 +2127,24 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }
                 // attendanceRate < 30은 bg-danger (빨간색) 유지
 
+                const conditionMet = attendanceRate >= 88;
+                const statusText = conditionMet ? metText : notMetText;
+                const statusBadge = conditionMet ? 'bg-success' : 'bg-danger';
+
+                const empType = emp['type'] || emp['ROLE TYPE STD'] || '-';
+                const typeColor = empType === 'TYPE-3' ? 'bg-secondary' : (empType === 'TYPE-1' ? 'bg-primary' : 'bg-success');
+                const position = emp['QIP POSITION 1ST NAME'] || '-';
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td style="padding: 10px; font-weight: 500;">${empNo}</td>
                     <td style="padding: 10px; font-weight: 500;">${name}</td>
+                    <td style="padding: 10px; font-size: 13px;">${position}</td>
+                    <td style="padding: 10px;"><span class="badge ${typeColor}" style="font-size: 12px;">${empType}</span></td>
                     <td style="padding: 10px;"><span class="badge ${badgeClass} ${textColor}" style="font-size: 14px; padding: 6px 10px; ${customStyle}">${attendanceRate}%</span></td>
-                    <td style="padding: 10px;">${actualDays}일</td>
-                    <td style="padding: 10px;">${totalDays}일</td>
-                    <td style="padding: 10px;"><span class="badge ${attendanceRate < 88 ? 'bg-danger' : 'bg-success'}" style="font-size: 13px; padding: 4px 8px;">${attendanceRate < 88 ? '미충족' : '충족'}</span></td>
+                    <td style="padding: 10px;">${actualDays}${dayText}</td>
+                    <td style="padding: 10px;">${totalDays}${dayText}</td>
+                    <td style="padding: 10px;"><span class="badge ${statusBadge}" style="font-size: 13px; padding: 4px 8px;" data-i18n="validationTab.modals.attendanceBelow88.statusLabels.${conditionMet ? 'met' : 'notMet'}">${statusText}</span></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -2052,35 +2155,48 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return sortOrder === 'asc' ? '▲' : '▼';
         }
 
-        // Bootstrap 모달 HTML 생성
+        // Bootstrap 모달 HTML 생성 (다국어 지원)
+        const lang = currentLanguage || 'ko';
+
         const modalHTML = `
-            <div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-labelledby="attendanceModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header unified-modal-header">
+            <div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-labelledby="attendanceModalLabel" aria-hidden="true" style="z-index: 1055;">
+                <div class="modal-dialog modal-fullscreen" role="document" style="margin: 0; width: 100vw; height: 100vh;">
+                    <div class="modal-content" style="height: 100%; border: none; border-radius: 0;">
+                        <div class="modal-header unified-modal-header" style="flex-shrink: 0;">
                             <h5 class="modal-title unified-modal-title" id="attendanceModalLabel">
-                                <i class="fas fa-percentage me-2"></i> 출근율 88% 미만 직원 상세
+                                <i class="fas fa-percentage me-2"></i><span data-i18n="validationTab.modals.attendanceBelow88.title">${getTranslation('validationTab.modals.attendanceBelow88.title', lang)}</span>
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body" style="flex: 1; overflow-y: auto; overflow-x: hidden;">
                             <div class="mb-3">
-                                <div class="alert alert-info">
-                                    <strong>조건 설명:</strong> 출근율이 88% 미만인 직원은 인센티브를 받을 수 없습니다.
-                                    <br>출근율 = (실제 근무일 ÷ 총 근무일) × 100%
+                                <div class="alert alert-light border-start border-4 border-warning">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-info-circle text-warning me-2"></i>
+                                        <div>
+                                            <div>
+                                                <span data-i18n="validationTab.modals.attendanceBelow88.alertMessage">${getTranslation('validationTab.modals.attendanceBelow88.alertMessage', lang)}</span>
+                                            </div>
+                                            <div class="text-muted small mt-1">
+                                                <span data-i18n="validationTab.modals.attendanceBelow88.excludeNote">${getTranslation('validationTab.modals.attendanceBelow88.excludeNote', lang)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p>총 ${below88Employees.length}명이 출근율 88% 미만입니다.</p>
+                                <p class="text-muted"><i class="fas fa-users me-2"></i><span data-i18n="common.total">${getTranslation('common.total', lang)}</span> ${below88Employees.length} <span data-i18n="common.people">${getTranslation('common.people', lang)}</span></p>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-hover" style="font-size: 14px;">
                                     <thead class="unified-table-header">
                                         <tr>
-                                            <th class="sortable-header" data-sort="empNo" style="min-width: 100px; padding: 12px; cursor: pointer;">사번 ${getSortIcon('empNo')}</th>
-                                            <th class="sortable-header" data-sort="name" style="min-width: 130px; padding: 12px; cursor: pointer;">이름 ${getSortIcon('name')}</th>
-                                            <th class="sortable-header" data-sort="attendanceRate" style="min-width: 100px; padding: 12px; cursor: pointer;">출근율 ${getSortIcon('attendanceRate')}</th>
-                                            <th class="sortable-header" data-sort="actualDays" style="min-width: 110px; padding: 12px; cursor: pointer;">실제<br>근무일 ${getSortIcon('actualDays')}</th>
-                                            <th class="sortable-header" data-sort="totalDays" style="min-width: 100px; padding: 12px; cursor: pointer;">총<br>근무일 ${getSortIcon('totalDays')}</th>
-                                            <th style="min-width: 90px; padding: 12px;">조건<br>충족</th>
+                                            <th class="sortable-header" data-sort="empNo" style="min-width: 100px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.empNo">${getTranslation('validationTab.modals.attendanceBelow88.headers.empNo', lang)} ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name" style="min-width: 130px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.name">${getTranslation('validationTab.modals.attendanceBelow88.headers.name', lang)} ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="position" style="min-width: 150px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.position">${getTranslation('validationTab.modals.attendanceBelow88.headers.position', lang)} ${getSortIcon('position')}</th>
+                                            <th class="sortable-header" data-sort="type" style="min-width: 80px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.type">${getTranslation('validationTab.modals.attendanceBelow88.headers.type', lang)} ${getSortIcon('type')}</th>
+                                            <th class="sortable-header" data-sort="attendanceRate" style="min-width: 100px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.attendanceRate">${getTranslation('validationTab.modals.attendanceBelow88.headers.attendanceRate', lang)} ${getSortIcon('attendanceRate')}</th>
+                                            <th class="sortable-header" data-sort="actualDays" style="min-width: 110px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.actualDays">${getTranslation('validationTab.modals.attendanceBelow88.headers.actualDays', lang)} ${getSortIcon('actualDays')}</th>
+                                            <th class="sortable-header" data-sort="totalDays" style="min-width: 100px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.totalDays">${getTranslation('validationTab.modals.attendanceBelow88.headers.totalDays', lang)} ${getSortIcon('totalDays')}</th>
+                                            <th style="min-width: 90px; padding: 12px;" data-i18n="validationTab.modals.attendanceBelow88.headers.conditionMet">${getTranslation('validationTab.modals.attendanceBelow88.headers.conditionMet', lang)}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -2110,7 +2226,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // Bootstrap 모달 인스턴스 생성 및 표시
         const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기 활성화
+            backdrop: 'static',  // 모달 내부 클릭시 닫히지 않도록 설정
             keyboard: true,      // ESC 키로 닫기 활성화
             focus: true
         });
@@ -2157,6 +2273,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
 
     function showConsecutiveAqlFailDetails() {
+        // 전역 언어와 동기화
+        let currentLang = (typeof window.currentLanguage !== 'undefined' ? window.currentLanguage : null) ||
+                         (typeof currentLanguage !== 'undefined' ? currentLanguage : null) ||
+                         'ko';
+
         // 3개월 연속 실패자와 2개월 연속 실패자 분리
         const threeMonthFails = window.employeeData.filter(emp =>
             emp['Continuous_FAIL'] === 'YES_3MONTHS'
@@ -2165,6 +2286,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const twoMonthFails = window.employeeData.filter(emp =>
             emp['Continuous_FAIL'] && emp['Continuous_FAIL'].includes('2MONTHS')
         );
+
+        // 번역 함수
+        const t = (key) => getTranslation(key, currentLang);
 
         // Custom HTML for this specific modal
         const existingModal = document.getElementById('consecutiveAqlFailModal');
@@ -2175,29 +2299,36 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         let modalHTML = `
             <div id="consecutiveAqlFailModal" class="modal" style="display: block; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
                 <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">
-                    <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0;">
-                        <span class="close" onclick="document.getElementById('consecutiveAqlFailModal').remove()" style="color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-                        <h2>3개월 연속 AQL FAIL 현황</h2>
+                    <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin: 0;">${t('validationTab.modals.consecutiveAqlFail.title')}</h2>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn ${currentLang === 'ko' ? 'btn-light' : 'btn-outline-light'}" onclick="window.switchConsecutiveLang('ko')" style="border: 1px solid white;">한국어</button>
+                                <button type="button" class="btn ${currentLang === 'en' ? 'btn-light' : 'btn-outline-light'}" onclick="window.switchConsecutiveLang('en')" style="border: 1px solid white;">English</button>
+                                <button type="button" class="btn ${currentLang === 'vi' ? 'btn-light' : 'btn-outline-light'}" onclick="window.switchConsecutiveLang('vi')" style="border: 1px solid white;">Tiếng Việt</button>
+                            </div>
+                            <span class="close" onclick="document.getElementById('consecutiveAqlFailModal').remove()" style="color: white; font-size: 28px; font-weight: bold; cursor: pointer; margin-left: 10px;">&times;</span>
+                        </div>
                     </div>
                     <div class="modal-body" style="padding: 20px;">
         `;
 
         // 3개월 연속 실패 섹션
         modalHTML += '<div class="section-container" style="margin-bottom: 30px;">';
-        modalHTML += '<h3 style="color: #c0392b; margin-bottom: 15px;">🔴 3개월 연속 AQL 실패</h3>';
+        modalHTML += `<h3 style="color: #c0392b; margin-bottom: 15px;">🔴 ${t('validationTab.modals.consecutiveAqlFail.threeMonthSection')}</h3>`;
 
         if (threeMonthFails.length === 0) {
             modalHTML += '<div class="alert alert-success" style="padding: 15px; background: #d4edda; color: #155724; border-radius: 5px;">';
-            modalHTML += '✅ 현재 3개월 연속 실패자가 없습니다.';
+            modalHTML += `✅ ${t('validationTab.modals.consecutiveAqlFail.noThreeMonth')}`;
             modalHTML += '</div>';
         } else {
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
             modalHTML += '<thead><tr style="background: #f8f9fa;">';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직원번호</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">이름</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직책</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직속상사</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">실패 패턴</th>';
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.empNo')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.name')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.position')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.supervisor')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.failPattern')}</th>`;
             modalHTML += '</tr></thead><tbody>';
 
             threeMonthFails.forEach(emp => {
@@ -2216,21 +2347,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 2개월 연속 실패 섹션
         modalHTML += '<div class="section-container">';
-        modalHTML += '<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ 2개월 연속 AQL 실패 - 주의 관찰 대상</h3>';
+        modalHTML += `<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ ${t('validationTab.modals.consecutiveAqlFail.twoMonthSection')}</h3>`;
 
         if (twoMonthFails.length === 0) {
             modalHTML += '<div class="alert alert-info" style="padding: 15px; background: #d1ecf1; color: #0c5460; border-radius: 5px;">';
-            modalHTML += '현재 2개월 연속 실패자가 없습니다.';
+            modalHTML += t('validationTab.modals.consecutiveAqlFail.noTwoMonth');
             modalHTML += '</div>';
         } else {
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
             modalHTML += '<thead><tr style="background: #f8f9fa;">';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직원번호</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">이름</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직책</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">직속상사</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">실패 패턴</th>';
-            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">위험도</th>';
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.empNo')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.name')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.position')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.supervisor')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.failPattern')}</th>`;
+            modalHTML += `<th style="border: 1px solid #dee2e6; padding: 8px;">${t('validationTab.modals.consecutiveAqlFail.headers.risk')}</th>`;
             modalHTML += '</tr></thead><tbody>';
 
             // 8-9월 연속 실패자를 먼저 표시 (높은 위험)
@@ -2290,11 +2421,26 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // Add modal to body
         document.body.insertAdjacentHTML('beforeend', modalHTML);
 
+        // 언어 전환 함수 등록
+        window.switchConsecutiveLang = function(lang) {
+            // 전역 언어 상태 업데이트
+            if (typeof window.currentLanguage !== 'undefined') {
+                window.currentLanguage = lang;
+            }
+            if (typeof currentLanguage !== 'undefined') {
+                currentLanguage = lang;
+            }
+            // 모달 재생성
+            document.getElementById('consecutiveAqlFailModal').remove();
+            showConsecutiveAqlFailDetails();
+        };
+
         // Add click outside to close functionality
         const modal = document.getElementById('consecutiveAqlFailModal');
         modal.onclick = function(event) {
             if (event.target === modal) {
                 modal.remove();
+                delete window.switchConsecutiveLang;
             }
         };
     }
@@ -2312,9 +2458,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         let modalDiv = null;
         let backdrop = null;
 
-        function sortData(column) {
-            console.log('sortData called with column:', column, 'current sortColumn:', sortColumn, 'sortOrder:', sortOrder);
+        // 현재 언어 상태 - 전역 언어와 동기화
+        let currentLang = (typeof window.currentLanguage !== 'undefined' ? window.currentLanguage : null) ||
+                         (typeof currentLanguage !== 'undefined' ? currentLanguage : null) ||
+                         'ko';
 
+        function sortData(column) {
             if (sortColumn === column) {
                 sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
             } else {
@@ -2334,22 +2483,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         aVal = a['Full Name'] || a.full_name || '';
                         bVal = b['Full Name'] || b.full_name || '';
                         break;
-                    case 'manager':
-                        // 모든 가능한 직속 상사 필드 체크
-                        aVal = a['MST direct boss name'] || a['direct boss name'] || a['Direct Boss Name'] || a.direct_boss_name || '-';
-                        bVal = b['MST direct boss name'] || b['direct boss name'] || b['Direct Boss Name'] || b.direct_boss_name || '-';
+                    case 'supervisor':
+                        aVal = a['direct boss name'] || '';
+                        bVal = b['direct boss name'] || '';
+                        break;
+                    case 'inspectorId':
+                        aVal = a['MST direct boss name'] || '';
+                        bVal = b['MST direct boss name'] || '';
                         break;
                     case 'passCount':
-                        // 엑셀에서 직접 PASS 횟수 가져오기
                         aVal = parseFloat(a['AQL_Pass_Count'] || 0);
                         bVal = parseFloat(b['AQL_Pass_Count'] || 0);
                         break;
                     case 'failures':
-                        aVal = parseFloat(a['September AQL Failures'] || a['aql_failures'] || 0);
-                        bVal = parseFloat(b['September AQL Failures'] || b['aql_failures'] || 0);
+                        aVal = parseFloat(a['September AQL Failures'] || 0);
+                        bVal = parseFloat(b['September AQL Failures'] || 0);
                         break;
                     case 'failPercent':
-                        // 엑셀에서 직접 FAIL % 가져오기
                         aVal = parseFloat(a['AQL_Fail_Percent'] || 0);
                         bVal = parseFloat(b['AQL_Fail_Percent'] || 0);
                         break;
@@ -2368,17 +2518,111 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             updateTableBody();
         }
 
+        function switchLanguage(lang) {
+            currentLang = lang;
+            // 전역 언어 상태도 동기화
+            if (typeof window.currentLanguage !== 'undefined') {
+                window.currentLanguage = lang;
+            }
+            if (typeof currentLanguage !== 'undefined') {
+                currentLanguage = lang;
+            }
+            updateAllModalContent();
+            // 언어 버튼 상태 업데이트
+            updateLanguageButtons();
+        }
+
+        function updateLanguageButtons() {
+            const buttons = document.querySelectorAll('#aqlFailModal .btn-group button');
+            buttons.forEach(btn => {
+                const btnLang = btn.getAttribute('onclick').match(/'(\\w+)'/)[1];
+                if (btnLang === currentLang) {
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-primary');
+                } else {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline-primary');
+                }
+            });
+        }
+
+        function updateAllModalContent() {
+            // 모달 제목 업데이트
+            const titleEl = document.querySelector('#aqlFailModal .modal-title span[data-i18n]');
+            if (titleEl) {
+                titleEl.textContent = getTranslation('validationTab.modals.aqlFail.title', currentLang);
+            }
+
+            // Alert 메시지 업데이트
+            const alertEl = document.querySelector('#aqlFailModal .alert span[data-i18n="aqlFailAlert"]');
+            if (alertEl) {
+                alertEl.textContent = getTranslation('validationTab.modals.aqlFail.alertMessage', currentLang);
+            }
+
+            // 카운트 메시지 업데이트
+            const countEl = document.querySelector('#aqlFailModal .alert span[data-i18n="aqlFailCount"]');
+            if (countEl) {
+                const countMsg = getTranslation('validationTab.modals.aqlFail.totalCount', currentLang);
+                countEl.textContent = countMsg.replace('{count}', aqlFailEmployees.length);
+            }
+
+            // 테이블 헤더 업데이트
+            const headers = {
+                'empNo': 'validationTab.modals.aqlFail.headers.empNo',
+                'name': 'validationTab.modals.aqlFail.headers.name',
+                'supervisor': 'validationTab.modals.aqlFail.headers.supervisor',
+                'inspectorId': 'validationTab.modals.aqlFail.headers.inspectorId',
+                'aqlPass': 'validationTab.modals.aqlFail.headers.aqlPass',
+                'aqlFail': 'validationTab.modals.aqlFail.headers.aqlFail',
+                'failPercent': 'validationTab.modals.aqlFail.headers.failPercent'
+            };
+
+            Object.keys(headers).forEach(key => {
+                const headerEl = document.querySelector(`#aqlFailModal th[data-i18n="${key}"]`);
+                if (headerEl) {
+                    const iconSpan = headerEl.querySelector('.sort-icon');
+                    const icon = iconSpan ? iconSpan.textContent : '';
+                    headerEl.innerHTML = `<span data-i18n="${key}">${getTranslation(headers[key], currentLang)}</span><span class="sort-icon">${icon}</span>`;
+                }
+            });
+
+            // 라인리더 집계 섹션 헤더 업데이트
+            const lineLeaderTitleEl = document.querySelector('#aqlFailModal h6[data-i18n="lineLeaderTitle"]');
+            if (lineLeaderTitleEl) {
+                lineLeaderTitleEl.innerHTML = `<i class="fas fa-users me-2"></i><span data-i18n="lineLeaderTitle">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.title', currentLang)}</span>`;
+            }
+
+            const lineLeaderDescEl = document.querySelector('#aqlFailModal p[data-i18n="lineLeaderDesc"]');
+            if (lineLeaderDescEl) {
+                lineLeaderDescEl.textContent = getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.description', currentLang);
+            }
+
+            // 라인리더 테이블 헤더 업데이트
+            const lineLeaderHeaders = {
+                'leaderName': 'validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderName',
+                'leaderSupervisor': 'validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderSupervisor',
+                'subordinatePass': 'validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinatePass',
+                'subordinateFail': 'validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinateFail',
+                'failPercent': 'validationTab.modals.aqlFail.lineLeaderSummary.headers.failPercent'
+            };
+
+            Object.keys(lineLeaderHeaders).forEach(key => {
+                const headerEl = document.querySelector(`#lineLeaderTable th[data-i18n="${key}"]`);
+                if (headerEl) {
+                    headerEl.textContent = getTranslation(lineLeaderHeaders[key], currentLang);
+                }
+            });
+        }
+
         function updateTableBody() {
-            // 테이블 바디만 업데이트 (이벤트 리스너 유지)
-            const tbody = document.querySelector('#detailModal tbody');
+            const tbody = document.querySelector('#aqlFailModal tbody');
             if (!tbody) return;
 
             let tableRows = aqlFailEmployees.map(emp => {
-                const failures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
-                // 모든 가능한 직속 상사 필드 체크
-                const managerName = emp['MST direct boss name'] || emp['direct boss name'] || emp['Direct Boss Name'] || emp.direct_boss_name || '-';
+                const failures = parseFloat(emp['September AQL Failures'] || 0);
+                const supervisorName = emp['direct boss name'] || '-';
+                const supervisorId = emp['MST direct boss name'] || '-';
 
-                // 엑셀 파일에서 AQL 통계 데이터 가져오기 (Single Source of Truth)
                 const totalTests = emp['AQL_Total_Tests'] || 10;
                 const passCount = emp['AQL_Pass_Count'] || Math.max(0, totalTests - failures);
                 const failPercent = emp['AQL_Fail_Percent'] ? emp['AQL_Fail_Percent'].toFixed(1) : ((failures / totalTests * 100).toFixed(1));
@@ -2388,10 +2632,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 let failBadgeText = '';
                 if (failPercent >= 30) {
                     failBadgeClass = 'bg-danger';
-                    failBadgeText = `${failPercent}% (심각)`;
+                    failBadgeText = currentLang === 'ko' ? `${failPercent}% (심각)` : currentLang === 'en' ? `${failPercent}% (Critical)` : `${failPercent}% (Nghiêm trọng)`;
                 } else if (failPercent >= 20) {
                     failBadgeClass = 'bg-warning text-dark';
-                    failBadgeText = `${failPercent}% (경고)`;
+                    failBadgeText = currentLang === 'ko' ? `${failPercent}% (경고)` : currentLang === 'en' ? `${failPercent}% (Warning)` : `${failPercent}% (Cảnh báo)`;
                 } else {
                     failBadgeClass = 'bg-info';
                     failBadgeText = `${failPercent}%`;
@@ -2399,9 +2643,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 return `
                     <tr class="unified-table-row">
-                        <td class="unified-table-cell">${emp['Employee No'] || emp.employee_no || ''}</td>
-                        <td class="unified-table-cell">${emp['Full Name'] || emp.full_name || ''}</td>
-                        <td class="unified-table-cell">${managerName}</td>
+                        <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
+                        <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
+                        <td class="unified-table-cell">${supervisorName}</td>
+                        <td class="unified-table-cell text-center">${supervisorId}</td>
                         <td class="unified-table-cell text-center">
                             <span class="badge bg-success">${passCount}건</span>
                         </td>
@@ -2415,10 +2660,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 `;
             }).join('');
 
-            tbody.innerHTML = tableRows || '<tr><td colspan="6" class="text-center text-muted">AQL FAIL이 없습니다</td></tr>';
+            const emptyMessage = currentLang === 'ko' ? 'AQL FAIL이 없습니다' : currentLang === 'en' ? 'No AQL FAIL records' : 'Không có bản ghi AQL FAIL';
+            tbody.innerHTML = tableRows || `<tr><td colspan="7" class="text-center text-muted">${emptyMessage}</td></tr>`;
 
             // 정렬 아이콘 업데이트
-            document.querySelectorAll('#detailModal th[data-sort]').forEach(th => {
+            document.querySelectorAll('#aqlFailModal th[data-sort]').forEach(th => {
                 const column = th.getAttribute('data-sort');
                 const sortIcon = th.querySelector('.sort-icon');
                 if (sortIcon) {
@@ -2431,8 +2677,83 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             });
         }
 
+        function aggregateLineLeaderStats() {
+            const lineLeaderStats = {};
+
+            // 라인리더별 집계
+            aqlFailEmployees.forEach(emp => {
+                const supervisorId = emp['MST direct boss name'];
+                const supervisorName = emp['direct boss name'];
+
+                if (!supervisorId || !supervisorName) return;
+
+                if (!lineLeaderStats[supervisorId]) {
+                    // 라인리더의 상사 정보 찾기
+                    const supervisorData = window.employeeData.find(e => e['Employee No'] === supervisorId);
+                    const supervisorOfSupervisor = supervisorData ? (supervisorData['direct boss name'] || '-') : '-';
+
+                    lineLeaderStats[supervisorId] = {
+                        name: supervisorName,
+                        supervisor: supervisorOfSupervisor,
+                        totalPass: 0,
+                        totalFail: 0
+                    };
+                }
+
+                const passCount = parseFloat(emp['AQL_Pass_Count'] || 0);
+                const failCount = parseFloat(emp['September AQL Failures'] || 0);
+
+                lineLeaderStats[supervisorId].totalPass += passCount;
+                lineLeaderStats[supervisorId].totalFail += failCount;
+            });
+
+            // 배열로 변환 및 FAIL % 계산
+            return Object.values(lineLeaderStats).map(stat => {
+                const total = stat.totalPass + stat.totalFail;
+                const failPercent = total > 0 ? ((stat.totalFail / total) * 100).toFixed(1) : '0.0';
+                return { ...stat, failPercent: parseFloat(failPercent) };
+            }).sort((a, b) => b.failPercent - a.failPercent); // FAIL % 내림차순
+        }
+
+        function renderLineLeaderTable() {
+            const lineLeaderStats = aggregateLineLeaderStats();
+            const tbody = document.querySelector('#lineLeaderTable tbody');
+            if (!tbody) return;
+
+            const rows = lineLeaderStats.map(stat => {
+                let failBadgeClass = '';
+                if (stat.failPercent >= 30) {
+                    failBadgeClass = 'bg-danger';
+                } else if (stat.failPercent >= 20) {
+                    failBadgeClass = 'bg-warning text-dark';
+                } else {
+                    failBadgeClass = 'bg-info';
+                }
+
+                return `
+                    <tr>
+                        <td class="unified-table-cell">${stat.name}</td>
+                        <td class="unified-table-cell">${stat.supervisor}</td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-success">${stat.totalPass}건</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-danger">${stat.totalFail}건</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge ${failBadgeClass}">${stat.failPercent}%</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            const emptyMessage = currentLang === 'ko' ? '라인리더 데이터가 없습니다' : currentLang === 'en' ? 'No Line Leader data' : 'Không có dữ liệu Line Leader';
+            tbody.innerHTML = rows || `<tr><td colspan="5" class="text-center text-muted">${emptyMessage}</td></tr>`;
+        }
+
         function createAqlFailModal() {
-            // 정렬 아이콘 업데이트 함수
+            const lang = currentLang;
+
             function getSortIcon(column) {
                 if (sortColumn === column) {
                     return sortOrder === 'asc' ? ' ▲' : ' ▼';
@@ -2441,24 +2762,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }
 
             let tableRows = aqlFailEmployees.map(emp => {
-                const failures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
-                // 모든 가능한 직속 상사 필드 체크
-                const managerName = emp['MST direct boss name'] || emp['direct boss name'] || emp['Direct Boss Name'] || emp.direct_boss_name || '-';
+                const failures = parseFloat(emp['September AQL Failures'] || 0);
+                const supervisorName = emp['direct boss name'] || '-';
+                const supervisorId = emp['MST direct boss name'] || '-';
 
-                // 엑셀 파일에서 AQL 통계 데이터 가져오기
                 const totalTests = emp['AQL_Total_Tests'] || 10;
                 const passCount = emp['AQL_Pass_Count'] || Math.max(0, totalTests - failures);
                 const failPercent = emp['AQL_Fail_Percent'] ? emp['AQL_Fail_Percent'].toFixed(1) : ((failures / totalTests * 100).toFixed(1));
 
-                // 실패율에 따른 색상 구분
                 let failBadgeClass = '';
                 let failBadgeText = '';
                 if (failPercent >= 30) {
                     failBadgeClass = 'bg-danger';
-                    failBadgeText = `${failPercent}% (심각)`;
+                    failBadgeText = lang === 'ko' ? `${failPercent}% (심각)` : lang === 'en' ? `${failPercent}% (Critical)` : `${failPercent}% (Nghiêm trọng)`;
                 } else if (failPercent >= 20) {
                     failBadgeClass = 'bg-warning text-dark';
-                    failBadgeText = `${failPercent}% (경고)`;
+                    failBadgeText = lang === 'ko' ? `${failPercent}% (경고)` : lang === 'en' ? `${failPercent}% (Warning)` : `${failPercent}% (Cảnh báo)`;
                 } else {
                     failBadgeClass = 'bg-info';
                     failBadgeText = `${failPercent}%`;
@@ -2466,9 +2785,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 return `
                     <tr class="unified-table-row">
-                        <td class="unified-table-cell">${emp['Employee No'] || emp.employee_no || ''}</td>
-                        <td class="unified-table-cell">${emp['Full Name'] || emp.full_name || ''}</td>
-                        <td class="unified-table-cell">${managerName}</td>
+                        <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
+                        <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
+                        <td class="unified-table-cell">${supervisorName}</td>
+                        <td class="unified-table-cell text-center">${supervisorId}</td>
                         <td class="unified-table-cell text-center">
                             <span class="badge bg-success">${passCount}건</span>
                         </td>
@@ -2482,50 +2802,113 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 `;
             }).join('');
 
+            // 라인리더 집계 테이블
+            const lineLeaderStats = aggregateLineLeaderStats();
+            const lineLeaderRows = lineLeaderStats.map(stat => {
+                let failBadgeClass = '';
+                if (stat.failPercent >= 30) {
+                    failBadgeClass = 'bg-danger';
+                } else if (stat.failPercent >= 20) {
+                    failBadgeClass = 'bg-warning text-dark';
+                } else {
+                    failBadgeClass = 'bg-info';
+                }
+
+                return `
+                    <tr>
+                        <td class="unified-table-cell">${stat.name}</td>
+                        <td class="unified-table-cell">${stat.supervisor}</td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-success">${stat.totalPass}건</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-danger">${stat.totalFail}건</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge ${failBadgeClass}">${stat.failPercent}%</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            const countMsg = getTranslation('validationTab.modals.aqlFail.totalCount', lang).replace('{count}', aqlFailEmployees.length);
+
             let modalContent = `
-                <div class="modal-dialog modal-xl">
+                <div class="modal-dialog modal-xl" style="max-width: 95%; margin: 20px auto;">
                     <div class="modal-content">
                         <div class="modal-header unified-modal-header">
                             <h5 class="modal-title unified-modal-title">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
-                                AQL FAIL 보유자 상세
+                                <span data-i18n="validationTab.modals.aqlFail.title">${getTranslation('validationTab.modals.aqlFail.title', lang)}</span>
                             </h5>
-                            <button type="button" class="btn-close" onclick="window.closeAqlModal()"></button>
+                            <div class="d-flex align-items-center">
+                                <div class="btn-group btn-group-sm me-3">
+                                    <button type="button" class="btn ${lang === 'ko' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('ko')">한국어</button>
+                                    <button type="button" class="btn ${lang === 'en' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('en')">English</button>
+                                    <button type="button" class="btn ${lang === 'vi' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('vi')">Tiếng Việt</button>
+                                </div>
+                                <button type="button" class="btn-close" onclick="window.closeAqlModal()"></button>
+                            </div>
                         </div>
                         <div class="modal-body">
                             <div class="alert alert-warning d-flex align-items-center mb-3">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <div>
-                                    <strong>AQL (Acceptable Quality Level) FAIL</strong>은 품질 검사에서 불합격을 받은 경우를 의미합니다.<br>
-                                    총 <strong>${aqlFailEmployees.length}명</strong>의 직원이 9월에 AQL FAIL을 기록했습니다.
+                                    <strong><span data-i18n="aqlFailAlert">${getTranslation('validationTab.modals.aqlFail.alertMessage', lang)}</span></strong><br>
+                                    <span data-i18n="aqlFailCount">${countMsg}</span>
                                 </div>
                             </div>
 
-                            <table class="table table-hover">
+                            <h6 class="mb-3"><i class="fas fa-list me-2"></i>직원별 AQL FAIL 상세</h6>
+
+                            <table class="table table-hover" id="aqlFailEmployeeTable">
                                 <thead class="unified-table-header">
                                     <tr>
-                                        <th style="cursor: pointer;" data-sort="empNo">
-                                            사번<span class="sort-icon">${getSortIcon('empNo')}</span>
+                                        <th style="cursor: pointer;" data-sort="empNo" onclick="window.sortAqlData('empNo')">
+                                            <span data-i18n="empNo">${getTranslation('validationTab.modals.aqlFail.headers.empNo', lang)}</span><span class="sort-icon">${getSortIcon('empNo')}</span>
                                         </th>
-                                        <th style="cursor: pointer;" data-sort="name">
-                                            이름<span class="sort-icon">${getSortIcon('name')}</span>
+                                        <th style="cursor: pointer;" data-sort="name" onclick="window.sortAqlData('name')">
+                                            <span data-i18n="name">${getTranslation('validationTab.modals.aqlFail.headers.name', lang)}</span><span class="sort-icon">${getSortIcon('name')}</span>
                                         </th>
-                                        <th style="cursor: pointer;" data-sort="manager">
-                                            직속 상사<span class="sort-icon">${getSortIcon('manager')}</span>
+                                        <th style="cursor: pointer;" data-sort="supervisor" onclick="window.sortAqlData('supervisor')">
+                                            <span data-i18n="supervisor">${getTranslation('validationTab.modals.aqlFail.headers.supervisor', lang)}</span><span class="sort-icon">${getSortIcon('supervisor')}</span>
                                         </th>
-                                        <th class="text-center" style="cursor: pointer;" data-sort="passCount">
-                                            AQL PASS<span class="sort-icon">${getSortIcon('passCount')}</span>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="inspectorId" onclick="window.sortAqlData('inspectorId')">
+                                            <span data-i18n="inspectorId">${getTranslation('validationTab.modals.aqlFail.headers.inspectorId', lang)}</span><span class="sort-icon">${getSortIcon('inspectorId')}</span>
                                         </th>
-                                        <th class="text-center" style="cursor: pointer;" data-sort="failures">
-                                            AQL FAIL<span class="sort-icon">${getSortIcon('failures')}</span>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="passCount" onclick="window.sortAqlData('passCount')">
+                                            <span data-i18n="aqlPass">${getTranslation('validationTab.modals.aqlFail.headers.aqlPass', lang)}</span><span class="sort-icon">${getSortIcon('passCount')}</span>
                                         </th>
-                                        <th class="text-center" style="cursor: pointer;" data-sort="failPercent">
-                                            FAIL %<span class="sort-icon">${getSortIcon('failPercent')}</span>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="failures" onclick="window.sortAqlData('failures')">
+                                            <span data-i18n="aqlFail">${getTranslation('validationTab.modals.aqlFail.headers.aqlFail', lang)}</span><span class="sort-icon">${getSortIcon('failures')}</span>
+                                        </th>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="failPercent" onclick="window.sortAqlData('failPercent')">
+                                            <span data-i18n="failPercent">${getTranslation('validationTab.modals.aqlFail.headers.failPercent', lang)}</span><span class="sort-icon">${getSortIcon('failPercent')}</span>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${tableRows || '<tr><td colspan="6" class="text-center text-muted">AQL FAIL이 없습니다</td></tr>'}
+                                    ${tableRows || '<tr><td colspan="7" class="text-center text-muted">AQL FAIL이 없습니다</td></tr>'}
+                                </tbody>
+                            </table>
+
+                            <hr class="my-4">
+
+                            <h6 class="mb-3" data-i18n="lineLeaderTitle"><i class="fas fa-users me-2"></i>${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.title', lang)}</h6>
+                            <p class="text-muted small" data-i18n="lineLeaderDesc">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.description', lang)}</p>
+
+                            <table class="table table-hover" id="lineLeaderTable">
+                                <thead class="unified-table-header">
+                                    <tr>
+                                        <th data-i18n="leaderName">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderName', lang)}</th>
+                                        <th data-i18n="leaderSupervisor">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderSupervisor', lang)}</th>
+                                        <th class="text-center" data-i18n="subordinatePass">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinatePass', lang)}</th>
+                                        <th class="text-center" data-i18n="subordinateFail">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinateFail', lang)}</th>
+                                        <th class="text-center" data-i18n="failPercent">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.failPercent', lang)}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${lineLeaderRows || '<tr><td colspan="5" class="text-center text-muted">라인리더 데이터가 없습니다</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -2534,90 +2917,57 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             `;
 
             // 기존 모달 제거
-            const existingModal = document.getElementById('detailModal');
+            const existingModal = document.getElementById('aqlFailModal');
             if (existingModal) {
                 existingModal.remove();
             }
 
             // 백드롭 제거
             const existingBackdrop = document.querySelector('.modal-backdrop');
-            if (existingBackdrop) {{
+            if (existingBackdrop) {
                 existingBackdrop.remove();
-            }}
+            }
 
             // 새 모달 생성
             modalDiv = document.createElement('div');
+            modalDiv.id = 'aqlFailModal';
             modalDiv.className = 'modal fade show';
-            modalDiv.id = 'detailModal';
             modalDiv.style.display = 'block';
-            modalDiv.style.position = 'fixed';
-            modalDiv.style.top = '0';
-            modalDiv.style.left = '0';
-            modalDiv.style.width = '100%';
-            modalDiv.style.height = '100%';
-            modalDiv.style.zIndex = '1050';
+            modalDiv.style.zIndex = '1055';
             modalDiv.innerHTML = modalContent;
-            document.body.appendChild(modalDiv);
 
-            // 백드롭 추가
+            // 백드롭 생성
             backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop fade show';
-            backdrop.style.position = 'fixed';
-            backdrop.style.top = '0';
-            backdrop.style.left = '0';
-            backdrop.style.width = '100%';
-            backdrop.style.height = '100%';
-            backdrop.style.zIndex = '1040';
-            backdrop.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            backdrop.style.zIndex = '1050';
+
             document.body.appendChild(backdrop);
-
-            // body 스타일 조정
-            document.body.classList.add('modal-open');
+            document.body.appendChild(modalDiv);
             document.body.style.overflow = 'hidden';
-            document.body.style.paddingRight = '17px';
 
-            // 전역 closeModal 함수 정의
-            window.closeAqlModal = function() {
-                console.log('Closing modal...');
-                if (modalDiv) modalDiv.remove();
-                if (backdrop) backdrop.remove();
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('overflow');
-                document.body.style.removeProperty('padding-right');
-                delete window.closeAqlModal;
-            };
+            // 전역 함수 등록
+            window.sortAqlData = sortData;
+            window.switchAqlLang = switchLanguage;
 
-            // 백드롭 클릭 이벤트 (모달 밖 클릭으로 닫기)
-            backdrop.onclick = function(e) {
-                if (e.target === backdrop) {
-                    console.log('Backdrop clicked');
-                    window.closeAqlModal();
-                }
-            };
-
-            // 모달 자체 클릭 이벤트 (모달 콘텐츠 밖 클릭 시 닫기)
-            modalDiv.onclick = function(e) {
-                if (e.target === modalDiv) {
-                    console.log('Modal outer area clicked');
-                    window.closeAqlModal();
-                }
-            };
-
-            // 정렬 헤더 클릭 이벤트
-            setTimeout(() => {
-                const sortHeaders = document.querySelectorAll('#detailModal th[data-sort]');
-                sortHeaders.forEach(header => {
-                    header.onclick = function(e) {
-                        e.stopPropagation();
-                        const column = this.getAttribute('data-sort');
-                        console.log('Header clicked:', column);
-                        sortData(column);
-                    };
-                });
-            }, 100);
+            // 초기 언어 버튼 상태 설정
+            updateLanguageButtons();
         }
 
-        // 초기 모달 생성
+        // 모달 닫기 함수
+        window.closeAqlModal = function() {
+            if (modalDiv) {
+                modalDiv.remove();
+                modalDiv = null;
+            }
+            if (backdrop) {
+                backdrop.remove();
+                backdrop = null;
+            }
+            document.body.style.overflow = '';
+        };
+
+        // 초기 렌더링
+        sortData('failPercent');  // FAIL %로 정렬
         createAqlFailModal();
     }
 
@@ -2924,7 +3274,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 새 모달 인스턴스 생성 with proper options
         const bsModal = new bootstrap.Modal(modalElement, {
-            backdrop: true,      // 배경 클릭으로 닫기
+            backdrop: 'static',  // 모달 내부 클릭시 닫히지 않도록 설정
             keyboard: true,      // ESC 키로 닫기
             focus: true
         });
@@ -3348,6 +3698,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         border-bottom: 3px solid #2196f3 !important;
         padding: 1.2rem 1.5rem !important;
         border-radius: 0.5rem 0.5rem 0 0 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
     }
     .unified-modal-title {
         color: #1565c0 !important;
@@ -6338,70 +6691,70 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="kpi-card" onclick="showValidationModal('totalWorkingDays')" style="--card-color-1: #4a90e2; --card-color-2: #5ca0f2; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.1);">
                     <div class="kpi-icon">📅</div>
                     <div class="kpi-value" id="kpiTotalWorkingDays">-</div>
-                    <div class="kpi-label">총 근무일수</div>
+                    <div class="kpi-label" data-i18n="validationKpi.totalWorkingDays">총 근무일수</div>
                 </div>
 
                 <!-- KPI 카드 2: 무단결근 3일 이상 -->
                 <div class="kpi-card" onclick="showValidationModal('absentWithoutInform')" style="--card-color-1: #f39c12; --card-color-2: #f1c40f; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1);">
                     <div class="kpi-icon">⚠️</div>
                     <div class="kpi-value" id="kpiAbsentWithoutInform">-</div>
-                    <div class="kpi-label">무단결근 ≥3일</div>
+                    <div class="kpi-label" data-i18n="validationKpi.absentWithoutInform">무단결근 ≥3일</div>
                 </div>
 
                 <!-- KPI 카드 3: 실제 근무일 0일 -->
                 <div class="kpi-card" onclick="showValidationModal('zeroWorkingDays')" style="--card-color-1: #e74c3c; --card-color-2: #c0392b; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);">
                     <div class="kpi-icon">🚫</div>
                     <div class="kpi-value" id="kpiZeroWorkingDays">-</div>
-                    <div class="kpi-label">실제 근무일 = 0</div>
+                    <div class="kpi-label" data-i18n="validationKpi.zeroWorkingDays">실제 근무일 = 0</div>
                 </div>
 
                 <!-- KPI 카드 4: 최소 근무일 미충족 -->
                 <div class="kpi-card" onclick="showValidationModal('minimumDaysNotMet')" style="--card-color-1: #95a5a6; --card-color-2: #7f8c8d; box-shadow: 0 4px 15px rgba(149, 165, 166, 0.1);">
                     <div class="kpi-icon">📉</div>
                     <div class="kpi-value" id="kpiMinimumDaysNotMet">-</div>
-                    <div class="kpi-label">최소 근무일 미충족</div>
+                    <div class="kpi-label" data-i18n="validationKpi.minimumDaysNotMet">최소 근무일 미충족</div>
                 </div>
 
                 <!-- KPI 카드 5: 출근율 88% 미만 -->
                 <div class="kpi-card" onclick="showValidationModal('attendanceBelow88')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-value" id="kpiAttendanceBelow88">-</div>
-                    <div class="kpi-label">출근율 88% 미만</div>
+                    <div class="kpi-label" data-i18n="validationKpi.attendanceBelow88">출근율 88% 미만</div>
                 </div>
 
                 <!-- KPI 카드 6: AQL FAIL 보유자 -->
                 <div class="kpi-card" onclick="showValidationModal('aqlFail')" style="--card-color-1: #e67e22; --card-color-2: #d35400; box-shadow: 0 4px 15px rgba(230, 126, 34, 0.1);">
                     <div class="kpi-icon">❌</div>
                     <div class="kpi-value" id="kpiAqlFail">-</div>
-                    <div class="kpi-label">AQL FAIL 보유자</div>
+                    <div class="kpi-label" data-i18n="validationKpi.aqlFail">AQL FAIL 보유자</div>
                 </div>
 
                 <!-- KPI 카드 7: 3개월 연속 AQL FAIL -->
                 <div class="kpi-card" onclick="showValidationModal('consecutiveAqlFail')" style="--card-color-1: #c0392b; --card-color-2: #a93226; box-shadow: 0 4px 15px rgba(192, 57, 43, 0.1);">
                     <div class="kpi-icon">🔴</div>
                     <div class="kpi-value" id="kpiConsecutiveAqlFail">-</div>
-                    <div class="kpi-label">3개월 연속 AQL FAIL</div>
+                    <div class="kpi-label" data-i18n="validationKpi.consecutiveAqlFail">3개월 연속 AQL FAIL</div>
                 </div>
 
                 <!-- KPI 카드 8: 구역 AQL Reject 3% 이상 -->
                 <div class="kpi-card" onclick="showValidationModal('areaRejectRate')" style="--card-color-1: #3498db; --card-color-2: #2980b9; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-value" id="kpiAreaRejectRate">-</div>
-                    <div class="kpi-label">구역 AQL Reject 3% 이상</div>
+                    <div class="kpi-label" data-i18n="validationKpi.areaRejectRate">구역 AQL Reject ≥3%</div>
                 </div>
 
                 <!-- KPI 카드 9: 5PRS 통과율 < 95% -->
                 <div class="kpi-card" onclick="showValidationModal('lowPassRate')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);">
                     <div class="kpi-icon">📉</div>
                     <div class="kpi-value" id="kpiLowPassRate">-</div>
-                    <div class="kpi-label">5PRS Pass Rate < 95%</div>
+                    <div class="kpi-label" data-i18n="validationKpi.lowPassRate">5PRS Pass Rate < 95%</div>
                 </div>
 
                 <!-- KPI 카드 10: 5PRS 검사량 < 100족 -->
                 <div class="kpi-card" onclick="showValidationModal('lowInspectionQty')" style="--card-color-1: #1abc9c; --card-color-2: #16a085; box-shadow: 0 4px 15px rgba(26, 188, 156, 0.1);">
                     <div class="kpi-icon">🔍</div>
                     <div class="kpi-value" id="kpiLowInspectionQty">-</div>
-                    <div class="kpi-label">5PRS Inspection < 100 pairs</div>
+                    <div class="kpi-label" data-i18n="validationKpi.lowInspectionQty">5PRS Inspection < 100 pairs</div>
                 </div>
             </div>
         </div>
@@ -6717,9 +7070,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                     value = value[key];
                 }}
-                if (typeof value === 'object' && value[lang]) {{
+                if (typeof value === 'object' && value.hasOwnProperty(lang)) {{
                     return value[lang];
-                }} else if (typeof value === 'object' && value['ko']) {{
+                }} else if (typeof value === 'object' && value.hasOwnProperty('ko')) {{
                     return value['ko'];
                 }} else {{
                     console.warn(`No translation found for: ${{keyPath}} in lang: ${{lang}}`);
@@ -9022,10 +9375,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function initValidationTab() {{
             console.log('Initializing validation tab...');
 
-            // 중간 보고서 여부 확인
-            const generationDate = document.getElementById('generationDate');
-            const reportDay = generationDate ? parseInt(generationDate.getAttribute('data-day')) : 0;
-            const isInterimReport = reportDay < 20;
+            // 중간 보고서 여부 확인 (데이터 기간의 마지막 날 기준)
+            const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
+            const dataEndDay = incentiveDataPeriod ? parseInt(incentiveDataPeriod.getAttribute('data-endday')) : 0;
+            const isInterimReport = dataEndDay < 20;
 
             // 중간 보고서 알림 표시
             if (isInterimReport) {{
@@ -9047,13 +9400,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const units = {{
                 'people': {{
                     'ko': '명',
-                    'en': 'people',
-                    'vi': 'người'
+                    'en': ' people',
+                    'vi': ' người'
                 }},
                 'days': {{
                     'ko': '일',
-                    'en': 'days',
-                    'vi': 'ngày'
+                    'en': ' days',
+                    'vi': ' ngày'
                 }}
             }};
 
@@ -9076,7 +9429,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 2. 무단결근 3일 이상 (unapproved_absences > 2)
             const ar1Over3 = employeeData.filter(emp =>
-                parseFloat(emp['unapproved_absences'] || 0) > 2
+                parseFloat(emp['unapproved_absences'] || emp['Unapproved Absences'] || 0) > 2
             ).length;
             document.getElementById('kpiAbsentWithoutInform').textContent = ar1Over3 + peopleUnit;
 
@@ -9094,6 +9447,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 document.getElementById('kpiMinimumDaysNotMet').parentElement.style.opacity = '0.5';
             }} else {{
                 const minimumDaysNotMet = employeeData.filter(emp => {{
+                    // TYPE-3 제외 (인센티브 대상 아님)
+                    if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
+                        return false;
+                    }}
                     // Excel의 Minimum_Days_Met 필드 사용 (Single Source of Truth)
                     const minimumDaysMet = emp['Minimum_Days_Met'];
                     if (minimumDaysMet !== undefined) {{
@@ -9107,10 +9464,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             
             
-            // 5. 출근율 88% 미만
-            const attendanceBelow88 = employeeData.filter(emp =>
-                parseFloat(emp['attendance_rate'] || 0) < 88
-            ).length;
+            // 5. 출근율 88% 미만 (TYPE-3 제외)
+            const attendanceBelow88 = employeeData.filter(emp => {{
+                // TYPE-3 제외 (인센티브 대상 아님)
+                if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
+                    return false;
+                }}
+                return parseFloat(emp['attendance_rate'] || emp['Attendance Rate'] || 0) < 88;
+            }}).length;
             document.getElementById('kpiAttendanceBelow88').textContent = attendanceBelow88 + peopleUnit;
 
             // 6. AQL FAIL 보유자 (모든 직원 대상)
@@ -9188,7 +9549,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         // 개선된 모달 함수들 추가
-        {modal_scripts}
+        {modal_scripts.replace('__WORKING_DAYS__', str(working_days)).replace('__YEAR__', str(year)).replace('__MONTH_KO__', get_korean_month(month)).replace('__MONTH_EN__', month.capitalize())}
 
         // 검증 모달 표시 함수
         function showValidationModal(conditionType) {{
@@ -9291,10 +9652,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let tableHeaders = [];
             let tableData = [];
 
-            // 중간 보고서 여부 확인
-            const generationDate = document.getElementById('generationDate');
-            const reportDay = generationDate ? parseInt(generationDate.getAttribute('data-day')) : 0;
-            const isInterimReport = reportDay < 20;
+            // 중간 보고서 여부 확인 (데이터 기간의 마지막 날 기준)
+            const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
+            const dataEndDay = incentiveDataPeriod ? parseInt(incentiveDataPeriod.getAttribute('data-endday')) : 0;
+            const isInterimReport = dataEndDay < 20;
 
             switch(conditionType) {{
                 case 'totalWorkingDays':
@@ -14226,14 +14587,44 @@ def main():
             # 실제 근무일수 계산 - config 파일에서 읽기
             import json
             config_path = f'config_files/config_{month_name}_{args.year}.json'
+            attendance_file_path = None
             if os.path.exists(config_path):
                 with open(config_path, 'r', encoding='utf-8') as f:
                     config_data = json.load(f)
                     working_days = config_data.get('working_days', 22)
+                    attendance_file_path = config_data.get('file_paths', {}).get('attendance', None)
                     print(f"📊 실제 총 근무일수 (Config 기반): {working_days}일")
             else:
                 working_days = 22  # attendance 데이터에서 계산된 실제 값
                 print(f"📊 실제 총 근무일수 (기본값): {working_days}일")
+
+            # attendance daily_data 생성
+            daily_data = {}
+            if attendance_file_path and os.path.exists(attendance_file_path):
+                try:
+                    print(f"📅 Attendance 파일 로드: {attendance_file_path}")
+                    df_attendance = pd.read_csv(attendance_file_path, encoding='utf-8-sig')
+
+                    # Work Date 컬럼이 있는지 확인
+                    if 'Work Date' in df_attendance.columns:
+                        # Work Date를 datetime으로 변환하고 일자만 추출
+                        df_attendance['Work Date'] = pd.to_datetime(df_attendance['Work Date'], format='%Y.%m.%d', errors='coerce')
+                        df_attendance = df_attendance.dropna(subset=['Work Date'])
+
+                        # 일자별 직원 수 계산
+                        for _, row in df_attendance.iterrows():
+                            day = row['Work Date'].day
+                            if day not in daily_data:
+                                daily_data[day] = {'is_working_day': True, 'count': 0}
+                            daily_data[day]['count'] += 1
+
+                        print(f"✅ Daily attendance data 생성 완료: {len(daily_data)}일")
+                    else:
+                        print("⚠️ Work Date 컬럼을 찾을 수 없습니다.")
+                except Exception as e:
+                    print(f"⚠️ Attendance 파일 로드 실패: {e}")
+            else:
+                print("⚠️ Attendance 파일 경로가 없거나 파일이 존재하지 않습니다.")
 
             # dashboard_data 구조 직접 생성 (JSON 캐시 대체)
             # numpy int64를 Python int로 변환
@@ -14254,7 +14645,10 @@ def main():
 
             excel_dashboard_data = {
                 'employee_data': employee_data,
-                'attendance': {'total_working_days': int(working_days)},
+                'attendance': {
+                    'total_working_days': int(working_days),
+                    'daily_data': daily_data
+                },
                 'summary': {
                     'total_employees': int(len(df_csv)),
                     'employees_with_incentive': int(sum(1 for _, row in df_csv.iterrows() if row.get('Final Incentive amount', 0) > 0)),
