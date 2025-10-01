@@ -288,6 +288,11 @@
         "en": "Position",
         "vi": "Chức vụ"
       },
+      "type": {
+        "ko": "구분",
+        "en": "Type",
+        "vi": "Loại"
+      },
       "incentive": {
         "ko": "인센티브",
         "en": "Incentive",
