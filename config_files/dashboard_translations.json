@@ -4967,6 +4967,67 @@
               "en": "Risk Level",
               "vi": "Mức độ rủi ro"
             }
+          },
+          "riskLevels": {
+            "high": {
+              "ko": "높음",
+              "en": "High",
+              "vi": "Cao"
+            },
+            "medium": {
+              "ko": "보통",
+              "en": "Medium",
+              "vi": "Trung bình"
+            }
+          },
+          "riskExplanation": {
+            "title": {
+              "ko": "위험도 설명:",
+              "en": "Risk Level Explanation:",
+              "vi": "Giải thích mức độ rủi ro:"
+            },
+            "highDesc": {
+              "ko": "10월에 실패 시 3개월 연속 실패가 됩니다. 즉시 조치 필요!",
+              "en": "Will become 3-month consecutive if fails in October. Immediate action required!",
+              "vi": "Sẽ trở thành 3 tháng liên tiếp nếu thất bại vào tháng 10. Cần hành động ngay!"
+            },
+            "mediumDesc": {
+              "ko": "9월에 회복했지만 지속적인 모니터링이 필요합니다.",
+              "en": "Recovered in September but continuous monitoring required.",
+              "vi": "Đã phục hồi vào tháng 9 nhưng cần theo dõi liên tục."
+            }
+          },
+          "summary": {
+            "title": {
+              "ko": "요약:",
+              "en": "Summary:",
+              "vi": "Tóm tắt:"
+            },
+            "threeMonthFails": {
+              "ko": "3개월 연속 실패:",
+              "en": "3-Month Consecutive Failures:",
+              "vi": "Thất bại liên tiếp 3 tháng:"
+            },
+            "twoMonthFails": {
+              "ko": "2개월 연속 실패:",
+              "en": "2-Month Consecutive Failures:",
+              "vi": "Thất bại liên tiếp 2 tháng:"
+            },
+            "highRisk": {
+              "ko": "8-9월 연속 (높은 위험):",
+              "en": "Aug-Sep Consecutive (High Risk):",
+              "vi": "Liên tiếp tháng 8-9 (Rủi ro cao):"
+            },
+            "monitoring": {
+              "ko": "7-8월 연속 (모니터링):",
+              "en": "Jul-Aug Consecutive (Monitoring):",
+              "vi": "Liên tiếp tháng 7-8 (Theo dõi):"
+            },
+            "people": {
+              "ko": "명",
+              "en": " people",
+              "vi": " người"
+            }
           }
         }
       }
