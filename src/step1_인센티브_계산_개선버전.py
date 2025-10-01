@@ -3687,27 +3687,6 @@ class CompleteQIPCalculator:
             print(f"      TYPE-1 평균: {type1_group_avg:,.0f}, TYPE-2 LINE 평균: {type2_line_avg:,.0f}")
             print(f"      계산된 인센티브: {incentive:,.0f} VND")
 
-        # ĐINH KIM NGOAN 특별 보정 - 버그 수정
-        # 직접 테스트에서 214,720 VND를 받아야 함이 확인됨
-        ngoan_mask = (self.month_data['Employee No'] == 617100049) | (self.month_data['Employee No'] == '617100049')
-        if ngoan_mask.any():
-            ngoan_idx = ngoan_mask.idxmax()
-            ngoan_row = self.month_data.loc[ngoan_idx]
-
-            # 출근 조건 재확인
-            ngoan_attendance_fail = (
-                ngoan_row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                ngoan_row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                ngoan_row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                ngoan_row.get('attendancy condition 4 - minimum working days') == 'yes'
-            )
-
-            if not ngoan_attendance_fail:
-                # 다른 GROUP LEADER들과 동일한 금액 적용
-                correct_incentive = 325312  # 다른 GROUP LEADER와 동일
-                self.month_data.loc[ngoan_idx, incentive_col] = correct_incentive
-                print(f"\n    ✅ ĐINH KIM NGOAN 보정: {correct_incentive:,.0f} VND 적용 (다른 GROUP LEADER와 동일)")
-
     def calculate_type2_group_leader_independent(self, emp_id: str, subordinate_mapping: Dict[str, List[str]]) -> int:
         """TYPE-2 GROUP LEADER 독립 인센티브 계산
         TYPE-1 평균이 0일 때 독립적으로 계산

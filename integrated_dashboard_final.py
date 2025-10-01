@@ -1522,7 +1522,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="d-flex align-items-center justify-content-center">
                         <span class="badge bg-danger px-3 py-2">
                             <i class="fas fa-ban me-1"></i>
-                            ${'$'}{getTranslation('validationTab.status.excluded', currentLanguage) || 'Excluded'}
+                            ${getTranslation('validationTab.status.excluded', currentLanguage) || 'Excluded'}
                         </span>
                     </div>`;
                 statusIcon = '<i class="fas fa-exclamation-circle text-danger me-2"></i>';
@@ -1534,7 +1534,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="d-flex align-items-center justify-content-center">
                         <span class="badge bg-warning text-dark px-3 py-2">
                             <i class="fas fa-exclamation-triangle me-1"></i>
-                            ${'$'}{getTranslation('validationTab.status.warning', currentLanguage) || 'Warning'}
+                            ${getTranslation('validationTab.status.warning', currentLanguage) || 'Warning'}
                         </span>
                     </div>`;
                 statusIcon = '<i class="fas fa-exclamation-triangle text-warning me-2"></i>';
@@ -1546,7 +1546,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="d-flex align-items-center justify-content-center">
                         <span class="badge bg-info px-3 py-2">
                             <i class="fas fa-info-circle me-1"></i>
-                            ${'$'}{getTranslation('validationTab.status.caution', currentLanguage) || 'Caution'}
+                            ${getTranslation('validationTab.status.caution', currentLanguage) || 'Caution'}
                         </span>
                     </div>`;
                 statusIcon = '<i class="fas fa-info-circle text-info me-2"></i>';
@@ -1570,9 +1570,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td style="width: 15%; padding: 12px; text-align: center;">
                         <div class="d-flex flex-column align-items-center">
                             <span class="badge ${daysBadgeClass} px-3 py-2 fs-6">
-                                ${'$'}{days}${'$'}{getTranslation('validationTab.units.days', currentLanguage) || ' days'}
+                                ${days}${getTranslation('validationTab.units.days', currentLanguage) || ' days'}
                             </span>
-                            ${days > 2 ? `<small class="text-danger mt-1">${'$'}{getTranslation('validationTab.status.exceeded', currentLanguage) || 'Exceeded'}</small>` : ''}
+                            ${days > 2 ? `<small class="text-danger mt-1">${getTranslation('validationTab.status.exceeded', currentLanguage) || 'Exceeded'}</small>` : ''}
                         </div>
                     </td>
                     <td style="width: 20%; padding: 12px; text-align: center;">
@@ -1605,25 +1605,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="row text-center">
                     <div class="col-md-3">
                         <div class="d-flex flex-column">
-                            <span class="text-muted small">${'$'}{getTranslation('validationTab.stats.total', currentLanguage) || 'Total'}</span>
+                            <span class="text-muted small">${getTranslation('validationTab.stats.total', currentLanguage) || 'Total'}</span>
                             <span class="fs-4 fw-bold text-dark">${total}</span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="d-flex flex-column">
-                            <span class="text-muted small">${'$'}{getTranslation('validationTab.stats.caution', currentLanguage) || 'Caution'} (1${'$'}{getTranslation('validationTab.units.day', currentLanguage) || ' day'})</span>
+                            <span class="text-muted small">${getTranslation('validationTab.stats.caution', currentLanguage) || 'Caution'} (1${getTranslation('validationTab.units.day', currentLanguage) || ' day'})</span>
                             <span class="fs-4 fw-bold text-info">${caution}</span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="d-flex flex-column">
-                            <span class="text-muted small">${'$'}{getTranslation('validationTab.stats.warning', currentLanguage) || 'Warning'} (2${'$'}{getTranslation('validationTab.units.days', currentLanguage) || ' days'})</span>
+                            <span class="text-muted small">${getTranslation('validationTab.stats.warning', currentLanguage) || 'Warning'} (2${getTranslation('validationTab.units.days', currentLanguage) || ' days'})</span>
                             <span class="fs-4 fw-bold text-warning">${warning}</span>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="d-flex flex-column">
-                            <span class="text-muted small">${'$'}{getTranslation('validationTab.stats.excluded', currentLanguage) || 'Excluded'} (3${'$'}{getTranslation('validationTab.units.days', currentLanguage) || ' days'}+)</span>
+                            <span class="text-muted small">${getTranslation('validationTab.stats.excluded', currentLanguage) || 'Excluded'} (3${getTranslation('validationTab.units.days', currentLanguage) || ' days'}+)</span>
                             <span class="fs-4 fw-bold text-danger">${excluded}</span>
                         </div>
                     </div>
@@ -1634,7 +1634,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const modalContent = `
             <div class="modal-header" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-bottom: 3px solid #2196f3;">
                 <h5 class="modal-title" style="color: #1565c0; font-weight: 700;">
-                    <i class="fas fa-user-times me-2" style="color: #1976d2;"></i>${'$'}{getTranslation('validationTab.modals.absentWithoutInform.title', currentLanguage) || 'Absent Employee Details'}
+                    <i class="fas fa-user-times me-2" style="color: #1976d2;"></i>${getTranslation('validationTab.modals.absentWithoutInform.title', currentLanguage) || 'Absent Employee Details'}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -1645,22 +1645,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <thead class="unified-table-header">
                             <tr>
                                 <th class="sortable-header ${sortColumn === 'empNo' ? sortOrder : ''}" onclick="window.absentModalSort('empNo')" style="width: 15%;">
-                                    ${'$'}{getTranslation('validationTab.tableHeaders.empNo', currentLanguage) || 'Emp No.'}
+                                    ${getTranslation('validationTab.tableHeaders.empNo', currentLanguage) || 'Emp No.'}
                                 </th>
                                 <th class="sortable-header ${sortColumn === 'name' ? sortOrder : ''}" onclick="window.absentModalSort('name')" style="width: 25%;">
-                                    ${'$'}{getTranslation('validationTab.tableHeaders.name', currentLanguage) || 'Name'}
+                                    ${getTranslation('validationTab.tableHeaders.name', currentLanguage) || 'Name'}
                                 </th>
                                 <th class="sortable-header ${sortColumn === 'position' ? sortOrder : ''}" onclick="window.absentModalSort('position')" style="width: 25%;">
-                                    ${'$'}{getTranslation('validationTab.tableHeaders.position', currentLanguage) || 'Position'}
+                                    ${getTranslation('validationTab.tableHeaders.position', currentLanguage) || 'Position'}
                                 </th>
                                 <th class="sortable-header text-center ${sortColumn === 'days' ? sortOrder : ''}" onclick="window.absentModalSort('days')" style="width: 15%;">
                                     <div style="line-height: 1.2;">
-                                        <div>${'$'}{getTranslation('validationTab.tableHeaders.absentDays', currentLanguage) || 'Absent Days'}</div>
-                                        <div style="font-size: 0.75rem; font-weight: 400; color: #757575;">${'$'}{getTranslation('validationTab.tableHeaders.daysUnit', currentLanguage) || '(Days)'}</div>
+                                        <div>${getTranslation('validationTab.tableHeaders.absentDays', currentLanguage) || 'Absent Days'}</div>
+                                        <div style="font-size: 0.75rem; font-weight: 400; color: #757575;">${getTranslation('validationTab.tableHeaders.daysUnit', currentLanguage) || '(Days)'}</div>
                                     </div>
                                 </th>
                                 <th class="sortable-header text-center ${sortColumn === 'status' ? sortOrder : ''}" onclick="window.absentModalSort('status')" style="width: 20%;">
-                                    ${'$'}{getTranslation('validationTab.tableHeaders.status', currentLanguage) || 'Status'}
+                                    ${getTranslation('validationTab.tableHeaders.status', currentLanguage) || 'Status'}
                                 </th>
                             </tr>
                         </thead>
@@ -1671,7 +1671,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div class="modal-footer" style="background: #fafafa; border-top: 1px solid #e0e0e0;">
                 <small style="color: #616161; font-weight: 500;">
                     <i class="fas fa-info-circle me-1" style="color: #9e9e9e;"></i>
-                    ${'$'}{getTranslation('validationTab.warnings.absentExclusion', currentLanguage) || 'Incentive automatically excluded for 3+ days absent without inform'}
+                    ${getTranslation('validationTab.warnings.absentExclusion', currentLanguage) || 'Incentive automatically excluded for 3+ days absent without inform'}
                 </small>
             </div>
         `;
@@ -10409,12 +10409,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}
 
-            // 5PRS 조건 체크 (해당 직급만)
-            if (employee['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] === 'no') {{
-                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.prs5ValidationOrPassRate', currentLanguage));
-            }}
-            if (employee['5prs condition 2 - Total Valiation Qty is zero'] === 'yes') {{
-                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.prs5TotalQtyZero', currentLanguage));
+            // 5PRS 조건 체크 (ASSEMBLY INSPECTOR TYPE-1만 적용)
+            const employeeType = employee.type || employee['ROLE TYPE STD'] || '';
+            if (employeeType === 'TYPE-1' && position.includes('ASSEMBLY') && position.includes('INSPECTOR')) {{
+                if (employee['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] === 'no') {{
+                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.prs5ValidationOrPassRate', currentLanguage));
+                }}
+                if (employee['5prs condition 2 - Total Valiation Qty is zero'] === 'yes') {{
+                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.prs5TotalQtyZero', currentLanguage));
+                }}
             }}
 
             // 조건 통과율 체크
@@ -10831,9 +10834,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div class="modal-body">
                                 <div class="employee-info mb-3">
                                     <h5>${{employee.name}}</h5>
-                                    <p class="mb-1"><strong>직급:</strong> ${{employee.position}}</p>
-                                    <p class="mb-1"><strong>ID:</strong> ${{employee.emp_no}}</p>
-                                    <p class="mb-1"><strong>Type:</strong> ${{employee.type}}</p>
+                                    <p class="mb-1"><strong>${{getTranslation('orgChart.modal.basicInfo.position', currentLanguage)}}:</strong> ${{employee.position}}</p>
+                                    <p class="mb-1"><strong>${{getTranslation('orgChart.modal.basicInfo.employeeId', currentLanguage)}}:</strong> ${{employee.emp_no}}</p>
+                                    <p class="mb-1"><strong>${{getTranslation('orgChart.modal.basicInfo.type', currentLanguage)}}:</strong> ${{employee.type}}</p>
                                 </div>
                                 <hr>
                                 <div class="incentive-summary mb-3">
@@ -12498,11 +12501,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             tooltip.html(`
                 <strong>${{d.data.name}}</strong><br/>
-                사번: ${{d.data.id}}<br/>
-                직급: ${{d.data.position}}<br/>
-                Type: ${{d.data.type}}<br/>
-                인센티브: ${{incentive.toLocaleString()}} VND<br/>
-                상사: ${{d.data.boss_name || '없음'}}
+                ${{getTranslation('orgChart.tooltipLabels.empNo', currentLanguage)}}: ${{d.data.id}}<br/>
+                ${{getTranslation('orgChart.tooltipLabels.position', currentLanguage)}}: ${{d.data.position}}<br/>
+                ${{getTranslation('orgChart.tooltipLabels.type', currentLanguage)}}: ${{d.data.type}}<br/>
+                ${{getTranslation('orgChart.tooltipLabels.incentive', currentLanguage)}}: ${{incentive.toLocaleString()}} VND<br/>
+                ${{getTranslation('orgChart.tooltipLabels.boss', currentLanguage)}}: ${{d.data.boss_name || getTranslation('orgChart.tooltipLabels.none', currentLanguage)}}
             `);
 
             tooltip.style("visibility", "visible")
