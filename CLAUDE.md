@@ -46,6 +46,26 @@ python validate_json_consistency.py     # JSON-code alignment check
 python src/validate_hr_data.py 9 2025  # HR data integrity
 ```
 
+### Consecutive AQL Failure Update (Auto-Detection)
+```bash
+# Auto-detect from latest config file
+python src/update_continuous_fail_column.py
+
+# Or specify month/year explicitly
+python src/update_continuous_fail_column.py --month november --year 2025
+python src/update_continuous_fail_column.py --month 11 --year 2025
+
+# What it does:
+# - Automatically calculates previous 2 months (e.g., Nov → Sep, Oct, Nov)
+# - Finds and loads AQL history files for 3 months
+# - Identifies consecutive failures:
+#   * 2-month consecutive (month-2 + month-1, month-1 + current)
+#   * 3-month consecutive (all 3 months)
+# - Updates Excel Continuous_FAIL column with dynamic tags:
+#   * YES_2MONTHS_SEP_OCT, YES_2MONTHS_OCT_NOV, YES_3MONTHS
+# - Dashboard modals automatically display correct months
+```
+
 ### Debugging Tools
 ```bash
 python simple_deep_test.py             # Browser-based dashboard testing
