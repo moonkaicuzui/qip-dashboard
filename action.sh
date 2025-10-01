@@ -255,6 +255,18 @@ else
     echo -e "${YELLOW}⚠️ 데이터 불일치 발견 (validation_report 확인 필요)${NC}"
 fi
 
+# Step 1.7: 연속 AQL 실패 데이터 자동 업데이트
+echo ""
+echo -e "${YELLOW}🔄 3개월 연속 AQL 실패 데이터 분석 및 업데이트 중...${NC}"
+python3 src/update_continuous_fail_column.py --month $MONTH --year $YEAR
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ 연속 AQL 실패 데이터 업데이트 완료${NC}"
+    echo -e "${CYAN}   • 자동으로 이전 2개월 AQL 파일 분석${NC}"
+    echo -e "${CYAN}   • 2개월/3개월 연속 실패자 자동 태깅${NC}"
+else
+    echo -e "${YELLOW}⚠️ 연속 AQL 실패 업데이트 중 경고 (대시보드는 계속 생성됨)${NC}"
+fi
+
 # Step 2: 모듈형 Dashboard 생성 (구조 개선된 v6.0)
 echo ""
 echo -e "${GREEN}✨ 구조 개선된 모듈형 대시보드 v6.0을 생성합니다${NC}"
