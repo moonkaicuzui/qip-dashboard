@@ -714,13 +714,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             # FAIL은 주로 FAIL PO에 있으므로 전체를 봐야 정확함
             all_po_df = aql_df.copy()
 
-            # Building별 검사원 통계 계산
+            # Building별 검사 건수 및 검사원 통계 계산
+            aql_file_stats = {}  # 검사 건수 기준 통계 (Table 1용)
+
             for building in ['A', 'B', 'C', 'D']:
                 building_df = all_po_df[all_po_df['BUILDING'] == building]
                 if len(building_df) == 0:
                     continue
 
-                # 각 검사원별로 Reject 발생 여부 확인
+                # Table 1: 검사 건수 기준 통계
+                total_tests = len(building_df)
+                pass_count = len(building_df[building_df['RESULT'] == 'PASS'])
+                fail_count = total_tests - pass_count
+                test_reject_rate = (fail_count / total_tests * 100) if total_tests > 0 else 0
+
+                aql_file_stats[f'Building {building}'] = {
+                    'total': total_tests,
+                    'pass': pass_count,
+                    'fail': fail_count,
+                    'rejectRate': round(test_reject_rate, 1)
+                }
+
+                # Table 2: 검사원 인원 기준 통계
                 inspector_results = {}
                 for emp_no in building_df['EMPLOYEE NO'].unique():
                     emp_tests = building_df[building_df['EMPLOYEE NO'] == emp_no]
@@ -730,17 +745,30 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 total_inspectors = len(inspector_results)
                 reject_inspectors = sum(1 for has_fail in inspector_results.values() if has_fail)
                 pass_only_inspectors = total_inspectors - reject_inspectors
-                reject_rate = (reject_inspectors / total_inspectors * 100) if total_inspectors > 0 else 0
+                inspector_reject_rate = (reject_inspectors / total_inspectors * 100) if total_inspectors > 0 else 0
 
                 aql_inspector_stats[f'Building {building}'] = {
                     'totalInspectors': total_inspectors,
                     'rejectInspectors': reject_inspectors,
                     'passOnlyInspectors': pass_only_inspectors,
-                    'rejectRate': f'{reject_rate:.1f}',
-                    'totalTests': len(building_df)
+                    'rejectRate': f'{inspector_reject_rate:.1f}',
+                    'totalTests': total_tests
                 }
 
-            # 전체 통계
+            # 전체 통계 (검사 건수 기준)
+            total_tests_all = len(all_po_df)
+            pass_count_all = len(all_po_df[all_po_df['RESULT'] == 'PASS'])
+            fail_count_all = total_tests_all - pass_count_all
+            test_reject_rate_all = (fail_count_all / total_tests_all * 100) if total_tests_all > 0 else 0
+
+            aql_file_stats['전체'] = {
+                'total': total_tests_all,
+                'pass': pass_count_all,
+                'fail': fail_count_all,
+                'rejectRate': round(test_reject_rate_all, 1)
+            }
+
+            # 전체 통계 (검사원 인원 기준)
             all_inspector_results = {}
             for emp_no in all_po_df['EMPLOYEE NO'].unique():
                 emp_tests = all_po_df[all_po_df['EMPLOYEE NO'] == emp_no]
@@ -757,10 +785,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 'rejectInspectors': reject_all,
                 'passOnlyInspectors': pass_all,
                 'rejectRate': f'{reject_rate_all:.1f}',
-                'totalTests': len(all_po_df)
+                'totalTests': total_tests_all
             }
 
-            print(f"✅ AQL 파일에서 검사원 통계 계산 완료: {total_all}명 (Reject 발생 {reject_all}명), {len(all_po_df)}건")
+            print(f"✅ AQL 파일에서 검사원 통계 계산 완료: {total_all}명 (Reject 발생 {reject_all}명), {total_tests_all}건")
+            print(f"   - 검사 건수 Reject Rate: {test_reject_rate_all:.1f}% (Fail {fail_count_all}/{total_tests_all})")
+            print(f"   - 검사원 인원 Reject Rate: {reject_rate_all:.1f}% (Reject 발생 {reject_all}/{total_all}명)")
         else:
             print(f"⚠️ AQL 파일 없음: {aql_file}")
     except Exception as e:
@@ -851,9 +881,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp['emp_no'] = str(emp.get('Employee No', ''))
             emp['name'] = emp.get('Full Name', '')
             emp['position'] = emp.get('QIP POSITION 1ST  NAME', '')
+
+            # CRITICAL FIX: JavaScript needs POSITION CODE (not name) for filtering
+            # JavaScript checks: ['A1A', 'A1B', 'A1C'].includes(positionCode)
+            # This field MUST be preserved for 5PRS modal filtering
+            emp['position_code'] = emp.get('FINAL QIP POSITION NAME CODE', '')
+
             # 인센티브 필드 매핑
             emp['september_incentive'] = str(emp.get('September_Incentive', '0'))
             emp['august_incentive'] = str(emp.get('Previous_Incentive', '0'))
+
+            # CRITICAL FIX: 5PRS 필드 추가 (JavaScript에서 사용)
+            emp['pass_rate'] = emp.get('5PRS_Pass_Rate', 0) if pd.notna(emp.get('5PRS_Pass_Rate')) else 0
+            emp['validation_qty'] = emp.get('5PRS_Inspection_Qty', 0) if pd.notna(emp.get('5PRS_Inspection_Qty')) else 0
 
             # CRITICAL FIX: condition4 필드 추가 (JavaScript 호환성)
             emp['condition4'] = str(emp.get('attendancy condition 4 - minimum working days', 'no'))
@@ -1052,9 +1092,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     employees_json_str = json.dumps(employees_clean, ensure_ascii=False, separators=(',', ':'))
     employees_json_base64 = base64.b64encode(employees_json_str.encode('utf-8')).decode('ascii')
 
+    # DEBUG: Print encoding status
+    print(f"🔍 [DEBUG] employees 리스트: {len(employees)}명")
+    print(f"🔍 [DEBUG] employees_clean 리스트: {len(employees_clean)}명")
+    print(f"🔍 [DEBUG] JSON 문자열 길이: {len(employees_json_str)} characters")
+    print(f"🔍 [DEBUG] Base64 인코딩 길이: {len(employees_json_base64)} characters")
+
     # AQL Inspector Stats를 Base64로 인코딩
     aql_inspector_stats_str = json.dumps(aql_inspector_stats, ensure_ascii=False, separators=(',', ':'))
     aql_inspector_stats_b64 = base64.b64encode(aql_inspector_stats_str.encode('utf-8')).decode('ascii')
+
+    # AQL File Stats (검사 건수 기준)를 Base64로 인코딩
+    aql_file_stats_str = json.dumps(aql_file_stats if 'aql_file_stats' in locals() else {}, ensure_ascii=False, separators=(',', ':'))
+    aql_file_stats_b64 = base64.b64encode(aql_file_stats_str.encode('utf-8')).decode('ascii')
 
     # Position matrix 데이터 로드
     position_matrix = load_condition_matrix()
@@ -3038,16 +3088,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 테이블 3: Auditor/Trainer 인센티브 현황 (책임 범위)
         // ========================================================================
 
-        // AQL 파일 데이터 (Python에서 전달된 데이터)
-        // Building별 실제 검사 통계
-        const aqlFileStats = {
-            'Building B': { total: 246, pass: 245, fail: 1, rejectRate: 0.4 },
-            'Building D': { total: 352, pass: 344, fail: 8, rejectRate: 2.3 },
-            'Building A': { total: 416, pass: 405, fail: 11, rejectRate: 2.6 },
-            'Building C': { total: 399, pass: 383, fail: 16, rejectRate: 4.0 },
-            'All Buildings': { total: 6, pass: 6, fail: 0, rejectRate: 0.0 },
-            '전체': { total: 1419, pass: 1383, fail: 36, rejectRate: 2.5 }
+        // AQL 파일 데이터 (Python에서 계산된 실제 데이터 사용)
+        // Building별 실제 검사 통계 (검사 건수 기준 Reject Rate)
+        const aqlFileStats = window.aqlFileStats || {
+            // Fallback: window.aqlFileStats가 없는 경우 빈 객체 사용
+            'Building B': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
+            'Building D': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
+            'Building A': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
+            'Building C': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
+            '전체': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 }
         };
+
+        console.log('[AQL Modal] Using AQL File Stats:', aqlFileStats);
 
         // AQL 관련 직원 필터링 함수
         function isAqlRelevantEmployee(emp) {
@@ -3178,82 +3230,44 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function calculateAuditorStats() {
             const auditorStats = [];
 
-            // Auditor/Trainer 필터 (Area_Reject_Rate > 0이면서 AQL_Total_Tests = 0)
-            const auditors = window.employeeData.filter(emp => {
-                const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
-                const aqlTests = parseFloat(emp['AQL_Total_Tests'] || 0);
-                return areaRate > 0 && aqlTests === 0;
-            });
-
-            // 직책 및 Building별 그룹화
-            const buildingGroups = {};
-
-            auditors.forEach(emp => {
-                const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
-                const rateStr = areaRate.toFixed(2);
-                const position = emp['FINAL QIP POSITION NAME'] || '';
-
-                let building = '';
-                let jobTitle = 'Auditor/Trainer';
-
-                // Building 및 직책 매핑
-                if (rateStr === '4.01') {
-                    building = 'Building C';
-                } else if (rateStr === '2.64') {
-                    building = 'Building A';
-                } else if (rateStr === '2.27') {
-                    building = 'Building D';
-                } else if (rateStr === '0.41') {
-                    building = 'Building B';
-                } else if (rateStr === '2.54') {
-                    building = 'All Buildings';
-                    // Model Master 구분
-                    if (position.includes('MODEL MASTER')) {
-                        jobTitle = 'Model Master';
-                    } else {
-                        jobTitle = 'Team Leader';
-                    }
-                }
-
-                const key = building + '_' + jobTitle;
-
-                if (!buildingGroups[key]) {
-                    buildingGroups[key] = {
-                        building: building,
-                        jobTitle: jobTitle,
-                        count: 0,
-                        rejectRate: areaRate,
-                        consecutive: 0,
-                        cond7: true,
-                        cond8: areaRate <= 3
-                    };
-                }
-
-                buildingGroups[key].count += 1;
-            });
-
-            // 배열로 변환 및 정렬
-            const sortOrder = [
-                'Building B_Auditor/Trainer',
-                'Building D_Auditor/Trainer',
-                'Building A_Auditor/Trainer',
-                'Building C_Auditor/Trainer',
-                'All Buildings_Team Leader',
-                'All Buildings_Model Master'
+            // Auditor/Trainer 매핑 (JSON 파일 기준) - 개별 직원 10명
+            // 표시 순서대로 정렬 (Building B → D → A → C → All Buildings)
+            const auditorMappingOrder = [
+                { empNo: '618060092', name: 'CAO THỊ TỐ NGUYÊN', building: 'Building B', jobTitle: 'Auditor/Trainer' },
+                { empNo: '619070185', name: 'DANH THỊ KIM ANH', building: 'Building D', jobTitle: 'Auditor/Trainer' },
+                { empNo: '620070020', name: 'PHẠM MỸ HUYỀN', building: 'Building D', jobTitle: 'Auditor/Trainer' },
+                { empNo: '620070013', name: 'NGUYỄN THANH TRÚC', building: 'Building A', jobTitle: 'Auditor/Trainer' },
+                { empNo: '618110087', name: 'NGUYỄN THÚY HẰNG', building: 'Building C', jobTitle: 'Auditor/Trainer' },
+                { empNo: '623080475', name: 'SẦM TRÍ THÀNH', building: 'Building C', jobTitle: 'Auditor/Trainer' },
+                { empNo: '620080295', name: 'VÕ THỊ THÙY LINH', building: 'All Buildings', jobTitle: 'Team Leader' },
+                { empNo: '618030241', name: 'TRẦN THỊ THÚY ANH', building: 'All Buildings', jobTitle: 'Model Master' },
+                { empNo: '618110097', name: 'DANH THỊ ANH ĐÀO', building: 'All Buildings', jobTitle: 'Model Master' },
+                { empNo: '620120386', name: 'NGUYỄN NGỌC TUẤN', building: 'All Buildings', jobTitle: 'Model Master' }
             ];
 
-            sortOrder.forEach(key => {
-                if (buildingGroups[key]) {
-                    const stats = buildingGroups[key];
+            // 각 직원을 개별 행으로 표시
+            auditorMappingOrder.forEach(mapping => {
+                const emp = window.employeeData.find(e =>
+                    String(e['Employee No']) === mapping.empNo ||
+                    String(e['emp_no']) === mapping.empNo
+                );
+
+                if (emp) {
+                    const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
+                    const cond7 = emp['cond_7_consecutive_fail'] !== 'FAIL';
+                    const cond8 = emp['cond_8_area_reject'] !== 'FAIL';
+
                     auditorStats.push({
-                        building: stats.building,
-                        jobTitle: stats.jobTitle,
-                        count: stats.count,
-                        rejectRate: stats.rejectRate.toFixed(1),
-                        consecutive: stats.consecutive,
-                        cond7: stats.cond7,
-                        cond8: stats.cond8,
-                        incentiveStatus: stats.cond7 && stats.cond8 ? '지급' : '미지급'
+                        empNo: mapping.empNo,
+                        name: mapping.name,
+                        building: mapping.building,
+                        jobTitle: mapping.jobTitle,
+                        count: 1, // 개별 직원이므로 항상 1
+                        rejectRate: areaRate.toFixed(1),
+                        consecutive: 0,
+                        cond7: cond7,
+                        cond8: cond8,
+                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급'
                     });
                 }
             });
@@ -3333,7 +3347,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <strong>${t.condition7}:</strong> ${t.condition7Detail}<br>
                         <strong>${t.condition8}:</strong> ${t.condition8Detail} ${cond8FailCount}${t.unitPeople} ${t.auditorTrainer}
                     </div>
-                    <p><strong>${t.tableNote}:</strong><br>${t.tableNoteDetail}</p>
+                    <p><strong>${t.tableNote}:</strong><br><br>${t.tableNoteDetail}</p>
                 </div>
 
                 <!-- 테이블 1: Building별 AQL 검사 실적 (AQL 파일 기준 - 1,419건) -->
@@ -3468,7 +3482,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tr>
                                     <th style="padding: 10px;">${t.jobTitle}</th>
                                     <th style="padding: 10px;">${t.responsibleArea}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.personnel}</th>
+                                    <th style="padding: 10px;">${t.personnel}</th>
                                     <th style="padding: 10px; text-align: center;">${t.rejectRate}</th>
                                     <th style="padding: 10px; text-align: center;">${t.consecutiveMonths}</th>
                                     <th style="padding: 10px; text-align: center;">${t.condition7}</th>
@@ -3488,7 +3502,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <tr>
                                             <td style="padding: 8px;">${stats.jobTitle}</td>
                                             <td style="padding: 8px;"><strong>${stats.building}</strong></td>
-                                            <td style="padding: 8px; text-align: center;">${stats.count}${t.unitPeople}</td>
+                                            <td style="padding: 8px;">${stats.name}</td>
                                             <td style="padding: 8px; text-align: center;">
                                                 <span class="badge ${parseFloat(stats.rejectRate) > 3 ? 'bg-danger' : 'bg-success'}" style="font-size: 13px;">
                                                     ${stats.rejectRate}%
@@ -3582,17 +3596,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     // 5PRS 통과율 < 95% 상세 모달
     function showLowPassRateDetails() {
-        // TYPE-1 ASSEMBLY INSPECTOR with pass rate < 95% 필터링
-        let lowPassEmployees = window.employeeData.filter(emp => {
-            const isType1 = emp['type'] === 'TYPE-1' || emp['ROLE TYPE STD'] === 'TYPE-1';
-            const position = (emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '').toUpperCase();
-            const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
-            const passRate = parseFloat(emp['pass_rate'] || emp['5PRS Pass Rate'] || 100);
-            return isType1 && isAssemblyInspector && passRate < 95;
-        });
+        // Load translations
+        const t = {
+            title: getTranslation('fivePrsModal.title'),
+            description: getTranslation('fivePrsModal.description'),
+            totalCount: getTranslation('fivePrsModal.totalCount'),
+            table1Title: getTranslation('fivePrsModal.table1Title'),
+            table2Title: getTranslation('fivePrsModal.table2Title'),
+            employeeId: getTranslation('fivePrsModal.employeeId'),
+            name: getTranslation('fivePrsModal.name'),
+            position: getTranslation('fivePrsModal.position'),
+            type: getTranslation('fivePrsModal.type'),
+            totalQuantity: getTranslation('fivePrsModal.totalQuantity'),
+            passQuantity: getTranslation('fivePrsModal.passQuantity'),
+            passRate: getTranslation('fivePrsModal.passRate'),
+            conditionStatus: getTranslation('fivePrsModal.conditionStatus'),
+            rank: getTranslation('fivePrsModal.rank'),
+            unitPcs: getTranslation('fivePrsModal.unitPcs')
+        };
 
+        // Move these variables outside so they can be accessed by nested functions
+        let allType1Inspectors = [];
+        let lowPassEmployees = [];
         let sortColumn = 'passRate';
         let sortOrder = 'asc';
+        let sortColumn2 = 'passRate';
+        let sortOrder2 = 'asc';
         let modalDiv = null;
         let backdrop = null;
 
@@ -3604,6 +3633,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 sortOrder = column === 'passRate' ? 'asc' : 'desc';
             }
             updateTableBody();
+        }
+
+        function sortData2(column) {
+            if (sortColumn2 === column) {
+                sortOrder2 = sortOrder2 === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn2 = column;
+                sortOrder2 = column === 'passRate' ? 'asc' : 'desc';
+            }
+            updateTableBody2();
         }
 
         function updateTableBody() {
@@ -3626,9 +3665,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         aVal = a['position'] || a['FINAL QIP POSITION NAME CODE'] || '';
                         bVal = b['position'] || b['FINAL QIP POSITION NAME CODE'] || '';
                         break;
+                    case 'totalQty':
+                        aVal = parseFloat(a['validation_qty'] || a['5PRS_Inspection_Qty'] || a['5PRS Inspection Quantity'] || 0);
+                        bVal = parseFloat(b['validation_qty'] || b['5PRS_Inspection_Qty'] || b['5PRS Inspection Quantity'] || 0);
+                        break;
+                    case 'passQty':
+                        const aPassRate = parseFloat(a['pass_rate'] || a['5PRS_Pass_Rate'] || a['5PRS Pass Rate'] || 0);
+                        const aTotalQty = parseFloat(a['validation_qty'] || a['5PRS_Inspection_Qty'] || a['5PRS Inspection Quantity'] || 0);
+                        aVal = Math.round(aTotalQty * aPassRate / 100);
+                        const bPassRate = parseFloat(b['pass_rate'] || b['5PRS_Pass_Rate'] || b['5PRS Pass Rate'] || 0);
+                        const bTotalQty = parseFloat(b['validation_qty'] || b['5PRS_Inspection_Qty'] || b['5PRS Inspection Quantity'] || 0);
+                        bVal = Math.round(bTotalQty * bPassRate / 100);
+                        break;
                     case 'passRate':
-                        aVal = parseFloat(a['pass_rate'] || a['5PRS Pass Rate'] || 100);
-                        bVal = parseFloat(b['pass_rate'] || b['5PRS Pass Rate'] || 100);
+                        aVal = parseFloat(a['pass_rate'] || a['5PRS_Pass_Rate'] || a['5PRS Pass Rate'] || 100);
+                        bVal = parseFloat(b['pass_rate'] || b['5PRS_Pass_Rate'] || b['5PRS Pass Rate'] || 100);
                         break;
                 }
 
@@ -3644,7 +3695,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const empNo = emp['Employee No'] || emp['emp_no'];
                 const name = emp['Full Name'] || emp['name'];
                 const position = emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '-';
-                const passRate = parseFloat(emp['pass_rate'] || emp['5PRS Pass Rate'] || 0).toFixed(1);
+                const totalQty = parseFloat(emp['validation_qty'] || emp['5PRS_Inspection_Qty'] || emp['5PRS Inspection Quantity'] || 0);
+                const passRate = parseFloat(emp['pass_rate'] || emp['5PRS_Pass_Rate'] || emp['5PRS Pass Rate'] || 0);
+                const passQty = Math.round(totalQty * passRate / 100);
 
                 // Pass Rate에 따른 색상
                 let badgeClass = 'bg-danger';
@@ -3657,14 +3710,123 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${name}</td>
                     <td>${position}</td>
                     <td>TYPE-1</td>
-                    <td><span class="badge ${badgeClass}">${passRate}%</span></td>
-                    <td>${passRate < 95 ? '미충족' : '충족'}</td>
+                    <td>${totalQty.toFixed(0)}${t.unitPcs}</td>
+                    <td>${passQty}${t.unitPcs}</td>
+                    <td><span class="badge ${badgeClass}">${passRate.toFixed(1)}%</span></td>
+                    <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateTableBody2() {
+            const tbody = document.querySelector('#lowPassRateModal2 tbody');
+            if (!tbody) return;
+
+            // Get top 10 lowest pass rates from ALL TYPE-1 ASSEMBLY INSPECTORS
+            let top10Lowest = [...allType1Inspectors].sort((a, b) => {
+                const aRate = parseFloat(a['pass_rate'] || a['5PRS_Pass_Rate'] || a['5PRS Pass Rate'] || 100);
+                const bRate = parseFloat(b['pass_rate'] || b['5PRS_Pass_Rate'] || b['5PRS Pass Rate'] || 100);
+                return aRate - bRate;
+            }).slice(0, 10);
+
+            // Apply secondary sorting
+            top10Lowest.sort((a, b) => {
+                let aVal, bVal;
+                switch (sortColumn2) {
+                    case 'empNo':
+                        aVal = a['Employee No'] || a['emp_no'];
+                        bVal = b['Employee No'] || b['emp_no'];
+                        break;
+                    case 'name':
+                        aVal = a['Full Name'] || a['name'];
+                        bVal = b['Full Name'] || b['name'];
+                        break;
+                    case 'position':
+                        aVal = a['position'] || a['FINAL QIP POSITION NAME CODE'] || '';
+                        bVal = b['position'] || b['FINAL QIP POSITION NAME CODE'] || '';
+                        break;
+                    case 'totalQty':
+                        aVal = parseFloat(a['validation_qty'] || a['5PRS_Inspection_Qty'] || a['5PRS Inspection Quantity'] || 0);
+                        bVal = parseFloat(b['validation_qty'] || b['5PRS_Inspection_Qty'] || b['5PRS Inspection Quantity'] || 0);
+                        break;
+                    case 'passQty':
+                        const aPassRate = parseFloat(a['pass_rate'] || a['5PRS_Pass_Rate'] || a['5PRS Pass Rate'] || 0);
+                        const aTotalQty = parseFloat(a['validation_qty'] || a['5PRS_Inspection_Qty'] || a['5PRS Inspection Quantity'] || 0);
+                        aVal = Math.round(aTotalQty * aPassRate / 100);
+                        const bPassRate = parseFloat(b['pass_rate'] || b['5PRS_Pass_Rate'] || b['5PRS Pass Rate'] || 0);
+                        const bTotalQty = parseFloat(b['validation_qty'] || b['5PRS_Inspection_Qty'] || b['5PRS Inspection Quantity'] || 0);
+                        bVal = Math.round(bTotalQty * bPassRate / 100);
+                        break;
+                    case 'passRate':
+                        aVal = parseFloat(a['pass_rate'] || a['5PRS_Pass_Rate'] || a['5PRS Pass Rate'] || 100);
+                        bVal = parseFloat(b['pass_rate'] || b['5PRS_Pass_Rate'] || b['5PRS Pass Rate'] || 100);
+                        break;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortOrder2 === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                }
+                return sortOrder2 === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+
+            // 테이블 업데이트
+            tbody.innerHTML = '';
+            top10Lowest.forEach((emp, index) => {
+                const empNo = emp['Employee No'] || emp['emp_no'];
+                const name = emp['Full Name'] || emp['name'];
+                const position = emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '-';
+                const totalQty = parseFloat(emp['validation_qty'] || emp['5PRS_Inspection_Qty'] || emp['5PRS Inspection Quantity'] || 0);
+                const passRate = parseFloat(emp['pass_rate'] || emp['5PRS_Pass_Rate'] || emp['5PRS Pass Rate'] || 0);
+                const passQty = Math.round(totalQty * passRate / 100);
+
+                // Pass Rate에 따른 색상
+                let badgeClass = 'bg-danger';
+                if (passRate >= 90) badgeClass = 'bg-warning';
+                else if (passRate >= 80) badgeClass = 'bg-orange';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${index + 1}</strong></td>
+                    <td>${empNo}</td>
+                    <td>${name}</td>
+                    <td>${position}</td>
+                    <td>TYPE-1</td>
+                    <td>${totalQty.toFixed(0)}${t.unitPcs}</td>
+                    <td>${passQty}${t.unitPcs}</td>
+                    <td><span class="badge ${badgeClass}">${passRate.toFixed(1)}%</span></td>
+                    <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
                 `;
                 tbody.appendChild(row);
             });
         }
 
         function create5PrsModal() {
+            // CRITICAL FIX: Filter data when modal is created, not when function is defined
+            console.log('[5PRS Modal] window.employeeData length:', window.employeeData ? window.employeeData.length : 0);
+
+            // TYPE-1 ASSEMBLY INSPECTOR 전체 (position code 기반)
+            // A1A, A1B, A1C = ASSEMBLY INSPECTOR
+            allType1Inspectors = (window.employeeData || []).filter(emp => {
+                const isType1 = emp['type'] === 'TYPE-1' || emp['ROLE TYPE STD'] === 'TYPE-1';
+                // CRITICAL FIX: Use position_code field (FINAL QIP POSITION NAME CODE)
+                const positionCode = (emp['position_code'] || '').toUpperCase().trim();
+                const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
+                console.log(`[5PRS Modal Filter] Employee ${emp['emp_no']}: type=${emp['type']}, position_code=${emp['position_code']}, isType1=${isType1}, isAssembly=${isAssemblyInspector}`);
+                return isType1 && isAssemblyInspector;
+            });
+
+            console.log('[5PRS Modal] TYPE-1 ASSEMBLY INSPECTORS found:', allType1Inspectors.length);
+
+            // TYPE-1 ASSEMBLY INSPECTOR with pass rate < 95% 필터링 (첫 번째 테이블용)
+            lowPassEmployees = allType1Inspectors.filter(emp => {
+                const passRate = parseFloat(emp['pass_rate'] || emp['5PRS_Pass_Rate'] || emp['5PRS Pass Rate'] || 100);
+                console.log(`[5PRS Pass Rate Filter] Employee ${emp['emp_no']}: pass_rate=${emp['pass_rate']}, 5PRS_Pass_Rate=${emp['5PRS_Pass_Rate']}, parsed=${passRate}, below95=${passRate < 95}`);
+                return passRate < 95;
+            });
+
+            console.log('[5PRS Modal] Employees with pass rate < 95%:', lowPassEmployees.length);
+
             // 백드롭 생성
             backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop fade show';
@@ -3683,27 +3845,53 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="modal-header unified-modal-header">
                             <h5 class="modal-title unified-modal-title">
                                 <i class="bi bi-graph-down"></i>
-                                5PRS 통과율 95% 미만 상세
+                                ${t.title}
                             </h5>
                             <button type="button" class="btn-close" onclick="window.closeLowPassRateModal()"></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
                                 <div class="alert alert-warning">
-                                    <strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 통과율이 95% 미만인 경우 인센티브를 받을 수 없습니다.
+                                    <strong>${t.description}</strong>
                                 </div>
-                                <p>총 ${lowPassEmployees.length}명이 5PRS 통과율 95% 미만입니다.</p>
+                                <p>${t.totalCount.replace('{count}', lowPassEmployees.length)}</p>
                             </div>
-                            <div class="table-responsive">
+
+                            <!-- Table 1: All employees with pass rate < 95% -->
+                            <h6 class="mb-3">${t.table1Title}</h6>
+                            <div class="table-responsive mb-4">
                                 <table class="table table-hover">
                                     <thead class="unified-table-header">
                                         <tr>
-                                            <th class="sortable-header" data-sort="empNo">사번 ${getSortIcon('empNo')}</th>
-                                            <th class="sortable-header" data-sort="name">이름 ${getSortIcon('name')}</th>
-                                            <th class="sortable-header" data-sort="position">직책 ${getSortIcon('position')}</th>
-                                            <th>타입</th>
-                                            <th class="sortable-header" data-sort="passRate">통과율 ${getSortIcon('passRate')}</th>
-                                            <th>조건 충족</th>
+                                            <th class="sortable-header" data-sort="empNo">${t.employeeId} ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name">${t.name} ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="position">${t.position} ${getSortIcon('position')}</th>
+                                            <th>${t.type}</th>
+                                            <th class="sortable-header" data-sort="totalQty">${t.totalQuantity} ${getSortIcon('totalQty')}</th>
+                                            <th class="sortable-header" data-sort="passQty">${t.passQuantity} ${getSortIcon('passQty')}</th>
+                                            <th class="sortable-header" data-sort="passRate">${t.passRate} ${getSortIcon('passRate')}</th>
+                                            <th>${t.conditionStatus.split('/')[2]}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <!-- Table 2: Top 10 lowest pass rates -->
+                            <h6 class="mb-3">${t.table2Title}</h6>
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="lowPassRateModal2">
+                                    <thead class="unified-table-header">
+                                        <tr>
+                                            <th>${t.rank}</th>
+                                            <th class="sortable-header-2" data-sort="empNo">${t.employeeId} ${getSortIcon2('empNo')}</th>
+                                            <th class="sortable-header-2" data-sort="name">${t.name} ${getSortIcon2('name')}</th>
+                                            <th class="sortable-header-2" data-sort="position">${t.position} ${getSortIcon2('position')}</th>
+                                            <th>${t.type}</th>
+                                            <th class="sortable-header-2" data-sort="totalQty">${t.totalQuantity} ${getSortIcon2('totalQty')}</th>
+                                            <th class="sortable-header-2" data-sort="passQty">${t.passQuantity} ${getSortIcon2('passQty')}</th>
+                                            <th class="sortable-header-2" data-sort="passRate">${t.passRate} ${getSortIcon2('passRate')}</th>
+                                            <th>${t.conditionStatus.split('/')[2]}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -3718,7 +3906,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.body.appendChild(modalDiv);
             document.body.classList.add('modal-open');
 
-            // 정렬 이벤트 추가
+            // 정렬 이벤트 추가 - Table 1
             modalDiv.querySelectorAll('.sortable-header').forEach(header => {
                 header.addEventListener('click', function() {
                     const column = this.getAttribute('data-sort');
@@ -3728,13 +3916,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     modalDiv.querySelectorAll('.sortable-header').forEach(h => {
                         const col = h.getAttribute('data-sort');
                         const icon = getSortIcon(col);
-                        h.innerHTML = h.textContent.replace(/[▲▼]/g, '').trim() + ' ' + icon;
+                        const text = h.textContent.replace(/[▲▼]/g, '').trim();
+                        h.innerHTML = text + ' ' + icon;
+                    });
+                });
+            });
+
+            // 정렬 이벤트 추가 - Table 2
+            modalDiv.querySelectorAll('.sortable-header-2').forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    sortData2(column);
+
+                    // 헤더 업데이트
+                    modalDiv.querySelectorAll('.sortable-header-2').forEach(h => {
+                        const col = h.getAttribute('data-sort');
+                        const icon = getSortIcon2(col);
+                        const text = h.textContent.replace(/[▲▼]/g, '').trim();
+                        h.innerHTML = text + ' ' + icon;
                     });
                 });
             });
 
             // 초기 데이터 로드
             updateTableBody();
+            updateTableBody2();
 
             // 닫기 함수
             window.closeLowPassRateModal = function() {
@@ -3768,18 +3974,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return sortOrder === 'asc' ? '▲' : '▼';
         }
 
+        function getSortIcon2(column) {
+            if (sortColumn2 !== column) return '';
+            return sortOrder2 === 'asc' ? '▲' : '▼';
+        }
+
         create5PrsModal();
     }
 
     // 5PRS 검사량 < 100족 상세 모달
     function showLowInspectionQtyDetails() {
+        // CRITICAL FIX: 5PRS 데이터 파일에 실제로 있는 직원만 표시
         // TYPE-1 ASSEMBLY INSPECTOR with inspection qty < 100 필터링
         let lowQtyEmployees = window.employeeData.filter(emp => {
             const isType1 = emp['type'] === 'TYPE-1' || emp['ROLE TYPE STD'] === 'TYPE-1';
-            const position = (emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '').toUpperCase();
-            const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
-            const inspectionQty = parseFloat(emp['validation_qty'] || emp['5PRS Inspection Quantity'] || 0);
-            return isType1 && isAssemblyInspector && inspectionQty < 100;
+            const positionCode = (emp['position_code'] || '').toUpperCase().trim();
+            const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
+
+            // CRITICAL: validation_qty가 실제로 존재하고(NaN 아님) 100 미만인 경우만
+            const hasValidationData = emp['validation_qty'] !== null &&
+                                     emp['validation_qty'] !== undefined &&
+                                     emp['validation_qty'] !== '' &&
+                                     !isNaN(parseFloat(emp['validation_qty']));
+            const inspectionQty = hasValidationData ? parseFloat(emp['validation_qty']) : 999999;
+
+            return isType1 && isAssemblyInspector && hasValidationData && inspectionQty < 100;
         });
 
         let sortColumn = 'inspectionQty';
@@ -7090,6 +7309,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         {aql_inspector_stats_b64}
     </script>
 
+    <script type="application/json" id="aqlFileStatsBase64">
+        {aql_file_stats_b64}
+    </script>
+
     <script>
         // UTF-8 Base64 디코딩 함수 추가
         function base64DecodeUnicode(str) {{
@@ -7111,24 +7334,57 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // Make employeeData globally accessible for validation tab
         // Decode base64 and parse JSON safely
-        window.employeeData = [];
-        window.aqlInspectorStats = null;
-        try {{
-            // DOM에서 Base64 데이터 읽기
-            const base64Element = document.getElementById('employeeDataBase64');
-            const base64Data = base64Element ? base64Element.textContent.trim() : '';
+        // CRITICAL FIX: Wrap in DOMContentLoaded to ensure DOM elements exist
+
+        // Declare global variables that will be populated after DOM loads
+        let translations = {{}};
+        let positionMatrix = {{}};
+        let excelDashboardData = {{}};
+
+        document.addEventListener('DOMContentLoaded', function() {{
+            console.log('[DEBUG] DOMContentLoaded event fired - starting data initialization');
+
+            window.employeeData = [];
+            window.aqlInspectorStats = null;
+            try {{
+                // DOM에서 Base64 데이터 읽기
+                console.log('[DEBUG] Starting employee data load...');
+                const base64Element = document.getElementById('employeeDataBase64');
+                console.log('[DEBUG] base64Element found:', !!base64Element);
+
+                if (!base64Element) {{
+                    console.error('[ERROR] employeeDataBase64 element not found in DOM!');
+                    throw new Error('employeeDataBase64 element not found');
+                }}
+
+                const base64Data = base64Element.textContent.trim();
+                console.log('[DEBUG] base64Data length:', base64Data.length);
             const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 사용
+            console.log('[DEBUG] Decoded JSON string length:', jsonStr.length);
             const employeeData = JSON.parse(jsonStr);
+            console.log('[DEBUG] Parsed employee data:', employeeData.length, 'employees');
             window.employeeData = employeeData;
             console.log('Employee data loaded successfully:', employeeData.length, 'employees');
 
-            // AQL Inspector Stats 로드
+            // AQL Inspector Stats 로드 (검사원 인원 기준)
             const aqlStatsElement = document.getElementById('aqlInspectorStatsBase64');
             if (aqlStatsElement) {{
                 const aqlStatsBase64 = aqlStatsElement.textContent.trim();
                 const aqlStatsJson = base64DecodeUnicode(aqlStatsBase64);
                 window.aqlInspectorStats = JSON.parse(aqlStatsJson);
                 console.log('AQL Inspector Stats loaded successfully:', Object.keys(window.aqlInspectorStats).length, 'areas');
+            }}
+
+            // AQL File Stats 로드 (검사 건수 기준 - Table 1용)
+            const aqlFileStatsElement = document.getElementById('aqlFileStatsBase64');
+            if (aqlFileStatsElement) {{
+                const aqlFileStatsBase64 = aqlFileStatsElement.textContent.trim();
+                const aqlFileStatsJson = base64DecodeUnicode(aqlFileStatsBase64);
+                window.aqlFileStats = JSON.parse(aqlFileStatsJson);
+                console.log('AQL File Stats loaded successfully:', Object.keys(window.aqlFileStats).length, 'areas');
+            }} else {{
+                console.warn('AQL File Stats element not found, using empty object');
+                window.aqlFileStats = {{}};
             }}
 
             // Build condition_results array from individual condition fields
@@ -7248,101 +7504,112 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             console.log('초기 통계: 전체 ' + totalCount + '명, 지급 ' + paidCount + '명, 총액 ' + totalAmount + ' VND');
 
-        }} catch (e) {{
-            console.error("Failed to parse employee data:", e);
-            window.employeeData = [];
-            window.dashboardStats = {{ total: 0, paid: 0, amount: 0, rate: '0.0' }};
-        }}
-
-        // DOM에서 translations 데이터 읽기
-        let translations = {{}};
-        try {{
-            const translationsElement = document.getElementById('translationsData');
-            translations = JSON.parse(translationsElement ? translationsElement.textContent.trim() : '{{}}');
-            console.log('Translations loaded successfully');
-        }} catch (e) {{
-            console.error("Failed to parse translations data:", e);
-        }}
-
-        // DOM에서 positionMatrix 데이터 읽기
-        let positionMatrix = {{}};
-        try {{
-            const positionMatrixElement = document.getElementById('positionMatrixData');
-            positionMatrix = JSON.parse(positionMatrixElement ? positionMatrixElement.textContent.trim() : '{{}}');
-            console.log('Position matrix loaded successfully');
-        }} catch (e) {{
-            console.error("Failed to parse position matrix data:", e);
-        }}
-
-        // AQL 통계 데이터 (실제 검사 횟수)
-        // AQL 통계는 이제 엑셀 파일에서 직접 사용 (Single Source of Truth)
-
-        // DOM에서 Excel 대시보드 데이터 읽기 (Base64 디코딩)
-        window.excelDashboardData = {{}};
-        try {{
-            const excelDataElement = document.getElementById('excelDashboardDataBase64');
-            if (excelDataElement && excelDataElement.textContent.trim()) {{
-                const base64Data = excelDataElement.textContent.trim();
-                const jsonStr = atob(base64Data);
-                window.excelDashboardData = JSON.parse(jsonStr);
-                console.log('Excel dashboard data loaded successfully');
+            }} catch (e) {{
+                console.error("Failed to parse employee data:", e);
+                window.employeeData = [];
+                window.dashboardStats = {{ total: 0, paid: 0, amount: 0, rate: '0.0' }};
             }}
-        }} catch (e) {{
-            console.error("Failed to parse excel dashboard data:", e);
-        }}
-        const excelDashboardData = window.excelDashboardData;
 
+            // DOM에서 translations 데이터 읽기
+            try {{
+                const translationsElement = document.getElementById('translationsData');
+                if (!translationsElement) {{
+                    console.error('[ERROR] translationsData element not found in DOM!');
+                }} else {{
+                    translations = JSON.parse(translationsElement.textContent.trim());
+                    console.log('Translations loaded successfully');
+                }}
+            }} catch (e) {{
+                console.error("Failed to parse translations data:", e);
+            }}
+
+            // DOM에서 positionMatrix 데이터 읽기
+            try {{
+                const positionMatrixElement = document.getElementById('positionMatrixData');
+                if (!positionMatrixElement) {{
+                    console.error('[ERROR] positionMatrixData element not found in DOM!');
+                }} else {{
+                    positionMatrix = JSON.parse(positionMatrixElement.textContent.trim());
+                    console.log('Position matrix loaded successfully');
+                }}
+            }} catch (e) {{
+                console.error("Failed to parse position matrix data:", e);
+            }}
+
+            // AQL 통계 데이터 (실제 검사 횟수)
+            // AQL 통계는 이제 엑셀 파일에서 직접 사용 (Single Source of Truth)
+
+            // DOM에서 Excel 대시보드 데이터 읽기 (Base64 디코딩)
+            try {{
+                const excelDataElement = document.getElementById('excelDashboardDataBase64');
+                if (!excelDataElement) {{
+                    console.error('[ERROR] excelDashboardDataBase64 element not found in DOM!');
+                }} else if (excelDataElement.textContent.trim()) {{
+                    const base64Data = excelDataElement.textContent.trim();
+                    const jsonStr = atob(base64Data);
+                    excelDashboardData = JSON.parse(jsonStr);
+                    window.excelDashboardData = excelDashboardData; // Also store in window for backward compatibility
+                    console.log('Excel dashboard data loaded successfully');
+                }}
+            }} catch (e) {{
+                console.error("Failed to parse excel dashboard data:", e);
+            }}
+
+            // Excel의 employee_data를 employeeData와 병합 (Single Source of Truth)
+            if (excelDashboardData && excelDashboardData.employee_data) {{
+                const excelEmployeeMap = {{}};
+                excelDashboardData.employee_data.forEach(excelEmp => {{
+                    const empNo = excelEmp['Employee No'] || excelEmp.employee_no;
+                    if (empNo) {{
+                        excelEmployeeMap[empNo] = excelEmp;
+                    }}
+                }});
+
+                // employeeData에 Excel 데이터 병합
+                employeeData.forEach(emp => {{
+                    const empNo = emp.employee_no || emp['Employee No'];
+                    if (empNo && excelEmployeeMap[empNo]) {{
+                        const excelData = excelEmployeeMap[empNo];
+                        // Excel의 Minimum_Days_Met 필드 추가
+                        emp['Minimum_Days_Met'] = excelData['Minimum_Days_Met'];
+                        emp['Minimum_Working_Days_Required'] = excelData['Minimum_Working_Days_Required'];
+                        emp['Minimum_Days_Shortage'] = excelData['Minimum_Days_Shortage'];
+                        // 기타 Excel 필드도 병합
+                        emp['Actual Working Days'] = excelData['Actual Working Days'] || emp['Actual Working Days'];
+                        emp['Adjusted_Total_Working_Days'] = excelData['Adjusted_Total_Working_Days'];
+                        emp['Adjusted_Attendance_Rate'] = excelData['Adjusted_Attendance_Rate'];
+                    }}
+                }});
+            }}
+
+            // employeeData 필드 정규화 - boss_id 매핑 추가
+            employeeData.forEach(emp => {{
+                // 기본 필드 정규화
+                emp.emp_no = String(emp.emp_no || emp['Employee No'] || '');
+                emp.position = emp.position || emp['QIP POSITION 1ST  NAME'] || '';
+                emp.name = emp.name || emp['Full Name'] || emp.employee_name || '';
+                emp.type = emp.type || emp['ROLE TYPE STD'] || '';
+
+                // boss_id 설정 - MST direct boss name이 실제로는 상사의 emp_no임!
+                if (!emp.boss_id || emp.boss_id === '') {{
+                    const mstBossId = String(emp['MST direct boss name'] || '').replace('.0', '').trim();
+                    if (mstBossId && mstBossId !== 'nan' && mstBossId !== '0') {{
+                        emp.boss_id = mstBossId;
+                    }}
+                }}
+            }});
+
+            console.log('Employee data normalized. Sample:', employeeData.slice(0, 2));
+            console.log('[DEBUG] DOMContentLoaded initialization complete');
+
+        }}); // End of DOMContentLoaded event listener
+
+        // Global variables that need to be accessible outside DOMContentLoaded
         let currentLanguage = 'ko';
         let reportType = 'final'; // 전역 변수로 정의
         const dashboardMonth = '{month.lower()}';
         let positionData = {{}}; // Position Details 데이터를 저장할 전역 변수
         const dashboardYear = {year};
-
-        // Excel의 employee_data를 employeeData와 병합 (Single Source of Truth)
-        if (excelDashboardData && excelDashboardData.employee_data) {{
-            const excelEmployeeMap = {{}};
-            excelDashboardData.employee_data.forEach(excelEmp => {{
-                const empNo = excelEmp['Employee No'] || excelEmp.employee_no;
-                if (empNo) {{
-                    excelEmployeeMap[empNo] = excelEmp;
-                }}
-            }});
-
-            // employeeData에 Excel 데이터 병합
-            employeeData.forEach(emp => {{
-                const empNo = emp.employee_no || emp['Employee No'];
-                if (empNo && excelEmployeeMap[empNo]) {{
-                    const excelData = excelEmployeeMap[empNo];
-                    // Excel의 Minimum_Days_Met 필드 추가
-                    emp['Minimum_Days_Met'] = excelData['Minimum_Days_Met'];
-                    emp['Minimum_Working_Days_Required'] = excelData['Minimum_Working_Days_Required'];
-                    emp['Minimum_Days_Shortage'] = excelData['Minimum_Days_Shortage'];
-                    // 기타 Excel 필드도 병합
-                    emp['Actual Working Days'] = excelData['Actual Working Days'] || emp['Actual Working Days'];
-                    emp['Adjusted_Total_Working_Days'] = excelData['Adjusted_Total_Working_Days'];
-                    emp['Adjusted_Attendance_Rate'] = excelData['Adjusted_Attendance_Rate'];
-                }}
-            }});
-        }}
-
-        // employeeData 필드 정규화 - boss_id 매핑 추가
-        employeeData.forEach(emp => {{
-            // 기본 필드 정규화
-            emp.emp_no = String(emp.emp_no || emp['Employee No'] || '');
-            emp.position = emp.position || emp['QIP POSITION 1ST  NAME'] || '';
-            emp.name = emp.name || emp['Full Name'] || emp.employee_name || '';
-            emp.type = emp.type || emp['ROLE TYPE STD'] || '';
-
-            // boss_id 설정 - MST direct boss name이 실제로는 상사의 emp_no임!
-            if (!emp.boss_id || emp.boss_id === '') {{
-                const mstBossId = String(emp['MST direct boss name'] || '').replace('.0', '').trim();
-                if (mstBossId && mstBossId !== 'nan' && mstBossId !== '0') {{
-                    emp.boss_id = mstBossId;
-                }}
-            }}
-        }});
-
-        console.log('Employee data normalized. Sample:', employeeData.slice(0, 2));
 
         // 번역 함수
         function getTranslation(keyPath, lang = currentLanguage) {{
@@ -9796,12 +10063,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.getElementById('kpiLowPassRate').textContent = lowPassRate + peopleUnit;
 
             // 10. 5PRS 검사량 < 100족 (TYPE-1 ASSEMBLY INSPECTOR만)
+            // CRITICAL FIX: 5PRS 데이터 파일에 실제로 있는 직원만 카운트
+            // NaN(데이터 없음)은 제외, 실제 검사량이 있고 < 100인 경우만 포함
             const lowInspectionQty = employeeData.filter(emp => {{
                 const isType1 = emp['type'] === 'TYPE-1';
-                const position = (emp['position'] || '').toUpperCase();
-                const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
-                const inspectionQty = parseFloat(emp['validation_qty'] || 0);
-                return isType1 && isAssemblyInspector && inspectionQty < 100;
+                const positionCode = (emp['position_code'] || '').toUpperCase().trim();
+                const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
+
+                // CRITICAL: validation_qty가 실제로 존재하고(NaN 아님) 100 미만인 경우만
+                const hasValidationData = emp['validation_qty'] !== null &&
+                                         emp['validation_qty'] !== undefined &&
+                                         emp['validation_qty'] !== '' &&
+                                         !isNaN(parseFloat(emp['validation_qty']));
+                const inspectionQty = hasValidationData ? parseFloat(emp['validation_qty']) : 999999;
+
+                return isType1 && isAssemblyInspector && hasValidationData && inspectionQty < 100;
             }}).length;
             document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + peopleUnit;
         }}

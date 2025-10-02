@@ -4145,6 +4145,36 @@ class CompleteQIPCalculator:
 
         print(f"✅ 연속 개월 추적 컬럼 추가 완료 (Next_Month_Expected 포함)")
 
+    def calculate_approved_leave_days(self, emp_no: str) -> int:
+        """직원의 승인된 휴가 일수 계산 (AR1이 아닌 모든 Reason Description)"""
+        try:
+            # attendance 파일 경로 가져오기
+            attendance_path = self.config.get_file_path('attendance')
+            if not os.path.exists(attendance_path):
+                return 0
+
+            # attendance 파일 읽기
+            att_df = pd.read_csv(attendance_path)
+
+            # 직원 번호 표준화 (앞의 0 제거)
+            emp_no_str = str(emp_no).lstrip('0')
+
+            # 해당 직원의 출근 기록 필터링
+            emp_attendance = att_df[att_df['ID No'].astype(str).str.lstrip('0') == emp_no_str]
+
+            # AR1이 아닌 사유만 승인휴가로 집계
+            # AR1 = 무단결근, 나머지 = 승인휴가 (출산휴가, 연차, 병가, 출장 등)
+            approved_leave = emp_attendance[
+                emp_attendance['Reason Description'].notna() &
+                ~emp_attendance['Reason Description'].str.startswith('AR1', na=False)
+            ]
+
+            return len(approved_leave)
+
+        except Exception as e:
+            # 에러 발생 시 0 반환 (로그는 출력하지 않음 - 조용히 처리)
+            return 0
+
     def add_condition_evaluation_to_excel(self):
         """10개 조건 평가 결과를 Excel에 추가"""
         print("\n📊 10개 조건 평가 결과를 Excel에 추가 중...")
@@ -4155,19 +4185,41 @@ class CompleteQIPCalculator:
 
         # 먼저 attendance_rate 컬럼이 없으면 계산하여 추가
         if 'attendance_rate' not in self.month_data.columns:
-            print("  → attendance_rate 컬럼 계산 중...")
+            print("  → attendance_rate 컬럼 계산 중 (승인휴가 반영)...")
             self.month_data['attendance_rate'] = 0.0
+            self.month_data['Approved Leave Days'] = 0
+            self.month_data['Absence Rate (raw)'] = 0.0
 
             for idx in self.month_data.index:
+                emp_no = self.month_data.loc[idx, 'Employee No']
                 total_days = self.month_data.loc[idx, 'Total Working Days'] if 'Total Working Days' in self.month_data.columns else 27
                 actual_days = self.month_data.loc[idx, 'Actual Working Days'] if 'Actual Working Days' in self.month_data.columns else 0
 
+                # 승인휴가 일수 계산
+                approved_leave_days = self.calculate_approved_leave_days(emp_no)
+                self.month_data.loc[idx, 'Approved Leave Days'] = approved_leave_days
+
+                # 새로운 출근율 계산: 100 - ((총일 - 실제일 - 승인휴가) / 총일 × 100)
                 if total_days > 0:
-                    attendance_rate = (actual_days / total_days) * 100
+                    absence_days = total_days - actual_days - approved_leave_days
+                    # 음수 방지 (승인휴가가 결근일보다 많은 경우)
+                    absence_days = max(0, absence_days)
+                    absence_rate = (absence_days / total_days) * 100
+                    attendance_rate = 100 - absence_rate
+
+                    # 100% 초과 방지
+                    attendance_rate = min(100, max(0, attendance_rate))
                 else:
                     attendance_rate = 0
+                    absence_rate = 0
 
                 self.month_data.loc[idx, 'attendance_rate'] = attendance_rate
+                self.month_data.loc[idx, 'Absence Rate (raw)'] = absence_rate
+
+                # attendancy condition 3도 업데이트 (결근율 > 12%)
+                self.month_data.loc[idx, 'attendancy condition 3 - absent % is over 12%'] = 'yes' if absence_rate > 12 else 'no'
+
+            print(f"  ✅ 승인휴가 반영 완료 - 평균 승인휴가: {self.month_data['Approved Leave Days'].mean():.1f}일")
 
         # 각 직원별로 10개 조건 평가
         for idx in self.month_data.index:
@@ -4337,7 +4389,7 @@ class CompleteQIPCalculator:
         aql_stats = {}
 
         # AQL 파일 경로
-        month_upper = self.config.month_name.upper()
+        month_upper = self.config.month.full_name.upper()
         aql_file = f"input_files/AQL history/1.HSRG AQL REPORT-{month_upper}.{self.config.year}.csv"
 
         if os.path.exists(aql_file):

@@ -5894,5 +5894,82 @@
         "en": "Manager Responsibility Scope and Incentive Payment Status",
         "vi": "Phạm vi trách nhiệm quản lý và trạng thái thanh toán khuyến khích"
       }
+  },
+  "fivePrsModal": {
+    "title": {
+      "ko": "5PRS 통과율 95% 미만 상세",
+      "en": "5PRS Pass Rate Below 95% Details",
+      "vi": "Chi tiết tỷ lệ đạt 5PRS dưới 95%"
+    },
+    "description": {
+      "ko": "TYPE-1 ASSEMBLY INSPECTOR의 5PRS 통과율이 95% 미만인 경우 인센티브를 받을 수 없습니다.",
+      "en": "TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS pass rate is below 95%.",
+      "vi": "TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu tỷ lệ đạt 5PRS dưới 95%."
+    },
+    "totalCount": {
+      "ko": "총 {count}명이 5PRS 통과율 95% 미만입니다.",
+      "en": "Total {count} people have 5PRS pass rate below 95%.",
+      "vi": "Tổng cộng {count} người có tỷ lệ đạt 5PRS dưới 95%."
+    },
+    "table1Title": {
+      "ko": "5PRS 통과율 95% 미만 인원",
+      "en": "Personnel with 5PRS Pass Rate Below 95%",
+      "vi": "Nhân viên có tỷ lệ đạt 5PRS dưới 95%"
+    },
+    "table2Title": {
+      "ko": "통과율 최하위 10명",
+      "en": "Top 10 Lowest Pass Rates",
+      "vi": "10 người có tỷ lệ đạt thấp nhất"
+    },
+    "employeeId": {
+      "ko": "사번",
+      "en": "Employee ID",
+      "vi": "Mã NV"
+    },
+    "name": {
+      "ko": "이름",
+      "en": "Name",
+      "vi": "Tên"
+    },
+    "position": {
+      "ko": "직책",
+      "en": "Position",
+      "vi": "Chức vụ"
+    },
+    "type": {
+      "ko": "타입",
+      "en": "Type",
+      "vi": "Loại"
+    },
+    "totalQuantity": {
+      "ko": "총 평가 수량",
+      "en": "Total Quantity",
+      "vi": "Tổng số lượng đánh giá"
+    },
+    "passQuantity": {
+      "ko": "통과 수량",
+      "en": "Pass Quantity",
+      "vi": "Số lượng đạt"
+    },
+    "passRate": {
+      "ko": "통과율",
+      "en": "Pass Rate",
+      "vi": "Tỷ lệ đạt"
+    },
+    "conditionStatus": {
+      "ko": "충족/미충족/조건 충족",
+      "en": "Met/Not Met/Condition Status",
+      "vi": "Đạt/Không đạt/Trạng thái điều kiện"
+    },
+    "rank": {
+      "ko": "순위",
+      "en": "Rank",
+      "vi": "Xếp hạng"
+    },
+    "unitPcs": {
+      "ko": "족",
+      "en": "pcs",
+      "vi": "đôi"
+    }
   }
 }
