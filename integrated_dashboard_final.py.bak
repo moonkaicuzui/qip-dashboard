@@ -3269,52 +3269,44 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 번역 텍스트 미리 가져오기
         const t = {
-            title: getTranslation('aqlModal.title'),
-            summaryTitle: getTranslation('aqlModal.summaryTitle'),
-            condition7: getTranslation('aqlModal.condition7'),
-            condition7Detail: getTranslation('aqlModal.condition7Detail'),
-            condition8: getTranslation('aqlModal.condition8'),
-            condition8Detail: getTranslation('aqlModal.condition8Detail'),
-            auditorTrainer: getTranslation('aqlModal.auditorTrainer'),
-            tableNote: getTranslation('aqlModal.tableNote'),
-            tableNoteDetail: getTranslation('aqlModal.tableNoteDetail'),
-            table1Title: getTranslation('aqlModal.table1Title'),
-            table2Title: getTranslation('aqlModal.table2Title'),
-            table2InspectorTitle: getTranslation('aqlModal.table2InspectorTitle'),
-            table3Title: getTranslation('aqlModal.table3Title'),
-            table3AuditorTitle: getTranslation('aqlModal.table3AuditorTitle'),
-            dataSource: getTranslation('aqlModal.dataSource'),
-            aqlFile: getTranslation('aqlModal.aqlFile'),
-            building: getTranslation('aqlModal.building'),
-            totalTests: getTranslation('aqlModal.totalTests'),
-            pass: getTranslation('aqlModal.pass'),
-            fail: getTranslation('aqlModal.fail'),
-            rejectRate: getTranslation('aqlModal.rejectRate'),
-            performanceGrade: getTranslation('aqlModal.performanceGrade'),
-            totalInspectors: getTranslation('aqlModal.totalInspectors'),
-            rejectInspectors: getTranslation('aqlModal.rejectInspectors'),
-            passOnlyInspectors: getTranslation('aqlModal.passOnlyInspectors'),
-            personnelRejectRate: getTranslation('aqlModal.personnelRejectRate'),
-            jobTitle: getTranslation('aqlModal.jobTitle'),
-            responsibleArea: getTranslation('aqlModal.responsibleArea'),
-            personnel: getTranslation('aqlModal.personnel'),
-            consecutiveMonths: getTranslation('aqlModal.consecutiveMonths'),
-            incentiveStatus: getTranslation('aqlModal.incentiveStatus'),
-            performanceExcellent: getTranslation('aqlModal.performanceExcellent'),
-            performanceGood: getTranslation('aqlModal.performanceGood'),
-            performanceWarning: getTranslation('aqlModal.performanceWarning'),
-            performanceImprovement: getTranslation('aqlModal.performanceImprovement'),
-            paid: getTranslation('aqlModal.paid'),
-            notPaid: getTranslation('aqlModal.notPaid'),
-            noteTitle: getTranslation('aqlModal.noteTitle'),
-            condition7Description: getTranslation('aqlModal.condition7Description'),
-            condition8Description: getTranslation('aqlModal.condition8Description'),
-            incentiveNote: getTranslation('aqlModal.incentiveNote'),
-            unitTests: getTranslation('aqlModal.unitTests'),
-            unitPeople: getTranslation('aqlModal.unitPeople'),
-            unitYear: getTranslation('aqlModal.unitYear'),
-            total: getTranslation('aqlModal.total'),
-            allBuildings: getTranslation('aqlModal.allBuildings')
+            title: getTranslation('aqlModal', 'title'),
+            summaryTitle: getTranslation('aqlModal', 'summaryTitle'),
+            condition7: getTranslation('aqlModal', 'condition7'),
+            condition7Detail: getTranslation('aqlModal', 'condition7Detail'),
+            condition8: getTranslation('aqlModal', 'condition8'),
+            condition8Detail: getTranslation('aqlModal', 'condition8Detail'),
+            auditorTrainer: getTranslation('aqlModal', 'auditorTrainer'),
+            tableNote: getTranslation('aqlModal', 'tableNote'),
+            table1Title: getTranslation('aqlModal', 'table1Title'),
+            table2Title: getTranslation('aqlModal', 'table2Title'),
+            table3Title: getTranslation('aqlModal', 'table3Title'),
+            dataSource: getTranslation('aqlModal', 'dataSource'),
+            aqlFile: getTranslation('aqlModal', 'aqlFile'),
+            building: getTranslation('aqlModal', 'building'),
+            totalTests: getTranslation('aqlModal', 'totalTests'),
+            pass: getTranslation('aqlModal', 'pass'),
+            fail: getTranslation('aqlModal', 'fail'),
+            rejectRate: getTranslation('aqlModal', 'rejectRate'),
+            performanceGrade: getTranslation('aqlModal', 'performanceGrade'),
+            totalInspectors: getTranslation('aqlModal', 'totalInspectors'),
+            rejectInspectors: getTranslation('aqlModal', 'rejectInspectors'),
+            passOnlyInspectors: getTranslation('aqlModal', 'passOnlyInspectors'),
+            personnelRejectRate: getTranslation('aqlModal', 'personnelRejectRate'),
+            jobTitle: getTranslation('aqlModal', 'jobTitle'),
+            responsibleArea: getTranslation('aqlModal', 'responsibleArea'),
+            personnel: getTranslation('aqlModal', 'personnel'),
+            consecutiveMonths: getTranslation('aqlModal', 'consecutiveMonths'),
+            incentiveStatus: getTranslation('aqlModal', 'incentiveStatus'),
+            performanceExcellent: getTranslation('aqlModal', 'performanceExcellent'),
+            performanceGood: getTranslation('aqlModal', 'performanceGood'),
+            performanceWarning: getTranslation('aqlModal', 'performanceWarning'),
+            performanceImprovement: getTranslation('aqlModal', 'performanceImprovement'),
+            paid: getTranslation('aqlModal', 'paid'),
+            notPaid: getTranslation('aqlModal', 'notPaid'),
+            noteTitle: getTranslation('aqlModal', 'noteTitle'),
+            condition7Description: getTranslation('aqlModal', 'condition7Description'),
+            condition8Description: getTranslation('aqlModal', 'condition8Description'),
+            incentiveNote: getTranslation('aqlModal', 'incentiveNote')
         };
 
         // Bootstrap 모달 생성 및 표시
@@ -3322,42 +3314,42 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div class="modal-header unified-modal-header">
                 <h5 class="modal-title unified-modal-title">
                     <i class="bi bi-graph-up-arrow"></i>
-                    ${t.title}
+                    \${t.title}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
                     <div class="alert alert-info">
-                        <strong>📊 ${t.summaryTitle}:</strong> 1,419${t.unitTests} (NORMAL PO)<br>
-                        <strong>${t.condition7}:</strong> ${t.condition7Detail}<br>
-                        <strong>${t.condition8}:</strong> ${t.condition8Detail} ${cond8FailCount}${t.unitPeople} ${t.auditorTrainer}
+                        <strong>📊 \${t.summaryTitle}:</strong> 1,419건 (NORMAL PO)<br>
+                        <strong>\${t.condition7}:</strong> \${t.condition7Detail}<br>
+                        <strong>\${t.condition8}:</strong> \${t.condition8Detail} \${cond8FailCount}명 \${t.auditorTrainer}
                     </div>
-                    <p><strong>${t.tableNote}:</strong><br>${t.tableNoteDetail}</p>
+                    <p><strong>💡 \${t.tableNote}</strong></p>
                 </div>
 
                 <!-- 테이블 1: Building별 AQL 검사 실적 (AQL 파일 기준 - 1,419건) -->
                 <div class="mb-4">
-                    <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>📊 ${t.table1Title}</h6>
-                    <p class="text-muted small mb-2">${t.dataSource}: 2025${t.unitYear} 9월 ${t.aqlFile} 1,419${t.unitTests} (NORMAL PO)</p>
+                    <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>📊 \${t.table1Title}</h6>
+                    <p class="text-muted small mb-2">\${t.dataSource}: 2025년 9월 \${t.aqlFile} 1,419건 (NORMAL PO)</p>
                     <div class="table-responsive">
                         <table class="table table-bordered" style="font-size: 13px;">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="padding: 10px;">${t.building}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.totalTests}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.pass}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.fail}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.rejectRate}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.performanceGrade}</th>
+                                    <th style="padding: 10px;">\${t.building}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.totalTests}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.pass}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.fail}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.rejectRate}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.performanceGrade}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building D', 'Building A', 'Building C', 'All Buildings', t.total].map(building => {
+                                ${['Building B', 'Building D', 'Building A', 'Building C', 'All Buildings', '전체'].map(building => {
                                     const stats = aqlFileStats[building];
                                     if (!stats) return '';
 
-                                    const isTotal = building === t.total;
+                                    const isTotal = building === '전체';
                                     const rejectRate = stats.rejectRate;
                                     let badgeClass = 'bg-success';
                                     let statusText = t.performanceExcellent;
@@ -3376,9 +3368,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     return `
                                         <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
                                             <td style="padding: 8px;">${building}</td>
-                                            <td style="padding: 8px; text-align: center;"><strong>${stats.total}${t.unitTests}</strong></td>
-                                            <td style="padding: 8px; text-align: center;">${stats.pass}${t.unitTests}</td>
-                                            <td style="padding: 8px; text-align: center;">${stats.fail}${t.unitTests}</td>
+                                            <td style="padding: 8px; text-align: center;"><strong>${stats.total}건</strong></td>
+                                            <td style="padding: 8px; text-align: center;">${stats.pass}건</td>
+                                            <td style="padding: 8px; text-align: center;">${stats.fail}건</td>
                                             <td style="padding: 8px; text-align: center;">
                                                 <span class="badge ${badgeClass}" style="font-size: 13px; padding: 5px 10px;">
                                                     ${stats.rejectRate}%
@@ -3399,26 +3391,26 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 <!-- 테이블 2: Assembly Inspector 인력 기준 검사 실적 -->
                 <div class="mb-4">
-                    <h6 class="mb-3"><i class="fas fa-users me-2"></i>👥 ${t.table2Title}</h6>
-                    <p class="text-muted small mb-2">${t.dataSource}: ${t.aqlFile} (${t.total} PO TYPE) - ${t.table2InspectorTitle}</p>
+                    <h6 class="mb-3"><i class="fas fa-users me-2"></i>👥 \${t.table2Title}</h6>
+                    <p class="text-muted small mb-2">\${t.dataSource}: \${t.aqlFile} (전체 PO TYPE) - Building별 검사원 인원수 및 Reject 발생 현황</p>
                     <div class="table-responsive">
                         <table class="table table-bordered" style="font-size: 13px;">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="padding: 10px;">${t.building}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.totalInspectors}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.rejectInspectors}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.passOnlyInspectors}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.personnelRejectRate}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.performanceGrade}</th>
+                                    <th style="padding: 10px;">\${t.building}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.totalInspectors}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.rejectInspectors}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.passOnlyInspectors}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.personnelRejectRate}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.performanceGrade}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building D', 'Building A', 'Building C', t.total].map(building => {
+                                ${['Building B', 'Building D', 'Building A', 'Building C', '전체'].map(building => {
                                     const stats = inspectorStats[building];
                                     if (!stats) return '';
 
-                                    const isTotal = building === t.total;
+                                    const isTotal = building === '전체';
                                     const rejectRate = parseFloat(stats.rejectRate);
                                     let badgeClass = 'bg-success';
                                     let statusText = t.performanceExcellent;
@@ -3437,9 +3429,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     return `
                                         <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
                                             <td style="padding: 8px;">${building}</td>
-                                            <td style="padding: 8px; text-align: center;"><strong>${stats.totalInspectors}${t.unitPeople}</strong></td>
-                                            <td style="padding: 8px; text-align: center;">${stats.rejectInspectors}${t.unitPeople}</td>
-                                            <td style="padding: 8px; text-align: center;">${stats.passOnlyInspectors}${t.unitPeople}</td>
+                                            <td style="padding: 8px; text-align: center;"><strong>${stats.totalInspectors}명</strong></td>
+                                            <td style="padding: 8px; text-align: center;">${stats.rejectInspectors}명</td>
+                                            <td style="padding: 8px; text-align: center;">${stats.passOnlyInspectors}명</td>
                                             <td style="padding: 8px; text-align: center;">
                                                 <span class="badge ${badgeClass}" style="font-size: 13px; padding: 5px 10px;">
                                                     ${stats.rejectRate}%
@@ -3460,25 +3452,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 <!-- 테이블 3: Auditor/Trainer 인센티브 현황 -->
                 <div class="mb-4">
-                    <h6 class="mb-3"><i class="fas fa-user-tie me-2"></i>🎯 ${t.table3Title}</h6>
-                    <p class="text-muted small mb-2">${t.table3AuditorTitle}</p>
+                    <h6 class="mb-3"><i class="fas fa-user-tie me-2"></i>🎯 \${t.table3Title}</h6>
+                    <p class="text-muted small mb-2">관리자 책임 범위 및 인센티브 지급/미지급 상태</p>
                     <div class="table-responsive">
                         <table class="table table-bordered" style="font-size: 13px;">
                             <thead class="table-light">
                                 <tr>
-                                    <th style="padding: 10px;">${t.jobTitle}</th>
-                                    <th style="padding: 10px;">${t.responsibleArea}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.personnel}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.rejectRate}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.consecutiveMonths}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.condition7}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.condition8}</th>
-                                    <th style="padding: 10px; text-align: center;">${t.incentiveStatus}</th>
+                                    <th style="padding: 10px;">\${t.jobTitle}</th>
+                                    <th style="padding: 10px;">\${t.responsibleArea}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.personnel}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.rejectRate}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.consecutiveMonths}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.condition7}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.condition8}</th>
+                                    <th style="padding: 10px; text-align: center;">\${t.incentiveStatus}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${auditorStats.map(stats => {
-                                    const isPayment = stats.incentiveStatus === t.paid || stats.incentiveStatus === '지급';
+                                    const isPayment = stats.incentiveStatus === '지급';
                                     const badgeClass = isPayment ? 'bg-success' : 'bg-danger';
                                     const cond7Badge = stats.cond7 ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-danger">❌</span>';
                                     const cond8Badge = stats.cond8 ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-danger">❌</span>';
@@ -3488,13 +3480,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <tr>
                                             <td style="padding: 8px;">${stats.jobTitle}</td>
                                             <td style="padding: 8px;"><strong>${stats.building}</strong></td>
-                                            <td style="padding: 8px; text-align: center;">${stats.count}${t.unitPeople}</td>
+                                            <td style="padding: 8px; text-align: center;">${stats.count}명</td>
                                             <td style="padding: 8px; text-align: center;">
                                                 <span class="badge ${parseFloat(stats.rejectRate) > 3 ? 'bg-danger' : 'bg-success'}" style="font-size: 13px;">
                                                     ${stats.rejectRate}%
                                                 </span>
                                             </td>
-                                            <td style="padding: 8px; text-align: center;">${stats.consecutive}${t.unitPeople}</td>
+                                            <td style="padding: 8px; text-align: center;">${stats.consecutive}명</td>
                                             <td style="padding: 8px; text-align: center;">${cond7Badge}</td>
                                             <td style="padding: 8px; text-align: center;">${cond8Badge}</td>
                                             <td style="padding: 8px; text-align: center;">
@@ -3509,10 +3501,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </table>
                     </div>
                     <p class="small text-muted mt-2">
-                        <strong>${t.noteTitle}:</strong>
-                        • ${t.condition7Description}<br>
-                        • ${t.condition8Description}<br>
-                        • ${t.incentiveNote}
+                        <strong>\${t.noteTitle}:</strong>
+                        • \${t.condition7Description}<br>
+                        • \${t.condition8Description}<br>
+                        • \${t.incentiveNote}
                     </p>
                 </div>
             </div>
