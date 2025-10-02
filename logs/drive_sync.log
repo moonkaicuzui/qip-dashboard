@@ -8480,3 +8480,523 @@ KeyError: 'september_incentive'
 2025-10-02 10:27:51,029 - __main__ - INFO - ✅ Dashboard generation completed
 2025-10-02 10:27:51,029 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
 2025-10-02 10:27:51,029 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 10:45:09,675 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 10:45:11,000 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 10:45:11,000 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 10:45:11,000 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 10:45:11,000 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 10:45:11,000 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 10:45:12,844 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 10:45:14,902 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 10:45:16,767 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 10:45:18,177 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 10:45:21,137 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 10:45:22,676 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 10:45:24,467 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 10:45:26,106 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 10:45:26,108 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 10:45:26,108 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 10:45:26,328 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 10:45:26,328 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 10:45:26,328 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 10:45:26,328 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 10:45:26,328 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 10:45:30,200 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 10:45:30,200 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 10:45:30,200 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 10:45:30,449 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 10:45:30,449 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 10:45:30,449 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 10:45:30,449 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 10:53:56,263 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 10:53:57,754 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 10:53:57,754 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 10:53:57,754 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 10:53:57,755 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 10:53:57,755 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 10:53:59,695 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 10:54:01,667 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 10:54:03,487 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 10:54:05,158 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 10:54:06,306 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 10:54:08,094 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 10:54:09,647 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 10:54:11,165 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 10:54:11,166 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 10:54:11,167 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 10:54:11,379 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 10:54:11,379 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 10:54:11,379 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 10:54:11,379 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 10:54:11,379 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 10:54:15,268 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 10:54:15,269 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 10:54:15,269 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 10:54:15,516 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 10:54:15,517 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 10:54:15,517 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 10:54:15,517 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 11:56:23,851 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 11:56:24,745 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 11:56:24,746 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 11:56:24,746 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 11:56:24,746 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 11:56:24,746 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 11:56:26,896 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 11:56:28,739 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 11:56:30,480 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 11:56:31,781 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 11:56:33,040 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 11:56:34,337 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 11:56:35,601 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 11:56:36,932 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 11:56:36,933 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 11:56:36,933 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 11:56:37,143 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 11:56:37,143 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 11:56:37,143 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 11:56:37,143 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 11:56:37,143 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 11:56:40,875 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 11:56:40,875 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 11:56:40,875 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 11:56:41,120 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 11:56:41,120 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 11:56:41,120 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 11:56:41,120 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 12:08:12,991 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 12:08:13,979 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 12:08:13,979 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 12:08:13,979 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 12:08:13,979 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 12:08:13,980 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 12:08:15,924 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 12:08:18,381 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 12:08:20,225 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 12:08:22,273 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 12:08:23,706 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 12:08:24,935 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 12:08:26,391 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 12:08:27,802 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 12:08:27,804 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 12:08:27,804 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 12:08:28,014 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 12:08:28,014 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 12:08:28,014 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 12:08:28,014 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 12:08:28,014 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 12:08:32,230 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 12:08:32,230 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 12:08:32,231 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 12:08:32,477 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 12:08:32,477 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 12:08:32,477 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 12:08:32,477 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 12:21:55,467 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 12:21:56,426 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 12:21:56,427 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 12:21:56,427 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 12:21:56,427 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 12:21:56,427 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 12:21:58,040 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 12:22:00,777 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 12:22:02,743 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 12:22:04,207 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 12:22:05,641 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 12:22:06,924 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 12:22:08,202 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 12:22:09,532 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 12:22:09,533 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 12:22:09,534 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 12:22:09,654 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 12:22:09,654 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 12:22:09,654 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 12:22:09,654 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 12:22:09,654 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 12:22:13,908 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 12:22:13,908 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 12:22:13,908 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 12:22:14,156 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 12:22:14,156 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 12:22:14,156 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 12:22:14,157 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 12:32:01,169 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 12:32:02,406 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 12:32:02,407 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 12:32:02,407 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 12:32:02,407 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 12:32:02,407 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 12:32:04,350 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 12:32:06,194 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 12:32:07,935 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 12:32:09,167 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 12:32:10,393 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 12:32:11,930 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 12:32:13,446 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 12:32:14,627 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 12:32:14,629 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 12:32:14,629 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 12:32:14,839 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 12:32:14,839 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 12:32:14,839 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 12:32:14,839 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 12:32:14,839 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 12:32:19,211 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 12:32:19,211 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 12:32:19,212 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 12:32:19,459 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 12:32:19,459 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 12:32:19,459 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 12:32:19,459 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 12:35:13,489 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 12:35:14,455 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 12:35:14,455 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 12:35:14,455 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 12:35:14,455 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 12:35:14,455 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 12:35:16,265 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 12:35:18,340 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 12:35:19,813 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 12:35:21,269 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 12:35:22,747 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 12:35:24,340 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 12:35:25,573 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 12:35:26,967 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 12:35:26,968 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 12:35:26,969 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 12:35:27,180 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 12:35:27,180 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 12:35:27,180 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 12:35:27,180 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 12:35:27,180 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 12:35:31,659 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 12:35:31,659 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 12:35:31,659 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 12:35:31,918 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 12:35:31,918 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 12:35:31,918 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 12:35:31,918 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 12:40:03,605 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 12:40:05,019 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 12:40:05,019 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 12:40:05,019 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 12:40:05,019 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 12:40:05,019 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 12:40:07,374 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 12:40:09,015 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 12:40:10,752 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 12:40:12,393 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 12:40:13,723 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 12:40:15,158 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 12:40:16,323 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 12:40:18,311 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 12:40:18,312 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 12:40:18,313 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 12:40:18,536 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 12:40:18,536 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 12:40:18,536 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 12:40:18,536 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 12:40:18,536 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 12:40:23,042 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 12:40:23,042 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 12:40:23,042 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 12:40:23,293 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 12:40:23,294 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 12:40:23,294 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 12:40:23,294 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 13:07:22,722 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 13:07:23,617 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 13:07:23,617 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 13:07:23,617 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 13:07:23,617 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 13:07:23,617 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 13:07:25,461 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 13:07:27,100 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 13:07:28,961 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 13:07:30,274 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 13:07:31,401 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 13:07:32,688 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 13:07:33,871 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 13:07:35,394 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 13:07:35,396 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 13:07:35,396 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 13:07:35,607 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 13:07:35,607 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 13:07:35,607 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 13:07:35,607 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 13:07:35,608 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 13:07:39,995 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 13:07:39,995 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 13:07:39,995 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 13:07:40,255 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 13:07:40,255 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 13:07:40,255 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 13:07:40,255 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 14:34:22,561 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 14:34:23,699 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 14:34:23,699 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 14:34:23,699 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 14:34:23,699 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 14:34:23,699 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 14:34:25,949 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 14:34:27,828 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 14:34:29,538 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 14:34:30,765 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 14:34:33,531 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-10-02 14:34:36,193 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_JULY_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-JULY.2025.csv
+2025-10-02 14:34:38,893 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to auditor_trainer_area_mapping.json
+2025-10-02 14:34:41,107 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to type2_position_mapping.json
+2025-10-02 14:34:41,108 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 14:34:41,108 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 14:34:41,336 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 14:34:41,336 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 14:34:41,336 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 14:34:41,336 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 14:34:41,336 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 14:34:45,885 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 14:34:45,885 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 14:34:45,885 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 14:34:46,142 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 14:34:46,142 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 14:34:46,143 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 14:34:46,143 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 14:47:21,975 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 14:47:22,956 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 14:47:22,957 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 14:47:22,957 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 14:47:22,957 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 14:47:22,957 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 14:47:24,507 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 14:47:26,848 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 14:47:28,794 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 14:47:30,636 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 14:47:32,584 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 14:47:33,913 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 14:47:35,245 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 14:47:36,679 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 14:47:36,682 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 14:47:36,682 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 14:47:36,903 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 14:47:36,903 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 14:47:36,903 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 14:47:36,903 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 14:47:36,903 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 14:47:41,304 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 14:47:41,304 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 14:47:41,304 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 14:47:41,561 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 14:47:41,562 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 14:47:41,562 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 14:47:41,563 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 14:47:57,419 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 14:47:58,182 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 14:47:58,183 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 14:47:58,183 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 14:47:58,183 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 14:47:58,183 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 14:48:00,129 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 14:48:01,768 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 14:48:03,922 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 14:48:05,247 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 14:48:06,509 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 14:48:08,030 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 14:48:09,379 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 14:48:10,605 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 14:48:10,607 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 14:48:10,607 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 14:48:10,740 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 14:48:10,740 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 14:48:10,740 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 14:48:10,740 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 14:48:10,740 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 14:48:15,118 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 14:48:15,118 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 14:48:15,118 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 14:48:15,367 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 14:48:15,367 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 14:48:15,368 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 14:48:15,368 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
+2025-10-02 15:22:19,281 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-02 15:22:20,313 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-02 15:22:20,313 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-02 15:22:20,314 - __main__ - INFO - 🚀 Starting monthly calculation for september 2025
+2025-10-02 15:22:20,314 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-02 15:22:20,314 - google_drive_manager - INFO - Starting sync for september 2025
+2025-10-02 15:22:21,858 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/basic_manpower_data.csv
+2025-10-02 15:22:23,484 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/attendance_data.csv
+2025-10-02 15:22:25,122 - google_drive_manager - INFO - Using cached version of monthly_data/2025_09/5prs_data.csv
+2025-10-02 15:22:26,248 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_SEPTEMBER_2025.csv
+2025-10-02 15:22:27,477 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_AUGUST_2025.csv
+2025-10-02 15:22:28,640 - google_drive_manager - INFO - Using cached version of aql_history/AQL_REPORT_JULY_2025.csv
+2025-10-02 15:22:30,004 - google_drive_manager - INFO - Using cached version of configs/auditor_trainer_area_mapping.json
+2025-10-02 15:22:31,576 - google_drive_manager - INFO - Using cached version of configs/type2_position_mapping.json
+2025-10-02 15:22:31,577 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-02 15:22:31,577 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-02 15:22:31,789 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-02 15:22:31,789 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-02 15:22:31,789 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-02 15:22:31,789 - __main__ - INFO - Using existing config: config_september_2025.json
+2025-10-02 15:22:31,789 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-02 15:22:39,278 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-02 15:22:39,278 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-02 15:22:39,278 - __main__ - INFO - Generating dashboard v4 for september 2025...
+2025-10-02 15:22:39,538 - __main__ - WARNING - Dashboard v4 generation warning: /Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py:368: UserWarning: Parsing dates in %d/%m/%Y format when dayfirst=False (the default) was specified. Pass `dayfirst=True` or specify a format to silence this warning.
+  emp['stop_working_date'] = pd.to_datetime(row.get('Stop working Date'))
+Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 1315, in generate_improved_dashboard
+    stats = calculate_statistics(employees, calculation_month)
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in calculate_statistics
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+  File "/Users/ksmoon/Downloads/대시보드 인센티브 테스트12_9월 25일/src/step2_dashboard_version4.py", line 5025, in <genexpr>
+    paid = sum(1 for emp in active_employees if not emp[incentive_field].startswith('0 VND'))
+KeyError: 'september_incentive'
+
+2025-10-02 15:22:39,538 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-02 15:22:39,538 - __main__ - INFO - ✅ Monthly calculation completed successfully for september 2025
+2025-10-02 15:22:39,538 - __main__ - INFO - 📧 Notification: Successfully processed september 2025
