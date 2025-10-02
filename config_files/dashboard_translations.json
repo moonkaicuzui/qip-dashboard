@@ -5652,5 +5652,247 @@
         "vi": "Không"
       }
     }
+  },
+  "aqlModal": {
+      "title": {
+        "ko": "Building별 AQL 검사 성과 분석",
+        "en": "AQL Inspection Performance Analysis by Building",
+        "vi": "Phân tích hiệu suất kiểm tra AQL theo Building"
+      },
+      "summaryTitle": {
+        "ko": "AQL 검사 실적",
+        "en": "AQL Inspection Results",
+        "vi": "Kết quả kiểm tra AQL"
+      },
+      "condition7": {
+        "ko": "조건 7번",
+        "en": "Condition 7",
+        "vi": "Điều kiện 7"
+      },
+      "condition8": {
+        "ko": "조건 8번",
+        "en": "Condition 8",
+        "vi": "Điều kiện 8"
+      },
+      "table1Title": {
+        "ko": "테이블 1: Area별 검사건수 기준 성과",
+        "en": "Table 1: Performance by Area Based on Inspection Count",
+        "vi": "Bảng 1: Hiệu suất theo khu vực dựa trên số lượng kiểm tra"
+      },
+      "table2Title": {
+        "ko": "테이블 2: Assembly Inspector 인원 기준 검사 실적",
+        "en": "Table 2: Assembly Inspector Performance Based on Personnel",
+        "vi": "Bảng 2: Hiệu suất kiểm tra viên lắp ráp theo nhân sự"
+      },
+      "table3Title": {
+        "ko": "테이블 3: Auditor별 책임자 검사 실적",
+        "en": "Table 3: Inspection Performance by Auditor",
+        "vi": "Bảng 3: Hiệu suất kiểm tra theo người kiểm toán"
+      },
+      "building": {
+        "ko": "Building",
+        "en": "Building",
+        "vi": "Building"
+      },
+      "totalTests": {
+        "ko": "총 검사",
+        "en": "Total Tests",
+        "vi": "Tổng kiểm tra"
+      },
+      "pass": {
+        "ko": "통과",
+        "en": "Pass",
+        "vi": "Đạt"
+      },
+      "fail": {
+        "ko": "실패",
+        "en": "Fail",
+        "vi": "Không đạt"
+      },
+      "rejectRate": {
+        "ko": "Reject Rate",
+        "en": "Reject Rate",
+        "vi": "Tỷ lệ loại bỏ"
+      },
+      "performanceGrade": {
+        "ko": "성과 등급",
+        "en": "Performance Grade",
+        "vi": "Xếp hạng hiệu suất"
+      },
+      "totalInspectors": {
+        "ko": "총 검사원",
+        "en": "Total Inspectors",
+        "vi": "Tổng kiểm tra viên"
+      },
+      "rejectInspectors": {
+        "ko": "Reject 발생",
+        "en": "With Reject",
+        "vi": "Có loại bỏ"
+      },
+      "passOnlyInspectors": {
+        "ko": "Pass만",
+        "en": "Pass Only",
+        "vi": "Chỉ đạt"
+      },
+      "personnelRejectRate": {
+        "ko": "인원 기준 Reject Rate",
+        "en": "Reject Rate by Personnel",
+        "vi": "Tỷ lệ loại bỏ theo nhân sự"
+      },
+      "auditor": {
+        "ko": "Auditor",
+        "en": "Auditor",
+        "vi": "Người kiểm toán"
+      },
+      "performanceExcellent": {
+        "ko": "우수",
+        "en": "Excellent",
+        "vi": "Xuất sắc"
+      },
+      "performanceGood": {
+        "ko": "양호",
+        "en": "Good",
+        "vi": "Tốt"
+      },
+      "performanceWarning": {
+        "ko": "주의",
+        "en": "Warning",
+        "vi": "Cảnh báo"
+      },
+      "performanceImprovement": {
+        "ko": "개선필요",
+        "en": "Needs Improvement",
+        "vi": "Cần cải thiện"
+      },
+      "dataSource": {
+        "ko": "데이터 출처",
+        "en": "Data Source",
+        "vi": "Nguồn dữ liệu"
+      },
+      "aqlFile": {
+        "ko": "AQL 파일",
+        "en": "AQL File",
+        "vi": "Tệp AQL"
+      },
+      "close": {
+        "ko": "닫기",
+        "en": "Close",
+        "vi": "Đóng"
+      },
+      "jobTitle": {
+        "ko": "직책",
+        "en": "Job Title",
+        "vi": "Chức danh"
+      },
+      "responsibleArea": {
+        "ko": "담당 구역",
+        "en": "Responsible Area",
+        "vi": "Khu vực phụ trách"
+      },
+      "personnel": {
+        "ko": "인원",
+        "en": "Personnel",
+        "vi": "Nhân sự"
+      },
+      "consecutiveMonths": {
+        "ko": "3개월 연속",
+        "en": "3 Consecutive Months",
+        "vi": "3 tháng liên tiếp"
+      },
+      "incentiveStatus": {
+        "ko": "인센티브",
+        "en": "Incentive",
+        "vi": "Tiền thưởng"
+      },
+      "paid": {
+        "ko": "지급",
+        "en": "Paid",
+        "vi": "Đã trả"
+      },
+      "notPaid": {
+        "ko": "미지급",
+        "en": "Not Paid",
+        "vi": "Chưa trả"
+      },
+      "noteTitle": {
+        "ko": "참고",
+        "en": "Note",
+        "vi": "Ghi chú"
+      },
+      "condition7Description": {
+        "ko": "조건7: 담당 구역 3개월 연속 실패자 존재 (1명이라도 있으면 미지급)",
+        "en": "Condition 7: Presence of consecutive 3-month failure in responsible area (not paid if even 1 person exists)",
+        "vi": "Điều kiện 7: Có người thất bại liên tục 3 tháng trong khu vực phụ trách (không trả nếu có ít nhất 1 người)"
+      },
+      "condition8Description": {
+        "ko": "조건8: 담당 구역 Reject Rate 3% 초과 (초과 시 미지급)",
+        "en": "Condition 8: Responsible area Reject Rate exceeds 3% (not paid if exceeded)",
+        "vi": "Điều kiện 8: Tỷ lệ loại bỏ khu vực phụ trách vượt quá 3% (không trả nếu vượt quá)"
+      },
+      "incentiveNote": {
+        "ko": "인센티브: 두 조건 모두 충족 시에만 지급",
+        "en": "Incentive: Paid only when both conditions are met",
+        "vi": "Tiền thưởng: Chỉ trả khi cả hai điều kiện đều được đáp ứng"
+      },
+      "condition7Detail": {
+        "ko": "담당 구역 3개월 연속 실패자 존재 - 0명",
+        "en": "Presence of consecutive 3-month failure in area - 0 people",
+        "vi": "Có người thất bại liên tục 3 tháng trong khu vực - 0 người"
+      },
+      "condition8Detail": {
+        "ko": "Building Reject Rate 3% 초과 -",
+        "en": "Building Reject Rate exceeds 3% -",
+        "vi": "Tỷ lệ loại bỏ Building vượt quá 3% -"
+      },
+      "auditorTrainer": {
+        "ko": "(Auditor/Trainer)",
+        "en": "(Auditor/Trainer)",
+        "vi": "(Người kiểm toán/Huấn luyện viên)"
+      },
+      "tableNote": {
+        "ko": "💡 참고",
+        "en": "💡 Note",
+        "vi": "💡 Ghi chú"
+      },
+      "tableNoteDetail": {
+        "ko": "테이블 1은 AQL 파일 전체 검사 기준, 테이블 2는 Assembly Inspector 개인 실적 집계입니다.",
+        "en": "Table 1 is based on all AQL file inspections, Table 2 is a summary of individual Assembly Inspector performance.",
+        "vi": "Bảng 1 dựa trên tất cả các kiểm tra tệp AQL, Bảng 2 là tóm tắt hiệu suất cá nhân của Kiểm tra viên lắp ráp."
+      },
+      "unitTests": {
+        "ko": "건",
+        "en": "tests",
+        "vi": "kiểm tra"
+      },
+      "unitPeople": {
+        "ko": "명",
+        "en": "people",
+        "vi": "người"
+      },
+      "unitYear": {
+        "ko": "년",
+        "en": "",
+        "vi": "năm"
+      },
+      "total": {
+        "ko": "전체",
+        "en": "Total",
+        "vi": "Tổng"
+      },
+      "allBuildings": {
+        "ko": "All Buildings",
+        "en": "All Buildings",
+        "vi": "Tất cả Building"
+      },
+      "table2InspectorTitle": {
+        "ko": "Building별 검사원 인원수 및 Reject 발생 현황",
+        "en": "Inspector Count and Reject Status by Building",
+        "vi": "Số lượng kiểm tra viên và tình trạng loại bỏ theo Building"
+      },
+      "table3AuditorTitle": {
+        "ko": "관리자 책임 범위 및 인센티브 지급/미지급 상태",
+        "en": "Manager Responsibility Scope and Incentive Payment Status",
+        "vi": "Phạm vi trách nhiệm quản lý và trạng thái thanh toán khuyến khích"
+      }
   }
 }

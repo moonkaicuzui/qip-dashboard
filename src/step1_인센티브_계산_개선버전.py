@@ -4333,15 +4333,34 @@ class CompleteQIPCalculator:
         """AQL 통계 정보를 Excel에 추가"""
         print("\n📊 AQL 통계 정보를 Excel에 추가 중...")
 
-        # AQL 통계 파일 로드
+        # AQL 통계를 AQL 파일에서 직접 계산
         aql_stats = {}
-        stats_file = self.base_path / 'aql_employee_stats.json'
-        if stats_file.exists():
-            with open(stats_file, 'r') as f:
-                aql_stats = json.load(f)
-            print(f"  → AQL 통계 로드 완료: {len(aql_stats)}명")
+
+        # AQL 파일 경로
+        month_upper = self.config.month_name.upper()
+        aql_file = f"input_files/AQL history/1.HSRG AQL REPORT-{month_upper}.{self.config.year}.csv"
+
+        if os.path.exists(aql_file):
+            print(f"  → AQL 파일에서 직접 통계 계산: {aql_file}")
+            aql_df = pd.read_csv(aql_file)
+
+            # 모든 PO TYPE 포함 (FAIL은 주로 FAIL PO에 있음)
+            for emp_no in aql_df['EMPLOYEE NO'].unique():
+                emp_tests = aql_df[aql_df['EMPLOYEE NO'] == emp_no]
+                total = len(emp_tests)
+                pass_count = (emp_tests['RESULT'] == 'PASS').sum()
+                fail_count = (emp_tests['RESULT'] == 'FAIL').sum()
+
+                aql_stats[str(emp_no)] = {
+                    'total': int(total),
+                    'pass': int(pass_count),
+                    'fail': int(fail_count)
+                }
+
+            print(f"  → AQL 파일에서 {len(aql_stats)}명 검사원 통계 생성 완료")
         else:
-            print("  → AQL 통계 파일이 없습니다. 기본값 사용")
+            print(f"  ⚠️ AQL 파일 없음: {aql_file}")
+            print("  → September AQL Failures 컬럼 기반 기본값 사용")
 
         # 새로운 컬럼 추가
         self.month_data['AQL_Total_Tests'] = 0
@@ -4368,16 +4387,17 @@ class CompleteQIPCalculator:
                     fail_percent = 0.0
 
                 self.month_data.loc[idx, 'AQL_Fail_Percent'] = round(fail_percent, 1)
-            else:
-                # 기본값 설정
-                aql_failures = self.month_data.loc[idx, 'September AQL Failures'] if 'September AQL Failures' in self.month_data.columns else 0
-                if aql_failures > 0:
-                    # AQL 실패가 있지만 통계가 없는 경우, 기본값 사용
-                    self.month_data.loc[idx, 'AQL_Total_Tests'] = 10
-                    self.month_data.loc[idx, 'AQL_Pass_Count'] = 10 - int(aql_failures)
-                    self.month_data.loc[idx, 'AQL_Fail_Percent'] = (aql_failures / 10) * 100
+            # else 블록 제거 - AQL 파일에 없는 직원은 0으로 유지 (검사를 하지 않은 직원)
 
-        print(f"  → AQL 통계 추가 완료: Total Tests, Pass Count, Fail Percent 컬럼")
+        # 통계 출력
+        aql_with_data = (self.month_data['AQL_Total_Tests'] > 0).sum()
+        aql_with_fail = (self.month_data['AQL_Total_Tests'] > 0) & (self.month_data['AQL_Pass_Count'] < self.month_data['AQL_Total_Tests'])
+        aql_fail_count = aql_with_fail.sum()
+
+        print(f"  → AQL 통계 추가 완료:")
+        print(f"     • AQL 검사 데이터 있음: {aql_with_data}명")
+        print(f"     • FAIL 1건 이상: {aql_fail_count}명")
+        print(f"     • PASS만: {aql_with_data - aql_fail_count}명")
 
     def save_results(self):
         """결과 저장"""

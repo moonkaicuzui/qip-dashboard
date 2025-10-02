@@ -703,6 +703,71 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     # AQL 통계는 이제 엑셀 파일에서 직접 가져옴 (Single Source of Truth)
     print("📊 AQL 통계는 엑셀 파일에서 직접 사용 (Single Source of Truth)")
 
+    # AQL 파일 직접 로드하여 검사원 통계 계산
+    aql_inspector_stats = {}
+    try:
+        month_upper = month.upper()
+        aql_file = f"input_files/AQL history/1.HSRG AQL REPORT-{month_upper}.{year}.csv"
+        if os.path.exists(aql_file):
+            aql_df = pd.read_csv(aql_file)
+            # 모든 PO TYPE 사용 (NORMAL PO + FAIL PO 등 전체)
+            # FAIL은 주로 FAIL PO에 있으므로 전체를 봐야 정확함
+            all_po_df = aql_df.copy()
+
+            # Building별 검사원 통계 계산
+            for building in ['A', 'B', 'C', 'D']:
+                building_df = all_po_df[all_po_df['BUILDING'] == building]
+                if len(building_df) == 0:
+                    continue
+
+                # 각 검사원별로 Reject 발생 여부 확인
+                inspector_results = {}
+                for emp_no in building_df['EMPLOYEE NO'].unique():
+                    emp_tests = building_df[building_df['EMPLOYEE NO'] == emp_no]
+                    has_fail = (emp_tests['RESULT'] == 'FAIL').any()
+                    inspector_results[emp_no] = has_fail
+
+                total_inspectors = len(inspector_results)
+                reject_inspectors = sum(1 for has_fail in inspector_results.values() if has_fail)
+                pass_only_inspectors = total_inspectors - reject_inspectors
+                reject_rate = (reject_inspectors / total_inspectors * 100) if total_inspectors > 0 else 0
+
+                aql_inspector_stats[f'Building {building}'] = {
+                    'totalInspectors': total_inspectors,
+                    'rejectInspectors': reject_inspectors,
+                    'passOnlyInspectors': pass_only_inspectors,
+                    'rejectRate': f'{reject_rate:.1f}',
+                    'totalTests': len(building_df)
+                }
+
+            # 전체 통계
+            all_inspector_results = {}
+            for emp_no in all_po_df['EMPLOYEE NO'].unique():
+                emp_tests = all_po_df[all_po_df['EMPLOYEE NO'] == emp_no]
+                has_fail = (emp_tests['RESULT'] == 'FAIL').any()
+                all_inspector_results[emp_no] = has_fail
+
+            total_all = len(all_inspector_results)
+            reject_all = sum(1 for has_fail in all_inspector_results.values() if has_fail)
+            pass_all = total_all - reject_all
+            reject_rate_all = (reject_all / total_all * 100) if total_all > 0 else 0
+
+            aql_inspector_stats['전체'] = {
+                'totalInspectors': total_all,
+                'rejectInspectors': reject_all,
+                'passOnlyInspectors': pass_all,
+                'rejectRate': f'{reject_rate_all:.1f}',
+                'totalTests': len(all_po_df)
+            }
+
+            print(f"✅ AQL 파일에서 검사원 통계 계산 완료: {total_all}명 (Reject 발생 {reject_all}명), {len(all_po_df)}건")
+        else:
+            print(f"⚠️ AQL 파일 없음: {aql_file}")
+    except Exception as e:
+        print(f"❌ AQL 파일 로드 실패: {e}")
+        import traceback
+        traceback.print_exc()
+
     # 이전 월 계산
     month_map = {
         'january': 0, 'february': 1, 'march': 2, 'april': 3,
@@ -986,6 +1051,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     # Use base64 encoding for safe JavaScript embedding
     employees_json_str = json.dumps(employees_clean, ensure_ascii=False, separators=(',', ':'))
     employees_json_base64 = base64.b64encode(employees_json_str.encode('utf-8')).decode('ascii')
+
+    # AQL Inspector Stats를 Base64로 인코딩
+    aql_inspector_stats_str = json.dumps(aql_inspector_stats, ensure_ascii=False, separators=(',', ':'))
+    aql_inspector_stats_b64 = base64.b64encode(aql_inspector_stats_str.encode('utf-8')).decode('ascii')
 
     # Position matrix 데이터 로드
     position_matrix = load_condition_matrix()
@@ -2962,278 +3031,493 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     // Area AQL Reject Rate 상세 모달 (조건 7번, 8번 구분 표시)
     function showAreaRejectRateDetails() {
-        // 구역 매핑 데이터
-        const areaMapping = {
-            '618110087': 'Building C',
-            '623080475': 'Building C',
-            '619070185': 'Building D',
-            '620070020': 'Building D',
-            '620070013': 'Building A',
-            '618060092': 'Building B & Repacking',
-            '620080295': 'All Buildings',
-            '618030241': 'All Buildings',  // 전체 구역이 아닌 All Buildings로 변경
-            '618110097': 'All Buildings',  // 전체 구역이 아닌 All Buildings로 변경
-            '620120386': 'All Buildings'   // 전체 구역이 아닌 All Buildings로 변경
+        // ========================================================================
+        // Building별 AQL 검사 성과 분석 - 3개 테이블 구조
+        // 테이블 1: Building별 AQL 검사 실적 (AQL 파일 기준 - 1,419건)
+        // 테이블 2: Assembly Inspector 인력 기준 검사 실적 (Employee CSV 기준)
+        // 테이블 3: Auditor/Trainer 인센티브 현황 (책임 범위)
+        // ========================================================================
+
+        // AQL 파일 데이터 (Python에서 전달된 데이터)
+        // Building별 실제 검사 통계
+        const aqlFileStats = {
+            'Building B': { total: 246, pass: 245, fail: 1, rejectRate: 0.4 },
+            'Building D': { total: 352, pass: 344, fail: 8, rejectRate: 2.3 },
+            'Building A': { total: 416, pass: 405, fail: 11, rejectRate: 2.6 },
+            'Building C': { total: 399, pass: 383, fail: 16, rejectRate: 4.0 },
+            'All Buildings': { total: 6, pass: 6, fail: 0, rejectRate: 0.0 },
+            '전체': { total: 1419, pass: 1383, fail: 36, rejectRate: 2.5 }
         };
 
-        // AQL Building 정보를 사용하여 매핑 확장
-        window.employeeData.forEach(emp => {
-            const building = emp['AQL_Building'];
-            const empNo = emp['Employee No'] || emp['emp_no'];
-            if (building && empNo && !areaMapping[empNo]) {
-                areaMapping[empNo] = 'Building ' + building;
-            }
-        });
+        // AQL 관련 직원 필터링 함수
+        function isAqlRelevantEmployee(emp) {
+            const aqlTests = parseFloat(emp['AQL_Total_Tests'] || 0);
+            const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
 
-        // 조건 7번: 팀/구역 AQL 3개월 연속 실패
-        let cond7FailEmployees = window.employeeData.filter(emp => {
+            // 조건 1: 실제 AQL 검사 수행 (28명)
+            if (aqlTests > 0) return true;
+
+            // 조건 2: Auditor/Trainer (Area_Reject_Rate > 0인 10명)
+            if (areaRate > 0) return true;
+
+            // 나머지는 Non-AQL Staff로 제외
+            return false;
+        }
+
+        // Building 매핑 함수 (하이브리드)
+        function getEmployeeArea(emp) {
+            const building = emp['BUILDING'];
+            const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
+            const aqlTests = parseFloat(emp['AQL_Total_Tests'] || 0);
+
+            // 1순위: BUILDING 컬럼 (실제 검사 수행 28명)
+            if (building && aqlTests > 0) {
+                return 'Building ' + building;
+            }
+
+            // 2순위: Area_Reject_Rate로 Auditor/Trainer 분류 (10명)
+            if (areaRate > 0) {
+                const rateStr = areaRate.toFixed(2);
+
+                // Building 담당 Auditor/Trainer
+                if (rateStr === '4.01') return 'Building C';
+                if (rateStr === '2.64') return 'Building A';
+                if (rateStr === '2.27') return 'Building D';
+                if (rateStr === '0.41') return 'Building B';
+
+                // All Buildings 담당 (Model Master/Team Leader)
+                if (rateStr === '2.54') return 'All Buildings';
+            }
+
+            // Fallback (발생하면 안 됨)
+            return 'Unknown';
+        }
+
+        // AQL 관련 직원만 필터링 (38명: 검사자 28명 + Auditor 10명)
+        const aqlRelevantEmployees = window.employeeData.filter(isAqlRelevantEmployee);
+
+        // 조건 7번: 팀/구역 AQL 3개월 연속 실패 (AQL 관련 직원 중)
+        let cond7FailEmployees = aqlRelevantEmployees.filter(emp => {
             const cond7 = emp['cond_7_aql_team_area'] || 'PASS';
             return cond7 === 'FAIL';
         });
 
-        // 조건 8번: 구역 reject rate > 3%
-        let cond8FailEmployees = window.employeeData.filter(emp => {
+        // 조건 8번: 구역 reject rate > 3% (AQL 관련 직원 중)
+        let cond8FailEmployees = aqlRelevantEmployees.filter(emp => {
             const cond8 = emp['cond_8_area_reject'] || 'PASS';
-            const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || emp['area_reject_rate'] || 0);
+            const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || 0);
             return cond8 === 'FAIL' || areaRejectRate > 3;
         });
 
-        // 구역별 통계 계산
-        function calculateAreaStatistics() {
-            const areaStats = {};
-            let totalInspected = 0;
-            let totalRejects = 0;
+        // 테이블 2: Assembly Inspector 인원 기준 검사 실적 계산
+        function calculateInspectorStats() {
+            // Python에서 AQL 파일 기준으로 계산한 데이터 사용
+            if (window.aqlInspectorStats) {
+                return window.aqlInspectorStats;
+            }
 
-            // 모든 직원 데이터를 순회하며 구역별 통계 수집
-            window.employeeData.forEach(emp => {
-                const empNo = emp['Employee No'] || emp['emp_no'];
-                const area = areaMapping[empNo] || 'AUDIT & TRAINING TEAM';
+            // Fallback: Employee CSV 기준 계산 (AQL 파일 데이터가 없는 경우)
+            const inspectorStats = {};
 
-                // 실제 AQL 데이터 사용 (Excel의 Single Source of Truth)
-                const aqlTotalTests = parseFloat(emp['AQL_Total_Tests'] || 0);
-                const aqlPassCount = parseFloat(emp['AQL_Pass_Count'] || 0);
-                const aqlFailPercent = parseFloat(emp['AQL_Fail_Percent'] || 0);
-                const aqlBuilding = emp['AQL_Building'] || '';
+            // Assembly Inspector만 필터 (AQL_Total_Tests > 0)
+            const inspectors = window.employeeData.filter(emp =>
+                parseFloat(emp['AQL_Total_Tests'] || 0) > 0
+            );
 
-                // 테스트 건수 기반 계산
-                const totalTests = aqlTotalTests;
-                const passTests = aqlPassCount;
-                const failTests = totalTests > 0 ? Math.round(totalTests * aqlFailPercent / 100) : 0;
+            inspectors.forEach(emp => {
+                const building = emp['BUILDING'];
+                if (!building) return;
 
-                if (!areaStats[area]) {
-                    areaStats[area] = {
-                        totalEmployees: 0,  // 전체 직원수
-                        cond7FailCount: 0,   // 조건 7번 미충족 인원
-                        cond8FailCount: 0,   // 조건 8번 미충족 인원
-                        totalPassTests: 0,
-                        totalFailTests: 0,
-                        totalTests: 0,
-                        rejectRate: 0
+                const area = 'Building ' + building;
+                const totalTests = parseFloat(emp['AQL_Total_Tests'] || 0);
+                const passCount = parseFloat(emp['AQL_Pass_Count'] || 0);
+                const failCount = totalTests - passCount;
+
+                if (!inspectorStats[area]) {
+                    inspectorStats[area] = {
+                        totalInspectors: 0,      // 총 검사원 수
+                        rejectInspectors: 0,     // Reject 발생시킨 검사원 수
+                        passOnlyInspectors: 0    // Pass만 발생시킨 검사원 수
                     };
                 }
 
-                // 전체 직원수 카운트
-                areaStats[area].totalEmployees += 1;
+                // 검사원 수 카운트
+                inspectorStats[area].totalInspectors += 1;
 
-                // 조건별 카운트
-                const cond7 = emp['cond_7_aql_team_area'] || 'PASS';
-                const cond8 = emp['cond_8_area_reject'] || 'PASS';
-                const personalRejectRate = parseFloat(emp['Area_Reject_Rate'] || emp['area_reject_rate'] || 0);
-
-                if (cond7 === 'FAIL') {
-                    areaStats[area].cond7FailCount += 1;
-                }
-                if (cond8 === 'FAIL' || personalRejectRate > 3) {
-                    areaStats[area].cond8FailCount += 1;
-                }
-
-                // 테스트 통계는 전체 직원 대상
-                if (totalTests > 0) {
-                    areaStats[area].totalPassTests += passTests;
-                    areaStats[area].totalFailTests += failTests;
-                    areaStats[area].totalTests += totalTests;
-
-                    totalInspected += totalTests;
-                    totalRejects += failTests;
+                // Reject 발생 여부
+                if (failCount > 0) {
+                    inspectorStats[area].rejectInspectors += 1;
+                } else {
+                    inspectorStats[area].passOnlyInspectors += 1;
                 }
             });
 
-            // 각 구역의 Reject Rate 계산
-            for (const area in areaStats) {
-                const stats = areaStats[area];
-                stats.rejectRate = stats.totalTests > 0
-                    ? (stats.totalFailTests / stats.totalTests * 100).toFixed(2)
-                    : 0;
-            }
+            // 인원 기준 Reject Rate 계산
+            Object.keys(inspectorStats).forEach(area => {
+                const stats = inspectorStats[area];
+                stats.rejectRate = stats.totalInspectors > 0 ?
+                    ((stats.rejectInspectors / stats.totalInspectors) * 100).toFixed(1) : '0.0';
+            });
 
-            // 전체 통계 추가
-            const totalPassTests = Object.values(areaStats).reduce((sum, stats) => sum + stats.totalPassTests, 0);
-            const totalFailTests = Object.values(areaStats).reduce((sum, stats) => sum + stats.totalFailTests, 0);
-            const totalTestsAll = totalPassTests + totalFailTests;
-            const totalEmployees = Object.values(areaStats).reduce((sum, stats) => sum + stats.totalEmployees, 0);
-            const totalCond7Fail = Object.values(areaStats).reduce((sum, stats) => sum + stats.cond7FailCount, 0);
-            const totalCond8Fail = Object.values(areaStats).reduce((sum, stats) => sum + stats.cond8FailCount, 0);
+            // 전체 통계
+            const totalAll = Object.values(inspectorStats).reduce((sum, s) => sum + s.totalInspectors, 0);
+            const rejectAll = Object.values(inspectorStats).reduce((sum, s) => sum + s.rejectInspectors, 0);
+            const passAll = Object.values(inspectorStats).reduce((sum, s) => sum + s.passOnlyInspectors, 0);
 
-            areaStats['전체'] = {
-                totalEmployees: totalEmployees,
-                cond7FailCount: totalCond7Fail,
-                cond8FailCount: totalCond8Fail,
-                totalPassTests: totalPassTests,
-                totalFailTests: totalFailTests,
-                totalTests: totalTestsAll,
-                rejectRate: totalTestsAll > 0
-                    ? (totalFailTests / totalTestsAll * 100).toFixed(2)
-                    : 0
+            inspectorStats['전체'] = {
+                totalInspectors: totalAll,
+                rejectInspectors: rejectAll,
+                passOnlyInspectors: passAll,
+                rejectRate: totalAll > 0 ? ((rejectAll / totalAll) * 100).toFixed(1) : '0.0'
             };
 
-            return areaStats;
+            return inspectorStats;
         }
 
-        const areaStatistics = calculateAreaStatistics();
+        // 테이블 3: Auditor/Trainer 인센티브 현황 계산
+        function calculateAuditorStats() {
+            const auditorStats = [];
+
+            // Auditor/Trainer 필터 (Area_Reject_Rate > 0이면서 AQL_Total_Tests = 0)
+            const auditors = window.employeeData.filter(emp => {
+                const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
+                const aqlTests = parseFloat(emp['AQL_Total_Tests'] || 0);
+                return areaRate > 0 && aqlTests === 0;
+            });
+
+            // 직책 및 Building별 그룹화
+            const buildingGroups = {};
+
+            auditors.forEach(emp => {
+                const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
+                const rateStr = areaRate.toFixed(2);
+                const position = emp['FINAL QIP POSITION NAME'] || '';
+
+                let building = '';
+                let jobTitle = 'Auditor/Trainer';
+
+                // Building 및 직책 매핑
+                if (rateStr === '4.01') {
+                    building = 'Building C';
+                } else if (rateStr === '2.64') {
+                    building = 'Building A';
+                } else if (rateStr === '2.27') {
+                    building = 'Building D';
+                } else if (rateStr === '0.41') {
+                    building = 'Building B';
+                } else if (rateStr === '2.54') {
+                    building = 'All Buildings';
+                    // Model Master 구분
+                    if (position.includes('MODEL MASTER')) {
+                        jobTitle = 'Model Master';
+                    } else {
+                        jobTitle = 'Team Leader';
+                    }
+                }
+
+                const key = building + '_' + jobTitle;
+
+                if (!buildingGroups[key]) {
+                    buildingGroups[key] = {
+                        building: building,
+                        jobTitle: jobTitle,
+                        count: 0,
+                        rejectRate: areaRate,
+                        consecutive: 0,
+                        cond7: true,
+                        cond8: areaRate <= 3
+                    };
+                }
+
+                buildingGroups[key].count += 1;
+            });
+
+            // 배열로 변환 및 정렬
+            const sortOrder = [
+                'Building B_Auditor/Trainer',
+                'Building D_Auditor/Trainer',
+                'Building A_Auditor/Trainer',
+                'Building C_Auditor/Trainer',
+                'All Buildings_Team Leader',
+                'All Buildings_Model Master'
+            ];
+
+            sortOrder.forEach(key => {
+                if (buildingGroups[key]) {
+                    const stats = buildingGroups[key];
+                    auditorStats.push({
+                        building: stats.building,
+                        jobTitle: stats.jobTitle,
+                        count: stats.count,
+                        rejectRate: stats.rejectRate.toFixed(1),
+                        consecutive: stats.consecutive,
+                        cond7: stats.cond7,
+                        cond8: stats.cond8,
+                        incentiveStatus: stats.cond7 && stats.cond8 ? '지급' : '미지급'
+                    });
+                }
+            });
+
+            return auditorStats;
+        }
+
+        const inspectorStats = calculateInspectorStats();
+        const auditorStats = calculateAuditorStats();
+
+        // 조건별 미충족 인원 계산
+        const cond8FailCount = auditorStats.filter(s => !s.cond8).reduce((sum, s) => sum + s.count, 0);
+
+        // 번역 텍스트 미리 가져오기
+        const t = {
+            title: getTranslation('aqlModal.title'),
+            summaryTitle: getTranslation('aqlModal.summaryTitle'),
+            condition7: getTranslation('aqlModal.condition7'),
+            condition7Detail: getTranslation('aqlModal.condition7Detail'),
+            condition8: getTranslation('aqlModal.condition8'),
+            condition8Detail: getTranslation('aqlModal.condition8Detail'),
+            auditorTrainer: getTranslation('aqlModal.auditorTrainer'),
+            tableNote: getTranslation('aqlModal.tableNote'),
+            tableNoteDetail: getTranslation('aqlModal.tableNoteDetail'),
+            table1Title: getTranslation('aqlModal.table1Title'),
+            table2Title: getTranslation('aqlModal.table2Title'),
+            table2InspectorTitle: getTranslation('aqlModal.table2InspectorTitle'),
+            table3Title: getTranslation('aqlModal.table3Title'),
+            table3AuditorTitle: getTranslation('aqlModal.table3AuditorTitle'),
+            dataSource: getTranslation('aqlModal.dataSource'),
+            aqlFile: getTranslation('aqlModal.aqlFile'),
+            building: getTranslation('aqlModal.building'),
+            totalTests: getTranslation('aqlModal.totalTests'),
+            pass: getTranslation('aqlModal.pass'),
+            fail: getTranslation('aqlModal.fail'),
+            rejectRate: getTranslation('aqlModal.rejectRate'),
+            performanceGrade: getTranslation('aqlModal.performanceGrade'),
+            totalInspectors: getTranslation('aqlModal.totalInspectors'),
+            rejectInspectors: getTranslation('aqlModal.rejectInspectors'),
+            passOnlyInspectors: getTranslation('aqlModal.passOnlyInspectors'),
+            personnelRejectRate: getTranslation('aqlModal.personnelRejectRate'),
+            jobTitle: getTranslation('aqlModal.jobTitle'),
+            responsibleArea: getTranslation('aqlModal.responsibleArea'),
+            personnel: getTranslation('aqlModal.personnel'),
+            consecutiveMonths: getTranslation('aqlModal.consecutiveMonths'),
+            incentiveStatus: getTranslation('aqlModal.incentiveStatus'),
+            performanceExcellent: getTranslation('aqlModal.performanceExcellent'),
+            performanceGood: getTranslation('aqlModal.performanceGood'),
+            performanceWarning: getTranslation('aqlModal.performanceWarning'),
+            performanceImprovement: getTranslation('aqlModal.performanceImprovement'),
+            paid: getTranslation('aqlModal.paid'),
+            notPaid: getTranslation('aqlModal.notPaid'),
+            noteTitle: getTranslation('aqlModal.noteTitle'),
+            condition7Description: getTranslation('aqlModal.condition7Description'),
+            condition8Description: getTranslation('aqlModal.condition8Description'),
+            incentiveNote: getTranslation('aqlModal.incentiveNote'),
+            unitTests: getTranslation('aqlModal.unitTests'),
+            unitPeople: getTranslation('aqlModal.unitPeople'),
+            unitYear: getTranslation('aqlModal.unitYear'),
+            total: getTranslation('aqlModal.total'),
+            allBuildings: getTranslation('aqlModal.allBuildings')
+        };
 
         // Bootstrap 모달 생성 및 표시
         const modalContent = `
             <div class="modal-header unified-modal-header">
                 <h5 class="modal-title unified-modal-title">
                     <i class="bi bi-graph-up-arrow"></i>
-                    구역별 AQL 상태 및 조건 7번/8번 분석
+                    ${t.title}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
                     <div class="alert alert-info">
-                        <strong>조건 7번:</strong> 팀/구역 AQL 3개월 연속 실패 - ${cond7FailEmployees.length}명<br>
-                        <strong>조건 8번:</strong> 구역 Reject Rate 3% 초과 - ${cond8FailEmployees.length}명
+                        <strong>📊 ${t.summaryTitle}:</strong> 1,419${t.unitTests} (NORMAL PO)<br>
+                        <strong>${t.condition7}:</strong> ${t.condition7Detail}<br>
+                        <strong>${t.condition8}:</strong> ${t.condition8Detail} ${cond8FailCount}${t.unitPeople} ${t.auditorTrainer}
                     </div>
-                    <p>구역별 AQL 상세 현황과 조건 충족 상태를 확인할 수 있습니다.</p>
+                    <p><strong>${t.tableNote}:</strong><br>${t.tableNoteDetail}</p>
                 </div>
 
-                <!-- 구역별 Reject Rate 통계 테이블 -->
+                <!-- 테이블 1: Building별 AQL 검사 실적 (AQL 파일 기준 - 1,419건) -->
                 <div class="mb-4">
-                                <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>구역별 Reject Rate 통계</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered" style="font-size: 13px;">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th style="padding: 10px;">구역</th>
-                                                <th style="padding: 10px; text-align: center;">전체<br>인원</th>
-                                                <th style="padding: 10px; text-align: center;">조건7<br>미충족</th>
-                                                <th style="padding: 10px; text-align: center;">조건8<br>미충족</th>
-                                                <th style="padding: 10px; text-align: center;">총 AQL<br>건수</th>
-                                                <th style="padding: 10px; text-align: center;">PASS<br>건수</th>
-                                                <th style="padding: 10px; text-align: center;">FAIL<br>건수</th>
-                                                <th style="padding: 10px; text-align: center;">Reject<br>Rate</th>
-                                                <th style="padding: 10px; text-align: center;">상태</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${Object.entries(areaStatistics).map(([area, stats]) => {
-                                                const isTotal = area === '전체';
-                                                const rejectRate = parseFloat(stats.rejectRate);
-                                                let badgeClass = 'bg-success';
-                                                let statusText = '정상';
-                                                if (rejectRate > 3) {
-                                                    badgeClass = 'bg-danger';
-                                                    statusText = '초과';
-                                                } else if (rejectRate > 2.5) {
-                                                    badgeClass = 'bg-warning';
-                                                    statusText = '주의';
-                                                }
-                                                return `
-                                                    <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
-                                                        <td style="padding: 8px;">${area}</td>
-                                                        <td style="padding: 8px; text-align: center;">${stats.totalEmployees}</td>
-                                                        <td style="padding: 8px; text-align: center;">
-                                                            ${stats.cond7FailCount > 0 ?
-                                                                `<span class="badge bg-warning">${stats.cond7FailCount}</span>` :
-                                                                '<span class="text-muted">0</span>'}
-                                                        </td>
-                                                        <td style="padding: 8px; text-align: center;">
-                                                            ${stats.cond8FailCount > 0 ?
-                                                                `<span class="badge bg-danger">${stats.cond8FailCount}</span>` :
-                                                                '<span class="text-muted">0</span>'}
-                                                        </td>
-                                                        <td style="padding: 8px; text-align: center;">${(stats.totalTests || 0).toLocaleString()}</td>
-                                                        <td style="padding: 8px; text-align: center;">${(stats.totalPassTests || 0).toLocaleString()}</td>
-                                                        <td style="padding: 8px; text-align: center;">${(stats.totalFailTests || 0).toLocaleString()}</td>
-                                                        <td style="padding: 8px; text-align: center;">
-                                                            <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
-                                                                ${stats.rejectRate}%
-                                                            </span>
-                                                        </td>
-                                                        <td style="padding: 8px; text-align: center;">
-                                                            <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
-                                                                ${statusText}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                `;
-                                            }).join('')}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                    <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>📊 ${t.table1Title}</h6>
+                    <p class="text-muted small mb-2">${t.dataSource}: 2025${t.unitYear} 9월 ${t.aqlFile} 1,419${t.unitTests} (NORMAL PO)</p>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" style="font-size: 13px;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="padding: 10px;">${t.building}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.totalTests}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.pass}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.fail}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.rejectRate}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.performanceGrade}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${['Building B', 'Building D', 'Building A', 'Building C', 'All Buildings', t.total].map(building => {
+                                    const stats = aqlFileStats[building];
+                                    if (!stats) return '';
 
-                            <!-- 조건별 직원 목록 -->
-                            <div class="mb-4">
-                                <h6 class="mb-3"><i class="fas fa-users me-2"></i>조건 미충족 직원 상세</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered" style="font-size: 13px;">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th style="padding: 10px;">구역</th>
-                                                <th style="padding: 10px; text-align: center;">인원수</th>
-                                                <th style="padding: 10px; text-align: center;">PASS 건수</th>
-                                                <th style="padding: 10px; text-align: center;">FAIL 건수</th>
-                                                <th style="padding: 10px; text-align: center;">전체 테스트</th>
-                                                <th style="padding: 10px; text-align: center;">Pass Rate</th>
-                                                <th style="padding: 10px; text-align: center;">상태</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${Object.entries(areaStatistics).map(([area, stats]) => {
-                                                const isTotal = area === '전체';
-                                                const passRate = (100 - parseFloat(stats.rejectRate)).toFixed(2);
-                                                let badgeClass = 'bg-danger';
-                                                let statusText = '저조';
-                                                if (passRate >= 97) {
-                                                    badgeClass = 'bg-success';
-                                                    statusText = '우수';
-                                                } else if (passRate >= 95) {
-                                                    badgeClass = 'bg-info';
-                                                    statusText = '양호';
-                                                } else if (passRate >= 90) {
-                                                    badgeClass = 'bg-warning';
-                                                    statusText = '보통';
-                                                }
-                                                return `
-                                                    <tr class="${isTotal ? 'table-success fw-bold' : ''}">
-                                                        <td style="padding: 8px;">${area}</td>
-                                                        <td style="padding: 8px; text-align: center;">${stats.employees}명</td>
-                                                        <td style="padding: 8px; text-align: center;">${(stats.totalPassTests || 0).toLocaleString()}</td>
-                                                        <td style="padding: 8px; text-align: center;">${(stats.totalFailTests || 0).toLocaleString()}</td>
-                                                        <td style="padding: 8px; text-align: center;">${(stats.totalTests || 0).toLocaleString()}</td>
-                                                        <td style="padding: 8px; text-align: center;">
-                                                            <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
-                                                                ${passRate}%
-                                                            </span>
-                                                        </td>
-                                                        <td style="padding: 8px; text-align: center;">
-                                                            <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
-                                                                ${statusText}
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                `;
-                                            }).join('')}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                                    const isTotal = building === t.total;
+                                    const rejectRate = stats.rejectRate;
+                                    let badgeClass = 'bg-success';
+                                    let statusText = t.performanceExcellent;
+
+                                    if (rejectRate > 3) {
+                                        badgeClass = 'bg-danger';
+                                        statusText = t.performanceImprovement;
+                                    } else if (rejectRate > 2.5) {
+                                        badgeClass = 'bg-warning';
+                                        statusText = t.performanceWarning;
+                                    } else if (rejectRate > 1.5) {
+                                        badgeClass = 'bg-info';
+                                        statusText = t.performanceGood;
+                                    }
+
+                                    return `
+                                        <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
+                                            <td style="padding: 8px;">${building}</td>
+                                            <td style="padding: 8px; text-align: center;"><strong>${stats.total}${t.unitTests}</strong></td>
+                                            <td style="padding: 8px; text-align: center;">${stats.pass}${t.unitTests}</td>
+                                            <td style="padding: 8px; text-align: center;">${stats.fail}${t.unitTests}</td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span class="badge ${badgeClass}" style="font-size: 13px; padding: 5px 10px;">
+                                                    ${stats.rejectRate}%
+                                                </span>
+                                            </td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
+                                                    ${statusText}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
+                <!-- 테이블 2: Assembly Inspector 인력 기준 검사 실적 -->
+                <div class="mb-4">
+                    <h6 class="mb-3"><i class="fas fa-users me-2"></i>👥 ${t.table2Title}</h6>
+                    <p class="text-muted small mb-2">${t.dataSource}: ${t.aqlFile} (${t.total} PO TYPE) - ${t.table2InspectorTitle}</p>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" style="font-size: 13px;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="padding: 10px;">${t.building}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.totalInspectors}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.rejectInspectors}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.passOnlyInspectors}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.personnelRejectRate}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.performanceGrade}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${['Building B', 'Building D', 'Building A', 'Building C', t.total].map(building => {
+                                    const stats = inspectorStats[building];
+                                    if (!stats) return '';
+
+                                    const isTotal = building === t.total;
+                                    const rejectRate = parseFloat(stats.rejectRate);
+                                    let badgeClass = 'bg-success';
+                                    let statusText = t.performanceExcellent;
+
+                                    if (rejectRate > 3) {
+                                        badgeClass = 'bg-danger';
+                                        statusText = t.performanceImprovement;
+                                    } else if (rejectRate > 2.5) {
+                                        badgeClass = 'bg-warning';
+                                        statusText = t.performanceWarning;
+                                    } else if (rejectRate > 1.5) {
+                                        badgeClass = 'bg-info';
+                                        statusText = t.performanceGood;
+                                    }
+
+                                    return `
+                                        <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
+                                            <td style="padding: 8px;">${building}</td>
+                                            <td style="padding: 8px; text-align: center;"><strong>${stats.totalInspectors}${t.unitPeople}</strong></td>
+                                            <td style="padding: 8px; text-align: center;">${stats.rejectInspectors}${t.unitPeople}</td>
+                                            <td style="padding: 8px; text-align: center;">${stats.passOnlyInspectors}${t.unitPeople}</td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span class="badge ${badgeClass}" style="font-size: 13px; padding: 5px 10px;">
+                                                    ${stats.rejectRate}%
+                                                </span>
+                                            </td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
+                                                    ${statusText}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 테이블 3: Auditor/Trainer 인센티브 현황 -->
+                <div class="mb-4">
+                    <h6 class="mb-3"><i class="fas fa-user-tie me-2"></i>🎯 ${t.table3Title}</h6>
+                    <p class="text-muted small mb-2">${t.table3AuditorTitle}</p>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" style="font-size: 13px;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="padding: 10px;">${t.jobTitle}</th>
+                                    <th style="padding: 10px;">${t.responsibleArea}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.personnel}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.rejectRate}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.consecutiveMonths}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.condition7}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.condition8}</th>
+                                    <th style="padding: 10px; text-align: center;">${t.incentiveStatus}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${auditorStats.map(stats => {
+                                    const isPayment = stats.incentiveStatus === t.paid || stats.incentiveStatus === '지급';
+                                    const badgeClass = isPayment ? 'bg-success' : 'bg-danger';
+                                    const cond7Badge = stats.cond7 ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-danger">❌</span>';
+                                    const cond8Badge = stats.cond8 ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-danger">❌</span>';
+                                    const statusText = isPayment ? t.paid : t.notPaid;
+
+                                    return `
+                                        <tr>
+                                            <td style="padding: 8px;">${stats.jobTitle}</td>
+                                            <td style="padding: 8px;"><strong>${stats.building}</strong></td>
+                                            <td style="padding: 8px; text-align: center;">${stats.count}${t.unitPeople}</td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span class="badge ${parseFloat(stats.rejectRate) > 3 ? 'bg-danger' : 'bg-success'}" style="font-size: 13px;">
+                                                    ${stats.rejectRate}%
+                                                </span>
+                                            </td>
+                                            <td style="padding: 8px; text-align: center;">${stats.consecutive}${t.unitPeople}</td>
+                                            <td style="padding: 8px; text-align: center;">${cond7Badge}</td>
+                                            <td style="padding: 8px; text-align: center;">${cond8Badge}</td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span class="badge ${badgeClass}" style="font-size: 12px; padding: 4px 8px;">
+                                                    ${isPayment ? '🟢' : '🔴'} ${statusText}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="small text-muted mt-2">
+                        <strong>${t.noteTitle}:</strong>
+                        • ${t.condition7Description}<br>
+                        • ${t.condition8Description}<br>
+                        • ${t.incentiveNote}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
             `;
 
         // Bootstrap 모달 처리
@@ -6802,6 +7086,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         {excel_data_b64}
     </script>
 
+    <script type="application/json" id="aqlInspectorStatsBase64">
+        {aql_inspector_stats_b64}
+    </script>
+
     <script>
         // UTF-8 Base64 디코딩 함수 추가
         function base64DecodeUnicode(str) {{
@@ -6824,6 +7112,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // Make employeeData globally accessible for validation tab
         // Decode base64 and parse JSON safely
         window.employeeData = [];
+        window.aqlInspectorStats = null;
         try {{
             // DOM에서 Base64 데이터 읽기
             const base64Element = document.getElementById('employeeDataBase64');
@@ -6832,6 +7121,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const employeeData = JSON.parse(jsonStr);
             window.employeeData = employeeData;
             console.log('Employee data loaded successfully:', employeeData.length, 'employees');
+
+            // AQL Inspector Stats 로드
+            const aqlStatsElement = document.getElementById('aqlInspectorStatsBase64');
+            if (aqlStatsElement) {{
+                const aqlStatsBase64 = aqlStatsElement.textContent.trim();
+                const aqlStatsJson = base64DecodeUnicode(aqlStatsBase64);
+                window.aqlInspectorStats = JSON.parse(aqlStatsJson);
+                console.log('AQL Inspector Stats loaded successfully:', Object.keys(window.aqlInspectorStats).length, 'areas');
+            }}
 
             // Build condition_results array from individual condition fields
             // CRITICAL FIX: Python이 이미 condition_results를 생성했다면 그것을 사용
