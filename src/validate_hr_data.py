@@ -14,6 +14,7 @@ from datetime import datetime
 import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 import warnings
+import glob
 warnings.filterwarnings('ignore')
 
 class HRDataValidator:
@@ -220,11 +221,21 @@ class HRDataValidator:
         return duplicates
     
     def save_to_excel(self, mismatches, inconsistencies, duplicates):
-        """검증 결과를 Excel 파일로 저장합니다."""
+        """검증 결과를 Excel 파일로 저장합니다 (최신 1개만 유지)."""
+        # 이전 검증 파일들 삭제
+        old_pattern = os.path.join(self.output_dir, f'hr_data_validation_{self.year}_{self.month}_*.xlsx')
+        old_files = glob.glob(old_pattern)
+        for old_file in old_files:
+            try:
+                os.remove(old_file)
+                print(f"🗑️  이전 검증 파일 삭제: {os.path.basename(old_file)}")
+            except Exception as e:
+                print(f"⚠️  검증 파일 삭제 실패: {old_file} - {e}")
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         output_file = os.path.join(self.output_dir, f'hr_data_validation_{self.year}_{self.month}_{timestamp}.xlsx')
-        
-        print(f"\n💾 Excel 파일 생성 중: {output_file}")
+
+        print(f"💾 Excel 파일 생성 중: {os.path.basename(output_file)}")
         
         with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
             # 1. Position 매핑 불일치
