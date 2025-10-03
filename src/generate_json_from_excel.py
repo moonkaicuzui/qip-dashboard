@@ -128,8 +128,8 @@ def generate_json_from_excel(excel_path: str, month: str, year: int, output_path
                 employee_data["unapproved_absences"] = 0
 
         # Absence Rate (raw) (실제 컬럼명)
-        if 'Absence Rate (raw)' in row:
-            employee_data["absence_rate"] = float(row.get('Absence Rate (raw)', 0))
+        if '결근율_Absence_Rate_Percent' in row:
+            employee_data["absence_rate"] = float(row.get('결근율_Absence_Rate_Percent', 0))
         else:
             # 컬럼이 없으면 기본값 0.0 (하드코딩 아님)
             if 'absence_rate' not in employee_data:

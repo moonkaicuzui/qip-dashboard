@@ -154,7 +154,7 @@ class ConditionMatrixManager:
         # Condition 1: Attendance rate >= 88%
         if 1 in applicable:
             # Calculate attendance rate (100% - absence rate)
-            absence_rate = employee_data.get('Absence Rate (raw)', 0)
+            absence_rate = employee_data.get('결근율_Absence_Rate_Percent', 0)
             if absence_rate > 1:  # If given as percentage (e.g., 12 instead of 0.12)
                 absence_rate = absence_rate / 100
             attendance_rate = 1 - absence_rate

@@ -105,7 +105,7 @@ class DataProcessor:
             'ROLE TYPE STD': 'type',
             'Final Incentive amount': 'amount',
             'Entrance Date': 'work_start_date',
-            'Attendance Rate': 'attendance_rate',
+            'Attendance Rate': '출근율_Attendance_Rate_Percent',
             'TARGET AQL': 'aql_target',
             'ACTUAL AQL': 'aql_actual',
             'AQL FAIL': 'aql_failure',
@@ -257,7 +257,7 @@ class DataProcessor:
         # Select relevant columns
         columns = [
             'employee_id', 'name', 'position', 'type',
-            'attendance_rate', 'aql_failure', '5prs_score',
+            '출근율_Attendance_Rate_Percent', 'aql_failure', '5prs_score',
             'amount', 'condition_results'
         ]
 

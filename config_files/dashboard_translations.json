@@ -5491,7 +5491,7 @@
       "vi": "Tỷ lệ đạt 5PRS < 95%"
     },
     "lowInspectionQty": {
-      "ko": "5PRS Inspection < 100 pairs",
+      "ko": "5PRS 검사량 < 100족",
       "en": "5PRS Inspection < 100 pairs",
       "vi": "Kiểm tra 5PRS < 100 đôi"
     }

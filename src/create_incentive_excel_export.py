@@ -149,7 +149,7 @@ def create_individual_sheet(df):
             'Entrance_Date': row['Entrance Date'],
             'Working_Days': row['Total Working Days'] if pd.notna(row['Total Working Days']) else 0,
             'Actual_Days': row['Actual Working Days'] if pd.notna(row['Actual Working Days']) else 0,
-            'Attendance_Rate': f"{100 - row['Absence Rate (raw)']:.1f}" if pd.notna(row['Absence Rate (raw)']) else "100.0",
+            'Attendance_Rate': f"{100 - row['결근율_Absence_Rate_Percent']:.1f}" if pd.notna(row['결근율_Absence_Rate_Percent']) else "100.0",
             'AQL_Pass_Rate': f"{row['Pass %']:.1f}" if pd.notna(row['Pass %']) else "0.0",
             'Regular_Incentive': regular_incentive,
             'Talent_Pool_Member': 'Yes' if row['Talent_Pool_Member'] == 'Y' else 'No',
@@ -258,7 +258,7 @@ def create_non_payment_analysis(df):
             'Position': row['QIP POSITION 1ST  NAME'],
             'Working_Days': row['Total Working Days'] if pd.notna(row['Total Working Days']) else 0,
             'Actual_Days': row['Actual Working Days'] if pd.notna(row['Actual Working Days']) else 0,
-            'Absence_Rate': f"{row['Absence Rate (raw)']:.1f}%" if pd.notna(row['Absence Rate (raw)']) else "0%",
+            'Absence_Rate': f"{row['결근율_Absence_Rate_Percent']:.1f}%" if pd.notna(row['결근율_Absence_Rate_Percent']) else "0%",
             'Non_Payment_Reasons': '; '.join(reasons) if reasons else 'Other',
             'Remark': row['RE MARK'] if pd.notna(row['RE MARK']) else ''
         })
