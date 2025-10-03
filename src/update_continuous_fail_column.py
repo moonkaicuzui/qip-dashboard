@@ -252,8 +252,11 @@ def find_excel_file(month, year):
     output_dir = Path('output_files')
     month_name = MONTH_NAMES[month]
 
-    # Possible file name patterns
+    # Possible file name patterns (우선순위 순서)
     patterns = [
+        # V8.01 메인 파일 (최우선)
+        f'output_QIP_incentive_{month_name}_{year}_Complete_V8.01_Complete.csv',
+        # 이전 버전들
         f'output_QIP_incentive_{month_name}_{year}_최종완성버전_v6.0_Complete.csv',
         f'output_QIP_incentive_{month_name}_{year}_Complete.csv',
         f'output_QIP_incentive_{month}_{year}_최종완성버전_v6.0_Complete.csv',
@@ -263,12 +266,18 @@ def find_excel_file(month, year):
     for pattern in patterns:
         file_path = output_dir / pattern
         if file_path.exists():
+            print(f"ℹ️  Found target file: {file_path.name}")
             return file_path
 
-    # Wildcard search
+    # Wildcard search (backup 파일 제외)
     possible_files = list(output_dir.glob(f'*{month_name}*{year}*.csv'))
-    if possible_files:
-        return possible_files[0]
+    # backup 파일 제외하고 정렬
+    main_files = [f for f in possible_files if 'backup' not in f.name.lower()]
+    if main_files:
+        # 파일명이 가장 짧은 것 선택 (메인 파일이 보통 짧음)
+        target_file = min(main_files, key=lambda f: len(f.name))
+        print(f"ℹ️  Found target file (wildcard): {target_file.name}")
+        return target_file
 
     return None
 
