@@ -1,0 +1,32 @@
+# 백업 파일들
+config_files/*_backup_*.json
+
+# 검증 파일들
+error_review/hr_data_validation_*.xlsx
+
+# Python 캐시
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 환경 설정
+.env
+.venv
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 임시 파일
+*.tmp
+*.log

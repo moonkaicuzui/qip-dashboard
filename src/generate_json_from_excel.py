@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 import argparse
+import glob
 
 def load_excel_data(file_path: str) -> pd.DataFrame:
     """Excel 파일 로드 및 표준화"""
@@ -148,11 +149,22 @@ def generate_json_from_excel(excel_path: str, month: str, year: int, output_path
     if output_path is None:
         output_path = "config_files/assembly_inspector_continuous_months.json"
 
-    # 기존 JSON 파일이 있으면 백업
+    # 기존 JSON 파일이 있으면 백업 (최신 1개만 유지)
     if os.path.exists(output_path):
+        # 이전 백업 파일들 삭제
+        backup_pattern = output_path.replace('.json', '_backup_*.json')
+        old_backups = glob.glob(backup_pattern)
+        for old_backup in old_backups:
+            try:
+                os.remove(old_backup)
+                print(f"🗑️  이전 백업 파일 삭제: {os.path.basename(old_backup)}")
+            except Exception as e:
+                print(f"⚠️  백업 파일 삭제 실패: {old_backup} - {e}")
+
+        # 새 백업 생성
         backup_path = output_path.replace('.json', f'_backup_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json')
         os.rename(output_path, backup_path)
-        print(f"📁 기존 파일 백업: {backup_path}")
+        print(f"📁 기존 파일 백업: {os.path.basename(backup_path)}")
 
     # JSON 파일 저장
     with open(output_path, 'w', encoding='utf-8') as f:
