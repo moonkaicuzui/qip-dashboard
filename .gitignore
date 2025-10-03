@@ -30,3 +30,38 @@ Thumbs.db
 # 임시 파일
 *.tmp
 *.log
+
+# 출력 파일
+output_files/*.html
+output_files/*.xlsx
+output_files/*.csv
+output_files/archived/
+output_files/dashboards/
+
+# 이미지 파일
+*.png
+*.jpg
+*.jpeg
+screenshots/*.png
+
+# 테스트/디버그 스크립트 (now in scripts/)
+# Most scripts moved to scripts/ directory
+scripts/legacy/*.pyc
+scripts/**/__pycache__/
+
+# 백업 파일
+*.backup
+*.bak
+*backup*.py
+
+# 브라우저 테스트 캐시
+.playwright-mcp/
+
+# JavaScript 임시 파일
+*.js
+!aql_fail_modal_new.js
+!dashboard_v2/static/js/**
+
+# Documentation
+docs/reports/*.pdf
+docs/improvements/*_draft.md

@@ -1086,8 +1086,8 @@ class DataProcessor:
 
         # Excel 파일 경로
         excel_patterns = [
-            f"output_files/output_QIP_incentive_{prev_month_obj.full_name.lower()}_{prev_year}_최종완성버전_v6.0_Complete.csv",
-            f"output_QIP_incentive_{prev_month_obj.full_name.lower()}_{prev_year}_최종완성버전_v6.0_Complete.csv"
+            f"output_files/output_QIP_incentive_{prev_month_obj.full_name.lower()}_{prev_year}_Complete_V8.01_Complete.csv",
+            f"output_QIP_incentive_{prev_month_obj.full_name.lower()}_{prev_year}_Complete_V8.01_Complete.csv"
         ]
 
         excel_found = False
@@ -2049,7 +2049,7 @@ class CompleteQIPCalculator:
             prev_year = self.config.year
         
         prev_month_obj = Month.from_number(prev_month)
-        prev_file_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_최종완성버전_v6.0_Complete.csv'
+        prev_file_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.01_Complete.csv'
         
         if not prev_file_path.exists():
             print(f"\n📊 {prev_month}월 인센티브 파일이 없습니다.")
@@ -2112,7 +2112,7 @@ class CompleteQIPCalculator:
             prev_processor.calculate_all_incentives_without_check()
             
             # 결과 저장
-            output_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_최종완성버전_v6.0_Complete.csv'
+            output_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.01_Complete.csv'
             prev_processor.month_data.to_csv(output_path, index=False, encoding='utf-8-sig')
             
             print(f"✅ {prev_month}월 계산 완료\n")
@@ -4563,7 +4563,7 @@ class CompleteQIPCalculator:
                         print(f"   - 100% 조건 충족 GROUP LEADER로서 다른 GROUP LEADER와 동일 금액 적용")
 
             # CSV 저장 (조건 평가 후)
-            csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_최종완성버전_v6.0_Complete.csv")
+            csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.01_Complete.csv")
             self.month_data.to_csv(csv_file, index=False, encoding='utf-8-sig')
 
             # CSV 파일 생성 검증
@@ -4573,7 +4573,7 @@ class CompleteQIPCalculator:
                 print(f"⚠️ CSV 파일 생성 실패: {csv_file}")
 
             # Excel 저장
-            excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_최종완성버전_v6.0_Complete.xlsx")
+            excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.01_Complete.xlsx")
             self.month_data.to_excel(excel_file, index=False)
             
             # Excel 파일 생성 검증
