@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-HR 데이터 검증 스크립트
-인센티브 CSV 파일과 team_structure_updated.json 간의 데이터 불일치를 검증합니다.
+HR Data Validation Script
+Validates data inconsistencies between incentive CSV file and team_structure_updated.json
 """
 
 import pandas as pd
@@ -24,47 +24,47 @@ class HRDataValidator:
         self.errors = []
         self.warnings = []
         self.base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        
-        # 파일 경로 설정
+
+        # Set file paths
         self.csv_path = os.path.join(self.base_path, 'input_files', f'{year}년 {month}월 인센티브 지급 세부 정보.csv')
         self.json_path = os.path.join(self.base_path, 'HR info', 'team_structure_updated.json')
         self.output_dir = os.path.join(self.base_path, 'error_review')
-        
-        # 출력 디렉토리 생성
+
+        # Create output directory
         os.makedirs(self.output_dir, exist_ok=True)
-        
-        # 데이터 로드
+
+        # Load data
         self.csv_data = None
         self.json_data = None
-        
+
     def load_data(self):
-        """CSV와 JSON 데이터를 로드합니다."""
+        """Load CSV and JSON data."""
         try:
-            # CSV 데이터 로드
-            print(f"📂 CSV 파일 로드 중: {self.csv_path}")
+            # Load CSV data
+            print(f"📂 Loading CSV file: {self.csv_path}")
             self.csv_data = pd.read_csv(self.csv_path, encoding='utf-8-sig')
-            print(f"   ✅ {len(self.csv_data)}명의 직원 데이터 로드 완료")
-            
-            # JSON 데이터 로드
-            print(f"📂 JSON 파일 로드 중: {self.json_path}")
+            print(f"   ✅ {len(self.csv_data)} employee data loaded successfully")
+
+            # Load JSON data
+            print(f"📂 Loading JSON file: {self.json_path}")
             with open(self.json_path, 'r', encoding='utf-8') as f:
                 self.json_data = json.load(f)
-            print(f"   ✅ {len(self.json_data['positions'])}개의 position 정의 로드 완료")
-            
+            print(f"   ✅ {len(self.json_data['positions'])} position definitions loaded successfully")
+
             return True
-            
+
         except FileNotFoundError as e:
-            print(f"❌ 파일을 찾을 수 없습니다: {e}")
+            print(f"❌ File not found: {e}")
             return False
         except Exception as e:
-            print(f"❌ 데이터 로드 중 오류 발생: {e}")
+            print(f"❌ Error occurred while loading data: {e}")
             return False
-    
+
     def validate_position_mapping(self):
-        """Position 매핑을 검증합니다."""
-        print("\n🔍 Position 매핑 검증 중...")
-        
-        # JSON에서 position 매핑 생성
+        """Validate position mapping."""
+        print("\n🔍 Validating position mapping...")
+
+        # Create position mapping from JSON
         json_positions = {}
         for pos in self.json_data['positions']:
             key = (
@@ -78,8 +78,8 @@ class HRDataValidator:
                 'role_category': pos.get('role_category', ''),
                 'role_type': pos.get('role_type', '')
             }
-        
-        # CSV 데이터 검증
+
+        # Validate CSV data
         mismatches = []
         for idx, row in self.csv_data.iterrows():
             csv_key = (
@@ -87,7 +87,7 @@ class HRDataValidator:
                 str(row.get('QIP POSITION 2ND  NAME', '')).strip().upper(),
                 str(row.get('QIP POSITION 3RD  NAME', '')).strip().upper()
             )
-            
+
             employee_info = {
                 'Employee No': row.get('Employee No', ''),
                 'Full Name': row.get('Full Name', ''),
@@ -101,72 +101,72 @@ class HRDataValidator:
                 'Actual_Values': '',
                 'Reason of Review Required': ''
             }
-            
+
             if csv_key not in json_positions:
-                # Position이 JSON에 없는 경우
+                # Case: Position not found in JSON
                 employee_info['Error_Type'] = 'Position Not Found in JSON'
                 employee_info['Expected_Values'] = 'Position definition in JSON'
                 employee_info['Actual_Values'] = f"{csv_key[0]} / {csv_key[1]} / {csv_key[2]}"
-                employee_info['Reason of Review Required'] = 'Position 조합이 team_structure_updated.json에 정의되지 않음. 신규 직책이거나 오타 가능성'
+                employee_info['Reason of Review Required'] = 'Position combination not defined in team_structure_updated.json. May be new position or typo'
                 mismatches.append(employee_info)
             else:
-                # Position은 있지만 값이 다른 경우
+                # Case: Position exists but values differ
                 json_info = json_positions[csv_key]
                 errors = []
-                
-                # Final Code 검증
+
+                # Validate Final Code
                 if str(row.get('FINAL QIP POSITION NAME CODE', '')).strip() != json_info['final_code']:
                     errors.append('Final Code Mismatch')
                     employee_info['Expected_Values'] = f"Final Code: {json_info['final_code']}"
                     employee_info['Actual_Values'] = f"Final Code: {row.get('FINAL QIP POSITION NAME CODE', '')}"
-                    employee_info['Reason of Review Required'] = 'Final Code가 JSON 정의와 불일치. 코드 업데이트 필요'
-                
-                # Role Type 검증
+                    employee_info['Reason of Review Required'] = 'Final Code does not match JSON definition. Code update required'
+
+                # Validate Role Type
                 if str(row.get('ROLE TYPE STD', '')).strip() != json_info['role_type']:
                     errors.append('Role Type Mismatch')
                     if employee_info['Expected_Values']:
                         employee_info['Expected_Values'] += f", Role Type: {json_info['role_type']}"
                         employee_info['Actual_Values'] += f", Role Type: {row.get('ROLE TYPE STD', '')}"
                         if employee_info['Reason of Review Required']:
-                            employee_info['Reason of Review Required'] += ' / Role Type(TYPE-1/2/3) 분류 불일치. 인센티브 계산에 영향'
+                            employee_info['Reason of Review Required'] += ' / Role Type (TYPE-1/2/3) classification mismatch. Affects incentive calculation'
                         else:
-                            employee_info['Reason of Review Required'] = 'Role Type(TYPE-1/2/3) 분류 불일치. 인센티브 계산에 영향'
+                            employee_info['Reason of Review Required'] = 'Role Type (TYPE-1/2/3) classification mismatch. Affects incentive calculation'
                     else:
                         employee_info['Expected_Values'] = f"Role Type: {json_info['role_type']}"
                         employee_info['Actual_Values'] = f"Role Type: {row.get('ROLE TYPE STD', '')}"
-                        employee_info['Reason of Review Required'] = 'Role Type(TYPE-1/2/3) 분류 불일치. 인센티브 계산에 영향'
-                
+                        employee_info['Reason of Review Required'] = 'Role Type (TYPE-1/2/3) classification mismatch. Affects incentive calculation'
+
                 if errors:
                     employee_info['Error_Type'] = ', '.join(errors)
                     mismatches.append(employee_info)
-        
-        print(f"   ✅ 검증 완료: {len(mismatches)}개의 불일치 발견")
+
+        print(f"   ✅ Validation completed: {len(mismatches)} mismatches found")
         return mismatches
-    
+
     def validate_role_type_consistency(self):
-        """동일 position에 대한 Role Type 일관성을 검증합니다."""
-        print("\n🔍 Role Type 일관성 검증 중...")
-        
+        """Validate Role Type consistency for same position."""
+        print("\n🔍 Validating Role Type consistency...")
+
         position_types = {}
         inconsistencies = []
-        
+
         for idx, row in self.csv_data.iterrows():
             position_1st = str(row.get('QIP POSITION 1ST  NAME', '')).strip().upper()
             role_type = str(row.get('ROLE TYPE STD', '')).strip()
-            
+
             if position_1st not in position_types:
                 position_types[position_1st] = set()
-            
+
             position_types[position_1st].add(role_type)
-        
-        # 동일 position_1st에 여러 role_type이 있는 경우 찾기
+
+        # Find cases where same position_1st has multiple role_types
         for position, types in position_types.items():
             if len(types) > 1:
-                # 해당 position의 모든 직원 찾기
+                # Find all employees with this position
                 affected_employees = self.csv_data[
                     self.csv_data['QIP POSITION 1ST  NAME'].str.strip().str.upper() == position
                 ]
-                
+
                 for idx, row in affected_employees.iterrows():
                     inconsistencies.append({
                         'Employee No': row.get('Employee No', ''),
@@ -175,20 +175,20 @@ class HRDataValidator:
                         'Current Role Type': row.get('ROLE TYPE STD', ''),
                         'All Role Types for Position': ', '.join(sorted(types)),
                         'Issue': 'Multiple Role Types for Same Position',
-                        'Reason of Review Required': f'동일 직책({position})에 여러 TYPE({", ".join(sorted(types))})이 혼재. 통일 필요'
+                        'Reason of Review Required': f'Multiple TYPEs ({", ".join(sorted(types))}) mixed for same position ({position}). Need to unify'
                     })
-        
-        print(f"   ✅ 검증 완료: {len(inconsistencies)}개의 일관성 문제 발견")
+
+        print(f"   ✅ Validation completed: {len(inconsistencies)} consistency issues found")
         return inconsistencies
-    
+
     def validate_duplicate_codes(self):
-        """중복 Final Code를 검증합니다."""
-        print("\n🔍 중복 Final Code 검증 중...")
-        
+        """Validate duplicate Final Codes."""
+        print("\n🔍 Validating duplicate Final Codes...")
+
         code_positions = {}
         duplicates = []
-        
-        # JSON에서 Final Code별 position 수집
+
+        # Collect positions by Final Code from JSON
         for pos in self.json_data['positions']:
             code = pos.get('final_code', '')
             if code:
@@ -201,8 +201,8 @@ class HRDataValidator:
                     'team': pos.get('team_name', ''),
                     'role_type': pos.get('role_type', '')
                 })
-        
-        # 중복 코드 찾기
+
+        # Find duplicate codes
         for code, positions in code_positions.items():
             if len(positions) > 1:
                 for pos in positions:
@@ -214,56 +214,56 @@ class HRDataValidator:
                         'Team': pos['team'],
                         'Role Type': pos['role_type'],
                         'Issue': f'Code used by {len(positions)} positions',
-                        'Reason of Review Required': f'Final Code({code})가 {len(positions)}개 직책에서 중복 사용. 고유 코드 재할당 필요'
+                        'Reason of Review Required': f'Final Code ({code}) used by {len(positions)} positions (duplicate). Need to reassign unique codes'
                     })
-        
-        print(f"   ✅ 검증 완료: {len(duplicates)}개의 중복 코드 발견")
+
+        print(f"   ✅ Validation completed: {len(duplicates)} duplicate codes found")
         return duplicates
-    
+
     def save_to_excel(self, mismatches, inconsistencies, duplicates):
-        """검증 결과를 Excel 파일로 저장합니다 (최신 1개만 유지)."""
-        # 이전 검증 파일들 삭제
+        """Save validation results to Excel file (keep only latest)."""
+        # Delete previous validation files
         old_pattern = os.path.join(self.output_dir, f'hr_data_validation_{self.year}_{self.month}_*.xlsx')
         old_files = glob.glob(old_pattern)
         for old_file in old_files:
             try:
                 os.remove(old_file)
-                print(f"🗑️  이전 검증 파일 삭제: {os.path.basename(old_file)}")
+                print(f"🗑️  Previous validation file deleted: {os.path.basename(old_file)}")
             except Exception as e:
-                print(f"⚠️  검증 파일 삭제 실패: {old_file} - {e}")
+                print(f"⚠️  Failed to delete validation file: {old_file} - {e}")
 
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         output_file = os.path.join(self.output_dir, f'hr_data_validation_{self.year}_{self.month}_{timestamp}.xlsx')
 
-        print(f"💾 Excel 파일 생성 중: {os.path.basename(output_file)}")
-        
+        print(f"💾 Creating Excel file: {os.path.basename(output_file)}")
+
         with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-            # 1. Position 매핑 불일치
+            # 1. Position mapping mismatches
             if mismatches:
                 df_mismatches = pd.DataFrame(mismatches)
                 df_mismatches.to_excel(writer, sheet_name='Position Mismatches', index=False)
-                
-                # 스타일 적용
+
+                # Apply style
                 worksheet = writer.sheets['Position Mismatches']
                 self._apply_excel_style(worksheet, len(mismatches))
-            
-            # 2. Role Type 일관성 문제
+
+            # 2. Role Type consistency issues
             if inconsistencies:
                 df_inconsistencies = pd.DataFrame(inconsistencies)
                 df_inconsistencies.to_excel(writer, sheet_name='Role Type Inconsistencies', index=False)
-                
+
                 worksheet = writer.sheets['Role Type Inconsistencies']
                 self._apply_excel_style(worksheet, len(inconsistencies))
-            
-            # 3. 중복 Final Code
+
+            # 3. Duplicate Final Codes
             if duplicates:
                 df_duplicates = pd.DataFrame(duplicates)
                 df_duplicates.to_excel(writer, sheet_name='Duplicate Final Codes', index=False)
-                
+
                 worksheet = writer.sheets['Duplicate Final Codes']
                 self._apply_excel_style(worksheet, len(duplicates))
-            
-            # 4. 요약 시트
+
+            # 4. Summary sheet
             summary_data = {
                 'Validation Type': [
                     'Position Mismatches',
@@ -278,61 +278,61 @@ class HRDataValidator:
                     len(mismatches) + len(inconsistencies) + len(duplicates)
                 ],
                 'Description': [
-                    'CSV와 JSON 간 position 정보 불일치',
-                    '동일 position에 여러 role type 존재',
-                    '동일 final code가 여러 position에 사용',
-                    '전체 발견된 문제 수'
+                    'Position information mismatch between CSV and JSON',
+                    'Multiple role types exist for same position',
+                    'Same final code used by multiple positions',
+                    'Total number of issues found'
                 ],
                 'Impact on Dashboard': [
-                    '팀 배정 오류, Team Unidentified로 표시됨',
-                    '인센티브 금액 계산 오류 가능성',
-                    '데이터 매핑 혼란, 보고서 정확도 저하',
-                    '대시보드 신뢰성 저하'
+                    'Team assignment error, displayed as Team Unidentified',
+                    'Potential incentive amount calculation errors',
+                    'Data mapping confusion, report accuracy degradation',
+                    'Dashboard reliability degradation'
                 ],
                 'Recommended Action': [
-                    'team_structure_updated.json에 누락된 position 추가',
-                    '동일 직책의 Role Type 통일 (TYPE-1/2/3 중 선택)',
-                    '각 position에 고유한 Final Code 재할당',
-                    '데이터 정합성 검토 후 재실행'
+                    'Add missing positions to team_structure_updated.json',
+                    'Unify Role Type (choose one of TYPE-1/2/3) for same position',
+                    'Reassign unique Final Code to each position',
+                    'Review data consistency and re-run'
                 ]
             }
             df_summary = pd.DataFrame(summary_data)
             df_summary.to_excel(writer, sheet_name='Summary', index=False)
-            
+
             worksheet = writer.sheets['Summary']
             self._apply_excel_style(worksheet, len(summary_data['Validation Type']))
-        
-        print(f"   ✅ Excel 파일 저장 완료")
+
+        print(f"   ✅ Excel file saved successfully")
         return output_file
-    
+
     def _apply_excel_style(self, worksheet, row_count):
-        """Excel 워크시트에 스타일을 적용합니다."""
-        # 헤더 스타일
+        """Apply style to Excel worksheet."""
+        # Header style
         header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
         header_font = Font(color="FFFFFF", bold=True)
-        
-        # 테두리 스타일
+
+        # Border style
         thin_border = Border(
             left=Side(style='thin'),
             right=Side(style='thin'),
             top=Side(style='thin'),
             bottom=Side(style='thin')
         )
-        
-        # 헤더 행 스타일 적용
+
+        # Apply header row style
         for cell in worksheet[1]:
             cell.fill = header_fill
             cell.font = header_font
             cell.alignment = Alignment(horizontal='center', vertical='center')
             cell.border = thin_border
-        
-        # 데이터 행 스타일 적용
+
+        # Apply data row style
         for row in worksheet.iter_rows(min_row=2, max_row=row_count+1):
             for cell in row:
                 cell.border = thin_border
                 cell.alignment = Alignment(horizontal='left', vertical='center')
-        
-        # 열 너비 자동 조정
+
+        # Auto-adjust column width
         for column in worksheet.columns:
             max_length = 0
             column_letter = column[0].column_letter
@@ -344,56 +344,56 @@ class HRDataValidator:
                     pass
             adjusted_width = min(max_length + 2, 50)
             worksheet.column_dimensions[column_letter].width = adjusted_width
-    
+
     def run_validation(self):
-        """전체 검증 프로세스를 실행합니다."""
+        """Run complete validation process."""
         print(f"\n{'='*60}")
-        print(f"HR 데이터 검증 시작 - {self.year}년 {self.month}월")
+        print(f"HR Data Validation Started - {self.year} {self.month}")
         print(f"{'='*60}")
-        
-        # 데이터 로드
+
+        # Load data
         if not self.load_data():
             return False
-        
-        # 검증 수행
+
+        # Perform validation
         mismatches = self.validate_position_mapping()
         inconsistencies = self.validate_role_type_consistency()
         duplicates = self.validate_duplicate_codes()
-        
-        # 결과 저장
+
+        # Save results
         if mismatches or inconsistencies or duplicates:
             output_file = self.save_to_excel(mismatches, inconsistencies, duplicates)
-            
-            print(f"\n📊 검증 결과 요약:")
-            print(f"   • Position 불일치: {len(mismatches)}건")
-            print(f"   • Role Type 일관성 문제: {len(inconsistencies)}건")
-            print(f"   • 중복 Final Code: {len(duplicates)}건")
-            print(f"   • 총 문제: {len(mismatches) + len(inconsistencies) + len(duplicates)}건")
-            print(f"\n📄 상세 결과는 다음 파일을 확인하세요:")
+
+            print(f"\n📊 Validation Results Summary:")
+            print(f"   • Position mismatches: {len(mismatches)} issues")
+            print(f"   • Role Type consistency issues: {len(inconsistencies)} issues")
+            print(f"   • Duplicate Final Codes: {len(duplicates)} issues")
+            print(f"   • Total issues: {len(mismatches) + len(inconsistencies) + len(duplicates)}")
+            print(f"\n📄 See detailed results in:")
             print(f"   {output_file}")
-            
+
             return True
         else:
-            print(f"\n✅ 모든 데이터가 정상입니다. 불일치 사항이 없습니다.")
+            print(f"\n✅ All data is valid. No inconsistencies found.")
             return True
 
 def main():
-    """메인 실행 함수"""
-    # 명령행 인자 처리
+    """Main execution function"""
+    # Process command line arguments
     if len(sys.argv) > 2:
         month = int(sys.argv[1])
         year = int(sys.argv[2])
     else:
-        # 기본값: 현재 월
+        # Default: current month
         from datetime import datetime
         now = datetime.now()
         month = now.month
         year = now.year
-    
-    # 검증 실행
+
+    # Run validation
     validator = HRDataValidator(month, year)
     success = validator.run_validation()
-    
+
     if not success:
         sys.exit(1)
 

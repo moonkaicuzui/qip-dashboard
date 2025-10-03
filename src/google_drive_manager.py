@@ -274,10 +274,10 @@ class GoogleDriveManager:
             
             # Sync configuration files
             config_files = [
-                ('auditor_trainer_area_mapping.json', 'auditor_trainer_area_mapping.json'),
-                ('type2_position_mapping.json', 'type2_position_mapping.json')
+                ('auditor_trainer_area_mapping.json', 'config_files/auditor_trainer_area_mapping.json'),
+                ('type2_position_mapping.json', 'config_files/type2_position_mapping.json')
             ]
-            
+
             for drive_name, local_name in config_files:
                 success = self._sync_file_from_path(
                     f"configs/{drive_name}",
