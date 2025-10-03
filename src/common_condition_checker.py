@@ -28,7 +28,7 @@ class ConditionChecker:
         """
         self.matrix = self._load_matrix(matrix_path)
         self.condition_mapping = {
-            1: 'attendance_rate',           # 출근율 ≥88%
+            1: '출근율_Attendance_Rate_Percent',           # 출근율 ≥88% (Phase 3: 한국어 라벨 추가)
             2: 'unapproved_absence',        # 무단결근 ≤2일
             3: 'actual_working_days',       # 실제 근무일 >0일
             4: 'minimum_working_days',      # 최소 근무일 ≥12일
@@ -94,7 +94,7 @@ class ConditionChecker:
         results = {}
         
         # 조건 1: 출근율 ≥88%
-        attendance_rate = 100 - employee_data.get('Absence Rate (raw)', 0)
+        attendance_rate = 100 - employee_data.get('결근율_Absence_Rate_Percent', 0)
         results[1] = attendance_rate >= 88
         
         # 조건 2: 무단결근 ≤2일

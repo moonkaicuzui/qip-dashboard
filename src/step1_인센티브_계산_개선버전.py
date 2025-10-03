@@ -236,7 +236,7 @@ class ConfigManager:
                 print("⚠️ Attendance file not found.")
                 return None
         
-        # attendance filefrom yearmonth detection
+        # attendance 파일에서 yearmonth detection
         year, month = detect_month_from_attendance(attendance_file)
         
         if not year or not month:
@@ -248,7 +248,7 @@ class ConfigManager:
         # 근무 days 수 calculation
         working_days = calculate_working_days_from_attendance(attendance_file, year, month)
         if not working_days:
-            print("❌ Error: attendance filefrom cannot calculate working days from.")
+            print("❌ Error: attendance 파일에서 cannot calculate working days from.")
             print("   attendance CSV fileplease check if exists and has correct format.")
             return None
         
@@ -258,7 +258,7 @@ class ConfigManager:
         prev_month1 = Month.from_number(prev_month1_num)
         prev_month2 = Month.from_number(prev_month2_num)
         
-        # file 자same detection
+        # 파일 자동 detection
         file_paths = ConfigManager.auto_detect_files(month_obj.full_name, prev_month2.korean_name, year)
         
         print(f"\n📊 Auto-configuration creation completed:")
@@ -278,7 +278,7 @@ class ConfigManager:
     
     @staticmethod
     def auto_detect_files(month_name: str, prev_month_korean: str, year: int) -> dict:
-        """file 자same detection"""
+        """파일 자동 detection"""
         import os
         
         detected_files = {}
@@ -364,11 +364,11 @@ class ConfigManager:
         
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(config.to_dict(), f, indent=2, ensure_ascii=False)
-        print(f"✅ configuration saved completed: {filepath}")
+        print(f"✅ configuration 저장 완료: {filepath}")
     
     @staticmethod
     def load_config(filepath: str) -> MonthConfig:
-        """JSON filefrom configuration withload"""
+        """JSON 파일에서 configuration withload"""
         with open(filepath, 'r', encoding='utf-8') as f:
             data = json.load(f)
         print(f"✅ Configuration loaded successfully: {filepath}")
@@ -559,7 +559,7 @@ class DataProcessor:
                     # 통계 출력
                     mapped_count = (self.month_data['July_Incentive'] > 0).sum()
                     zero_count = (self.month_data['July_Incentive'] == 0).sum()
-                    print(f"  → July incentive mapping completed: {mapped_count}employees (>0), {zero_count}employees (=0)")
+                    print(f"  → July incentive mapping completed: {mapped_count}명 (>0), {zero_count}명 (=0)")
 
                     # DANH MINH HIẾU checking
                     hiếu_data = self.month_data[self.month_data['Employee No'] == '621030996']
@@ -576,7 +576,7 @@ class DataProcessor:
                 print(f"  ⚠️ July incentive file not found: {july_file_path}")
                 return False
 
-        # September 후 previous month Excelfrom 자samewith 읽음
+        # September 후 previous month Excelfrom 자동으로 읽음
         return True
 
     def process_attendance_conditions(self, att_df: pd.DataFrame) -> pd.DataFrame:
@@ -608,7 +608,7 @@ class DataProcessor:
         if hasattr(self, 'month_data') and 'Stop working Date' in self.month_data.columns:
             stop_working_mask = self.month_data['Stop working Date'].notna() & (self.month_data['Stop working Date'] != '')
             stop_working_employees = set(self.month_data[stop_working_mask]['Employee No'].astype(str))
-            print(f"  → Stop working employee {len(stop_working_employees)}employees excluded from processing")
+            print(f"  → Stop working employee {len(stop_working_employees)}명 excluded from processing")
         
         # converted file 형식 체크
         if 'ACTUAL WORK DAY' in att_df.columns and 'TOTAL WORK DAY' in att_df.columns:
@@ -678,11 +678,8 @@ class DataProcessor:
                     'Actual Working Days': actual_days,
                     'AR1 Absences': ar1_absences,
                     'Unapproved Absences': unapproved_absences,
-                    'Absence Rate (raw)': absence_rate,
-                    'attendancy condition 1 - acctual working days is zero': 'yes' if cond1_fail else 'no',
-                    'attendancy condition 2 - unapproved Absence Day is more than 2 days': 'yes' if cond2_fail else 'no',
-                    'attendancy condition 3 - absent % is over 12%': 'yes' if cond3_fail else 'no',
-                    'attendancy condition 4 - minimum working days': 'yes' if cond4_fail else 'no'
+                    '결근율_Absence_Rate_Percent': absence_rate
+                    # 레거시 컬럼 삭제: cond_1~10 표준 컬럼으로 통합
                 })
             
             result_df = pd.DataFrame(attendance_results)
@@ -852,11 +849,8 @@ class DataProcessor:
                 'Actual Working Days': actual_working_days,
                 'AR1 Absences': unapproved_absence,  # AR1 absences are the unapproved absences
                 'Unapproved Absences': unapproved_absence,
-                'Absence Rate (raw)': round(absence_rate, 2),
-                'attendancy condition 1 - acctual working days is zero': 'yes' if actual_working_days == 0 else 'no',
-                'attendancy condition 2 - unapproved Absence Day is more than 2 days': 'yes' if unapproved_absence > 2 else 'no',
-                'attendancy condition 3 - absent % is over 12%': absence_rate_condition,
-                'attendancy condition 4 - minimum working days': min_days_condition
+                '결근율_Absence_Rate_Percent': round(absence_rate, 2)
+                # 레거시 컬럼 삭제: cond_1~10 표준 컬럼으로 통합
             })
         
         result_df = pd.DataFrame(attendance_results)
@@ -982,58 +976,58 @@ class DataProcessor:
                     july_incentive = emp_data.iloc[0].get('July_Incentive', 0)
 
                 # July incentive amountwith consecutive months calculation
-                # VND칙: 특정 amount 받았다 = 해당 month month성 → next month은 +1-month
+                # 원칙: July에 받은 금액 = 해당 개월 수 → 다음 달은 +1개월
+                # ✅ 수정된 Progressive Table 반영 (2025-10-04)
                 if july_incentive == 0:
-                    continuous_months = 1  # new started
-                    print(f"[July Data] {emp_id_padded}: July 0VND → August 1-month started")
+                    continuous_months = 1  # 신규 시작
+                    print(f"[July Data] {emp_id_padded}: July 0VND → August 1개월 시작")
                 elif july_incentive == 150000:
-                    continuous_months = 2  # 1-month month성 → 2-month
-                    print(f"[July Data] {emp_id_padded}: July 150,000VND (1-month) → August 2-month")
+                    continuous_months = 2  # 1개월 → 2개월
+                    print(f"[July Data] {emp_id_padded}: July 150,000VND (1개월) → August 2개월")
                 elif july_incentive == 250000:
-                    continuous_months = 3  # 2-month month성 → 3-month
-                    print(f"[July Data] {emp_id_padded}: July 250,000VND (2-month) → August 3-month")
+                    continuous_months = 3  # 2개월 → 3개월
+                    print(f"[July Data] {emp_id_padded}: July 250,000VND (2개월) → August 3개월")
                 elif july_incentive == 300000:
-                    continuous_months = 4  # 3-month month성 → 4-month
-                    print(f"[July Data] {emp_id_padded}: July 300,000VND (3-month) → August 4-month")
+                    continuous_months = 4  # 3개월 → 4개월
+                    print(f"[July Data] {emp_id_padded}: July 300,000VND (3개월) → August 4개월")
                 elif july_incentive == 350000:
-                    continuous_months = 5  # 4-month month성 → 5-month
-                    print(f"[July Data] {emp_id_padded}: July 350,000VND (4-month) → August 5-month")
-                elif july_incentive == 400000:
-                    continuous_months = 6  # 5-month month성 → next은 6-month
-                    print(f"[July Data] {emp_id_padded}: July 400,000VND (5-month) → August 6-month")
+                    continuous_months = 5  # 4개월 → 5개월
+                    print(f"[July Data] {emp_id_padded}: July 350,000VND (4개월) → August 5개월")
                 elif july_incentive == 450000:
-                    continuous_months = 6  # 5-month month성 (TYPE-2) → 6-month
-                    print(f"[July Data] {emp_id_padded}: July 450,000VND (5-month TYPE-2) → August 6-month")
+                    continuous_months = 6  # 5개월 → 6개월 ✅ 수정
+                    print(f"[July Data] {emp_id_padded}: July 450,000VND (5개월) → August 6개월")
                 elif july_incentive == 500000:
-                    continuous_months = 8  # 7-month month성 → 8-month
-                    print(f"[July Data] {emp_id_padded}: July 500,000VND (7-month) → August 8-month")
-                elif july_incentive == 550000:
-                    # 550,000VND은 테블to 없음 - 7-monthand 8-month 사 special 케스
-                    continuous_months = 8  # 7-month month성 → 8-month
-                    print(f"[July Data] {emp_id_padded}: July 550,000VND (special) → August 8-month")
-                elif july_incentive == 650000:
-                    continuous_months = 9  # 8-month month성 → 9-month
-                    print(f"[July Data] {emp_id_padded}: July 650,000VND (8-month) → August 9-month")
+                    continuous_months = 7  # 6개월 → 7개월 ✅ 수정
+                    print(f"[July Data] {emp_id_padded}: July 500,000VND (6개월) → August 7개월")
+                elif july_incentive == 600000:
+                    continuous_months = 8  # 7개월 → 8개월 ✅ 신규
+                    print(f"[July Data] {emp_id_padded}: July 600,000VND (7개월) → August 8개월")
+                elif july_incentive == 700000:
+                    continuous_months = 9  # 8개월 → 9개월 ✅ 수정
+                    print(f"[July Data] {emp_id_padded}: July 700,000VND (8개월) → August 9개월")
                 elif july_incentive == 750000:
-                    continuous_months = 10  # 9-month month성 → 10-month
-                    print(f"[July Data] {emp_id_padded}: July 750,000VND (9-month) → August 10-month")
+                    continuous_months = 10  # 9개월 → 10개월
+                    print(f"[July Data] {emp_id_padded}: July 750,000VND (9개월) → August 10개월")
                 elif july_incentive == 850000:
-                    continuous_months = 11  # 10-month month성 → 11-month
-                    print(f"[July Data] {emp_id_padded}: July 850,000VND (10-month) → August 11-month")
-                elif july_incentive == 950000:
-                    continuous_months = 12  # 11-month month성 → 12-month
-                    print(f"[July Data] {emp_id_padded}: July 950,000VND (11-month) → August 12-month")
+                    continuous_months = 11  # 10개월 → 11개월
+                    print(f"[July Data] {emp_id_padded}: July 850,000VND (10개월) → August 11개월")
+                elif july_incentive == 900000:
+                    continuous_months = 12  # 11개월 → 12개월 ✅ 수정
+                    print(f"[July Data] {emp_id_padded}: July 900,000VND (11개월) → August 12개월")
                 elif july_incentive == 1000000:
-                    continuous_months = 12  # 11-month 상은 모두 1,000,000VNDso nextmonth은 12-month
+                    continuous_months = 12  # 이미 최대값 유지
+                    print(f"[July Data] {emp_id_padded}: July 1,000,000VND (12개월) → August 12개월")
                 else:
-                    continuous_months = 1  # 알 수 없 amount은 1-monthwith started
+                    continuous_months = 1  # 알 수 없는 금액은 1개월로 시작
+                    print(f"[July Data] {emp_id_padded}: July {july_incentive:,.0f}VND (알 수 없음) → August 1개월")
 
                 return continuous_months
 
-        # September calculation: August incentive 지급 세부 정보 filefrom 읽기
+        # September calculation: August incentive 지급 세부 정보 파일에서 읽기
         if self.config.month.number == 9 and self.config.year == 2025:
-            # August incentive CSV file withload
-            august_file = 'input_files/2025year August incentive 지급 세부 정보.csv'
+            # August incentive CSV file withload - Config에서 경로 가져오기 (Single Source of Truth)
+            august_file = self.config.file_paths.get('previous_incentive',
+                                                     'input_files/2025년 8월 인센티브 지급 세부 정보.csv')
 
             if os.path.exists(august_file):
                 try:
@@ -1057,35 +1051,36 @@ class DataProcessor:
                             august_incentive = 0
 
                         # August incentive amountwith September consecutive months calculation
-                        # VND칙: Augustto 받은 amount = 해당 month month성 → September은 +1-month
+                        # 원칙: Augustto 받은 amount = 해당 개월 수 → September은 +1개월
+                        # ✅ 수정된 Progressive Table 반영 (2025-10-04)
                         if august_incentive == 0:
-                            continuous_months = 1  # new started
+                            continuous_months = 1  # 신규 시작
                         elif august_incentive == 150000:
-                            continuous_months = 2  # August 1-month month성 → September 2-month
+                            continuous_months = 2  # August 1개월 → September 2개월
                         elif august_incentive == 250000:
-                            continuous_months = 3  # August 2-month month성 → September 3-month
+                            continuous_months = 3  # August 2개월 → September 3개월
                         elif august_incentive == 300000:
-                            continuous_months = 4  # August 3-month month성 → September 4-month
+                            continuous_months = 4  # August 3개월 → September 4개월
                         elif august_incentive == 350000:
-                            continuous_months = 5  # August 4-month month성 → September 5-month
-                        elif august_incentive == 400000:
-                            continuous_months = 6  # August 5-month month성 → September 6-month
+                            continuous_months = 5  # August 4개월 → September 5개월
                         elif august_incentive == 450000:
-                            continuous_months = 7  # August 6-month month성 → September 7-month
+                            continuous_months = 6  # August 5개월 → September 6개월 ✅ 수정
                         elif august_incentive == 500000:
-                            continuous_months = 8  # August 7-month month성 → September 8-month
-                        elif august_incentive == 650000:
-                            continuous_months = 9  # August 8-month month성 → September 9-month
+                            continuous_months = 7  # August 6개월 → September 7개월 ✅ 수정
+                        elif august_incentive == 600000:
+                            continuous_months = 8  # August 7개월 → September 8개월 ✅ 신규
+                        elif august_incentive == 700000:
+                            continuous_months = 9  # August 8개월 → September 9개월 ✅ 수정
                         elif august_incentive == 750000:
-                            continuous_months = 10  # August 9-month month성 → September 10-month
+                            continuous_months = 10  # August 9개월 → September 10개월
                         elif august_incentive == 850000:
-                            continuous_months = 11  # August 10-month month성 → September 11-month
-                        elif august_incentive == 950000:
-                            continuous_months = 12  # August 11-month month성 → September 12-month
+                            continuous_months = 11  # August 10개월 → September 11개월
+                        elif august_incentive == 900000:
+                            continuous_months = 12  # August 11개월 → September 12개월 ✅ 수정
                         elif august_incentive == 1000000:
-                            continuous_months = 12  # 미 최대value 유지
+                            continuous_months = 12  # 이미 최대값 유지
                         else:
-                            continuous_months = 1  # 알 수 없 amount은 1-monthwith started
+                            continuous_months = 1  # 알 수 없는 금액은 1개월로 시작
 
                         # debugging 출력
                         if august_incentive > 0:
@@ -1103,7 +1098,7 @@ class DataProcessor:
                 print(f"[Warning] August incentive file not found: {august_file}")
                 return 1
 
-        # 기타 Month: previous month Excel filefrom 읽기
+        # 기타 Month: previous month Excel 파일에서 읽기
         prev_month_num = (self.config.month.number - 1) % 12 or 12
         prev_year = self.config.year if prev_month_num < self.config.month.number else self.config.year - 1
         prev_month_obj = Month.from_number(prev_month_num)
@@ -1180,7 +1175,7 @@ class DataProcessor:
                         tmp.write(line)
                     tmp_path = tmp.name
                 
-                # 임시 filefrom data 읽기
+                # 임시 파일에서 data 읽기
                 df = pd.read_csv(tmp_path)
                 os.unlink(tmp_path)  # 임시 file 삭제
                 
@@ -1293,7 +1288,7 @@ class DataProcessor:
                 if fail_count > 0:
                     failures[emp_id] = fail_count
             
-            print(f"  → {month_name}: {len(failures)}employees failure")
+            print(f"  → {month_name}: {len(failures)}명 failure")
             return failures
         
         # 각 monthof failures 추출
@@ -1316,7 +1311,7 @@ class DataProcessor:
                 continuous_fail_employees.add(emp_id)
                 print(f"    ✅ {emp_id}: 3-month consecutive failure ({latest_months[0]}:{month1_failures.get(emp_id)}cases, {latest_months[1]}:{month2_failures.get(emp_id)}cases, {latest_months[2]}:{month3_failures.get(emp_id)}cases)")
 
-        print(f"\n  📊 3-month consecutive failures: {len(continuous_fail_employees)}employees")
+        print(f"\n  📊 3-month consecutive failures: {len(continuous_fail_employees)}명")
 
         # 4. 결and DataFrame created (BUILDING 정보 include)
         aql_results = []
@@ -1373,7 +1368,7 @@ class DataProcessor:
             })
         
         result_df = pd.DataFrame(aql_results)
-        print(f"✅ AQL History based processing completed: {len(result_df)}employees")
+        print(f"✅ AQL History based processing completed: {len(result_df)}명")
         return result_df
     
     def process_aql_conditions(self, aql_df: pd.DataFrame, historical_incentive_df: pd.DataFrame = None) -> pd.DataFrame:
@@ -1553,7 +1548,7 @@ class CompleteQIPCalculator:
                     # 통계 출력
                     mapped_count = (self.month_data['July_Incentive'] > 0).sum()
                     zero_count = (self.month_data['July_Incentive'] == 0).sum()
-                    print(f"  → July incentive mapping completed: {mapped_count}employees (>0), {zero_count}employees (=0)")
+                    print(f"  → July incentive mapping completed: {mapped_count}명 (>0), {zero_count}명 (=0)")
 
                     # DANH MINH HIẾU checking
                     hiếu_data = self.month_data[self.month_data['Employee No'] == '621030996']
@@ -1570,7 +1565,7 @@ class CompleteQIPCalculator:
                 print(f"  ⚠️ July incentive file not found: {july_file_path}")
                 return False
 
-        # September 후 previous month Excelfrom 자samewith 읽음
+        # September 후 previous month Excelfrom 자동으로 읽음
         return True
 
     def prepare_integrated_data(self):
@@ -1583,7 +1578,7 @@ class CompleteQIPCalculator:
             # Employee No 있 유효한 dataonly 필터링
             raw_data = self.raw_data[basic_key]
             self.month_data = raw_data[raw_data['Employee No'].notna()].copy()
-            print(f"  → 유효한 employee data: {len(self.month_data)}employees (전체 {len(raw_data)}행 in progress)")
+            print(f"  → 유효한 employee data: {len(self.month_data)}명 (전체 {len(raw_data)}행 in progress)")
         else:
             print(f"❌ {self.config.get_month_str('korean')} default data 찾 수 없습니다.")
             self.month_data = pd.DataFrame()
@@ -1663,8 +1658,9 @@ class CompleteQIPCalculator:
                         if len(att_idx) > 0:
                             att_conditions.loc[att_idx[0], 'Actual Working Days'] = 0
                             att_conditions.loc[att_idx[0], 'Total Working Days'] = 0
-                            att_conditions.loc[att_idx[0], 'attendancy condition 1 - acctual working days is zero'] = 'yes'
-                            att_conditions.loc[att_idx[0], 'Absence Rate (raw)'] = 100.0
+                            # 레거시 컬럼 삭제: cond_3_actual_working_days로 통합
+                            # att_conditions.loc[att_idx[0], 'attendancy condition 1 - acctual working days is zero'] = 'yes'
+                            att_conditions.loc[att_idx[0], '결근율_Absence_Rate_Percent'] = 100.0
                 
                 self.month_data = pd.merge(
                     self.month_data,
@@ -1750,13 +1746,13 @@ class CompleteQIPCalculator:
                 if aql_col in aql_conditions.columns:
                     aql_fail_count = (aql_conditions[aql_col] > 0).sum()
                     if aql_fail_count > 0:
-                        print(f"  → AQL 병합 전: {aql_fail_count}employees AQL failure record 보유")
+                        print(f"  → AQL 병합 전: {aql_fail_count}명 AQL failure record 보유")
                 
                 # 3-month consecutive failures checking
                 if 'Continuous_FAIL' in aql_conditions.columns:
                     continuous_fail_count = (aql_conditions['Continuous_FAIL'] == 'YES').sum()
                     if continuous_fail_count > 0:
-                        print(f"  → AQL 병합 전: {continuous_fail_count}employees 3-month consecutive failure")
+                        print(f"  → AQL 병합 전: {continuous_fail_count}명 3-month consecutive failure")
                         # 624040283 checking
                         tran = aql_conditions[aql_conditions['Employee No'] == '624040283']
                         if not tran.empty:
@@ -1782,7 +1778,7 @@ class CompleteQIPCalculator:
                 # 병합 후 AQL failure cases수 checking
                 if aql_col in self.month_data.columns:
                     aql_fail_count_after = (self.month_data[aql_col] > 0).sum()
-                    print(f"  → AQL 병합 후: {aql_fail_count_after}employees AQL failure record 보유")
+                    print(f"  → AQL 병합 후: {aql_fail_count_after}명 AQL failure record 보유")
 
                     # 특정 employee checking
                     test_emp = '625060019'
@@ -1793,7 +1789,7 @@ class CompleteQIPCalculator:
                 # 병합 후 3-month consecutive failures checking
                 if 'Continuous_FAIL' in self.month_data.columns:
                     continuous_fail_count_after = (self.month_data['Continuous_FAIL'] == 'YES').sum()
-                    print(f"  → AQL 병합 후: {continuous_fail_count_after}employees 3-month consecutive failure")
+                    print(f"  → AQL 병합 후: {continuous_fail_count_after}명 3-month consecutive failure")
                     # 624040283 checking
                     tran_after = self.month_data[self.month_data['Employee No'] == '624040283']
                     if not tran_after.empty:
@@ -1877,7 +1873,7 @@ class CompleteQIPCalculator:
             # current Auditor/Traineronly apply
 
         area_reject_count = (self.month_data['Area_Reject_Rate'] >= 3).sum()
-        print(f"✅ Area Reject Rate calculation completed: {area_reject_count}employees 3% 상")
+        print(f"✅ Area Reject Rate calculation completed: {area_reject_count}명 3% 상")
 
     def _recalculate_absence_rate_for_resigned(self):
         """퇴사자 위한 absence rate 재calculation"""
@@ -1918,17 +1914,17 @@ class CompleteQIPCalculator:
                             # 승인휴 반영하여 통 days되게 calculationdone
                             self.month_data.loc[idx, 'Total Working Days'] = working_days_possible
 
-                            # minimum 근무 days conditiononly 체크 (Absence Rate 나in progressto calculation)
-                            self.month_data.loc[idx, 'attendancy condition 4 - minimum working days'] = 'yes' if actual_days < 12 else 'no'
+                            # 레거시 컬럼 삭제:                             # minimum 근무 days conditiononly 체크 (Absence Rate 나in progressto calculation)
+                            # 레거시 컬럼 삭제: self.month_data.loc[idx, 'attendancy condition 4 - minimum working days'] = 'yes' if actual_days < 12 else 'no'
 
                             print(f"  → 퇴사자 {row.get('Employee No', '')}: {stop_date.strftime('%Y-%m-%d')} 퇴사, 근무능 days {working_days_possible} days (Absence Rate 승인휴 반영하여 나in progressto calculation)")
                         
                         # calculation month previous 퇴사자
                         elif stop_date < calc_month_start:
                             self.month_data.loc[idx, 'Actual Working Days'] = 0
-                            self.month_data.loc[idx, 'Total Working Days'] = 0
-                            self.month_data.loc[idx, 'attendancy condition 1 - acctual working days is zero'] = 'yes'
-                            self.month_data.loc[idx, 'attendancy condition 4 - minimum working days'] = 'yes'
+                            # 레거시 컬럼 삭제:                             self.month_data.loc[idx, 'Total Working Days'] = 0
+                            # 레거시 컬럼 삭제:                             self.month_data.loc[idx, 'attendancy condition 1 - acctual working days is zero'] = 'yes'
+                            # 레거시 컬럼 삭제: self.month_data.loc[idx, 'attendancy condition 4 - minimum working days'] = 'yes'
                             
                 except Exception as e:
                     print(f"  ⚠️ 퇴사자 absence rate 재calculation 오류 (employee {row.get('Employee No', '')}): {e}")
@@ -1948,7 +1944,7 @@ class CompleteQIPCalculator:
             self.month_data['Total Working Days'] = self.config.working_days
             self.month_data['Actual Working Days'] = 0  # defaultvalue 0with 변경 (existing 23)
             # Unapproved Absence Days column 제거 - Unapproved Absences columnonly 사용
-            self.month_data['Absence Rate (raw)'] = 0.0
+            self.month_data['결근율_Absence_Rate_Percent'] = 0.0
             print("  → Applying default value 0 to employees without attendance data")
         
         # Stop Working Date processing - calculation month previous 퇴사자 Actual Working Days = 0
@@ -1968,25 +1964,21 @@ class CompleteQIPCalculator:
                         if pd.notna(stop_date) and stop_date < calc_month_start:
                             # calculation month previousto 퇴사한 경우
                             self.month_data.loc[idx, 'Actual Working Days'] = 0
-                            self.month_data.loc[idx, 'Total Working Days'] = 0
-                            self.month_data.loc[idx, 'attendancy condition 1 - acctual working days is zero'] = 'yes'
-                            self.month_data.loc[idx, 'Absence Rate (raw)'] = 100.0
+                            # 레거시 컬럼 삭제:                             self.month_data.loc[idx, 'Total Working Days'] = 0
+                            # 레거시 컬럼 삭제: self.month_data.loc[idx, 'attendancy condition 1 - acctual working days is zero'] = 'yes'
+                            self.month_data.loc[idx, '결근율_Absence_Rate_Percent'] = 100.0
                             print(f"  → Stop Working employee {row.get('Employee No', '')}: {stop_date.strftime('%Y-%m-%d')} 퇴사 → Actual Working Days = 0")
                     except Exception as e:
                         print(f"  ⚠️ Stop Working Date processing 오류 (employee {row.get('Employee No', '')}): {e}")
         
         # condition column defaultvalue
+        # 레거시 컬럼 삭제: cond_1~10 표준 컬럼으로 통합
         default_conditions = {
-            'attendancy condition 1 - acctual working days is zero': 'yes',  # defaultvalue 0so yes
-            'attendancy condition 2 - unapproved Absence Day is more than 2 days': 'no',
-            'attendancy condition 3 - absent % is over 12%': 'no',
-            'attendancy condition 4 - minimum working days': 'yes',  # defaultvalue 0so 12 days 미only
-            '5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%': 'no',
-            '5prs condition 2 - Total Valiation Qty is zero': 'yes',
+            # 'attendancy condition 1-4': 삭제됨 (cond_1~4로 통합)
+            # '5prs condition 1-2': 삭제됨 (cond_9~10으로 통합)
             'Total Working Days': self.config.working_days,
             'Actual Working Days': 0,  # defaultvalue 0with 변경
-            # 'Unapproved Absence Days' 제거 - Unapproved Absences 사용
-            'Absence Rate (raw)': 0.0,
+            '결근율_Absence_Rate_Percent': 0.0,
             'Continuous_FAIL': 'NO'
         }
         
@@ -2028,7 +2020,7 @@ class CompleteQIPCalculator:
                 self.month_data.loc[stitching_mask, 'ROLE TYPE STD'] = 'TYPE-2'
         
         if correction_count > 0:
-            print(f"  ✅ 총 {correction_count}employeesof position-타입 불 days치 수정 completed")
+            print(f"  ✅ 총 {correction_count}명of position-타입 불 days치 수정 completed")
         else:
             print(f"  ✅ 수정 필요한 position-타입 불 days치 없음")
     
@@ -2077,7 +2069,7 @@ class CompleteQIPCalculator:
         
         if not prev_file_path.exists():
             print(f"\n📊 {prev_month}month incentive file not found.")
-            print(f"   {prev_month}month 자samewith calculation합니다...")
+            print(f"   {prev_month}month 자동으로 calculation합니다...")
             
             # previous month calculationto 필요한 file들 체크
             if not self.check_required_files_for_month(prev_month_obj, prev_year):
@@ -2210,7 +2202,7 @@ class CompleteQIPCalculator:
     def handle_special_cases(self):
         """특별 케스 processing - 자same calculation"""
         # 특별 케스 제 calculate_assembly_inspector_incentive_type1_onlyand
-        # calculate_auditor_trainer_incentivefrom 자samewith processingdone
+        # calculate_auditor_trainer_incentivefrom 자동으로 processingdone
         pass
     
     def identify_special_cases(self) -> Dict[str, List]:
@@ -2308,7 +2300,7 @@ class CompleteQIPCalculator:
                                 for filter_item in cond.get('filters', []):
                                     if filter_item.get('column') == 'BUILDING' and filter_item.get('value') == building:
                                         emp_name = config.get('name', 'Unknown')
-                                        print(f"      → 영향받 employee: {emp_name} ({emp_id})")
+                                        print(f"      → 영향받은 직원: {emp_name} ({emp_id})")
                                         break
             
             if problems_found:
@@ -2339,7 +2331,7 @@ class CompleteQIPCalculator:
     def get_auditor_assigned_factory(self, auditor_id: str) -> str:
         """
         Auditor/Trainer in charge하 factory(Building) 반환
-        mapping filefrom in charge area checking
+        mapping 파일에서 in charge area checking
         """
         # auditor_trainer_area_mapping.json withload
         area_mapping = self.load_auditor_trainer_area_mapping()
@@ -2443,24 +2435,25 @@ class CompleteQIPCalculator:
             
             emp_id = row.get('Employee No', '')
             
-            # default condition 체크
+            # Single Source of Truth: 새 표준 컬럼(cond_1~10) 사용
+            # 출근 조건 체크 (C1: 출근율, C2: 무단결근, C3: 실근무일, C4: 최소근무일)
             attendance_fail = (
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                row.get('attendancy condition 4 - minimum working days') == 'yes'
+                row.get('cond_1_attendance_rate') == 'FAIL' or
+                row.get('cond_2_unapproved_absence') == 'FAIL' or
+                row.get('cond_3_actual_working_days') == 'FAIL' or
+                row.get('cond_4_minimum_days') == 'FAIL'
             )
-            
+
             aql_fail = row.get(aql_col, 0) > 0
             continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
-            
+
             # 100% 충족 validation - MODEL MASTER condition 1,2,3,4,8 모두 충족해야 함
             # MODEL MASTER condition 체크 (1,2,3,4,8)
             # position_condition_matrix.jsonof CODE 'D' configurationto 따라 condition checking
-            condition_1_pass = row.get('attendancy condition 1 - acctual working days is zero') != 'yes'
-            condition_2_pass = row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') != 'yes'
-            condition_3_pass = row.get('attendancy condition 3 - absent % is over 12%') != 'yes'
-            condition_4_pass = row.get('attendancy condition 4 - minimum working days') != 'yes'
+            condition_1_pass = row.get('cond_1_attendance_rate') == 'PASS'
+            condition_2_pass = row.get('cond_2_unapproved_absence') == 'PASS'
+            condition_3_pass = row.get('cond_3_actual_working_days') == 'PASS'
+            condition_4_pass = row.get('cond_4_minimum_days') == 'PASS'
 
             # Condition 8: in charge area reject율 < 3%
             area_reject_rate = total_factory_reject_rate  # MODEL MASTER 전체 factory reject율 사용
@@ -2538,17 +2531,18 @@ class CompleteQIPCalculator:
             else:
                 has_continuous_fail_in_factory = auditor_factory in continuous_fail_by_factory and continuous_fail_by_factory[auditor_factory] > 0
             
-            # 3. default condition 체크
+            # 3. Single Source of Truth: 새 표준 컬럼(cond_1~10) 사용
+            # 출근 조건 체크 (C1: 출근율, C2: 무단결근, C3: 실근무일, C4: 최소근무일)
             attendance_fail = (
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                row.get('attendancy condition 4 - minimum working days') == 'yes'
+                row.get('cond_1_attendance_rate') == 'FAIL' or
+                row.get('cond_2_unapproved_absence') == 'FAIL' or
+                row.get('cond_3_actual_working_days') == 'FAIL' or
+                row.get('cond_4_minimum_days') == 'FAIL'
             )
-            
+
             aql_fail = row.get(aql_col, 0) > 0
             continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
-            
+
             # incentive 결정
             # Direct condition evaluation for Auditor/Trainer positions
             position_code = row.get('FINAL QIP POSITION NAME CODE', '')
@@ -2567,15 +2561,15 @@ class CompleteQIPCalculator:
             # Evaluate each condition
             conditions_met = {}
 
-            # Attendance conditions (1-4)
+            # Attendance conditions (1-4) - 새 표준 컬럼 사용
             if 1 in applicable_conditions:
-                conditions_met[1] = row.get('attendancy condition 1 - acctual working days is zero') != 'yes'
+                conditions_met[1] = row.get('cond_1_attendance_rate') == 'PASS'
             if 2 in applicable_conditions:
-                conditions_met[2] = row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') != 'yes'
+                conditions_met[2] = row.get('cond_2_unapproved_absence') == 'PASS'
             if 3 in applicable_conditions:
-                conditions_met[3] = row.get('attendancy condition 3 - absent % is over 12%') != 'yes'
+                conditions_met[3] = row.get('cond_3_actual_working_days') == 'PASS'
             if 4 in applicable_conditions:
-                conditions_met[4] = row.get('attendancy condition 4 - minimum working days') != 'yes'
+                conditions_met[4] = row.get('cond_4_minimum_days') == 'PASS'
 
             # Condition 7: in charge area reject율 < 3%
             if 7 in applicable_conditions:
@@ -2602,7 +2596,7 @@ class CompleteQIPCalculator:
                 incentive = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
                 fail_count = continuous_fail_by_factory.get(auditor_factory, 0)
-                print(f"    → {row.get('Full Name', 'Unknown')}: in charge factory({auditor_factory})to 3-month consecutive AQL failures {fail_count}employees → 0 VND")
+                print(f"    → {row.get('Full Name', 'Unknown')}: in charge factory({auditor_factory})to 3-month consecutive AQL failures {fail_count}명 → 0 VND")
             else:
                 # Assembly Inspectorand same days한 consecutive 충족 month basis apply
                 continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
@@ -2620,14 +2614,14 @@ class CompleteQIPCalculator:
         all_mask = auditor_trainer_mask | model_master_mask
         receiving_count = (self.month_data[all_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[all_mask][incentive_col].sum()
-        print(f"  → 수령 인VND: {receiving_count}employees, 총액: {total_amount:,.0f} VND")
+        print(f"  → 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
     def calculate_area_aql_reject_rate(self, auditor_id: str, subordinate_mapping: Dict[str, List[str]]) -> float:
         """
         in charge areaof AQL reject율 calculation
-        JSON filefrom in charge area condition 읽어 해당 areaof AQL reject율 calculation
+        JSON 파일에서 in charge area condition 읽어 해당 areaof AQL reject율 calculation
         """
-        # JSON filefrom in charge area 정보 withload
+        # JSON 파일에서 in charge area 정보 withload
         area_mapping = self.load_auditor_trainer_area_mapping()
         
         # Model Master 체크
@@ -2824,13 +2818,14 @@ class CompleteQIPCalculator:
             emp_id = row.get('Employee No', '')
             
             # Stop working employeealso 정상 calculation (exclude하지 않음)
-            
-            # condition 체크 - 모든 타입to apply되 공통 condition
+
+            # Single Source of Truth: 새 표준 컬럼(cond_1~10) 사용
+            # 출근 조건 체크 (C1: 출근율, C2: 무단결근, C3: 실근무일, C4: 최소근무일)
             attendance_fail = (
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                row.get('attendancy condition 4 - minimum working days') == 'yes'  # minimum 12 days worked condition 추
+                row.get('cond_1_attendance_rate') == 'FAIL' or
+                row.get('cond_2_unapproved_absence') == 'FAIL' or
+                row.get('cond_3_actual_working_days') == 'FAIL' or
+                row.get('cond_4_minimum_days') == 'FAIL'
             )
             
             # AQL Inspector 5PRS conditions apply 안 함
@@ -2885,7 +2880,7 @@ class CompleteQIPCalculator:
         # 통계 출력
         receiving_count = (self.month_data[aql_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[aql_mask][incentive_col].sum()
-        print(f"  → AQL Inspector 수령 인VND: {receiving_count}employees, 총액: {total_amount:,.0f} VND")
+        print(f"  → AQL Inspector 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
     def load_aql_inspector_config(self) -> Dict:
         """AQL Inspector incentive configuration withload"""
@@ -3027,12 +3022,12 @@ class CompleteQIPCalculator:
             
             # Stop working employeealso 정상 calculation (exclude하지 않음)
             
-            # [condition 1-4] attendance condition 체크 (4items)
+            # [condition 1-4] Single Source of Truth: 새 표준 컬럼 사용
             attendance_fail = (
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or  # condition3: 실제근무 days>0
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or  # condition2: 무단결근≤2
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or  # condition1: attendance율≥88%
-                row.get('attendancy condition 4 - minimum working days') == 'yes'  # condition4: minimum근무 days≥12
+                row.get('cond_3_actual_working_days') == 'FAIL' or  # condition3: 실제근무 days>0
+                row.get('cond_2_unapproved_absence') == 'FAIL' or  # condition2: 무단결근≤2
+                row.get('cond_1_attendance_rate') == 'FAIL' or  # condition1: attendance율≥88%
+                row.get('cond_4_minimum_days') == 'FAIL'  # condition4: minimum근무 days≥12
             )
             
             # [condition 9-10] 5PRS conditions: inspection량 100items 상 AND passed율 95% 상
@@ -3085,7 +3080,7 @@ class CompleteQIPCalculator:
         # 통계 출력
         receiving_count = (self.month_data[assembly_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[assembly_mask][incentive_col].sum()
-        print(f"  → 수령 인VND: {receiving_count}employees, 총액: {total_amount:,.0f} VND")
+        print(f"  → 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
     def create_manager_subordinate_mapping(self) -> Dict[str, List[str]]:
         """manager-부하 employee mapping created"""
@@ -3233,16 +3228,17 @@ class CompleteQIPCalculator:
                 leader_id = None
 
             # attendance condition 체크 - 모든 positionto 공통 apply
-            cond1 = row.get('attendancy condition 1 - acctual working days is zero')
-            cond2 = row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days')
-            cond3 = row.get('attendancy condition 3 - absent % is over 12%')
-            cond4 = row.get('attendancy condition 4 - minimum working days')
+            # Phase 1: Single Source of Truth - 새 표준 컬럼(cond_1~4) 사용
+            cond1 = row.get('cond_1_attendance_rate')
+            cond2 = row.get('cond_2_unapproved_absence')
+            cond3 = row.get('cond_3_actual_working_days')
+            cond4 = row.get('cond_4_minimum_days')
 
             attendance_fail = (
-                cond1 == 'yes' or
-                cond2 == 'yes' or
-                cond3 == 'yes' or
-                cond4 == 'yes'
+                cond1 == 'FAIL' or
+                cond2 == 'FAIL' or
+                cond3 == 'FAIL' or
+                cond4 == 'FAIL'
             )
 
             # 디버그: 문제 직원인 경우 출근 조건 값 출력
@@ -3324,7 +3320,7 @@ class CompleteQIPCalculator:
         # 통계 출력
         receiving_count = (self.month_data[line_leader_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[line_leader_mask][incentive_col].sum()
-        print(f"  → 수령 인VND: {receiving_count}employees, 총액: {total_amount:,.0f} VND")
+        print(f"  → 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
     def calculate_head_incentive(self, subordinate_mapping: Dict[str, List[str]]):
         """Type-1 Head(Group Leader) incentive calculation
@@ -3352,15 +3348,21 @@ class CompleteQIPCalculator:
             # 미 calculationdone 경우 스킵
             if row[incentive_col] > 0:
                 continue
-            
+
+            # FIX: Employee No를 int로 변환 (subordinate_mapping key와 타입 일치)
             head_id = row.get('Employee No', '')
-            
+            try:
+                head_id = int(head_id) if head_id != '' else None
+            except (ValueError, TypeError):
+                head_id = None
+
             # attendance condition 체크 - 모든 positionto 공통 apply
+            # Phase 1: Single Source of Truth - 새 표준 컬럼(cond_1~4) 사용
             attendance_fail = (
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                row.get('attendancy condition 4 - minimum working days') == 'yes'
+                row.get('cond_1_attendance_rate') == 'FAIL' or
+                row.get('cond_2_unapproved_absence') == 'FAIL' or
+                row.get('cond_3_actual_working_days') == 'FAIL' or
+                row.get('cond_4_minimum_days') == 'FAIL'
             )
             
             # attendance condition 미충족 시 incentive 0
@@ -3403,7 +3405,7 @@ class CompleteQIPCalculator:
         # 통계 출력
         receiving_count = (self.month_data[head_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[head_mask][incentive_col].sum()
-        print(f"  → 수령 인VND: {receiving_count}employees, 총액: {total_amount:,.0f} VND")
+        print(f"  → 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
     def calculate_managers_by_manual_logic_fixed(self, subordinate_mapping: Dict[str, List[str]]):
         """manager incentive calculation"""
@@ -3436,14 +3438,20 @@ class CompleteQIPCalculator:
                 # 미 calculationdone 경우 스킵
                 if row[incentive_col] > 0:
                     continue
-                
+
+                # FIX: Employee No를 int로 변환 (subordinate_mapping key와 타입 일치)
                 manager_id = row.get('Employee No', '')
-                
+                try:
+                    manager_id = int(manager_id) if manager_id != '' else None
+                except (ValueError, TypeError):
+                    manager_id = None
+
                 # attendance condition 체크 - 모든 positionto 공통 apply (100% 충족 필수)
-                condition_1_pass = row.get('attendancy condition 1 - acctual working days is zero') != 'yes'
-                condition_2_pass = row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') != 'yes'
-                condition_3_pass = row.get('attendancy condition 3 - absent % is over 12%') != 'yes'
-                condition_4_pass = row.get('attendancy condition 4 - minimum working days') != 'yes'
+                # Phase 1: Single Source of Truth - 새 표준 컬럼(cond_1~4) 사용
+                condition_1_pass = row.get('cond_1_attendance_rate') == 'PASS'
+                condition_2_pass = row.get('cond_2_unapproved_absence') == 'PASS'
+                condition_3_pass = row.get('cond_3_actual_working_days') == 'PASS'
+                condition_4_pass = row.get('cond_4_minimum_days') == 'PASS'
 
                 all_conditions_pass = (condition_1_pass and condition_2_pass and
                                       condition_3_pass and condition_4_pass)
@@ -3540,34 +3548,51 @@ class CompleteQIPCalculator:
         
         receiving_count = (self.month_data[manager_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[manager_mask][incentive_col].sum()
-        print(f"  → manager 총 수령 인VND: {receiving_count}employees, 총액: {total_amount:,.0f} VND")
+        print(f"  → manager 총 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
     def _find_team_line_leaders(self, manager_id: str, subordinate_mapping: Dict[str, List[str]]) -> List:
         """팀 내 모든 Line Leader 찾기 (직접 부하 + 부하of 부하)"""
         line_leaders = []
         visited = set()
-        
+
+        # DEBUG: manager_id와 subordinate_mapping 타입 확인
+        print(f"      [DEBUG] _find_team_line_leaders called: manager_id={manager_id} (type: {type(manager_id)})")
+        print(f"      [DEBUG] manager_id in subordinate_mapping: {manager_id in subordinate_mapping}")
+        if manager_id in subordinate_mapping:
+            print(f"      [DEBUG] Subordinates: {subordinate_mapping[manager_id]}")
+
         def find_line_leaders_recursive(boss_id: str, depth: int = 0):
             if depth > 5 or boss_id in visited:  # 무한 루프 방지
                 return
             visited.add(boss_id)
-            
+
             if boss_id in subordinate_mapping:
                 for sub_id in subordinate_mapping[boss_id]:
-                    sub_data = self.month_data[self.month_data['Employee No'] == sub_id]
+                    # DEBUG: 타입 확인
+                    print(f"      [DEBUG] Looking for sub_id={sub_id} (type: {type(sub_id)})")
+                    print(f"      [DEBUG] month_data['Employee No'].dtype: {self.month_data['Employee No'].dtype}")
+
+                    # FIX: month_data['Employee No']는 str 타입이므로 sub_id를 str로 변환하여 비교
+                    sub_data = self.month_data[self.month_data['Employee No'] == str(sub_id)]
+                    print(f"      [DEBUG] sub_data found: {len(sub_data)} rows")
+
                     if not sub_data.empty:
                         sub_row = sub_data.iloc[0]
                         position = str(sub_row.get('QIP POSITION 1ST  NAME', '')).upper()
                         role_type = sub_row.get('ROLE TYPE STD', '')
-                        
-                        if (role_type == 'TYPE-1' and 
+
+                        print(f"      [DEBUG] Checking subordinate {sub_id}: position={position}, role_type={role_type}")
+
+                        if (role_type == 'TYPE-1' and
                             'LINE' in position and 'LEADER' in position):
                             line_leaders.append(sub_row.to_dict())
-                        
+                            print(f"      [DEBUG] ✅ Found LINE LEADER: {sub_row.get('Full Name')}")
+
                         # 재귀적with 부하of 부하 탐색
                         find_line_leaders_recursive(sub_id, depth + 1)
-        
+
         find_line_leaders_recursive(manager_id)
+        print(f"      [DEBUG] Found {len(line_leaders)} LINE LEADER(s)")
         return line_leaders
     
     def _calculate_line_leader_average_unified(self, line_leaders: List, manager_id: str, position: str) -> float:
@@ -3616,7 +3641,7 @@ class CompleteQIPCalculator:
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
         receiving_count = (self.month_data[type2_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[type2_mask][incentive_col].sum()
-        print(f"  → 전체 TYPE-2 수령 인VND: {receiving_count}employees, 총액: {total_amount:,.0f} VND")
+        print(f"  → 전체 TYPE-2 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
 
     def calculate_type2_non_group_leaders(self):
         """TYPE-2 GROUP LEADER exclude한 모든 employee calculation"""
@@ -3628,7 +3653,7 @@ class CompleteQIPCalculator:
         # TYPE-2 포지션 matching rule withload
         type2_mapping = self.load_type2_position_mapping()
 
-        # 부하employee mapping (GROUP LEADER calculation용)
+        # 부하employee mapping (GROUP LEADER 계산용)
         subordinate_mapping = self.create_manager_subordinate_mapping()
 
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
@@ -3667,10 +3692,10 @@ class CompleteQIPCalculator:
             # TYPE-2 attendance conditiononly 체크 (AQL, 5PRS conditions exclude)
             attendance_fail = (
                 stop_working_check or  # Stop Working Date 체크 추
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                row.get('attendancy condition 4 - minimum working days') == 'yes'  # minimum 12 days worked condition 추
+                row.get('cond_1_attendance_rate') == 'FAIL' or
+                row.get('cond_2_unapproved_absence') == 'FAIL' or
+                row.get('cond_3_actual_working_days') == 'FAIL' or
+                row.get('cond_4_minimum_days') == 'FAIL'  # Phase 1: Single Source of Truth
             )
 
             # attendance condition 미충족 시 0VND
@@ -3724,7 +3749,7 @@ class CompleteQIPCalculator:
 
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
 
-        print(f"    TYPE-2 GROUP LEADER 수: {type2_group_mask.sum()}employees")
+        print(f"    TYPE-2 GROUP LEADER 수: {type2_group_mask.sum()}명")
 
         # Type-1 GROUP LEADER 평균
         type1_group_leaders = self.month_data[
@@ -3767,17 +3792,17 @@ class CompleteQIPCalculator:
                 print(f"      emp_id: {emp_id} (type: {type(emp_id)})")
                 print(f"      name: {name}")
                 print(f"      current September_Incentive: {self.month_data.loc[idx, incentive_col]}")
-                print(f"      condition1: {row.get('attendancy condition 1 - acctual working days is zero', 'no')}")
-                print(f"      condition2: {row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no')}")
-                print(f"      condition3: {row.get('attendancy condition 3 - absent % is over 12%', 'no')}")
-                print(f"      condition4: {row.get('attendancy condition 4 - minimum working days', 'no')}")
+                print(f"      condition1 (cond_1): {row.get('cond_1_attendance_rate', 'PASS')}")
+                print(f"      condition2 (cond_2): {row.get('cond_2_unapproved_absence', 'PASS')}")
+                print(f"      condition3 (cond_3): {row.get('cond_3_actual_working_days', 'PASS')}")
+                print(f"      condition4 (cond_4): {row.get('cond_4_minimum_days', 'PASS')}")
 
             # attendance condition 체크
             attendance_fail = (
-                row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                row.get('attendancy condition 4 - minimum working days') == 'yes'
+                row.get('cond_1_attendance_rate') == 'FAIL' or
+                row.get('cond_2_unapproved_absence') == 'FAIL' or
+                row.get('cond_3_actual_working_days') == 'FAIL' or
+                row.get('cond_4_minimum_days') == 'FAIL'  # Phase 1: Single Source of Truth
             )
 
             # debugging용 current value checking
@@ -3863,7 +3888,7 @@ class CompleteQIPCalculator:
             result = int(avg_incentive * 2)
 
             # debugging 정보 출력
-            print(f"    → TYPE-2 LINE LEADER {len(receiving_line_leaders)}employees 평균: {avg_incentive:,.0f} VND")
+            print(f"    → TYPE-2 LINE LEADER {len(receiving_line_leaders)}명 평균: {avg_incentive:,.0f} VND")
             print(f"    → GROUP LEADER incentive (평균 × 2): {result:,.0f} VND")
 
             return result
@@ -3915,7 +3940,7 @@ class CompleteQIPCalculator:
             result = int(avg_incentive * multiplier)
 
             # debugging 정보 출력
-            print(f"    → TYPE-2 LINE LEADER {len(receiving_line_leaders)}employees 평균: {avg_incentive:,.0f} VND")
+            print(f"    → TYPE-2 LINE LEADER {len(receiving_line_leaders)}명 평균: {avg_incentive:,.0f} VND")
             print(f"    → {supervisor_position} incentive (평균 × {multiplier}): {result:,.0f} VND")
 
             return result
@@ -4109,7 +4134,7 @@ class CompleteQIPCalculator:
             
             if applied_count > 0:
                 print(f"\n📊 Talent Pool 보너스 apply completed:")
-                print(f"  • apply 인VND: {applied_count}employees")
+                print(f"  • 적용 인원: {applied_count}명")
                 print(f"  • 총 보너스: {total_bonus:,} VND")
             else:
                 print("  → No applicable employees for this month.")
@@ -4120,9 +4145,9 @@ class CompleteQIPCalculator:
             traceback.print_exc()
     
     def generate_summary(self):
-        """calculation 결and 요약"""
+        """계산 결과 요약"""
         print(f"\n{'='*60}")
-        print(f"📊 {self.config.get_month_str('korean')} QIP incentive calculation 결and 요약")
+        print(f"📊 {self.config.get_month_str('korean')} QIP incentive 계산 결과 요약")
         print('='*60)
         
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
@@ -4140,8 +4165,8 @@ class CompleteQIPCalculator:
         total_amount = active_employees[incentive_col].sum()
         
         print(f"\n📌 전체 현황:")
-        print(f"  • 전체 employee: {total_employees}employees")
-        print(f"  • 수령 employee: {receiving_employees}employees ({receiving_employees/total_employees*100:.1f}%)")
+        print(f"  • 전체 직원: {total_employees}명")
+        print(f"  • 수령 직원: {receiving_employees}명 ({receiving_employees/total_employees*100:.1f}%)")
         print(f"  • 총 지급액: {total_amount:,.0f} VND")
         
         if receiving_employees > 0:
@@ -4160,9 +4185,9 @@ class CompleteQIPCalculator:
                 type_avg = type_data[type_data[incentive_col] > 0][incentive_col].mean() if type_receiving > 0 else 0
                 
                 print(f"\n  {role_type}:")
-                print(f"    • 총 인VND: {type_total}employees")
-                print(f"    • 수령 인VND: {type_receiving}employees")
-                print(f"    • 미수령 인VND: {type_not_receiving}employees")
+                print(f"    • 총 인원: {type_total}명")
+                print(f"    • 수령 인원: {type_receiving}명")
+                print(f"    • 미수령 인원: {type_not_receiving}명")
                 print(f"    • 수령률: {type_receiving/type_total*100:.1f}%")
                 print(f"    • 총 지급액: {type_amount:,.0f} VND")
                 if type_receiving > 0:
@@ -4186,14 +4211,14 @@ class CompleteQIPCalculator:
                     for position, row in positions.head(10).iterrows():
                         if row['총VND'] > 0:
                             print(f"      • {position}:")
-                            print(f"        - 총VND: {int(row['총VND'])}employees, 수령: {int(row['수령인VND'])}employees, 미수령: {int(row['미수령인VND'])}employees")
+                            print(f"        - 총VND: {int(row['총VND'])}명, 수령: {int(row['수령인VND'])}명, 미수령: {int(row['미수령인VND'])}명")
                             print(f"        - 수령률: {row['수령률']}%, 총액: {row['총지급액']:,.0f} VND")
                             if row['수령인VND'] > 0:
                                 print(f"        - 평균: {row['평균지급액']:,.0f} VND")
     
     def add_continuous_months_tracking(self):
         """consecutive months 추적 column 추 (Expected_Months)"""
-        print("\n📊 consecutive months Adding tracking columns...")
+        print("\n📊 연속 개월 추가 tracking columns...")
 
         # previous month consecutive monthsand current month expected month calculation
         previous_continuous = []
@@ -4206,7 +4231,7 @@ class CompleteQIPCalculator:
 
             # TYPE-1 ASSEMBLY INSPECTOR, MODEL MASTER, AUDITOR & TRAINERonly 해당
             if role_type == 'TYPE-1' and any(x in position for x in ['ASSEMBLY INSPECTOR', 'MODEL MASTER', 'AUDITOR', 'TRAINING']):
-                # JSON filefrom checking
+                # JSON 파일에서 checking
                 prev_months = 0
                 expected_months = 0
 
@@ -4278,7 +4303,7 @@ class CompleteQIPCalculator:
 
         self.month_data['Next_Month_Expected'] = next_month_expected
 
-        print(f"✅ consecutive months 추적 column 추 completed (Next_Month_Expected include)")
+        print(f"✅ consecutive months 추적 column 추가 완료 (Next_Month_Expected include)")
 
     def calculate_approved_leave_days(self, emp_no: str) -> int:
         """employeeof 승인done 휴  days수 calculation (AR1 아닌 모든 Reason Description)"""
@@ -4319,11 +4344,11 @@ class CompleteQIPCalculator:
             return
 
         # first attendance_rate column 없으면 calculation하여 추
-        if 'attendance_rate' not in self.month_data.columns:
+        if '출근율_Attendance_Rate_Percent' not in self.month_data.columns:
             print("  → attendance_rate column Calculating (승인휴 반영)...")
-            self.month_data['attendance_rate'] = 0.0
+            self.month_data['출근율_Attendance_Rate_Percent'] = 0.0
             self.month_data['Approved Leave Days'] = 0
-            self.month_data['Absence Rate (raw)'] = 0.0
+            self.month_data['결근율_Absence_Rate_Percent'] = 0.0
 
             for idx in self.month_data.index:
                 emp_no = self.month_data.loc[idx, 'Employee No']
@@ -4361,11 +4386,11 @@ class CompleteQIPCalculator:
                     absence_rate = 0
                     absence_days = 0
 
-                self.month_data.loc[idx, 'attendance_rate'] = attendance_rate
-                self.month_data.loc[idx, 'Absence Rate (raw)'] = absence_rate
+                self.month_data.loc[idx, '출근율_Attendance_Rate_Percent'] = attendance_rate
+                self.month_data.loc[idx, '결근율_Absence_Rate_Percent'] = absence_rate
 
-                # attendancy condition 3also updated (absence rate > 12%)
-                self.month_data.loc[idx, 'attendancy condition 3 - absent % is over 12%'] = 'yes' if absence_rate > 12 else 'no'
+                # 레거시 컬럼 삭제:                 # attendancy condition 3also updated (absence rate > 12%)
+                # 레거시 컬럼 삭제: self.month_data.loc[idx, 'attendancy condition 3 - absent % is over 12%'] = 'yes' if absence_rate > 12 else 'no'
 
             print(f"  ✅ 승인휴 반영 completed - 평균 승인휴: {self.month_data['Approved Leave Days'].mean():.1f} days")
 
@@ -4396,7 +4421,7 @@ class CompleteQIPCalculator:
 
             # 10 conditions 각각 평
             # condition 1: attendance율 >= 88%
-            attendance_rate = self.month_data.loc[idx, 'attendance_rate'] if 'attendance_rate' in self.month_data.columns else 0
+            attendance_rate = self.month_data.loc[idx, '출근율_Attendance_Rate_Percent'] if '출근율_Attendance_Rate_Percent' in self.month_data.columns else 0
             cond_1_result = 'PASS' if attendance_rate >= 88 else 'FAIL'
             # 'N/A' 대신 'NOT_APPLICABLE' 사용 (pandas가 'N/A'를 NaN으로 변환하는 문제 해결)
             cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
@@ -4530,7 +4555,7 @@ class CompleteQIPCalculator:
             applicable_count = 0
             passed_count = 0
             for i in range(1, 11):
-                cond_col = f'cond_{i}_' + ['attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
+                cond_col = f'cond_{i}_' + ['출근율_Attendance_Rate_Percent', 'unapproved_absence', 'actual_working_days', 'minimum_days',
                                            'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
                                            '5prs_pass_rate', '5prs_inspection_qty'][i-1]
                 if cond_col in self.month_data.columns:
@@ -4544,13 +4569,13 @@ class CompleteQIPCalculator:
             self.month_data.loc[idx, 'conditions_passed'] = passed_count
             self.month_data.loc[idx, 'conditions_pass_rate'] = (passed_count / applicable_count * 100) if applicable_count > 0 else 0
 
-        print(f"✅ 10 conditions 평 결and 추 completed")
+        print(f"✅ 10 conditions 평 결and 추가 완료")
 
     def add_aql_statistics_to_excel(self):
         """AQL 통계 정보 Excelto 추"""
         print("\n📊 AQL Adding statistics to Excel...")
 
-        # AQL 통계 AQL filefrom 직접 calculation
+        # AQL 통계 AQL 파일에서 직접 calculation
         aql_stats = {}
 
         # AQL file 경with
@@ -4558,7 +4583,7 @@ class CompleteQIPCalculator:
         aql_file = f"input_files/AQL history/1.HSRG AQL REPORT-{month_upper}.{self.config.year}.csv"
 
         if os.path.exists(aql_file):
-            print(f"  → AQL filefrom 직접 통계 calculation: {aql_file}")
+            print(f"  → AQL 파일에서 직접 통계 계산: {aql_file}")
             aql_df = pd.read_csv(aql_file)
 
             # 모든 PO TYPE include (FAIL은 주with FAIL POto 있음)
@@ -4574,7 +4599,7 @@ class CompleteQIPCalculator:
                     'fail': int(fail_count)
                 }
 
-            print(f"  → AQL filefrom {len(aql_stats)}employees inspectionVND 통계 created completed")
+            print(f"  → AQL 파일에서 {len(aql_stats)}명 검사자 통계 생성 완료")
         else:
             print(f"  ⚠️ AQL file not found: {aql_file}")
             print("  → Using default values based on September AQL Failures column")
@@ -4611,14 +4636,14 @@ class CompleteQIPCalculator:
         aql_with_fail = (self.month_data['AQL_Total_Tests'] > 0) & (self.month_data['AQL_Pass_Count'] < self.month_data['AQL_Total_Tests'])
         aql_fail_count = aql_with_fail.sum()
 
-        print(f"  → AQL 통계 추 completed:")
-        print(f"     • AQL inspection data 있음: {aql_with_data}employees")
-        print(f"     • FAIL 1cases 상: {aql_fail_count}employees")
-        print(f"     • PASSonly: {aql_with_data - aql_fail_count}employees")
+        print(f"  → AQL 통계 추가 완료:")
+        print(f"     • AQL inspection data 있음: {aql_with_data}명")
+        print(f"     • FAIL 1cases 상: {aql_fail_count}명")
+        print(f"     • PASSonly: {aql_with_data - aql_fail_count}명")
 
     def save_results(self):
         """결and saved"""
-        print(f"\n💾 결and file saved in progress...")
+        print(f"\n💾 결과 파일 saved in progress...")
 
         try:
             # output_files 폴더 created
@@ -4631,8 +4656,10 @@ class CompleteQIPCalculator:
             # previous month incentive data 병합
             if self.config.previous_months:
                 prev_month = self.config.previous_months[-1]
-                prev_file_path = f"input_files/{self.config.year}year {prev_month.number}month incentive 지급 세부 정보.csv"
-                
+                # ✅ Use config path instead of hardcoded path (2025-10-04)
+                prev_file_path = self.config.file_paths.get('previous_incentive',
+                                                             f"input_files/{self.config.year}year {prev_month.number}month incentive 지급 세부 정보.csv")
+
                 if os.path.exists(prev_file_path):
                     try:
                         prev_incentive_data = pd.read_csv(prev_file_path, encoding='utf-8-sig')
@@ -4722,10 +4749,10 @@ class CompleteQIPCalculator:
                 if ngoan_row['ROLE TYPE STD'] == 'TYPE-2' and ngoan_row['QIP POSITION 1ST  NAME'] == 'GROUP LEADER':
                     # attendance condition checking
                     attendance_fail = (
-                        ngoan_row.get('attendancy condition 1 - acctual working days is zero') == 'yes' or
-                        ngoan_row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes' or
-                        ngoan_row.get('attendancy condition 3 - absent % is over 12%') == 'yes' or
-                        ngoan_row.get('attendancy condition 4 - minimum working days') == 'yes'
+                        ngoan_row.get('cond_1_attendance_rate') == 'FAIL' or
+                        ngoan_row.get('cond_2_unapproved_absence') == 'FAIL' or
+                        ngoan_row.get('cond_3_actual_working_days') == 'FAIL' or
+                        ngoan_row.get('cond_4_minimum_days') == 'FAIL'  # Phase 1: Single Source of Truth
                     )
 
                     if not attendance_fail and ngoan_row.get('conditions_pass_rate', 0) == 100:
@@ -4746,7 +4773,7 @@ class CompleteQIPCalculator:
 
             # CSV file created validation
             if os.path.exists(csv_file) and os.path.getsize(csv_file) > 0:
-                print(f"✅ CSV file saved completed: {csv_file}")
+                print(f"✅ CSV file 저장 완료: {csv_file}")
             else:
                 print(f"⚠️ CSV file created failure: {csv_file}")
 
@@ -4756,22 +4783,22 @@ class CompleteQIPCalculator:
             
             # Excel file created validation
             if os.path.exists(excel_file) and os.path.getsize(excel_file) > 0:
-                print(f"✅ Excel file saved completed: {excel_file}")
+                print(f"✅ Excel file 저장 완료: {excel_file}")
             else:
                 print(f"⚠️ Excel file created failure: {excel_file}")
             
             # 메타data saved (condition 충족 상세 정보)
             metadata_file = self.save_calculation_metadata(output_dir)
             if metadata_file:
-                print(f"✅ 메타data file saved completed: {metadata_file}")
+                print(f"✅ 메타data file 저장 완료: {metadata_file}")
             
             # HTML report created (비활성화 - dashboard_version4.htmlonly 사용)
             # html_file = self.generate_html_report()
             # if html_file:
-            #     print(f"✅ HTML report created completed: {html_file}")
+            #     print(f"✅ HTML report 생성 완료: {html_file}")
             print("ℹ️ HTML Report created casesskip (dashboard_version4.htmlonly 사용)")
             
-            # next month calculation용 file 자same created
+            # next month 계산용 파일 자동 created
             self.prepare_next_month_file(csv_file)
             
             return True
@@ -4815,9 +4842,9 @@ class CompleteQIPCalculator:
                 # condition 충족 정보 구성
                 # attendance condition
                 emp_metadata['conditions']['attendance'] = {
-                    'attendance_rate': {
-                        'passed': row.get('Absence Rate (raw)', 0) <= 12 if pd.notna(row.get('Absence Rate (raw)')) else True,
-                        'value': 100 - row.get('Absence Rate (raw)', 0) if pd.notna(row.get('Absence Rate (raw)')) else 100,
+                    '출근율_Attendance_Rate_Percent': {
+                        'passed': row.get('결근율_Absence_Rate_Percent', 0) <= 12 if pd.notna(row.get('결근율_Absence_Rate_Percent')) else True,
+                        'value': 100 - row.get('결근율_Absence_Rate_Percent', 0) if pd.notna(row.get('결근율_Absence_Rate_Percent')) else 100,
                         'threshold': 88,
                         'applicable': True
                     },
@@ -5000,7 +5027,7 @@ class CompleteQIPCalculator:
             return None
     
     def prepare_next_month_file(self, csv_file_path):
-        """next month calculation용 file 자same created (month 자same 순환 include)"""
+        """next month 계산용 파일 자동 created (month 자same 순환 include)"""
         try:
             import shutil
             import os
@@ -5055,9 +5082,9 @@ class CompleteQIPCalculator:
             
             # file 복사
             shutil.copy2(csv_file_path, target_file)
-            print(f"\n🎯 next month calculation용 file 자same created:")
+            print(f"\n🎯 next month 계산용 파일 자동 created:")
             print(f"  → {target_file}")
-            print(f"  ℹ️ {next_year}year {next_korean_month} calculation 시 file 자samewith 사용됩니다.")
+            print(f"  ℹ️ {next_year}year {next_korean_month} calculation 시 파일 자동with 사용됩니다.")
             
             # next month configuration 정보 created (선택적)
             next_month_info = f"""
@@ -5072,7 +5099,7 @@ class CompleteQIPCalculator:
             print(next_month_info)
             
         except Exception as e:
-            print(f"  ⚠️ next month file 자same created failure: {e}")
+            print(f"  ⚠️ next month 파일 자동 created failure: {e}")
             print(f"     수samewith fileemployees 변경해주세요.")
     
     def generate_html_report(self) -> Optional[str]:
@@ -5088,8 +5115,10 @@ class CompleteQIPCalculator:
                 prev_incentive_data = None
                 if self.config.previous_months:
                     prev_month = self.config.previous_months[-1]  # 마지막 previous month (6월)
-                    prev_file_path = f"input_files/{self.config.year}year {prev_month.number}month incentive 지급 세부 정보.csv"
-                    
+                    # ✅ Use config path instead of hardcoded path (2025-10-04)
+                    prev_file_path = self.config.file_paths.get('previous_incentive',
+                                                                 f"input_files/{self.config.year}year {prev_month.number}month incentive 지급 세부 정보.csv")
+
                     import os
                     if os.path.exists(prev_file_path):
                         try:
@@ -5116,7 +5145,7 @@ class CompleteQIPCalculator:
                 else:
                     self.month_data['Previous_Incentive'] = 0
             
-            # 통계 calculation - Employee No 있 실제 employeeonly
+            # 통계 계산 - Employee No 있 실제 employeeonly
             valid_employees = self.month_data[self.month_data['Employee No'].notna()]
             
             # calculation month previous 퇴사자 exclude
@@ -5145,7 +5174,7 @@ class CompleteQIPCalculator:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QIP incentive calculation 결and report - {self.config.year}year {month_kr}</title>
+    <title>QIP incentive 계산 결과 report - {self.config.year}year {month_kr}</title>
     <style>
         * {{
             margin: 0;
@@ -5422,7 +5451,7 @@ class CompleteQIPCalculator:
 <body>
     <div class="container">
         <div class="header">
-            <h1>QIP incentive calculation 결and</h1>
+            <h1>QIP incentive 계산 결과</h1>
             <p>{self.config.year}year {month_kr} | created days: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
         </div>
         
@@ -5485,8 +5514,8 @@ class CompleteQIPCalculator:
                     html_content += f"""
                         <tr>
                             <td><span class="type-badge {type_class}">{role_type}</span></td>
-                            <td>{type_total}employees</td>
-                            <td>{type_receiving}employees</td>
+                            <td>{type_total}명</td>
+                            <td>{type_receiving}명</td>
                             <td>{type_receiving/type_total*100:.1f}%</td>
                             <td>{type_amount:,.0f} VND</td>
                             <td>{type_avg:,.0f} VND</td>
@@ -5540,9 +5569,9 @@ class CompleteQIPCalculator:
                                 html_content += f"""
                     <tr>
                         <td>{position}</td>
-                        <td>{int(row['총VND'])}employees</td>
-                        <td>{int(row['수령인VND'])}employees</td>
-                        <td>{int(row['미수령인VND'])}employees</td>
+                        <td>{int(row['총VND'])}명</td>
+                        <td>{int(row['수령인VND'])}명</td>
+                        <td>{int(row['미수령인VND'])}명</td>
                         <td>{row['수령률']}%</td>
                         <td>{row['총지급액']:,.0f} VND</td>
                         <td>{row['평균지급액']:,.0f} VND</td>
@@ -5628,11 +5657,12 @@ class CompleteQIPCalculator:
                         reasons.append("TYPE-3 정책 exclude")
                     else:
                         # attendance condition 체크
-                        if row.get('attendancy condition 1 - acctual working days is zero') == 'yes':
-                            reasons.append("attendance days수 0")
-                        if row.get('attendancy condition 2 - unapproved Absence Day is more than 2 days') == 'yes':
-                            reasons.append("무단결근 >2 days")
-                        if row.get('attendancy condition 3 - absent % is over 12%') == 'yes':
+                        if row.get('cond_3_actual_working_days') == 'FAIL':
+                            reasons.append('실근무일=0')
+                        if row.get('cond_2_unapproved_absence') == 'FAIL':
+                            reasons.append('무단결근>2일')
+                        if row.get('cond_1_attendance_rate') == 'FAIL':
+                            reasons.append('출근율<88%')  # Phase 1: Single Source of Truth
                             reasons.append("absence rate >12%")
                         
                         # AQL condition 체크
@@ -5991,7 +6021,7 @@ class CompleteQIPCalculator:
         
         <div class="footer">
             <p>© 2025 QIP incentive 관리 시스템</p>
-            <p>본 report 자samewith createdcompleted.</p>
+            <p>본 report 자동으로 createdcompleted.</p>
         </div>
     </div>
 </body>
@@ -6178,7 +6208,7 @@ def detect_month_from_attendance(file_path: str) -> tuple:
         year = most_common.year
         month = most_common.month
         
-        print(f"✅ Attendance filefrom detectiondone yearMonth: {year}year {month}month")
+        print(f"✅ Attendance 파일에서 detectiondone yearMonth: {year}year {month}month")
         return year, month
         
     except Exception as e:
@@ -6187,7 +6217,7 @@ def detect_month_from_attendance(file_path: str) -> tuple:
 
 
 def calculate_working_days_from_attendance(file_path: str, year: int, month: int) -> int:
-    """Attendance filefrom 실제 근무 days calculation"""
+    """Attendance 파일에서 실제 근무 days calculation"""
     try:
         import pandas as pd
         
@@ -6214,7 +6244,7 @@ def calculate_working_days_from_attendance(file_path: str, year: int, month: int
         unique_dates = month_dates.str.extract(r'(\d{4}\.\d{2}\.\d{2})')[0].unique()
         working_days = len(unique_dates)
         
-        print(f"✅ Attendance filefrom calculationdone {year}year {month}month Working days: {working_days} days")
+        print(f"✅ Attendance 파일에서 calculationdone {year}year {month}month Working days: {working_days} days")
         return working_days
         
     except Exception as e:
@@ -6223,7 +6253,7 @@ def calculate_working_days_from_attendance(file_path: str, year: int, month: int
 
 
 def init_command():
-    """초기 configuration employees령어 - file 자same detection 및 configuration"""
+    """초기 configuration employees령어 - 파일 자동 detection 및 configuration"""
     print("\n🔧 Initial configuration started...")
     print("📂 current directoryof file 분석합니다...")
     
@@ -6254,14 +6284,14 @@ def init_command():
     year = int(input("\n📅 연also 입력하세요 (예: 2025): "))
     month_num = int(input("📅 month 입력하세요 (1-12): "))
     
-    # Attendance filefrom 근무 days 자same calculation
+    # Attendance 파일에서 근무 days 자same calculation
     working_days = None
     if attendance_file and os.path.exists(attendance_file):
         if attendance_file.endswith('.csv'):
             working_days = calculate_working_days_from_attendance(attendance_file, year, month_num)
     
     if working_days is None:
-        print("\n⚠️ Attendance filefrom cannot calculate working days from.")
+        print("\n⚠️ Attendance 파일에서 cannot calculate working days from.")
         working_days = int(input("근무 days 직접 입력하세요: "))
     
     # Month 객체 created
@@ -6294,7 +6324,7 @@ def init_command():
     # 수same 입력 필요한 file
     for key in file_patterns:
         if key not in detected_files:
-            print(f"\n⚠️ {key} file 자samewith 찾 수 없습니다.")
+            print(f"\n⚠️ {key} 파일 자동with 찾 수 없습니다.")
             file_path = input(f"{key} file 경with 입력 (Enter: cases너뛰기): ").strip()
             if file_path:
                 detected_files[key] = file_path
@@ -6421,7 +6451,7 @@ def main():
         
         # 결and saved
         if calculator.save_results():
-            print(f"\n🎉 {config.get_month_str('korean')} incentive calculation completedcompleted!")
+            print(f"\n🎉 {config.get_month_str('korean')} incentive calculation 완료!")
         else:
             print("\n⚠️ 결and saved in progress  days부 오류 발생했습니다.")
     

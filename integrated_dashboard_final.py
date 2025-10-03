@@ -54,18 +54,18 @@ def get_translation(key_path, lang='ko'):
 def get_month_translation(month, lang='ko'):
     """month 이름 번역"""
     month_translations = {
-        'january': {'ko': '1month', 'en': 'January', 'vi': 'Tháng 1'},
-        'february': {'ko': '2month', 'en': 'February', 'vi': 'Tháng 2'},
-        'march': {'ko': '3month', 'en': 'March', 'vi': 'Tháng 3'},
-        'april': {'ko': '4month', 'en': 'April', 'vi': 'Tháng 4'},
-        'may': {'ko': '5month', 'en': 'May', 'vi': 'Tháng 5'},
-        'june': {'ko': '6month', 'en': 'June', 'vi': 'Tháng 6'},
-        'july': {'ko': 'July', 'en': 'July', 'vi': 'Tháng 7'},
-        'august': {'ko': '8month', 'en': 'August', 'vi': 'Tháng 8'},
-        'september': {'ko': '9month', 'en': 'September', 'vi': 'Tháng 9'},
-        'october': {'ko': '10month', 'en': 'October', 'vi': 'Tháng 10'},
-        'november': {'ko': '11month', 'en': 'November', 'vi': 'Tháng 11'},
-        'december': {'ko': '12month', 'en': 'December', 'vi': 'Tháng 12'}
+        'january': {'ko': '1월', 'en': 'January', 'vi': 'Tháng 1'},
+        'february': {'ko': '2월', 'en': 'February', 'vi': 'Tháng 2'},
+        'march': {'ko': '3월', 'en': 'March', 'vi': 'Tháng 3'},
+        'april': {'ko': '4월', 'en': 'April', 'vi': 'Tháng 4'},
+        'may': {'ko': '5월', 'en': 'May', 'vi': 'Tháng 5'},
+        'june': {'ko': '6월', 'en': 'June', 'vi': 'Tháng 6'},
+        'july': {'ko': '7월', 'en': 'July', 'vi': 'Tháng 7'},
+        'august': {'ko': '8월', 'en': 'August', 'vi': 'Tháng 8'},
+        'september': {'ko': '9월', 'en': 'September', 'vi': 'Tháng 9'},
+        'october': {'ko': '10월', 'en': 'October', 'vi': 'Tháng 10'},
+        'november': {'ko': '11월', 'en': 'November', 'vi': 'Tháng 11'},
+        'december': {'ko': '12월', 'en': 'December', 'vi': 'Tháng 12'}
     }
     
     month_key = month.lower()
@@ -152,7 +152,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
         f"output_files/output_QIP_incentive_{month_str}_{year}_final완성version_v6.0_Complete.csv",
         f"output_files/output_QIP_incentive_{month}_{year}_final완성version_v6.0_Complete.csv",
         f"output_files/output_QIP_incentive_{month_str}_{year}_*.csv",
-        f"input_files/{year}year {get_korean_month(month)} incentive payment 세부 정보.csv"
+        f"input_files/{year}년 {get_korean_month(month)} 인센티브 지급 세부 정보.csv"
     ]
     
     for pattern in patterns:
@@ -202,8 +202,8 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     column_mapping[col] = 'july_incentive'
                 elif 'Previous_Incentive' in col:
                     column_mapping[col] = 'previous_incentive'
-                elif col_lower == 'attendance_rate' or (col_lower == 'attendance rate'):
-                    column_mapping[col] = 'attendance_rate'
+                elif col_lower == '출근율_Attendance_Rate_Percent' or (col_lower == 'attendance rate'):
+                    column_mapping[col] = '출근율_Attendance_Rate_Percent'
                 elif col_lower.startswith('cond_'):
                     # Skip condition columns
                     pass
@@ -305,14 +305,14 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             # Excel이 단th 진실 소스(Single Source of Truth)
             missing_columns = []
 
-            if 'attendance_rate' not in df.columns:
-                missing_columns.append('attendance_rate')
+            if '출근율_Attendance_Rate_Percent' not in df.columns:
+                missing_columns.append('출근율_Attendance_Rate_Percent')
                 # attendance_rate를 actual data로 calculation
                 if 'Actual Working Days' in df.columns and 'Total Working Days' in df.columns:
-                    df['attendance_rate'] = (df['Actual Working Days'] / df['Total Working Days'] * 100).fillna(0)
-                    df.loc[df['Total Working Days'] == 0, 'attendance_rate'] = 0
+                    df['출근율_Attendance_Rate_Percent'] = (df['Actual Working Days'] / df['Total Working Days'] * 100).fillna(0)
+                    df.loc[df['Total Working Days'] == 0, '출근율_Attendance_Rate_Percent'] = 0
                 else:
-                    df['attendance_rate'] = 0  # data 없음을 employees시적으로 표시
+                    df['출근율_Attendance_Rate_Percent'] = 0  # data 없음을 employees시적으로 표시
             # Check for column variations and normalize
             if 'actual_working_days' not in df.columns:
                 if 'Actual Working Days' in df.columns:
@@ -329,8 +329,8 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     df['unapproved_absences'] = 0  # data 없음을 employees시적으로 표시
 
             if 'absence_rate' not in df.columns:
-                if 'Absence Rate (raw)' in df.columns:
-                    df['absence_rate'] = df['Absence Rate (raw)']
+                if '결근율_Absence_Rate_Percent' in df.columns:
+                    df['absence_rate'] = df['결근율_Absence_Rate_Percent']
                 else:
                     missing_columns.append('absence_rate')
                     df['absence_rate'] = 0  # data 없음을 employees시적으로 표시
@@ -453,7 +453,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
 
             print(f"   - {get_korean_month(month)} incentive eligible: {len(df)}employees (total {initial_count}out of)")
             
-            print(f"✅ {len(df)}employee data loaded ({get_korean_month(month)} based on)")
+            print(f"✅ {len(df)}명 직원 데이터 로드 완료 ({get_korean_month(month)} 기준)")
             return df
             
     print("❌ incentive data file not found")
@@ -518,7 +518,7 @@ def evaluate_conditions(emp_data, condition_matrix):
 
     # Excel에서 조cases 결과 fetch (있으면 use, 없으면 자체 calculation)
     condition_names = [
-        'attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
+        '출근율_Attendance_Rate_Percent', 'unapproved_absence', 'actual_working_days', 'minimum_days',
         'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
         '5prs_pass_rate', '5prs_inspection_qty'
     ]
@@ -645,7 +645,7 @@ def evaluate_conditions(emp_data, condition_matrix):
 
             # 조cases 평가 함count 매핑 (existing logic 유지)
             evaluators = {
-                1: lambda d: (d.get('attendance_rate', 0) >= 88, f"{d.get('attendance_rate', 0):.1f}%"),
+                1: lambda d: (d.get('출근율_Attendance_Rate_Percent', 0) >= 88, f"{d.get('출근율_Attendance_Rate_Percent', 0):.1f}%"),
                 2: lambda d: (d.get('unapproved_absences', 0) <= 2, f"{d.get('unapproved_absences', 0)}th"),
                 3: lambda d: (d.get('actual_working_days', 0) > 0, f"{d.get('actual_working_days', 0)}th"),
                 4: lambda d: (d.get('actual_working_days', 0) >= 12, f"{d.get('actual_working_days', 0)}th"),
@@ -952,7 +952,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             'july_incentive': str(row_dict.get('july_incentive', '0')) if 'july_incentive' in row_dict else '0',
             'september_incentive': str(row_dict.get('september_incentive', '0')) if 'september_incentive' in row_dict else '0',
             'june_incentive': str(row_dict.get('june_incentive', '0')),
-            'attendance_rate': float(row_dict.get('attendance_rate', 0) if pd.notna(row_dict.get('attendance_rate')) else 0),
+            '출근율_Attendance_Rate_Percent': float(row_dict.get('출근율_Attendance_Rate_Percent', 0) if pd.notna(row_dict.get('출근율_Attendance_Rate_Percent')) else 0),
             'actual_working_days': int(row_dict.get('actual_working_days', 0) if pd.notna(row_dict.get('actual_working_days')) else 0),
             'Actual Working Days': int(row_dict.get('actual_working_days', 0) if pd.notna(row_dict.get('actual_working_days')) else 0),  # JavaScript 호환성
             'unapproved_absences': int(row_dict.get('unapproved_absences', 0) if pd.notna(row_dict.get('unapproved_absences')) else 0),
@@ -975,7 +975,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         # 조cases 관련 column 추가 (cond_1 ~ cond_10)
         for cond_id in range(1, 11):
             condition_names = [
-                'attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
+                '출근율_Attendance_Rate_Percent', 'unapproved_absence', 'actual_working_days', 'minimum_days',
                 'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
                 '5prs_pass_rate', '5prs_inspection_qty'
             ]
@@ -1221,7 +1221,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QIP incentive calculation 결과 - {year}year {get_korean_month(month)}</title>
+    <title>QIP 인센티브 계산 결과 - {year}년 {get_korean_month(month)}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts for better Unicode support -->
@@ -1277,8 +1277,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const noDataText = getTranslation('workingDaysModal.noData', currentLanguage);
 
         const getWeekday = (day) => {
-            /* 2025year 9month 1th은 month요th(index 1) */
-            const firstDayOfWeek = 1; /* month요th = 1 */
+            /* 2025년 9월 1일은 월요일(index 1) */
+            const firstDayOfWeek = 1; /* 월요일 = 1 */
             const dayIndex = (firstDayOfWeek + day - 1) % 7;
             return weekdaysArray[dayIndex];
         };
@@ -2158,7 +2158,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {
                 return false;
             }
-            const attendanceRate = parseFloat(emp['attendance_rate'] || emp['Attendance Rate'] || 0);
+            const attendanceRate = parseFloat(emp['출근율_Attendance_Rate_Percent'] || emp['Attendance Rate'] || 0);
             return attendanceRate < 88;
         });
 
@@ -2200,8 +2200,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         bVal = b['type'] || b['ROLE TYPE STD'] || '';
                         break;
                     case 'attendanceRate':
-                        aVal = parseFloat(a['attendance_rate'] || 0);
-                        bVal = parseFloat(b['attendance_rate'] || 0);
+                        aVal = parseFloat(a['출근율_Attendance_Rate_Percent'] || 0);
+                        bVal = parseFloat(b['출근율_Attendance_Rate_Percent'] || 0);
                         break;
                     case 'actualDays':
                         aVal = parseFloat(a['Actual Working Days'] || a['actual_working_days'] || 0);
@@ -2233,7 +2233,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             below88Employees.forEach(emp => {
                 const empNo = emp['Employee No'] || emp['emp_no'];
                 let name = emp['Full Name'] || emp['name'];
-                const attendanceRate = parseFloat(emp['Attendance Rate'] || emp['attendance_rate'] || 0).toFixed(1);
+                const attendanceRate = parseFloat(emp['Attendance Rate'] || emp['출근율_Attendance_Rate_Percent'] || 0).toFixed(1);
                 const actualDays = parseFloat(emp['Actual Working Days'] || emp['actual_working_days'] || 0);
                 const totalDays = parseFloat(emp['Total Working Days'] || {working_days});
 
@@ -4141,9 +4141,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="modal-body">
                             <div class="mb-3">
                                 <div class="alert alert-warning">
-                                    <strong>조cases 설employees:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 100족 미만인 경우 incentive를 받을 count not found.
+                                    <strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 100족 미만인 경우 인센티브를 받을 수 없습니다.
                                 </div>
-                                <p>total ${lowQtyEmployees.length}employees이 5PRS 검사량 100족 미만입니다.</p>
+                                <p>총 ${lowQtyEmployees.length}명이 5PRS 검사량 100족 미만입니다.</p>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-hover">
@@ -4154,7 +4154,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header" data-sort="position">직책 ${getSortIcon('position')}</th>
                                             <th>type</th>
                                             <th class="sortable-header" data-sort="inspectionQty">검사량 ${getSortIcon('inspectionQty')}</th>
-                                            <th>조cases 충족</th>
+                                            <th>조건 충족</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -5573,15 +5573,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </select>
             </div>
             <h1 id="mainTitle">QIP incentive calculation 결과 <span class="version-badge">V8.01</span></h1>
-            <p id="mainSubtitle">{year}year {get_korean_month(month)} incentive payment 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">report creationth: {current_year}year {current_month:02d}month {current_day:02d}th {current_hour:02d}:{current_minute:02d}</p>
+            <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
-                <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 use data 기간:</p>
-                <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{incentive_start_str}" data-endday="{incentive_end_str}">• incentive data: {year}year {month_num:02d}month {incentive_start_str}th ~ {incentive_end_str}th</p>
-                <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{attendance_start_str}" data-endday="{attendance_end_str}">• 출근 data: {year}year {month_num:02d}month {attendance_start_str}th ~ {attendance_end_str}th</p>
-                <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{aql_start_str}" data-endday="{aql_end_str}">• AQL data: {year}year {month_num:02d}month {aql_start_str}th ~ {aql_end_str}th</p>
-                <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{prs_start_str}" data-endday="{prs_end_str}">• 5PRS data: {year}year {month_num:02d}month {prs_start_str}th ~ {prs_end_str}th</p>
-                <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}">• 기본 인력 data: {year}year {month_num:02d}month based on</p>
+                <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
+                <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{incentive_start_str}" data-endday="{incentive_end_str}">• 인센티브 데이터: {year}년 {month_num:02d}월 {incentive_start_str}일 ~ {incentive_end_str}일</p>
+                <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{attendance_start_str}" data-endday="{attendance_end_str}">• 출근 데이터: {year}년 {month_num:02d}월 {attendance_start_str}일 ~ {attendance_end_str}일</p>
+                <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{aql_start_str}" data-endday="{aql_end_str}">• AQL 데이터: {year}년 {month_num:02d}월 {aql_start_str}일 ~ {aql_end_str}일</p>
+                <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{prs_start_str}" data-endday="{prs_end_str}">• 5PRS 데이터: {year}년 {month_num:02d}월 {prs_start_str}일 ~ {prs_end_str}일</p>
+                <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}">• 기본 인력 데이터: {year}년 {month_num:02d}월 기준</p>
             </div>
         </div>
 
@@ -7241,32 +7241,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             <!-- KPI 카드 그리드 -->
             <div class="kpi-cards-grid">
-                <!-- KPI 카드 1: total workthcount -->
+                <!-- KPI 카드 1: 총 근무일수 -->
                 <div class="kpi-card" onclick="showValidationModal('totalWorkingDays')" style="--card-color-1: #4a90e2; --card-color-2: #5ca0f2; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.1);">
                     <div class="kpi-icon">📅</div>
                     <div class="kpi-value" id="kpiTotalWorkingDays">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.totalWorkingDays">total workthcount</div>
+                    <div class="kpi-label" data-i18n="validationKpi.totalWorkingDays">총 근무일수</div>
                 </div>
 
-                <!-- KPI 카드 2: 무단결근 3th 이상 -->
+                <!-- KPI 카드 2: 무단결근 3일 이상 -->
                 <div class="kpi-card" onclick="showValidationModal('absentWithoutInform')" style="--card-color-1: #f39c12; --card-color-2: #f1c40f; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1);">
                     <div class="kpi-icon">⚠️</div>
                     <div class="kpi-value" id="kpiAbsentWithoutInform">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.absentWithoutInform">무단결근 ≥3th</div>
+                    <div class="kpi-label" data-i18n="validationKpi.absentWithoutInform">무단결근 ≥3일</div>
                 </div>
 
-                <!-- KPI 카드 3: actual workth 0th -->
+                <!-- KPI 카드 3: 실제 근무일 0일 -->
                 <div class="kpi-card" onclick="showValidationModal('zeroWorkingDays')" style="--card-color-1: #e74c3c; --card-color-2: #c0392b; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);">
                     <div class="kpi-icon">🚫</div>
                     <div class="kpi-value" id="kpiZeroWorkingDays">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.zeroWorkingDays">actual workth = 0</div>
+                    <div class="kpi-label" data-i18n="validationKpi.zeroWorkingDays">실제 근무일 = 0</div>
                 </div>
 
-                <!-- KPI 카드 4: 최소 workth 미충족 -->
+                <!-- KPI 카드 4: 최소 근무일 미충족 -->
                 <div class="kpi-card" onclick="showValidationModal('minimumDaysNotMet')" style="--card-color-1: #95a5a6; --card-color-2: #7f8c8d; box-shadow: 0 4px 15px rgba(149, 165, 166, 0.1);">
                     <div class="kpi-icon">📉</div>
                     <div class="kpi-value" id="kpiMinimumDaysNotMet">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.minimumDaysNotMet">최소 workth 미충족</div>
+                    <div class="kpi-label" data-i18n="validationKpi.minimumDaysNotMet">최소 근무일 미충족</div>
                 </div>
 
                 <!-- KPI 카드 5: 출근율 88% 미만 -->
@@ -7283,11 +7283,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="kpi-label" data-i18n="validationKpi.aqlFail">AQL FAIL 보유자</div>
                 </div>
 
-                <!-- KPI 카드 7: 3개month 연속 AQL FAIL -->
+                <!-- KPI 카드 7: 3개월 연속 AQL FAIL -->
                 <div class="kpi-card" onclick="showValidationModal('consecutiveAqlFail')" style="--card-color-1: #c0392b; --card-color-2: #a93226; box-shadow: 0 4px 15px rgba(192, 57, 43, 0.1);">
                     <div class="kpi-icon">🔴</div>
                     <div class="kpi-value" id="kpiConsecutiveAqlFail">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.consecutiveAqlFail">3개month 연속 AQL FAIL</div>
+                    <div class="kpi-label" data-i18n="validationKpi.consecutiveAqlFail">3개월 연속 AQL FAIL</div>
                 </div>
 
                 <!-- KPI 카드 8: 구역 AQL Reject 3% 이상 -->
@@ -8670,7 +8670,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const mainSubtitle = document.getElementById('mainSubtitle');
             if (mainSubtitle) {{
-                const yearUnit = currentLanguage === 'ko' ? 'year' : '';
+                const yearUnit = currentLanguage === 'ko' ? '년' : '';
                 const incentiveText = getTranslation('headers.incentiveStatus', currentLanguage);
                 mainSubtitle.innerHTML = yearText + yearUnit + ' ' + monthText + ' ' + incentiveText;
             }}
@@ -8686,7 +8686,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 let formattedDate;
                 if (currentLanguage === 'ko') {{
-                    formattedDate = `${{year}}year ${{month}}month ${{day}}th ${{hour}}:${{minute}}`;
+                    formattedDate = `${{year}}년 ${{month}}월 ${{day}}일 ${{hour}}:${{minute}}`;
                 }} else if (currentLanguage === 'en') {{
                     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                     formattedDate = `${{monthNames[parseInt(month)-1]}} ${{day}}, ${{year}} ${{hour}}:${{minute}}`;
@@ -8722,9 +8722,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     let periodText;
                     if (item.key === 'manpowerData') {{
-                        // 기본 인력 data는 month based on만 표시
+                        // 기본 인력 데이터는 월 기준만 표시
                         if (currentLanguage === 'ko') {{
-                            periodText = `• ${{dataLabel}}: ${{year}}year ${{month}}month based on`;
+                            periodText = `• ${{dataLabel}}: ${{year}}년 ${{month}}월 기준`;
                         }} else if (currentLanguage === 'en') {{
                             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                             periodText = `• ${{dataLabel}}: Based on ${{monthNames[parseInt(month)-1]}} ${{year}}`;
@@ -8732,9 +8732,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             periodText = `• ${{dataLabel}}: Dựa trên tháng ${{month}}/${{year}}`;
                         }}
                     }} else {{
-                        // 다른 data는 기간 표시
+                        // 다른 데이터는 기간 표시
                         if (currentLanguage === 'ko') {{
-                            periodText = `• ${{dataLabel}}: ${{year}}year ${{month}}month ${{startDay}}th ~ ${{endDay}}th`;
+                            periodText = `• ${{dataLabel}}: ${{year}}년 ${{month}}월 ${{startDay}}일 ~ ${{endDay}}일`;
                         }} else if (currentLanguage === 'en') {{
                             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                             periodText = `• ${{dataLabel}}: ${{monthNames[parseInt(month)-1]}} ${{startDay}} - ${{endDay}}, ${{year}}`;
@@ -9210,7 +9210,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 th.textContent = getTranslation('incentiveCalculation.type2CalcHeaderMethod', currentLanguage);
             }});
             document.querySelectorAll('.type2-calc-header-average').forEach(th => {{
-                // "2025year 9month 평균" → dynamic
+                // "2025년 9월 평균" → 동적 생성
                 const monthText = getTranslation('common.{month.lower()}', currentLanguage);
                 th.textContent = getTranslation('incentiveCalculation.type2CalcHeaderAverage', currentLanguage).replace('{{{{month}}}}', monthText).replace('{{{{year}}}}', '{year}');
             }});
@@ -9933,17 +9933,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
-            // 언어by 단위 설정
-            const personUnit = currentLanguage === 'ko' ? 'employees' :
-                              currentLanguage === 'en' ? ' people' :
-                              ' người';
-
             // 테이블 tbody 업데이트
             const tbody = document.getElementById('typeSummaryBody');
             if (tbody) {{
                 let html = '';
+                const personUnit = getUnit('people');  // 언어별 단위 가져오기
 
-                // 각 Typeby 행 creation
+                // 각 Type별 행 생성
                 ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(type => {{
                     const data = typeData[type];
                     const paymentRate = data.total > 0 ? (data.paid / data.total * 100).toFixed(1) : '0.0';
@@ -9962,7 +9958,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     html += '</tr>';
                 }});
 
-                // 합계 행 creation
+                // 합계 행 생성
                 const totalPaymentRate = grandTotal > 0 ? (grandPaid / grandTotal * 100).toFixed(1) : '0.0';
                 const totalAvgPaid = grandPaid > 0 ? Math.round(grandAmount / grandPaid) : 0;
                 const totalAvgTotal = grandTotal > 0 ? Math.round(grandAmount / grandTotal) : 0;
@@ -9978,7 +9974,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 html += '</tr>';
 
                 tbody.innerHTML = html;
-                console.log('Typeby 요약 테이블 업데이트 completed');
+                console.log('Type별 요약 테이블 업데이트 완료');
             }}
             }} catch (e) {{
                 console.error('updateTypeSummaryTable 오류:', e);
@@ -10018,16 +10014,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             updateValidationTexts();
         }}
 
-        // 단위 번역 함count
+        // 단위 번역 함수
         function getUnit(unitKey) {{
             const units = {{
                 'people': {{
-                    'ko': 'employees',
+                    'ko': '명',
                     'en': ' people',
                     'vi': ' người'
                 }},
                 'days': {{
-                    'ko': 'th',
+                    'ko': '일',
                     'en': ' days',
                     'vi': ' ngày'
                 }}
@@ -10092,7 +10088,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
                     return false;
                 }}
-                return parseFloat(emp['attendance_rate'] || emp['Attendance Rate'] || 0) < 88;
+                return parseFloat(emp['출근율_Attendance_Rate_Percent'] || emp['Attendance Rate'] || 0) < 88;
             }}).length;
             document.getElementById('kpiAttendanceBelow88').textContent = attendanceBelow88 + peopleUnit;
 
@@ -13556,17 +13552,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 상단 카드 초기화 - 이미 load된 통계 use
                 if (window.dashboardStats) {{
-                    const lang = currentLanguage;
-                    const personUnit = lang === 'ko' ? 'employees' : lang === 'en' ? ' people' : ' người';
-
                     // ID가 Value로 끝나는 경우와 그렇지 않은 경우 모두 처리
                     const totalElem = document.getElementById('totalEmployees') || document.getElementById('totalEmployeesValue');
                     const paidElem = document.getElementById('paidEmployees') || document.getElementById('paidEmployeesValue');
                     const rateElem = document.getElementById('paymentRate') || document.getElementById('paymentRateValue');
                     const amountElem = document.getElementById('totalAmount') || document.getElementById('totalAmountValue');
 
-                    if (totalElem) totalElem.textContent = window.dashboardStats.total + personUnit;
-                    if (paidElem) paidElem.textContent = window.dashboardStats.paid + personUnit;
+                    // 숫자만 표시 (단위는 별도 Unit 엘리먼트에서 처리)
+                    if (totalElem) totalElem.textContent = window.dashboardStats.total;
+                    if (paidElem) paidElem.textContent = window.dashboardStats.paid;
                     if (rateElem) rateElem.textContent = window.dashboardStats.rate + '%';
                     if (amountElem) amountElem.textContent = window.dashboardStats.amount.toLocaleString() + ' VND';
 
@@ -13621,8 +13615,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                         const tbody = document.getElementById('typeSummaryBody');
                         if (tbody) {{
-                            const lang = currentLanguage || 'ko';
-                            const personUnit = lang === 'ko' ? 'employees' : lang === 'en' ? ' people' : ' người';
+                            const personUnit = getUnit('people');  // 언어별 단위 가져오기
                             let html = '';
 
                             ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(type => {{
