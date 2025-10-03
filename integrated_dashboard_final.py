@@ -2500,9 +2500,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         modalHTML += '<div class="section-container">';
         modalHTML += '<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.twoMonthSection') + '</h3>';
 
+        // Aug-Sep, Jul-Aug 카운트 미리 계산
+        const augSepFailsList = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('AUG_SEP'));
+        const julAugFailsList = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('JUL_AUG'));
+
         if (twoMonthFails.length === 0) {
             modalHTML += '<div class="alert alert-info" style="padding: 15px; background: #d1ecf1; color: #0c5460; border-radius: 5px;">';
             modalHTML += t('validationTab.modals.aqlFail.consecutiveAqlFail.noTwoMonth');
+            modalHTML += '<br><br>';
+            modalHTML += '<strong>📊 상세 현황:</strong><br>';
+            modalHTML += '• 8-9월 연속 실패: <span style="color: #dc3545; font-weight: bold;">0명</span><br>';
+            modalHTML += '• 7-8월 연속 실패: <span style="color: #ffc107; font-weight: bold;">0명</span>';
             modalHTML += '</div>';
         } else {
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
@@ -2555,11 +2563,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 요약 통계
         modalHTML += '<div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 5px;">';
         modalHTML += '<strong>📊 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.title') + '</strong><br>';
-        modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.threeMonthFails') + ' ' + threeMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
-        modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.twoMonthFails') + ' ' + twoMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
-        const augSepCount = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('AUG_SEP')).length;
-        modalHTML += '&nbsp;&nbsp;- ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.highRisk') + ' ' + augSepCount + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
-        modalHTML += '&nbsp;&nbsp;- ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.monitoring') + ' ' + (twoMonthFails.length - augSepCount) + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people');
+        modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.threeMonthFails') + ' <strong>' + threeMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</strong><br>';
+        modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.twoMonthFails') + ' <strong>' + twoMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</strong><br>';
+        modalHTML += '&nbsp;&nbsp;- <span style="color: #dc3545; font-weight: bold;">🔴 8-9월 연속 실패: ' + augSepFailsList.length + '명</span><br>';
+        modalHTML += '&nbsp;&nbsp;- <span style="color: #ffc107; font-weight: bold;">🟡 7-8월 연속 실패: ' + julAugFailsList.length + '명</span>';
         modalHTML += '</div>';
 
         // Close modal HTML
