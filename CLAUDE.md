@@ -25,173 +25,343 @@ QIP (Quality Inspection Process) Incentive Dashboard System - Factory worker inc
 
 ## Key Commands
 
-### Full Pipeline Execution
+### Complete Workflow Execution
 ```bash
-# Complete incentive report generation (RECOMMENDED)
+# One-command full pipeline (RECOMMENDED)
 ./action.sh
-# Guides through month/year selection, handles entire pipeline
+# Guides through month/year selection, handles:
+#   1. Config generation
+#   2. Google Drive sync
+#   3. Attendance calculation
+#   4. Incentive calculation
+#   5. Dashboard generation
+#   6. Optional data validation
 
-# Version 6 dashboard with modular architecture
-python dashboard_v2/generate_dashboard.py --month september --year 2025
+# Standalone validation pipeline
+./run_full_validation.sh
+# Validates all 10 conditions, incentive amounts, dashboard consistency
+```
 
-# Version 5 dashboard (fallback if v6 has issues)
+### Dashboard Generation
+```bash
+# Version 8 (Current - single-file, stable)
 python integrated_dashboard_final.py --month 9 --year 2025
+
+# Version 6 (Modular architecture, maintenance mode)
+python dashboard_v2/generate_dashboard.py --month september --year 2025
 ```
 
-### Testing & Validation
+### Data Validation (NEW)
 ```bash
-./test_final.sh                        # Full system test
-python quick_verify.py                  # Quick dashboard validation
-python validate_json_consistency.py     # JSON-code alignment check
-python src/validate_hr_data.py 9 2025  # HR data integrity
+# Complete validation suite
+./run_full_validation.sh
+
+# Individual validators
+python scripts/verification/validate_condition_evaluation.py september 2025
+python scripts/verification/validate_incentive_amounts.py september 2025
+python scripts/verification/validate_dashboard_consistency.py september 2025
+
+# Integrated report generation
+python scripts/verification/generate_final_report.py september 2025 --run-all
 ```
 
-### Consecutive AQL Failure Update (Auto-Detection)
+### Consecutive AQL Failure Update
 ```bash
-# Auto-detect from latest config file
+# Auto-detect from latest config
 python src/update_continuous_fail_column.py
 
-# Or specify month/year explicitly
+# Specify month/year
 python src/update_continuous_fail_column.py --month november --year 2025
-python src/update_continuous_fail_column.py --month 11 --year 2025
-
-# What it does:
-# - Automatically calculates previous 2 months (e.g., Nov → Sep, Oct, Nov)
-# - Finds and loads AQL history files for 3 months
-# - Identifies consecutive failures:
-#   * 2-month consecutive (month-2 + month-1, month-1 + current)
-#   * 3-month consecutive (all 3 months)
-# - Updates Excel Continuous_FAIL column with dynamic tags:
-#   * YES_2MONTHS_SEP_OCT, YES_2MONTHS_OCT_NOV, YES_3MONTHS
-# - Dashboard modals automatically display correct months
 ```
 
-### Debugging Tools
+### HR Data Validation
 ```bash
-python simple_deep_test.py             # Browser-based dashboard testing
-python deep_verification.py             # Comprehensive functionality check
-```
-
-### Recovery Scripts (when issues occur)
-```bash
-python fix_remove_partial_incentives.py  # Remove incentives from <100% pass rate
-python fix_final_status_field.py         # Sync Final_Incentive_Status field
-python fix_continuous_months_issue.py    # Fix Continuous Months calculation
-python fix_all_positions_calculation.py  # Recalculate all positions
+# Validate position mappings and data integrity
+python src/validate_hr_data.py 9 2025
 ```
 
 ## High-Level Architecture
 
+### Data Flow Pipeline
+```
+[1] Input Files                [2] Config Generation
+├── attendance CSV             ├── position_condition_matrix.json (master rules)
+├── AQL history CSV            └── config_[month]_[year].json (working_days, etc)
+├── 5PRS data CSV                     ↓
+└── Basic info CSV             [3] Incentive Calculation (step1_인센티브_계산_개선버전.py)
+       ↓                       ├── Evaluate 10 conditions (YES/NO)
+[src/auto_run_with_drive.py]  ├── Calculate continuous_months (0-15)
+[src/sync_previous_incentive]  ├── Determine TYPE (1/2/3)
+[src/convert_attendance_data]  └── Assign final incentive amount
+                                       ↓
+                               [4] Excel/CSV Output
+                               ├── output_QIP_incentive_[month]_[year]_Complete_V8.01_Complete.xlsx
+                               └── output_QIP_incentive_[month]_[year]_Complete_V8.01_Complete.csv
+                                       ↓
+                               [5] Dashboard Generation (integrated_dashboard_final.py)
+                               ├── Self-contained HTML with inline JS/CSS
+                               ├── Chart.js visualizations
+                               └── Multi-language support (KO/EN/VN)
+                                       ↓
+                               [6] Data Validation (NEW - scripts/verification/)
+                               ├── validate_condition_evaluation.py (10 conditions)
+                               ├── validate_incentive_amounts.py (TYPE-1/2/3 logic)
+                               ├── validate_dashboard_consistency.py (CSV vs Dashboard)
+                               └── generate_final_report.py (integrated Excel report)
+```
+
 ### Dashboard Versions
-- **Version 5** (`integrated_dashboard_final.py`): Stable single-file dashboard
-- **Version 6** (`dashboard_v2/`): Modular architecture for maintainability
+- **Version 8** (`integrated_dashboard_final.py`): Current production version, single-file, stable
+  - Self-contained HTML (3.5-5.7MB)
+  - Inline JavaScript with Chart.js
+  - Bootstrap 5 modals
+
+- **Version 6** (`dashboard_v2/`): Modular architecture (maintenance mode)
   - `modules/complete_renderer.py`: HTML generation with NaN handling
   - `modules/incentive_calculator.py`: Core calculation logic
   - `static/js/dashboard_complete.js`: Frontend logic (9000+ lines)
 
-### Critical Data Flow
-```
-Input Files → Config Generation → Incentive Calculation → Dashboard Generation
-     ↓              ↓                    ↓                      ↓
-attendance/    position_matrix     Excel/CSV output      HTML dashboards
-AQL/5PRS       JSON rules          metadata JSON         (self-contained)
-```
+### 10 Conditions System
+Defined in `position_condition_matrix.json`:
 
-### File Naming Conventions
-- Input: `input_files/[year]년 [month] 인센티브 지급 세부 정보.csv`
-- Output: `output_files/Incentive_Dashboard_[year]_[MM]_Version_[5|6].html`
-- Config: `config_files/config_[month]_[year].json`
-- Korean months: "9월" | English: "september" | Config keys: lowercase
+**Conditions 1-4: Attendance (출근)**
+1. Attendance Rate >= 88%
+2. Unapproved Absence <= 2 days
+3. Actual Working Days > 0
+4. Minimum Working Days >= 12
+
+**Conditions 5-8: AQL Quality (품질)**
+5. Personal AQL Failure = 0 (당월)
+6. Personal AQL: No 3-month Consecutive Failures
+7. Team/Area AQL: No 3-month Consecutive Failures
+8. Area Reject Rate < 3%
+
+**Conditions 9-10: 5PRS Inspection (검사)**
+9. 5PRS Pass Rate >= 95%
+10. 5PRS Inspection Quantity >= 100
+
+### Employee TYPE Classification
+- **TYPE-1 Progressive**: ASSEMBLY INSPECTOR, MODEL MASTER, AUDITOR & TRAINER
+  - Progression table: 1월=150K → 12월=1,000K VND
+  - Continuous months accumulation (0-15)
+  - Reset to 0 if any condition fails
+
+- **TYPE-2 Standard**: LINE LEADER and similar positions
+  - Uses TYPE-1 position average (NOT fixed 50K-300K range)
+  - Must meet 100% condition pass rate
+
+- **TYPE-3 New Members**: Policy excluded
+  - Always 0 VND regardless of conditions
 
 ## Business Logic Configuration
 
 ### Core JSON Files
-1. **`position_condition_matrix.json`** - Master business rules:
-   - All conditions (attendance, AQL, 5PRS)
-   - Position→TYPE mapping (TYPE-1/2/3)
-   - Incentive amount ranges
 
-2. **`dashboard_translations.json`** - UI translations:
-   - Korean/English/Vietnamese support
-   - Dynamic language switching
+**`config_files/position_condition_matrix.json`** (MASTER RULES)
+- 10 conditions definitions with thresholds
+- Position → TYPE mapping (64 position codes)
+- Applicable conditions per position
+- Progressive incentive table (12 months)
+- TYPE-2 mapping to TYPE-1 positions
 
-3. **`assembly_inspector_continuous_months.json`** - Historical tracking:
-   - 3-month consecutive AQL failure detection
-   - Continuous month counters
+**`config_files/config_[month]_[year].json`**
+- Monthly working days
+- File paths for attendance/AQL/5PRS data
+- Configuration parameters
 
-### Employee TYPE Classification
-- **TYPE-1**: Management (100K-200K VND)
-- **TYPE-2**: Standard inspectors (50K-100K VND)
-- **TYPE-3**: New members (0 VND, policy excluded)
+**`config_files/assembly_inspector_continuous_months.json`**
+- Historical continuous months tracking
+- Previous month incentive data
+- Carry-over logic
+
+**`dashboard_translations.json`**
+- Korean/English/Vietnamese translations
+- Dynamic language switching
+
+### File Naming Conventions
+```
+Input:  input_files/[year]년 [month] 인센티브 지급 세부 정보.csv
+        input_files/attendance/출근부_september_2025.csv
+        input_files/AQL history/9월_AQL_HISTORY.csv
+        input_files/5PRS/9월_5PRS_DATA.csv
+
+Output: output_files/output_QIP_incentive_september_2025_Complete_V8.01_Complete.xlsx
+        output_files/output_QIP_incentive_september_2025_Complete_V8.01_Complete.csv
+        output_files/Incentive_Dashboard_2025_09_Version_8.html
+
+Config: config_files/config_september_2025.json
+
+Reports: validation_reports/INTEGRATED_VALIDATION_REPORT_september_2025_[timestamp].xlsx
+```
+
+## Data Validation System (NEW)
+
+### Validation Architecture
+**Single Source of Truth Validation**:
+```
+Original Data Sources → Python Calculation → Excel Output → Dashboard Display
+        ↓                      ↓                   ↓              ↓
+   (validate_condition_evaluation)  (validate_incentive_amounts)  (validate_dashboard_consistency)
+```
+
+### What Gets Validated
+
+**validate_condition_evaluation.py**
+- Recalculates all 10 conditions from source data
+- Compares with Excel output conditions (YES/NO)
+- Validates 100% rule enforcement
+- Full validation (all employees, no sampling)
+
+**validate_incentive_amounts.py**
+- TYPE-1: Validates against progression_table
+- TYPE-2: Validates 100% rule + TYPE-1 average usage
+- TYPE-3: Validates 0 VND policy
+- Continuous months: Validates increment/reset logic
+
+**validate_dashboard_consistency.py**
+- Validates Dashboard HTML vs CSV exact match
+- KPI summary statistics
+- Individual employee data (all fields)
+- All 10 condition fields
+
+**generate_final_report.py**
+- Aggregates all validation results
+- Priority-ordered action items (CRITICAL/ERROR/WARNING)
+- Comprehensive Excel report with recommendations
+
+### Running Validation
+
+**Integrated into action.sh** (Recommended):
+```bash
+./action.sh
+# After dashboard generation, prompted: "Run automated data validation? (y/n)"
+# Choose 'y' → automatic validation → option to open report
+```
+
+**Standalone**:
+```bash
+./run_full_validation.sh
+# Interactive year/month selection → runs all 4 validators → integrated report
+```
+
+**Exit Codes**:
+- 0 = No issues detected
+- 1 = Findings detected, review reports
 
 ## Common Issues & Solutions
 
+### TYPE-2 Calculation Logic
+**CRITICAL**: TYPE-2 does NOT use fixed 50K-300K range
+- TYPE-2 uses TYPE-1 position average
+- Example: LINE LEADER (TYPE-2) gets LINE LEADER (TYPE-1) average
+- Only validates 100% rule compliance
+- Reference: `src/step1_인센티브_계산_개선버전.py:3478-3571`
+
+### Condition Thresholds
+- **Condition 2**: <= 2 days (NOT = 0)
+- **100% Rule**: ALL applicable conditions must pass (not 80% or 90%)
+- **Continuous Months**: Resets to 0 when any condition fails
+
 ### JavaScript/Dashboard Issues
-1. **NaN in JavaScript**: dashboard_v2 converts Python NaN → JS NaN in `complete_renderer.py`
-2. **Template literal errors**: Escape braces as `{{}}` in Python f-strings
-3. **Chart.js bugs**: Always destroy existing instances before recreation
-4. **Syntax errors at line 9267**: Fixed in dashboard_v2/static/js/dashboard_complete.js
+1. **NaN handling**: Python NaN → JavaScript NaN in `complete_renderer.py`
+2. **Bootstrap 5 Modals**: Use `new bootstrap.Modal(element).show()` not jQuery
+3. **Template literals**: Escape braces as `{{}}` in Python f-strings
+4. **Chart.js**: Always destroy existing instances before recreation
 
-### Bootstrap 5 Modal Issues (Fixed Sep 30, 2025)
-- **Problem**: Modals not opening with jQuery `.modal('show')`
-- **Solution**: Use Bootstrap 5 native API: `new bootstrap.Modal(element).show()`
-- **Files**: `integrated_dashboard_final.py:13471`
+### Position Modal Issues (Fixed)
+- **TYPE-2 Condition Mapping**: Shows only conditions [1, 2, 3, 4] (attendance)
+  - Reference: `dashboard_complete.js:8818`
+  - `position_condition_matrix.json` defines per-position conditions
 
-### Position Modal Issues (Fixed Sep 27, 2025)
-1. **TYPE-2 Condition Mapping**:
-   - **Issue**: TYPE-2 employees incorrectly showed conditions 5-8 (AQL conditions)
-   - **Fix**: Updated `dashboard_complete.js:8818` to map TYPE-2 to `[1, 2, 3, 4]` only (출근 조건만)
-   - **Reference**: `position_condition_matrix.json` defines TYPE-2 should only have attendance conditions
-
-2. **Statistics Mismatch**:
-   - **Issue**: Condition Fulfillment table showed 0 for all conditions
-   - **Fix**: Updated field name mappings in `dashboard_complete.js:8866-8919` to match Excel column names
-   - **Key fields**: `Attendance Rate`, `Unapproved Absences`, `Actual Working Days`, `Total Working Days`
-
-3. **Employee Details Status**:
-   - **Issue**: Condition badges not displaying correctly
-   - **Fix**: Removed TYPE-2 specific logic for conditions 5-8 at `dashboard_complete.js:8978`
+- **Field Name Mappings**: Must match Excel column names exactly
+  - `Attendance Rate`, `Unapproved Absences`, `Actual Working Days`, `Total Working Days`
 
 ### Data Processing Issues
 1. **Working days = 0**: Run attendance calculation before incentive calculation
-2. **Missing previous month**: System shows 0 (never generates fake data)
-3. **Assembly Inspector tracking**: Check `assembly_inspector_continuous_months.json`
-4. **LINE LEADER counts**: Ensure consistent logic across tabs
+2. **Missing previous month**: System shows 0 (never fake data)
+3. **MODEL MASTER**: Position code 'D' must be in position_condition_matrix.json
+4. **Consecutive AQL Failure**: Run update_continuous_fail_column.py before dashboard
 
-### MODEL MASTER & Position Code Issues (Fixed Sep 30, 2025)
-1. **MODEL MASTER 0 Incentive**: Position code 'D' was missing from `position_condition_matrix.json`
-2. **Solution**: Added all 64 FINAL QIP POSITION NAME CODEs to the matrix
-3. **Calculation Fix**: `src/step1_인센티브_계산_개선버전.py:2441` - direct condition evaluation
-4. **Result**: 3 MODEL MASTER employees × 1,000,000 VND = 3,000,000 VND total
+### Debugging Dashboard Issues
+```bash
+# After modifying dashboard code
+python integrated_dashboard_final.py --month 9 --year 2025
+./run_full_validation.sh  # Validate changes
 
-### Version 6 Specific
-- If dashboard shows 0 values: Check NaN serialization in `complete_renderer.py`
-- If tabs don't work: Verify JavaScript syntax in `dashboard_complete.js`
-- Use `integrated_dashboard_final.py` as fallback if v6 fails
+# If dashboard shows 0 values
+# → Check NaN serialization in complete_renderer.py (Version 6)
+# → Check data file paths in config_[month]_[year].json
 
-## Testing Dashboard Changes
+# If validation fails
+# → Check validation_reports/INTEGRATED_VALIDATION_REPORT_*.xlsx
+# → Focus on "조치 항목 (우선순위)" sheet for action items
+```
+
+## Testing
 
 ```bash
-# After modifying dashboard code:
-python dashboard_v2/generate_dashboard.py --month september --year 2025
-python quick_verify.py  # Check for errors
-python simple_deep_test.py  # Visual browser test
+# Full system test (if exists)
+./test_final.sh
 
-# If issues persist, use Version 5:
-python integrated_dashboard_final.py --month 9 --year 2025
+# Validation test suite
+./run_full_validation.sh
+
+# Legacy test scripts (in scripts/legacy/)
+python scripts/legacy/simple_deep_test.py      # Browser-based dashboard test
+python scripts/legacy/quick_verify.py          # Quick dashboard validation
 ```
 
 ## Dependencies
 
 ```
-pandas>=1.3.0, numpy>=1.21.0, openpyxl>=3.0.9
-playwright (for testing), gspread>=5.7.0 (Google Drive)
+Python 3.9+
+pandas>=1.3.0
+numpy>=1.21.0
+openpyxl>=3.0.9
+beautifulsoup4>=4.9.3  # For dashboard validation
+playwright           # For testing
+gspread>=5.7.0      # For Google Drive
+```
+
+## Project Organization
+
+```
+/                                    # Root (clean - only 6 essential files)
+├── action.sh                        # Main execution script
+├── run_full_validation.sh           # Validation pipeline
+├── integrated_dashboard_final.py    # Dashboard generator (Version 8)
+├── CLAUDE.md                        # This file
+├── README.md                        # Project documentation
+└── .gitignore
+
+/src/                                # Core business logic (25 modules)
+├── step0_create_monthly_config.py
+├── step1_인센티브_계산_개선버전.py    # Main calculation engine
+├── update_continuous_fail_column.py
+├── validate_hr_data.py
+└── ...
+
+/scripts/verification/               # Data validation system (NEW)
+├── validate_condition_evaluation.py
+├── validate_incentive_amounts.py
+├── validate_dashboard_consistency.py
+└── generate_final_report.py
+
+/scripts/legacy/                     # Legacy/backup scripts
+/docs/                               # Documentation
+/dashboard_v2/                       # Modular dashboard (Version 6)
+/config_files/                       # JSON configuration
+/input_files/                        # Source data
+/output_files/                       # Generated reports/dashboards
+/validation_reports/                 # Validation Excel reports
 ```
 
 ## Development Notes
 
-- Dashboard HTML is self-contained with inline data/JS/CSS
-- action.sh updated to use `integrated_dashboard_final.py` (was dashboard_v2)
+- Dashboard HTML is self-contained (3.5-5.7MB) with inline data/JS/CSS
+- action.sh uses `integrated_dashboard_final.py` (Version 8)
 - Position Details modal requires proper 5PRS/AQL field mapping
 - Language switching updates ALL elements via `updateAllTexts()`
-- Modal CSS uses unified Bootstrap 5 classes for consistency
+- Modal CSS uses unified Bootstrap 5 classes
+- Validation system integrated into monthly workflow (optional step in action.sh)
+- All backup files excluded from git (.gitignore: *.backup, *backup*.py)
