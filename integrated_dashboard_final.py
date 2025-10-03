@@ -1509,7 +1509,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 tableRows = zeroWorkingEmployees.map(emp => {
                     // Excel에서 가져온 필드 사용 (Single Source of Truth)
                     const actualDays = emp['Actual Working Days'] || 0;
-                    const totalDays = emp['Total Working Days'] || {working_days};
+
+                    // 출결 데이터 파일 기준 Total Days 계산
+                    const empNo = String(emp['Employee No'] || '').padStart(9, '0');
+                    let totalDays = 0;  // 기본값: 출결 데이터 없음
+
+                    // attendance raw data에서 해당 직원의 unique 날짜 수 계산
+                    if (window.attendanceRawData && window.attendanceRawData[empNo]) {
+                        totalDays = window.attendanceRawData[empNo].uniqueDates || 0;
+                    }
+                    // 출결 데이터가 없으면 0으로 표시 (fact 반영)
+
                     const stopDate = emp['Stop working Date'] || '-';
                     const workingType = emp['Stop_Working_Type'] || 'active';
                     const position = emp['QIP POSITION 1ST NAME'] || '-';  // Fixed: single space (normalized)
@@ -2417,9 +2427,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         let modalHTML = '<div id="consecutiveAqlFailModal" class="modal" style="display: block; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">';
         modalHTML += '<div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">';
-        modalHTML += '<div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">';
-        modalHTML += '<h2 style="margin: 0;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.title') + '</h2>';
-        modalHTML += '<span class="close" onclick="document.getElementById(&apos;consecutiveAqlFailModal&apos;).remove()" style="color: white; font-size: 28px; font-weight: bold; cursor: pointer; margin-left: auto;">&times;</span>';
+        modalHTML += '<div class="modal-header unified-modal-header">';
+        modalHTML += '<h5 class="modal-title unified-modal-title"><i class="fas fa-exclamation-triangle me-2"></i>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.title') + '</h5>';
+        modalHTML += '<button type="button" class="btn-close" onclick="document.getElementById(&apos;consecutiveAqlFailModal&apos;).remove()"></button>';
         modalHTML += '</div>';
         modalHTML += '<div class="modal-body" style="padding: 20px;">';
 
@@ -2950,10 +2960,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <span data-i18n="validationTab.modals.aqlFail.title">${getTranslation('validationTab.modals.aqlFail.title', lang)}</span>
                             </h5>
                             <div class="d-flex align-items-center">
-                                <div class="btn-group btn-group-sm me-3">
-                                    <button type="button" class="btn ${lang === 'ko' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('ko')">한국어</button>
-                                    <button type="button" class="btn ${lang === 'en' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('en')">English</button>
-                                    <button type="button" class="btn ${lang === 'vi' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('vi')">Tiếng Việt</button>
+                                <div class="btn-group btn-group-sm me-2">
+                                    <button type="button" class="btn btn-sm ${lang === 'ko' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('ko')">한국어</button>
+                                    <button type="button" class="btn btn-sm ${lang === 'en' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('en')">English</button>
+                                    <button type="button" class="btn btn-sm ${lang === 'vi' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('vi')">Tiếng Việt</button>
                                 </div>
                                 <button type="button" class="btn-close" onclick="window.closeAqlModal()"></button>
                             </div>
@@ -4192,7 +4202,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         border-radius: 0.5rem 0.5rem 0 0 !important;
         display: flex !important;
         justify-content: space-between !important;
-        align-items: center !important;
+        align-items: center !important;  /* 중앙 정렬 유지 */
+        position: relative !important;  /* 닫기 버튼 절대 위치 기준 */
+    }
+    /* 닫기 버튼을 우측 상단에 절대 위치로 고정 */
+    .unified-modal-header .btn-close {
+        position: absolute !important;
+        top: 1rem !important;
+        right: 1.5rem !important;
+    }
+    /* AQL Fail 모달의 버튼 그룹 내 닫기 버튼도 동일하게 처리 */
+    .unified-modal-header .d-flex {
+        margin-right: 3rem !important;  /* 닫기 버튼 공간 확보 */
+    }
+    .unified-modal-header .d-flex .btn-close {
+        position: absolute !important;
+        top: 1rem !important;
+        right: 1.5rem !important;
     }
     .unified-modal-title {
         color: #1565c0 !important;
@@ -4201,6 +4227,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         display: flex !important;
         align-items: center !important;
         margin: 0 !important;
+        flex: 1 !important;  /* 타이틀이 가능한 공간 모두 차지 */
+        margin-right: 3rem !important;  /* 닫기 버튼 공간 확보 */
     }
     .unified-modal-content {
         padding: 1.5rem !important;
@@ -7549,6 +7577,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     const jsonStr = atob(base64Data);
                     excelDashboardData = JSON.parse(jsonStr);
                     window.excelDashboardData = excelDashboardData; // Also store in window for backward compatibility
+
+                    // attendance raw data를 전역 변수로 설정
+                    if (excelDashboardData.attendance_raw_data) {{
+                        window.attendanceRawData = excelDashboardData.attendance_raw_data;
+                        console.log('Attendance raw data loaded:', Object.keys(window.attendanceRawData).length, 'employees');
+                    }}
+
                     console.log('Excel dashboard data loaded successfully');
                 }}
             }} catch (e) {{
@@ -15161,8 +15196,10 @@ def main():
                 working_days = 22  # attendance 데이터에서 계산된 실제 값
                 print(f"📊 실제 총 근무일수 (기본값): {working_days}일")
 
-            # attendance daily_data 생성
+            # attendance daily_data 및 직원별 raw data 생성
             daily_data = {}
+            attendance_raw_data = {}  # 직원별 unique 날짜 수 저장
+
             if attendance_file_path and os.path.exists(attendance_file_path):
                 try:
                     print(f"📅 Attendance 파일 로드: {attendance_file_path}")
@@ -15174,6 +15211,13 @@ def main():
                         df_attendance['Work Date'] = pd.to_datetime(df_attendance['Work Date'], format='%Y.%m.%d', errors='coerce')
                         df_attendance = df_attendance.dropna(subset=['Work Date'])
 
+                        # ID No 컬럼 찾기
+                        id_col = None
+                        for col in ['ID No', 'ID', 'Employee No', 'Emp No']:
+                            if col in df_attendance.columns:
+                                id_col = col
+                                break
+
                         # 일자별 직원 수 계산
                         for _, row in df_attendance.iterrows():
                             day = row['Work Date'].day
@@ -15181,7 +15225,20 @@ def main():
                                 daily_data[day] = {'is_working_day': True, 'count': 0}
                             daily_data[day]['count'] += 1
 
+                            # 직원별 unique 날짜 수 계산
+                            if id_col and pd.notna(row[id_col]):
+                                emp_no = str(row[id_col]).strip().lstrip('0').zfill(9)
+                                if emp_no not in attendance_raw_data:
+                                    attendance_raw_data[emp_no] = {'dates': set()}
+                                attendance_raw_data[emp_no]['dates'].add(row['Work Date'].strftime('%Y-%m-%d'))
+
+                        # set을 길이로 변환 (unique 날짜 수)
+                        for emp_no in attendance_raw_data:
+                            attendance_raw_data[emp_no]['uniqueDates'] = len(attendance_raw_data[emp_no]['dates'])
+                            del attendance_raw_data[emp_no]['dates']  # set 제거 (JSON 직렬화 불가)
+
                         print(f"✅ Daily attendance data 생성 완료: {len(daily_data)}일")
+                        print(f"✅ 직원별 attendance raw data 생성 완료: {len(attendance_raw_data)}명")
                     else:
                         print("⚠️ Work Date 컬럼을 찾을 수 없습니다.")
                 except Exception as e:
@@ -15212,6 +15269,7 @@ def main():
                     'total_working_days': int(working_days),
                     'daily_data': daily_data
                 },
+                'attendance_raw_data': attendance_raw_data,  # 직원별 unique 날짜 수
                 'summary': {
                     'total_employees': int(len(df_csv)),
                     'employees_with_incentive': int(sum(1 for _, row in df_csv.iterrows() if row.get('Final Incentive amount', 0) > 0)),

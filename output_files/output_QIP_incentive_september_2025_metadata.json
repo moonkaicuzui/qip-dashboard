@@ -25282,8 +25282,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 87.5,
           "threshold": 88,
           "applicable": true
         },
@@ -25320,8 +25320,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -25358,8 +25358,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -25396,8 +25396,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -25472,8 +25472,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -25510,8 +25510,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 54.16666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -25548,8 +25548,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 54.16666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -25586,8 +25586,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 45.833333333333336,
           "threshold": 88,
           "applicable": true
         },
@@ -25662,8 +25662,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 45.833333333333336,
           "threshold": 88,
           "applicable": true
         },
@@ -25700,8 +25700,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 37.5,
           "threshold": 88,
           "applicable": true
         },
@@ -25776,8 +25776,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 29.166666666666657,
           "threshold": 88,
           "applicable": true
         },
@@ -25814,8 +25814,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 29.166666666666657,
           "threshold": 88,
           "applicable": true
         },
@@ -25852,8 +25852,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 29.166666666666657,
           "threshold": 88,
           "applicable": true
         },
@@ -25890,8 +25890,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 29.166666666666657,
           "threshold": 88,
           "applicable": true
         },
@@ -25928,8 +25928,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 29.166666666666657,
           "threshold": 88,
           "applicable": true
         },
@@ -25966,8 +25966,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 29.166666666666657,
           "threshold": 88,
           "applicable": true
         },
@@ -26004,8 +26004,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 20.833333333333343,
           "threshold": 88,
           "applicable": true
         },
@@ -26042,8 +26042,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 20.833333333333343,
           "threshold": 88,
           "applicable": true
         },
@@ -26081,7 +26081,7 @@
       "attendance": {
         "attendance_rate": {
           "passed": false,
-          "value": 50.0,
+          "value": 8.333333333333343,
           "threshold": 88,
           "applicable": true
         },
@@ -26118,8 +26118,8 @@
     "conditions": {
       "attendance": {
         "attendance_rate": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 12.5,
           "threshold": 88,
           "applicable": true
         },

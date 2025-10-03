@@ -738,17 +738,10 @@ class DataProcessor:
                         break
 
                 if date_col:
-                    # 월중 보고서의 경우 실제 데이터 기간으로 전체 근무일 재계산
-                    from datetime import datetime
-                    current_date = datetime.now()
-                    if current_date.day < 20:
-                        # 실제 데이터의 unique한 날짜 수를 세어 전체 근무일로 사용
-                        unique_dates = emp_data[date_col].dropna().nunique()
-                        if unique_dates > 0:
-                            total_working_days = unique_dates
-                            # 한 번만 출력 (처음 처리할 때만)
-                            if emp_id == att_df[emp_col].astype(str).str.zfill(9).iloc[0]:
-                                print(f"    ℹ️ 월중 보고서 - 실제 데이터 기간 {unique_dates}일을 전체 근무일로 사용")
+                    # Total Working Days는 config.working_days 사용
+                    # (attendance 파일의 레코드 수를 사용하면 approved leave가 이미 포함되어 있어서
+                    #  나중에 approved leave를 빼면 음수가 됨)
+                    # total_working_days는 Line 715에서 이미 config.working_days로 설정됨
 
                     # Date 컬럼이 있으면 날짜별로 유니크하게 카운트
                     for idx, row in emp_data.iterrows():
@@ -1895,22 +1888,16 @@ class CompleteQIPCalculator:
                                 current_date += pd.Timedelta(days=1)
                             
                             actual_days = row.get('Actual Working Days', 0)
-                            
-                            # 결근율 재계산
-                            if working_days_possible > 0:
-                                new_absence_rate = ((working_days_possible - actual_days) / working_days_possible) * 100
-                            else:
-                                new_absence_rate = 0
-                            
-                            # 업데이트
+
+                            # Total Working Days만 업데이트
+                            # Absence Rate (raw)와 조건들은 add_condition_evaluation_to_excel에서
+                            # 승인휴가를 반영하여 통일되게 계산됨
                             self.month_data.loc[idx, 'Total Working Days'] = working_days_possible
-                            self.month_data.loc[idx, 'Absence Rate (raw)'] = round(new_absence_rate, 2)
-                            self.month_data.loc[idx, 'attendancy condition 3 - absent % is over 12%'] = 'yes' if new_absence_rate > 12 else 'no'
-                            
-                            # 최소 근무일 조건도 체크
+
+                            # 최소 근무일 조건만 체크 (Absence Rate는 나중에 계산)
                             self.month_data.loc[idx, 'attendancy condition 4 - minimum working days'] = 'yes' if actual_days < 12 else 'no'
-                            
-                            print(f"  → 퇴사자 {row.get('Employee No', '')}: {stop_date.strftime('%Y-%m-%d')} 퇴사, 근무가능일 {working_days_possible}일, 결근율 {new_absence_rate:.1f}%")
+
+                            print(f"  → 퇴사자 {row.get('Employee No', '')}: {stop_date.strftime('%Y-%m-%d')} 퇴사, 근무가능일 {working_days_possible}일 (Absence Rate는 승인휴가 반영하여 나중에 계산)")
                         
                         # 계산 월 이전 퇴사자
                         elif stop_date < calc_month_start:
