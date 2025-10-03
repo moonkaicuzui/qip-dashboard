@@ -4369,6 +4369,16 @@ class CompleteQIPCalculator:
 
             print(f"  ✅ 승인휴 반영 completed - 평균 승인휴: {self.month_data['Approved Leave Days'].mean():.1f} days")
 
+        # 조건 평가 컬럼 초기화 (object dtype으로 설정하여 'N/A' 문자열 저장 가능하도록)
+        condition_columns = [
+            'cond_1_attendance_rate', 'cond_2_unapproved_absence', 'cond_3_actual_working_days',
+            'cond_4_minimum_days', 'cond_5_aql_personal_failure', 'cond_6_aql_continuous',
+            'cond_7_aql_team_area', 'cond_8_area_reject', 'cond_9_5prs_pass_rate', 'cond_10_5prs_inspection_qty'
+        ]
+        for col in condition_columns:
+            self.month_data[col] = None  # Initialize as None to create object dtype
+            self.month_data[col] = self.month_data[col].astype('object')
+
         # 각 employee별with 10 conditions 평
         for idx in self.month_data.index:
             emp_type = self.month_data.loc[idx, 'ROLE TYPE STD']
@@ -4388,8 +4398,9 @@ class CompleteQIPCalculator:
             # condition 1: attendance율 >= 88%
             attendance_rate = self.month_data.loc[idx, 'attendance_rate'] if 'attendance_rate' in self.month_data.columns else 0
             cond_1_result = 'PASS' if attendance_rate >= 88 else 'FAIL'
-            cond_1_applicable = 'Y' if 1 in applicable_conditions else 'N/A'
-            self.month_data.loc[idx, 'cond_1_attendance_rate'] = cond_1_applicable if cond_1_applicable == 'N/A' else cond_1_result
+            # 'N/A' 대신 'NOT_APPLICABLE' 사용 (pandas가 'N/A'를 NaN으로 변환하는 문제 해결)
+            cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
+            self.month_data.loc[idx, 'cond_1_attendance_rate'] = cond_1_applicable if cond_1_applicable == 'NOT_APPLICABLE' else cond_1_result
             self.month_data.loc[idx, 'cond_1_value'] = attendance_rate
             self.month_data.loc[idx, 'cond_1_threshold'] = 88
 
@@ -4398,27 +4409,27 @@ class CompleteQIPCalculator:
 
             # NaN 처리 추가 (출결 데이터 없는 신입사원)
             if pd.isna(unapproved_absence):
-                cond_2_result = 'N/A'  # 출결 데이터 없음
+                cond_2_result = 'NOT_APPLICABLE'  # 출결 데이터 없음
             else:
                 cond_2_result = 'PASS' if unapproved_absence <= 2 else 'FAIL'
 
-            cond_2_applicable = 'Y' if 2 in applicable_conditions else 'N/A'
-            self.month_data.loc[idx, 'cond_2_unapproved_absence'] = cond_2_applicable if cond_2_applicable == 'N/A' else cond_2_result
+            cond_2_applicable = 'Y' if 2 in applicable_conditions else 'NOT_APPLICABLE'
+            self.month_data.loc[idx, 'cond_2_unapproved_absence'] = cond_2_applicable if cond_2_applicable == 'NOT_APPLICABLE' else cond_2_result
             self.month_data.loc[idx, 'cond_2_value'] = unapproved_absence
             self.month_data.loc[idx, 'cond_2_threshold'] = 2
 
             # condition 3: 실근무 days > 0
             actual_working_days = self.month_data.loc[idx, 'Actual Working Days'] if 'Actual Working Days' in self.month_data.columns else 0
             cond_3_result = 'PASS' if actual_working_days > 0 else 'FAIL'
-            cond_3_applicable = 'Y' if 3 in applicable_conditions else 'N/A'
-            self.month_data.loc[idx, 'cond_3_actual_working_days'] = cond_3_applicable if cond_3_applicable == 'N/A' else cond_3_result
+            cond_3_applicable = 'Y' if 3 in applicable_conditions else 'NOT_APPLICABLE'
+            self.month_data.loc[idx, 'cond_3_actual_working_days'] = cond_3_applicable if cond_3_applicable == 'NOT_APPLICABLE' else cond_3_result
             self.month_data.loc[idx, 'cond_3_value'] = actual_working_days
             self.month_data.loc[idx, 'cond_3_threshold'] = 0
 
             # condition 4: minimum근무 days >= 12
             cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
-            cond_4_applicable = 'Y' if 4 in applicable_conditions else 'N/A'
-            self.month_data.loc[idx, 'cond_4_minimum_days'] = cond_4_applicable if cond_4_applicable == 'N/A' else cond_4_result
+            cond_4_applicable = 'Y' if 4 in applicable_conditions else 'NOT_APPLICABLE'
+            self.month_data.loc[idx, 'cond_4_minimum_days'] = cond_4_applicable if cond_4_applicable == 'NOT_APPLICABLE' else cond_4_result
             self.month_data.loc[idx, 'cond_4_value'] = actual_working_days
             self.month_data.loc[idx, 'cond_4_threshold'] = 12
 
@@ -4426,16 +4437,16 @@ class CompleteQIPCalculator:
             aql_col = f"{self.config.get_month_str('capital')} AQL Failures"
             aql_fail = self.month_data.loc[idx, aql_col] if aql_col in self.month_data.columns else 0
             cond_5_result = 'PASS' if aql_fail == 0 else 'FAIL'
-            cond_5_applicable = 'Y' if 5 in applicable_conditions else 'N/A'
-            self.month_data.loc[idx, 'cond_5_aql_personal_failure'] = cond_5_applicable if cond_5_applicable == 'N/A' else cond_5_result
+            cond_5_applicable = 'Y' if 5 in applicable_conditions else 'NOT_APPLICABLE'
+            self.month_data.loc[idx, 'cond_5_aql_personal_failure'] = cond_5_applicable if cond_5_applicable == 'NOT_APPLICABLE' else cond_5_result
             self.month_data.loc[idx, 'cond_5_value'] = aql_fail
             self.month_data.loc[idx, 'cond_5_threshold'] = 0
 
             # condition 6: 3-month consecutive AQL failure 없음
             continuous_fail = self.month_data.loc[idx, 'Continuous_FAIL'] if 'Continuous_FAIL' in self.month_data.columns else 'NO'
             cond_6_result = 'PASS' if continuous_fail != 'YES' else 'FAIL'
-            cond_6_applicable = 'Y' if 6 in applicable_conditions else 'N/A'
-            self.month_data.loc[idx, 'cond_6_aql_continuous'] = cond_6_applicable if cond_6_applicable == 'N/A' else cond_6_result
+            cond_6_applicable = 'Y' if 6 in applicable_conditions else 'NOT_APPLICABLE'
+            self.month_data.loc[idx, 'cond_6_aql_continuous'] = cond_6_applicable if cond_6_applicable == 'NOT_APPLICABLE' else cond_6_result
             self.month_data.loc[idx, 'cond_6_value'] = continuous_fail
             self.month_data.loc[idx, 'cond_6_threshold'] = 'NO'
 
@@ -4483,8 +4494,8 @@ class CompleteQIPCalculator:
                 self.month_data.loc[idx, 'cond_7_aql_team_area'] = cond_7_result
                 self.month_data.loc[idx, 'cond_7_value'] = 'YES' if team_aql_fail else 'NO'
             else:
-                self.month_data.loc[idx, 'cond_7_aql_team_area'] = 'N/A'
-                self.month_data.loc[idx, 'cond_7_value'] = 'N/A'
+                self.month_data.loc[idx, 'cond_7_aql_team_area'] = 'NOT_APPLICABLE'
+                self.month_data.loc[idx, 'cond_7_value'] = 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_7_threshold'] = 'NO'
 
             # condition 8: in chargearea reject < 3%
@@ -4495,23 +4506,23 @@ class CompleteQIPCalculator:
                 self.month_data.loc[idx, 'cond_8_area_reject'] = cond_8_result
                 self.month_data.loc[idx, 'cond_8_value'] = reject_rate
             else:
-                self.month_data.loc[idx, 'cond_8_area_reject'] = 'N/A'
-                self.month_data.loc[idx, 'cond_8_value'] = 'N/A'
+                self.month_data.loc[idx, 'cond_8_area_reject'] = 'NOT_APPLICABLE'
+                self.month_data.loc[idx, 'cond_8_value'] = 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_8_threshold'] = 3
 
             # condition 9: 5PRS passed율 >= 95%
             prs_pass_rate = self.month_data.loc[idx, '5PRS_Pass_Rate'] if '5PRS_Pass_Rate' in self.month_data.columns else 0
             cond_9_result = 'PASS' if prs_pass_rate >= 95 else 'FAIL'
-            cond_9_applicable = 'Y' if 9 in applicable_conditions else 'N/A'
-            self.month_data.loc[idx, 'cond_9_5prs_pass_rate'] = cond_9_applicable if cond_9_applicable == 'N/A' else cond_9_result
+            cond_9_applicable = 'Y' if 9 in applicable_conditions else 'NOT_APPLICABLE'
+            self.month_data.loc[idx, 'cond_9_5prs_pass_rate'] = cond_9_applicable if cond_9_applicable == 'NOT_APPLICABLE' else cond_9_result
             self.month_data.loc[idx, 'cond_9_value'] = prs_pass_rate
             self.month_data.loc[idx, 'cond_9_threshold'] = 95
 
             # condition 10: 5PRS inspection량 >= 100
             prs_qty = self.month_data.loc[idx, '5PRS_Inspection_Qty'] if '5PRS_Inspection_Qty' in self.month_data.columns else 0
             cond_10_result = 'PASS' if prs_qty >= 100 else 'FAIL'
-            cond_10_applicable = 'Y' if 10 in applicable_conditions else 'N/A'
-            self.month_data.loc[idx, 'cond_10_5prs_inspection_qty'] = cond_10_applicable if cond_10_applicable == 'N/A' else cond_10_result
+            cond_10_applicable = 'Y' if 10 in applicable_conditions else 'NOT_APPLICABLE'
+            self.month_data.loc[idx, 'cond_10_5prs_inspection_qty'] = cond_10_applicable if cond_10_applicable == 'NOT_APPLICABLE' else cond_10_result
             self.month_data.loc[idx, 'cond_10_value'] = prs_qty
             self.month_data.loc[idx, 'cond_10_threshold'] = 100
 
