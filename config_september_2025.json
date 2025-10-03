@@ -1,7 +1,7 @@
 {
   "year": 2025,
   "month": "september",
-  "working_days": 24,
+  "working_days": 23,
   "previous_months": [
     "august",
     "july"
@@ -13,7 +13,5 @@
     "5prs": "input_files/5prs data september.csv",
     "attendance": "input_files/attendance/converted/attendance data september_converted.csv"
   },
-  "output_prefix": "output_QIP_incentive_september_2025",
-  "working_days_source": "attendance_data",
-  "working_days_updated_at": "2025-10-03T22:16:26.972596"
+  "output_prefix": "output_QIP_incentive_september_2025"
 }

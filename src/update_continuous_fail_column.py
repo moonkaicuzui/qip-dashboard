@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Excel 파일에 3개월 연속 AQL 실패 정보 업데이트
-Single Source of Truth 원칙 준수
-자동 월 감지 및 동적 파일 로딩
+Update 3-month consecutive AQL failure information in Excel file
+Follows Single Source of Truth principle
+Auto month detection and dynamic file loading
 """
 
 import pandas as pd
@@ -13,7 +13,7 @@ import json
 from datetime import datetime
 import calendar
 
-# 월 이름 매핑
+# Month name mappings
 MONTH_NAMES = {
     1: 'january', 2: 'february', 3: 'march', 4: 'april',
     5: 'may', 6: 'june', 7: 'july', 8: 'august',
@@ -33,7 +33,7 @@ MONTH_NAMES_UPPER = {
 }
 
 def get_previous_months(current_month, current_year, num_months=2):
-    """현재 월로부터 이전 N개월 계산"""
+    """Calculate previous N months from current month"""
     months = []
     month = current_month
     year = current_year
@@ -45,13 +45,13 @@ def get_previous_months(current_month, current_year, num_months=2):
             year -= 1
         months.append((month, year))
 
-    return list(reversed(months))  # 오래된 순서부터
+    return list(reversed(months))  # From oldest to newest
 
 def find_aql_file(month_num, year, aql_dir):
-    """월에 해당하는 AQL 파일 찾기 (다양한 형식 지원)"""
+    """Find AQL file for given month (supports various formats)"""
     month_upper = MONTH_NAMES_UPPER[month_num]
 
-    # 가능한 파일명 패턴들
+    # Possible file name patterns
     patterns = [
         f'1.HSRG AQL REPORT-{month_upper}.{year}.csv',
         f'HSRG AQL REPORT-{month_upper}.{year}.csv',
@@ -64,61 +64,61 @@ def find_aql_file(month_num, year, aql_dir):
         if file_path.exists():
             return file_path
 
-    # 파일을 찾지 못한 경우
+    # File not found
     return None
 
 def analyze_consecutive_failures(current_month, current_year):
     """
-    현재 월 기준으로 3개월 연속 AQL 실패 분석
+    Analyze 3-month consecutive AQL failures based on current month
 
     Args:
-        current_month: 현재 월 (1-12)
-        current_year: 현재 연도
+        current_month: Current month (1-12)
+        current_year: Current year
 
     Returns:
-        분석 결과 딕셔너리
+        Analysis result dictionary
     """
 
     print("=" * 80)
-    print(f"📊 3개월 연속 AQL 실패 분석 - {current_year}년 {MONTH_NAMES_KR[current_month]}")
+    print(f"📊 3-Month Consecutive AQL Failure Analysis - {current_year} {MONTH_NAMES_KR[current_month]}")
     print("=" * 80)
 
-    # AQL history 디렉토리
+    # AQL history directory
     aql_dir = Path('input_files/AQL history')
 
     if not aql_dir.exists():
-        raise FileNotFoundError(f"AQL history 디렉토리를 찾을 수 없습니다: {aql_dir}")
+        raise FileNotFoundError(f"AQL history directory not found: {aql_dir}")
 
-    # 이전 2개월 계산
+    # Calculate previous 2 months
     prev_months = get_previous_months(current_month, current_year, num_months=2)
-    month_2_ago = prev_months[0]  # 2개월 전
-    month_1_ago = prev_months[1]  # 1개월 전
+    month_2_ago = prev_months[0]  # 2 months ago
+    month_1_ago = prev_months[1]  # 1 month ago
 
-    print(f"\n📅 분석 대상 월:")
-    print(f"  2개월 전: {month_2_ago[1]}년 {MONTH_NAMES_KR[month_2_ago[0]]}")
-    print(f"  1개월 전: {month_1_ago[1]}년 {MONTH_NAMES_KR[month_1_ago[0]]}")
-    print(f"  현재 월:   {current_year}년 {MONTH_NAMES_KR[current_month]}")
+    print(f"\n📅 Target months for analysis:")
+    print(f"  2 months ago: {month_2_ago[1]} {MONTH_NAMES_KR[month_2_ago[0]]}")
+    print(f"  1 month ago:  {month_1_ago[1]} {MONTH_NAMES_KR[month_1_ago[0]]}")
+    print(f"  Current:      {current_year} {MONTH_NAMES_KR[current_month]}")
 
-    # AQL 파일 찾기
+    # Find AQL files
     file_month2 = find_aql_file(month_2_ago[0], month_2_ago[1], aql_dir)
     file_month1 = find_aql_file(month_1_ago[0], month_1_ago[1], aql_dir)
     file_current = find_aql_file(current_month, current_year, aql_dir)
 
-    # 파일 존재 확인
+    # Check file existence
     files_info = {
         'month_2_ago': (month_2_ago, file_month2),
         'month_1_ago': (month_1_ago, file_month1),
         'current_month': ((current_month, current_year), file_current)
     }
 
-    print(f"\n📁 AQL 파일 확인:")
+    print(f"\n📁 AQL file check:")
     for key, (month_info, file_path) in files_info.items():
         month_num, year = month_info
         status = "✅" if file_path else "❌"
-        file_name = file_path.name if file_path else "파일 없음"
-        print(f"  {status} {year}년 {MONTH_NAMES_KR[month_num]}: {file_name}")
+        file_name = file_path.name if file_path else "File not found"
+        print(f"  {status} {year} {MONTH_NAMES_KR[month_num]}: {file_name}")
 
-    # FAIL 레코드 추출 함수
+    # Function to extract FAIL records
     def get_fail_employees(df):
         if df is None or df.empty:
             return set()
@@ -126,37 +126,37 @@ def analyze_consecutive_failures(current_month, current_year):
         emp_ids = fail_df['EMPLOYEE NO'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
         return set(emp_ids.unique())
 
-    # 각 월별 데이터 로드
+    # Load data for each month
     df_month2 = pd.read_csv(file_month2, encoding='utf-8-sig') if file_month2 else pd.DataFrame()
     df_month1 = pd.read_csv(file_month1, encoding='utf-8-sig') if file_month1 else pd.DataFrame()
     df_current = pd.read_csv(file_current, encoding='utf-8-sig') if file_current else pd.DataFrame()
 
-    # 실패자 추출
+    # Extract failures
     fails_month2 = get_fail_employees(df_month2)
     fails_month1 = get_fail_employees(df_month1)
     fails_current = get_fail_employees(df_current)
 
-    print(f"\n📈 월별 실패자:")
-    print(f"  {MONTH_NAMES_KR[month_2_ago[0]]}: {len(fails_month2)}명")
-    print(f"  {MONTH_NAMES_KR[month_1_ago[0]]}: {len(fails_month1)}명")
-    print(f"  {MONTH_NAMES_KR[current_month]}: {len(fails_current)}명")
+    print(f"\n📈 Monthly failures:")
+    print(f"  {MONTH_NAMES_KR[month_2_ago[0]]}: {len(fails_month2)} employees")
+    print(f"  {MONTH_NAMES_KR[month_1_ago[0]]}: {len(fails_month1)} employees")
+    print(f"  {MONTH_NAMES_KR[current_month]}: {len(fails_current)} employees")
 
-    # 연속 실패 분석
-    consecutive_2month_old = fails_month2 & fails_month1  # 2개월 전 + 1개월 전
-    consecutive_2month_recent = fails_month1 & fails_current  # 1개월 전 + 현재 월
-    consecutive_3month = fails_month2 & fails_month1 & fails_current  # 3개월 모두
+    # Consecutive failure analysis
+    consecutive_2month_old = fails_month2 & fails_month1  # 2 months ago + 1 month ago
+    consecutive_2month_recent = fails_month1 & fails_current  # 1 month ago + current month
+    consecutive_3month = fails_month2 & fails_month1 & fails_current  # All 3 months
 
-    # 월 이름 태그 생성
-    month2_name = MONTH_NAMES_UPPER[month_2_ago[0]][:3]  # JUL, AUG 등
+    # Generate month name tags
+    month2_name = MONTH_NAMES_UPPER[month_2_ago[0]][:3]  # JUL, AUG, etc.
     month1_name = MONTH_NAMES_UPPER[month_1_ago[0]][:3]
     current_name = MONTH_NAMES_UPPER[current_month][:3]
 
-    print(f"\n🔗 연속 실패 분석:")
-    print(f"  {MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]} 연속: {len(consecutive_2month_old)}명")
-    print(f"  {MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month]} 연속: {len(consecutive_2month_recent)}명")
-    print(f"  {MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month]} 3개월 연속: {len(consecutive_3month)}명")
+    print(f"\n🔗 Consecutive failure analysis:")
+    print(f"  {MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]} consecutive: {len(consecutive_2month_old)} employees")
+    print(f"  {MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month]} consecutive: {len(consecutive_2month_recent)} employees")
+    print(f"  {MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month]} 3-month consecutive: {len(consecutive_3month)} employees")
 
-    # 결과 딕셔너리 생성
+    # Create result dictionary
     result = {
         'month_2_ago': month_2_ago,
         'month_1_ago': month_1_ago,
@@ -175,20 +175,20 @@ def analyze_consecutive_failures(current_month, current_year):
     return result
 
 def update_excel_with_continuous_fail(excel_path, analysis_result):
-    """Excel 파일의 Continuous_FAIL 컬럼 업데이트"""
+    """Update Continuous_FAIL column in Excel file"""
 
-    print(f"\n📝 Excel 파일 업데이트 중: {excel_path}")
+    print(f"\n📝 Updating Excel file: {excel_path}")
 
-    # Excel 파일 로드
+    # Load Excel file
     df = pd.read_csv(excel_path, encoding='utf-8-sig')
 
-    # Employee No 표준화
+    # Standardize Employee No
     df['emp_no_str'] = df['Employee No'].astype(str).str.strip().str.replace(r'\.0$', '', regex=True)
 
-    # Continuous_FAIL 컬럼 초기화
+    # Initialize Continuous_FAIL column
     df['Continuous_FAIL'] = 'NO'
 
-    # 3개월 연속 실패자 표시
+    # Mark 3-month consecutive failures
     consecutive_3month_count = 0
     for emp_id in analysis_result['consecutive_3month']:
         mask = df['emp_no_str'] == emp_id
@@ -196,18 +196,18 @@ def update_excel_with_continuous_fail(excel_path, analysis_result):
             df.loc[mask, 'Continuous_FAIL'] = analysis_result['tag_3month']
             consecutive_3month_count += 1
 
-    # 2개월 연속 실패자 표시
+    # Mark 2-month consecutive failures
     consecutive_2month_count = 0
 
-    # 최신 2개월 연속 (1개월 전 + 현재 월)
+    # Recent 2-month consecutive (1 month ago + current month)
     for emp_id in analysis_result['consecutive_2month_recent']:
-        if emp_id not in analysis_result['consecutive_3month']:  # 3개월 연속이 아닌 경우만
+        if emp_id not in analysis_result['consecutive_3month']:  # Only if not 3-month consecutive
             mask = df['emp_no_str'] == emp_id
             if mask.any():
                 df.loc[mask, 'Continuous_FAIL'] = analysis_result['tag_2month_recent']
                 consecutive_2month_count += 1
 
-    # 이전 2개월 연속 (2개월 전 + 1개월 전)
+    # Old 2-month consecutive (2 months ago + 1 month ago)
     for emp_id in analysis_result['consecutive_2month_old']:
         if emp_id not in analysis_result['consecutive_3month'] and emp_id not in analysis_result['consecutive_2month_recent']:
             mask = df['emp_no_str'] == emp_id
@@ -215,16 +215,16 @@ def update_excel_with_continuous_fail(excel_path, analysis_result):
                 df.loc[mask, 'Continuous_FAIL'] = analysis_result['tag_2month_old']
                 consecutive_2month_count += 1
 
-    # 연속 실패 월 수 컬럼 추가
+    # Add Consecutive_Fail_Months column
     df['Consecutive_Fail_Months'] = 0
 
-    # 3개월 연속
+    # 3-month consecutive
     df.loc[df['Continuous_FAIL'] == 'YES_3MONTHS', 'Consecutive_Fail_Months'] = 3
 
-    # 2개월 연속
+    # 2-month consecutive
     df.loc[df['Continuous_FAIL'].str.contains('2MONTHS', na=False), 'Consecutive_Fail_Months'] = 2
 
-    # 당월만 실패 (1개월)
+    # Current month only (1 month)
     current_only_fails = analysis_result['fails_current'] - analysis_result['consecutive_2month_recent']
     for emp_id in current_only_fails:
         mask = df['emp_no_str'] == emp_id
@@ -235,24 +235,24 @@ def update_excel_with_continuous_fail(excel_path, analysis_result):
     month_1_ago = analysis_result['month_1_ago']
     current_month = analysis_result['current_month']
 
-    print(f"\n✅ 업데이트 결과:")
-    print(f"  3개월 연속 실패 ({MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month[0]]}): {consecutive_3month_count}명")
-    print(f"  2개월 연속 실패 (총): {consecutive_2month_count}명")
-    print(f"    - {MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month[0]]} 연속: {len(analysis_result['consecutive_2month_recent'])}명")
-    print(f"    - {MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]} 연속: {len(analysis_result['consecutive_2month_old'])}명")
-    print(f"  Continuous_FAIL 컬럼 업데이트 완료")
+    print(f"\n✅ Update results:")
+    print(f"  3-month consecutive failures ({MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month[0]]}): {consecutive_3month_count} employees")
+    print(f"  2-month consecutive failures (total): {consecutive_2month_count} employees")
+    print(f"    - {MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month[0]]} consecutive: {len(analysis_result['consecutive_2month_recent'])} employees")
+    print(f"    - {MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]} consecutive: {len(analysis_result['consecutive_2month_old'])} employees")
+    print(f"  Continuous_FAIL column update completed")
 
-    # emp_no_str 임시 컬럼 제거
+    # Remove temporary emp_no_str column
     df = df.drop(columns=['emp_no_str'])
 
     return df
 
 def find_excel_file(month, year):
-    """월/연도에 해당하는 Excel 파일 자동 찾기"""
+    """Automatically find Excel file for given month/year"""
     output_dir = Path('output_files')
     month_name = MONTH_NAMES[month]
 
-    # 가능한 파일명 패턴들
+    # Possible file name patterns
     patterns = [
         f'output_QIP_incentive_{month_name}_{year}_최종완성버전_v6.0_Complete.csv',
         f'output_QIP_incentive_{month_name}_{year}_Complete.csv',
@@ -265,7 +265,7 @@ def find_excel_file(month, year):
         if file_path.exists():
             return file_path
 
-    # 와일드카드 검색
+    # Wildcard search
     possible_files = list(output_dir.glob(f'*{month_name}*{year}*.csv'))
     if possible_files:
         return possible_files[0]
@@ -273,7 +273,7 @@ def find_excel_file(month, year):
     return None
 
 def load_config(month, year):
-    """config 파일에서 월 정보 로드"""
+    """Load month information from config file"""
     month_name = MONTH_NAMES[month]
     config_path = Path(f'config_files/config_{month_name}_{year}.json')
 
@@ -283,38 +283,38 @@ def load_config(month, year):
     return None
 
 def main():
-    """메인 실행 함수"""
+    """Main execution function"""
 
-    parser = argparse.ArgumentParser(description='3개월 연속 AQL 실패 분석 및 Excel 업데이트')
-    parser.add_argument('--month', type=str, help='월 (예: september 또는 9)')
-    parser.add_argument('--year', type=int, help='연도 (예: 2025)')
+    parser = argparse.ArgumentParser(description='3-month consecutive AQL failure analysis and Excel update')
+    parser.add_argument('--month', type=str, help='Month (e.g., september or 9)')
+    parser.add_argument('--year', type=int, help='Year (e.g., 2025)')
 
     args = parser.parse_args()
 
-    # 월/연도 결정
+    # Determine month/year
     if args.month and args.year:
-        # 월 이름을 숫자로 변환
+        # Convert month name to number
         if args.month.isdigit():
             month_num = int(args.month)
         else:
             month_lower = args.month.lower()
             month_num = next((k for k, v in MONTH_NAMES.items() if v == month_lower), None)
             if month_num is None:
-                print(f"❌ 올바르지 않은 월 이름: {args.month}")
+                print(f"❌ Invalid month name: {args.month}")
                 return
 
         year = args.year
     else:
-        # config 파일에서 가장 최근 파일 찾기
+        # Find most recent config file
         config_dir = Path('config_files')
         config_files = list(config_dir.glob('config_*.json'))
 
         if not config_files:
-            print("❌ config 파일을 찾을 수 없습니다.")
-            print("사용법: python update_continuous_fail_column.py --month september --year 2025")
+            print("❌ Config file not found.")
+            print("Usage: python update_continuous_fail_column.py --month september --year 2025")
             return
 
-        # 가장 최근 config 파일
+        # Most recent config file
         latest_config = max(config_files, key=lambda p: p.stat().st_mtime)
 
         with open(latest_config, 'r', encoding='utf-8') as f:
@@ -324,56 +324,56 @@ def main():
         month_name = config['month'].lower()
         month_num = next((k for k, v in MONTH_NAMES.items() if v == month_name), None)
 
-        print(f"ℹ️  Config 파일에서 자동 감지: {year}년 {MONTH_NAMES_KR[month_num]}")
+        print(f"ℹ️  Auto-detected from config file: {year} {MONTH_NAMES_KR[month_num]}")
 
-    # 3개월 연속 실패 분석
+    # 3-month consecutive failure analysis
     analysis_result = analyze_consecutive_failures(month_num, year)
 
-    # Excel 파일 경로 찾기
+    # Find Excel file path
     excel_path = find_excel_file(month_num, year)
 
     if not excel_path:
-        print(f"\n❌ Excel 파일을 찾을 수 없습니다.")
-        print(f"예상 경로: output_files/output_QIP_incentive_{MONTH_NAMES[month_num]}_{year}_*.csv")
+        print(f"\n❌ Excel file not found.")
+        print(f"Expected path: output_files/output_QIP_incentive_{MONTH_NAMES[month_num]}_{year}_*.csv")
         return
 
-    print(f"\n✅ Excel 파일 찾음: {excel_path.name}")
+    print(f"\n✅ Excel file found: {excel_path.name}")
 
-    # Excel 업데이트
+    # Update Excel
     updated_df = update_excel_with_continuous_fail(excel_path, analysis_result)
 
-    # 백업 생성
+    # Create backup
     backup_path = excel_path.with_suffix('.backup.csv')
     pd.read_csv(excel_path, encoding='utf-8-sig').to_csv(backup_path, index=False, encoding='utf-8-sig')
-    print(f"\n💾 백업 생성: {backup_path.name}")
+    print(f"\n💾 Backup created: {backup_path.name}")
 
-    # 업데이트된 파일 저장
+    # Save updated file
     updated_df.to_csv(excel_path, index=False, encoding='utf-8-sig')
-    print(f"💾 Excel 파일 업데이트 완료: {excel_path.name}")
+    print(f"💾 Excel file update completed: {excel_path.name}")
 
-    # Excel XLSX 파일도 생성
+    # Also create Excel XLSX file
     excel_xlsx_path = excel_path.with_suffix('.xlsx')
     updated_df.to_excel(excel_xlsx_path, index=False, engine='openpyxl')
-    print(f"💾 Excel XLSX 파일도 업데이트: {excel_xlsx_path.name}")
+    print(f"💾 Excel XLSX file also updated: {excel_xlsx_path.name}")
 
-    # 검증
-    print("\n🔍 검증:")
-    print(f"  Continuous_FAIL = 'YES_3MONTHS': {(updated_df['Continuous_FAIL'] == 'YES_3MONTHS').sum()}명")
-    print(f"  Consecutive_Fail_Months = 3: {(updated_df['Consecutive_Fail_Months'] == 3).sum()}명")
-    print(f"  Consecutive_Fail_Months = 2: {(updated_df['Consecutive_Fail_Months'] == 2).sum()}명")
+    # Verification
+    print("\n🔍 Verification:")
+    print(f"  Continuous_FAIL = 'YES_3MONTHS': {(updated_df['Continuous_FAIL'] == 'YES_3MONTHS').sum()} employees")
+    print(f"  Consecutive_Fail_Months = 3: {(updated_df['Consecutive_Fail_Months'] == 3).sum()} employees")
+    print(f"  Consecutive_Fail_Months = 2: {(updated_df['Consecutive_Fail_Months'] == 2).sum()} employees")
 
-    # 샘플 출력
+    # Sample output
     sample = updated_df[updated_df['Consecutive_Fail_Months'] > 0][['Employee No', 'Full Name', 'Continuous_FAIL', 'Consecutive_Fail_Months']].head(10)
     if not sample.empty:
-        print(f"\n📋 샘플 데이터 (연속 실패자):")
+        print(f"\n📋 Sample data (consecutive failures):")
         print(sample.to_string(index=False))
 
     print("\n" + "=" * 80)
-    print("✅ Single Source of Truth 원칙 준수:")
-    print("  - AQL history 파일에서 실제 데이터 분석")
-    print("  - 자동으로 이전 2개월 계산 및 파일 로드")
-    print("  - Excel 파일에 결과 저장")
-    print("  - 대시보드는 Excel 파일 참조")
+    print("✅ Single Source of Truth principle followed:")
+    print("  - Analyzed actual data from AQL history files")
+    print("  - Automatically calculated previous 2 months and loaded files")
+    print("  - Saved results to Excel file")
+    print("  - Dashboard references Excel file")
     print("=" * 80)
 
 if __name__ == "__main__":
