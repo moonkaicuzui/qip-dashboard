@@ -50,7 +50,11 @@ from enum import Enum
 
 # 공통 직원 필터링 모듈 import
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from common_employee_filter import EmployeeFilter
+try:
+    from scripts.utils.common_employee_filter import EmployeeFilter
+except ImportError:
+    # Fallback for different directory structures
+    from common_employee_filter import EmployeeFilter
 
 warnings.filterwarnings('ignore')
 

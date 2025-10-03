@@ -3,6 +3,7 @@ config_files/*_backup_*.json
 
 # 검증 파일들
 error_review/hr_data_validation_*.xlsx
+validation_reports/*.xlsx
 
 # Python 캐시
 __pycache__/
