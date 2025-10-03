@@ -5538,7 +5538,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">v7.02</span></h1>
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V8.01</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
@@ -8625,7 +8625,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
-                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">v7.02</span>';
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">V8.01</span>';
             }}
             
             // 날짜 관련 업데이트
@@ -15289,8 +15289,8 @@ def main():
     html_content = generate_dashboard_html(df, month_name, args.year, args.month, working_days, excel_dashboard_data)
     
     # 파일 저장
-    # 파일명 형식 변경: Incentive_Dashboard_YYYY_MM_Version_6.html
-    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_6.html'
+    # 파일명 형식 변경: Incentive_Dashboard_YYYY_MM_Version_8.html
+    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_8.html'
     os.makedirs('output_files', exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
