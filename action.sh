@@ -278,6 +278,70 @@ echo ""
 run_step "Step 2: HTML Dashboard generation (V8.01 integrated)" "python3 integrated_dashboard_final.py --month $MONTH_NUM --year $YEAR"
 DASHBOARD_VERSION="8"
 
+# Step 3: Data validation (optional)
+echo ""
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${YELLOW}🔍 Run automated data validation? (Recommended)${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${WHITE}This validates:${NC}"
+echo -e "  ${CYAN}• Condition evaluation accuracy (10 conditions)${NC}"
+echo -e "  ${CYAN}• Incentive amount calculations${NC}"
+echo -e "  ${CYAN}• Dashboard vs CSV data consistency${NC}"
+echo -e "  ${CYAN}• 100% rule enforcement${NC}"
+echo ""
+echo -e "${YELLOW}Run validation now? (y/n): ${NC}\c"
+read run_validation
+
+if [ "$run_validation" = "y" ] || [ "$run_validation" = "Y" ]; then
+    echo ""
+    echo -e "${GREEN}🚀 Starting validation pipeline...${NC}"
+    echo ""
+
+    # Check if run_full_validation.sh exists
+    if [ ! -f "run_full_validation.sh" ]; then
+        echo -e "${RED}❌ run_full_validation.sh not found${NC}"
+        echo -e "${YELLOW}⚠️ Skipping validation step${NC}"
+    else
+        # Make sure it's executable
+        chmod +x run_full_validation.sh
+
+        # Run validation with automatic yes to prompts
+        # Pass: year_choice (1/2), month_choice (1-12), confirmation (y)
+        echo -e "${year_choice}\n${month_choice}\ny" | ./run_full_validation.sh
+        VALIDATION_RESULT=$?
+
+        echo ""
+        if [ $VALIDATION_RESULT -eq 0 ]; then
+            echo -e "${GREEN}✅ Validation completed - No issues detected!${NC}"
+            echo -e "${CYAN}   All data is consistent and accurate.${NC}"
+        else
+            echo -e "${YELLOW}⚠️ Validation completed - Review required${NC}"
+            echo -e "${CYAN}   Check validation_reports/ for detailed findings${NC}"
+        fi
+
+        # Offer to open validation report
+        echo ""
+        echo -e "${YELLOW}📊 Open integrated validation report? (y/n): ${NC}\c"
+        read open_report
+
+        if [ "$open_report" = "y" ] || [ "$open_report" = "Y" ]; then
+            # Find latest integrated report
+            LATEST_REPORT=$(ls -t validation_reports/INTEGRATED_VALIDATION_REPORT_${MONTH}_${YEAR}_*.xlsx 2>/dev/null | head -n 1)
+
+            if [ ! -z "$LATEST_REPORT" ] && [ -f "$LATEST_REPORT" ]; then
+                open "$LATEST_REPORT"
+                echo -e "${GREEN}✅ Validation report opened!${NC}"
+            else
+                echo -e "${YELLOW}⚠️ Validation report not found${NC}"
+            fi
+        fi
+    fi
+else
+    echo -e "${YELLOW}Validation skipped.${NC}"
+    echo -e "${CYAN}💡 You can run validation later with: ./run_full_validation.sh${NC}"
+fi
+
 # Completion message
 echo ""
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
