@@ -1161,26 +1161,34 @@ class DataProcessor:
                 # file 텍스트with first 읽어서 헤더 processing
                 with open(file_path, 'r', encoding='utf-8-sig') as f:
                     lines = f.readlines()
-                
+
                 # 임시 fileto 정리done data 쓰기
-                with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as tmp:
-                    # 표준 헤더 작성
-                    tmp.write('MONTH,DATE,MODEL,PO NO 1.,Item,PO NO 2.,DEST,QTY,PO TYPE,REPACKING PO,')
-                    tmp.write('REPACKING,RESULT,PARTIAL QTY,PARTIAL NO,BUILDING,LINE,TQC NUM,EMPLOYEE NO,')
-                    tmp.write('QTY INSPECTION,OFFICIAL INSPECTOR,INSPECTOR TYPE,DESCRIPTION,REMARKS,')
-                    tmp.write('INTERNAL INSPECTOR,Stitching issue,Wrong Packing issue(prs),NOTE\n')
-                    
+                with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', encoding='utf-8') as tmp:
+                    # 실제 파일의 헤더 사용 (1-2번째 줄 결합)
+                    # 1번째 줄과 2번째 줄을 결합하여 완전한 헤더 생성
+                    header_line1 = lines[0].rstrip('\n').rstrip('\r')
+                    header_line2 = lines[1].rstrip('\n').rstrip('\r')
+
+                    # 2번째 줄이 quote로 시작하는 경우 처리
+                    if header_line2.startswith('"') or header_line2.startswith('NO"'):
+                        # 이전 줄의 마지막 필드와 결합
+                        full_header = header_line1 + header_line2
+                    else:
+                        full_header = header_line1 + ',' + header_line2
+
+                    tmp.write(full_header + '\n')
+
                     # data 라인들 쓰기 (3번째 줄from)
                     for line in lines[2:]:
                         tmp.write(line)
                     tmp_path = tmp.name
-                
+
                 # 임시 파일에서 data 읽기
                 df = pd.read_csv(tmp_path)
                 os.unlink(tmp_path)  # 임시 file 삭제
-                
+
                 return df
-                
+
             except Exception as e:
                 return None
         
@@ -1808,6 +1816,20 @@ class CompleteQIPCalculator:
             print("  ⚠️ Cannot calculate Area Reject Rate due to missing AQL data.")
             self.month_data['Area_Reject_Rate'] = 0
             return
+
+        # REPACKING PO 컬럼 생성/확인 (load_aql_data_for_area_calculation에서 생성되지만 이중 체크)
+        if 'REPACKING PO' not in aql_data.columns:
+            if 'REPACKING ' in aql_data.columns or 'REPACKING' in aql_data.columns:
+                repacking_col = 'REPACKING ' if 'REPACKING ' in aql_data.columns else 'REPACKING'
+                aql_data['REPACKING PO'] = aql_data[repacking_col].apply(
+                    lambda x: 'NORMAL PO' if pd.isna(x) else 'REPACKING PO'
+                )
+                normal_count = (aql_data['REPACKING PO'] == 'NORMAL PO').sum()
+                repack_count = (aql_data['REPACKING PO'] == 'REPACKING PO').sum()
+                print(f"  ℹ️ REPACKING PO auto-generated: NORMAL PO={normal_count}, REPACKING PO={repack_count}")
+            else:
+                aql_data['REPACKING PO'] = 'NORMAL PO'
+                print(f"  ℹ️ No REPACKING column found - treating all {len(aql_data)} records as NORMAL PO")
 
         # Building별 reject rate calculation
         building_reject_rates = {}
@@ -2772,10 +2794,27 @@ class CompleteQIPCalculator:
                 
                 # columnemployees 정규화
                 df.columns = [self.normalize_column_name(col) for col in df.columns]
-                
+
                 # 실제 data cases수 with그
                 print(f"  → AQL data withload: {len(df)}cases")
-                
+
+                # REPACKING PO 컬럼 생성 (REPACKING  컬럼 기반)
+                # REPACKING  컬럼이 NaN이면 NORMAL PO, 값이 있으면 REPACKING PO
+                if 'REPACKING PO' not in df.columns:
+                    if 'REPACKING ' in df.columns or 'REPACKING' in df.columns:
+                        # REPACKING  또는 REPACKING 컬럼 찾기
+                        repacking_col = 'REPACKING ' if 'REPACKING ' in df.columns else 'REPACKING'
+                        df['REPACKING PO'] = df[repacking_col].apply(
+                            lambda x: 'NORMAL PO' if pd.isna(x) else 'REPACKING PO'
+                        )
+                        normal_count = (df['REPACKING PO'] == 'NORMAL PO').sum()
+                        repack_count = (df['REPACKING PO'] == 'REPACKING PO').sum()
+                        print(f"  ℹ️ REPACKING PO auto-generated: NORMAL PO={normal_count}, REPACKING PO={repack_count}")
+                    else:
+                        # REPACKING 관련 컬럼이 아예 없으면 모두 NORMAL PO로 간주
+                        df['REPACKING PO'] = 'NORMAL PO'
+                        print(f"  ℹ️ REPACKING PO column not found - treating all {len(df)} records as NORMAL PO")
+
                 return df
             else:
                 print(f"⚠️ AQL history file not found: {file_path}")
@@ -3085,9 +3124,13 @@ class CompleteQIPCalculator:
     def create_manager_subordinate_mapping(self) -> Dict[str, List[str]]:
         """manager-부하 employee mapping created"""
         print("\n📊 manager-부하 employee mapping created in progress...")
-        
+
         subordinate_mapping = {}
-        
+
+        # 계산 월 시작일 (퇴사자 필터링용)
+        calc_month_start = pd.Timestamp(self.config.year, self.config.month.number, 1)
+        print(f"  → 계산 월: {calc_month_start.strftime('%Y-%m')}")
+
         # Direct boss name column 찾기
         boss_col = self.data_processor.detect_column_names(self.month_data, [
             'direct boss name', 'Direct Boss Name', 'DIRECT BOSS NAME',
@@ -3131,10 +3174,25 @@ class CompleteQIPCalculator:
         # 디버그: boss_name이 debug_names와 일치하는지 추적
         boss_name_matches = {debug_name: 0 for debug_name in debug_names.values()}
 
+        # 퇴사자 필터링 카운터
+        excluded_resigned_count = 0
+
         for _, row in self.month_data.iterrows():
             boss_name = row.get(boss_col)
             if pd.notna(boss_name) and boss_name.strip():
                 emp_id = row.get('Employee No', '')
+
+                # ✅ 퇴사자 필터링: 계산 월 이전 퇴사자는 부하 직원 매핑에서 제외
+                stop_date_str = row.get('Stop working Date')
+                if pd.notna(stop_date_str):
+                    try:
+                        stop_date = pd.to_datetime(stop_date_str)
+                        if stop_date < calc_month_start:
+                            # 계산 월 이전에 퇴사한 직원은 매핑에서 제외
+                            excluded_resigned_count += 1
+                            continue
+                    except (ValueError, TypeError):
+                        pass  # 날짜 변환 실패 시 퇴사자 아님으로 처리
 
                 # 디버그: 문제 직원 이름과 매칭되는지 확인
                 if boss_name in debug_names.values():
@@ -3180,6 +3238,9 @@ class CompleteQIPCalculator:
                             # month_data에 이 이름이 있는지 확인
                             name_exists = (self.month_data['Full Name'] == boss_name).any()
                             print(f"  [DEBUG] month_data에 '{boss_name}' 존재 여부: {name_exists}")
+
+        if excluded_resigned_count > 0:
+            print(f"  → 퇴사자 제외: {excluded_resigned_count}명 (계산 월 이전 퇴사)")
 
         # 디버그: boss_name 매칭 결과 출력
         print(f"\n  → Boss name 매칭 결과:")
@@ -4404,6 +4465,21 @@ class CompleteQIPCalculator:
             self.month_data[col] = None  # Initialize as None to create object dtype
             self.month_data[col] = self.month_data[col].astype('object')
 
+        # Interim vs Final report 판정 (조건 4 예외 처리용)
+        from datetime import datetime
+        current_date = datetime.now()
+        is_current_month = (current_date.year == self.config.year and
+                           current_date.month == self.config.month.number)
+
+        if is_current_month:
+            # Current month: interim report before 20th
+            is_interim_report = current_date.day < 20
+            if is_interim_report:
+                print(f"  ℹ️ Interim report (current date: {current_date.day}일) - 조건 4 (최소 12일 근무) 예외 처리")
+        else:
+            # Past month: always apply full conditions
+            is_interim_report = False
+
         # 각 employee별with 10 conditions 평
         for idx in self.month_data.index:
             emp_type = self.month_data.loc[idx, 'ROLE TYPE STD']
@@ -4452,11 +4528,19 @@ class CompleteQIPCalculator:
             self.month_data.loc[idx, 'cond_3_threshold'] = 0
 
             # condition 4: minimum근무 days >= 12
-            cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
-            cond_4_applicable = 'Y' if 4 in applicable_conditions else 'NOT_APPLICABLE'
+            # Interim report (20일 이전)에는 조건 4 예외 처리
+            if is_interim_report and 4 in applicable_conditions:
+                # Interim report: 조건 4를 NOT_APPLICABLE로 처리 (다른 조건만으로 100% 평가)
+                cond_4_result = 'NOT_APPLICABLE'
+                cond_4_applicable = 'NOT_APPLICABLE'
+            else:
+                # Final report 또는 조건 미적용 position
+                cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
+                cond_4_applicable = 'Y' if 4 in applicable_conditions else 'NOT_APPLICABLE'
+
             self.month_data.loc[idx, 'cond_4_minimum_days'] = cond_4_applicable if cond_4_applicable == 'NOT_APPLICABLE' else cond_4_result
             self.month_data.loc[idx, 'cond_4_value'] = actual_working_days
-            self.month_data.loc[idx, 'cond_4_threshold'] = 12
+            self.month_data.loc[idx, 'cond_4_threshold'] = 12 if not is_interim_report else 'N/A (Interim)'
 
             # condition 5: items인 AQL 당month failure = 0
             aql_col = f"{self.config.get_month_str('capital')} AQL Failures"
@@ -4555,12 +4639,13 @@ class CompleteQIPCalculator:
             applicable_count = 0
             passed_count = 0
             for i in range(1, 11):
-                cond_col = f'cond_{i}_' + ['출근율_Attendance_Rate_Percent', 'unapproved_absence', 'actual_working_days', 'minimum_days',
+                cond_col = f'cond_{i}_' + ['attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
                                            'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
                                            '5prs_pass_rate', '5prs_inspection_qty'][i-1]
                 if cond_col in self.month_data.columns:
                     result = self.month_data.loc[idx, cond_col]
-                    if result != 'N/A':
+                    # NOT_APPLICABLE인 조건은 제외 (interim report 조건 4 등)
+                    if result not in ['N/A', 'NOT_APPLICABLE', None] and pd.notna(result):
                         applicable_count += 1
                         if result == 'PASS':
                             passed_count += 1
@@ -6354,7 +6439,7 @@ def init_command():
 def main():
     """메인 실행 함수"""
     print("="*60)
-    print(f"🚀 QIP Incentive Calculation System v6.0 (improved 버전)")
+    print(f"🚀 QIP Incentive Calculation System v8.01")
     print("="*60)
     
     # employees령어 체크

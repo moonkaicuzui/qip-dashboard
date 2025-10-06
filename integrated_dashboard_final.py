@@ -887,9 +887,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             # This field MUST be preserved for 5PRS modal filtering
             emp['position_code'] = emp.get('FINAL QIP POSITION NAME CODE', '')
 
-            # incentive 필드 매핑
-            emp['september_incentive'] = str(emp.get('September_Incentive', '0'))
-            emp['august_incentive'] = str(emp.get('Previous_Incentive', '0'))
+            # incentive 필드 매핑 (동적 month 기반)
+            # Current month incentive (e.g., october_incentive for October report)
+            # Try month-specific column first (e.g., October_Incentive), then fallback to 'Final Incentive amount'
+            month_col = f'{month.capitalize()}_Incentive'
+            current_incentive = emp.get(month_col, emp.get('Final Incentive amount', '0'))
+            emp[f'{month.lower()}_incentive'] = str(current_incentive if pd.notna(current_incentive) else '0')
+
+            # Previous month incentive (e.g., september_incentive for October report)
+            emp[f'{prev_month_name}_incentive'] = str(emp.get('Previous_Incentive', '0'))
+
+            # Backward compatibility fields for JavaScript fallback chains
+            emp['previous_incentive'] = str(emp.get('Previous_Incentive', '0'))
 
             # CRITICAL FIX: 5PRS 필드 추가 (JavaScript에서 use)
             emp['pass_rate'] = emp.get('5PRS_Pass_Rate', 0) if pd.notna(emp.get('5PRS_Pass_Rate')) else 0
@@ -1178,8 +1187,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             incentive_start_str = inc_min.strftime('%d')
             incentive_end_str = inc_max.strftime('%d')
         else:
-            incentive_start_str = '01'
-            incentive_end_str = f'{month_last_day:02d}'
+            # incentive 데이터가 없으면 attendance 데이터의 마지막 날 사용
+            # (중간 보고서 판정을 위해 실제 데이터 범위 사용)
+            if att_max is not None:
+                incentive_start_str = '01'
+                incentive_end_str = att_max.strftime('%d')
+                print(f"  ℹ️ incentive data range not found - using attendance end day: {incentive_end_str}")
+            else:
+                incentive_start_str = '01'
+                incentive_end_str = f'{month_last_day:02d}'
 
     except Exception as e:
         # 에러 발생 시 default value use (month total)
@@ -2255,8 +2271,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                         const resignDay = resignDate.getDate();
                         const resignMonth = resignDate.getMonth() + 1;
-
-                        // Check if resigned in current month (September = 9) within first 10 days
+                        // Check if resigned in current month within first 10 days
                         if (resignMonth === MONTH_NUM_PLACEHOLDER && resignDay <= 10) {
                             const badgeText = getTranslation('validationTab.modals.attendanceBelow88.earlyResignBadge', lang);
                             const resignLabel = getTranslation('validationTab.modals.attendanceBelow88.resignationDate', lang);
@@ -7713,7 +7728,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return keyPath;
             }}
         }}
-        
+
+        // 모달 제목 날짜 형식 함수
+        function formatModalDate(year, month, lang) {{
+            const monthNames = {{
+                ko: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                vi: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
+            }};
+
+            const monthIndex = month - 1;
+            const monthName = monthNames[lang] ? monthNames[lang][monthIndex] : month;
+
+            if (lang === 'ko') {{
+                return `${{year}}년 ${{monthName}}`;
+            }} else if (lang === 'vi') {{
+                return `${{monthName}} năm ${{year}}`;
+            }} else {{
+                return `${{monthName}} ${{year}}`;
+            }}
+        }}
+
         // FAQ 예시 섹션 업데이트 함count
         function updateFAQExamples() {{
             const lang = currentLanguage;
@@ -10711,6 +10746,58 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     console.error('Org chart tab element not found!');
                 }}
             }}, 500); // data load를 위한 약간의 지연
+
+            // 조직도 검색 기능 이벤트 핸들러
+            const orgSearchInput = document.getElementById('orgSearchInput');
+            const orgSearchClear = document.getElementById('orgSearchClear');
+
+            if (orgSearchInput) {{
+                console.log('Org chart search input found, attaching event listener');
+                orgSearchInput.addEventListener('input', function(e) {{
+                    const searchTerm = e.target.value.trim();
+                    searchInTree(searchTerm);
+                }});
+
+                // Enter 키 처리
+                orgSearchInput.addEventListener('keypress', function(e) {{
+                    if (e.key === 'Enter') {{
+                        const searchTerm = e.target.value.trim();
+                        searchInTree(searchTerm);
+                    }}
+                }});
+            }}
+
+            if (orgSearchClear) {{
+                console.log('Org chart search clear button found, attaching event listener');
+                orgSearchClear.addEventListener('click', function() {{
+                    if (orgSearchInput) {{
+                        orgSearchInput.value = '';
+                        searchInTree('');
+                    }}
+                }});
+            }}
+
+            // 하단 Expand All / Collapse All 버튼 이벤트 핸들러
+            const expandAllBtns = document.querySelectorAll('button[id="expandAllBtn"]');
+            const collapseAllBtns = document.querySelectorAll('button[id="collapseAllBtn"]');
+
+            if (expandAllBtns.length > 0) {{
+                console.log(`Found ${{expandAllBtns.length}} Expand All buttons, attaching event listeners`);
+                expandAllBtns.forEach(btn => {{
+                    btn.addEventListener('click', function() {{
+                        expandAll();
+                    }});
+                }});
+            }}
+
+            if (collapseAllBtns.length > 0) {{
+                console.log(`Found ${{collapseAllBtns.length}} Collapse All buttons, attaching event listeners`);
+                collapseAllBtns.forEach(btn => {{
+                    btn.addEventListener('click', function() {{
+                        collapseAll();
+                    }});
+                }});
+            }}
         }});
 
         // 직급 계층 레벨 정의
@@ -11373,62 +11460,68 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const reasons = [];
             const position = (employee.position || '').toUpperCase();
 
-            // 출근 조cases 체크 (모든 직급 공통)
-            if (employee['attendancy condition 1 - acctual working days is zero'] === 'yes') {{
-                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.actualWorkingDaysZero', currentLanguage));
-            }}
-            if (employee['attendancy condition 2 - unapproved Absence Day is more than 2 days'] === 'yes') {{
-                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.unapprovedAbsenceOver2', currentLanguage));
-            }}
-            if (employee['attendancy condition 3 - absent % is over 12%'] === 'yes') {{
-                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.absentRateOver12', currentLanguage));
-            }}
-            if (employee['attendancy condition 4 - minimum working days'] === 'yes') {{
-                reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.minimumWorkingDays', currentLanguage));
-            }}
+            // 10개 조건 상태 체크 (cond_1 through cond_10)
+            const conditionFields = [
+                'cond_1_attendance_rate',
+                'cond_2_unapproved_absence',
+                'cond_3_actual_working_days',
+                'cond_4_minimum_days',
+                'cond_5_aql_personal_failure',
+                'cond_6_aql_continuous',
+                'cond_7_aql_team_area',
+                'cond_8_area_reject',
+                'cond_9_5prs_pass_rate',
+                'cond_10_5prs_inspection_qty'
+            ];
 
-            // LINE LEADER의 경우 AQL 조cases 추가 체크
-            if (position.includes('LINE') && position.includes('LEADER')) {{
-                if (employee['aql condition 7 - team/area fail AQL'] === 'yes') {{
-                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.teamAreaAQLFail', currentLanguage));
-                }}
-                if (employee['September AQL Failures'] > 0) {{
-                    const monthText = currentLanguage === 'ko' ? '9month' : currentLanguage === 'vi' ? 'Tháng 9' : 'September';
-                    const reasonText = getTranslation('orgChart.modal.nonPaymentReasons.monthlyAQLFailures', currentLanguage);
-                    reasons.push(reasonText.replace('{{month}}', monthText).replace('{{count}}', employee['September AQL Failures']));
-                }}
-                if (employee['Continuous_FAIL'] === 'YES_3MONTHS') {{
-                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.continuous3MonthsAQLFail', currentLanguage));
-                }} else if (employee['Continuous_FAIL'] && employee['Continuous_FAIL'].includes('2MONTHS')) {{
-                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.continuous2MonthsAQLFail', currentLanguage));
-                }}
-            }}
+            let applicableCount = 0;
+            let passedCount = 0;
+            const failedConditions = [];
 
-            // 5PRS 조cases 체크 (ASSEMBLY INSPECTOR TYPE-1만 apply)
-            const employeeType = employee.type || employee['ROLE TYPE STD'] || '';
-            if (employeeType === 'TYPE-1' && position.includes('ASSEMBLY') && position.includes('INSPECTOR')) {{
-                if (employee['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] === 'no') {{
-                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.prs5ValidationOrPassRate', currentLanguage));
-                }}
-                if (employee['5prs condition 2 - Total Valiation Qty is zero'] === 'yes') {{
-                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.prs5TotalQtyZero', currentLanguage));
-                }}
-            }}
+            // 각 조건 체크
+            conditionFields.forEach((field, index) => {{
+                const status = employee[field];
+                const condNum = index + 1;
 
-            // 조cases 통과율 체크
-            if (employee['conditions_pass_rate'] !== undefined && employee['conditions_pass_rate'] < 100) {{
-                const passRate = parseFloat(employee['conditions_pass_rate'] || 0).toFixed(1);
-                const passed = employee['conditions_passed'] || 0;
-                const applicable = employee['conditions_applicable'] || 0;
-                if (reasons.length === 0 && passRate < 100) {{
-                    reasons.push(`조cases 통과율 부족: ${{passed}}/${{applicable}} (${{passRate}}%)`);
+                // N/A 또는 NOT_APPLICABLE이 아닌 경우만 적용 조건으로 카운트
+                if (status && status !== 'N/A' && status !== 'NOT_APPLICABLE') {{
+                    applicableCount++;
+
+                    if (status === 'PASS') {{
+                        passedCount++;
+                    }} else if (status === 'FAIL') {{
+                        // 실패한 조건 기록
+                        const condKey = field.replace('cond_', 'cond').replace(/_/g, '_');
+                        failedConditions.push({{
+                            num: condNum,
+                            key: condKey,
+                            name: getTranslation(`orgChart.modal.nonPaymentReasons.${{condKey}}`, currentLanguage)
+                        }});
+                    }}
+                }}
+            }});
+
+            // 조건 미충족이 있는 경우
+            if (applicableCount > 0 && passedCount < applicableCount) {{
+                const passRate = ((passedCount / applicableCount) * 100).toFixed(1);
+                const summaryText = getTranslation('orgChart.modal.nonPaymentReasons.conditionPassRateInsufficient', currentLanguage);
+                reasons.push(summaryText
+                    .replace('{{{{passed}}}}', passedCount)
+                    .replace('{{{{applicable}}}}', applicableCount)
+                    .replace('{{{{passRate}}}}', passRate));
+
+                // 실패한 조건 나열
+                if (failedConditions.length > 0) {{
+                    const labelText = getTranslation('orgChart.modal.nonPaymentReasons.failedConditionsLabel', currentLanguage);
+                    const condList = failedConditions.map(c => `• ${{c.name}}`).join('<br>');
+                    reasons.push(`<strong>${{labelText}}:</strong><br>${{condList}}`);
                 }}
             }}
 
             // 사유가 없는 경우 기본 메시지
             if (reasons.length === 0) {{
                 if (employee['{month.lower()}_incentive'] === 0) {{
-                    reasons.push('조cases 정보를 확인할 count not found');
+                    reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.conditionInfoUnavailable', currentLanguage));
                 }}
             }}
 
@@ -11823,7 +11916,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="modal-dialog modal-xl" style="z-index: 1056;">
                         <div class="modal-content" style="z-index: 1057; position: relative; user-select: text; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text;">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="modalTitle">${{getTranslation('modal.modalTitle', currentLanguage)}} - ${{dashboardYear}}year ${{monthNumber}}month</h5>
+                                <h5 class="modal-title" id="modalTitle">${{getTranslation('modal.modalTitle', currentLanguage)}} - ${{formatModalDate(dashboardYear, monthNumber, currentLanguage)}}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
@@ -15322,30 +15415,32 @@ def main():
         working_days = 13  # Fallback
 
     # dashboard creation - Excel data를 전달
-    html_content = generate_dashboard_html(df, month_name, args.year, args.month, working_days, excel_dashboard_data)
-    
+    # df_csv를 사용 (최신 데이터)
+    dashboard_df = df_csv if 'df_csv' in locals() else df
+    html_content = generate_dashboard_html(dashboard_df, month_name, args.year, args.month, working_days, excel_dashboard_data)
+
     # file 저장
-    # fileemployees 형식 변경: Incentive_Dashboard_YYYY_MM_Version_8.html
-    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_8.html'
+    # fileemployees 형식 변경: Incentive_Dashboard_YYYY_MM_Version_8.01.html
+    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_8.01.html'
     os.makedirs('output_files', exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
-    
+
     print(f"✅ dashboard creation completed: {output_file}")
-    
-    # 통계 출력
-    total_employees = len(df)
-    # 동적 incentive column 찾기
-    incentive_col = f'{month_name}_incentive'
-    if incentive_col not in df.columns:
+
+    # 통계 출력 - dashboard_df 사용
+    total_employees = len(dashboard_df)
+    # 동적 incentive column 찾기 - Excel 컬럼명 사용 (October_Incentive)
+    incentive_col = f'{month_name.capitalize()}_Incentive'
+    if incentive_col not in dashboard_df.columns:
         # 대체 columnemployees 시도
         print(f"⚠️ {incentive_col} column을 find count not found. use available column을 checking.")
         # 가장 최근 month의 incentive column을 찾음
-        possible_cols = [col for col in df.columns if '_incentive' in col.lower() or '_Incentive' in col]
+        possible_cols = [col for col in dashboard_df.columns if '_incentive' in col.lower() or '_Incentive' in col]
         if possible_cols:
             incentive_col = possible_cols[-1]  # 가장 last incentive column use
             print(f"   → {incentive_col} column을 uses.")
-    
+
     # Handle potential duplicate columns or Series values
     def get_incentive_value(row, col):
         val = row.get(col, 0)
@@ -15358,8 +15453,8 @@ def main():
         except (ValueError, TypeError):
             return 0
 
-    paid_employees = sum(1 for _, row in df.iterrows() if get_incentive_value(row, incentive_col) > 0)
-    total_amount = sum(get_incentive_value(row, incentive_col) for _, row in df.iterrows())
+    paid_employees = sum(1 for _, row in dashboard_df.iterrows() if get_incentive_value(row, incentive_col) > 0)
+    total_amount = sum(get_incentive_value(row, incentive_col) for _, row in dashboard_df.iterrows())
     
     print(f"   - total employees: {total_employees}employees")
     print(f"   - payment target: {paid_employees}employees")

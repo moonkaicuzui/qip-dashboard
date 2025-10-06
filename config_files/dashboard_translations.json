@@ -417,6 +417,23 @@
       }
     },
     "modal": {
+      "basicInfo": {
+        "position": {
+          "ko": "직급",
+          "en": "Position",
+          "vi": "Chức vụ"
+        },
+        "employeeId": {
+          "ko": "사원번호",
+          "en": "Employee ID",
+          "vi": "Mã nhân viên"
+        },
+        "type": {
+          "ko": "구분",
+          "en": "Type",
+          "vi": "Loại"
+        }
+      },
       "calculationDetails": {
         "ko": "계산 상세",
         "en": "Calculation Details",
@@ -635,6 +652,71 @@
           "ko": "5PRS 총 검증 수량 0 (5PRS 조건 2번 미충족)",
           "en": "5PRS total validation quantity 0 (5PRS condition 2 not met)",
           "vi": "Tổng số lượng xác thực 5PRS 0 (Điều kiện 5PRS 2 không đáp ứng)"
+        },
+        "conditionPassRateInsufficient": {
+          "ko": "조건 미충족: {{passed}}/{{applicable}} 충족 ({{passRate}}%)",
+          "en": "Conditions not met: {{passed}}/{{applicable}} passed ({{passRate}}%)",
+          "vi": "Điều kiện không đạt: {{passed}}/{{applicable}} đạt ({{passRate}}%)"
+        },
+        "conditionInfoUnavailable": {
+          "ko": "조건 정보를 확인할 수 없습니다",
+          "en": "Condition information unavailable",
+          "vi": "Thông tin điều kiện không có sẵn"
+        },
+        "failedConditionsLabel": {
+          "ko": "미충족 조건",
+          "en": "Failed Conditions",
+          "vi": "Điều kiện không đạt"
+        },
+        "cond1_attendance_rate": {
+          "ko": "출근율 88% 미만",
+          "en": "Attendance rate < 88%",
+          "vi": "Tỷ lệ đi làm < 88%"
+        },
+        "cond2_unapproved_absence": {
+          "ko": "무단결근 3일 이상",
+          "en": "Unapproved absence ≥ 3 days",
+          "vi": "Vắng mặt không phép ≥ 3 ngày"
+        },
+        "cond3_actual_working_days": {
+          "ko": "실제 근무일수 0일",
+          "en": "Actual working days is 0",
+          "vi": "Số ngày làm việc thực tế là 0"
+        },
+        "cond4_minimum_days": {
+          "ko": "최소 근무일수 미달 (12일)",
+          "en": "Below minimum working days (12 days)",
+          "vi": "Dưới số ngày làm việc tối thiểu (12 ngày)"
+        },
+        "cond5_aql_personal_failure": {
+          "ko": "개인 AQL 실패 (당월)",
+          "en": "Personal AQL failure (current month)",
+          "vi": "AQL cá nhân thất bại (tháng hiện tại)"
+        },
+        "cond6_aql_continuous": {
+          "ko": "개인 AQL 3개월 연속 실패",
+          "en": "Personal AQL failed 3 consecutive months",
+          "vi": "AQL cá nhân thất bại 3 tháng liên tiếp"
+        },
+        "cond7_aql_team_area": {
+          "ko": "팀/구역 AQL 3개월 연속 실패",
+          "en": "Team/Area AQL failed 3 consecutive months",
+          "vi": "AQL nhóm/khu vực thất bại 3 tháng liên tiếp"
+        },
+        "cond8_area_reject": {
+          "ko": "담당 구역 불량률 3% 초과",
+          "en": "Area reject rate > 3%",
+          "vi": "Tỷ lệ lỗi khu vực > 3%"
+        },
+        "cond9_5prs_pass_rate": {
+          "ko": "5PRS 통과율 95% 미만",
+          "en": "5PRS pass rate < 95%",
+          "vi": "Tỷ lệ đạt 5PRS < 95%"
+        },
+        "cond10_5prs_inspection_qty": {
+          "ko": "5PRS 검사 수량 100개 미만",
+          "en": "5PRS inspection quantity < 100 pieces",
+          "vi": "Số lượng kiểm tra 5PRS < 100 cái"
         }
       }
     },

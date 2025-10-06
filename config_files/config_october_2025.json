@@ -1,0 +1,21 @@
+{
+  "year": 2025,
+  "month": "october",
+  "working_days": 3,
+  "previous_months": [
+    "august",
+    "september"
+  ],
+  "file_paths": {
+    "basic": "input_files/basic manpower data october.csv",
+    "previous_incentive": "input_files/2025year September incentive 지급 세부 정보.csv",
+    "aql": "input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv",
+    "5prs": "input_files/5prs data october.csv",
+    "attendance": "input_files/attendance/converted/attendance data october_converted.csv"
+  },
+  "output_prefix": "output_QIP_incentive_october_2025",
+  "created_at": "2025-10-06T12:29:59.545881",
+  "data_source": "google_drive",
+  "working_days_source": "attendance_data",
+  "working_days_updated_at": "2025-10-06T14:23:49.799293"
+}
