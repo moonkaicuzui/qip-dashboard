@@ -23,6 +23,13 @@ QIP (Quality Inspection Process) Incentive Dashboard System - Factory worker inc
 - 80-99% fulfillment = NO incentive (인센티브 지급조건을 100% 충족하지 못하는 경우는 인센티브를 받으면 안됨)
 - This is a strict business requirement - never apply thresholds like 80%
 
+### 4. Resigned Employee Exclusion (퇴사자 제외 정책)
+- **Employees who resigned before the calculation month are excluded from subordinate mappings**
+- Affects LINE LEADER, SUPERVISOR, and other manager incentive calculations
+- Resignation date check: `Stop working Date < month_start` → excluded from subordinate count
+- Example: September calculation excludes employees who resigned before 2025-09-01
+- Implementation: `src/step1_인센티브_계산_개선버전.py:3146-3156` (create_manager_subordinate_mapping)
+
 ## Key Commands
 
 ### Complete Workflow Execution
@@ -153,6 +160,16 @@ Defined in `position_condition_matrix.json`:
 - **TYPE-3 New Members**: Policy excluded
   - Always 0 VND regardless of conditions
 
+### LINE LEADER Incentive Calculation
+- **Formula**: `(Total Subordinate Incentive) × 12% × Receiving Ratio`
+- **Receiving Ratio**: `(Subordinates with incentive > 0) / (Total active subordinates)`
+- **Subordinate Count**: Excludes employees who resigned before calculation month
+- **Example**:
+  - 14 active subordinates (1 resigned before Sept excluded)
+  - 5 subordinates received incentive (total ₫2,300,000)
+  - Calculation: ₫2,300,000 × 12% × (5/14) = ₫98,571
+- **Implementation**: `src/step1_인센티브_계산_개선버전.py:3255-3323`
+
 ## Business Logic Configuration
 
 ### Core JSON Files
@@ -281,6 +298,10 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
 2. **Missing previous month**: System shows 0 (never fake data)
 3. **MODEL MASTER**: Position code 'D' must be in position_condition_matrix.json
 4. **Consecutive AQL Failure**: Run update_continuous_fail_column.py before dashboard
+5. **LINE LEADER Expected vs Actual mismatch**:
+   - Check if resigned employees are properly excluded from subordinate count
+   - Verify subordinate mapping in `create_manager_subordinate_mapping()`
+   - Dashboard and calculation script must use same subordinate filtering logic
 
 ### Debugging Dashboard Issues
 ```bash
