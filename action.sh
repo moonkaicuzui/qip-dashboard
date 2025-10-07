@@ -276,7 +276,7 @@ echo -e "${CYAN}  • Compatible with AI tools like Vibe${NC}"
 echo ""
 
 run_step "Step 2: HTML Dashboard generation (V8.01 integrated)" "python3 integrated_dashboard_final.py --month $MONTH_NUM --year $YEAR"
-DASHBOARD_VERSION="8"
+DASHBOARD_VERSION="8.01"
 
 # Step 3: Data validation (optional)
 echo ""

@@ -729,6 +729,11 @@
       "ko": "전체 접기",
       "en": "Collapse All",
       "vi": "Thu gọn tất cả"
+    },
+    "noIncentive": {
+      "ko": "인센티브 미수령",
+      "en": "No Incentive",
+      "vi": "Không có thưởng"
     }
   },
   "headers": {
@@ -4261,10 +4266,15 @@
     }
   },
   "talentPool": {
-    "sectionTitle": {
+    "title": {
       "ko": "🌟 QIP Talent Pool 특별 인센티브",
       "en": "🌟 QIP Talent Pool Special Incentive",
-      "vi": "🌟 Khen thưởng đặc biệt QIP Talent Pool"
+      "vi": "🌟 Khuyến khích đặc biệt QIP Talent Pool"
+    },
+    "subtitle": {
+      "ko": "우수한 성과를 보이는 인원들을 대상으로 하는 특별 인센티브 프로그램입니다",
+      "en": "Special incentive program for personnel showing excellent performance",
+      "vi": "Chương trình khuyến khích đặc biệt cho nhân viên có thành tích xuất sắc"
     },
     "memberCount": {
       "ko": "Talent Pool 인원",
@@ -4276,50 +4286,140 @@
       "en": "Monthly Bonus Amount",
       "vi": "Số tiền thưởng hàng tháng"
     },
-    "totalBonus": {
-      "ko": "총 보너스 지급액",
-      "en": "Total Bonus Payment",
-      "vi": "Tổng tiền thưởng chi trả"
+    "totalBenefit": {
+      "ko": "6개월 총 혜택 예정",
+      "en": "Total Benefit Expected (6 months)",
+      "vi": "Tổng lợi ích dự kiến (6 tháng)"
     },
-    "paymentPeriod": {
-      "ko": "지급 기간",
-      "en": "Payment Period",
-      "vi": "Thời gian chi trả"
+    "selectionCriteria": {
+      "ko": "선정 기준",
+      "en": "Selection Criteria",
+      "vi": "Tiêu chí lựa chọn"
     },
-    "membersList": {
-      "ko": "Talent Pool 멤버:",
-      "en": "Talent Pool Members:",
-      "vi": "Thành viên Talent Pool:"
+    "criteria": {
+      "excellence": {
+        "ko": "업무 성과 우수자",
+        "en": "Excellent work performance",
+        "vi": "Thành tích công việc xuất sắc"
+      },
+      "qualityTop": {
+        "ko": "품질 목표 달성률 상위 10%",
+        "en": "Top 10% in quality target achievement",
+        "vi": "Top 10% đạt mục tiêu chất lượng"
+      },
+      "teamwork": {
+        "ko": "팀워크 및 리더십 발휘",
+        "en": "Teamwork and leadership demonstration",
+        "vi": "Thể hiện tinh thần đồng đội và lãnh đạo"
+      },
+      "improvement": {
+        "ko": "지속적인 개선 활동 참여",
+        "en": "Continuous improvement activity participation",
+        "vi": "Tham gia hoạt động cải tiến liên tục"
+      }
     },
-    "special": {
-      "ko": "QIP Talent Pool 특별 보너스",
-      "en": "QIP Talent Pool Special Bonus",
-      "vi": "Thưởng đặc biệt QIP Talent Pool"
+    "benefits": {
+      "title": {
+        "ko": "혜택",
+        "en": "Benefits",
+        "vi": "Quyền lợi"
+      },
+      "monthlyBonus": {
+        "ko": "월 특별 보너스: 150,000 VND",
+        "en": "Monthly Special Bonus: 150,000 VND",
+        "vi": "Thưởng đặc biệt hàng tháng: 150.000 VND"
+      },
+      "totalBonus": {
+        "ko": "총 지급 예정 (6개월): 900,000 VND",
+        "en": "Total Expected (6 months): 900,000 VND",
+        "vi": "Tổng dự kiến (6 tháng): 900.000 VND"
+      }
     },
-    "period": {
-      "ko": "지급 기간",
-      "en": "Payment Period",
-      "vi": "Thời gian chi trả"
+    "process": {
+      "title": {
+        "ko": "평가 프로세스 (6개월 주기)",
+        "en": "Evaluation Process (6-month cycle)",
+        "vi": "Quy trình đánh giá (chu kỳ 6 tháng)"
+      },
+      "step1": {
+        "title": {
+          "ko": "후보자 추천",
+          "en": "Candidate Nomination",
+          "vi": "Đề cử ứng viên"
+        },
+        "description": {
+          "ko": "각 부서에서 우수 인원 추천",
+          "en": "Departments nominate excellent personnel",
+          "vi": "Các phòng ban đề cử nhân viên xuất sắc"
+        }
+      },
+      "step2": {
+        "title": {
+          "ko": "성과 평가",
+          "en": "Performance Evaluation",
+          "vi": "Đánh giá hiệu suất"
+        },
+        "description": {
+          "ko": "최근 3개월간 성과 데이터 분석",
+          "en": "Analyze performance data for recent 3 months",
+          "vi": "Phân tích dữ liệu hiệu suất 3 tháng gần đây"
+        }
+      },
+      "step3": {
+        "title": {
+          "ko": "위원회 심사",
+          "en": "Committee Review",
+          "vi": "Xem xét của ủy ban"
+        },
+        "description": {
+          "ko": "QIP 운영위원회 최종 심사",
+          "en": "QIP Committee final review",
+          "vi": "Xem xét cuối cùng của ủy ban QIP"
+        }
+      },
+      "step4": {
+        "title": {
+          "ko": "최종 선정",
+          "en": "Final Selection",
+          "vi": "Lựa chọn cuối cùng"
+        },
+        "description": {
+          "ko": "Talent Pool 멤버 확정 및 공지",
+          "en": "Confirm and announce Talent Pool members",
+          "vi": "Xác nhận và công bố thành viên Talent Pool"
+        }
+      },
+      "step5": {
+        "title": {
+          "ko": "보너스 지급",
+          "en": "Bonus Payment",
+          "vi": "Chi trả thưởng"
+        },
+        "description": {
+          "ko": "매월 정기 인센티브와 함께 지급",
+          "en": "Paid together with monthly regular incentive",
+          "vi": "Thanh toán cùng với khuyến khích hàng tháng"
+        }
+      },
+      "step6": {
+        "title": {
+          "ko": "재평가",
+          "en": "Re-evaluation",
+          "vi": "Đánh giá lại"
+        },
+        "description": {
+          "ko": "6개월 후 재평가 실시",
+          "en": "Re-evaluation after 6 months",
+          "vi": "Đánh giá lại sau 6 tháng"
+        }
+      }
     },
-    "bonusIncluded": {
-      "ko": "Talent Pool 보너스 포함",
-      "en": "Talent Pool Bonus Included",
-      "vi": "Bao gồm thưởng Talent Pool"
-    },
-    "baseAmount": {
-      "ko": "기본",
-      "en": "Base",
-      "vi": "Cơ bản"
-    },
-    "bonusAmount": {
-      "ko": "보너스",
-      "en": "Bonus",
-      "vi": "Thưởng"
-    },
-    "badgeText": {
-      "ko": "TALENT",
-      "en": "TALENT",
-      "vi": "TALENT"
+    "conditions": {
+      "attendanceOnly": {
+        "ko": "출근 조건만 적용",
+        "en": "Attendance conditions only",
+        "vi": "Chỉ điều kiện chấm công"
+      }
     }
   },
   "talentProgram": {
@@ -5439,9 +5539,9 @@
     },
     "modalTitles": {
       "absentWithoutInform": {
-        "ko": "무단결근 직원 상세",
-        "en": "Absent Employee Details",
-        "vi": "Chi tiết nhân viên vắng mặt"
+        "ko": "무단결근 현황",
+        "en": "Unapproved Absence Status",
+        "vi": "Tình trạng nghỉ không phép"
       },
       "zeroWorkingDays": {
         "ko": "실제 근무일 0일 직원 상세",
@@ -5533,9 +5633,9 @@
       "vi": "Tổng số ngày làm việc"
     },
     "absentWithoutInform": {
-      "ko": "무단결근 ≥3일",
-      "en": "Absent w/o Notice ≥3 days",
-      "vi": "Nghỉ không phép ≥3 ngày"
+      "ko": "무단결근 현황",
+      "en": "Unapproved Absences",
+      "vi": "Nghỉ không phép"
     },
     "zeroWorkingDays": {
       "ko": "실제 근무일 = 0",
