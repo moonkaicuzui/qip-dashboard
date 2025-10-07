@@ -81,7 +81,7 @@ def determine_type_from_position(position):
     """직급에서 Type determination"""
     position_upper = str(position).upper()
     
-    # TYPE-3: New QIP Members (신입 employees)
+    # TYPE-3: New QIP Members (신입 직원)
     if 'NEW QIP MEMBER' in position_upper:
         return 'TYPE-3'
     
@@ -220,16 +220,16 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             print(f"✅ Column mapping completed: {month}_incentive column exists: {f'{month.lower()}_incentive' in df.columns}")
             if f'{month.lower()}_incentive' in df.columns:
                 non_zero = (df[f'{month.lower()}_incentive'] > 0).sum()
-                print(f"   - {month}_incentive employees with non-zero values: {non_zero}employees")
+                print(f"   - {month}_incentive 직원 with non-zero values: {non_zero}직원")
 
             # Type column이 없으면 position에서 determination
             if 'type' not in df.columns and 'position' in df.columns:
                 df['type'] = df['position'].apply(determine_type_from_position)
-                print(f"✅ Type auto-determined (position-based): TYPE-1 {(df['type']=='TYPE-1').sum()}employees, TYPE-2 {(df['type']=='TYPE-2').sum()}employees, TYPE-3 {(df['type']=='TYPE-3').sum()}employees")
+                print(f"✅ Type auto-determined (position-based): TYPE-1 {(df['type']=='TYPE-1').sum()}직원, TYPE-2 {(df['type']=='TYPE-2').sum()}직원, TYPE-3 {(df['type']=='TYPE-3').sum()}직원")
             elif 'type' in df.columns:
                 # Type 통계 출력
                 type_counts = df['type'].value_counts()
-                print(f"✅ Type information loaded: TYPE-1 {type_counts.get('TYPE-1', 0)}employees, TYPE-2 {type_counts.get('TYPE-2', 0)}employees, TYPE-3 {type_counts.get('TYPE-3', 0)}employees")
+                print(f"✅ Type information loaded: TYPE-1 {type_counts.get('TYPE-1', 0)}직원, TYPE-2 {type_counts.get('TYPE-2', 0)}직원, TYPE-3 {type_counts.get('TYPE-3', 0)}직원")
             
             # 필count column 확인 및 default value 설정
             required_columns = ['emp_no', 'name', 'position', 'type', f'{month.lower()}_incentive']
@@ -246,7 +246,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     else:
                         df[col] = ''
             
-            # 조cases column 추가 (default value)
+            # 조건 column 추가 (default value)
             condition_columns = ['condition1', 'condition2', 'condition3', 'condition4',
                                'condition5', 'condition6', 'condition7', 'condition8',
                                'condition9', 'condition10']
@@ -280,8 +280,8 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             # area_consecutive_fail은 Excel에 없으면 default value use
             df['area_consecutive_fail'] = 'NO'  # Excel에 column이 없으므로 default value
 
-            print(f"   - employees with AQL failure records: {(df['aql_failures'] > 0).sum()}employees")
-            print(f"   - 3consecutive months failed: {(df['continuous_fail'] == 'YES').sum()}employees")
+            print(f"   - 직원 with AQL failure records: {(df['aql_failures'] > 0).sum()}직원")
+            print(f"   - 3연속 개월 실패: {(df['continuous_fail'] == 'YES').sum()}직원")
             
             # Single Source of Truth: 5PRS data는 이미 Excel에 포함됨
             # Excel의 data를 그대로 use (by도 CSV load 없음)
@@ -298,8 +298,8 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             else:
                 df['validation_qty'] = 0
 
-            print(f"   - employees with 5PRS inspection data: {(df['validation_qty'] > 0).sum()}employees")
-            print(f"   - 5PRS pass rate >= 95%: {(df['pass_rate'] >= 95).sum()}employees")
+            print(f"   - 직원 with 5PRS inspection data: {(df['validation_qty'] > 0).sum()}직원")
+            print(f"   - 5PRS pass rate >= 95%: {(df['pass_rate'] >= 95).sum()}직원")
             
             # 출근 관련 column - Excel data를 그대로 use (하드코딩 제거)
             # Excel이 단th 진실 소스(Single Source of Truth)
@@ -312,28 +312,28 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     df['출근율_Attendance_Rate_Percent'] = (df['Actual Working Days'] / df['Total Working Days'] * 100).fillna(0)
                     df.loc[df['Total Working Days'] == 0, '출근율_Attendance_Rate_Percent'] = 0
                 else:
-                    df['출근율_Attendance_Rate_Percent'] = 0  # data 없음을 employees시적으로 표시
+                    df['출근율_Attendance_Rate_Percent'] = 0  # data 없음을 직원시적으로 표시
             # Check for column variations and normalize
             if 'actual_working_days' not in df.columns:
                 if 'Actual Working Days' in df.columns:
                     df['actual_working_days'] = df['Actual Working Days']
                 else:
                     missing_columns.append('actual_working_days')
-                    df['actual_working_days'] = 0  # data 없음을 employees시적으로 표시
+                    df['actual_working_days'] = 0  # data 없음을 직원시적으로 표시
 
             if 'unapproved_absences' not in df.columns:
                 if 'Unapproved Absences' in df.columns:
                     df['unapproved_absences'] = df['Unapproved Absences']
                 else:
                     missing_columns.append('unapproved_absences')
-                    df['unapproved_absences'] = 0  # data 없음을 employees시적으로 표시
+                    df['unapproved_absences'] = 0  # data 없음을 직원시적으로 표시
 
             if 'absence_rate' not in df.columns:
                 if '결근율_Absence_Rate_Percent' in df.columns:
                     df['absence_rate'] = df['결근율_Absence_Rate_Percent']
                 else:
                     missing_columns.append('absence_rate')
-                    df['absence_rate'] = 0  # data 없음을 employees시적으로 표시
+                    df['absence_rate'] = 0  # data 없음을 직원시적으로 표시
 
             # Previous_Incentive column 매핑 추가
             if 'previous_incentive' not in df.columns:
@@ -373,14 +373,14 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
 
             print(f"✅ Previous month calculation: {month} → {prev_month_name}")
             
-            # 모든 employees의 July incentive는 JSON 설정 file에서 load
+            # 모든 직원의 July incentive는 JSON 설정 file에서 load
             july_incentive_data = {}
-            if month.lower() == 'august' and os.path.exists("config_files/july_incentive_all_employees.json"):
+            if month.lower() == 'august' and os.path.exists("config_files/july_incentive_all_직원.json"):
                 try:
-                    with open("config_files/july_incentive_all_employees.json", 'r', encoding='utf-8') as f:
+                    with open("config_files/july_incentive_all_직원.json", 'r', encoding='utf-8') as f:
                         july_data = json.load(f)
-                        # JSON에서 모든 employees의 July incentive 정보 추출
-                        for emp_id, emp_info in july_data.get('employees', {}).items():
+                        # JSON에서 모든 직원의 July incentive 정보 추출
+                        for emp_id, emp_info in july_data.get('직원', {}).items():
                             july_incentive_data[emp_id] = emp_info.get('july_incentive', 0)
                         print(f"✅ July Incentive JSON configuration loaded: {len(july_incentive_data)}employee data")
                 except Exception as e:
@@ -394,10 +394,10 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 df[f'{prev_month_name}_incentive'] = df['previous_incentive'].fillna(0).astype(str)
                 print(f"✅ Using Previous_Incentive column from Excel (Single Source of Truth)")
 
-                # actual data가 있는 employees count 확인
+                # actual data가 있는 직원 count 확인
                 non_zero_count = (pd.to_numeric(df['previous_incentive'], errors='coerce') > 0).sum()
                 total_amount = pd.to_numeric(df['previous_incentive'], errors='coerce').sum()
-                print(f"   - {prev_month_name} incentive: {non_zero_count}employees, total {total_amount:,.0f} VND")
+                print(f"   - {prev_month_name} incentive: {non_zero_count}직원, total {total_amount:,.0f} VND")
             else:
                 # Previous_Incentive column이 없는 경우 (이전 version Excel)
                 print(f"⚠️ Previous_Incentive column not found in Excel.")
@@ -407,7 +407,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             df['june_incentive'] = df.get('june_incentive', '0')
             df['july_incentive'] = df.get('july_incentive', '0')
             
-            # 모든 employees의 July incentive를 JSON 설정에서 덮어쓰기
+            # 모든 직원의 July incentive를 JSON 설정에서 덮어쓰기
             if july_incentive_data and month.lower() == 'august':
                 updated_count = 0
                 for idx, row in df.iterrows():
@@ -415,9 +415,9 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                     if emp_id in july_incentive_data:
                         df.at[idx, 'july_incentive'] = str(july_incentive_data[emp_id])
                         updated_count += 1
-                print(f"✅ July incentive JSON configuration applied successfully: {updated_count}employees updated")
+                print(f"✅ July incentive JSON configuration applied successfully: {updated_count}직원 updated")
             
-            # 입사th 및 퇴사th 필터링 (corresponding month based on)
+            # 입사th 및 퇴사th 필터링 (corresponding month 기준)
             print(f"✅ Filtering employee data...")
 
             # corresponding month의 날짜 range calculation
@@ -426,21 +426,21 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             month_num = month_names.index(month.lower()) + 1
             month_start = pd.to_datetime(f'{year}-{month_num:02d}-01')
 
-            # 다음 달 1th calculation (month말 calculation용)
+            # 다음 달 1일 calculation (month말 calculation용)
             import calendar
             last_day = calendar.monthrange(year, month_num)[1]
             month_end = pd.to_datetime(f'{year}-{month_num:02d}-{last_day}')
 
             initial_count = len(df)
 
-            # 1. 퇴사th 필터링 (corresponding month 1th resigned before 제외)
+            # 1. 퇴사th 필터링 (corresponding month 1일 resigned before 제외)
             if 'Stop working Date' in df.columns:
                 df['resignation_date'] = pd.to_datetime(df['Stop working Date'], errors='coerce')
                 before_month = df[df['resignation_date'] < month_start]
                 df = df[(df['resignation_date'] >= month_start) | (df['resignation_date'].isna())]
 
                 if len(before_month) > 0:
-                    print(f"   - {get_korean_month(month)} resigned before {len(before_month)}employees excluded")
+                    print(f"   - {get_korean_month(month)} resigned before {len(before_month)}직원 excluded")
 
             # 2. 입사th 필터링 (corresponding month 이후 입사자 제외)
             if 'Entrance Date' in df.columns:
@@ -449,9 +449,9 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 df = df[(df['entrance_date'] <= month_end) | (df['entrance_date'].isna())]
 
                 if len(after_month) > 0:
-                    print(f"   - {get_korean_month(month)} future hires after {len(after_month)}employees excluded")
+                    print(f"   - {get_korean_month(month)} future hires after {len(after_month)}직원 excluded")
 
-            print(f"   - {get_korean_month(month)} incentive eligible: {len(df)}employees (total {initial_count}out of)")
+            print(f"   - {get_korean_month(month)} incentive eligible: {len(df)}직원 (total {initial_count}out of)")
             
             print(f"✅ {len(df)}명 직원 데이터 로드 완료 ({get_korean_month(month)} 기준)")
             return df
@@ -460,7 +460,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
     return pd.DataFrame()
 
 def load_condition_matrix():
-    """조cases 매트릭스 JSON file load"""
+    """조건 매트릭스 JSON file load"""
     try:
         with open('config_files/position_condition_matrix.json', 'r', encoding='utf-8') as f:
             return json.load(f)
@@ -478,10 +478,10 @@ def load_area_mapping():
         return None
 
 def get_applicable_conditions(position, type_name, condition_matrix):
-    """직급과 type에 따른 apply 조cases fetch"""
+    """직급과 type에 따른 apply 조건 fetch"""
     if not condition_matrix:
         # default value
-        return [1, 2, 3, 4]  # 출근 조cases만
+        return [1, 2, 3, 4]  # 출근 조건만
     
     position_upper = str(position).upper()
     type_matrix = condition_matrix.get('position_matrix', {}).get(type_name, {})
@@ -499,24 +499,24 @@ def get_applicable_conditions(position, type_name, condition_matrix):
     return type_matrix.get('default', {}).get('applicable_conditions', [1, 2, 3, 4])
 
 def evaluate_conditions(emp_data, condition_matrix):
-    """employees data에 대한 조cases 평가 - Excel data 우선 use"""
+    """직원 data에 대한 조건 평가 - Excel data 우선 use"""
     if not condition_matrix:
         return []
 
     conditions = condition_matrix.get('conditions', {})
     type_name = emp_data.get('type', 'TYPE-2')
 
-    # TYPE-3: 모든 조cases N/A
+    # TYPE-3: 모든 조건 N/A
     if type_name == 'TYPE-3':
-        return [create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조cases {cond_id}'))
+        return [create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'))
                 for cond_id in range(1, 11)]
 
     results = []
 
-    # corresponding 직급/type에 apply되는 조cases 목록 fetch (CRITICAL FIX)
+    # corresponding 직급/type에 apply되는 조건 목록 fetch (CRITICAL FIX)
     applicable = get_applicable_conditions(emp_data.get('position', ''), type_name, condition_matrix)
 
-    # Excel에서 조cases 결과 fetch (있으면 use, 없으면 자체 calculation)
+    # Excel에서 조건 결과 fetch (있으면 use, 없으면 자체 calculation)
     condition_names = [
         '출근율_Attendance_Rate_Percent', 'unapproved_absence', 'actual_working_days', 'minimum_days',
         'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
@@ -526,13 +526,13 @@ def evaluate_conditions(emp_data, condition_matrix):
     for cond_id in range(1, 11):
         cond_col = f'cond_{cond_id}_{condition_names[cond_id-1]}'
 
-        # 먼저 apply available 조cases인지 확인 (CRITICAL FIX)
+        # 먼저 apply available 조건인지 확인 (CRITICAL FIX)
         if cond_id not in applicable:
-            # excluded_conditions에 있는 조cases은 Excel 결과와 관계without N/A
-            results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조cases {cond_id}')))
+            # excluded_conditions에 있는 조건은 Excel 결과와 관계without N/A
+            results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
             continue
 
-        # Excel에 조cases 평가 결과가 있으면 use
+        # Excel에 조건 평가 결과가 있으면 use
         if cond_col in emp_data:
             excel_result = emp_data.get(cond_col, 'N/A')
             value_col = f'cond_{cond_id}_value'
@@ -570,9 +570,9 @@ def evaluate_conditions(emp_data, condition_matrix):
                             value = str(raw_value)
 
             # CRITICAL FIX: Excel의 값이 숫자만 있고 단위가 없는 경우 단위 추가
-            # 예: "0.0" → "0.0%", "3" → "3th", "400" → "400족"
+            # 예: "0.0" → "0.0%", "3" → "3일", "400" → "400족"
             elif cond_id in [1, 2, 3, 4, 5, 8, 9, 10]:
-                # 조cases 6, 7은 제외 (PASS/NO/YES 등 상태값)
+                # 조건 6, 7은 제외 (PASS/NO/YES 등 상태값)
                 unit_map = {
                     1: '%', 2: 'th', 3: 'th', 4: 'th', 5: 'cases',
                     8: '%', 9: '%', 10: '족'
@@ -599,7 +599,7 @@ def evaluate_conditions(emp_data, condition_matrix):
                     pass
 
             if excel_result == 'PASS':
-                # 조casesby로 적절한 표시 값 설정
+                # 조건by로 적절한 표시 값 설정
                 if cond_id == 7:  # 팀/구역 AQL
                     actual_display = '[PASS]' if value == 'NO' or value is None or value == '' else str(value)
                 elif cond_id == 6:  # 연속 failed
@@ -610,13 +610,13 @@ def evaluate_conditions(emp_data, condition_matrix):
 
                 results.append({
                     'id': cond_id,
-                    'name': conditions.get(str(cond_id), {}).get('description', f'조cases {cond_id}'),
+                    'name': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
                     'is_met': True,
                     'actual': actual_display,
                     'is_na': False
                 })
             elif excel_result == 'FAIL':
-                # 조casesby로 적절한 표시 값 설정
+                # 조건by로 적절한 표시 값 설정
                 if cond_id == 7:  # 팀/구역 AQL
                     if value == 'YES':
                         actual_display = '[CONSECUTIVE_FAIL]'
@@ -632,18 +632,18 @@ def evaluate_conditions(emp_data, condition_matrix):
 
                 results.append({
                     'id': cond_id,
-                    'name': conditions.get(str(cond_id), {}).get('description', f'조cases {cond_id}'),
+                    'name': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
                     'is_met': False,
                     'actual': actual_display,
                     'is_na': False
                 })
             else:  # N/A
-                results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조cases {cond_id}')))
+                results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
         else:
             # Excel에 없으면 existing 자체 calculation logic use (fallback)
             # applicable은 이미 Line 517에서 가져옴
 
-            # 조cases 평가 함count 매핑 (existing logic 유지)
+            # 조건 평가 함count 매핑 (existing logic 유지)
             evaluators = {
                 1: lambda d: (d.get('출근율_Attendance_Rate_Percent', 0) >= 88, f"{d.get('출근율_Attendance_Rate_Percent', 0):.1f}%"),
                 2: lambda d: (d.get('unapproved_absences', 0) <= 2, f"{d.get('unapproved_absences', 0)}th"),
@@ -661,7 +661,7 @@ def evaluate_conditions(emp_data, condition_matrix):
             is_met, actual = evaluators[cond_id](emp_data)
             results.append({
                 'id': cond_id,
-                'name': conditions.get(str(cond_id), {}).get('description', f'조cases {cond_id}'),
+                'name': conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}'),
                 'is_met': is_met,
                 'actual': actual,
                 'is_na': False
@@ -680,7 +680,7 @@ def create_na_result(cond_id, cond_name):
     }
 
 def evaluate_area_reject(emp_data):
-    """조cases 8 평가 헬퍼"""
+    """조건 8 평가 헬퍼"""
     rate = float(emp_data.get('area_reject_rate', 0))
     if rate > 0:
         return rate < 3.0, f"{rate:.1f}%"
@@ -715,14 +715,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             all_po_df = aql_df.copy()
 
             # Buildingby 검사 casescount 및 inspectors 통계 calculation
-            aql_file_stats = {}  # 검사 casescount based on 통계 (Table 1용)
+            aql_file_stats = {}  # 검사 casescount 기준 통계 (Table 1용)
 
             for building in ['A', 'B', 'C', 'D']:
                 building_df = all_po_df[all_po_df['BUILDING'] == building]
                 if len(building_df) == 0:
                     continue
 
-                # Table 1: 검사 casescount based on 통계
+                # Table 1: 검사 casescount 기준 통계
                 total_tests = len(building_df)
                 pass_count = len(building_df[building_df['RESULT'] == 'PASS'])
                 fail_count = total_tests - pass_count
@@ -735,7 +735,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     'rejectRate': round(test_reject_rate, 1)
                 }
 
-                # Table 2: inspectors 인원 based on 통계
+                # Table 2: inspectors 인원 기준 통계
                 inspector_results = {}
                 for emp_no in building_df['EMPLOYEE NO'].unique():
                     emp_tests = building_df[building_df['EMPLOYEE NO'] == emp_no]
@@ -755,7 +755,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     'totalTests': total_tests
                 }
 
-            # total 통계 (검사 casescount based on)
+            # total 통계 (검사 casescount 기준)
             total_tests_all = len(all_po_df)
             pass_count_all = len(all_po_df[all_po_df['RESULT'] == 'PASS'])
             fail_count_all = total_tests_all - pass_count_all
@@ -768,7 +768,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 'rejectRate': round(test_reject_rate_all, 1)
             }
 
-            # total 통계 (inspectors 인원 based on)
+            # total 통계 (inspectors 인원 기준)
             all_inspector_results = {}
             for emp_no in all_po_df['EMPLOYEE NO'].unique():
                 emp_tests = all_po_df[all_po_df['EMPLOYEE NO'] == emp_no]
@@ -788,9 +788,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 'totalTests': total_tests_all
             }
 
-            print(f"✅ Inspector statistics calculation from AQL file completed: {total_all}employees (with Rejects {reject_all}employees), {total_tests_all}cases")
+            print(f"✅ Inspector statistics calculation from AQL file completed: {total_all}직원 (with Rejects {reject_all}직원), {total_tests_all}cases")
             print(f"   - Inspection count Reject Rate: {test_reject_rate_all:.1f}% (Fail {fail_count_all}/{total_tests_all})")
-            print(f"   - Inspector headcount Reject Rate: {reject_rate_all:.1f}% (with Rejects {reject_all}/{total_all}employees)")
+            print(f"   - Inspector headcount Reject Rate: {reject_rate_all:.1f}% (with Rejects {reject_all}/{total_all}직원)")
         else:
             print(f"⚠️ AQL file not found: {aql_file}")
     except Exception as e:
@@ -819,7 +819,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     prev_month_name = month_names[current_month_num - 1] if current_month_num > 0 else 'december'
     prev_year = year if current_month_num > 0 else year - 1
 
-    # 조cases 매트릭스 load
+    # 조건 매트릭스 load
     condition_matrix = load_condition_matrix()
 
     # metadata file load
@@ -850,20 +850,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 lambda x: str(int(float(x))) if pd.notna(x) and x != '' and x != 0 else ''
             )
 
-            print(f"✅ Basic manpower data loaded successfully: {len(basic_df)} employees")
+            print(f"✅ Basic manpower data loaded successfully: {len(basic_df)} 직원")
         except Exception as e:
             print(f"⚠️ Basic manpower data load failed: {e}")
 
     # data 준비
     # Single Source of Truth를 위해 excel_dashboard_data를 use (df 대신)
     if excel_dashboard_data and 'employee_data' in excel_dashboard_data:
-        # from excel_dashboard_data directly employees creation
-        employees = []
+        # from excel_dashboard_data directly 직원 creation
+        직원 = []
         # 퇴사th 필터링을 위한 month startth 설정
         month_start = datetime(year, month_num, 1)
 
         for emp_data in excel_dashboard_data['employee_data']:
-            # 퇴사th 필터링 (corresponding month 1th resigned before 제외)
+            # 퇴사th 필터링 (corresponding month 1일 resigned before 제외)
             if 'Stop working Date' in emp_data and emp_data['Stop working Date']:
                 try:
                     resignation_date = pd.to_datetime(emp_data['Stop working Date'], errors='coerce')
@@ -873,7 +873,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 except:
                     pass  # 날짜 conversion failed 시 포함
 
-            # 필드employees 매핑 (excel_dashboard_data는 CSV columnemployees use)
+            # 필드직원 매핑 (excel_dashboard_data는 CSV column직원 use)
             emp = emp_data.copy()
             # type 필드 추가 (ROLE TYPE STD에서 가져옴)
             emp['type'] = emp.get('ROLE TYPE STD', 'TYPE-2')
@@ -910,11 +910,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             # CRITICAL FIX: condition_results 추가
             emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
 
-            employees.append(emp)
-        print(f"✅ Single Source of Truth: from excel_dashboard_data {len(excel_dashboard_data['employee_data'])}out of active employees {len(employees)}employees loaded (resigned {len(excel_dashboard_data['employee_data']) - len(employees)}employees excluded)")
+            직원.append(emp)
+        print(f"✅ Single Source of Truth: from excel_dashboard_data {len(excel_dashboard_data['employee_data'])}out of active 직원 {len(직원)}직원 loaded (resigned {len(excel_dashboard_data['employee_data']) - len(직원)}직원 excluded)")
     else:
         # Fallback: existing 방식 (df use)
-        employees = []
+        직원 = []
         for _, row in df.iterrows():
             # Convert Series to dict
             row_dict = row.to_dict()
@@ -941,18 +941,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp = {
             'emp_no': emp_no,
             'employee_no': emp_no,  # JavaScript 호환성을 위한 중복 필드
-            'Employee No': emp_no,  # CSV columnemployees과 th치
+            'Employee No': emp_no,  # CSV column직원과 th치
             'name': str(row_dict.get('name', '')),
             'full_name': str(row_dict.get('name', '')),  # JavaScript 호환성을 위한 중복 필드
-            'Full Name': str(row_dict.get('name', '')),  # CSV columnemployees과 th치
+            'Full Name': str(row_dict.get('name', '')),  # CSV column직원과 th치
             'position': str(row_dict.get('position', '')),
             'qip_position': str(row_dict.get('position', '')),  # JavaScript 호환성을 위한 중복 필드
-            'QIP POSITION 1ST  NAME': str(row_dict.get('position', '')),  # CSV columnemployees과 th치
+            'QIP POSITION 1ST  NAME': str(row_dict.get('position', '')),  # CSV column직원과 th치
             'type': str(row_dict.get('type', 'TYPE-2')),
             'boss_id': boss_id,  # Basic manpower에서 가져온 상사 ID
             'boss_name': boss_name,  # Basic manpower에서 가져온 상사 이름
-            'MST direct boss name': boss_id,  # JavaScript에서 찾는 Excel columnemployees
-            'direct boss name': boss_name,  # JavaScript에서 찾는 Excel columnemployees
+            'MST direct boss name': boss_id,  # JavaScript에서 찾는 Excel column직원
+            'direct boss name': boss_name,  # JavaScript에서 찾는 Excel column직원
             # 동적 month incentive 매핑
             f'{month.lower()}_incentive': str(row_dict.get(f'{month.lower()}_incentive', '0')),  # 현재 month incentive
             f'{prev_month_name.lower()}_incentive': str(row_dict.get(f'{prev_month_name.lower()}_incentive', '0')),  # Previous month incentive
@@ -981,7 +981,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             'Talent_Pool_Bonus': int(row_dict.get('Talent_Pool_Bonus', 0))
         }
 
-        # 조cases 관련 column 추가 (cond_1 ~ cond_10)
+        # 조건 관련 column 추가 (cond_1 ~ cond_10)
         for cond_id in range(1, 11):
             condition_names = [
                 '출근율_Attendance_Rate_Percent', 'unapproved_absence', 'actual_working_days', 'minimum_days',
@@ -992,7 +992,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             value_col = f'cond_{cond_id}_value'
             threshold_col = f'cond_{cond_id}_threshold'
 
-            # CSV에서 조cases 평가 결과와 값 fetch
+            # CSV에서 조건 평가 결과와 값 fetch
             if cond_col in row_dict:
                 emp[cond_col] = row_dict[cond_col]
             if value_col in row_dict:
@@ -1008,22 +1008,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     if 'area_reject_rate' in emp_metadata['conditions']['aql']:
                         emp['area_reject_rate'] = float(emp_metadata['conditions']['aql']['area_reject_rate'].get('value', 0))
 
-            # 조cases 평가 결과 추가
+            # 조건 평가 결과 추가
             emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
 
-            # failed 사유 표시를 위한 조cases 필드 추가 - CSV에서 directly fetch
+            # failed 사유 표시를 위한 조건 필드 추가 - CSV에서 directly fetch
             emp['attendancy condition 1 - acctual working days is zero'] = str(row_dict.get('attendancy condition 1 - acctual working days is zero', 'no'))
             emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] = str(row_dict.get('attendancy condition 2 - unapproved Absence Day is more than 2 days', 'no'))
             emp['attendancy condition 3 - absent % is over 12%'] = str(row_dict.get('attendancy condition 3 - absent % is over 12%', 'no'))
             emp['attendancy condition 4 - minimum working days'] = str(row_dict.get('attendancy condition 4 - minimum working days', 'no'))
 
-            # AQL 조cases 필드 추가
+            # AQL 조건 필드 추가
             emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
             emp['September AQL Failures'] = int(row_dict.get('September AQL Failures', row_dict.get('aql_failures', 0)))
             emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
             emp['Consecutive_Fail_Months'] = int(row_dict.get('Consecutive_Fail_Months', 0))
 
-            # 5PRS 조cases 필드 추가
+            # 5PRS 조건 필드 추가
             emp['5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%'] = str(row_dict.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%', 'yes'))
             emp['5prs condition 2 - Total Valiation Qty is zero'] = str(row_dict.get('5prs condition 2 - Total Valiation Qty is zero', 'no'))
 
@@ -1040,19 +1040,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp['AQL_Pass_Count'] = int(row_dict.get('AQL_Pass_Count', 0))
             emp['AQL_Fail_Percent'] = float(row_dict.get('AQL_Fail_Percent', 0))
 
-            employees.append(emp)
+            직원.append(emp)
     
     # 통계 calculation
-    total_employees = len(employees)
+    total_직원 = len(직원)
     # 현재 month incentive 필드 이름
     current_month_field = f'{month.lower()}_incentive'
-    paid_employees = sum(1 for e in employees if int(float(e.get(current_month_field, '0') or '0')) > 0)
-    total_amount = sum(int(float(e.get(current_month_field, '0') or '0')) for e in employees)
-    payment_rate = (paid_employees / total_employees * 100) if total_employees > 0 else 0
+    paid_직원 = sum(1 for e in 직원 if int(float(e.get(current_month_field, '0') or '0')) > 0)
+    total_amount = sum(int(float(e.get(current_month_field, '0') or '0')) for e in 직원)
+    지급_rate = (paid_직원 / total_직원 * 100) if total_직원 > 0 else 0
     
     # Typeby 통계
     type_stats = {}
-    for emp in employees:
+    for emp in 직원:
         emp_type = emp['type']
         if emp_type not in type_stats:
             type_stats[emp_type] = {
@@ -1068,7 +1068,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             type_stats[emp_type]['amount'] += amount
             type_stats[emp_type]['paid_amounts'].append(amount)
     
-    # employees data JSON - NaN 값을 null로 conversion
+    # 직원 data JSON - NaN 값을 null로 conversion
     import math
     def convert_nan(obj):
         """Convert NaN values to null for JSON"""
@@ -1085,7 +1085,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         return obj
 
     # Clean up field names with double spaces
-    for emp in employees:
+    for emp in 직원:
         # Create new dict with cleaned keys
         cleaned_emp = {}
         for key, value in emp.items():
@@ -1096,22 +1096,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         emp.clear()
         emp.update(cleaned_emp)
 
-    employees_clean = convert_nan(employees)
+    직원_clean = convert_nan(직원)
     # Use base64 encoding for safe JavaScript embedding
-    employees_json_str = json.dumps(employees_clean, ensure_ascii=False, separators=(',', ':'))
-    employees_json_base64 = base64.b64encode(employees_json_str.encode('utf-8')).decode('ascii')
+    직원_json_str = json.dumps(직원_clean, ensure_ascii=False, separators=(',', ':'))
+    직원_json_base64 = base64.b64encode(직원_json_str.encode('utf-8')).decode('ascii')
 
     # DEBUG: Print encoding status
-    print(f"🔍 [DEBUG] employees list: {len(employees)}employees")
-    print(f"🔍 [DEBUG] employees_clean list: {len(employees_clean)}employees")
-    print(f"🔍 [DEBUG] JSON string length: {len(employees_json_str)} characters")
-    print(f"🔍 [DEBUG] Base64 encoding length: {len(employees_json_base64)} characters")
+    print(f"🔍 [DEBUG] 직원 list: {len(직원)}직원")
+    print(f"🔍 [DEBUG] 직원_clean list: {len(직원_clean)}직원")
+    print(f"🔍 [DEBUG] JSON string length: {len(직원_json_str)} characters")
+    print(f"🔍 [DEBUG] Base64 encoding length: {len(직원_json_base64)} characters")
 
     # AQL Inspector Stats를 Base64로 encoding
     aql_inspector_stats_str = json.dumps(aql_inspector_stats, ensure_ascii=False, separators=(',', ':'))
     aql_inspector_stats_b64 = base64.b64encode(aql_inspector_stats_str.encode('utf-8')).decode('ascii')
 
-    # AQL File Stats (검사 casescount based on)를 Base64로 encoding
+    # AQL File Stats (검사 casescount 기준)를 Base64로 encoding
     aql_file_stats_str = json.dumps(aql_file_stats if 'aql_file_stats' in locals() else {}, ensure_ascii=False, separators=(',', ':'))
     aql_file_stats_b64 = base64.b64encode(aql_file_stats_str.encode('utf-8')).decode('ascii')
 
@@ -1209,7 +1209,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         incentive_start_str = '01'
         incentive_end_str = f'{month_last_day:02d}'
 
-    # report type 재determination (incentive data 기간의 last 날 based on)
+    # report type 재determination (incentive data 기간의 last 날 기준)
     try:
         incentive_end_day = int(incentive_end_str)
         is_interim_report = incentive_end_day < 20
@@ -1219,7 +1219,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         print(f"📊 Report type determination: data last day={incentive_end_day}th → {'interim report' if is_interim_report else 'final report'}")
     except ValueError:
         print(f"⚠️ incentive endth conversion failed, existing logic use: {incentive_end_str}")
-        pass  # existing 값 유지 (current_day based on)
+        pass  # existing 값 유지 (current_day 기준)
 
     # JavaScript용 번역 data creation
     translations_js = json.dumps(TRANSLATIONS, ensure_ascii=False, indent=2)
@@ -1251,14 +1251,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     # 모달 함count들 추가 (template 방식으로 정의)
     modal_scripts = """
     function showTotalWorkingDaysDetails() {
-        /* Excel data에서 actual workth 정보 fetch (Single Source of Truth) */
+        /* Excel data에서 actual 근무일 정보 fetch (Single Source of Truth) */
         let workDays = [];
         let holidays = [];
         let totalWorkingDays = __WORKING_DAYS__; /* Config에서 가져온 actual 값 */
-        const daysInMonth = 30; /* 9month은 30th까지 */
+        const daysInMonth = 30; /* 9month은 30일까지 */
 
         if (window.excelDashboardData && window.excelDashboardData.attendance) {
-            /* actual 출근 data에서 workth과 휴th 추출 */
+            /* actual 출근 data에서 근무일과 휴th 추출 */
             const dailyData = window.excelDashboardData.attendance.daily_data;
             totalWorkingDays = window.excelDashboardData.attendance.total_working_days;
 
@@ -1275,11 +1275,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     holidays.push(day);
                 }
             }
-            console.log('actual workth:', workDays);
+            console.log('actual 근무일:', workDays);
             console.log('휴th/data없음:', holidays);
-            console.log('total workthcount:', totalWorkingDays);
+            console.log('total 근무일count:', totalWorkingDays);
         } else {
-            /* Fallback: 기본 workth data use */
+            /* Fallback: 기본 근무일 data use */
             console.warn('Excel dashboard data가 not found. default value use.');
             workDays = [2,3,4,5,6,9,10,11,12,13,16,17,18,19,20,23,24,25,26,27,30];
             holidays = [1,7,8,14,15,21,22,28,29];
@@ -1438,13 +1438,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // Excel data use (Single Source of Truth)
         let zeroWorkingEmployees = [];
 
-        if (window.excelDashboardData && window.excelDashboardData.modal_data && window.excelDashboardData.modal_data.zero_working_days_employees) {
+        if (window.excelDashboardData && window.excelDashboardData.modal_data && window.excelDashboardData.modal_data.zero_working_days_직원) {
             // Excel에서 이미 필터링된 data use
-            zeroWorkingEmployees = window.excelDashboardData.modal_data.zero_working_days_employees;
+            zeroWorkingEmployees = window.excelDashboardData.modal_data.zero_working_days_직원;
         } else if (window.employeeData) {
             // Fallback to employeeData (TYPE-3 제외)
             zeroWorkingEmployees = window.employeeData.filter(emp => {
-                // TYPE-3 제외 (incentive target 아님)
+                // TYPE-3 제외 (incentive 대상 아님)
                 if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {
                     return false;
                 }
@@ -1530,11 +1530,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // Excel에서 가져온 필드 use (Single Source of Truth)
                     const actualDays = emp['Actual Working Days'] || 0;
 
-                    // 출결 data file based on Total Days calculation
+                    // 출결 data file 기준 Total Days calculation
                     const empNo = String(emp['Employee No'] || '').padStart(9, '0');
                     let totalDays = 0;  // default value: 출결 data 없음
 
-                    // attendance raw data에서 corresponding employees의 unique 날짜 count calculation
+                    // attendance raw data에서 corresponding 직원의 unique 날짜 count calculation
                     if (window.attendanceRawData && window.attendanceRawData[empNo]) {
                         totalDays = window.attendanceRawData[empNo].uniqueDates || 0;
                     }
@@ -1678,8 +1678,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     function showAbsentWithoutInformDetails() {
         let absentEmployees = window.employeeData.filter(emp => {
             const unapproved = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
-            // Filter > 2 days to match KPI card "무단결근 3일 이상"
-            return unapproved > 2;
+            // Filter >= 1 day to show all unapproved absences
+            return unapproved >= 1;
         });
 
         // 정렬 상태 관리
@@ -1755,16 +1755,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const remark = emp['RE MARK'] || '-';  // Fixed: no trailing space (normalized)
 
                 // 상태 및 스타th
-                let statusLabel, statusClass;
-                if (days > 2) {
+                let statusLabel, statusClass, daysBadgeClass;
+                if (days >= 3) {
                     statusLabel = getTranslation('validationTab.status.excluded', lang);
                     statusClass = 'bg-danger';
+                    daysBadgeClass = 'bg-danger';
                 } else if (days === 2) {
                     statusLabel = getTranslation('validationTab.status.warning', lang);
                     statusClass = 'bg-warning text-dark';
+                    daysBadgeClass = 'bg-warning text-dark';
                 } else {
                     statusLabel = getTranslation('validationTab.status.caution', lang);
                     statusClass = 'bg-info';
+                    daysBadgeClass = 'bg-info';
                 }
 
                 // 임신 휴가 번역
@@ -1780,7 +1783,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
                         <td class="unified-table-cell">${position}</td>
                         <td class="unified-table-cell text-center">
-                            <span class="badge bg-danger">${days}</span>
+                            <span class="badge ${daysBadgeClass}">${days}</span>
                         </td>
                         <td class="unified-table-cell text-center">
                             <span class="badge ${statusClass}">${statusLabel}</span>
@@ -1802,7 +1805,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const total = absentEmployees.length;
         const excluded = absentEmployees.filter(emp => {
             const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
-            return days > 2;
+            return days >= 3;
         }).length;
         const warning = absentEmployees.filter(emp => {
             const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
@@ -1936,7 +1939,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // C4 조건 사용 (Single Source of Truth)
         let notMetEmployees = window.employeeData.filter(emp => {
-            // TYPE-3 제외 (incentive target 아님)
+            // TYPE-3 제외 (incentive 대상 아님)
             if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {
                 return false;
             }
@@ -2002,7 +2005,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const shortage = minimumRequired - actualDays;
                 const percentage = (actualDays / minimumRequired * 100).toFixed(1);
 
-                // 더 employees확한 색상 구분
+                // 더 직원확한 색상 구분
                 let progressColor = 'danger';
                 let textColor = 'text-white';
                 if (percentage >= 75) {
@@ -2168,9 +2171,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     }
 
     function showAttendanceBelow88Details() {
-        // 출근율 88% 미만 employees 필터링 (TYPE-3 제외)
+        // 출근율 88% 미만 직원 필터링 (TYPE-3 제외)
         let below88Employees = window.employeeData.filter(emp => {
-            // TYPE-3 제외 (incentive target 아님)
+            // TYPE-3 제외 (incentive 대상 아님)
             if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {
                 return false;
             }
@@ -2282,7 +2285,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }
                 }
 
-                // 출근율에 따른 색상과 텍스트 색상 - 더 employees확한 구분
+                // 출근율에 따른 색상과 텍스트 색상 - 더 직원확한 구분
                 let badgeClass = 'bg-danger';
                 let textColor = 'text-white';
                 let customStyle = '';
@@ -2427,13 +2430,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 모달 표시
         bsModal.show();
 
-        // 백드롭 클릭 이벤트 employees시적 처리 (출근율 모달)
+        // 백드롭 클릭 이벤트 직원시적 처리 (출근율 모달)
         setTimeout(() => {
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) {
                 backdrop.style.cursor = 'pointer';
                 backdrop.addEventListener('click', function(e) {
-                    if (e.target === backdrop) {
+                    if (e.대상 === backdrop) {
                         bsModal.hide();
                     }
                 });
@@ -2453,7 +2456,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                          (typeof currentLanguage !== 'undefined' ? currentLanguage : null) ||
                          'ko';
 
-        // 3consecutive months failed자와 2consecutive months failed자 분리
+        // 3연속 개월 실패자와 2연속 개월 실패자 분리
         const threeMonthFails = window.employeeData.filter(emp =>
             emp['Continuous_FAIL'] === 'YES_3MONTHS'
         );
@@ -2479,7 +2482,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         modalHTML += '</div>';
         modalHTML += '<div class="modal-body" style="padding: 20px;">';
 
-        // 3consecutive months failed 섹션
+        // 3연속 개월 실패 섹션
         modalHTML += '<div class="section-container" style="margin-bottom: 30px;">';
         modalHTML += '<h3 style="color: #c0392b; margin-bottom: 15px;">🔴 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.threeMonthSection') + '</h3>';
 
@@ -2511,7 +2514,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }
         modalHTML += '</div>';
 
-        // 2consecutive months failed 섹션
+        // 2연속 개월 실패 섹션
         modalHTML += '<div class="section-container">';
         modalHTML += '<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.twoMonthSection') + '</h3>';
 
@@ -2538,7 +2541,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.risk') + '</th>';
             modalHTML += '</tr></thead><tbody>';
 
-            // 8-9month 연속 failed자를 먼저 표시 (높은 위험)
+            // 8-9월 연속 failed자를 먼저 표시 (높은 위험)
             const augSepFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('AUG_SEP'));
             const julAugFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('JUL_AUG'));
 
@@ -2609,7 +2612,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // Add click outside to close functionality
         const modal = document.getElementById('consecutiveAqlFailModal');
         modal.onclick = function(event) {
-            if (event.target === modal) {
+            if (event.대상 === modal) {
                 modal.remove();
                 delete window.switchConsecutiveLang;
             }
@@ -2617,7 +2620,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     }
 
     function showAqlFailDetails() {
-        // AQL FAIL이 있는 employees 필터링
+        // AQL FAIL이 있는 직원 필터링
         let aqlFailEmployees = window.employeeData.filter(emp => {
             const aqlFailures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
             return aqlFailures > 0;
@@ -3030,7 +3033,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </div>
                             </div>
 
-                            <h6 class="mb-3"><i class="fas fa-list me-2"></i>employeesby AQL FAIL 상세</h6>
+                            <h6 class="mb-3"><i class="fas fa-list me-2"></i>직원by AQL FAIL 상세</h6>
 
                             <table class="table table-hover" id="aqlFailEmployeeTable">
                                 <thead class="unified-table-header">
@@ -3142,17 +3145,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         createAqlFailModal();
     }
 
-    // Area AQL Reject Rate 상세 모달 (조cases 7번, 8번 구분 표시)
+    // Area AQL Reject Rate 상세 모달 (조건 7번, 8번 구분 표시)
     function showAreaRejectRateDetails() {
         // ========================================================================
         // Buildingby AQL 검사 성과 분석 - 3개 테이블 구조
-        // 테이블 1: Buildingby AQL 검사 실적 (AQL file based on - 1,419cases)
-        // 테이블 2: Assembly Inspector 인력 based on 검사 실적 (Employee CSV based on)
+        // 테이블 1: Buildingby AQL 검사 실적 (AQL file 기준 - 1,419cases)
+        // 테이블 2: Assembly Inspector 인력 기준 검사 실적 (Employee CSV 기준)
         // 테이블 3: Auditor/Trainer incentive 현황 (책임 range)
         // ========================================================================
 
         // AQL file data (Python에서 calculation된 actual data use)
-        // Buildingby actual 검사 통계 (검사 casescount based on Reject Rate)
+        // Buildingby actual 검사 통계 (검사 casescount 기준 Reject Rate)
         const aqlFileStats = window.aqlFileStats || {
             // Fallback: window.aqlFileStats가 없는 경우 빈 객체 use
             'Building B': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
@@ -3164,15 +3167,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         console.log('[AQL Modal] Using AQL File Stats:', aqlFileStats);
 
-        // AQL 관련 employees 필터링 함count
+        // AQL 관련 직원 필터링 함count
         function isAqlRelevantEmployee(emp) {
             const aqlTests = parseFloat(emp['AQL_Total_Tests'] || 0);
             const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
 
-            // 조cases 1: actual AQL 검사 count행 (28employees)
+            // 조건 1: actual AQL 검사 count행 (28employees)
             if (aqlTests > 0) return true;
 
-            // 조cases 2: Auditor/Trainer (Area_Reject_Rate > 0인 10employees)
+            // 조건 2: Auditor/Trainer (Area_Reject_Rate > 0인 10명)
             if (areaRate > 0) return true;
 
             // 나머지는 Non-AQL Staff로 제외
@@ -3190,7 +3193,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return 'Building ' + building;
             }
 
-            // 2순위: Area_Reject_Rate로 Auditor/Trainer 분류 (10employees)
+            // 2순위: Area_Reject_Rate로 Auditor/Trainer 분류 (10명)
             if (areaRate > 0) {
                 const rateStr = areaRate.toFixed(2);
 
@@ -3208,30 +3211,30 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return 'Unknown';
         }
 
-        // AQL 관련 employees만 필터링 (38employees: 검사자 28employees + Auditor 10employees)
+        // AQL 관련 직원만 필터링 (38employees: 검사자 28employees + Auditor 10명)
         const aqlRelevantEmployees = window.employeeData.filter(isAqlRelevantEmployee);
 
-        // 조cases 7번: 팀/구역 AQL 3consecutive months failed (AQL 관련 employees 중)
+        // 조건 7번: 팀/구역 AQL 3연속 개월 실패 (AQL 관련 직원 중)
         let cond7FailEmployees = aqlRelevantEmployees.filter(emp => {
             const cond7 = emp['cond_7_aql_team_area'] || 'PASS';
             return cond7 === 'FAIL';
         });
 
-        // 조cases 8번: 구역 reject rate > 3% (AQL 관련 employees 중)
+        // 조건 8번: 구역 reject rate > 3% (AQL 관련 직원 중)
         let cond8FailEmployees = aqlRelevantEmployees.filter(emp => {
             const cond8 = emp['cond_8_area_reject'] || 'PASS';
             const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || 0);
             return cond8 === 'FAIL' || areaRejectRate > 3;
         });
 
-        // 테이블 2: Assembly Inspector 인원 based on 검사 실적 calculation
+        // 테이블 2: Assembly Inspector 인원 기준 검사 실적 calculation
         function calculateInspectorStats() {
-            // Python에서 AQL file based on으로 calculation한 data use
+            // Python에서 AQL file 기준으로 calculation한 data use
             if (window.aqlInspectorStats) {
                 return window.aqlInspectorStats;
             }
 
-            // Fallback: Employee CSV based on calculation (AQL file data가 없는 경우)
+            // Fallback: Employee CSV 기준 calculation (AQL file data가 없는 경우)
             const inspectorStats = {};
 
             // Assembly Inspector만 필터 (AQL_Total_Tests > 0)
@@ -3267,7 +3270,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }
             });
 
-            // 인원 based on Reject Rate calculation
+            // 인원 기준 Reject Rate calculation
             Object.keys(inspectorStats).forEach(area => {
                 const stats = inspectorStats[area];
                 stats.rejectRate = stats.totalInspectors > 0 ?
@@ -3293,7 +3296,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function calculateAuditorStats() {
             const auditorStats = [];
 
-            // Auditor/Trainer 매핑 (JSON file based on) - 개by employees 10employees
+            // Auditor/Trainer 매핑 (JSON file 기준) - 개by 직원 10명
             // 표시 순서대로 정렬 (Building B → D → A → C → All Buildings)
             const auditorMappingOrder = [
                 { empNo: '618060092', name: 'CAO THỊ TỐ NGUYÊN', building: 'Building B', jobTitle: 'Auditor/Trainer' },
@@ -3308,7 +3311,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 { empNo: '620120386', name: 'NGUYỄN NGỌC TUẤN', building: 'All Buildings', jobTitle: 'Model Master' }
             ];
 
-            // 각 employees을 개by 행으로 표시
+            // 각 직원을 개by 행으로 표시
             auditorMappingOrder.forEach(mapping => {
                 const emp = window.employeeData.find(e =>
                     String(e['Employee No']) === mapping.empNo ||
@@ -3325,12 +3328,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         name: mapping.name,
                         building: mapping.building,
                         jobTitle: mapping.jobTitle,
-                        count: 1, // 개by employees이므로 항상 1
+                        count: 1, // 개by 직원이므로 항상 1
                         rejectRate: areaRate.toFixed(1),
                         consecutive: 0,
                         cond7: cond7,
                         cond8: cond8,
-                        incentiveStatus: cond7 && cond8 ? 'payment' : '미payment'
+                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급'
                     });
                 }
             });
@@ -3341,7 +3344,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const inspectorStats = calculateInspectorStats();
         const auditorStats = calculateAuditorStats();
 
-        // 조casesby 미충족 인원 calculation
+        // 조건by 미충족 인원 calculation
         const cond8FailCount = auditorStats.filter(s => !s.cond8).reduce((sum, s) => sum + s.count, 0);
 
         // 번역 텍스트 미리 fetch
@@ -3413,7 +3416,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <p><strong>${t.tableNote}:</strong><br><br>${t.tableNoteDetail}</p>
                 </div>
 
-                <!-- 테이블 1: Buildingby AQL 검사 실적 (AQL file based on - 1,419cases) -->
+                <!-- 테이블 1: Buildingby AQL 검사 실적 (AQL file 기준 - 1,419cases) -->
                 <div class="mb-4">
                     <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>📊 ${t.table1Title}</h6>
                     <p class="text-muted small mb-2">${t.dataSource}: 2025${t.unitYear} 9month ${t.aqlFile} 1,419${t.unitTests} (NORMAL PO)</p>
@@ -3474,7 +3477,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 </div>
 
-                <!-- 테이블 2: Assembly Inspector 인력 based on 검사 실적 -->
+                <!-- 테이블 2: Assembly Inspector 인력 기준 검사 실적 -->
                 <div class="mb-4">
                     <h6 class="mb-3"><i class="fas fa-users me-2"></i>👥 ${t.table2Title}</h6>
                     <p class="text-muted small mb-2">${t.dataSource}: ${t.aqlFile} (${t.total} PO TYPE) - ${t.table2InspectorTitle}</p>
@@ -3555,7 +3558,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </thead>
                             <tbody>
                                 ${auditorStats.map(stats => {
-                                    const isPayment = stats.incentiveStatus === t.paid || stats.incentiveStatus === 'payment';
+                                    const isPayment = stats.incentiveStatus === t.paid || stats.incentiveStatus === '지급';
                                     const badgeClass = isPayment ? 'bg-success' : 'bg-danger';
                                     const cond7Badge = stats.cond7 ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-danger">❌</span>';
                                     const cond8Badge = stats.cond8 ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-danger">❌</span>';
@@ -3631,13 +3634,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         bsModal.show();
 
-        // 백드롭 클릭 이벤트 employees시적 처리 (구역 AQL 모달)
+        // 백드롭 클릭 이벤트 직원시적 처리 (구역 AQL 모달)
         setTimeout(() => {
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) {
                 backdrop.style.cursor = 'pointer';
                 backdrop.addEventListener('click', function(e) {
-                    if (e.target === backdrop) {
+                    if (e.대상 === backdrop) {
                         bsModal.hide();
                     }
                 });
@@ -3920,7 +3923,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <p>${t.totalCount.replace('{count}', lowPassEmployees.length)}</p>
                             </div>
 
-                            <!-- Table 1: All employees with pass rate < 95% -->
+                            <!-- Table 1: All 직원 with pass rate < 95% -->
                             <h6 class="mb-3">${t.table1Title}</h6>
                             <div class="table-responsive mb-4">
                                 <table class="table table-hover">
@@ -4021,7 +4024,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 백드롭 클릭으로 닫기
             backdrop.onclick = function(e) {
-                if (e.target === backdrop) {
+                if (e.대상 === backdrop) {
                     window.closeLowPassRateModal();
                 }
             };
@@ -4047,7 +4050,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     // 5PRS 검사량 < 100족 상세 모달
     function showLowInspectionQtyDetails() {
-        // CRITICAL FIX: 5PRS data file에 actual로 있는 employees만 표시
+        // CRITICAL FIX: 5PRS data file에 actual로 있는 직원만 표시
         // TYPE-1 ASSEMBLY INSPECTOR with inspection qty < 100 필터링
         let lowQtyEmployees = window.employeeData.filter(emp => {
             const isType1 = emp['type'] === 'TYPE-1' || emp['ROLE TYPE STD'] === 'TYPE-1';
@@ -4225,7 +4228,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 백드롭 클릭으로 닫기
             backdrop.onclick = function(e) {
-                if (e.target === backdrop) {
+                if (e.대상 === backdrop) {
                     window.closeLowInspectionQtyModal();
                 }
             };
@@ -4259,7 +4262,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;  /* 중앙 정렬 유지 */
-        position: relative !important;  /* 닫기 버튼 절대 위치 based on */
+        position: relative !important;  /* 닫기 버튼 절대 위치 기준 */
     }
     /* 닫기 버튼을 우측 상단에 절대 위치로 고정 */
     .unified-modal-header .btn-close {
@@ -4785,7 +4788,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             overflow: hidden; /* 모달 배경 스크롤 방지 */
         }}
 
-        /* 최소 workth 모달 가독성 개선 스타th */
+        /* 최소 근무일 모달 가독성 개선 스타th */
         #minimumDaysTable {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         }}
@@ -4871,31 +4874,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             opacity: 0.9;
         }}
         
-        /* payment 상태 스타th */
-        .payment-status {{
+        /* 지급 상태 스타th */
+        .지급-status {{
             padding: 30px;
             border-radius: 10px;
             text-align: center;
             height: 100%;
         }}
         
-        .payment-status.paid {{
+        .지급-status.paid {{
             background: #d4edda;
             color: #155724;
         }}
         
-        .payment-status.unpaid {{
+        .지급-status.unpaid {{
             background: #f8d7da;
             color: #721c24;
         }}
         
-        .payment-status i {{
+        .지급-status i {{
             font-size: 3rem;
             margin-bottom: 10px;
             display: block;
         }}
         
-        /* 조cases 테이블 스타th */
+        /* 조건 테이블 스타th */
         .table-success {{
             background-color: #d4edda !important;
         }}
@@ -5614,7 +5617,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="message">
                     <div class="title" id="reportTypeTitle">{report_type_ko} report</div>
                     <div class="description" id="reportTypeDesc">
-                        {'이 report는 month중 점검용 interim report입니다. 최소 workth(12th) 및 결근율(12%) 조cases이 apply되지 not.' if is_interim_report else '이 report는 month말 final report입니다. 모든 incentive 조cases이 정상적으로 apply됩니다.'}
+                        {'이 report는 month중 점검용 interim report입니다. 최소 근무일(12일) 및 결근율(12%) 조건이 apply되지 not.' if is_interim_report else '이 report는 month말 final report입니다. 모든 incentive 조건이 정상적으로 apply됩니다.'}
                     </div>
                 </div>
             </div>
@@ -5628,25 +5631,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="totalEmployeesLabel">total employees</h6>
-                        <h2><span id="totalEmployeesValue">{total_employees}</span> <span class="unit" id="totalEmployeesUnit"></span></h2>
+                        <h6 class="text-muted" id="totalEmployeesLabel">total 직원</h6>
+                        <h2><span id="totalEmployeesValue">{total_직원}</span> <span class="unit" id="totalEmployeesUnit"></span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="paidEmployeesLabel">count령 employees</h6>
-                        <h2><span id="paidEmployeesValue">{paid_employees}</span> <span class="unit" id="paidEmployeesUnit"></span></h2>
+                        <h6 class="text-muted" id="paidEmployeesLabel">수령 직원</h6>
+                        <h2><span id="paidEmployeesValue">{paid_직원}</span> <span class="unit" id="paidEmployeesUnit"></span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="paymentRateLabel">count령률</h6>
-                        <h2 id="paymentRateValue">{payment_rate:.1f}%</h2>
+                        <h6 class="text-muted" id="paymentRateLabel">수령률</h6>
+                        <h2 id="paymentRateValue">{지급_rate:.1f}%</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="totalAmountLabel">total payment액</h6>
+                        <h6 class="text-muted" id="totalAmountLabel">total 지급액</h6>
                         <h2 id="totalAmountValue">{total_amount:,} VND</h2>
                     </div>
                 </div>
@@ -5658,7 +5661,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="tab active" data-tab="summary" onclick="showTab('summary')" id="tabSummary">요약</div>
                 <div class="tab" data-tab="position" onclick="showTab('position')" id="tabPosition">직급by 상세</div>
                 <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual">개인by 상세</div>
-                <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria">incentive based on</div>
+                <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria">incentive 기준</div>
                 <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart">조직도</div>
                 <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation">요약 및 시스템 검증</div>
             </div>
@@ -5671,14 +5674,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <tr>
                             <th rowspan="2" id="summaryTypeHeader">Type</th>
                             <th rowspan="2" id="summaryTotalHeader">total 인원</th>
-                            <th rowspan="2" id="summaryEligibleHeader">count령 인원</th>
-                            <th rowspan="2" id="summaryPaymentRateHeader">count령률</th>
-                            <th rowspan="2" id="summaryTotalAmountHeader">total payment액</th>
-                            <th colspan="2" class="avg-header" id="summaryAvgAmountHeader">평균 payment액</th>
+                            <th rowspan="2" id="summaryEligibleHeader">수령 인원</th>
+                            <th rowspan="2" id="summaryPaymentRateHeader">수령률</th>
+                            <th rowspan="2" id="summaryTotalAmountHeader">total 지급액</th>
+                            <th colspan="2" class="avg-header" id="summaryAvgAmountHeader">평균 지급액</th>
                         </tr>
                         <tr>
-                            <th class="sub-header" id="summaryAvgEligibleHeader">count령인원 based on</th>
-                            <th class="sub-header" id="summaryAvgTotalHeader">total원 based on</th>
+                            <th class="sub-header" id="summaryAvgEligibleHeader">수령인원 기준</th>
+                            <th class="sub-header" id="summaryAvgTotalHeader">total원 기준</th>
                         </tr>
                     </thead>
                     <tbody id="typeSummaryBody">
@@ -5701,29 +5704,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="col-12">
                         <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                             <div class="card-body">
-                                <h4 class="mb-3" id="talentPoolTitle">🌟 QIP Talent Pool 특by incentive</h4>
+                                <h4 class="mb-3" id="talentPoolTitle">🌟 QIP Talent Pool 특별 incentive</h4>
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
                                             <h6 style="opacity: 0.9;" id="talentPoolMemberCountLabel">Talent Pool 인원</h6>
-                                            <h3 id="talentPoolCount">0employees</h3>
+                                            <h3 id="talentPoolCount">0명</h3>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                                            <h6 style="opacity: 0.9;" id="talentPoolMonthlyBonusLabel">month 보너스 금액</h6>
+                                            <h6 style="opacity: 0.9;" id="talentPoolMonthlyBonusLabel">월 보너스 금액</h6>
                                             <h3 id="talentPoolMonthlyBonus">0 VND</h3>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                                            <h6 style="opacity: 0.9;" id="talentPoolTotalBonusLabel">total 보너스 payment액</h6>
+                                            <h6 style="opacity: 0.9;" id="talentPoolTotalBonusLabel">total 보너스 지급액</h6>
                                             <h3 id="talentPoolTotalBonus">0 VND</h3>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                                            <h6 style="opacity: 0.9;" id="talentPoolPaymentPeriodLabel">payment 기간</h6>
+                                            <h6 style="opacity: 0.9;" id="talentPoolPaymentPeriodLabel">지급 기간</h6>
                                             <h3 id="talentPoolPeriod">-</h3>
                                         </div>
                                     </div>
@@ -5744,7 +5747,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="row">
                         <div class="col-md-3">
                             <input type="text" id="searchInput" class="form-control" 
-                                placeholder="이름 또는 employees번호 검색" onkeyup="filterTable()">
+                                placeholder="이름 또는 직원번호 검색" onkeyup="filterTable()">
                         </div>
                         <div class="col-md-2">
                             <select id="typeFilter" class="form-select" 
@@ -5763,8 +5766,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="col-md-2">
                             <select id="paymentFilter" class="form-select" onchange="filterTable()">
                                 <option value="" id="optPaymentAll">total</option>
-                                <option value="paid" id="optPaymentPaid">payment</option>
-                                <option value="unpaid" id="optPaymentUnpaid">미payment</option>
+                                <option value="paid" id="optPaymentPaid">지급</option>
+                                <option value="unpaid" id="optPaymentUnpaid">미지급</option>
                             </select>
                         </div>
                     </div>
@@ -5791,34 +5794,34 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
             </div>
             
-            <!-- incentive based on 탭 -->
+            <!-- incentive 기준 탭 -->
             <div id="criteria" class="tab-content">
                 <h1 class="section-title" style="text-align: center; font-size: 28px; margin-bottom: 30px;" id="criteriaMainTitle">
-                    QIP incentive 정책 및 calculation based on
+                    QIP incentive 정책 및 calculation 기준
                 </h1>
                 
                 <!-- 정책 요약 섹션 -->
                 <div class="alert alert-info mb-4">
                     <h5 class="alert-heading" id="corePrinciplesTitle">📌 핵심 principle</h5>
-                    <p class="mb-2" id="corePrinciplesDesc1">모든 employees은 corresponding 직급by로 지정된 <strong>모든 조cases을 충족</strong>해야 incentive를 받을 count 있습니다.</p>
-                    <p class="mb-0" id="corePrinciplesDesc2">조cases은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급by로 apply 조cases이 다릅니다.</p>
+                    <p class="mb-2" id="corePrinciplesDesc1">모든 직원은 corresponding 직급by로 지정된 <strong>모든 조건을 충족</strong>해야 incentive를 받을 count 있습니다.</p>
+                    <p class="mb-0" id="corePrinciplesDesc2">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급by로 apply 조건이 다릅니다.</p>
                 </div>
                 
-                <!-- 10가지 조cases 상세 설employees -->
+                <!-- 10가지 조건 상세 설직원 -->
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0" id="evaluationConditionsTitle">📊 10가지 평가 조cases 상세</h5>
+                        <h5 class="mb-0" id="evaluationConditionsTitle">📊 10가지 평가 조건 상세</h5>
                     </div>
                     <div class="card-body">
-                        <!-- 출근 조cases -->
-                        <h6 class="text-success mb-3" id="attendanceConditionTitle">📅 출근 조cases (4개)</h6>
+                        <!-- 출근 조건 -->
+                        <h6 class="text-success mb-3" id="attendanceConditionTitle">📅 출근 조건 (4개)</h6>
                         <table class="table table-sm table-bordered mb-4" id="attendanceTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
-                                    <th width="25%" class="cond-th-name">조casesemployees</th>
-                                    <th width="20%" class="cond-th-criteria">based on</th>
-                                    <th width="50%" class="cond-th-desc">설employees</th>
+                                    <th width="25%" class="cond-th-name">조건직원</th>
+                                    <th width="20%" class="cond-th-criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc">설직원</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5826,38 +5829,38 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td>1</td>
                                     <td class="cond-name-1">출근율</td>
                                     <td>≥88%</td>
-                                    <td class="cond-desc-1">month간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)</td>
+                                    <td class="cond-desc-1">월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)</td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
                                     <td class="cond-name-2">무단결근</td>
-                                    <td>≤2th</td>
-                                    <td class="cond-desc-2">사전 승인 없는 결근이 month 2th 이하여야 합니다</td>
+                                    <td>≤2일</td>
+                                    <td class="cond-desc-2">사전 승인 없는 결근이 month 2일 이하여야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
-                                    <td class="cond-name-3">actual workth</td>
-                                    <td>>0th</td>
-                                    <td class="cond-desc-3">actual 출근한 날이 1th 이상이어야 합니다</td>
+                                    <td class="cond-name-3">actual 근무일</td>
+                                    <td>>0일</td>
+                                    <td class="cond-desc-3">actual 출근한 날이 1일 이상이어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>4</td>
-                                    <td class="cond-name-4">최소 workth</td>
-                                    <td>≥12th</td>
-                                    <td class="cond-desc-4">month간 최소 12th 이상 work해야 합니다</td>
+                                    <td class="cond-name-4">최소 근무일</td>
+                                    <td>≥12일</td>
+                                    <td class="cond-desc-4">월간 최소 12일 이상 work해야 합니다</td>
                                 </tr>
                             </tbody>
                         </table>
                         
-                        <!-- AQL 조cases -->
-                        <h6 class="text-primary mb-3" id="aqlConditionTitle">🎯 AQL 조cases (4개)</h6>
+                        <!-- AQL 조건 -->
+                        <h6 class="text-primary mb-3" id="aqlConditionTitle">🎯 AQL 조건 (4개)</h6>
                         <table class="table table-sm table-bordered mb-4" id="aqlTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
-                                    <th width="25%" class="cond-th-name">조casesemployees</th>
-                                    <th width="20%" class="cond-th-criteria">based on</th>
-                                    <th width="50%" class="cond-th-desc">설employees</th>
+                                    <th width="25%" class="cond-th-name">조건직원</th>
+                                    <th width="20%" class="cond-th-criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc">설직원</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5870,14 +5873,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tr>
                                     <td>6</td>
                                     <td class="cond-name-6">개인 AQL (연속성)</td>
-                                    <td>3consecutive months failed 없음</td>
-                                    <td class="cond-desc-6">최근 3개month간 연속으로 AQL failed가 없어야 합니다</td>
+                                    <td>3연속 개월 실패 없음</td>
+                                    <td class="cond-desc-6">최근 3개월간 연속으로 AQL failed가 없어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>7</td>
                                     <td class="cond-name-7">팀/구역 AQL</td>
-                                    <td>3consecutive months failed 없음</td>
-                                    <td class="cond-desc-7">관리하는 팀/구역에서 3consecutive months failed자가 없어야 합니다</td>
+                                    <td>3연속 개월 실패 없음</td>
+                                    <td class="cond-desc-7">관리하는 팀/구역에서 3연속 개월 실패자가 없어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>8</td>
@@ -5888,15 +5891,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </tbody>
                         </table>
                         
-                        <!-- 5PRS 조cases -->
-                        <h6 class="text-warning mb-3" id="prsConditionTitle">📊 5PRS 조cases (2개)</h6>
+                        <!-- 5PRS 조건 -->
+                        <h6 class="text-warning mb-3" id="prsConditionTitle">📊 5PRS 조건 (2개)</h6>
                         <table class="table table-sm table-bordered" id="prsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
-                                    <th width="25%" class="cond-th-name">조casesemployees</th>
-                                    <th width="20%" class="cond-th-criteria">based on</th>
-                                    <th width="50%" class="cond-th-desc">설employees</th>
+                                    <th width="25%" class="cond-th-name">조건직원</th>
+                                    <th width="20%" class="cond-th-criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc">설직원</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -5910,27 +5913,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td>10</td>
                                     <td class="cond-name-10">5PRS 검사량</td>
                                     <td>≥100개</td>
-                                    <td class="cond-desc-10">month간 최소 100개 이상 검사를 count행해야 합니다</td>
+                                    <td class="cond-desc-10">월간 최소 100개 이상 검사를 count행해야 합니다</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
                 
-                <!-- 직급by apply 조cases 매트릭스 -->
+                <!-- 직급by apply 조건 매트릭스 -->
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                        <h5 class="mb-0" id="positionMatrixTitle">🎖️ 직급by apply 조cases</h5>
+                        <h5 class="mb-0" id="positionMatrixTitle">🎖️ 직급by apply 조건</h5>
                     </div>
                     <div class="card-body">
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1Header">TYPE-1 직급by 조cases</h6>
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1Header">TYPE-1 직급by 조건</h6>
                         <table class="table table-sm table-hover position-matrix-table" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
                                     <th class="pos-header-position">직급</th>
-                                    <th class="pos-header-conditions">apply 조cases</th>
-                                    <th class="pos-header-count">조cases count</th>
+                                    <th class="pos-header-conditions">apply 조건</th>
+                                    <th class="pos-header-count">조건 count</th>
                                     <th class="pos-header-notes">비고</th>
                                 </tr>
                             </thead>
@@ -5939,25 +5942,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td><strong>MANAGER</strong></td>
                                     <td>1, 2, 3, 4</td>
                                     <td class="condition-count">4개</td>
-                                    <td>출근 조cases만</td>
+                                    <td>출근 조건만 적용</td>
                                 </tr>
                                 <tr>
                                     <td><strong>A.MANAGER</strong></td>
                                     <td>1, 2, 3, 4</td>
                                     <td class="condition-count">4개</td>
-                                    <td>출근 조cases만</td>
+                                    <td>출근 조건만 적용</td>
                                 </tr>
                                 <tr>
                                     <td><strong>(V) SUPERVISOR</strong></td>
                                     <td>1, 2, 3, 4</td>
                                     <td class="condition-count">4개</td>
-                                    <td>출근 조cases만</td>
+                                    <td>출근 조건만 적용</td>
                                 </tr>
                                 <tr>
                                     <td><strong>GROUP LEADER</strong></td>
                                     <td>1, 2, 3, 4</td>
                                     <td class="condition-count">4개</td>
-                                    <td>출근 조cases만</td>
+                                    <td>출근 조건만 적용</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>LINE LEADER</strong></td>
@@ -5969,7 +5972,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td><strong>AQL INSPECTOR</strong></td>
                                     <td>1, 2, 3, 4, 5</td>
                                     <td class="condition-count">5개</td>
-                                    <td>출근 + 당month AQL (특by calculation)</td>
+                                    <td>출근 + 당month AQL (특별 calculation)</td>
                                 </tr>
                                 <tr>
                                     <td><strong>ASSEMBLY INSPECTOR</strong></td>
@@ -5992,13 +5995,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </tbody>
                         </table>
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type2Header">TYPE-2 직급by 조cases</h6>
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type2Header">TYPE-2 직급by 조건</h6>
                         <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
                                     <th class="type2-header-position">직급</th>
-                                    <th class="type2-header-conditions">apply 조cases</th>
-                                    <th class="type2-header-count">조cases count</th>
+                                    <th class="type2-header-conditions">apply 조건</th>
+                                    <th class="type2-header-count">조건 count</th>
                                     <th class="type2-header-notes">특이사항</th>
                                 </tr>
                             </thead>
@@ -6007,18 +6010,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td><strong id="type2AllPositions">모든 TYPE-2 직급</strong></td>
                                     <td>1, 2, 3, 4</td>
                                     <td id="type2FourConditions">4개</td>
-                                    <td id="type2AttendanceOnly">출근 조cases만 apply</td>
+                                    <td id="type2AttendanceOnly">출근 조건만 적용</td>
                                 </tr>
                             </tbody>
                         </table>
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type3Header">TYPE-3 직급by 조cases</h6>
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type3Header">TYPE-3 직급by 조건</h6>
                         <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
                                     <th class="type3-header-position">직급</th>
-                                    <th class="type3-header-conditions">apply 조cases</th>
-                                    <th class="type3-header-count">조cases count</th>
+                                    <th class="type3-header-conditions">apply 조건</th>
+                                    <th class="type3-header-count">조건 count</th>
                                     <th class="type3-header-notes">특이사항</th>
                                 </tr>
                             </thead>
@@ -6027,7 +6030,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td><strong id="type3NewMember">NEW QIP MEMBER</strong></td>
                                     <td id="type3NoConditions">없음</td>
                                     <td id="type3ZeroConditions">0개</td>
-                                    <td id="type3NewMemberNote">신입employees - incentive 없음</td>
+                                    <td id="type3NewMemberNote">신입직원 - incentive 없음</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -6037,7 +6040,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <!-- incentive 금액 정보 -->
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                        <h5 class="mb-0">💰 incentive payment액 calculation 방법</h5>
+                        <h5 class="mb-0">💰 incentive 지급액 calculation 방법</h5>
                     </div>
                     <div class="card-body">
                         <!-- TYPE-1 incentive 테이블 -->
@@ -6053,88 +6056,88 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <tbody>
                                 <tr>
                                     <td><strong><span class="calc-position-manager">1. MANAGER</span></strong></td>
-                                    <td><strong><span class="calc-conditions-met">조cases 충족시 TYPE-1 평균 incentive</span></strong><br>
+                                    <td><strong><span class="calc-conditions-met">조건 충족시 TYPE-1 평균 incentive</span></strong><br>
                                         <span class="text-primary"><span class="calc-incentive-label">incentive</span> = <span class="calc-line-leader-avg">Line Leader 평균</span> × 3.5</span><br>
-                                        <span class="calc-apply-condition-attendance">apply 조cases: 출근(1-4) = 4개 조cases</span></td>
+                                        <span class="calc-apply-condition-attendance">apply 조건: 출근(1-4) = 4개 조건</span></td>
                                     <td><span class="calc-line-leader-avg">Line Leader 평균</span>: 138,485 VND<br>
                                         <span class="calc-calculation-label">calculation</span>: 138,485 × 3.5 = <strong>484,698 VND</strong><br>
-                                        <span class="calc-condition-not-met-zero">조cases 미충족 → 0 VND</span></td>
+                                        <span class="calc-condition-not-met-zero">조건 미충족 → 0 VND</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong><span class="calc-position-amanager">2. A.MANAGER</span></strong></td>
-                                    <td><strong><span class="calc-conditions-met">조cases 충족시 TYPE-1 평균 incentive</span></strong><br>
+                                    <td><strong><span class="calc-conditions-met">조건 충족시 TYPE-1 평균 incentive</span></strong><br>
                                         <span class="text-primary"><span class="calc-incentive-label">incentive</span> = <span class="calc-line-leader-avg">Line Leader 평균</span> × 3</span><br>
-                                        <span class="calc-apply-condition-attendance">apply 조cases: 출근(1-4) = 4개 조cases</span></td>
-                                    <td><span class="calc-example-employee" data-employee="618030049">예시: 618030049 employees</span><br>
+                                        <span class="calc-apply-condition-attendance">apply 조건: 출근(1-4) = 4개 조건</span></td>
+                                    <td><span class="calc-example-employee" data-employee="618030049">예시: 618030049 직원</span><br>
                                         <span class="calc-line-leader-avg">Line Leader 평균</span>: 127,767 VND<br>
                                         <span class="calc-calculation-label">calculation</span>: 127,767 × 3 = <strong>383,301 VND</strong></td>
                                 </tr>
                                 <tr>
                                     <td><strong><span class="calc-position-vsupervisor">3. (V) SUPERVISOR</span></strong></td>
-                                    <td><strong><span class="calc-conditions-met">조cases 충족시 TYPE-1 평균 incentive</span></strong><br>
+                                    <td><strong><span class="calc-conditions-met">조건 충족시 TYPE-1 평균 incentive</span></strong><br>
                                         <span class="text-primary"><span class="calc-incentive-label">incentive</span> = <span class="calc-line-leader-avg">Line Leader 평균</span> × 2.5</span><br>
-                                        <span class="calc-apply-condition-attendance">apply 조cases: 출근(1-4) = 4개 조cases</span></td>
-                                    <td><span class="calc-example-employee" data-employee="618040412">예시: 618040412 employees</span><br>
+                                        <span class="calc-apply-condition-attendance">apply 조건: 출근(1-4) = 4개 조건</span></td>
+                                    <td><span class="calc-example-employee" data-employee="618040412">예시: 618040412 직원</span><br>
                                         <span class="calc-line-leader-avg">Line Leader 평균</span>: 115,500 VND<br>
                                         <span class="calc-calculation-label">calculation</span>: 115,500 × 2.5 = <strong>288,750 VND</strong></td>
                                 </tr>
                                 <tr>
                                     <td><strong><span class="calc-position-groupleader">4. GROUP LEADER</span></strong></td>
-                                    <td><strong><span class="calc-conditions-met">조cases 충족시 TYPE-1 평균 incentive</span></strong><br>
+                                    <td><strong><span class="calc-conditions-met">조건 충족시 TYPE-1 평균 incentive</span></strong><br>
                                         <span class="text-primary"><span class="calc-incentive-label">incentive</span> = <span class="calc-line-leader-avg">Line Leader 평균</span> × 2</span><br>
-                                        <span class="calc-apply-condition-attendance">apply 조cases: 출근(1-4) = 4개 조cases</span></td>
-                                    <td><span class="calc-example-employee" data-employee="619030390">예시: 619030390 employees</span><br>
-                                        <span class="calc-condition-not-met-days" data-days="4">조cases 미충족(workth 4th)</span><br>
+                                        <span class="calc-apply-condition-attendance">apply 조건: 출근(1-4) = 4개 조건</span></td>
+                                    <td><span class="calc-example-employee" data-employee="619030390">예시: 619030390 직원</span><br>
+                                        <span class="calc-condition-not-met-days" data-days="4">조건 미충족(근무일 4일)</span><br>
                                         → <strong>0 VND</strong></td>
                                 </tr>
                                 <tr>
                                     <td><strong><span class="calc-position-lineleader">5. LINE LEADER</span></strong></td>
-                                    <td><strong><span class="calc-subordinate-incentive">부하employees incentive based calculation</span></strong><br>
-                                        <span class="text-primary"><span class="calc-incentive-label">incentive</span> = (<span class="calc-subordinate-total">부하employees total</span> <span class="calc-incentive-label">incentive</span> × 12%) × (<span class="calc-receive-ratio">count령 비율</span>)</span><br>
-                                        <span class="calc-apply-condition-lineleader">apply 조cases: 출근(1-4) + 팀/구역 AQL(7) = 5개 조cases</span></td>
-                                    <td><span class="calc-example-employee" data-employee="619020468">예시: 619020468 employees</span><br>
-                                        <span class="calc-subordinate-total">부하employees total</span>: 1,270,585 VND<br>
+                                    <td><strong><span class="calc-subordinate-incentive">부하직원 incentive based calculation</span></strong><br>
+                                        <span class="text-primary"><span class="calc-incentive-label">incentive</span> = (<span class="calc-subordinate-total">부하직원 total</span> <span class="calc-incentive-label">incentive</span> × 12%) × (<span class="calc-receive-ratio">수령 비율</span>)</span><br>
+                                        <span class="calc-apply-condition-lineleader">apply 조건: 출근(1-4) + 팀/구역 AQL(7) = 5개 조건</span></td>
+                                    <td><span class="calc-example-employee" data-employee="619020468">예시: 619020468 직원</span><br>
+                                        <span class="calc-subordinate-total">부하직원 total</span>: 1,270,585 VND<br>
                                         <span class="calc-calculation-label">calculation</span>: 1,270,585 × 0.12 × (8/10)<br>
                                         = <strong>152,470 VND</strong></td>
                                 </tr>
                                 <tr style="background-color: #fff3e0;">
                                     <td><strong><span class="calc-position-aqlinspector">6. AQL INSPECTOR</span></strong></td>
-                                    <td><strong><span class="calc-special-calculation">Part1 + Part2 + Part3 특by calculation</span></strong><br>
+                                    <td><strong><span class="calc-special-calculation">Part1 + Part2 + Part3 특별 calculation</span></strong><br>
                                         <div style="margin-top: 8px;"><strong><span class="calc-aql-evaluation">Part 1: AQL 평가 결과</span></strong></div>
-                                        <small><span class="calc-level-a">Level-A</span> <span class="calc-month-range-1">1개month</span>: 150,000 | <span class="calc-month-range-2">2개month</span>: 250,000<br>
-                                        <span class="calc-month-range-3">3개month</span>: 300,000 | <span class="calc-month-range-4">4개month</span>: 350,000<br>
-                                        <span class="calc-month-range-5">5개month</span>: 400,000 | <span class="calc-month-range-6">6개month</span>: 450,000<br>
-                                        <span class="calc-month-range-7">7개month</span>: 500,000 | <span class="calc-month-range-8">8개month</span>: 650,000<br>
-                                        <span class="calc-month-range-9">9개month</span>: 750,000 | <span class="calc-month-range-10">10개month</span>: 850,000<br>
-                                        <span class="calc-month-range-11">11개month</span>: 950,000 | <span class="calc-month-range-12plus">12개month+</span>: 1,000,000</small><br>
+                                        <small><span class="calc-level-a">Level-A</span> <span class="calc-month-range-1">1개월</span>: 150,000 | <span class="calc-month-range-2">2개월</span>: 250,000<br>
+                                        <span class="calc-month-range-3">3개월</span>: 300,000 | <span class="calc-month-range-4">4개월</span>: 350,000<br>
+                                        <span class="calc-month-range-5">5개월</span>: 400,000 | <span class="calc-month-range-6">6개월</span>: 450,000<br>
+                                        <span class="calc-month-range-7">7개월</span>: 500,000 | <span class="calc-month-range-8">8개월</span>: 650,000<br>
+                                        <span class="calc-month-range-9">9개월</span>: 750,000 | <span class="calc-month-range-10">10개월</span>: 850,000<br>
+                                        <span class="calc-month-range-11">11개월</span>: 950,000 | <span class="calc-month-range-12plus">12개월+</span>: 1,000,000</small><br>
                                         <div style="margin-top: 8px;"><strong><span class="calc-cfa-certificate">Part 2: CFA 자격증</span></strong></div>
                                         <small><span class="calc-cfa-holder-bonus">CFA 자격증 보유시</span>: 700,000</small><br>
                                         <div style="margin-top: 8px;"><strong><span class="calc-hwk-claim">Part 3: HWK 클레임 방지</span></strong></div>
-                                        <small><span class="calc-month-range-1">1개month</span>: 100,000 | <span class="calc-month-range-2">2개month</span>: 200,000<br>
-                                        <span class="calc-month-range-3">3개month</span>: 300,000 | <span class="calc-month-range-4">4개month</span>: 400,000<br>
-                                        <span class="calc-month-range-5">5개month</span>: 500,000 | <span class="calc-month-range-6">6개month</span>: 600,000<br>
-                                        <span class="calc-month-range-7">7개month</span>: 700,000 | <span class="calc-month-range-8">8개month</span>: 800,000<br>
-                                        <span class="calc-month-range-9plus">9개month+</span>: 900,000</small></td>
-                                    <td><span class="calc-example-employee" data-employee="618110077">예시: 618110077 employees</span><br>
-                                        Part1: 1,000,000 (<span class="calc-months-text" data-months="12">12개month</span>)<br>
+                                        <small><span class="calc-month-range-1-3">1-3개월</span>: 0 (대기 기간)<br>
+                                        <span class="calc-month-range-4-6">4-6개월</span>: 300,000<br>
+                                        <span class="calc-month-range-7-9">7-9개월</span>: 500,000<br>
+                                        <span class="calc-month-range-10-12">10-12개월</span>: 700,000<br>
+                                        <span class="calc-month-range-13plus">13개월+</span>: 900,000</small></td>
+                                    <td><span class="calc-example-employee" data-employee="618110077">예시: 618110077 직원</span><br>
+                                        Part1: 1,000,000 (<span class="calc-months-text" data-months="12">12개월</span>)<br>
                                         Part2: 700,000 (<span class="calc-cfa-holder">CFA 보유</span>)<br>
-                                        Part3: 900,000 (<span class="calc-months-text" data-months="13">13개month</span>)<br>
+                                        Part3: 900,000 (<span class="calc-months-text" data-months="13">13개월</span>)<br>
                                         <span class="calc-total-label">합계</span>: 2,600,000 VND</td>
                                 </tr>
                                 <tr style="background-color: #f0f4ff;">
                                     <td><strong><span class="calc-position-assemblyinspector">7. ASSEMBLY INSPECTOR</span></strong></td>
-                                    <td><strong><span class="calc-consecutive-month-incentive">연속 충족 개month based on incentive</span></strong><br>
-                                        <small><span class="calc-apply-condition-assembly">apply 조cases: 1-4(출근), 5-6(개인AQL), 9-10(5PRS)</span></small><br>
-                                        <span class="calc-month-range-0to1">0-1개month</span>: 150,000 | <span class="calc-month-range-2">2개month</span>: 250,000<br>
-                                        <span class="calc-month-range-3">3개month</span>: 300,000 | <span class="calc-month-range-4">4개month</span>: 350,000<br>
-                                        <span class="calc-month-range-5">5개month</span>: 400,000 | <span class="calc-month-range-6">6개month</span>: 450,000<br>
-                                        <span class="calc-month-range-7">7개month</span>: 500,000 | <span class="calc-month-range-8">8개month</span>: 650,000<br>
-                                        <span class="calc-month-range-9">9개month</span>: 750,000 | <span class="calc-month-range-10">10개month</span>: 850,000<br>
-                                        <span class="calc-month-range-11">11개month</span>: 950,000 | <span class="calc-month-range-12plus">12개month+</span>: 1,000,000</td>
-                                    <td><strong><span class="calc-example-consecutive" data-months="10">예시: 10개month 연속 충족</span></strong><br>
+                                    <td><strong><span class="calc-consecutive-month-incentive">연속 충족 개월 기준 incentive</span></strong><br>
+                                        <small><span class="calc-apply-condition-assembly">apply 조건: 1-4(출근), 5-6(개인AQL), 9-10(5PRS)</span></small><br>
+                                        <span class="calc-month-range-0to1">0-1개월</span>: 150,000 | <span class="calc-month-range-2">2개월</span>: 250,000<br>
+                                        <span class="calc-month-range-3">3개월</span>: 300,000 | <span class="calc-month-range-4">4개월</span>: 350,000<br>
+                                        <span class="calc-month-range-5">5개월</span>: 400,000 | <span class="calc-month-range-6">6개월</span>: 450,000<br>
+                                        <span class="calc-month-range-7">7개월</span>: 500,000 | <span class="calc-month-range-8">8개월</span>: 650,000<br>
+                                        <span class="calc-month-range-9">9개월</span>: 750,000 | <span class="calc-month-range-10">10개월</span>: 850,000<br>
+                                        <span class="calc-month-range-11">11개월</span>: 950,000 | <span class="calc-month-range-12plus">12개월+</span>: 1,000,000</td>
+                                    <td><strong><span class="calc-example-consecutive" data-months="10">예시: 10개월 연속 충족</span></strong><br>
                                         ✅ <span class="calc-attendance-rate">출근율</span> 92% ≥88%<br>
-                                        ✅ <span class="calc-unauthorized-absence">무단결근</span> <span class="calc-days-text" data-days="0">0th</span> ≤<span class="calc-days-text" data-days="2">2th</span><br>
-                                        ✅ <span class="calc-working-days">workth</span> <span class="calc-days-text" data-days="20">20th</span> ≥<span class="calc-days-text" data-days="12">12th</span><br>
+                                        ✅ <span class="calc-unauthorized-absence">무단결근</span> <span class="calc-days-text" data-days="0">0일</span> ≤<span class="calc-days-text" data-days="2">2일</span><br>
+                                        ✅ <span class="calc-working-days">근무일</span> <span class="calc-days-text" data-days="20">20일</span> ≥<span class="calc-days-text" data-days="12">12일</span><br>
                                         ✅ <span class="calc-personal-aql-failures">개인AQL failed</span> <span class="calc-cases-text" data-cases="0">0cases</span><br>
                                         ✅ 5PRS <span class="calc-pass-rate">통과율</span> 98% ≥95%<br>
                                         ✅ 5PRS <span class="calc-inspection-quantity">검사량</span> <span class="calc-pieces-text" data-pieces="250">250족</span> ≥100<br>
@@ -6142,75 +6145,75 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                                 <tr style="background-color: #f0f4ff;">
                                     <td><strong><span class="calc-position-audittraining">8. AUDIT & TRAINING</span></strong></td>
-                                    <td><strong><span class="calc-consecutive-month-incentive">연속 충족 개month based on incentive</span></strong><br>
-                                        <small><span class="calc-apply-condition-audit">apply 조cases: 1-4(출근), 7(팀AQL), 8(reject율)</span></small><br>
-                                        <span class="calc-month-range-0to1">0-1개month</span>: 150,000 | <span class="calc-month-range-2">2개month</span>: 250,000<br>
-                                        <span class="calc-month-range-3">3개month</span>: 300,000 | <span class="calc-month-range-4">4개month</span>: 350,000<br>
-                                        <span class="calc-month-range-5">5개month</span>: 400,000 | <span class="calc-month-range-6">6개month</span>: 450,000<br>
-                                        <span class="calc-month-range-7">7개month</span>: 500,000 | <span class="calc-month-range-8">8개month</span>: 650,000<br>
-                                        <span class="calc-month-range-9">9개month</span>: 750,000 | <span class="calc-month-range-10">10개month</span>: 850,000<br>
-                                        <span class="calc-month-range-11">11개month</span>: 950,000 | <span class="calc-month-range-12plus">12개month+</span>: 1,000,000</td>
-                                    <td><strong><span class="calc-example-not-met-reset">예시: 조cases 미충족 → 리셋</span></strong><br>
-                                        <span class="calc-previous-month">전month</span>: <span class="calc-consecutive-months" data-months="11">11개month 연속</span> → 950,000<br>
+                                    <td><strong><span class="calc-consecutive-month-incentive">연속 충족 개월 기준 incentive</span></strong><br>
+                                        <small><span class="calc-apply-condition-audit">apply 조건: 1-4(출근), 7(팀AQL), 8(reject율)</span></small><br>
+                                        <span class="calc-month-range-0to1">0-1개월</span>: 150,000 | <span class="calc-month-range-2">2개월</span>: 250,000<br>
+                                        <span class="calc-month-range-3">3개월</span>: 300,000 | <span class="calc-month-range-4">4개월</span>: 350,000<br>
+                                        <span class="calc-month-range-5">5개월</span>: 400,000 | <span class="calc-month-range-6">6개월</span>: 450,000<br>
+                                        <span class="calc-month-range-7">7개월</span>: 500,000 | <span class="calc-month-range-8">8개월</span>: 650,000<br>
+                                        <span class="calc-month-range-9">9개월</span>: 750,000 | <span class="calc-month-range-10">10개월</span>: 850,000<br>
+                                        <span class="calc-month-range-11">11개월</span>: 950,000 | <span class="calc-month-range-12plus">12개월+</span>: 1,000,000</td>
+                                    <td><strong><span class="calc-example-not-met-reset">예시: 조건 미충족 → 리셋</span></strong><br>
+                                        <span class="calc-previous-month">전month</span>: <span class="calc-consecutive-months" data-months="11">11개월 연속</span> → 950,000<br>
                                         <span class="calc-current-month-eval">당month 평가</span>:<br>
-                                        ✅ <span class="calc-all-attendance-met">출근 조cases 모두 충족</span><br>
+                                        ✅ <span class="calc-all-attendance-met">출근 조건 모두 충족</span><br>
                                         ✅ <span class="calc-team-aql-no-fail">팀AQL 연속failed 없음</span><br>
                                         ❌ <span class="calc-reject-rate">reject율</span> 4.35% >3%<br>
-                                        → <span class="calc-reset-to-zero">연속개month 0으로 리셋</span><br>
+                                        → <span class="calc-reset-to-zero">연속개월 0으로 리셋</span><br>
                                         → <strong>0 VND</strong></td>
                                 </tr>
                                 <tr>
                                     <td><strong><span class="calc-position-modelmaster">9. MODEL MASTER</span></strong></td>
-                                    <td><strong><span class="calc-consecutive-month-incentive">연속 충족 개month based on incentive</span></strong><br>
-                                        <small><span class="calc-apply-condition-model">apply 조cases: 1-4(출근), 8(reject율 <3%)</span></small><br>
-                                        <span class="calc-month-range-0to1">0-1개month</span>: 150,000 | <span class="calc-month-range-2">2개month</span>: 250,000<br>
-                                        <span class="calc-month-range-3">3개month</span>: 300,000 | <span class="calc-month-range-4">4개month</span>: 350,000<br>
-                                        <span class="calc-month-range-5">5개month</span>: 400,000 | <span class="calc-month-range-6">6개month</span>: 450,000<br>
-                                        <span class="calc-month-range-7">7개month</span>: 500,000 | <span class="calc-month-range-8">8개month</span>: 650,000<br>
-                                        <span class="calc-month-range-9">9개month</span>: 750,000 | <span class="calc-month-range-10">10개month</span>: 850,000<br>
-                                        <span class="calc-month-range-11">11개month</span>: 950,000 | <span class="calc-month-range-12plus">12개month+</span>: 1,000,000</td>
-                                    <td><strong><span class="calc-example-max-achieved" data-months="12">예시: 12개month 이상 최대</span></strong><br>
-                                        <span class="calc-previous-month">전month</span>: <span class="calc-months-text" data-months="15">15개month</span> → 1,000,000<br>
+                                    <td><strong><span class="calc-consecutive-month-incentive">연속 충족 개월 기준 incentive</span></strong><br>
+                                        <small><span class="calc-apply-condition-model">apply 조건: 1-4(출근), 8(reject율 <3%)</span></small><br>
+                                        <span class="calc-month-range-0to1">0-1개월</span>: 150,000 | <span class="calc-month-range-2">2개월</span>: 250,000<br>
+                                        <span class="calc-month-range-3">3개월</span>: 300,000 | <span class="calc-month-range-4">4개월</span>: 350,000<br>
+                                        <span class="calc-month-range-5">5개월</span>: 400,000 | <span class="calc-month-range-6">6개월</span>: 450,000<br>
+                                        <span class="calc-month-range-7">7개월</span>: 500,000 | <span class="calc-month-range-8">8개월</span>: 650,000<br>
+                                        <span class="calc-month-range-9">9개월</span>: 750,000 | <span class="calc-month-range-10">10개월</span>: 850,000<br>
+                                        <span class="calc-month-range-11">11개월</span>: 950,000 | <span class="calc-month-range-12plus">12개월+</span>: 1,000,000</td>
+                                    <td><strong><span class="calc-example-max-achieved" data-months="12">예시: 12개월 이상 최대</span></strong><br>
+                                        <span class="calc-previous-month">전month</span>: <span class="calc-months-text" data-months="15">15개월</span> → 1,000,000<br>
                                         <span class="calc-current-month-eval">당month 평가</span>:<br>
                                         ✅ <span class="calc-attendance-rate">출근율</span> 95% ≥88%<br>
-                                        ✅ <span class="calc-unauthorized-absence">무단결근</span> <span class="calc-days-text" data-days="1">1th</span> ≤<span class="calc-days-text" data-days="2">2th</span><br>
-                                        ✅ <span class="calc-working-days">workth</span> <span class="calc-days-text" data-days="18">18th</span> ≥<span class="calc-days-text" data-days="12">12th</span><br>
+                                        ✅ <span class="calc-unauthorized-absence">무단결근</span> <span class="calc-days-text" data-days="1">1일</span> ≤<span class="calc-days-text" data-days="2">2일</span><br>
+                                        ✅ <span class="calc-working-days">근무일</span> <span class="calc-days-text" data-days="18">18일</span> ≥<span class="calc-days-text" data-days="12">12일</span><br>
                                         ✅ <span class="calc-reject-rate">reject율</span> 2.5% <3%<br>
-                                        → <span class="calc-consecutive-months" data-months="16">16개month 연속 충족</span><br>
+                                        → <span class="calc-consecutive-months" data-months="16">16개월 연속 충족</span><br>
                                         → <strong>1,000,000 VND</strong></td>
                                 </tr>
                             </tbody>
                         </table>
                         
-                        <!-- TYPE-1 ASSEMBLY INSPECTOR 연속 목표 달성시 incentive payment based on -->
+                        <!-- TYPE-1 ASSEMBLY INSPECTOR 연속 목표 달성시 incentive 지급 기준 -->
                         <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="assemblyInspectorIncentiveTitle">TYPE-1 ASSEMBLY INSPECTOR 연속 work incentive</h6>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
-                                    <th class="consecutive-achievement-header">연속 목표 달성 개month</th>
+                                    <th class="consecutive-achievement-header">연속 목표 달성 개월</th>
                                     <th class="incentive-amount-header">incentive 금액 (VND)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td><span class="month-text-1">1개month</span></td><td>150,000</td></tr>
-                                <tr><td><span class="month-text-2">2개month</span></td><td>250,000</td></tr>
-                                <tr><td><span class="month-text-3">3개month</span></td><td>300,000</td></tr>
-                                <tr><td><span class="month-text-4">4개month</span></td><td>350,000</td></tr>
-                                <tr><td><span class="month-text-5">5개month</span></td><td>450,000</td></tr>
-                                <tr><td><span class="month-text-6">6개month</span></td><td>500,000</td></tr>
-                                <tr><td><span class="month-text-7">7개month</span></td><td>600,000</td></tr>
-                                <tr><td><span class="month-text-8">8개month</span></td><td>700,000</td></tr>
-                                <tr><td><span class="month-text-9">9개month</span></td><td>750,000</td></tr>
-                                <tr><td><span class="month-text-10">10개month</span></td><td>850,000</td></tr>
-                                <tr><td><span class="month-text-11">11개month</span></td><td>900,000</td></tr>
-                                <tr style="background-color: #e8f5e9; font-weight: bold;"><td><span class="month-text-12">12개month</span> <span class="month-or-more">이상</span></td><td>1,000,000</td></tr>
+                                <tr><td><span class="month-text-1">1개월</span></td><td>150,000</td></tr>
+                                <tr><td><span class="month-text-2">2개월</span></td><td>250,000</td></tr>
+                                <tr><td><span class="month-text-3">3개월</span></td><td>300,000</td></tr>
+                                <tr><td><span class="month-text-4">4개월</span></td><td>350,000</td></tr>
+                                <tr><td><span class="month-text-5">5개월</span></td><td>450,000</td></tr>
+                                <tr><td><span class="month-text-6">6개월</span></td><td>500,000</td></tr>
+                                <tr><td><span class="month-text-7">7개월</span></td><td>600,000</td></tr>
+                                <tr><td><span class="month-text-8">8개월</span></td><td>700,000</td></tr>
+                                <tr><td><span class="month-text-9">9개월</span></td><td>750,000</td></tr>
+                                <tr><td><span class="month-text-10">10개월</span></td><td>850,000</td></tr>
+                                <tr><td><span class="month-text-11">11개월</span></td><td>900,000</td></tr>
+                                <tr style="background-color: #e8f5e9; font-weight: bold;"><td><span class="month-text-12">12개월</span> <span class="month-or-more">이상</span></td><td>1,000,000</td></tr>
                             </tbody>
                         </table>
                         
                         <!-- TYPE-2 incentive calculation 방법 -->
                         <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type2CalculationTitle">TYPE-2 total 직급 incentive calculation 방법</h6>
                         <div class="alert" style="background-color: #f0f4ff; border-left: 4px solid #667eea; color: #333;" class="mb-3">
-                            <strong>📊 <span id="type2PrincipleLabel">TYPE-2 calculation principle:</span></strong> <span id="type2PrincipleText">TYPE-2 직급은 corresponding하는 TYPE-1 직급의 평균 incentive를 based on으로 calculation됩니다.</span>
+                            <strong>📊 <span id="type2PrincipleLabel">TYPE-2 calculation principle:</span></strong> <span id="type2PrincipleText">TYPE-2 직급은 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
                         </div>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
@@ -6309,24 +6312,24 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </tbody>
                         </table>
 
-                        <!-- TYPE-2 GROUP LEADER 특by calculation 규칙 설employees -->
+                        <!-- TYPE-2 GROUP LEADER 특별 calculation 규칙 설직원 -->
                         <div class="alert alert-warning mb-4">
-                            <h6 style="color: #856404;" id="type2GroupLeaderSpecialTitle">⚠️ TYPE-2 GROUP LEADER 특by calculation 규칙</h6>
+                            <h6 style="color: #856404;" id="type2GroupLeaderSpecialTitle">⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙</h6>
                             <ul class="mb-0">
                                 <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-1 GROUP LEADER 평균 incentive use</li>
                                 <li id="type2IndependentCalc"><strong>TYPE-1 평균이 0 VND인 경우:</strong> 모든 TYPE-2 LINE LEADER 평균 × 2로 독립 calculation</li>
-                                <li id="type2Important"><strong>중요:</strong> 부하employees 관계 without total TYPE-2 LINE LEADER 평균 use</li>
-                                <li id="type2Conditions"><strong>apply 조cases:</strong> TYPE-2는 출근 조cases(1-4번)만 충족하면 incentive payment</li>
+                                <li id="type2Important"><strong>중요:</strong> 부하직원 관계 without total TYPE-2 LINE LEADER 평균 use</li>
+                                <li id="type2Conditions"><strong>apply 조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 incentive 지급</li>
                             </ul>
                         </div>
 
                         <!-- TYPE-3 incentive -->
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type3SectionTitle">TYPE-3 신입 employees incentive</h6>
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type3SectionTitle">TYPE-3 신입 직원 incentive</h6>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
                                     <th class="type3-position-header">구분</th>
-                                    <th class="type3-standard-incentive-header">based on incentive</th>
+                                    <th class="type3-standard-incentive-header">기준 incentive</th>
                                     <th class="type3-calculation-method-header">calculation 방법</th>
                                 </tr>
                             </thead>
@@ -6334,9 +6337,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tr>
                                     <td class="type3-new-qip-member">NEW QIP MEMBER</td>
                                     <td>0 VND</td>
-                                    <td><span class="type3-no-incentive">신입 employees은 incentive payment 없음.</span><br>
+                                    <td><span class="type3-no-incentive">신입 직원은 incentive 지급 없음.</span><br>
                                         <span class="type3-one-month-training">단, 1달 후 work지 배치한 다음부터</span><br>
-                                        <span class="type3-type-reclassification">TYPE을 변경하며, incentive payment 조cases 부여됨</span></td>
+                                        <span class="type3-type-reclassification">TYPE을 변경하며, incentive 지급 조건 부여됨</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -6353,19 +6356,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <h6 class="text-primary mb-3" id="corePrinciplesSubtitle">Core Principles of Incentive Calculation</h6>
                         <ul class="list-group mb-3">
                             <li class="list-group-item">
-                                <strong>📌 <span class="failure-principle-label">actual payment액:</span></strong> <span class="failure-principle-text">표시된 금액 range는 예시이며, actual payment액은 개인의 성과와 조cases 충족 여부에 따라 달라집니다.</span>
+                                <strong>📌 <span class="failure-principle-label">actual 지급액:</span></strong> <span class="failure-principle-text">표시된 금액 range는 예시이며, actual 지급액은 개인의 성과와 조건 충족 여부에 따라 달라집니다.</span>
                             </li>
                             <li class="list-group-item">
-                                <strong>📊 <span class="type2-principle-label">TYPE-2 동적 calculation:</span></strong> <span class="type2-principle-text">TYPE-2 employees의 incentive는 매month corresponding TYPE-1 직급의 actual 평균값으로 자동 calculation됩니다.</span>
+                                <strong>📊 <span class="type2-principle-label">TYPE-2 동적 calculation:</span></strong> <span class="type2-principle-text">TYPE-2 직원의 incentive는 매month corresponding TYPE-1 직급의 actual 평균값으로 자동 calculation됩니다.</span>
                             </li>
                             <li class="list-group-item">
-                                <strong>🔄 <span class="consecutive-bonus-label">연속성 보상:</span></strong> <span class="consecutive-bonus-text">ASSEMBLY INSPECTOR는 연속 work 개month이 증가할count록 incentive가 단계적으로 상승합니다.</span>
+                                <strong>🔄 <span class="consecutive-bonus-label">연속성 보상:</span></strong> <span class="consecutive-bonus-text">ASSEMBLY INSPECTOR는 연속 work 개월이 증가할수록 incentive가 단계적으로 상승합니다.</span>
                             </li>
                             <li class="list-group-item">
-                                <strong>⚡ <span class="special-calculation-label">특by calculation 직급:</span></strong> <span class="special-calculation-text">AQL INSPECTOR(3단계 합산: Part1 + Part2 + Part3)</span>
+                                <strong>⚡ <span class="special-calculation-label">특별 calculation 직급:</span></strong> <span class="special-calculation-text">AQL INSPECTOR(3단계 합산: Part1 + Part2 + Part3)</span>
                             </li>
                             <li class="list-group-item">
-                                <strong>🎯 <span class="condition-failure-label">조cases 미충족시:</span></strong> <span class="condition-failure-text">하나라도 필count 조cases을 충족하지 못하면 incentive가 0이 됩니다.</span>
+                                <strong>🎯 <span class="condition-failure-label">조건 미충족시:</span></strong> <span class="condition-failure-text">하나라도 필count 조건을 충족하지 못하면 incentive가 0이 됩니다.</span>
                             </li>
                         </ul>
                         
@@ -6380,28 +6383,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td class="minimum-days-label">workthcount</td>
-                                    <td class="less-than-12-days">12th 미만시 미payment</td>
-                                    <td class="november-11-days">11th work → 0 VND</td>
+                                    <td class="minimum-days-label">근무일count</td>
+                                    <td class="less-than-12-days">12일 미만시 미지급</td>
+                                    <td class="november-11-days">11일 work → 0 VND</td>
                                 </tr>
                                 <tr>
                                     <td class="attendance-rate-label">출근율</td>
-                                    <td class="less-than-88-percent">88% 미만시 미payment</td>
+                                    <td class="less-than-88-percent">88% 미만시 미지급</td>
                                     <td class="attendance-example">87% 출근율 → 0 VND</td>
                                 </tr>
                                 <tr>
                                     <td class="unauthorized-absence-label">무단결근</td>
-                                    <td class="more-than-3-days">3th 이상시 미payment</td>
-                                    <td class="unauthorized-example">3th 무단결근 → 0 VND</td>
+                                    <td class="more-than-3-days">3일 이상시 미지급</td>
+                                    <td class="unauthorized-example">3일 무단결근 → 0 VND</td>
                                 </tr>
                                 <tr>
                                     <td class="aql-failure-label">AQL failed</td>
                                     <td class="current-month-failure">corresponding 직급만 영향</td>
-                                    <td class="aql-failure-example">AQL failed → 조cases 미충족</td>
+                                    <td class="aql-failure-example">AQL failed → 조건 미충족</td>
                                 </tr>
                                 <tr>
                                     <td class="fprs-pass-rate-label">5PRS 통과율</td>
-                                    <td class="less-than-95-percent">95% 미만시 미payment (corresponding자)</td>
+                                    <td class="less-than-95-percent">95% 미만시 미지급 (corresponding자)</td>
                                     <td class="fprs-example">94% → 0 VND</td>
                                 </tr>
                             </tbody>
@@ -6415,32 +6418,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <h5 class="mb-0" id="faqCalculationExampleTitle">📐 actual calculation 예시</h5>
                     </div>
                     <div class="card-body">
-                        <h6 class="text-primary mb-3" id="faqCase1Title">예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개month 연속 work)</h6>
+                        <h6 class="text-primary mb-3" id="faqCase1Title">예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 work)</h6>
                         <div class="alert alert-light">
-                            <p><strong id="faqCase1EmployeeLabel">employees:</strong> BÙI THỊ KIỀU LY (619060201)</p>
-                            <p><strong id="faqCase1PrevMonthLabel">전month 상태:</strong> <span id="faqCase1PrevMonthText">9개month 연속 work, 750,000 VND count령</span></p>
-                            <p><strong id="faqCase1ConditionsLabel">당month 조cases 충족:</strong></p>
+                            <p><strong id="faqCase1EmployeeLabel">직원:</strong> BÙI THỊ KIỀU LY (619060201)</p>
+                            <p><strong id="faqCase1PrevMonthLabel">전month 상태:</strong> <span id="faqCase1PrevMonthText">9개월 연속 work, 750,000 VND 수령</span></p>
+                            <p><strong id="faqCase1ConditionsLabel">당month 조건 충족:</strong></p>
                             <ul id="faqCase1ConditionsList">
                                 <li>✅ <span class="faq-attendance-label">출근율:</span> 92% (≥88%)</li>
-                                <li>✅ <span class="faq-absence-label">무단결근:</span> <span class="faq-absence-value">0th</span> (≤<span class="faq-absence-limit">2th</span>)</li>
-                                <li>✅ <span class="faq-actual-days-label">actual workth:</span> <span class="faq-actual-days-value">20th</span> (><span class="faq-actual-days-min">0th</span>)</li>
-                                <li>✅ <span class="faq-min-days-label">최소 workth:</span> <span class="faq-min-days-value">20th</span> (≥<span class="faq-min-days-req">12th</span>)</li>
+                                <li>✅ <span class="faq-absence-label">무단결근:</span> <span class="faq-absence-value">0일</span> (≤<span class="faq-absence-limit">2일</span>)</li>
+                                <li>✅ <span class="faq-actual-days-label">actual 근무일:</span> <span class="faq-actual-days-value">20일</span> (><span class="faq-actual-days-min">0일</span>)</li>
+                                <li>✅ <span class="faq-min-days-label">최소 근무일:</span> <span class="faq-min-days-value">20일</span> (≥<span class="faq-min-days-req">12일</span>)</li>
                                 <li>✅ <span class="faq-aql-current-label">개인 AQL (당month):</span> <span class="faq-aql-current-value">failed 0cases</span></li>
-                                <li>✅ <span class="faq-aql-consecutive-label">개인 AQL (연속):</span> <span class="faq-aql-consecutive-value">3consecutive months failed 없음</span></li>
+                                <li>✅ <span class="faq-aql-consecutive-label">개인 AQL (연속):</span> <span class="faq-aql-consecutive-value">3연속 개월 실패 없음</span></li>
                                 <li>✅ <span class="faq-fprs-rate-label">5PRS 통과율:</span> 97% (≥95%)</li>
                                 <li>✅ <span class="faq-fprs-qty-label">5PRS 검사량:</span> <span class="faq-fprs-qty-value">150개</span> (≥<span class="faq-fprs-qty-min">100개</span>)</li>
                             </ul>
-                            <p><strong id="faqCase1ResultLabel">결과:</strong> <span id="faqCase1ResultText">모든 조cases 충족 → <span class="badge bg-success">10개month 연속 → 850,000 VND payment</span></span></p>
+                            <p><strong id="faqCase1ResultLabel">결과:</strong> <span id="faqCase1ResultText">모든 조건 충족 → <span class="badge bg-success">10개월 연속 → 850,000 VND 지급</span></span></p>
                         </div>
                         
                         <h6 class="text-primary mb-3 mt-4" id="faqCase2Title">예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 calculation)</h6>
                         <div class="alert alert-light">
-                            <p><strong id="faqCase2EmployeeLabel">employees:</strong> VÕ THỊ THÙY LINH (AUDIT & TRAINING TEAM LEADER)</p>
+                            <p><strong id="faqCase2EmployeeLabel">직원:</strong> VÕ THỊ THÙY LINH (AUDIT & TRAINING TEAM LEADER)</p>
                             <p><strong id="faqCase2AreaLabel">담당 구역:</strong> Building B </p>
                             <p><strong><span id="faqCase2InspectionLabel">Building B 구역 생산 total AQL 검사 PO count량:</span> <span id="faqCase2InspectionQty">100개</span></strong></p>
                             <p><strong><span id="faqCase2RejectLabel">Building B 구역 생산 total AQL 리젝 PO count량:</span> <span id="faqCase2RejectQty">2개</span></strong></p>
                             <p><strong id="faqCase2CalcLabel">calculation:</strong> 2 / 100 × 100 = 2%</p>
-                            <p><strong id="faqCase2ResultLabel">결과:</strong> ✅ 2% < 3% → <span class="badge bg-success" id="faqCase2ResultBadge">조cases 충족</span></p>
+                            <p><strong id="faqCase2ResultLabel">결과:</strong> ✅ 2% < 3% → <span class="badge bg-success" id="faqCase2ResultBadge">조건 충족</span></p>
                         </div>
                         
                         <h6 class="text-primary mb-3 mt-4" id="faqMemberTableTitle">AUDIT & TRAINING TEAM 멤버by 담당 구역</h6>
@@ -6448,9 +6451,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <table class="table table-sm">
                                 <thead>
                                     <tr style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
-                                        <th id="faqTableHeaderName">employeesemployees</th>
+                                        <th id="faqTableHeaderName">직원employees</th>
                                         <th id="faqTableHeaderBuilding">담당 Building</th>
-                                        <th id="faqTableHeaderDesc">설employees</th>
+                                        <th id="faqTableHeaderDesc">설직원</th>
                                         <th id="faqTableHeaderReject">Reject율</th>
                                     </tr>
                                 </thead>
@@ -6500,32 +6503,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <tr>
                                         <td>LÝ DĨ CƯỜNG</td>
                                         <td>-</td>
-                                        <td class="faq-other-conditions">기타 조cases 미충족</td>
+                                        <td class="faq-other-conditions">기타 조건 미충족</td>
                                         <td>-</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <p class="text-muted small mt-2">
-                                <span id="faqRejectRateNote">* Reject율 based on: 3% 미만 (✅ 충족, ❌ 미충족)</span><br>
-                                <span id="faqMemberNote">* {month_kor} based on 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조cases 미충족으로 incentive 0원</span>
+                                <span id="faqRejectRateNote">* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)</span><br>
+                                <span id="faqMemberNote">* {month_kor} 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 incentive 0원</span>
                             </p>
                         </div>
                         
                         <h6 class="text-primary mb-3 mt-4" id="faqCase3Title">예시 3: TYPE-2 STITCHING INSPECTOR</h6>
                         <div class="alert alert-light">
-                            <p><strong id="faqCase3EmployeeLabel">employees:</strong> PHẠM THỊ HOA (STITCHING INSPECTOR)</p>
+                            <p><strong id="faqCase3EmployeeLabel">직원:</strong> PHẠM THỊ HOA (STITCHING INSPECTOR)</p>
                             <p><strong id="faqCase3TypeLabel">직급 type:</strong> TYPE-2</p>
-                            <p><strong id="faqCase3StatusLabel">조cases 충족 현황:</strong></p>
+                            <p><strong id="faqCase3StatusLabel">조건 충족 현황:</strong></p>
                             <ul id="faqCase3ConditionsList">
                                 <li>✅ <span class="faq-case3-attendance-label">출근율:</span> 95% (≥88% <span class="faq-case3-met">충족</span>)</li>
-                                <li>✅ <span class="faq-case3-absence-label">무단결근:</span> <span class="faq-case3-absence-value">0th</span> (≤<span class="faq-case3-absence-limit">2th</span> <span class="faq-case3-met">충족</span>)</li>
-                                <li>✅ <span class="faq-case3-actual-label">actualworkth:</span> <span class="faq-case3-actual-value">19th</span> (><span class="faq-case3-actual-min">0th</span> <span class="faq-case3-met">충족</span>)</li>
-                                <li>✅ <span class="faq-case3-min-label">최소workth:</span> <span class="faq-case3-min-value">19th</span> (≥<span class="faq-case3-min-req">12th</span> <span class="faq-case3-met">충족</span>)</li>
+                                <li>✅ <span class="faq-case3-absence-label">무단결근:</span> <span class="faq-case3-absence-value">0일</span> (≤<span class="faq-case3-absence-limit">2일</span> <span class="faq-case3-met">충족</span>)</li>
+                                <li>✅ <span class="faq-case3-actual-label">actual근무일:</span> <span class="faq-case3-actual-value">19일</span> (><span class="faq-case3-actual-min">0일</span> <span class="faq-case3-met">충족</span>)</li>
+                                <li>✅ <span class="faq-case3-min-label">최소근무일:</span> <span class="faq-case3-min-value">19일</span> (≥<span class="faq-case3-min-req">12일</span> <span class="faq-case3-met">충족</span>)</li>
                             </ul>
                             <p><strong id="faqCase3CalcLabel">incentive calculation:</strong></p>
-                            <p id="faqCase3Explanation">TYPE-2 STITCHING INSPECTOR는 출근 조cases(1-4번)만 확인하며, 모든 조cases을 충족했으므로 기본 incentive를 받습니다.</p>
-                            <p><strong id="faqCase3PaymentLabel">payment액:</strong> 150,000 VND (<span id="faqCase3BasicText">TYPE-2 기본 incentive</span>)</p>
-                            <p class="text-muted" id="faqCase3Note">* TYPE-2는 AQL이나 5PRS 조cases without 출근 조cases만으로 incentive가 determination됩니다.</p>
+                            <p id="faqCase3Explanation">TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 incentive를 받습니다.</p>
+                            <p><strong id="faqCase3PaymentLabel">지급액:</strong> 150,000 VND (<span id="faqCase3BasicText">TYPE-2 기본 incentive</span>)</p>
+                            <p class="text-muted" id="faqCase3Note">* TYPE-2는 AQL이나 5PRS 조건 without 출근 조건만으로 incentive가 determination됩니다.</p>
                         </div>
                     </div>
                 </div>
@@ -6542,17 +6545,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 출근율(%) = 100 - 결근율(%)
                             </code>
                             <code class="d-block p-2 bg-white rounded" id="attendanceFormula2">
-                                결근율(%) = (결근 thcount / total workth) × 100
+                                결근율(%) = (결근 thcount / total 근무일) × 100
                             </code>
-                            <p class="mt-2 text-muted small" id="attendanceFormulaNote">* 결근 thcount = total workth - actual workth - 승인된 휴가</p>
+                            <p class="mt-2 text-muted small" id="attendanceFormulaNote">* 결근 thcount = total 근무일 - actual 근무일 - 승인된 휴가</p>
                         </div>
                         
                         <div class="formula-box p-3 bg-light rounded mb-3">
                             <h6 id="attendanceExamplesTitle">결근율 calculation 예시:</h6>
                             <div class="alert alert-light">
                                 <strong id="attendanceExample1Title">예시 1: 정상 work자</strong><br>
-                                • <span class="att-total-days-label">total workth</span>: 27<span class="att-days-unit">th</span><br>
-                                • <span class="att-actual-days-label">actual workth</span>: 25<span class="att-days-unit">th</span><br>
+                                • <span class="att-total-days-label">total 근무일</span>: 27<span class="att-days-unit">th</span><br>
+                                • <span class="att-actual-days-label">actual 근무일</span>: 25<span class="att-days-unit">th</span><br>
                                 • <span class="att-approved-leave-label">승인된 휴가</span>: 2<span class="att-days-unit">th</span> (<span class="att-annual-leave">연차</span>)<br>
                                 • <span class="att-absence-days-label">결근 thcount</span>: 27 - 25 - 2 = 0<span class="att-days-unit">th</span><br>
                                 • <span class="att-absence-rate-label">결근율</span>: (0 / 27) × 100 = <strong>0%</strong><br>
@@ -6560,8 +6563,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </div>
                             <div class="alert alert-light">
                                 <strong id="attendanceExample2Title">예시 2: 무단결근 포함</strong><br>
-                                • <span class="att-total-days-label">total workth</span>: 27<span class="att-days-unit">th</span><br>
-                                • <span class="att-actual-days-label">actual workth</span>: 22<span class="att-days-unit">th</span><br>
+                                • <span class="att-total-days-label">total 근무일</span>: 27<span class="att-days-unit">th</span><br>
+                                • <span class="att-actual-days-label">actual 근무일</span>: 22<span class="att-days-unit">th</span><br>
                                 • <span class="att-approved-leave-label">승인된 휴가</span>: 1<span class="att-days-unit">th</span> (<span class="att-sick-leave">병가</span>)<br>
                                 • <span class="att-unauthorized-absence-label">무단결근</span>: 4<span class="att-days-unit">th</span> (AR1)<br>
                                 • <span class="att-absence-days-label">결근 thcount</span>: 27 - 22 - 1 = 4<span class="att-days-unit">th</span><br>
@@ -6569,15 +6572,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 • <span class="att-attendance-rate-label">출근율</span>: 100 - 14.8 = <strong>85.2%</strong> ❌ (<span class="att-less-than-88">88% 미만</span>)
                             </div>
                             <div class="alert alert-light">
-                                <strong id="attendanceExample3Title">예시 3: 조cases 충족 경계선</strong><br>
-                                • <span class="att-total-days-label">total workth</span>: 27<span class="att-days-unit">th</span><br>
-                                • <span class="att-actual-days-label">actual workth</span>: 24<span class="att-days-unit">th</span><br>
+                                <strong id="attendanceExample3Title">예시 3: 조건 충족 경계선</strong><br>
+                                • <span class="att-total-days-label">total 근무일</span>: 27<span class="att-days-unit">th</span><br>
+                                • <span class="att-actual-days-label">actual 근무일</span>: 24<span class="att-days-unit">th</span><br>
                                 • <span class="att-approved-leave-label">승인된 휴가</span>: 0<span class="att-days-unit">th</span><br>
                                 • <span class="att-unauthorized-absence-label">무단결근</span>: 3<span class="att-days-unit">th</span> (AR1)<br>
                                 • <span class="att-absence-days-label">결근 thcount</span>: 27 - 24 - 0 = 3<span class="att-days-unit">th</span><br>
                                 • <span class="att-absence-rate-label">결근율</span>: (3 / 27) × 100 = <strong>11.1%</strong><br>
                                 • <span class="att-attendance-rate-label">출근율</span>: 100 - 11.1 = <strong>88.9%</strong> ✅ (<span class="att-more-than-88">88% 이상</span>)<br>
-                                • <span id="attendanceCondition2NotMet">단, 무단결근 3th로 조cases 2 미충족 → incentive 0원</span>
+                                • <span id="attendanceCondition2NotMet">단, 무단결근 3일로 조건 2 미충족 → incentive 0원</span>
                             </div>
                         </div>
                         
@@ -6611,8 +6614,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <strong id="attendanceCountingRulesTitle">📢 무단결근 카운팅 규칙:</strong>
                                         <ul class="mb-0 small">
                                             <li id="attendanceCountingRule1">AR1 카테고리만 무단결근으로 카운트</li>
-                                            <li id="attendanceCountingRule2">2th까지는 incentive payment 가능</li>
-                                            <li id="attendanceCountingRule3">3th 이상 → incentive 0원</li>
+                                            <li id="attendanceCountingRule2">2일까지는 incentive 지급 가능</li>
+                                            <li id="attendanceCountingRule3">3일 이상 → incentive 0원</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -6620,27 +6623,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
                         
                         <div class="formula-box p-3 bg-light rounded">
-                            <h6 id="attendanceConditionCriteriaTitle">조cases 충족 based on:</h6>
+                            <h6 id="attendanceConditionCriteriaTitle">조건 충족 기준:</h6>
                             <ul>
                                 <li id="attendanceCriteria1"><strong>출근율:</strong> ≥ 88% (결근율 ≤ 12%)</li>
-                                <li id="attendanceCriteria2"><strong>무단결근:</strong> ≤ 2th (AR1 카테고리만 corresponding)</li>
-                                <li id="attendanceCriteria3"><strong>actual workth:</strong> > 0th</li>
-                                <li id="attendanceCriteria4"><strong>최소 workth:</strong> ≥ 12th</li>
+                                <li id="attendanceCriteria2"><strong>무단결근:</strong> ≤ 2일 (AR1 카테고리만 corresponding)</li>
+                                <li id="attendanceCriteria3"><strong>actual 근무일:</strong> > 0일</li>
+                                <li id="attendanceCriteria4"><strong>최소 근무일:</strong> ≥ 12일</li>
                             </ul>
                             <div class="alert alert-info mt-2">
-                                <strong id="attendanceUnapprovedTitle">📊 Unapproved Absence Days 설employees:</strong>
+                                <strong id="attendanceUnapprovedTitle">📊 Unapproved Absence Days 설직원:</strong>
                                 <ul class="mb-0 small">
                                     <li id="attendanceUnapproved1">HR 시스템에서 제공하는 무단결근 thcount data</li>
                                     <li id="attendanceUnapproved2">AR1 (Vắng không phép) 카테고리만 집계</li>
                                     <li id="attendanceUnapproved3">서면통지 결근(Gửi thư)도 AR1에 포함</li>
-                                    <li id="attendanceUnapproved4">incentive 조cases: ≤2th (개인by 최대 허용치)</li>
+                                    <li id="attendanceUnapproved4">incentive 조건: ≤2일 (개인by 최대 허용치)</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- QIP Talent Pool 프로그램 설employees 섹션 -->
+                <!-- QIP Talent Pool 프로그램 설직원 섹션 -->
                 <div class="card mb-4">
                     <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                         <h5 class="mb-0" id="talentProgramTitle">🌟 QIP Talent Pool incentive 프로그램</h5>
@@ -6648,14 +6651,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="card-body">
                         <div class="alert alert-info mb-4">
                             <p class="mb-0" id="talentProgramIntro">
-                                <strong>QIP Talent Pool</strong>은 우count한 성과를 보이는 인원들을 target으로 하는 특by incentive 프로그램입니다.
-                                선정된 인원은 6개month간 매month 추가 보너스를 받게 됩니다.
+                                <strong>QIP Talent Pool</strong>은 우수한 성과를 보이는 인원들을 대상으로 하는 특별 incentive 프로그램입니다.
+                                선정된 인원은 6개월간 매month 추가 보너스를 받게 됩니다.
                             </p>
                         </div>
                         
-                        <h6 class="mb-3" id="talentProgramQualificationTitle">🎯 선정 based on</h6>
+                        <h6 class="mb-3" id="talentProgramQualificationTitle">🎯 선정 기준</h6>
                         <ul id="talentProgramQualifications">
-                            <li>업무 성과 우count자</li>
+                            <li>업무 성과 우수자</li>
                             <li>품질 목표 달성률 상위 10%</li>
                             <li>팀워크 및 리더십 발휘</li>
                             <li>지속적인 개선 활동 참여</li>
@@ -6666,7 +6669,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div class="col-md-6">
                                 <div class="card bg-light">
                                     <div class="card-body">
-                                        <h6 id="talentProgramMonthlyBonusTitle">month 특by 보너스</h6>
+                                        <h6 id="talentProgramMonthlyBonusTitle">month 특별 보너스</h6>
                                         <h4 class="text-primary">150,000 VND</h4>
                                     </div>
                                 </div>
@@ -6674,14 +6677,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div class="col-md-6">
                                 <div class="card bg-light">
                                     <div class="card-body">
-                                        <h6 id="talentProgramTotalBonusTitle">total payment 예정액 (6개month)</h6>
+                                        <h6 id="talentProgramTotalBonusTitle">total 지급 예정액 (6개월)</h6>
                                         <h4 class="text-success">900,000 VND</h4>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <h6 class="mb-3" id="talentProgramProcessTitle">📋 평가 프로세스 (6개month 주기)</h6>
+                        <h6 class="mb-3" id="talentProgramProcessTitle">📋 평가 프로세스 (6개월 주기)</h6>
                         <div class="timeline-container">
                             <style>
                                 .timeline-container {{
@@ -6728,7 +6731,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="timeline-number">1</div>
                                 <div class="timeline-content">
                                     <strong id="talentStep1Title">후보자 추천</strong>
-                                    <p class="mb-0 text-muted small" id="talentStep1Desc">각 부서에서 우count 인원 추천</p>
+                                    <p class="mb-0 text-muted small" id="talentStep1Desc">각 부서에서 우수 인원 추천</p>
                                 </div>
                             </div>
                             
@@ -6736,7 +6739,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="timeline-number">2</div>
                                 <div class="timeline-content">
                                     <strong id="talentStep2Title">성과 평가</strong>
-                                    <p class="mb-0 text-muted small" id="talentStep2Desc">최근 3개month간 성과 data 분석</p>
+                                    <p class="mb-0 text-muted small" id="talentStep2Desc">최근 3개월간 성과 data 분석</p>
                                 </div>
                             </div>
                             
@@ -6759,8 +6762,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div class="timeline-step">
                                 <div class="timeline-number">5</div>
                                 <div class="timeline-content">
-                                    <strong id="talentStep5Title">보너스 payment</strong>
-                                    <p class="mb-0 text-muted small" id="talentStep5Desc">매month 정기 incentive와 함께 payment</p>
+                                    <strong id="talentStep5Title">보너스 지급</strong>
+                                    <p class="mb-0 text-muted small" id="talentStep5Desc">매month 정기 incentive와 함께 지급</p>
                                 </div>
                             </div>
                             
@@ -6768,7 +6771,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="timeline-number">6</div>
                                 <div class="timeline-content">
                                     <strong id="talentStep6Title">재평가</strong>
-                                    <p class="mb-0 text-muted small" id="talentStep6Desc">6개month 후 재평가 실시</p>
+                                    <p class="mb-0 text-muted small" id="talentStep6Desc">6개월 후 재평가 실시</p>
                                 </div>
                             </div>
                         </div>
@@ -6776,10 +6779,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="alert alert-warning mt-4">
                             <h6 id="talentProgramImportantTitle">⚠️ 중요 사항</h6>
                             <ul class="mb-0" id="talentProgramImportantNotes">
-                                <li>Talent Pool 보너스는 기본 incentive와 by도로 payment됩니다</li>
-                                <li>payment 기간 중 퇴사 시 자격이 자동 상실됩니다</li>
+                                <li>Talent Pool 보너스는 기본 incentive와 by도로 지급됩니다</li>
+                                <li>지급 기간 중 퇴사 시 자격이 자동 상실됩니다</li>
                                 <li>성과 미달 시 조기 end될 count 있습니다</li>
-                                <li>매 6개month마다 재평가를 통해 갱신 여부가 determination됩니다</li>
+                                <li>매 6개월마다 재평가를 통해 갱신 여부가 determination됩니다</li>
                             </ul>
                         </div>
                         
@@ -6839,18 +6842,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="faq-container">
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion1">
-                                    Q1. 왜 나는 incentive를 못 받았나요? 조cases을 확인하는 방법은?
+                                    Q1. 왜 나는 incentive를 못 받았나요? 조건을 확인하는 방법은?
                                 </div>
                                 <div class="faq-answer">
                                     <strong id="faqAnswer1Main">incentive를 받지 못한 주요 이유:</strong>
                                     <ul>
-                                        <li id="faqAnswer1Reason1">최소 workth 12th 미충족</li>
+                                        <li id="faqAnswer1Reason1">최소 근무일 12일 미충족</li>
                                         <li id="faqAnswer1Reason2">출근율 88% 미만</li>
-                                        <li id="faqAnswer1Reason3">무단결근 3th 이상</li>
+                                        <li id="faqAnswer1Reason3">무단결근 3일 이상</li>
                                         <li id="faqAnswer1Reason4">AQL failed (corresponding 직급)</li>
                                         <li id="faqAnswer1Reason5">5PRS 통과율 95% 미만 (corresponding 직급)</li>
                                     </ul>
-                                    <span id="faqAnswer1CheckMethod">개인by 상세 페이지에서 본인의 조cases 충족 여부를 확인할 count 있습니다.</span>
+                                    <span id="faqAnswer1CheckMethod">개인by 상세 페이지에서 본인의 조건 충족 여부를 확인할 count 있습니다.</span>
                                 </div>
                             </div>
                             
@@ -6859,7 +6862,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     Q2. 무단결근이 며칠까지 허용되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <strong id="faqAnswer2Main">무단결근은 최대 2th까지 허용됩니다.</strong> <span id="faqAnswer2Detail">3th 이상 무단결근시 corresponding month incentive를 받을 count not found. 사전 승인된 휴가나 병가는 무단결근에 포함되지 not.</span>
+                                    <strong id="faqAnswer2Main">무단결근은 최대 2일까지 허용됩니다.</strong> <span id="faqAnswer2Detail">3일 이상 무단결근시 corresponding month incentive를 받을 count not found. 사전 승인된 휴가나 병가는 무단결근에 포함되지 not.</span>
                                 </div>
                             </div>
                             
@@ -6868,7 +6871,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     Q3. TYPE-2 직급의 incentive는 어떻게 calculation되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <span id="faqAnswer3Main">TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 based on으로 calculation됩니다.</span>
+                                    <span id="faqAnswer3Main">TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
                                     <span id="faqAnswer3Example">예를 들어:</span>
                                     <ul>
                                         <li id="faqAnswer3Example1">TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 incentive</li>
@@ -6879,13 +6882,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion4">
-                                    Q4. ASSEMBLY INSPECTOR의 연속 work 개month은 어떻게 calculation되나요?
+                                    Q4. ASSEMBLY INSPECTOR의 연속 work 개월은 어떻게 calculation되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <span id="faqAnswer4Main">TYPE-1 ASSEMBLY INSPECTOR만 corresponding되며, 조cases을 충족하며 incentive를 받은 개monthcount가 누적됩니다.</span>
+                                    <span id="faqAnswer4Main">TYPE-1 ASSEMBLY INSPECTOR만 corresponding되며, 조건을 충족하며 incentive를 받은 개월count가 누적됩니다.</span>
                                     <ul>
-                                        <li id="faqAnswer4Detail1">조cases 미충족으로 incentive를 못 받으면 0개month로 리셋</li>
-                                        <li id="faqAnswer4Detail2">12개month 이상 연속시 최대 incentive 1,000,000 VND</li>
+                                        <li id="faqAnswer4Detail1">조건 미충족으로 incentive를 못 받으면 0개월로 리셋</li>
+                                        <li id="faqAnswer4Detail2">12개월 이상 연속시 최대 incentive 1,000,000 VND</li>
                                     </ul>
                                 </div>
                             </div>
@@ -6895,10 +6898,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     Q5. AQL failed가 무엇이고 어떤 영향을 미치나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <span id="faqAnswer5Main">AQL(Acceptable Quality Limit)은 품질 검사 based on입니다.</span>
+                                    <span id="faqAnswer5Main">AQL(Acceptable Quality Limit)은 품질 검사 기준입니다.</span>
                                     <ul>
                                         <li id="faqAnswer5Detail1">개인 AQL failed: corresponding month에 품질 검사 failed한 경우</li>
-                                        <li id="faqAnswer5Detail2">3consecutive months failed: 지난 3개month 동안 연속으로 failed한 경우</li>
+                                        <li id="faqAnswer5Detail2">3연속 개월 실패: 지난 3개월 동안 연속으로 failed한 경우</li>
                                         <li id="faqAnswer5Detail3">AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)</li>
                                     </ul>
                                 </div>
@@ -6909,7 +6912,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     Q6. 5PRS 검사량이 부족하면 어떻게 되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <span id="faqAnswer6Main">5PRS 관련 직급은 다음 조cases을 충족해야 합니다:</span>
+                                    <span id="faqAnswer6Main">5PRS 관련 직급은 다음 조건을 충족해야 합니다:</span>
                                     <ul>
                                         <li id="faqAnswer6Detail1">검사량 100족 이상</li>
                                         <li id="faqAnswer6Detail2">통과율 95% 이상</li>
@@ -6923,11 +6926,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     Q7. 출산휴가나 병가 중에도 incentive를 받을 count 있나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <strong id="faqAnswer7Main">출산휴가나 장기 병가 중에는 incentive가 payment되지 not.</strong>
+                                    <strong id="faqAnswer7Main">출산휴가나 장기 병가 중에는 incentive가 지급되지 not.</strong>
                                     <ul>
-                                        <li id="faqAnswer7Detail1">최소 workth 12th 조cases을 충족할 count 없기 때문</li>
-                                        <li id="faqAnswer7Detail2">복귀 후 조cases 충족시 다시 incentive count령 가능</li>
-                                        <li id="faqAnswer7Detail3">ASSEMBLY INSPECTOR의 경우 연속 개monthcount는 0으로 리셋</li>
+                                        <li id="faqAnswer7Detail1">최소 근무일 12일 조건을 충족할 count 없기 때문</li>
+                                        <li id="faqAnswer7Detail2">복귀 후 조건 충족시 다시 incentive 수령 가능</li>
+                                        <li id="faqAnswer7Detail3">ASSEMBLY INSPECTOR의 경우 연속 개월count는 0으로 리셋</li>
                                     </ul>
                                 </div>
                             </div>
@@ -6939,10 +6942,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="faq-answer">
                                     <span id="faqAnswer8Main">incentive 금액이 변동하는 주요 이유:</span>
                                     <ul>
-                                        <li id="faqAnswer8Reason1"><strong>ASSEMBLY INSPECTOR</strong>: 연속 work 개month 변화</li>
+                                        <li id="faqAnswer8Reason1"><strong>ASSEMBLY INSPECTOR</strong>: 연속 work 개월 변화</li>
                                         <li id="faqAnswer8Reason2"><strong>TYPE-2 직급</strong>: TYPE-1 평균값 변동</li>
-                                        <li id="faqAnswer8Reason3"><strong>AQL INSPECTOR</strong>: Part1, Part2, Part3 조cases 변화</li>
-                                        <li id="faqAnswer8Reason4"><strong>조cases 미충족</strong>: 하나라도 미충족시 0</li>
+                                        <li id="faqAnswer8Reason3"><strong>AQL INSPECTOR</strong>: Part1, Part2, Part3 조건 변화</li>
+                                        <li id="faqAnswer8Reason4"><strong>조건 미충족</strong>: 하나라도 미충족시 0</li>
                                     </ul>
                                 </div>
                             </div>
@@ -6953,27 +6956,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </div>
                                 <div class="faq-answer">
                                     <ul>
-                                        <li id="faqAnswer9Detail1"><strong>TYPE-3</strong>: 조cases without 기본 150,000 VND (work시 자동 payment)</li>
-                                        <li id="faqAnswer9Detail2"><strong>TYPE-2</strong>: 조cases 충족 필요, TYPE-1 평균 based on calculation</li>
-                                        <li id="faqAnswer9Detail3">승진 후 조cases 충족시 th반적으로 incentive 증가</li>
-                                        <li id="faqAnswer9Detail4">하지만 조cases 미충족시 0이 될 count 있으므로 주의 필요</li>
+                                        <li id="faqAnswer9Detail1"><strong>TYPE-3</strong>: 조건 without 기본 150,000 VND (work시 자동 지급)</li>
+                                        <li id="faqAnswer9Detail2"><strong>TYPE-2</strong>: 조건 충족 필요, TYPE-1 평균 기준 calculation</li>
+                                        <li id="faqAnswer9Detail3">승진 후 조건 충족시 th반적으로 incentive 증가</li>
+                                        <li id="faqAnswer9Detail4">하지만 조건 미충족시 0이 될 count 있으므로 주의 필요</li>
                                     </ul>
                                 </div>
                             </div>
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion10">
-                                    Q10. 조cases을 모두 충족했는데도 incentive가 0인 이유는 무엇인가요?
+                                    Q10. 조건을 모두 충족했는데도 incentive가 0인 이유는 무엇인가요?
                                 </div>
                                 <div class="faq-answer">
                                     <span id="faqAnswer10Main">다음 사항을 재확인해 보세요:</span>
                                     <ul>
-                                        <li id="faqAnswer10Reason1"><strong>숨겨진 조cases</strong>: 직급by로 apply되는 모든 조cases 확인</li>
-                                        <li id="faqAnswer10Reason2"><strong>data 업데이트</strong>: 최신 data 반영 여부</li>
-                                        <li id="faqAnswer10Reason3"><strong>특by한 사유</strong>: 징계, 경고 등 특by 사유</li>
+                                        <li id="faqAnswer10Reason1"><strong>숨겨진 조건</strong>: 직급by로 apply되는 모든 조건 확인</li>
+                                        <li id="faqAnswer10Reason2"><strong>데이터 업데이트</strong>: 최신 data 반영 여부</li>
+                                        <li id="faqAnswer10Reason3"><strong>특별한 사유</strong>: 징계, 경고 등 특별 사유</li>
                                         <li id="faqAnswer10Reason4"><strong>시스템 오류</strong>: HR 부서에 문의</li>
                                     </ul>
-                                    <span id="faqAnswer10Conclusion">개인by 상세 페이지에서 조casesby 충족 여부를 상세히 확인하시기 바랍니다.</span>
+                                    <span id="faqAnswer10Conclusion">개인by 상세 페이지에서 조건by 충족 여부를 상세히 확인하시기 바랍니다.</span>
                                 </div>
                             </div>
 
@@ -6982,14 +6985,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     Q11. TYPE-2 GROUP LEADER가 incentive를 못 받는 경우가 있나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <span id="faqAnswer11Main">TYPE-2 GROUP LEADER는 특by한 calculation 규칙이 apply됩니다:</span>
+                                    <span id="faqAnswer11Main">TYPE-2 GROUP LEADER는 특별한 calculation 규칙이 apply됩니다:</span>
                                     <ul>
                                         <li id="faqAnswer11Detail1"><strong>기본 calculation:</strong> TYPE-1 GROUP LEADER 평균 incentive를 받습니다</li>
                                         <li id="faqAnswer11Detail2"><strong>독립 calculation:</strong> TYPE-1 GROUP LEADER 평균이 0 VNDth 경우, 자동으로 total TYPE-2 LINE LEADER 평균 × 2로 calculation됩니다</li>
-                                        <li id="faqAnswer11Detail3"><strong>개선 사항:</strong> 부하employees 관계와 상관without total TYPE-2 LINE LEADER 평균을 use하여 더 공정한 calculation이 이루어집니다</li>
-                                        <li id="faqAnswer11Detail4"><strong>조cases:</strong> TYPE-2는 출근 조cases(1-4번)만 충족하면 incentive를 받을 count 있습니다</li>
+                                        <li id="faqAnswer11Detail3"><strong>개선 사항:</strong> 부하직원 관계와 상관without total TYPE-2 LINE LEADER 평균을 use하여 더 공정한 calculation이 이루어집니다</li>
+                                        <li id="faqAnswer11Detail4"><strong>조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 incentive를 받을 count 있습니다</li>
                                     </ul>
-                                    <span id="faqAnswer11Conclusion">따라서 출근 조cases을 충족한 TYPE-2 GROUP LEADER는 항상 incentive를 받을 count 있도록 보장됩니다.</span>
+                                    <span id="faqAnswer11Conclusion">따라서 출근 조건을 충족한 TYPE-2 GROUP LEADER는 항상 incentive를 받을 count 있도록 보장됩니다.</span>
                                 </div>
                             </div>
                         </div>
@@ -7046,8 +7049,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div class="col-md-4">
                                 <select id="orgIncentiveFilter" class="form-select" onchange="updateOrgChart()">
                                     <option value="" id="filterAll">total 보기</option>
-                                    <option value="paid" id="filterPaid">incentive count령자</option>
-                                    <option value="unpaid" id="filterUnpaid">incentive 미count령자</option>
+                                    <option value="paid" id="filterPaid">incentive 수령자</option>
+                                    <option value="unpaid" id="filterUnpaid">incentive 미수령자</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
@@ -7077,17 +7080,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <span><span style="display:inline-block; width:15px; height:15px; background:#d62728; border-radius:3px;"></span> Line Leader</span>
                                 <span><span style="display:inline-block; width:15px; height:15px; background:#9467bd; border-radius:3px;"></span> Inspector</span>
                                 <span><span style="display:inline-block; width:15px; height:15px; background:#8c564b; border-radius:3px;"></span> Others</span>
-                                <span class="ms-3"><span style="display:inline-block; width:15px; height:15px; border: 2px solid #28a745; border-radius:3px;"></span> <span id="legendReceived">incentive count령</span></span>
-                                <span><span style="display:inline-block; width:15px; height:15px; border: 2px solid #dc3545; border-radius:3px;"></span> <span id="legendNotReceived">incentive 미count령</span></span>
+                                <span class="ms-3"><span style="display:inline-block; width:15px; height:15px; border: 2px solid #28a745; border-radius:3px;"></span> <span id="legendReceived">incentive 수령</span></span>
+                                <span><span style="display:inline-block; width:15px; height:15px; border: 2px solid #dc3545; border-radius:3px;"></span> <span id="legendNotReceived">incentive 미수령</span></span>
                             </div>
                         </div>
 
                         <!-- 새로운 접이식 조직도 컨테이너 -->
                         <div id="orgChartContainer" class="collapsible-tree">
-                            <!-- 제목 및 설employees -->
+                            <!-- 제목 및 설직원 -->
                             <div class="org-header">
                                 <h4 id="orgChartTitleMain">TYPE-1 관리자 incentive 구조</h4>
-                                <p id="orgChartSubtitleMain" class="text-muted">TYPE-1 managers receiving incentive based on subordinate performance</p>
+                                <p id="orgChartSubtitleMain" class="text-muted">TYPE-1 managers receiving incentive 기준 subordinate performance</p>
                             </div>
 
                             <!-- 검색 및 필터 컨트롤 -->
@@ -7096,7 +7099,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <div class="col-md-6">
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                            <input type="text" id="orgSearchInput" class="form-control" placeholder="employees 이름 또는 ID 검색...">
+                                            <input type="text" id="orgSearchInput" class="form-control" placeholder="직원 이름 또는 ID 검색...">
                                             <button class="btn btn-outline-secondary" id="orgSearchClear" type="button">
                                                 <i class="fas fa-times"></i>
                                             </button>
@@ -7115,11 +7118,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </div>
                             </div>
 
-                            <!-- use 안내 -->
+                            <!-- 사용 안내 -->
                             <div class="alert alert-info mb-3" role="alert" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-left: 4px solid #6366f1;">
                                 <i class="fas fa-info-circle me-2"></i>
-                                <strong>💡 <span id="usageGuideTitle">use 안내:</span></strong> <span id="usageGuideText">incentive 금액 또는 <span class="badge bg-primary">ℹ️</span> 버튼을 클릭하면 상세 정보를 볼 count 있습니다.</span>
-                                <span class="float-end text-muted small" id="usageGuideSubtext">각 employees의 incentive calculation based on과 부하employees 정보를 확인하세요</span>
+                                <strong>💡 <span id="usageGuideTitle"></span></strong> <span id="usageGuideText"></span>
+                                <span class="float-end text-muted small" id="usageGuideHelpText"></span>
                             </div>
 
                             <!-- 범례 -->
@@ -7144,11 +7147,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     </span>
                                     <span class="legend-item ms-3">
                                         <span class="legend-dot received"></span>
-                                        <span id="legendIncentiveReceived">incentive count령</span>
+                                        <span id="legendIncentiveReceived">incentive 수령</span>
                                     </span>
                                     <span class="legend-item">
                                         <span class="legend-dot not-received"></span>
-                                        <span id="legendNoIncentive">incentive 미count령</span>
+                                        <span id="legendNoIncentive">incentive 미수령</span>
                                     </span>
                                 </div>
                             </div>
@@ -7159,7 +7162,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
 
 
-                        <!-- employees 정보 툴팁 -->
+                        <!-- 직원 정보 툴팁 -->
                         <div id="orgTooltip" style="position: absolute; visibility: hidden; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1000;">
                         </div>
                     </div>
@@ -7171,10 +7174,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         <div id="validation" class="tab-content">
             <h3 id="validationTabTitle">요약 및 시스템 검증</h3>
 
-            <!-- interim report 알림 (20th 이전 report인 경우에만 표시) -->
+            <!-- interim report 알림 (20일 이전 report인 경우에만 표시) -->
             <div id="interimReportNotice" class="alert alert-warning" style="display: none;">
                 <i class="fas fa-info-circle"></i>
-                <span id="interimReportText">interim report - 최소 workth(12th) 및 출근율(88%) 조cases이 apply되지 not</span>
+                <span id="interimReportText">interim report - 최소 근무일(12일) 및 출근율(88%) 조건이 apply되지 not</span>
             </div>
 
             <!-- KPI 카드 스타th -->
@@ -7336,12 +7339,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         </div>
     </div>
 
-    <!-- employees 상세 모달 (Bootstrap 5) -->
+    <!-- 직원 상세 모달 (Bootstrap 5) -->
     <div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle">employees 상세 정보</h5>
+                    <h5 class="modal-title" id="modalTitle">직원 상세 정보</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="modalBody">
@@ -7374,7 +7377,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     <!-- 모든 JSON data를 by도의 script 태그에 저장 -->
     <script type="application/json" id="employeeDataBase64">
-        {employees_json_base64}
+        {직원_json_base64}
     </script>
 
     <script type="application/json" id="translationsData">
@@ -7446,11 +7449,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 use
             console.log('[DEBUG] Decoded JSON string length:', jsonStr.length);
             const employeeData = JSON.parse(jsonStr);
-            console.log('[DEBUG] Parsed employee data:', employeeData.length, 'employees');
+            console.log('[DEBUG] Parsed employee data:', employeeData.length, '직원');
             window.employeeData = employeeData;
-            console.log('Employee data loaded successfully:', employeeData.length, 'employees');
+            console.log('Employee data loaded successfully:', employeeData.length, '직원');
 
-            // AQL Inspector Stats load (inspectors 인원 based on)
+            // AQL Inspector Stats load (inspectors 인원 기준)
             const aqlStatsElement = document.getElementById('aqlInspectorStatsBase64');
             if (aqlStatsElement) {{
                 const aqlStatsBase64 = aqlStatsElement.textContent.trim();
@@ -7459,7 +7462,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 console.log('AQL Inspector Stats loaded successfully:', Object.keys(window.aqlInspectorStats).length, 'areas');
             }}
 
-            // AQL File Stats load (검사 casescount based on - Table 1용)
+            // AQL File Stats load (검사 casescount 기준 - Table 1용)
             const aqlFileStatsElement = document.getElementById('aqlFileStatsBase64');
             if (aqlFileStatsElement) {{
                 const aqlFileStatsBase64 = aqlFileStatsElement.textContent.trim();
@@ -7483,8 +7486,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     const conditionNames = {{
                         1: '출근율 (Attendance Rate)',
                         2: '무단결근 (Unapproved Absence)',
-                        3: 'actual workthcount (Actual Working Days)',
-                        4: '최소 workthcount (Minimum Working Days)',
+                        3: 'actual 근무일count (Actual Working Days)',
+                        4: '최소 근무일count (Minimum Working Days)',
                         5: 'AQL 개인 failed (Personal AQL Failure)',
                         6: 'AQL 연속 failed (Continuous AQL Failure)',
                         7: 'AQL 팀 영역 (Team Area AQL)',
@@ -7511,12 +7514,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         else if (i === 9) statusField = 'cond_9_5prs_pass_rate';
                         else if (i === 10) statusField = 'cond_10_5prs_inspection_qty';
 
-                        // statusField가 null/undefined/'N/A'이면 조cases은 corresponding employees에게 apply되지 않음
+                        // statusField가 null/undefined/'N/A'이면 조건은 corresponding 직원에게 apply되지 않음
                         const statusValue = emp[statusField];
                         if (statusValue === null || statusValue === undefined ||
                             statusValue === 'N/A' || statusValue === '' ||
                             (typeof statusValue === 'number' && isNaN(statusValue))) {{
-                            // excluded_conditions: 조cases 자체가 N/A이므로 추가하지 않음
+                            // excluded_conditions: 조건 자체가 N/A이므로 추가하지 않음
                             continue;
                         }}
 
@@ -7586,7 +7589,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 rate: totalCount > 0 ? (paidCount / totalCount * 100).toFixed(1) : '0.0'
             }};
 
-            console.log('초기 통계: total ' + totalCount + 'employees, payment ' + paidCount + 'employees, total액 ' + totalAmount + ' VND');
+            console.log('초기 통계: total ' + totalCount + '직원, 지급 ' + paidCount + '직원, total액 ' + totalAmount + ' VND');
 
             }} catch (e) {{
                 console.error("Failed to parse employee data:", e);
@@ -7637,7 +7640,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // attendance raw data를 전역 변count로 설정
                     if (excelDashboardData.attendance_raw_data) {{
                         window.attendanceRawData = excelDashboardData.attendance_raw_data;
-                        console.log('Attendance raw data loaded:', Object.keys(window.attendanceRawData).length, 'employees');
+                        console.log('Attendance raw data loaded:', Object.keys(window.attendanceRawData).length, '직원');
                     }}
 
                     console.log('Excel dashboard data loaded successfully');
@@ -7763,12 +7766,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // Case 1 - TYPE-1 ASSEMBLY INSPECTOR
             const case1Title = document.getElementById('faqCase1Title');
             if (case1Title) {{
-                case1Title.textContent = translations.incentiveCalculation?.faq?.case1Title?.[lang] || '예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개month 연속 work)';
+                case1Title.textContent = translations.incentiveCalculation?.faq?.case1Title?.[lang] || '예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 work)';
             }}
             
             const case1EmployeeLabel = document.getElementById('faqCase1EmployeeLabel');
             if (case1EmployeeLabel) {{
-                case1EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || 'employees:';
+                case1EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
             }}
             
             const case1PrevMonthLabel = document.getElementById('faqCase1PrevMonthLabel');
@@ -7778,17 +7781,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const case1PrevMonthText = document.getElementById('faqCase1PrevMonthText');
             if (case1PrevMonthText) {{
-                const months = translations.incentiveCalculation?.faq?.consecutiveMonthsWorked?.[lang] || '개month 연속 →';
-                const received = translations.incentiveCalculation?.faq?.incentiveReceived?.[lang] || 'VND count령';
+                const months = translations.incentiveCalculation?.faq?.consecutiveMonthsWorked?.[lang] || '개월 연속 →';
+                const received = translations.incentiveCalculation?.faq?.incentiveReceived?.[lang] || 'VND 수령';
                 case1PrevMonthText.textContent = `9${{months}} 750,000 ${{received}}`;
             }}
             
             const case1ConditionsLabel = document.getElementById('faqCase1ConditionsLabel');
             if (case1ConditionsLabel) {{
-                case1ConditionsLabel.textContent = translations.incentiveCalculation?.faq?.conditionEvaluation?.[lang] || '당month 조cases 충족:';
+                case1ConditionsLabel.textContent = translations.incentiveCalculation?.faq?.conditionEvaluation?.[lang] || '당month 조건 충족:';
             }}
             
-            // Case 1 조cases들 업데이트
+            // Case 1 조건들 업데이트
             document.querySelectorAll('.faq-attendance-label').forEach(el => {{
                 el.textContent = translations.incentiveCalculation?.faq?.attendanceRateMet?.[lang] || '출근율:';
             }});
@@ -7796,10 +7799,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = translations.incentiveCalculation?.faq?.unauthorizedAbsenceMet?.[lang] || '무단결근:';
             }});
             document.querySelectorAll('.faq-actual-days-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.actualWorkingDays?.[lang] || 'actual workth:';
+                el.textContent = translations.incentiveCalculation?.faq?.actualWorkingDays?.[lang] || 'actual 근무일:';
             }});
             document.querySelectorAll('.faq-min-days-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.minimumWorkingDays?.[lang] || '최소 workth:';
+                el.textContent = translations.incentiveCalculation?.faq?.minimumWorkingDays?.[lang] || '최소 근무일:';
             }});
             document.querySelectorAll('.faq-aql-current-label').forEach(el => {{
                 el.textContent = translations.incentiveCalculation?.faq?.personalAql?.[lang] || '개인 AQL (당month):';
@@ -7840,7 +7843,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = translations.incentiveCalculation?.faq?.failureText?.[lang] || 'failed 0cases';
             }});
             document.querySelectorAll('.faq-aql-consecutive-value').forEach(el => {{
-                el.textContent = '3' + (translations.incentiveCalculation?.faq?.monthsConsecutiveNoFailure?.[lang] || 'consecutive months failed 없음');
+                el.textContent = '3' + (translations.incentiveCalculation?.faq?.monthsConsecutiveNoFailure?.[lang] || '연속 개월 실패 없음');
             }});
             document.querySelectorAll('.faq-fprs-qty-value').forEach(el => {{
                 el.textContent = '150' + items;
@@ -7856,10 +7859,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const case1ResultText = document.getElementById('faqCase1ResultText');
             if (case1ResultText) {{
-                const allMet = translations.incentiveCalculation?.faq?.allConditionsMet?.[lang] || '모든 조cases 충족';
-                const consecutive = translations.incentiveCalculation?.faq?.consecutiveMonthsWorked?.[lang] || '개month 연속 →';
-                const payment = translations.incentiveCalculation?.faq?.incentivePayment?.[lang] || 'VND payment';
-                case1ResultText.innerHTML = `${{allMet}} → <span class="badge bg-success">10${{consecutive}} 850,000 ${{payment}}</span>`;
+                const allMet = translations.incentiveCalculation?.faq?.allConditionsMet?.[lang] || '모든 조건 충족';
+                const consecutive = translations.incentiveCalculation?.faq?.consecutiveMonthsWorked?.[lang] || '개월 연속 →';
+                const 지급 = translations.incentiveCalculation?.faq?.incentivePayment?.[lang] || 'VND 지급';
+                case1ResultText.innerHTML = `${{allMet}} → <span class="badge bg-success">10${{consecutive}} 850,000 ${{지급}}</span>`;
             }}
             
             // Case 2 - AUDIT & TRAINING TEAM
@@ -7870,7 +7873,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const case2EmployeeLabel = document.getElementById('faqCase2EmployeeLabel');
             if (case2EmployeeLabel) {{
-                case2EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || 'employees:';
+                case2EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
             }}
             
             const case2AreaLabel = document.getElementById('faqCase2AreaLabel');
@@ -7912,7 +7915,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const case2ResultBadge = document.getElementById('faqCase2ResultBadge');
             if (case2ResultBadge) {{
-                case2ResultBadge.textContent = translations.incentiveCalculation?.faq?.conditionMet?.[lang] || '조cases 충족';
+                case2ResultBadge.textContent = translations.incentiveCalculation?.faq?.conditionMet?.[lang] || '조건 충족';
             }}
             
             // 멤버 테이블 타이틀
@@ -7924,7 +7927,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 테이블 헤더
             const headerName = document.getElementById('faqTableHeaderName');
             if (headerName) {{
-                headerName.textContent = translations.incentiveCalculation?.faq?.employeeNameLabel?.[lang] || 'employeesemployees';
+                headerName.textContent = translations.incentiveCalculation?.faq?.employeeNameLabel?.[lang] || '직원employees';
             }}
             
             const headerBuilding = document.getElementById('faqTableHeaderBuilding');
@@ -7934,7 +7937,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const headerDesc = document.getElementById('faqTableHeaderDesc');
             if (headerDesc) {{
-                headerDesc.textContent = translations.incentiveCalculation?.faq?.buildingDescription?.[lang] || '설employees';
+                headerDesc.textContent = translations.incentiveCalculation?.faq?.buildingDescription?.[lang] || '설직원';
             }}
             
             const headerReject = document.getElementById('faqTableHeaderReject');
@@ -7952,18 +7955,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
             
             document.querySelectorAll('.faq-other-conditions').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.noMissingData?.[lang] || '기타 조cases 미충족';
+                el.textContent = translations.incentiveCalculation?.faq?.noMissingData?.[lang] || '기타 조건 미충족';
             }});
             
             const rejectRateNote = document.getElementById('faqRejectRateNote');
             if (rejectRateNote) {{
-                rejectRateNote.textContent = translations.incentiveCalculation?.faq?.rejectRateNote?.[lang] || '* Reject율 based on: 3% 미만 (✅ 충족, ❌ 미충족)';
+                rejectRateNote.textContent = translations.incentiveCalculation?.faq?.rejectRateNote?.[lang] || '* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)';
             }}
             
             const memberNote = document.getElementById('faqMemberNote');
             if (memberNote) {{
                 const monthText = '{month.lower()}' === 'september' ? '9month' : '{month.lower()}' === 'august' ? '8month' : '{month.lower()}' === 'july' ? 'July' : '{month.lower()}';
-                memberNote.textContent = translations.incentiveCalculation?.faq?.memberNote?.[lang] || `* ${{monthText}} based on 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조cases 미충족으로 incentive 0원`;
+                memberNote.textContent = translations.incentiveCalculation?.faq?.memberNote?.[lang] || `* ${{monthText}} 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 incentive 0원`;
             }}
             
             // Case 3 - TYPE-2 STITCHING INSPECTOR
@@ -7974,7 +7977,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const case3EmployeeLabel = document.getElementById('faqCase3EmployeeLabel');
             if (case3EmployeeLabel) {{
-                case3EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || 'employees:';
+                case3EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
             }}
             
             const case3TypeLabel = document.getElementById('faqCase3TypeLabel');
@@ -7984,10 +7987,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const case3StatusLabel = document.getElementById('faqCase3StatusLabel');
             if (case3StatusLabel) {{
-                case3StatusLabel.textContent = translations.incentiveCalculation?.faq?.conditionStatus?.[lang] || '조cases 충족 현황:';
+                case3StatusLabel.textContent = translations.incentiveCalculation?.faq?.conditionStatus?.[lang] || '조건 충족 현황:';
             }}
             
-            // Case 3 조cases들
+            // Case 3 조건들
             document.querySelectorAll('.faq-case3-attendance-label').forEach(el => {{
                 el.textContent = translations.incentiveCalculation?.faq?.attendanceRateMet?.[lang] || '출근율:';
             }});
@@ -7995,10 +7998,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = translations.incentiveCalculation?.faq?.unauthorizedAbsenceMet?.[lang] || '무단결근:';
             }});
             document.querySelectorAll('.faq-case3-actual-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.actualWorkingDays?.[lang] || 'actualworkth:';
+                el.textContent = translations.incentiveCalculation?.faq?.actualWorkingDays?.[lang] || 'actual근무일:';
             }});
             document.querySelectorAll('.faq-case3-min-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.minimumWorkingDays?.[lang] || '최소workth:';
+                el.textContent = translations.incentiveCalculation?.faq?.minimumWorkingDays?.[lang] || '최소근무일:';
             }});
             
             // Case 3 값들
@@ -8031,12 +8034,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const case3Explanation = document.getElementById('faqCase3Explanation');
             if (case3Explanation) {{
-                case3Explanation.textContent = translations.incentiveCalculation?.faq?.type2Explanation?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 출근 조cases(1-4번)만 확인하며, 모든 조cases을 충족했으므로 기본 incentive를 받습니다.';
+                case3Explanation.textContent = translations.incentiveCalculation?.faq?.type2Explanation?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 incentive를 받습니다.';
             }}
             
             const case3PaymentLabel = document.getElementById('faqCase3PaymentLabel');
             if (case3PaymentLabel) {{
-                case3PaymentLabel.textContent = translations.incentiveCalculation?.faq?.paymentAmount?.[lang] || 'payment액:';
+                case3PaymentLabel.textContent = translations.incentiveCalculation?.faq?.paymentAmount?.[lang] || '지급액:';
             }}
             
             const case3BasicText = document.getElementById('faqCase3BasicText');
@@ -8046,7 +8049,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const case3Note = document.getElementById('faqCase3Note');
             if (case3Note) {{
-                case3Note.textContent = translations.incentiveCalculation?.faq?.type2Note?.[lang] || '* TYPE-2는 AQL이나 5PRS 조cases without 출근 조cases만으로 incentive가 determination됩니다.';
+                case3Note.textContent = translations.incentiveCalculation?.faq?.type2Note?.[lang] || '* TYPE-2는 AQL이나 5PRS 조건 without 출근 조건만으로 incentive가 determination됩니다.';
             }}
         }}
         
@@ -8075,12 +8078,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const formula2 = document.getElementById('attendanceFormula2');
             if (formula2) {{
-                formula2.textContent = translations.incentive?.attendance?.absenceFormula?.[lang] || '결근율(%) = (결근 thcount / total workth) × 100';
+                formula2.textContent = translations.incentive?.attendance?.absenceFormula?.[lang] || '결근율(%) = (결근 thcount / total 근무일) × 100';
             }}
             
             const formulaNote = document.getElementById('attendanceFormulaNote');
             if (formulaNote) {{
-                formulaNote.textContent = translations.incentive?.attendance?.absenceDaysNote?.[lang] || '* 결근 thcount = total workth - actual workth - 승인된 휴가';
+                formulaNote.textContent = translations.incentive?.attendance?.absenceDaysNote?.[lang] || '* 결근 thcount = total 근무일 - actual 근무일 - 승인된 휴가';
             }}
             
             // 예시 제목
@@ -8101,15 +8104,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const example3Title = document.getElementById('attendanceExample3Title');
             if (example3Title) {{
-                example3Title.textContent = translations.incentive?.attendance?.example3Title?.[lang] || '예시 3: 조cases 충족 경계선';
+                example3Title.textContent = translations.incentive?.attendance?.example3Title?.[lang] || '예시 3: 조건 충족 경계선';
             }}
             
             // 라벨들 업데이트
             document.querySelectorAll('.att-total-days-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.totalWorkingDays?.[lang] || 'total workth';
+                el.textContent = translations.incentive?.attendance?.totalWorkingDays?.[lang] || 'total 근무일';
             }});
             document.querySelectorAll('.att-actual-days-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.actualWorkingDays?.[lang] || 'actual workth';
+                el.textContent = translations.incentive?.attendance?.actualWorkingDays?.[lang] || 'actual 근무일';
             }});
             document.querySelectorAll('.att-approved-leave-label').forEach(el => {{
                 el.textContent = translations.incentive?.attendance?.approvedLeave?.[lang] || '승인된 휴가';
@@ -8144,7 +8147,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const condition2NotMet = document.getElementById('attendanceCondition2NotMet');
             if (condition2NotMet) {{
-                condition2NotMet.textContent = translations.incentive?.attendance?.condition2NotMet?.[lang] || '단, 무단결근 3th로 조cases 2 미충족 → incentive 0원';
+                condition2NotMet.textContent = translations.incentive?.attendance?.condition2NotMet?.[lang] || '단, 무단결근 3일로 조건 2 미충족 → incentive 0원';
             }}
             
             // 결근 분류 섹션
@@ -8220,18 +8223,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const countingRule2 = document.getElementById('attendanceCountingRule2');
             if (countingRule2) {{
-                countingRule2.textContent = translations.incentive?.attendance?.countingRule2?.[lang] || '2th까지는 incentive payment 가능';
+                countingRule2.textContent = translations.incentive?.attendance?.countingRule2?.[lang] || '2일까지는 incentive 지급 가능';
             }}
             
             const countingRule3 = document.getElementById('attendanceCountingRule3');
             if (countingRule3) {{
-                countingRule3.textContent = translations.incentive?.attendance?.countingRule3?.[lang] || '3th 이상 → incentive 0원';
+                countingRule3.textContent = translations.incentive?.attendance?.countingRule3?.[lang] || '3일 이상 → incentive 0원';
             }}
             
-            // 조cases 충족 based on
+            // 조건 충족 기준
             const conditionCriteriaTitle = document.getElementById('attendanceConditionCriteriaTitle');
             if (conditionCriteriaTitle) {{
-                conditionCriteriaTitle.textContent = translations.incentive?.attendance?.conditionCriteriaTitle?.[lang] || '조cases 충족 based on:';
+                conditionCriteriaTitle.textContent = translations.incentive?.attendance?.conditionCriteriaTitle?.[lang] || '조건 충족 기준:';
             }}
             
             const criteria1 = document.getElementById('attendanceCriteria1');
@@ -8241,23 +8244,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const criteria2 = document.getElementById('attendanceCriteria2');
             if (criteria2) {{
-                criteria2.innerHTML = translations.incentive?.attendance?.unauthorizedAbsenceCriteria?.[lang] || '<strong>무단결근:</strong> ≤ 2th (AR1 카테고리만 corresponding)';
+                criteria2.innerHTML = translations.incentive?.attendance?.unauthorizedAbsenceCriteria?.[lang] || '<strong>무단결근:</strong> ≤ 2일 (AR1 카테고리만 corresponding)';
             }}
             
             const criteria3 = document.getElementById('attendanceCriteria3');
             if (criteria3) {{
-                criteria3.innerHTML = translations.incentive?.attendance?.actualWorkingDaysCriteria?.[lang] || '<strong>actual workth:</strong> > 0th';
+                criteria3.innerHTML = translations.incentive?.attendance?.actualWorkingDaysCriteria?.[lang] || '<strong>actual 근무일:</strong> > 0일';
             }}
             
             const criteria4 = document.getElementById('attendanceCriteria4');
             if (criteria4) {{
-                criteria4.innerHTML = translations.incentive?.attendance?.minimumWorkingDaysCriteria?.[lang] || '<strong>최소 workth:</strong> ≥ 12th';
+                criteria4.innerHTML = translations.incentive?.attendance?.minimumWorkingDaysCriteria?.[lang] || '<strong>최소 근무일:</strong> ≥ 12일';
             }}
             
-            // Unapproved Absence 설employees
+            // Unapproved Absence 설직원
             const unapprovedTitle = document.getElementById('attendanceUnapprovedTitle');
             if (unapprovedTitle) {{
-                unapprovedTitle.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanationTitle?.[lang] || '📊 Unapproved Absence Days 설employees:';
+                unapprovedTitle.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanationTitle?.[lang] || '📊 Unapproved Absence Days 설직원:';
             }}
             
             const unapproved1 = document.getElementById('attendanceUnapproved1');
@@ -8277,7 +8280,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const unapproved4 = document.getElementById('attendanceUnapproved4');
             if (unapproved4) {{
-                unapproved4.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation4?.[lang] || 'incentive 조cases: ≤2th (개인by 최대 허용치)';
+                unapproved4.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation4?.[lang] || 'incentive 조건: ≤2일 (개인by 최대 허용치)';
             }}
         }}
         
@@ -8298,32 +8301,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const q1 = document.getElementById('faqQuestion1');
             if (q1) {{
                 console.log('Updating Q1, current text:', q1.textContent);
-                const newText = translations.incentiveCalculation?.faq?.question1?.[lang] || 'Q1. 왜 나는 incentive를 못 받았나요? 조cases을 확인하는 방법은?';
+                const newText = translations.incentiveCalculation?.faq?.question1?.[lang] || 'Q1. 왜 나는 incentive를 못 받았나요? 조건을 확인하는 방법은?';
                 console.log('New text for Q1:', newText);
                 q1.textContent = newText;
             }}
             document.getElementById('faqAnswer1Main').textContent = translations.incentiveCalculation?.faq?.answer1Main?.[lang] || 'incentive를 받지 못한 주요 이유:';
-            document.getElementById('faqAnswer1Reason1').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.minDays?.[lang] || '최소 workth 12th 미충족';
+            document.getElementById('faqAnswer1Reason1').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.minDays?.[lang] || '최소 근무일 12일 미충족';
             document.getElementById('faqAnswer1Reason2').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.attendance?.[lang] || '출근율 88% 미만';
-            document.getElementById('faqAnswer1Reason3').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.absence?.[lang] || '무단결근 3th 이상';
+            document.getElementById('faqAnswer1Reason3').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.absence?.[lang] || '무단결근 3일 이상';
             document.getElementById('faqAnswer1Reason4').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.aql?.[lang] || 'AQL failed (corresponding 직급)';
             document.getElementById('faqAnswer1Reason5').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.fprs?.[lang] || '5PRS 통과율 95% 미만 (corresponding 직급)';
-            document.getElementById('faqAnswer1CheckMethod').textContent = translations.incentiveCalculation?.faq?.answer1CheckMethod?.[lang] || '개인by 상세 페이지에서 본인의 조cases 충족 여부를 확인할 count 있습니다.';
+            document.getElementById('faqAnswer1CheckMethod').textContent = translations.incentiveCalculation?.faq?.answer1CheckMethod?.[lang] || '개인by 상세 페이지에서 본인의 조건 충족 여부를 확인할 count 있습니다.';
             
             // Q2
             const q2 = document.getElementById('faqQuestion2');
             if (q2) {{
                 q2.textContent = translations.incentiveCalculation?.faq?.question2?.[lang] || 'Q2. 무단결근이 며칠까지 허용되나요?';
             }}
-            document.getElementById('faqAnswer2Main').textContent = translations.incentiveCalculation?.faq?.answer2Main?.[lang] || '무단결근은 최대 2th까지 허용됩니다.';
-            document.getElementById('faqAnswer2Detail').textContent = translations.incentiveCalculation?.faq?.answer2Detail?.[lang] || '3th 이상 무단결근시 corresponding month incentive를 받을 count not found. 사전 승인된 휴가나 병가는 무단결근에 포함되지 not.';
+            document.getElementById('faqAnswer2Main').textContent = translations.incentiveCalculation?.faq?.answer2Main?.[lang] || '무단결근은 최대 2일까지 허용됩니다.';
+            document.getElementById('faqAnswer2Detail').textContent = translations.incentiveCalculation?.faq?.answer2Detail?.[lang] || '3일 이상 무단결근시 corresponding month incentive를 받을 count not found. 사전 승인된 휴가나 병가는 무단결근에 포함되지 not.';
             
             // Q3
             const q3 = document.getElementById('faqQuestion3');
             if (q3) {{
                 q3.textContent = translations.incentiveCalculation?.faq?.question3?.[lang] || 'Q3. TYPE-2 직급의 incentive는 어떻게 calculation되나요?';
             }}
-            document.getElementById('faqAnswer3Main').textContent = translations.incentiveCalculation?.faq?.answer3Main?.[lang] || 'TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 based on으로 calculation됩니다.';
+            document.getElementById('faqAnswer3Main').textContent = translations.incentiveCalculation?.faq?.answer3Main?.[lang] || 'TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.';
             document.getElementById('faqAnswer3Example').textContent = translations.incentiveCalculation?.faq?.answer3Example?.[lang] || '예를 들어:';
             document.getElementById('faqAnswer3Example1').textContent = translations.incentiveCalculation?.faq?.answer3Example1?.[lang] || 'TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 incentive';
             document.getElementById('faqAnswer3Example2').textContent = translations.incentiveCalculation?.faq?.answer3Example2?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 incentive';
@@ -8331,20 +8334,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // Q4
             const q4 = document.getElementById('faqQuestion4');
             if (q4) {{
-                q4.textContent = translations.incentiveCalculation?.faq?.question4?.[lang] || 'Q4. ASSEMBLY INSPECTOR의 연속 work 개month은 어떻게 calculation되나요?';
+                q4.textContent = translations.incentiveCalculation?.faq?.question4?.[lang] || 'Q4. ASSEMBLY INSPECTOR의 연속 work 개월은 어떻게 calculation되나요?';
             }}
-            document.getElementById('faqAnswer4Main').textContent = translations.incentiveCalculation?.faq?.answer4Main?.[lang] || 'TYPE-1 ASSEMBLY INSPECTOR만 corresponding되며, 조cases을 충족하며 incentive를 받은 개monthcount가 누적됩니다.';
-            document.getElementById('faqAnswer4Detail1').textContent = translations.incentiveCalculation?.faq?.answer4Detail1?.[lang] || '조cases 미충족으로 incentive를 못 받으면 0개month로 리셋';
-            document.getElementById('faqAnswer4Detail2').textContent = translations.incentiveCalculation?.faq?.answer4Detail2?.[lang] || '12개month 이상 연속시 최대 incentive 1,000,000 VND';
+            document.getElementById('faqAnswer4Main').textContent = translations.incentiveCalculation?.faq?.answer4Main?.[lang] || 'TYPE-1 ASSEMBLY INSPECTOR만 corresponding되며, 조건을 충족하며 incentive를 받은 개월count가 누적됩니다.';
+            document.getElementById('faqAnswer4Detail1').textContent = translations.incentiveCalculation?.faq?.answer4Detail1?.[lang] || '조건 미충족으로 incentive를 못 받으면 0개월로 리셋';
+            document.getElementById('faqAnswer4Detail2').textContent = translations.incentiveCalculation?.faq?.answer4Detail2?.[lang] || '12개월 이상 연속시 최대 incentive 1,000,000 VND';
             
             // Q5
             const q5 = document.getElementById('faqQuestion5');
             if (q5) {{
                 q5.textContent = translations.incentiveCalculation?.faq?.question5?.[lang] || 'Q5. AQL failed가 무엇이고 어떤 영향을 미치나요?';
             }}
-            document.getElementById('faqAnswer5Main').textContent = translations.incentiveCalculation?.faq?.answer5Main?.[lang] || 'AQL(Acceptable Quality Limit)은 품질 검사 based on입니다.';
+            document.getElementById('faqAnswer5Main').textContent = translations.incentiveCalculation?.faq?.answer5Main?.[lang] || 'AQL(Acceptable Quality Limit)은 품질 검사 기준입니다.';
             document.getElementById('faqAnswer5Detail1').textContent = translations.incentiveCalculation?.faq?.answer5Detail1?.[lang] || '개인 AQL failed: corresponding month에 품질 검사 failed한 경우';
-            document.getElementById('faqAnswer5Detail2').textContent = translations.incentiveCalculation?.faq?.answer5Detail2?.[lang] || '3consecutive months failed: 지난 3개month 동안 연속으로 failed한 경우';
+            document.getElementById('faqAnswer5Detail2').textContent = translations.incentiveCalculation?.faq?.answer5Detail2?.[lang] || '3연속 개월 실패: 지난 3개월 동안 연속으로 failed한 경우';
             document.getElementById('faqAnswer5Detail3').textContent = translations.incentiveCalculation?.faq?.answer5Detail3?.[lang] || 'AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)';
             
             // Q6
@@ -8352,7 +8355,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (q6) {{
                 q6.textContent = translations.incentiveCalculation?.faq?.question6?.[lang] || 'Q6. 5PRS 검사량이 부족하면 어떻게 되나요?';
             }}
-            document.getElementById('faqAnswer6Main').textContent = translations.incentiveCalculation?.faq?.answer6Main?.[lang] || '5PRS 관련 직급은 다음 조cases을 충족해야 합니다:';
+            document.getElementById('faqAnswer6Main').textContent = translations.incentiveCalculation?.faq?.answer6Main?.[lang] || '5PRS 관련 직급은 다음 조건을 충족해야 합니다:';
             document.getElementById('faqAnswer6Detail1').textContent = translations.incentiveCalculation?.faq?.answer6Detail1?.[lang] || '검사량 100족 이상';
             document.getElementById('faqAnswer6Detail2').textContent = translations.incentiveCalculation?.faq?.answer6Detail2?.[lang] || '통과율 95% 이상';
             document.getElementById('faqAnswer6Conclusion').textContent = translations.incentiveCalculation?.faq?.answer6Conclusion?.[lang] || '둘 중 하나라도 미충족시 incentive를 받을 count not found.';
@@ -8362,10 +8365,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (q7) {{
                 q7.textContent = translations.incentiveCalculation?.faq?.question7?.[lang] || 'Q7. 출산휴가나 병가 중에도 incentive를 받을 count 있나요?';
             }}
-            document.getElementById('faqAnswer7Main').textContent = translations.incentiveCalculation?.faq?.answer7Main?.[lang] || '출산휴가나 장기 병가 중에는 incentive가 payment되지 not.';
-            document.getElementById('faqAnswer7Detail1').textContent = translations.incentiveCalculation?.faq?.answer7Detail1?.[lang] || '최소 workth 12th 조cases을 충족할 count 없기 때문';
-            document.getElementById('faqAnswer7Detail2').textContent = translations.incentiveCalculation?.faq?.answer7Detail2?.[lang] || '복귀 후 조cases 충족시 다시 incentive count령 가능';
-            document.getElementById('faqAnswer7Detail3').textContent = translations.incentiveCalculation?.faq?.answer7Detail3?.[lang] || 'ASSEMBLY INSPECTOR의 경우 연속 개monthcount는 0으로 리셋';
+            document.getElementById('faqAnswer7Main').textContent = translations.incentiveCalculation?.faq?.answer7Main?.[lang] || '출산휴가나 장기 병가 중에는 incentive가 지급되지 not.';
+            document.getElementById('faqAnswer7Detail1').textContent = translations.incentiveCalculation?.faq?.answer7Detail1?.[lang] || '최소 근무일 12일 조건을 충족할 count 없기 때문';
+            document.getElementById('faqAnswer7Detail2').textContent = translations.incentiveCalculation?.faq?.answer7Detail2?.[lang] || '복귀 후 조건 충족시 다시 incentive 수령 가능';
+            document.getElementById('faqAnswer7Detail3').textContent = translations.incentiveCalculation?.faq?.answer7Detail3?.[lang] || 'ASSEMBLY INSPECTOR의 경우 연속 개월count는 0으로 리셋';
             
             // Q8
             const q8 = document.getElementById('faqQuestion8');
@@ -8378,7 +8381,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer8Reason1 = document.getElementById('faqAnswer8Reason1');
             if (answer8Reason1) {{
-                answer8Reason1.innerHTML = `<strong>ASSEMBLY INSPECTOR</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason1?.[lang] || '연속 work 개month 변화'}}`;
+                answer8Reason1.innerHTML = `<strong>ASSEMBLY INSPECTOR</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason1?.[lang] || '연속 work 개월 변화'}}`;
             }}
             const answer8Reason2 = document.getElementById('faqAnswer8Reason2');
             if (answer8Reason2) {{
@@ -8386,11 +8389,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer8Reason3 = document.getElementById('faqAnswer8Reason3');
             if (answer8Reason3) {{
-                answer8Reason3.innerHTML = `<strong>AQL INSPECTOR</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason3?.[lang] || 'Part1, Part2, Part3 조cases 변화'}}`;
+                answer8Reason3.innerHTML = `<strong>AQL INSPECTOR</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason3?.[lang] || 'Part1, Part2, Part3 조건 변화'}}`;
             }}
             const answer8Reason4 = document.getElementById('faqAnswer8Reason4');
             if (answer8Reason4) {{
-                answer8Reason4.innerHTML = `<strong>${{lang === 'ko' ? '조cases 미충족' : lang === 'en' ? 'Unmet conditions' : 'Điều kiện không đạt'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason4?.[lang] || '하나라도 미충족시 0'}}`;
+                answer8Reason4.innerHTML = `<strong>${{lang === 'ko' ? '조건 미충족' : lang === 'en' ? 'Unmet conditions' : 'Điều kiện không đạt'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason4?.[lang] || '하나라도 미충족시 0'}}`;
             }}
             
             // Q9
@@ -8400,25 +8403,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer9Detail1 = document.getElementById('faqAnswer9Detail1');
             if (answer9Detail1) {{
-                answer9Detail1.innerHTML = `<strong>TYPE-3</strong>: ${{translations.incentiveCalculation?.faq?.answer9Detail1?.[lang] || '조cases without 기본 150,000 VND (work시 자동 payment)'}}`;
+                answer9Detail1.innerHTML = `<strong>TYPE-3</strong>: ${{translations.incentiveCalculation?.faq?.answer9Detail1?.[lang] || '조건 without 기본 150,000 VND (work시 자동 지급)'}}`;
             }}
             const answer9Detail2 = document.getElementById('faqAnswer9Detail2');
             if (answer9Detail2) {{
-                answer9Detail2.innerHTML = `<strong>TYPE-2</strong>: ${{translations.incentiveCalculation?.faq?.answer9Detail2?.[lang] || '조cases 충족 필요, TYPE-1 평균 based on calculation'}}`;
+                answer9Detail2.innerHTML = `<strong>TYPE-2</strong>: ${{translations.incentiveCalculation?.faq?.answer9Detail2?.[lang] || '조건 충족 필요, TYPE-1 평균 기준 calculation'}}`;
             }}
             const answer9Detail3 = document.getElementById('faqAnswer9Detail3');
             if (answer9Detail3) {{
-                answer9Detail3.textContent = translations.incentiveCalculation?.faq?.answer9Detail3?.[lang] || '승진 후 조cases 충족시 th반적으로 incentive 증가';
+                answer9Detail3.textContent = translations.incentiveCalculation?.faq?.answer9Detail3?.[lang] || '승진 후 조건 충족시 th반적으로 incentive 증가';
             }}
             const answer9Detail4 = document.getElementById('faqAnswer9Detail4');
             if (answer9Detail4) {{
-                answer9Detail4.textContent = translations.incentiveCalculation?.faq?.answer9Detail4?.[lang] || '하지만 조cases 미충족시 0이 될 count 있으므로 주의 필요';
+                answer9Detail4.textContent = translations.incentiveCalculation?.faq?.answer9Detail4?.[lang] || '하지만 조건 미충족시 0이 될 count 있으므로 주의 필요';
             }}
             
             // Q10
             const q10 = document.getElementById('faqQuestion10');
             if (q10) {{
-                q10.textContent = translations.incentiveCalculation?.faq?.question10?.[lang] || 'Q10. 조cases을 모두 충족했는데도 incentive가 0인 이유는 무엇인가요?';
+                q10.textContent = translations.incentiveCalculation?.faq?.question10?.[lang] || 'Q10. 조건을 모두 충족했는데도 incentive가 0인 이유는 무엇인가요?';
             }}
             const answer10Main = document.getElementById('faqAnswer10Main');
             if (answer10Main) {{
@@ -8426,15 +8429,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer10Reason1 = document.getElementById('faqAnswer10Reason1');
             if (answer10Reason1) {{
-                answer10Reason1.innerHTML = `<strong>${{lang === 'ko' ? '숨겨진 조cases' : lang === 'en' ? 'Hidden conditions' : 'Điều kiện ẩn'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason1?.[lang]?.replace(/.*: (.*)/, '$1') || '직급by로 apply되는 모든 조cases 확인'}}`;
+                answer10Reason1.innerHTML = `<strong>${{lang === 'ko' ? '숨겨진 조건' : lang === 'en' ? 'Hidden conditions' : 'Điều kiện ẩn'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason1?.[lang]?.replace(/.*: (.*)/, '$1') || '직급by로 apply되는 모든 조건 확인'}}`;
             }}
             const answer10Reason2 = document.getElementById('faqAnswer10Reason2');
             if (answer10Reason2) {{
-                answer10Reason2.innerHTML = `<strong>${{lang === 'ko' ? 'data 업데이트' : lang === 'en' ? 'Data update' : 'Cập nhật dữ liệu'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason2?.[lang]?.replace(/.*: (.*)/, '$1') || '최신 data 반영 여부'}}`;
+                answer10Reason2.innerHTML = `<strong>${{lang === 'ko' ? '데이터 업데이트' : lang === 'en' ? 'Data update' : 'Cập nhật dữ liệu'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason2?.[lang]?.replace(/.*: (.*)/, '$1') || '최신 data 반영 여부'}}`;
             }}
             const answer10Reason3 = document.getElementById('faqAnswer10Reason3');
             if (answer10Reason3) {{
-                answer10Reason3.innerHTML = `<strong>${{lang === 'ko' ? '특by한 사유' : lang === 'en' ? 'Special reasons' : 'Lý do đặc biệt'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason3?.[lang]?.replace(/.*: (.*)/, '$1') || '징계, 경고 등 특by 사유'}}`;
+                answer10Reason3.innerHTML = `<strong>${{lang === 'ko' ? '특별한 사유' : lang === 'en' ? 'Special reasons' : 'Lý do đặc biệt'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason3?.[lang]?.replace(/.*: (.*)/, '$1') || '징계, 경고 등 특별 사유'}}`;
             }}
             const answer10Reason4 = document.getElementById('faqAnswer10Reason4');
             if (answer10Reason4) {{
@@ -8442,7 +8445,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer10Conclusion = document.getElementById('faqAnswer10Conclusion');
             if (answer10Conclusion) {{
-                answer10Conclusion.textContent = translations.incentiveCalculation?.faq?.answer10Conclusion?.[lang] || '개인by 상세 페이지에서 조casesby 충족 여부를 상세히 확인하시기 바랍니다.';
+                answer10Conclusion.textContent = translations.incentiveCalculation?.faq?.answer10Conclusion?.[lang] || '개인by 상세 페이지에서 조건by 충족 여부를 상세히 확인하시기 바랍니다.';
             }}
 
             // FAQ Q11 translations
@@ -8452,7 +8455,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer11Main = document.getElementById('faqAnswer11Main');
             if (answer11Main) {{
-                answer11Main.textContent = translations.incentiveCalculation?.faq?.answer11Main?.[lang] || 'TYPE-2 GROUP LEADER는 특by한 calculation 규칙이 apply됩니다:';
+                answer11Main.textContent = translations.incentiveCalculation?.faq?.answer11Main?.[lang] || 'TYPE-2 GROUP LEADER는 특별한 calculation 규칙이 apply됩니다:';
             }}
             const answer11Detail1 = document.getElementById('faqAnswer11Detail1');
             if (answer11Detail1) {{
@@ -8466,23 +8469,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer11Detail3 = document.getElementById('faqAnswer11Detail3');
             if (answer11Detail3) {{
-                const improvement = translations.incentiveCalculation?.faq?.answer11Detail3?.[lang] || '개선 사항: 부하employees 관계와 상관without total TYPE-2 LINE LEADER 평균을 use하여 더 공정한 calculation이 이루어집니다';
+                const improvement = translations.incentiveCalculation?.faq?.answer11Detail3?.[lang] || '개선 사항: 부하직원 관계와 상관without total TYPE-2 LINE LEADER 평균을 use하여 더 공정한 calculation이 이루어집니다';
                 answer11Detail3.innerHTML = `<strong>${{improvement.split(':')[0]}}:</strong> ${{improvement.split(':')[1] || ''}}`;
             }}
             const answer11Detail4 = document.getElementById('faqAnswer11Detail4');
             if (answer11Detail4) {{
-                const conditions = translations.incentiveCalculation?.faq?.answer11Detail4?.[lang] || '조cases: TYPE-2는 출근 조cases(1-4번)만 충족하면 incentive를 받을 count 있습니다';
+                const conditions = translations.incentiveCalculation?.faq?.answer11Detail4?.[lang] || '조건: TYPE-2는 출근 조건(1-4번)만 충족하면 incentive를 받을 count 있습니다';
                 answer11Detail4.innerHTML = `<strong>${{conditions.split(':')[0]}}:</strong> ${{conditions.split(':')[1] || ''}}`;
             }}
             const answer11Conclusion = document.getElementById('faqAnswer11Conclusion');
             if (answer11Conclusion) {{
-                answer11Conclusion.textContent = translations.incentiveCalculation?.faq?.answer11Conclusion?.[lang] || '따라서 출근 조cases을 충족한 TYPE-2 GROUP LEADER는 항상 incentive를 받을 count 있도록 보장됩니다.';
+                answer11Conclusion.textContent = translations.incentiveCalculation?.faq?.answer11Conclusion?.[lang] || '따라서 출근 조건을 충족한 TYPE-2 GROUP LEADER는 항상 incentive를 받을 count 있도록 보장됩니다.';
             }}
 
             // TYPE-2 GROUP LEADER Special Calculation Box translations
             const type2SpecialTitle = document.getElementById('type2GroupLeaderSpecialTitle');
             if (type2SpecialTitle) {{
-                type2SpecialTitle.textContent = translations.type2GroupLeaderSpecial?.title?.[lang] || '⚠️ TYPE-2 GROUP LEADER 특by calculation 규칙';
+                type2SpecialTitle.textContent = translations.type2GroupLeaderSpecial?.title?.[lang] || '⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙';
             }}
             const type2BaseCalc = document.getElementById('type2BaseCalc');
             if (type2BaseCalc) {{
@@ -8496,12 +8499,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const type2Important = document.getElementById('type2Important');
             if (type2Important) {{
-                const importantText = translations.type2GroupLeaderSpecial?.important?.[lang] || '중요: 부하employees 관계 without total TYPE-2 LINE LEADER 평균 use';
+                const importantText = translations.type2GroupLeaderSpecial?.important?.[lang] || '중요: 부하직원 관계 without total TYPE-2 LINE LEADER 평균 use';
                 type2Important.innerHTML = `<strong>${{importantText.split(':')[0]}}:</strong> ${{importantText.split(':')[1] || ''}}`;
             }}
             const type2Conditions = document.getElementById('type2Conditions');
             if (type2Conditions) {{
-                const conditionsText = translations.type2GroupLeaderSpecial?.conditions?.[lang] || 'apply 조cases: TYPE-2는 출근 조cases(1-4번)만 충족하면 incentive payment';
+                const conditionsText = translations.type2GroupLeaderSpecial?.conditions?.[lang] || 'apply 조건: TYPE-2는 출근 조건(1-4번)만 충족하면 incentive 지급';
                 type2Conditions.innerHTML = `<strong>${{conditionsText.split(':')[0]}}:</strong> ${{conditionsText.split(':')[1] || ''}}`;
             }}
 
@@ -8555,11 +8558,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const usageGuideText = document.getElementById('usageGuideText');
             if (usageGuideText) {{
-                usageGuideText.innerHTML = getTranslation('orgChart.usageGuide.text', currentLanguage);
+                const text = getTranslation('orgChart.usageGuide.text', currentLanguage);
+                const subtext = getTranslation('orgChart.usageGuide.subtext', currentLanguage);
+                usageGuideText.innerHTML = text + ' <span class="badge bg-primary">ℹ️</span> ' + subtext;
             }}
-            const usageGuideSubtext = document.getElementById('usageGuideSubtext');
-            if (usageGuideSubtext) {{
-                usageGuideSubtext.textContent = getTranslation('orgChart.usageGuide.subtext', currentLanguage);
+            const usageGuideHelpText = document.getElementById('usageGuideHelpText');
+            if (usageGuideHelpText) {{
+                usageGuideHelpText.textContent = getTranslation('orgChart.helpText', currentLanguage);
             }}
 
             // 버튼 텍스트 - span 요소 내부의 텍스트만 업데이트
@@ -8586,7 +8591,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.querySelectorAll('.modal-calc-method').forEach(elem => {{
                 elem.textContent = getTranslation('orgChart.modalLabels.calculationMethod', currentLanguage);
             }});
-            document.querySelectorAll('.modal-no-payment-reason').forEach(elem => {{
+            document.querySelectorAll('.modal-no-지급-reason').forEach(elem => {{
                 elem.textContent = getTranslation('orgChart.modalLabels.noPaymentReason', currentLanguage);
             }});
             document.querySelectorAll('.modal-calc-detail-line-leader').forEach(elem => {{
@@ -8954,24 +8959,24 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}
 
-            // Summary 테이블의 "employees" 단위 업데이트
+            // Summary 테이블의 "직원" 단위 업데이트
             const typeSummaryBody = document.getElementById('typeSummaryBody');
             if (typeSummaryBody) {{
                 const rows = typeSummaryBody.querySelectorAll('tr');
                 rows.forEach(row => {{
                     const cells = row.querySelectorAll('td');
-                    // 2번째 칼럼 (Total)과 3번째 칼럼 (Eligible)에 "employees" 단위가 있음
+                    // 2번째 칼럼 (Total)과 3번째 칼럼 (Eligible)에 "직원" 단위가 있음
                     if (cells.length > 2) {{
                         // Total 칼럼 - 모든 available 단위를 체크
                         const totalText = cells[1].textContent;
-                        if (totalText.includes('employees') || totalText.includes('people') || totalText.includes('người')) {{
+                        if (totalText.includes('직원') || totalText.includes('people') || totalText.includes('người')) {{
                             // 숫자만 추출
                             const number = totalText.replace(/[^\\\\d]/g, '');
                             cells[1].textContent = number + getTranslation('common.people', currentLanguage);
                         }}
                         // Eligible 칼럼 - 모든 available 단위를 체크
                         const eligibleText = cells[2].textContent;
-                        if (eligibleText.includes('employees') || eligibleText.includes('people') || eligibleText.includes('người')) {{
+                        if (eligibleText.includes('직원') || eligibleText.includes('people') || eligibleText.includes('người')) {{
                             // 숫자만 추출
                             const number = eligibleText.replace(/[^\\d]/g, '');
                             cells[2].textContent = number + getTranslation('common.people', currentLanguage);
@@ -8980,7 +8985,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }});
             }}
             
-            // incentive based on 탭 텍스트 업데이트
+            // incentive 기준 탭 텍스트 업데이트
             updateCriteriaTabTexts();
             
             // Talent Program 섹션 텍스트 업데이트
@@ -9005,7 +9010,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             generatePositionTables();
         }}
         
-        // incentive based on 탭 텍스트 업데이트 - 완전한 동적 번역
+        // incentive 기준 탭 텍스트 업데이트 - 완전한 동적 번역
         function updateCriteriaTabTexts() {{
             // 메인 제목
             const criteriaTitle = document.getElementById('criteriaMainTitle');
@@ -9029,7 +9034,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 corePrinciplesDesc2.innerHTML = getTranslation('criteria.corePrinciples.description2', currentLanguage);
             }}
             
-            // 10가지 평가 조cases 제목
+            // 10가지 평가 조건 제목
             const evaluationTitle = document.getElementById('evaluationConditionsTitle');
             if (evaluationTitle) {{
                 evaluationTitle.textContent = getTranslation('criteria.evaluationConditions.title', currentLanguage);
@@ -9040,32 +9045,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 th.textContent = '#';
             }});
             document.querySelectorAll('.cond-th-name').forEach(th => {{
-                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.conditionName', currentLanguage) || '조casesemployees';
+                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.conditionName', currentLanguage) || '조건직원';
             }});
             document.querySelectorAll('.cond-th-criteria').forEach(th => {{
-                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.criteria', currentLanguage) || 'based on';
+                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.criteria', currentLanguage) || '기준';
             }});
             document.querySelectorAll('.cond-th-desc').forEach(th => {{
-                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.description', currentLanguage) || '설employees';
+                th.textContent = getTranslation('criteria.evaluationConditions.tableHeaders.description', currentLanguage) || '설직원';
             }});
 
-            // 조casesemployees과 설employees updated
+            // 조건직원과 설직원 updated
             const conditionTranslations = {{
                 1: {{
                     name: getTranslation('criteria.conditions.1.name', currentLanguage) || '출근율',
-                    desc: getTranslation('criteria.conditions.1.description', currentLanguage) || 'month간 출근율이 88% 이상이어야 합니다'
+                    desc: getTranslation('criteria.conditions.1.description', currentLanguage) || '월간 출근율이 88% 이상이어야 합니다'
                 }},
                 2: {{
                     name: getTranslation('criteria.conditions.2.name', currentLanguage) || '무단결근',
-                    desc: getTranslation('criteria.conditions.2.description', currentLanguage) || '사전 승인 없는 결근이 month 2th 이하여야 합니다'
+                    desc: getTranslation('criteria.conditions.2.description', currentLanguage) || '사전 승인 없는 결근이 month 2일 이하여야 합니다'
                 }},
                 3: {{
-                    name: getTranslation('criteria.conditions.3.name', currentLanguage) || 'actual workth',
-                    desc: getTranslation('criteria.conditions.3.description', currentLanguage) || 'actual 출근한 날이 1th 이상이어야 합니다'
+                    name: getTranslation('criteria.conditions.3.name', currentLanguage) || 'actual 근무일',
+                    desc: getTranslation('criteria.conditions.3.description', currentLanguage) || 'actual 출근한 날이 1일 이상이어야 합니다'
                 }},
                 4: {{
-                    name: getTranslation('criteria.conditions.4.name', currentLanguage) || '최소 workth',
-                    desc: getTranslation('criteria.conditions.4.description', currentLanguage) || 'month간 최소 12th 이상 work해야 합니다'
+                    name: getTranslation('criteria.conditions.4.name', currentLanguage) || '최소 근무일',
+                    desc: getTranslation('criteria.conditions.4.description', currentLanguage) || '월간 최소 12일 이상 work해야 합니다'
                 }},
                 5: {{
                     name: getTranslation('criteria.conditions.5.name', currentLanguage) || '개인 AQL (당month)',
@@ -9073,11 +9078,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }},
                 6: {{
                     name: getTranslation('criteria.conditions.6.name', currentLanguage) || '개인 AQL (연속성)',
-                    desc: getTranslation('criteria.conditions.6.description', currentLanguage) || '최근 3개month간 연속으로 AQL failed가 없어야 합니다'
+                    desc: getTranslation('criteria.conditions.6.description', currentLanguage) || '최근 3개월간 연속으로 AQL failed가 없어야 합니다'
                 }},
                 7: {{
                     name: getTranslation('criteria.conditions.7.name', currentLanguage) || '팀/구역 AQL',
-                    desc: getTranslation('criteria.conditions.7.description', currentLanguage) || '관리하는 팀/구역에서 3consecutive months failed자가 없어야 합니다'
+                    desc: getTranslation('criteria.conditions.7.description', currentLanguage) || '관리하는 팀/구역에서 3연속 개월 실패자가 없어야 합니다'
                 }},
                 8: {{
                     name: getTranslation('criteria.conditions.8.name', currentLanguage) || '담당구역 AQL Reject율',
@@ -9089,11 +9094,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }},
                 10: {{
                     name: getTranslation('criteria.conditions.10.name', currentLanguage) || '5PRS 검사량',
-                    desc: getTranslation('criteria.conditions.10.description', currentLanguage) || 'month간 최소 100개 이상 검사를 count행해야 합니다'
+                    desc: getTranslation('criteria.conditions.10.description', currentLanguage) || '월간 최소 100개 이상 검사를 count행해야 합니다'
                 }}
             }};
 
-            // 조cases 테이블 내용 업데이트
+            // 조건 테이블 내용 업데이트
             for (let i = 1; i <= 10; i++) {{
                 const nameEl = document.querySelector(`.cond-name-${{i}}`);
                 const descEl = document.querySelector(`.cond-desc-${{i}}`);
@@ -9105,25 +9110,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}
             
-            // 출근 조cases 섹션
+            // 출근 조건 섹션
             const attendanceTitle = document.getElementById('attendanceConditionTitle');
             if (attendanceTitle) {{
                 attendanceTitle.textContent = getTranslation('criteria.conditions.attendance.title', currentLanguage);
             }}
             
-            // AQL 조cases 섹션
+            // AQL 조건 섹션
             const aqlTitle = document.getElementById('aqlConditionTitle');
             if (aqlTitle) {{
                 aqlTitle.textContent = getTranslation('criteria.conditions.aql.title', currentLanguage);
             }}
             
-            // 5PRS 조cases 섹션
+            // 5PRS 조건 섹션
             const prsTitle = document.getElementById('prsConditionTitle');
             if (prsTitle) {{
                 prsTitle.textContent = getTranslation('criteria.conditions.5prs.title', currentLanguage);
             }}
             
-            // 직급by apply 조cases 섹션
+            // 직급by apply 조건 섹션
             const positionMatrixTitle = document.getElementById('positionMatrixTitle');
             if (positionMatrixTitle) {{
                 positionMatrixTitle.textContent = getTranslation('criteria.positionMatrix.title', currentLanguage);
@@ -9134,10 +9139,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.position', currentLanguage) || '직급';
             }});
             document.querySelectorAll('.pos-header-conditions').forEach(th => {{
-                th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.conditions', currentLanguage) || 'apply 조cases';
+                th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.conditions', currentLanguage) || 'apply 조건';
             }});
             document.querySelectorAll('.pos-header-count').forEach(th => {{
-                th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.count', currentLanguage) || '조cases count';
+                th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.count', currentLanguage) || '조건 count';
             }});
             document.querySelectorAll('.pos-header-notes').forEach(th => {{
                 th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.notes', currentLanguage) || '비고';
@@ -9262,7 +9267,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 span.textContent = getTranslation('incentiveCalculation.average', currentLanguage);
             }});
 
-            // TYPE-1 테이블 조cases count 업데이트
+            // TYPE-1 테이블 조건 count 업데이트
             const conditionCounts = document.querySelectorAll('.condition-count');
             conditionCounts.forEach(count => {{
                 const num = count.textContent.replace(/\\D/g, '');
@@ -9393,7 +9398,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = getTranslation('incentiveCalculation.tableHeaders.actualExample', currentLanguage);
             }});
             
-            // 직급employees
+            // 직급직원
             document.querySelectorAll('.calc-position-manager').forEach(el => {{
                 el.textContent = getTranslation('incentiveCalculation.positions.manager', currentLanguage);
             }});
@@ -9439,7 +9444,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = getTranslation('incentiveCalculation.conditionsNotMetZero', currentLanguage);
             }});
             
-            // apply 조cases 텍스트
+            // apply 조건 텍스트
             document.querySelectorAll('.calc-apply-condition-attendance').forEach(el => {{
                 el.textContent = getTranslation('incentiveCalculation.applyConditionAttendance', currentLanguage);
             }});
@@ -9456,7 +9461,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = getTranslation('incentiveCalculation.applyConditionModel', currentLanguage);
             }});
             
-            // 특by calculation 텍스트
+            // 특별 calculation 텍스트
             document.querySelectorAll('.calc-subordinate-incentive').forEach(el => {{
                 el.textContent = getTranslation('incentiveCalculation.subordinateIncentive', currentLanguage);
             }});
@@ -9516,7 +9521,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = getTranslation('incentiveCalculation.consecutiveMonths', currentLanguage).replace('{{{{months}}}}', months);
             }});
             
-            // 조cases 평가 텍스트
+            // 조건 평가 텍스트
             document.querySelectorAll('.calc-attendance-rate').forEach(el => {{
                 el.textContent = getTranslation('incentiveCalculation.attendanceRate', currentLanguage);
             }});
@@ -9554,7 +9559,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = getTranslation('incentiveCalculation.inspectionQuantity', currentLanguage);
             }});
             
-            // th/개month/족/cases 단위 conversion
+            // th/개월/족/cases 단위 conversion
             document.querySelectorAll('.calc-days-text').forEach(el => {{
                 const days = el.dataset.days;
                 const unit = parseInt(days) <= 1 ? getTranslation('common.day', currentLanguage) : getTranslation('common.days', currentLanguage);
@@ -9623,7 +9628,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = getTranslation('incentiveCalculation.levelA', currentLanguage);
             }})
             
-            // 특by 규칙 섹션
+            // 특별 규칙 섹션
             const specialRulesTitle = document.querySelectorAll('#criteria .card')[3]?.querySelector('.card-header h5');
             if (specialRulesTitle) {{
                 specialRulesTitle.textContent = getTranslation('criteria.specialRules.title', currentLanguage);
@@ -9795,35 +9800,35 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = getTranslation('incentiveCalculation.goodToKnow.fprsExample', currentLanguage);
             }});
             
-            // 조cases 테이블 내용 업데이트
+            // 조건 테이블 내용 업데이트
             updateConditionTablesContent();
         }}
         
-        // 조cases 테이블 내용 동적 업데이트 함count
+        // 조건 테이블 내용 동적 업데이트 함count
         function updateConditionTablesContent() {{
-            // 출근 조cases 테이블 업데이트
+            // 출근 조건 테이블 업데이트
             const attendanceTable = document.getElementById('attendanceTable');
             if (attendanceTable) {{
                 const tbody = attendanceTable.querySelector('tbody');
                 if (tbody) {{
                     const rows = tbody.querySelectorAll('tr');
                     if (rows.length >= 4) {{
-                        // 조cases 1: 출근율
+                        // 조건 1: 출근율
                         rows[0].cells[1].textContent = getTranslation('criteria.conditions.attendance.items.attendanceRate.name', currentLanguage);
                         rows[0].cells[2].textContent = getTranslation('criteria.conditions.attendance.items.attendanceRate.criteria', currentLanguage);
                         rows[0].cells[3].textContent = getTranslation('criteria.conditions.attendance.items.attendanceRate.description', currentLanguage);
                         
-                        // 조cases 2: 무단결근
+                        // 조건 2: 무단결근
                         rows[1].cells[1].textContent = getTranslation('criteria.conditions.attendance.items.unapprovedAbsence.name', currentLanguage);
                         rows[1].cells[2].textContent = getTranslation('criteria.conditions.attendance.items.unapprovedAbsence.criteria', currentLanguage);
                         rows[1].cells[3].textContent = getTranslation('criteria.conditions.attendance.items.unapprovedAbsence.description', currentLanguage);
                         
-                        // 조cases 3: actual workth
+                        // 조건 3: actual 근무일
                         rows[2].cells[1].textContent = getTranslation('criteria.conditions.attendance.items.actualWorkingDays.name', currentLanguage);
                         rows[2].cells[2].textContent = getTranslation('criteria.conditions.attendance.items.actualWorkingDays.criteria', currentLanguage);
                         rows[2].cells[3].textContent = getTranslation('criteria.conditions.attendance.items.actualWorkingDays.description', currentLanguage);
                         
-                        // 조cases 4: 최소 workth
+                        // 조건 4: 최소 근무일
                         rows[3].cells[1].textContent = getTranslation('criteria.conditions.attendance.items.minimumWorkingDays.name', currentLanguage);
                         rows[3].cells[2].textContent = getTranslation('criteria.conditions.attendance.items.minimumWorkingDays.criteria', currentLanguage);
                         rows[3].cells[3].textContent = getTranslation('criteria.conditions.attendance.items.minimumWorkingDays.description', currentLanguage);
@@ -9831,29 +9836,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}
             
-            // AQL 조cases 테이블 업데이트
+            // AQL 조건 테이블 업데이트
             const aqlTable = document.getElementById('aqlTable');
             if (aqlTable) {{
                 const tbody = aqlTable.querySelector('tbody');
                 if (tbody) {{
                     const rows = tbody.querySelectorAll('tr');
                     if (rows.length >= 4) {{
-                        // 조cases 5: 개인 AQL (당month)
+                        // 조건 5: 개인 AQL (당month)
                         rows[0].cells[1].textContent = getTranslation('criteria.conditions.aql.items.personalFailure.name', currentLanguage);
                         rows[0].cells[2].textContent = getTranslation('criteria.conditions.aql.items.personalFailure.criteria', currentLanguage);
                         rows[0].cells[3].textContent = getTranslation('criteria.conditions.aql.items.personalFailure.description', currentLanguage);
                         
-                        // 조cases 6: 개인 AQL (연속성)
+                        // 조건 6: 개인 AQL (연속성)
                         rows[1].cells[1].textContent = getTranslation('criteria.conditions.aql.items.personalContinuous.name', currentLanguage);
                         rows[1].cells[2].textContent = getTranslation('criteria.conditions.aql.items.personalContinuous.criteria', currentLanguage);
                         rows[1].cells[3].textContent = getTranslation('criteria.conditions.aql.items.personalContinuous.description', currentLanguage);
                         
-                        // 조cases 7: 팀/구역 AQL
+                        // 조건 7: 팀/구역 AQL
                         rows[2].cells[1].textContent = getTranslation('criteria.conditions.aql.items.teamArea.name', currentLanguage);
                         rows[2].cells[2].textContent = getTranslation('criteria.conditions.aql.items.teamArea.criteria', currentLanguage);
                         rows[2].cells[3].textContent = getTranslation('criteria.conditions.aql.items.teamArea.description', currentLanguage);
                         
-                        // 조cases 8: 담당구역 reject
+                        // 조건 8: 담당구역 reject
                         rows[3].cells[1].textContent = getTranslation('criteria.conditions.aql.items.areaReject.name', currentLanguage);
                         rows[3].cells[2].textContent = getTranslation('criteria.conditions.aql.items.areaReject.criteria', currentLanguage);
                         rows[3].cells[3].textContent = getTranslation('criteria.conditions.aql.items.areaReject.description', currentLanguage);
@@ -9861,19 +9866,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}
             
-            // 5PRS 조cases 테이블 업데이트
+            // 5PRS 조건 테이블 업데이트
             const prsTable = document.getElementById('prsTable');
             if (prsTable) {{
                 const tbody = prsTable.querySelector('tbody');
                 if (tbody) {{
                     const rows = tbody.querySelectorAll('tr');
                     if (rows.length >= 2) {{
-                        // 조cases 9: 5PRS 통과율
+                        // 조건 9: 5PRS 통과율
                         rows[0].cells[1].textContent = getTranslation('criteria.conditions.5prs.items.passRate.name', currentLanguage);
                         rows[0].cells[2].textContent = getTranslation('criteria.conditions.5prs.items.passRate.criteria', currentLanguage);
                         rows[0].cells[3].textContent = getTranslation('criteria.conditions.5prs.items.passRate.description', currentLanguage);
                         
-                        // 조cases 10: 5PRS 검사량
+                        // 조건 10: 5PRS 검사량
                         rows[1].cells[1].textContent = getTranslation('criteria.conditions.5prs.items.inspectionQty.name', currentLanguage);
                         rows[1].cells[2].textContent = getTranslation('criteria.conditions.5prs.items.inspectionQty.criteria', currentLanguage);
                         rows[1].cells[3].textContent = getTranslation('criteria.conditions.5prs.items.inspectionQty.description', currentLanguage);
@@ -9898,11 +9903,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         if (cells.length === 4) {{
                             const noteText = cells[3].textContent.trim();
                             // 특이사항 매핑
-                            if (noteText.includes('출근 조cases만') || noteText.includes('Attendance only')) {{
+                            if (noteText.includes('출근 조건만') || noteText.includes('Attendance only')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceOnly', currentLanguage);
                             }} else if (noteText.includes('출근 + 팀/구역 AQL') && !noteText.includes('reject')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceTeamAql', currentLanguage);
-                            }} else if (noteText.includes('특by calculation') || noteText.includes('Special calculation')) {{
+                            }} else if (noteText.includes('특별 calculation') || noteText.includes('Special calculation')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceMonthAql', currentLanguage);
                             }} else if (noteText.includes('출근 + 개인 AQL + 5PRS')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendancePersonalAql5prs', currentLanguage);
@@ -9910,9 +9915,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceTeamAreaReject', currentLanguage);
                             }} else if (noteText.includes('출근 + 담당구역 reject')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceAreaReject', currentLanguage);
-                            }} else if (noteText.includes('모든 조cases') || noteText.includes('All conditions')) {{
+                            }} else if (noteText.includes('모든 조건') || noteText.includes('All conditions')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.allConditions', currentLanguage);
-                            }} else if (noteText.includes('조cases 없음') || noteText.includes('No conditions')) {{
+                            }} else if (noteText.includes('조건 없음') || noteText.includes('No conditions')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.noConditions', currentLanguage);
                             }}
                         }}
@@ -9949,7 +9954,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let grandPaid = 0;
             let grandAmount = 0;
 
-            // employees data 순회하며 집계
+            // 직원 data 순회하며 집계
             dataSource.forEach(emp => {{
                 // type 필드를 여러 available 이름에서 찾기
                 const type = emp.type || emp['ROLE TYPE STD'] || emp['Type'] || 'UNKNOWN';
@@ -9957,7 +9962,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     typeData[type].total++;
                     grandTotal++;
 
-                    // 여러 available incentive 필드employees 확인
+                    // 여러 available incentive 필드직원 확인
                     const amount = parseInt(
                         emp['{month.lower()}_incentive'] ||
                         emp['{month.lower().capitalize()}_Incentive'] ||
@@ -9965,7 +9970,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         0
                     );
 
-                    console.log('Type 확인:', type, 'employees:', emp.name || emp['Full Name'], '금액:', amount);
+                    console.log('Type 확인:', type, '직원:', emp.name || emp['Full Name'], '금액:', amount);
                     if (amount > 0) {{
                         typeData[type].paid++;
                         typeData[type].totalAmount += amount;
@@ -10036,7 +10041,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function initValidationTab() {{
             console.log('Initializing validation tab...');
 
-            // interim report 여부 확인 (data 기간의 last 날 based on)
+            // interim report 여부 확인 (data 기간의 last 날 기준)
             const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
             const dataEndDay = incentiveDataPeriod ? parseInt(incentiveDataPeriod.getAttribute('data-endday')) : 0;
             const isInterimReport = dataEndDay < 20;
@@ -10084,35 +10089,35 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const peopleUnit = getUnit('people');
             const daysUnit = getUnit('days');
 
-            // 1. total workthcount - config에서 가져온 값 use (employeeby data가 아님)
+            // 1. total 근무일count - config에서 가져온 값 use (employeeby data가 아님)
             const totalWorkingDays = {working_days}; // Python에서 주입된 값
             document.getElementById('kpiTotalWorkingDays').textContent = totalWorkingDays + daysUnit;
 
-            // 2. 무단결근 3th 이상 (unapproved_absences > 2)
-            const ar1Over3 = employeeData.filter(emp =>
-                parseFloat(emp['unapproved_absences'] || emp['Unapproved Absences'] || 0) > 2
+            // 2. 무단결근 현황 (unapproved_absences >= 1)
+            const ar1Total = employeeData.filter(emp =>
+                parseFloat(emp['unapproved_absences'] || emp['Unapproved Absences'] || 0) >= 1
             ).length;
-            document.getElementById('kpiAbsentWithoutInform').textContent = ar1Over3 + peopleUnit;
+            document.getElementById('kpiAbsentWithoutInform').textContent = ar1Total + peopleUnit;
 
-            // 3. actual workth 0th (9month 현재 재직자만, TYPE-3 제외)
+            // 3. actual 근무일 0일 (9month 현재 재직자만, TYPE-3 제외)
             const zeroWorkingDays = employeeData.filter(emp => {{
-                // TYPE-3 제외 (incentive target 아님)
+                // TYPE-3 제외 (incentive 대상 아님)
                 if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
                     return false;
                 }}
                 const actualDays = parseFloat(emp['Actual Working Days'] || emp['actual_working_days'] || 0);
-                // employeeData는 이미 9month based on 필터링된 401employees
+                // employeeData는 이미 9month 기준 필터링된 401employees
                 return actualDays === 0;
             }}).length;
             document.getElementById('kpiZeroWorkingDays').textContent = zeroWorkingDays + peopleUnit;
 
-            // 4. 최소 workth 미충족 (interim report면 N/A)
+            // 4. 최소 근무일 미충족 (interim report면 N/A)
             if (isInterimReport) {{
                 document.getElementById('kpiMinimumDaysNotMet').textContent = 'N/A';
                 document.getElementById('kpiMinimumDaysNotMet').parentElement.style.opacity = '0.5';
             }} else {{
                 const minimumDaysNotMet = employeeData.filter(emp => {{
-                    // TYPE-3 제외 (incentive target 아님)
+                    // TYPE-3 제외 (incentive 대상 아님)
                     if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
                         return false;
                     }}
@@ -10126,7 +10131,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             // 5. 출근율 88% 미만 (TYPE-3 제외)
             const attendanceBelow88 = employeeData.filter(emp => {{
-                // TYPE-3 제외 (incentive target 아님)
+                // TYPE-3 제외 (incentive 대상 아님)
                 if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
                     return false;
                 }}
@@ -10134,7 +10139,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}).length;
             document.getElementById('kpiAttendanceBelow88').textContent = attendanceBelow88 + peopleUnit;
 
-            // 6. AQL FAIL 보유자 (모든 employees target)
+            // 6. AQL FAIL 보유자 (모든 직원 대상)
             const aqlFailEmployees = employeeData.filter(emp => {{
                 // September AQL Failures column 확인 (Excel data에서 directly 가져옴)
                 const aqlFailures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
@@ -10142,16 +10147,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}).length;
             document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + peopleUnit;
 
-            // 7. 3개month 연속 AQL FAIL (Excel의 Continuous_FAIL column use)
+            // 7. 3개월 연속 AQL FAIL (Excel의 Continuous_FAIL column use)
             const consecutiveFail = employeeData.filter(emp => {{
                 const continuous_fail = emp['Continuous_FAIL'] || emp['continuous_fail'] || 'NO';
                 return continuous_fail === 'YES_3MONTHS';
             }}).length;
             document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + peopleUnit;
 
-            // 8. 구역 AQL Reject Rate 3% 초과 employees count (조cases 8번만 카운트)
+            // 8. 구역 AQL Reject Rate 3% 초과 직원 count (조건 8번만 카운트)
             const highRejectRate = employeeData.filter(emp => {{
-                // 조cases 8번: 구역 reject rate > 3%만 체크 (조cases 7번 제외)
+                // 조건 8번: 구역 reject rate > 3%만 체크 (조건 7번 제외)
                 const cond8 = emp['cond_8_area_reject'] || 'PASS';
                 const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || emp['area_reject_rate'] || 0);
                 return cond8 === 'FAIL' || areaRejectRate > 3;
@@ -10169,7 +10174,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.getElementById('kpiLowPassRate').textContent = lowPassRate + peopleUnit;
 
             // 10. 5PRS 검사량 < 100족 (TYPE-1 ASSEMBLY INSPECTOR만)
-            // CRITICAL FIX: 5PRS data file에 actual로 있는 employees만 카운트
+            // CRITICAL FIX: 5PRS data file에 actual로 있는 직원만 카운트
             // NaN(data 없음)은 제외, actual 검사량이 있고 < 100인 경우만 포함
             const lowInspectionQty = employeeData.filter(emp => {{
                 const isType1 = emp['type'] === 'TYPE-1';
@@ -10321,7 +10326,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let tableHeaders = [];
             let tableData = [];
 
-            // interim report 여부 확인 (data 기간의 last 날 based on)
+            // interim report 여부 확인 (data 기간의 last 날 기준)
             const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
             const dataEndDay = incentiveDataPeriod ? parseInt(incentiveDataPeriod.getAttribute('data-endday')) : 0;
             const isInterimReport = dataEndDay < 20;
@@ -10330,7 +10335,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 case 'totalWorkingDays':
                     modalTitle = getTranslation('validationTab.modalTitles.totalWorkingDays', currentLanguage);
                     tableHeaders = ['날짜', '요th', 'work 인원count'];
-                    // actual로는 thby data가 없으므로 total workthcount만 표시
+                    // actual로는 thby data가 없으므로 total 근무일count만 표시
                     const totalDays = employeeData[0]?.['Total Working Days'] || {working_days};
                     tableData = [[
                         `{year}year {get_korean_month(month)}month`,
@@ -10341,6 +10346,33 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 case 'absentWithoutInform':
                     modalTitle = getTranslation('validationTab.modalTitles.absentWithoutInform', currentLanguage);
+
+                    // 무단결근 분포 계산
+                    const absenceData = employeeData.filter(emp => parseFloat(emp['Unapproved Absences'] || 0) >= 1);
+                    const absence1 = absenceData.filter(emp => parseFloat(emp['Unapproved Absences']) === 1).length;
+                    const absence2 = absenceData.filter(emp => parseFloat(emp['Unapproved Absences']) === 2).length;
+                    const absence3plus = absenceData.filter(emp => parseFloat(emp['Unapproved Absences']) >= 3).length;
+
+                    // 요약 섹션 HTML
+                    const summaryHtml = `
+                        <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-around; text-align: center;">
+                                <div style="flex: 1;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #3498db;">${'${absence1}'}</div>
+                                    <div style="font-size: 14px; color: #7f8c8d;">1일</div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #f39c12;">${'${absence2}'}</div>
+                                    <div style="font-size: 14px; color: #7f8c8d;">2일</div>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #e74c3c;">${'${absence3plus}'}</div>
+                                    <div style="font-size: 14px; color: #7f8c8d;">3일 이상 (조건 초과)</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
                     tableHeaders = [
                         getTranslation('validationTab.tableHeaders.employeeNo', currentLanguage),
                         getTranslation('validationTab.tableHeaders.name', currentLanguage),
@@ -10348,15 +10380,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.ar1Days', currentLanguage),
                         getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
                     ];
-                    tableData = employeeData
-                        .filter(emp => parseFloat(emp['Unapproved Absences'] || 0) > 2)
-                        .map(emp => [
-                            emp['Employee No'],
-                            emp['Full Name'],
-                            emp['FINAL QIP POSITION NAME CODE'],
-                            emp['Unapproved Absences'],
-                            emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || 'FAIL'
-                        ]);
+                    tableData = absenceData
+                        .map(emp => {{
+                            const days = parseFloat(emp['Unapproved Absences']);
+                            const daysCell = days >= 3 ? `<span style="color: #e74c3c; font-weight: bold;">${'${days}'}</span>` : days;
+                            return [
+                                emp['Employee No'],
+                                emp['Full Name'],
+                                emp['FINAL QIP POSITION NAME CODE'],
+                                daysCell,
+                                emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || (days > 2 ? 'FAIL' : 'PASS')
+                            ];
+                        }});
+
+                    // 요약 섹션을 모달에 추가
+                    modalContent = summaryHtml;
                     break;
 
                 case 'zeroWorkingDays':
@@ -10393,7 +10431,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
                     ];
 
-                    // 중간보고 시에는 조cases 4를 apply하지 않음
+                    // 중간보고 시에는 조건 4를 apply하지 않음
                     if (isInterim) {{
                         tableData = []; // 중간보고 시 표시 안함
                     }} else {{
@@ -10423,7 +10461,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
                     ];
 
-                    // TYPE-1에서 조cases 5가 apply되는 포지션만 필터링
+                    // TYPE-1에서 조건 5가 apply되는 포지션만 필터링
                     const aqlPositions = ['SUPERVISOR', 'A.MANAGER', 'MANAGER', 'S.MANAGER', 'AQL INSPECTOR'];
                     tableData = employeeData
                         .filter(emp => {{
@@ -10447,14 +10485,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // This case is now handled by showConsecutiveAqlFailDetails()
                     // But we still need to handle it here as a fallback
                     modalTitle = getTranslation('validationTab.modalTitles.consecutiveAqlFail', currentLanguage);
-                    tableHeaders = ['employees번호', '이름', '직책', '연속 failed 개month'];
+                    tableHeaders = ['직원번호', '이름', '직책', '연속 failed 개월'];
                     tableData = employeeData
                         .filter(emp => emp['Consecutive_Fail_Months'] > 0)
                         .map(emp => [
                             emp['Employee No'],
                             emp['Full Name'],
                             emp['QIP POSITION 1ST  NAME'] || '-',
-                            emp['Consecutive_Fail_Months'] + '개month'
+                            emp['Consecutive_Fail_Months'] + '개월'
                         ]);
                     break;
 
@@ -10548,7 +10586,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 모달 HTML creation
             return `
-                <div id="validationModal" class="modal" onclick="if(event.target === this) closeValidationModal();" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+                <div id="validationModal" class="modal" onclick="if(event.대상 === this) closeValidationModal();" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
                     <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">
                         <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0;">
                             <span class="close" onclick="closeValidationModal()" style="color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
@@ -10671,7 +10709,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 페이지 load 시 초기화
         document.addEventListener('DOMContentLoaded', function() {{
             console.log('=== DOMContentLoaded Event Fired ===');
-            console.log('Total employees in data:', employeeData ? employeeData.length : 'No data');
+            console.log('Total 직원 in data:', employeeData ? employeeData.length : 'No data');
 
             // Bootstrap 툴팁 초기화
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -10696,12 +10734,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // Bootstrap 탭 이벤트 리스너 등록
             // 다양한 선택자 시도
-            let orgChartTabButton = document.querySelector('button[data-bs-target="#orgchart"]');
+            let orgChartTabButton = document.querySelector('button[data-bs-대상="#orgchart"]');
             if (!orgChartTabButton) {{
-                orgChartTabButton = document.querySelector('a[data-bs-target="#orgchart"]');
+                orgChartTabButton = document.querySelector('a[data-bs-대상="#orgchart"]');
             }}
             if (!orgChartTabButton) {{
-                orgChartTabButton = document.querySelector('[data-bs-target="#orgchart"]');
+                orgChartTabButton = document.querySelector('[data-bs-대상="#orgchart"]');
             }}
             if (!orgChartTabButton) {{
                 // 네 번째 탭 버튼 directly 선택 (0-indexed이므로 3)
@@ -10754,14 +10792,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (orgSearchInput) {{
                 console.log('Org chart search input found, attaching event listener');
                 orgSearchInput.addEventListener('input', function(e) {{
-                    const searchTerm = e.target.value.trim();
+                    const searchTerm = e.대상.value.trim();
                     searchInTree(searchTerm);
                 }});
 
                 // Enter 키 처리
                 orgSearchInput.addEventListener('keypress', function(e) {{
                     if (e.key === 'Enter') {{
-                        const searchTerm = e.target.value.trim();
+                        const searchTerm = e.대상.value.trim();
                         searchInTree(searchTerm);
                     }}
                 }});
@@ -10874,7 +10912,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return isNaN(parsed) ? 0 : parsed;
         }}
 
-        // incentive count령 여부 확인 함count
+        // incentive 수령 여부 확인 함count
         function hasIncentive(data) {{
             const amount = parseIncentive(data.incentive || data['{month.lower()}_incentive'] || 0);
             return amount > 0;
@@ -10980,7 +11018,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return false;
             }}
 
-            // TYPE-1 employees 중 LINE LEADER 이상만 포함 (관리자 계층 구조)
+            // TYPE-1 직원 중 LINE LEADER 이상만 포함 (관리자 계층 구조)
             const type1Employees = employeeData.filter(emp => {{
                 // TYPE-1이 아닌 경우 제외
                 if (emp.type !== 'TYPE-1') {{
@@ -11008,13 +11046,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return true;
             }});
 
-            console.log(`TYPE-1 employees for hierarchy: ${{type1Employees.length}} (excluded ${{employeeData.length - type1Employees.length}})`);
+            console.log(`TYPE-1 직원 for hierarchy: ${{type1Employees.length}} (excluded ${{employeeData.length - type1Employees.length}})`);
 
-            // employees ID로 매핑 - 모든 TYPE-1 employees 포함
+            // 직원 ID로 매핑 - 모든 TYPE-1 직원 포함
             const employeeMap = {{}};
             const rootNodes = [];
 
-            // 모든 TYPE-1 employees을 맵에 저장 (계층 구조 형성을 위해)
+            // 모든 TYPE-1 직원을 맵에 저장 (계층 구조 형성을 위해)
             type1Employees.forEach(emp => {{
                 // incentive calculation 방법 determination
                 let calculationMethod = '';
@@ -11044,7 +11082,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }};
             }});
 
-            // 부모-자식 관계 설정 - employeeMap의 모든 employees에 대해 처리
+            // 부모-자식 관계 설정 - employeeMap의 모든 직원에 대해 처리
             Object.values(employeeMap).forEach(node => {{
                 if (node.boss_id && node.boss_id !== '' && node.boss_id !== 'nan' && node.boss_id !== '0') {{
                     const boss = employeeMap[node.boss_id];
@@ -11108,9 +11146,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             data-bs-placement="top">ℹ️</span>`;
                 html += '</div>';
 
-                // LINE LEADER의 경우 부하employees 표시
+                // LINE LEADER의 경우 부하직원 표시
                 if (node.position && node.position.toUpperCase().includes('LINE LEADER')) {{
-                    // 부하employees 찾기 (incentive calculation에 영향을 미치는 TYPE-1 부하만)
+                    // 부하직원 찾기 (incentive calculation에 영향을 미치는 TYPE-1 부하만)
                     const subordinates = employeeData.filter(emp =>
                         emp.boss_id === node.id &&
                         emp.type === 'TYPE-1'
@@ -11124,7 +11162,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     if (subordinates.length > 0) {{
                         html += `<div class="subordinate-info">`;
                         html += `<span class="subordinate-label">incentive calculation based:</span>`;
-                        html += `<span class="subordinate-count">TYPE-1 부하 ${{receivingCount}}/${{subordinates.length}}employees</span>`;
+                        html += `<span class="subordinate-count">TYPE-1 부하 ${{receivingCount}}/${{subordinates.length}}직원</span>`;
                         html += '</div>';
                     }}
                 }}
@@ -11176,16 +11214,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 핸들러 함count를 전역에 저장하여 나중에 제거 가능
                 window.incentiveButtonHandler = function(e) {{
-                    console.log('🖱️ 클릭 이벤트 발생:', e.target.className);
+                    console.log('🖱️ 클릭 이벤트 발생:', e.대상.className);
 
                     // 정보 버튼이 클릭된 경우
-                    if (e.target && e.target.classList && e.target.classList.contains('incentive-detail-btn')) {{
+                    if (e.대상 && e.대상.classList && e.대상.classList.contains('incentive-detail-btn')) {{
                         console.log('ℹ️ 정보 버튼 클릭됨 (이벤트 위임)');
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
 
-                        const nodeId = e.target.getAttribute('data-node-id');
+                        const nodeId = e.대상.getAttribute('data-node-id');
                         console.log('📌 노드 ID:', nodeId);
                         console.log('📌 모달 함count 존재:', typeof window.showIncentiveModal);
 
@@ -11241,7 +11279,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // incentive 클릭 핸들러 함count
             function handleIncentiveClick(e) {{
-                const incentiveInfo = e.target.closest('.node-incentive-info');
+                const incentiveInfo = e.대상.closest('.node-incentive-info');
                 if (incentiveInfo) {{
                     e.preventDefault();
                     e.stopPropagation();
@@ -11313,7 +11351,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.querySelectorAll('.org-node').forEach(node => {{
                 node.addEventListener('click', function(e) {{
                     // incentive 정보를 클릭한 경우는 제외
-                    if (e.target.closest('.node-incentive-info')) {{
+                    if (e.대상.closest('.node-incentive-info')) {{
                         console.log('🚫 incentive 클릭이므로 expand/collapse 무시');
                         return;
                     }}
@@ -11455,7 +11493,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return lineLeaders;
         }}
 
-        // incentive 미payment 사유 분석 함count
+        // incentive 미지급 사유 분석 함count
         function getIncentiveFailureReasons(employee) {{
             const reasons = [];
             const position = (employee.position || '').toUpperCase();
@@ -11867,16 +11905,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 const employee = employeeData.find(emp => emp.emp_no === nodeId);
                 if (!employee) {{
-                    console.error('❌ employees data를 find count 없음:', nodeId);
-                    alert('employees data를 find count not found. ID: ' + nodeId);
+                    console.error('❌ 직원 data를 find count 없음:', nodeId);
+                    alert('직원 data를 find count not found. ID: ' + nodeId);
                     return;
                 }}
-                console.log('✅ employees 발견:', employee.name, employee.position);
+                console.log('✅ 직원 발견:', employee.name, employee.position);
 
                 const position = (employee.position || '').toUpperCase();
                 const employeeIncentive = Number(employee['{month.lower()}_incentive'] || 0);
 
-                // 부하 employees 찾기 (TYPE-1만)
+                // 부하 직원 찾기 (TYPE-1만)
                 const subordinates = employeeData.filter(emp => emp.boss_id === nodeId && emp.type === 'TYPE-1');
                 const receivingSubordinates = subordinates.filter(sub => {{
                     const incentive = sub['{month.lower()}_incentive'] || 0;
@@ -11931,14 +11969,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <h5 class="${{employeeIncentive > 0 ? 'text-success' : 'text-danger'}}">
                                         <span class="modal-actual-incentive">${{getTranslation('orgChart.modalLabels.actualIncentive', currentLanguage)}}</span>: ₫${{employeeIncentive.toLocaleString('ko-KR')}}
                                     </h5>
-                                    <p class="text-muted"><span class="modal-calc-method">${{getTranslation('orgChart.modalLabels.calculationMethod', currentLanguage)}}</span>: ${{getCalculationFormula(employee.position) || '특by calculation'}}</p>
+                                    <p class="text-muted"><span class="modal-calc-method">${{getTranslation('orgChart.modalLabels.calculationMethod', currentLanguage)}}</span>: ${{getCalculationFormula(employee.position) || '특별 calculation'}}</p>
                                     ${{(() => {{
                                         if (employeeIncentive === 0) {{
                                             const failureReasons = getIncentiveFailureReasons(employee);
                                             if (failureReasons.length > 0) {{
                                                 return `
                                                     <div class="alert alert-danger mt-3">
-                                                        <h6 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> <span class="modal-no-payment-reason">${{getTranslation('orgChart.modal.alerts.nonPaymentTitle', currentLanguage)}}</span></h6>
+                                                        <h6 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> <span class="modal-no-지급-reason">${{getTranslation('orgChart.modal.alerts.nonPaymentTitle', currentLanguage)}}</span></h6>
                                                         <ul class="mb-0">
                                                             ${{failureReasons.map(reason => `<li>${{reason}}</li>`).join('')}}
                                                         </ul>
@@ -12144,7 +12182,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // UI 텍스트 업데이트
         function updateOrgChartUIText() {{
-            // 제목 및 설employees updated
+            // 제목 및 설직원 updated
             const titleEl = document.getElementById('orgChartTitle');
             if (titleEl) titleEl.textContent = getTranslation('tabs.orgChart', currentLanguage) || getTranslation('tabs.orgchart', currentLanguage);
 
@@ -12449,8 +12487,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     .attr("class", "link")
                     .style("fill", "none")
                     .style("stroke", "#ccc")
-                    .style("stroke-width", d => Math.max(1, 3 - d.target.depth)) // 깊이에 따라 두께 조정
-                    .style("opacity", d => Math.max(0.3, 1 - d.target.depth * 0.15)) // 깊이에 따라 투employees도
+                    .style("stroke-width", d => Math.max(1, 3 - d.대상.depth)) // 깊이에 따라 두께 조정
+                    .style("opacity", d => Math.max(0.3, 1 - d.대상.depth * 0.15)) // 깊이에 따라 투직원도
                     .attr("d", d3.linkRadial()
                         .angle(d => d.x)
                         .radius(d => d.y));
@@ -12501,7 +12539,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             ID: ${{d.data.id}}<br/>
                             ${{d.data.position}}<br/>
                             type: ${{d.data.type || 'N/A'}}<br/>
-                            incentive: ${{hasIncentive(d.data) ? 'count령' : '미count령'}}
+                            incentive: ${{hasIncentive(d.data) ? '수령' : '미수령'}}
                         `)
                             .style("left", (event.pageX + 10) + "px")
                             .style("top", (event.pageY - 28) + "px");
@@ -12526,7 +12564,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }})
                     .style("font-weight", d => d.depth <= 1 ? "bold" : "normal")
                     .text(d => {{
-                        // 깊이가 깊을count록 텍스트 줄이기
+                        // 깊이가 깊을수록 텍스트 줄이기
                         if (d.depth >= 4) {{
                             // Inspector 레벨에서는 이름만 표시하고 줄임
                             const names = d.data.name.split(' ');
@@ -12784,7 +12822,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 링크 업데이트
                     const link = g.selectAll("path.link")
-                        .data(links, d => d.target.id);
+                        .data(links, d => d.대상.id);
 
                     // 새로운 링크 추가
                     const linkEnter = link.enter().insert("path", "g")
@@ -12803,7 +12841,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     linkUpdate.transition()
                         .duration(duration)
-                        .attr("d", d => diagonal(d.source, d.target));
+                        .attr("d", d => diagonal(d.source, d.대상));
 
                     // end 링크 처리
                     const linkExit = link.exit().transition()
@@ -12940,7 +12978,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         if (hasIncentive(d.data)) {{
                             return `linear-gradient(135deg, ${{color}}, ${{d3.color(color).darker(0.3)}})`;
                         }} else {{
-                            // incentive 미count령자는 더 어두운 색상
+                            // incentive 미수령자는 더 어두운 색상
                             return `linear-gradient(135deg, ${{d3.color(color).darker(0.5)}}, ${{d3.color(color).darker(0.8)}})`;
                         }}
                     }})
@@ -13032,7 +13070,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         type: ${{d.data.type}}<br/>
                         incentive: ${{hasIncentive(d.data) ?
                             parseIncentive(d.data.incentive).toLocaleString() + ' VND ✅' :
-                            '미count령 ❌'}}
+                            '미수령 ❌'}}
                     `)
                         .style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 28) + "px");
@@ -13185,7 +13223,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const col = index % maxPerRow;
                             const groupCenter = group[0].parent ? group[0].parent.x : 0;
 
-                            // count평 위치: 그룹 중앙을 based on으로 배치
+                            // count평 위치: 그룹 중앙을 기준으로 배치
                             const totalWidth = Math.min(maxPerRow, group.length) * 100;
                             const startX = groupCenter - totalWidth / 2;
                             node.x = startX + col * 100;
@@ -13204,7 +13242,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     .enter().append("g")
                     .attr("class", "link");
 
-                // 계단식 연결선 (더 employees확한 계층 표현)
+                // 계단식 연결선 (더 직원확한 계층 표현)
                 link.append("path")
                     .attr("fill", "none")
                     .attr("stroke", "#999")
@@ -13213,8 +13251,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         // count직 계단식 경로
                         const sourceX = d.source.x - width / 2 + margin.left;
                         const sourceY = d.source.y;
-                        const targetX = d.target.x - width / 2 + margin.left;
-                        const targetY = d.target.y;
+                        const targetX = d.대상.x - width / 2 + margin.left;
+                        const targetY = d.대상.y;
                         const midY = (sourceY + targetY) / 2;
 
                         return `M ${{sourceX}} ${{sourceY}}
@@ -13241,11 +13279,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     .attr("y", -45)
                     .attr("fill", d => {{
                         const baseColor = getNodeColor(d.data);
-                        // incentive count령 여부에 따라 색상 조정
+                        // incentive 수령 여부에 따라 색상 조정
                         if (hasIncentive(d.data)) {{
                             return baseColor; // 원래 색상 유지
                         }} else {{
-                            return baseColor + "40"; // 40% 투employees도로 희미하게
+                            return baseColor + "40"; // 40% 투직원도로 희미하게
                         }}
                     }})
                     .attr("stroke", d => hasIncentive(d.data) ? "#28a745" : "#dc3545")
@@ -13311,7 +13349,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         function prepareHierarchyData() {{
             console.log('Preparing organization hierarchy data...');
-            console.log('Total employees:', employeeData.length);
+            console.log('Total 직원:', employeeData.length);
 
             // 먼저 data가 비어있는지 확인
             if (!employeeData || employeeData.length === 0) {{
@@ -13319,40 +13357,40 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return [];
             }}
 
-            // 첫 몇 employees의 employees data 확인
+            // 첫 몇 직원의 직원 data 확인
             console.log('First employee sample:', employeeData[0]);
 
             // 제외할 포지션 정의
             const excludedPositions = ['MODEL MASTER', 'AUDIT & TRAINING TEAM', 'AQL INSPECTOR'];
 
-            // TYPE-1 employees 중 특정 포지션 제외
+            // TYPE-1 직원 중 특정 포지션 제외
             const type1Employees = employeeData.filter(e =>
                 e.type === 'TYPE-1' &&
                 !excludedPositions.includes(e.position)
             );
-            console.log('TYPE-1 employees (excluding excluded positions):', type1Employees.length);
+            console.log('TYPE-1 직원 (excluding excluded positions):', type1Employees.length);
 
             // 전략 determination: TYPE-1이 너무 적으면 total 조직도 표시
             let useAllEmployees = false;
             let requiredIds = new Set();
 
             if (type1Employees.length < 5) {{
-                console.log('Too few TYPE-1 employees, showing full organization chart');
+                console.log('Too few TYPE-1 직원, showing full organization chart');
                 useAllEmployees = true;
 
-                // 모든 employees 추가 (제외 포지션 제외)
+                // 모든 직원 추가 (제외 포지션 제외)
                 employeeData.forEach(emp => {{
                     if (!excludedPositions.includes(emp.position)) {{
                         requiredIds.add(emp.emp_no);
                     }}
                 }});
             }} else {{
-                // TYPE-1 employees들을 먼저 추가
+                // TYPE-1 직원들을 먼저 추가
                 type1Employees.forEach(emp => {{
                     requiredIds.add(emp.emp_no);
                 }});
 
-                // 상사 체인을 재귀적으로 추가 (actual 존재하는 employees만)
+                // 상사 체인을 재귀적으로 추가 (actual 존재하는 직원만)
                 const addBossChain = (empId) => {{
                     const emp = employeeData.find(e => e.emp_no === empId);
                     if (!emp) return;
@@ -13370,15 +13408,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                 }};
 
-                // 모든 TYPE-1 employees의 상사 체인 추가
+                // 모든 TYPE-1 직원의 상사 체인 추가
                 type1Employees.forEach(emp => {{
                     addBossChain(emp.emp_no);
                 }});
             }}
 
-            console.log('Total required nodes:', requiredIds.size, useAllEmployees ? '(showing all employees)' : '(TYPE-1 + bosses)');
+            console.log('Total required nodes:', requiredIds.size, useAllEmployees ? '(showing all 직원)' : '(TYPE-1 + bosses)');
 
-            // 디버깅: 첫 5개 employees data 확인
+            // 디버깅: 첫 5개 직원 data 확인
             if (employeeData.length > 0) {{
                 console.log('Sample employee data:', employeeData.slice(0, 5).map(e => ({{
                     name: e.name,
@@ -13391,7 +13429,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const data = [];
             const employeeById = {{}};
 
-            // employees ID 맵 creation (빈 data 필터링)
+            // 직원 ID 맵 creation (빈 data 필터링)
             employeeData.forEach(emp => {{
                 // nan이거나 빈 emp_no는 제외
                 if (emp.emp_no && emp.emp_no !== 'nan' && emp.emp_no !== '') {{
@@ -13399,7 +13437,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
-            // 모든 employees을 노드로 추가 (actual boss_id use)
+            // 모든 직원을 노드로 추가 (actual boss_id use)
             let noParentCount = 0;
             let hasParentCount = 0;
 
@@ -13415,7 +13453,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     return;
                 }}
 
-                // 필요한 employees이 아니면 cases너뛰기 (TYPE-1이거나 TYPE-1의 상사 체인에 포함)
+                // 필요한 직원이 아니면 cases너뛰기 (TYPE-1이거나 TYPE-1의 상사 체인에 포함)
                 if (!requiredIds.has(emp.emp_no)) {{
                     return;
                 }}
@@ -13424,7 +13462,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 let parentId = null;
 
                 if (emp.boss_id && emp.boss_id !== '' && emp.boss_id !== 'nan' && emp.boss_id !== 'None' && emp.boss_id !== '0') {{
-                    // boss_id가 employees 목록에 있고 requiredIds에도 포함되어 있는지 확인
+                    // boss_id가 직원 목록에 있고 requiredIds에도 포함되어 있는지 확인
                     if (employeeById[emp.boss_id] && requiredIds.has(emp.boss_id)) {{
                         parentId = emp.boss_id;
                     }} else if (employeeById[emp.boss_id]) {{
@@ -13480,7 +13518,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             if (rootNodes.length === 0) {{
                 console.log('No natural root found, connecting managers to virtual root...');
-                // Manager 레벨 employees들을 루트에 연결
+                // Manager 레벨 직원들을 루트에 연결
                 const managers = data.filter(d => {{
                     if (d.id === "root") return false;
                     const pos = (d.position || '').toUpperCase();
@@ -13606,7 +13644,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         function nodeClick(event, d) {{
-            // 노드 클릭시 corresponding employees 상세 정보 표시
+            // 노드 클릭시 corresponding 직원 상세 정보 표시
             const emp = employeeData.find(e => e.emp_no === d.data.id);
             if (emp) {{
                 showEmployeeDetail(emp);
@@ -13794,23 +13832,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 소개 텍스트
             const programIntro = document.getElementById('talentProgramIntro');
             if (programIntro) {{
-                programIntro.innerHTML = `<strong>QIP Talent Pool</strong> ${{getTranslation('talentProgram.intro', lang) || 'QIP Talent Pool은 우count한 성과를 보이는 인원들을 target으로 하는 특by incentive 프로그램입니다. 선정된 인원은 6개month간 매month 추가 보너스를 받게 됩니다.'}}`;
+                programIntro.innerHTML = `<strong>QIP Talent Pool</strong> ${{getTranslation('talentProgram.intro', lang) || 'QIP Talent Pool은 우수한 성과를 보이는 인원들을 대상으로 하는 특별 incentive 프로그램입니다. 선정된 인원은 6개월간 매month 추가 보너스를 받게 됩니다.'}}`;
             }}
             
-            // 선정 based on 제목
+            // 선정 기준 제목
             const qualificationTitle = document.getElementById('talentProgramQualificationTitle');
             if (qualificationTitle) {{
-                qualificationTitle.textContent = getTranslation('talentProgram.qualificationTitle', lang) || '🎯 선정 based on';
+                qualificationTitle.textContent = getTranslation('talentProgram.qualificationTitle', lang) || '🎯 선정 기준';
             }}
             
-            // 선정 based on 목록
+            // 선정 기준 목록
             const qualifications = document.getElementById('talentProgramQualifications');
             if (qualifications) {{
                 const items = [
                     lang === 'en' ? 'Outstanding work performance' : 
-                    lang === 'vi' ? 'Hiệu suất làm việc xuất sắc' : '업무 성과 우count자',
+                    lang === 'vi' ? 'Hiệu suất làm việc xuất sắc' : '업무 성과 우수자',
                     
-                    lang === 'en' ? 'Top 10% in quality target achievement' :
+                    lang === 'en' ? 'Top 10% in quality 대상 achievement' :
                     lang === 'vi' ? 'Top 10% đạt mục tiêu chất lượng' : '품질 목표 달성률 상위 10%',
                     
                     lang === 'en' ? 'Demonstrated teamwork and leadership' :
@@ -13828,22 +13866,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 benefitsTitle.textContent = getTranslation('talentProgram.benefitsTitle', lang) || '💰 혜택';
             }}
             
-            // month 보너스 제목
+            // 월 보너스 제목
             const monthlyBonusTitle = document.getElementById('talentProgramMonthlyBonusTitle');
             if (monthlyBonusTitle) {{
-                monthlyBonusTitle.textContent = getTranslation('talentProgram.monthlyBonusTitle', lang) || 'month 특by 보너스';
+                monthlyBonusTitle.textContent = getTranslation('talentProgram.monthlyBonusTitle', lang) || 'month 특별 보너스';
             }}
             
             // total 보너스 제목
             const totalBonusTitle = document.getElementById('talentProgramTotalBonusTitle');
             if (totalBonusTitle) {{
-                totalBonusTitle.textContent = getTranslation('talentProgram.totalBonusTitle', lang) || 'total payment 예정액 (6개month)';
+                totalBonusTitle.textContent = getTranslation('talentProgram.totalBonusTitle', lang) || 'total 지급 예정액 (6개월)';
             }}
             
             // 프로세스 제목
             const processTitle = document.getElementById('talentProgramProcessTitle');
             if (processTitle) {{
-                processTitle.textContent = getTranslation('talentProgram.processTitle', lang) || '📋 평가 프로세스 (6개month 주기)';
+                processTitle.textContent = getTranslation('talentProgram.processTitle', lang) || '📋 평가 프로세스 (6개월 주기)';
             }}
             
             // 6단계 프로세스 업데이트
@@ -13854,8 +13892,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     titleKo: '후보자 추천',
                     titleEn: 'Candidate Nomination',
                     titleVi: 'Đề cử ứng viên',
-                    descKo: '각 부서에서 우count 인원 추천',
-                    descEn: 'Departments nominate outstanding employees',
+                    descKo: '각 부서에서 우수 인원 추천',
+                    descEn: 'Departments nominate outstanding 직원',
                     descVi: 'Các phòng ban đề cử nhân viên xuất sắc'
                 }},
                 {{
@@ -13864,7 +13902,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     titleKo: '성과 평가',
                     titleEn: 'Performance Evaluation',
                     titleVi: 'Đánh giá hiệu suất',
-                    descKo: '최근 3개month간 성과 data 분석',
+                    descKo: '최근 3개월간 성과 data 분석',
                     descEn: 'Analysis of last 3 months performance data',
                     descVi: 'Phân tích dữ liệu hiệu suất 3 tháng gần nhất'
                 }},
@@ -13891,10 +13929,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 {{
                     titleId: 'talentStep5Title',
                     descId: 'talentStep5Desc',
-                    titleKo: '보너스 payment',
+                    titleKo: '보너스 지급',
                     titleEn: 'Bonus Payment',
                     titleVi: 'Thanh toán thưởng',
-                    descKo: '매month 정기 incentive와 함께 payment',
+                    descKo: '매month 정기 incentive와 함께 지급',
                     descEn: 'Paid together with regular monthly incentives',
                     descVi: 'Thanh toán cùng với khen thưởng định kỳ hàng tháng'
                 }},
@@ -13904,7 +13942,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     titleKo: '재평가',
                     titleEn: 'Re-evaluation',
                     titleVi: 'Đánh giá lại',
-                    descKo: '6개month 후 재평가 실시',
+                    descKo: '6개월 후 재평가 실시',
                     descEn: 'Re-evaluation after 6 months',
                     descVi: 'Đánh giá lại sau 6 tháng'
                 }}
@@ -13933,11 +13971,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const notes = [
                     lang === 'en' ? 'Talent Pool bonus is paid separately from regular incentives' :
                     lang === 'vi' ? 'Thưởng Talent Pool được thanh toán riêng biệt với khen thưởng thường xuyên' :
-                    'Talent Pool 보너스는 기본 incentive와 by도로 payment됩니다',
+                    'Talent Pool 보너스는 기본 incentive와 by도로 지급됩니다',
                     
-                    lang === 'en' ? 'Eligibility is automatically lost upon resignation during the payment period' :
+                    lang === 'en' ? 'Eligibility is automatically lost upon resignation during the 지급 period' :
                     lang === 'vi' ? 'Tư cách sẽ tự động mất khi nghỉ việc trong thời gian thanh toán' :
-                    'payment 기간 중 퇴사 시 자격이 자동 상실됩니다',
+                    '지급 기간 중 퇴사 시 자격이 자동 상실됩니다',
                     
                     lang === 'en' ? 'May be terminated early if performance is insufficient' :
                     lang === 'vi' ? 'Có thể kết thúc sớm nếu hiệu suất không đủ' :
@@ -13945,7 +13983,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     
                     lang === 'en' ? 'Renewal is determined through re-evaluation every 6 months' :
                     lang === 'vi' ? 'Việc gia hạn được quyết định thông qua đánh giá lại mỗi 6 tháng' :
-                    '매 6개month마다 재평가를 통해 갱신 여부가 determination됩니다'
+                    '매 6개월마다 재평가를 통해 갱신 여부가 determination됩니다'
                 ];
                 importantNotes.innerHTML = notes.map(note => `<li>${{note}}</li>`).join('');
             }}
@@ -13973,9 +14011,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 // 통계 업데이트
                 const totalBonus = talentPoolMembers.reduce((sum, emp) => sum + parseInt(emp.Talent_Pool_Bonus || 0), 0);
-                const monthlyBonus = talentPoolMembers[0]?.Talent_Pool_Bonus || 0; // 첫 번째 멤버의 month 보너스
+                const monthlyBonus = talentPoolMembers[0]?.Talent_Pool_Bonus || 0; // 첫 번째 멤버의 월 보너스
                 
-                document.getElementById('talentPoolCount').textContent = talentPoolMembers.length + 'employees';
+                document.getElementById('talentPoolCount').textContent = talentPoolMembers.length + '직원';
                 document.getElementById('talentPoolMonthlyBonus').textContent = parseInt(monthlyBonus).toLocaleString() + ' VND';
                 document.getElementById('talentPoolTotalBonus').textContent = totalBonus.toLocaleString() + ' VND';
                 document.getElementById('talentPoolPeriod').textContent = '2025.07 - 2025.12';
@@ -13993,7 +14031,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 membersHtml += '</div>';
                 document.getElementById('talentPoolMembers').innerHTML = membersHtml;
                 
-                // incentive based on 탭의 Talent Program 현재 멤버 섹션도 업데이트
+                // incentive 기준 탭의 Talent Program 현재 멤버 섹션도 업데이트
                 const currentMembersDiv = document.getElementById('talentProgramCurrentMembers');
                 if (currentMembersDiv) {{
                     let currentMembersHtml = '';
@@ -14068,13 +14106,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
         
-        // employees 테이블 creation
+        // 직원 테이블 creation
         function generateEmployeeTable() {{
             const tbody = document.getElementById('employeeTableBody');
             tbody.innerHTML = '';
 
             employeeData.forEach(emp => {{
-                // CRITICAL FIX: 필드employees 통th - Employee No와 emp_no 모두 지원
+                // CRITICAL FIX: 필드직원 통th - Employee No와 emp_no 모두 지원
                 const empNo = emp.emp_no || emp['Employee No'] || emp['emp_no'];
                 const empName = emp.name || emp['Full Name'];
                 const empPosition = emp.position || emp['QIP POSITION 1ST NAME'];
@@ -14088,7 +14126,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // CRITICAL FIX: empNo를 string로 전달
                 tr.onclick = () => showEmployeeDetail(String(empNo));
 
-                // Talent Pool 멤버인 경우 특by 스타th apply
+                // Talent Pool 멤버인 경우 특별 스타th apply
                 if (emp.Talent_Pool_Member === 'Y') {{
                     tr.className = 'talent-pool-row';
                 }}
@@ -14102,8 +14140,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <strong>${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND</strong>
                             <span class="tooltiptext">
                                 <strong>${{getTranslation('talentPool.special', currentLanguage) || 'QIP Talent Pool'}}</strong><br>
-                                ${{getTranslation('talentPool.monthlyBonus', currentLanguage) || 'month 특by 보너스'}}: ${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND<br>
-                                ${{getTranslation('talentPool.period', currentLanguage) || 'payment 기간'}}: 2025.07 - 2025.12
+                                ${{getTranslation('talentPool.monthlyBonus', currentLanguage) || 'month 특별 보너스'}}: ${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND<br>
+                                ${{getTranslation('talentPool.period', currentLanguage) || '지급 기간'}}: 2025.07 - 2025.12
                             </span>
                         </div>
                     `;
@@ -14126,7 +14164,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         
         // 직급by 테이블 creation (dashboard_version4.html과 동th한 UI)
         function generatePositionTables() {{
-            window.positionData = {{}}; // 전역 변count를 window 객체로 employees시적 접근
+            window.positionData = {{}}; // 전역 변count를 window 객체로 직원시적 접근
             
             // Type-직급by data 집계
             employeeData.forEach(emp => {{
@@ -14138,12 +14176,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         total: 0,
                         paid: 0,
                         totalAmount: 0,
-                        employees: []
+                        직원: []
                     }};
                 }}
                 
                 window.positionData[key].total++;
-                window.positionData[key].employees.push(emp);
+                window.positionData[key].직원.push(emp);
                 const amount = parseInt(emp['{month.lower()}_incentive']) || 0;
                 if (amount > 0) {{
                     window.positionData[key].paid++;
@@ -14275,8 +14313,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 직급by 상세 팝업 - 완전 새로운 UI
         function showPositionDetail(type, position) {{
-            const employees = employeeData.filter(e => e['ROLE TYPE STD'] === type && e['position'] === position);
-            if (employees.length === 0) return;
+            const 직원 = employeeData.filter(e => e['ROLE TYPE STD'] === type && e['position'] === position);
+            if (직원.length === 0) return;
 
             const modal = document.getElementById('positionModal');
             const modalBody = document.getElementById('positionModalBody');
@@ -14285,12 +14323,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalTitle.innerHTML = `${{type}} - ${{position}} ` + getTranslation('modal.modalTitle', currentLanguage);
             
             // 요약 통계 calculation
-            const totalEmployees = employees.length;
-            const paidEmployees = employees.filter(e => parseInt(e['{month.lower()}_incentive']) > 0).length;
-            const avgIncentive = Math.round(employees.reduce((sum, e) => sum + parseInt(e['{month.lower()}_incentive']), 0) / totalEmployees);
+            const totalEmployees = 직원.length;
+            const paidEmployees = 직원.filter(e => parseInt(e['{month.lower()}_incentive']) > 0).length;
+            const avgIncentive = Math.round(직원.reduce((sum, e) => sum + parseInt(e['{month.lower()}_incentive']), 0) / totalEmployees);
             const paidRate = Math.round(paidEmployees/totalEmployees*100);
             
-            // 조cases ID를 번역 키로 매핑
+            // 조건 ID를 번역 키로 매핑
             const conditionTranslationMap = {{
                 '1': 'modal.tenConditions.1',
                 '2': 'modal.tenConditions.2',
@@ -14304,23 +14342,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 '10': 'modal.tenConditions.10'
             }};
             
-            // actual incentive based on으로 통계 calculation (방안 2 apply)
-            const actualPassCount = employees.filter(emp => parseInt(emp['{month.lower()}_incentive']) > 0).length;
-            const actualFailCount = employees.filter(emp => parseInt(emp['{month.lower()}_incentive']) === 0).length;
+            // actual incentive 기준으로 통계 calculation (방안 2 apply)
+            const actualPassCount = 직원.filter(emp => parseInt(emp['{month.lower()}_incentive']) > 0).length;
+            const actualFailCount = 직원.filter(emp => parseInt(emp['{month.lower()}_incentive']) === 0).length;
 
-            // 각 employees의 조cases 충족 통계 calculation (참고용 유지)
-            // corresponding 직급에 actual로 apply되는 조cases만 표시 (모든 employees이 N/A인 조cases 제외)
+            // 각 직원의 조건 충족 통계 calculation (참고용 유지)
+            // corresponding 직급에 actual로 apply되는 조건만 표시 (모든 직원이 N/A인 조건 제외)
             const conditionStats = {{}};
-            if (employees[0] && employees[0].condition_results) {{
-                // 첫 번째 employees의 조cases 중 N/A가 아닌 것만 초기화
-                employees[0].condition_results.forEach(cond => {{
-                    // 모든 employees에게 N/A인 조cases은 cases너뛰기
-                    const allNA = employees.every(e => {{
+            if (직원[0] && 직원[0].condition_results) {{
+                // 첫 번째 직원의 조건 중 N/A가 아닌 것만 초기화
+                직원[0].condition_results.forEach(cond => {{
+                    // 모든 직원에게 N/A인 조건은 cases너뛰기
+                    const allNA = 직원.every(e => {{
                         const empCond = e.condition_results?.find(c => c.id === cond.id);
                         return empCond && (empCond.is_na || empCond.actual === 'N/A');
                     }});
 
-                    if (allNA) return;  // 모든 employees이 N/A면 조cases 제외
+                    if (allNA) return;  // 모든 직원이 N/A면 조건 제외
 
                     const translationKey = conditionTranslationMap[cond.id] || null;
                     const translatedName = translationKey ? getTranslation(translationKey, currentLanguage) : cond.name;
@@ -14332,7 +14370,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }};
                 }});
 
-                employees.forEach(emp => {{
+                직원.forEach(emp => {{
                     if (emp.condition_results) {{
                         emp.condition_results.forEach(cond => {{
                             if (conditionStats[cond.id]) {{
@@ -14351,7 +14389,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             
             // incentive 통계 calculation
-            const incentiveAmounts = employees.map(emp => parseInt(emp['{month.lower()}_incentive'])).filter(amt => amt > 0);
+            const incentiveAmounts = 직원.map(emp => parseInt(emp['{month.lower()}_incentive'])).filter(amt => amt > 0);
             const maxIncentive = incentiveAmounts.length > 0 ? Math.max(...incentiveAmounts) : 0;
             const minIncentive = incentiveAmounts.length > 0 ? Math.min(...incentiveAmounts) : 0;
             const medianIncentive = incentiveAmounts.length > 0 ?
@@ -14404,7 +14442,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
                     </div>
                     
-                    <!-- incentive count령 상세 및 조casesby 통계 -->
+                    <!-- incentive 수령 상세 및 조건by 통계 -->
                     <div style="margin-bottom: 20px;">
                         <h6 style="color: #666; margin-bottom: 10px;">📋 ${{getTranslation('modal.incentiveReceiptStatus.title', currentLanguage)}}</h6>
                         <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
@@ -14434,7 +14472,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </thead>
                                 <tbody>
                                     ${{Object.entries(conditionStats).map(([id, stat], index) => {{
-                                        const isNA = stat.na_count > 0 && stat.total === 0;  // 모든 employees이 N/A인 경우
+                                        const isNA = stat.na_count > 0 && stat.total === 0;  // 모든 직원이 N/A인 경우
                                         const rate = stat.total > 0 ? Math.round((stat.met / stat.total) * 100) : 0;
                                         const unmet = stat.total - stat.met;
                                         const evaluatedCount = stat.total;  // N/A가 아닌 평가 eligible count
@@ -14468,7 +14506,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
                     </div>
                     
-                    <!-- employeesby 상세 현황 -->
+                    <!-- 직원by 상세 현황 -->
                     <div>
                         <h6 style="color: #666; margin-bottom: 10px;">${{getTranslation('modal.employeeDetails', currentLanguage)}}</h6>
                         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
@@ -14490,7 +14528,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tbody>
             `;
             
-            employees.forEach(emp => {{
+            직원.forEach(emp => {{
                 const amount = parseInt(emp['{month.lower()}_incentive']);
                 const isPaid = amount > 0;
                 modalContent += `
@@ -14508,17 +14546,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 ${{(() => {{
                                     if (!emp.condition_results || emp.condition_results.length === 0) return '';
 
-                                    // incentive payment 여부 먼저 확인
+                                    // incentive 지급 여부 먼저 확인
                                     const isPaidEmployee = parseInt(emp['{month.lower()}_incentive']) > 0;
 
-                                    // 카테고리by로 조cases 그룹화 (id based on으로 필터링)
-                                    const attendance = emp.condition_results.filter(c => c.id >= 1 && c.id <= 4); // 조cases 1-4: 출근
-                                    const aql = emp.condition_results.filter(c => c.id >= 5 && c.id <= 8); // 조cases 5-8: AQL
-                                    const prs = emp.condition_results.filter(c => c.id >= 9 && c.id <= 10); // 조cases 9-10: 5PRS
+                                    // 카테고리by로 조건 그룹화 (id 기준으로 필터링)
+                                    const attendance = emp.condition_results.filter(c => c.id >= 1 && c.id <= 4); // 조건 1-4: 출근
+                                    const aql = emp.condition_results.filter(c => c.id >= 5 && c.id <= 8); // 조건 5-8: AQL
+                                    const prs = emp.condition_results.filter(c => c.id >= 9 && c.id <= 10); // 조건 9-10: 5PRS
 
                                     let badges = [];
 
-                                    // Unpaid employees의 경우 어떤 조cases이 failed했는지 employees확히 표시
+                                    // Unpaid 직원의 경우 어떤 조건이 failed했는지 직원확히 표시
                                     if (!isPaidEmployee) {{
                                         // 출근 카테고리 평가
                                         if (attendance.length > 0) {{
@@ -14560,7 +14598,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             }}
                                         }}
                                     }} else {{
-                                        // Paid employees의 경우 모든 apply 조cases이 충족된 것으로 표시
+                                        // Paid 직원의 경우 모든 apply 조건이 충족된 것으로 표시
                                         // 출근 카테고리 평가
                                         if (attendance.length > 0) {{
                                             const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
@@ -14656,7 +14694,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const modalContentElement = document.querySelector('.modal-content');
             if (modalContentElement) modalContentElement.scrollTop = 0;
             
-            // Event delegation을 use하여 employees 행 클릭 이벤트 처리
+            // Event delegation을 use하여 직원 행 클릭 이벤트 처리
             setTimeout(() => {{
                 const table = document.getElementById('positionEmployeeTable');
                 if (!table) {{
@@ -14672,10 +14710,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 새로운 이벤트 핸들러 creation 및 저장
                 window.positionTableClickHandler = function(event) {{
                     // tbody 내의 tr을 찾기
-                    const row = event.target.closest('tbody tr.employee-row');
+                    const row = event.대상.closest('tbody tr.employee-row');
                     if (!row) return;
                     
-                    // data-emp-no 속성에서 employees번호 fetch
+                    // data-emp-no 속성에서 직원번호 fetch
                     const empNo = row.getAttribute('data-emp-no');
                     console.log('Employee row clicked, empNo:', empNo);
                     
@@ -14705,7 +14743,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     window[`chart_${{chartId}}`] = new Chart(ctx, {{
                         type: 'doughnut',
                         data: {{
-                            labels: ['payment', '미payment'],
+                            labels: ['지급', '미지급'],
                             datasets: [{{
                                 data: [paidEmployees, totalEmployees - paidEmployees],
                                 backgroundColor: ['#28a745', '#dc3545'],
@@ -14773,7 +14811,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
         
-        // employees 상세 정보 표시 (dashboard 스타th UI)
+        // 직원 상세 정보 표시 (dashboard 스타th UI)
         function showEmployeeDetail(empNo) {{
             // CRITICAL FIX: type 통th하여 비교 (string로 통th)
             const empNoStr = String(empNo);
@@ -14794,16 +14832,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             modalTitle.textContent = `${{emp['Full Name']}} (${{emp['Employee No']}}) - ${{getTranslation('modal.title')}}`;
 
-            // 조cases 충족 통계 calculation - N/A 제외
+            // 조건 충족 통계 calculation - N/A 제외
             const conditions = emp.condition_results || [];
             const applicableConditions = conditions.filter(c => !c.is_na && c.actual !== 'N/A');
             const passedConditions = applicableConditions.filter(c => c.is_met).length;
             const totalConditions = applicableConditions.length;
 
-            // incentive payment 여부 확인
+            // incentive 지급 여부 확인
             const isPaidEmployee = parseInt(emp['{month.lower()}_incentive']) > 0;
 
-            // TYPE-3 처리: 모든 조cases이 N/A인 경우
+            // TYPE-3 처리: 모든 조건이 N/A인 경우
             let passRate = 0;
             if (emp['ROLE TYPE STD'] === 'TYPE-3') {{
                 passRate = 'N/A'; // TYPE-3는 정책적으로 제외
@@ -14837,7 +14875,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 </div>
                 
-                <!-- 차트와 조cases 충족도 -->
+                <!-- 차트와 조건 충족도 -->
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="card">
@@ -14849,7 +14887,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="mt-3">
                                     <h4>${{passRate === 'N/A' ? 'N/A' : passRate + '%'}}</h4>
                                     <p class="text-muted">${{
-                                        emp['ROLE TYPE STD'] === 'TYPE-3' ? getTranslation('modal.detailPopup.type3PolicyExcluded', currentLanguage) || 'TYPE-3: 정책적 제외 target' :
+                                        emp['ROLE TYPE STD'] === 'TYPE-3' ? getTranslation('modal.detailPopup.type3PolicyExcluded', currentLanguage) || 'TYPE-3: 정책적 제외 대상' :
                                         totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' ' + getTranslation('modal.detailPopup.conditionsFulfilled', currentLanguage) :
                                         getTranslation('modal.detailPopup.noConditions', currentLanguage)
                                     }}</p>
@@ -14861,11 +14899,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="card">
                             <div class="card-body">
                                 <h6 class="card-title">` + getTranslation('modal.detailPopup.paymentStatus', currentLanguage) + `</h6>
-                                <div class="payment-status ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? 'paid' : 'unpaid'}}">
+                                <div class="지급-status ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? 'paid' : 'unpaid'}}">
                                     ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? `
                                     <div>
                                         <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
-                                        <h5>` + getTranslation('modal.payment.paid', currentLanguage) + `</h5>
+                                        <h5>` + getTranslation('modal.지급.paid', currentLanguage) + `</h5>
                                         <p class="mb-1">${{parseInt(emp['{month.lower()}_incentive']).toLocaleString()}} VND</p>
                                         ${{emp.Talent_Pool_Member === 'Y' ? `
                                         <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px; border-radius: 8px; margin-top: 10px;">
@@ -14890,7 +14928,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 </div>
                 
-                <!-- 조cases 충족 상세 테이블 -->
+                <!-- 조건 충족 상세 테이블 -->
                 <div class="card">
                     <div class="card-body">
                         <h6 class="card-title">` + getTranslation('modal.detailPopup.conditionDetails', currentLanguage) + `</h6>
@@ -14906,7 +14944,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </thead>
                                 <tbody>
                                     ${{conditions
-                                        .filter(cond => !cond.is_na && cond.actual !== 'N/A')  // N/A 조cases 제외
+                                        .filter(cond => !cond.is_na && cond.actual !== 'N/A')  // N/A 조건 제외
                                         .map((cond, idx) => {{
                                         let rowClass = 'table-success';
                                         let badgeHtml = '';
@@ -14937,13 +14975,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                                 actualValue = actualValue.replace('[FAIL]', getTranslation('modal.conditions.fail', currentLanguage));
                                                 actualValue = actualValue.replace('[CONSECUTIVE_FAIL]', getTranslation('modal.conditions.consecutiveFail', currentLanguage));
 
-                                                // 조casesby 단위 추가/conversion (영어 표시 개선)
-                                                // 조cases 1, 8, 9: % 앞에 공백 추가 "100.0%" → "100.0 %"
+                                                // 조건by 단위 추가/conversion (영어 표시 개선)
+                                                // 조건 1, 8, 9: % 앞에 공백 추가 "100.0%" → "100.0 %"
                                                 if (cond.id === 1 || cond.id === 8 || cond.id === 9) {{
                                                     actualValue = actualValue.replace(/([0-9.]+)%/g, '$1 %');
                                                 }}
 
-                                                // 조cases 2, 3, 4: "0th" → "0.0 days"
+                                                // 조건 2, 3, 4: "0일" → "0.0 days"
                                                 if (cond.id === 2 || cond.id === 3 || cond.id === 4) {{
                                                     actualValue = actualValue.replace(/(\\d+\\.?\\d*)th/g, function(match, num) {{
                                                         if (currentLanguage === 'en') {{
@@ -14956,7 +14994,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                                     }});
                                                 }}
 
-                                                // 조cases 5: "0cases" → "0.0 PO reject"
+                                                // 조건 5: "0cases" → "0.0 PO reject"
                                                 if (cond.id === 5) {{
                                                     actualValue = actualValue.replace(/(\\d+\\.?\\d*)cases/g, function(match, num) {{
                                                         if (currentLanguage === 'en') {{
@@ -14969,7 +15007,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                                     }});
                                                 }}
 
-                                                // 조cases 10: "400족" → "400.0 prs" (영어/베트남어에서 prs로 변경)
+                                                // 조건 10: "400족" → "400.0 prs" (영어/베트남어에서 prs로 변경)
                                                 if (cond.id === 10) {{
                                                     actualValue = actualValue.replace(/(\\d+\\.?\\d*)족/g, function(match, num) {{
                                                         if (currentLanguage === 'en' || currentLanguage === 'vi') {{
@@ -14985,7 +15023,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             badgeHtml = cond.is_met ? '<span class="badge bg-success">' + getTranslation('modal.conditions.met', currentLanguage) + '</span>' : '<span class="badge bg-danger">' + getTranslation('modal.conditions.notMet', currentLanguage) + '</span>';
                                         }}
                                         
-                                        // 조cases 이름 번역
+                                        // 조건 이름 번역
                                         let condName = cond.name;
                                         if (cond.id && cond.id >= 1 && cond.id <= 10) {{
                                             condName = getTranslation('modal.tenConditions.' + cond.id, currentLanguage);
@@ -15059,7 +15097,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                     
                     // 새 차트 creation
-                    // TYPE-3 또는 조cases이 없는 경우 특by 처리
+                    // TYPE-3 또는 조건이 없는 경우 특별 처리
                     let chartData, chartLabels, chartColors;
 
                     if (emp.type === 'TYPE-3') {{
@@ -15068,7 +15106,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         chartLabels = ['N/A - 정책적 제외'];
                         chartColors = ['#999999'];
                     }} else if (totalConditions === 0) {{
-                        // 조cases이 없는 경우
+                        // 조건이 없는 경우
                         chartData = [1];
                         chartLabels = [getTranslation('modal.detailPopup.noConditions', currentLanguage)];
                         chartColors = ['#cccccc'];
@@ -15123,7 +15161,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 모달 외부 클릭 시 닫기
         window.onclick = function(event) {{
             const modal = document.getElementById('employeeModal');
-            if (event.target === modal) {{
+            if (event.대상 === modal) {{
                 modal.style.display = 'none';
             }}
         }}
@@ -15142,7 +15180,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const amount = parseInt(emp['{month.lower()}_incentive']);
                 const isPaid = amount > 0;
                 
-                // 필터 조cases 확인
+                // 필터 조건 확인
                 if (searchInput && !emp.name.toLowerCase().includes(searchInput) && !emp.emp_no.includes(searchInput)) {{
                     return;
                 }}
@@ -15163,7 +15201,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 tr.style.cursor = 'pointer';
                 tr.onclick = () => showEmployeeDetail(emp.emp_no);
                 
-                // Talent Pool 멤버인 경우 특by 스타th apply
+                // Talent Pool 멤버인 경우 특별 스타th apply
                 if (emp.Talent_Pool_Member === 'Y') {{
                     tr.className = 'talent-pool-row';
                 }}
@@ -15177,8 +15215,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <strong>${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND</strong>
                             <span class="tooltiptext">
                                 <strong>${{getTranslation('talentPool.special', currentLanguage) || 'QIP Talent Pool'}}</strong><br>
-                                ${{getTranslation('talentPool.monthlyBonus', currentLanguage) || 'month 특by 보너스'}}: ${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND<br>
-                                ${{getTranslation('talentPool.period', currentLanguage) || 'payment 기간'}}: 2025.07 - 2025.12
+                                ${{getTranslation('talentPool.monthlyBonus', currentLanguage) || 'month 특별 보너스'}}: ${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND<br>
+                                ${{getTranslation('talentPool.period', currentLanguage) || '지급 기간'}}: 2025.07 - 2025.12
                             </span>
                         </div>
                     `;
@@ -15266,7 +15304,7 @@ def main():
 
     print("=" * 80)
     print("integrated incentive dashboard creation - final version")
-    print(f"target: {args.year}year {args.month}month")
+    print(f"대상: {args.year}year {args.month}month")
     print("=" * 80)
 
     # Google Drive synchronization (옵션)
@@ -15311,7 +15349,7 @@ def main():
             df_csv = pd.read_csv(csv_file, encoding='utf-8-sig')
             print(f"✅ CSV file directly load: {csv_file}")
 
-            # actual workthcount calculation - config file에서 read
+            # actual 근무일count calculation - config file에서 read
             import json
             config_path = f'config_files/config_{month_name}_{args.year}.json'
             attendance_file_path = None
@@ -15320,14 +15358,14 @@ def main():
                     config_data = json.load(f)
                     working_days = config_data.get('working_days', 22)
                     attendance_file_path = config_data.get('file_paths', {}).get('attendance', None)
-                    print(f"📊 actual total workthcount (Config based): {working_days}th")
+                    print(f"📊 actual total 근무일count (Config based): {working_days}th")
             else:
                 working_days = 22  # attendance data에서 calculation된 actual 값
-                print(f"📊 actual total workthcount (default value): {working_days}th")
+                print(f"📊 actual total 근무일count (default value): {working_days}th")
 
-            # attendance daily_data 및 employeesby raw data creation
+            # attendance daily_data 및 직원by raw data creation
             daily_data = {}
-            attendance_raw_data = {}  # employeesby unique 날짜 count 저장
+            attendance_raw_data = {}  # 직원by unique 날짜 count 저장
 
             if attendance_file_path and os.path.exists(attendance_file_path):
                 try:
@@ -15347,14 +15385,14 @@ def main():
                                 id_col = col
                                 break
 
-                        # th자by employees count calculation
+                        # th자by 직원 count calculation
                         for _, row in df_attendance.iterrows():
                             day = row['Work Date'].day
                             if day not in daily_data:
                                 daily_data[day] = {'is_working_day': True, 'count': 0}
                             daily_data[day]['count'] += 1
 
-                            # employeesby unique 날짜 count calculation
+                            # 직원by unique 날짜 count calculation
                             if id_col and pd.notna(row[id_col]):
                                 emp_no = str(row[id_col]).strip().lstrip('0').zfill(9)
                                 if emp_no not in attendance_raw_data:
@@ -15367,7 +15405,7 @@ def main():
                             del attendance_raw_data[emp_no]['dates']  # set 제거 (JSON 직렬화 불가)
 
                         print(f"✅ Daily attendance data creation completed: {len(daily_data)}th")
-                        print(f"✅ employeesby attendance raw data creation completed: {len(attendance_raw_data)}employees")
+                        print(f"✅ 직원by attendance raw data creation completed: {len(attendance_raw_data)}직원")
                     else:
                         print("⚠️ Work Date column을 find count not found.")
                 except Exception as e:
@@ -15398,10 +15436,10 @@ def main():
                     'total_working_days': int(working_days),
                     'daily_data': daily_data
                 },
-                'attendance_raw_data': attendance_raw_data,  # employeesby unique 날짜 count
+                'attendance_raw_data': attendance_raw_data,  # 직원by unique 날짜 count
                 'summary': {
-                    'total_employees': int(len(df_csv)),
-                    'employees_with_incentive': int(sum(1 for _, row in df_csv.iterrows() if row.get('Final Incentive amount', 0) > 0)),
+                    'total_직원': int(len(df_csv)),
+                    '직원_with_incentive': int(sum(1 for _, row in df_csv.iterrows() if row.get('Final Incentive amount', 0) > 0)),
                     'total_incentive_amount': float(df_csv['Final Incentive amount'].sum()) if 'Final Incentive amount' in df_csv.columns else 0
                 }
             }
@@ -15420,7 +15458,7 @@ def main():
     html_content = generate_dashboard_html(dashboard_df, month_name, args.year, args.month, working_days, excel_dashboard_data)
 
     # file 저장
-    # fileemployees 형식 변경: Incentive_Dashboard_YYYY_MM_Version_8.01.html
+    # file직원 형식 변경: Incentive_Dashboard_YYYY_MM_Version_8.01.html
     output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_8.01.html'
     os.makedirs('output_files', exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
@@ -15429,11 +15467,11 @@ def main():
     print(f"✅ dashboard creation completed: {output_file}")
 
     # 통계 출력 - dashboard_df 사용
-    total_employees = len(dashboard_df)
+    total_직원 = len(dashboard_df)
     # 동적 incentive column 찾기 - Excel 컬럼명 사용 (October_Incentive)
     incentive_col = f'{month_name.capitalize()}_Incentive'
     if incentive_col not in dashboard_df.columns:
-        # 대체 columnemployees 시도
+        # 대체 column직원 시도
         print(f"⚠️ {incentive_col} column을 find count not found. use available column을 checking.")
         # 가장 최근 month의 incentive column을 찾음
         possible_cols = [col for col in dashboard_df.columns if '_incentive' in col.lower() or '_Incentive' in col]
@@ -15453,12 +15491,12 @@ def main():
         except (ValueError, TypeError):
             return 0
 
-    paid_employees = sum(1 for _, row in dashboard_df.iterrows() if get_incentive_value(row, incentive_col) > 0)
+    paid_직원 = sum(1 for _, row in dashboard_df.iterrows() if get_incentive_value(row, incentive_col) > 0)
     total_amount = sum(get_incentive_value(row, incentive_col) for _, row in dashboard_df.iterrows())
     
-    print(f"   - total employees: {total_employees}employees")
-    print(f"   - payment target: {paid_employees}employees")
-    print(f"   - total payment액: {total_amount:,} VND")
+    print(f"   - total 직원: {total_직원}직원")
+    print(f"   - 지급 대상: {paid_직원}직원")
+    print(f"   - total 지급액: {total_amount:,} VND")
 
 if __name__ == "__main__":
     main()

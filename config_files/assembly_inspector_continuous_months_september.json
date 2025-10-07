@@ -1,0 +1,1299 @@
+{
+  "last_updated": "2025-10-06 22:05:51",
+  "month": "september",
+  "year": 2025,
+  "previous_month_data": {
+    "617100049": {
+      "continuous_months": 0,
+      "previous_incentive": 294856
+    },
+    "618030024": {
+      "continuous_months": 0,
+      "previous_incentive": 658799
+    },
+    "618030049": {
+      "continuous_months": 0,
+      "previous_incentive": 730662
+    },
+    "618030189": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "618030241": {
+      "continuous_months": 12,
+      "previous_incentive": 1000000
+    },
+    "618040412": {
+      "continuous_months": 0,
+      "previous_incentive": 370307
+    },
+    "618060092": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "618100175": {
+      "continuous_months": 0,
+      "previous_incentive": 243554
+    },
+    "618110077": {
+      "continuous_months": 13,
+      "previous_incentive": 2600000
+    },
+    "618110097": {
+      "continuous_months": 12,
+      "previous_incentive": 1000000
+    },
+    "621030996": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "621040446": {
+      "continuous_months": 11,
+      "previous_incentive": 900000
+    },
+    "619100307": {
+      "continuous_months": 13,
+      "previous_incentive": 2600000
+    },
+    "619020343": {
+      "continuous_months": 0,
+      "previous_incentive": 294856
+    },
+    "619020468": {
+      "continuous_months": 0,
+      "previous_incentive": 147428
+    },
+    "620020923": {
+      "continuous_months": 13,
+      "previous_incentive": 2600000
+    },
+    "619030390": {
+      "continuous_months": 0,
+      "previous_incentive": 294856
+    },
+    "619050317": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619050074": {
+      "continuous_months": 0,
+      "previous_incentive": 658799
+    },
+    "620120306": {
+      "continuous_months": 7,
+      "previous_incentive": 1700000
+    },
+    "621060243": {
+      "continuous_months": 3,
+      "previous_incentive": 300000
+    },
+    "619070072": {
+      "continuous_months": 0,
+      "previous_incentive": 848292
+    },
+    "619070185": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "622020636": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030380": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619080083": {
+      "continuous_months": 0,
+      "previous_incentive": 658799
+    },
+    "619080327": {
+      "continuous_months": 0,
+      "previous_incentive": 98571
+    },
+    "622020914": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619100392": {
+      "continuous_months": 0,
+      "previous_incentive": 78400
+    },
+    "622030225": {
+      "continuous_months": 7,
+      "previous_incentive": 1700000
+    },
+    "622050074": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620020691": {
+      "continuous_months": 0,
+      "previous_incentive": 688385
+    },
+    "620020705": {
+      "continuous_months": 0,
+      "previous_incentive": 658799
+    },
+    "621040472": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620030052": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620030340": {
+      "continuous_months": 0,
+      "previous_incentive": 243554
+    },
+    "622021407": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "620060085": {
+      "continuous_months": 0,
+      "previous_incentive": 243554
+    },
+    "620060128": {
+      "continuous_months": 0,
+      "previous_incentive": 728213
+    },
+    "620070012": {
+      "continuous_months": 0,
+      "previous_incentive": 852439
+    },
+    "620070013": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "620070020": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "620070050": {
+      "continuous_months": 0,
+      "previous_incentive": 658799
+    },
+    "620080295": {
+      "continuous_months": 10,
+      "previous_incentive": 850000
+    },
+    "622030320": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "620090070": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620090101": {
+      "continuous_months": 0,
+      "previous_incentive": 658799
+    },
+    "620090168": {
+      "continuous_months": 0,
+      "previous_incentive": 294856
+    },
+    "620090241": {
+      "continuous_months": 0,
+      "previous_incentive": 294856
+    },
+    "620110075": {
+      "continuous_months": 0,
+      "previous_incentive": 243554
+    },
+    "620110408": {
+      "continuous_months": 0,
+      "previous_incentive": 317250
+    },
+    "620110439": {
+      "continuous_months": 0,
+      "previous_incentive": 730662
+    },
+    "622050496": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622050636": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "624080340": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620120386": {
+      "continuous_months": 12,
+      "previous_incentive": 1000000
+    },
+    "622080458": {
+      "continuous_months": 12,
+      "previous_incentive": 1000000
+    },
+    "621020289": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623030007": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "621020329": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623080380": {
+      "continuous_months": 10,
+      "previous_incentive": 850000
+    },
+    "624090178": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625020507": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030556": {
+      "continuous_months": 0,
+      "previous_incentive": 294856
+    },
+    "622070133": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030759": {
+      "continuous_months": 0,
+      "previous_incentive": 484000
+    },
+    "621031025": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623100210": {
+      "continuous_months": 5,
+      "previous_incentive": 450000
+    },
+    "623110220": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "624110346": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621050241": {
+      "continuous_months": 0,
+      "previous_incentive": 243554
+    },
+    "625030182": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623120136": {
+      "continuous_months": 4,
+      "previous_incentive": 350000
+    },
+    "621060393": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624020086": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "624020152": {
+      "continuous_months": 3,
+      "previous_incentive": 300000
+    },
+    "624030105": {
+      "continuous_months": 5,
+      "previous_incentive": 450000
+    },
+    "621110013": {
+      "continuous_months": 0,
+      "previous_incentive": 217846
+    },
+    "621110050": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624030271": {
+      "continuous_months": 6,
+      "previous_incentive": 500000
+    },
+    "621110093": {
+      "continuous_months": 0,
+      "previous_incentive": 294856
+    },
+    "621110165": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624030295": {
+      "continuous_months": 4,
+      "previous_incentive": 350000
+    },
+    "623030244": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030242": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624030608": {
+      "continuous_months": 5,
+      "previous_incentive": 450000
+    },
+    "619080060": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624040283": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "623040397": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621120401": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621120402": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624050151": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "622020079": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624050200": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "622020340": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622020578": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623080377": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623090019": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624050450": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "623090021": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624060331": {
+      "continuous_months": 5,
+      "previous_incentive": 450000
+    },
+    "623100170": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622021632": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622021707": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623110211": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622030022": {
+      "continuous_months": 0,
+      "previous_incentive": 361384
+    },
+    "624060384": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "625040176": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070020": {
+      "continuous_months": 3,
+      "previous_incentive": 300000
+    },
+    "622030489": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624020085": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622030533": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624020214": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622050246": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622050263": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622050461": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624030016": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624080083": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "624080127": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "622060302": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622060307": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624030294": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624080430": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "624060009": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624100065": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "624100308": {
+      "continuous_months": 10,
+      "previous_incentive": 850000
+    },
+    "621110751": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622070536": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622070609": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622080448": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624060317": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622080451": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623110250": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624110228": {
+      "continuous_months": 10,
+      "previous_incentive": 850000
+    },
+    "624070010": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070011": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070084": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624080352": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623060116": {
+      "continuous_months": 0,
+      "previous_incentive": 444856
+    },
+    "624100200": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625010030": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "624110084": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624120097": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624120143": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625020419": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "625020464": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "625020551": {
+      "continuous_months": 6,
+      "previous_incentive": 500000
+    },
+    "624120144": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030063": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "625020044": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625020285": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030111": {
+      "continuous_months": 5,
+      "previous_incentive": 450000
+    },
+    "623100209": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030234": {
+      "continuous_months": 3,
+      "previous_incentive": 300000
+    },
+    "625020286": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070225": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625020420": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030360": {
+      "continuous_months": 3,
+      "previous_incentive": 300000
+    },
+    "624020479": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030363": {
+      "continuous_months": 4,
+      "previous_incentive": 350000
+    },
+    "625020542": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050156": {
+      "continuous_months": 3,
+      "previous_incentive": 300000
+    },
+    "624020107": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050250": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "624020155": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625020543": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625040140": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619020209": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624020499": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624020552": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625040161": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619060201": {
+      "continuous_months": 11,
+      "previous_incentive": 900000
+    },
+    "625040240": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620060084": {
+      "continuous_months": 5,
+      "previous_incentive": 450000
+    },
+    "624040035": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030280": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624040330": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624040331": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030557": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "621070084": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "621100361": {
+      "continuous_months": 5,
+      "previous_incentive": 450000
+    },
+    "621110258": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "624050492": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050005": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624060028": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621110407": {
+      "continuous_months": 10,
+      "previous_incentive": 850000
+    },
+    "624060087": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624060132": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624060254": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050029": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621120400": {
+      "continuous_months": 11,
+      "previous_incentive": 900000
+    },
+    "625050129": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050130": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622021050": {
+      "continuous_months": 12,
+      "previous_incentive": 1000000
+    },
+    "625050158": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070394": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070226": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070227": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619030228": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070250": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622030023": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "622050542": {
+      "continuous_months": 2,
+      "previous_incentive": 250000
+    },
+    "624070338": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070339": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622070156": {
+      "continuous_months": 11,
+      "previous_incentive": 900000
+    },
+    "624080126": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624080032": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622080106": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "624020153": {
+      "continuous_months": 5,
+      "previous_incentive": 450000
+    },
+    "624080234": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622020913": {
+      "continuous_months": 12,
+      "previous_incentive": 1000000
+    },
+    "624080354": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090271": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625070145": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619050431": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050159": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030477": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621020445": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090037": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090048": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622070311": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090059": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090131": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622080452": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090210": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624080235": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090320": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090323": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090373": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090444": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090502": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624080310": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619100381": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624090058": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050194": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624100230": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030474": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621031108": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624100345": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624100457": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624100015": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050251": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621110916": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620110399": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622050244": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620020520": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050252": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050271": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625060017": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623060090": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624100171": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625020143": {
+      "continuous_months": 0,
+      "previous_incentive": 243554
+    },
+    "622050265": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625070268": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619020144": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624020044": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624110015": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "619020320": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621020118": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623100187": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625020638": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080311": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080312": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080332": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030091": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621020323": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030144": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030755": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621110051": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621050490": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622040679": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624020037": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622070130": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623090111": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "620020555": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070278": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030413": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621030642": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621110318": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624070231": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030164": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "621120205": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622020633": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050024": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622021557": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625050053": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622021749": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622030226": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621020156": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622060369": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "622080450": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621040440": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623040186": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623050010": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623080455": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623090163": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "623090227": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625060020": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625060065": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "621100149": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625020092": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "624020369": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625070232": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625070265": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625070266": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030235": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625040239": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625030362": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080008": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625070269": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080028": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080057": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080083": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080140": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080164": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080165": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080166": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080250": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080251": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080254": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080255": {
+      "continuous_months": 1,
+      "previous_incentive": 150000
+    },
+    "625080266": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    },
+    "625080163": {
+      "continuous_months": 0,
+      "previous_incentive": 396610
+    }
+  }
+}
