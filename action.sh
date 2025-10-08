@@ -216,6 +216,80 @@ else
     echo -e "${YELLOW}⚠️ Issues found during HR data validation (check error_review folder)${NC}"
 fi
 
+# Step 0.9: AQL file validation (CRITICAL - prevents October 2025 type issues)
+echo ""
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${WHITE}Step 0.9: AQL File Validation${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+MONTH_UPPER=$(echo $MONTH_EN | tr '[:lower:]' '[:upper:]')
+AQL_FILE="input_files/AQL history/1.HSRG AQL REPORT-${MONTH_UPPER}.${YEAR}.csv"
+
+if [ -f "$AQL_FILE" ]; then
+    echo -e "${BLUE}📋 Validating: $AQL_FILE${NC}"
+    python3 scripts/validation/validate_aql_file.py "$AQL_FILE" --month $MONTH_NUM
+
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${RED}⚠️  CRITICAL: AQL file validation failed!${NC}"
+        echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "${YELLOW}The AQL file contains data from multiple months or incorrect month data.${NC}"
+        echo -e "${YELLOW}This can cause incorrect incentive calculations (like October 2025 issue).${NC}"
+        echo ""
+        echo -e "${WHITE}Options:${NC}"
+        echo -e "${WHITE}  1) Auto-fix (recommended): Remove incorrect month records${NC}"
+        echo -e "${WHITE}  2) Continue anyway (not recommended)${NC}"
+        echo -e "${WHITE}  3) Exit and fix manually${NC}"
+        echo ""
+        echo -e "${YELLOW}Choose option (1/2/3): ${NC}\c"
+        read aql_fix_choice
+
+        if [[ $aql_fix_choice == "1" ]]; then
+            echo ""
+            echo -e "${BLUE}🔧 Auto-fixing AQL file...${NC}"
+            python3 scripts/validation/validate_aql_file.py "$AQL_FILE" --month $MONTH_NUM --fix
+
+            if [ $? -eq 0 ]; then
+                echo ""
+                echo -e "${GREEN}✅ AQL file fixed successfully!${NC}"
+            else
+                echo ""
+                echo -e "${RED}❌ Failed to fix AQL file automatically${NC}"
+                echo -e "${YELLOW}Please fix manually and run again.${NC}"
+                exit 1
+            fi
+        elif [[ $aql_fix_choice == "2" ]]; then
+            echo ""
+            echo -e "${YELLOW}⚠️  WARNING: Continuing with potentially incorrect data${NC}"
+            echo -e "${YELLOW}⚠️  Calculation results may be inaccurate!${NC}"
+            echo ""
+            echo -e "${YELLOW}Are you sure? (y/n): ${NC}\c"
+            read confirm_continue
+            if [[ $confirm_continue != "y" ]] && [[ $confirm_continue != "Y" ]]; then
+                echo -e "${YELLOW}Cancelled.${NC}"
+                exit 1
+            fi
+        else
+            echo ""
+            echo -e "${YELLOW}Please fix the AQL file manually and run again.${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${GREEN}✅ AQL file validation passed${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  AQL file not found: $AQL_FILE${NC}"
+    echo -e "${YELLOW}Calculations will use available data.${NC}"
+    echo ""
+    echo -e "${YELLOW}Continue without AQL file? (y/n): ${NC}\c"
+    read continue_without_aql
+    if [[ $continue_without_aql != "y" ]] && [[ $continue_without_aql != "Y" ]]; then
+        exit 1
+    fi
+fi
+
 # Step 1: Incentive calculation
 run_step "Step 1: Incentive calculation" "python3 src/step1_인센티브_계산_개선버전.py --config $CONFIG_FILE"
 STEP1_RESULT=$?

@@ -261,9 +261,10 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
             # Excel의 data를 그대로 use (by도 CSV load 없음)
             print("✅ AQL data: Used directly from Excel file (Single Source of Truth)")
 
-            # Excel에 이미 있는 AQL 관련 column들 확인 및 매핑
-            if 'September AQL Failures' in df.columns:
-                df['aql_failures'] = df['September AQL Failures'].fillna(0).astype(int)
+            # Excel에 이미 있는 AQL 관련 column들 확인 및 매핑 (현재 월 기준 동적 컬럼명)
+            aql_column_name = f'{month.capitalize()} AQL Failures'
+            if aql_column_name in df.columns:
+                df['aql_failures'] = df[aql_column_name].fillna(0).astype(int)
             else:
                 df['aql_failures'] = 0
 
@@ -700,6 +701,29 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
 def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None):
     """dashboard_version4.html과 완전히 동th한 dashboard creation - Excel data based"""
 
+    # 요일 배열 생성 (실제 달력 기준)
+    import calendar
+    # calendar.monthrange(year, month) returns (weekday of first day, number of days)
+    # weekday: 0=Monday, 1=Tuesday, ..., 6=Sunday
+    first_weekday, days_in_month = calendar.monthrange(year, month_num)
+
+    # JavaScript 배열 생성: [요일index for day 1, 2, 3, ...]
+    # weekday index를 JavaScript에서 사용하는 형식으로 변환
+    # Python calendar: 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
+    # JavaScript weekdays: [일(Sun), 월(Mon), 화(Tue), 수(Wed), 목(Thu), 금(Fri), 토(Sat)]
+    # 변환 공식: js_index = (python_weekday + 1) % 7
+    weekdays_indices = []
+    for day in range(1, days_in_month + 1):
+        # Python weekday index for this day
+        python_weekday = (first_weekday + day - 1) % 7
+        # Convert to JavaScript array index (Sunday-based)
+        js_weekday_index = (python_weekday + 1) % 7
+        weekdays_indices.append(js_weekday_index)
+
+    # JavaScript 배열 문자열로 변환
+    weekdays_array_js = str(weekdays_indices)
+    print(f"📅 Weekdays array for {year}-{month_num:02d}: {weekdays_array_js}")
+
     # AQL 통계는 이제 Excel file에서 directly 가져옴 (Single Source of Truth)
     print("📊 AQL statistics used directly from Excel file (Single Source of Truth)")
 
@@ -1017,9 +1041,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp['attendancy condition 3 - absent % is over 12%'] = str(row_dict.get('attendancy condition 3 - absent % is over 12%', 'no'))
             emp['attendancy condition 4 - minimum working days'] = str(row_dict.get('attendancy condition 4 - minimum working days', 'no'))
 
-            # AQL 조건 필드 추가
+            # AQL 조건 필드 추가 (현재 월 기준 동적 컬럼명 사용)
             emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
-            emp['September AQL Failures'] = int(row_dict.get('September AQL Failures', row_dict.get('aql_failures', 0)))
+            emp[aql_column_name] = int(row_dict.get(aql_column_name, row_dict.get('aql_failures', 0)))
             emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
             emp['Consecutive_Fail_Months'] = int(row_dict.get('Consecutive_Fail_Months', 0))
 
@@ -1114,6 +1138,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     # AQL File Stats (검사 casescount 기준)를 Base64로 encoding
     aql_file_stats_str = json.dumps(aql_file_stats if 'aql_file_stats' in locals() else {}, ensure_ascii=False, separators=(',', ':'))
     aql_file_stats_b64 = base64.b64encode(aql_file_stats_str.encode('utf-8')).decode('ascii')
+
+    # Auditor/Trainer Area Mapping JSON load and encode to Base64
+    try:
+        auditor_mapping_path = os.path.join('config_files', 'auditor_trainer_area_mapping.json')
+        with open(auditor_mapping_path, 'r', encoding='utf-8') as f:
+            auditor_area_mapping = json.load(f)
+        auditor_mapping_str = json.dumps(auditor_area_mapping, ensure_ascii=False, separators=(',', ':'))
+        auditor_mapping_b64 = base64.b64encode(auditor_mapping_str.encode('utf-8')).decode('ascii')
+        print(f"✅ Auditor/Trainer area mapping loaded: {len(auditor_area_mapping.get('auditor_trainer_areas', {}))} auditors, {len(auditor_area_mapping.get('model_master', {}).get('employees', {}))} model masters")
+    except Exception as e:
+        print(f"⚠️ Failed to load auditor_trainer_area_mapping.json: {e}")
+        auditor_mapping_b64 = base64.b64encode('{}}'.encode('utf-8')).decode('ascii')
 
     # Position matrix data load
     position_matrix = load_condition_matrix()
@@ -1255,7 +1291,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         let workDays = [];
         let holidays = [];
         let totalWorkingDays = __WORKING_DAYS__; /* Config에서 가져온 actual 값 */
-        const daysInMonth = 30; /* 9month은 30일까지 */
+        const daysInMonth = __DAYS_IN_MONTH__; /* Python에서 계산된 실제 월 일수 */
 
         if (window.excelDashboardData && window.excelDashboardData.attendance) {
             /* actual 출근 data에서 근무일과 휴th 추출 */
@@ -1292,10 +1328,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const employeeCountLabel = getTranslation('workingDaysModal.employeeCount', currentLanguage);
         const noDataText = getTranslation('workingDaysModal.noData', currentLanguage);
 
+        /* Python에서 계산된 실제 요일 배열 (각 날짜의 요일 index) */
+        const weekdaysIndices = __WEEKDAYS_ARRAY__;
+
         const getWeekday = (day) => {
-            /* 2025년 9월 1일은 월요일(index 1) */
-            const firstDayOfWeek = 1; /* 월요일 = 1 */
-            const dayIndex = (firstDayOfWeek + day - 1) % 7;
+            /* Python에서 전달받은 실제 요일 index 사용 (day는 1부터 시작) */
+            const dayIndex = weekdaysIndices[day - 1];
             return weekdaysArray[dayIndex];
         };
 
@@ -1453,8 +1491,52 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             });
         }
 
-        // 정렬 상태 관리
-        let sortColumn = 'empNo';
+        // 0일 근무자 분류 함수 (Option 1 + Option 3)
+        function classifyZeroWorkingEmployee(emp, lang) {
+            const remark = (emp['RE MARK'] || '').toLowerCase();
+            const pregnant = (emp['pregnant vacation-yes or no'] || '').toLowerCase();
+
+            // 출산휴가 (파란색 - 정당한 사유)
+            if (pregnant === 'yes' || remark.includes('maternity') || remark.includes('출산')) {
+                return {
+                    category: 'maternity',
+                    badge: getTranslation('zeroWorkingDaysModal.categories.maternity', lang),
+                    color: 'info',
+                    priority: 3
+                };
+            }
+
+            // 퇴사 (회색 - 정당한 사유)
+            if (remark.includes('stop working') || remark.includes('퇴사') || remark.includes('resign')) {
+                return {
+                    category: 'resigned',
+                    badge: getTranslation('zeroWorkingDaysModal.categories.resigned', lang),
+                    color: 'secondary',
+                    priority: 3
+                };
+            }
+
+            // 직무변경 (노란색 - 확인 필요)
+            if (remark.includes('change') || remark.includes('변경') || remark.includes('transfer')) {
+                return {
+                    category: 'jobChange',
+                    badge: getTranslation('zeroWorkingDaysModal.categories.jobChange', lang),
+                    color: 'warning',
+                    priority: 2
+                };
+            }
+
+            // 사유 없음 (빨간색 - 관리 필요)
+            return {
+                category: 'noReason',
+                badge: getTranslation('zeroWorkingDaysModal.categories.noReason', lang),
+                color: 'danger',
+                priority: 1
+            };
+        }
+
+        // 정렬 상태 관리 (기본값: priority로 정렬하여 관리 필요 케이스를 상단에 표시)
+        let sortColumn = 'priority';
         let sortOrder = 'asc';
 
         function sortData(column) {
@@ -1502,10 +1584,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         bVal = b['RE MARK'] || '';  // Fixed: no trailing space (normalized)
                         break;
                     case 'status':
-                        const aType = a['Stop_Working_Type'] || 'active';
-                        const bType = b['Stop_Working_Type'] || 'active';
-                        aVal = aType === 'resigned' ? 'resigned' : aType === 'contract_end' ? 'contract_end' : 'all_absent';
-                        bVal = bType === 'resigned' ? 'resigned' : bType === 'contract_end' ? 'contract_end' : 'all_absent';
+                        // 새로운 분류 시스템 사용 (Option 1 + Option 3)
+                        const langStatus = currentLanguage || 'ko';
+                        const aClassificationStatus = classifyZeroWorkingEmployee(a, langStatus);
+                        const bClassificationStatus = classifyZeroWorkingEmployee(b, langStatus);
+                        aVal = aClassificationStatus.category; // 'maternity', 'resigned', 'jobChange', 'noReason'
+                        bVal = bClassificationStatus.category;
+                        break;
+                    case 'priority':
+                        // Priority 정렬 추가 (1=관리필요, 2=확인필요, 3=정당한사유)
+                        const lang = currentLanguage || 'ko';
+                        const aClassification = classifyZeroWorkingEmployee(a, lang);
+                        const bClassification = classifyZeroWorkingEmployee(b, lang);
+                        aVal = aClassification.priority;
+                        bVal = bClassification.priority;
                         break;
                 }
 
@@ -1522,6 +1614,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function renderTable() {
             const lang = currentLanguage || 'ko';
             let tableRows = '';
+
+            // 요약 통계 계산 (Option 3)
+            const total = zeroWorkingEmployees.length;
+            const maternity = zeroWorkingEmployees.filter(emp => {
+                const classification = classifyZeroWorkingEmployee(emp, lang);
+                return classification.category === 'maternity';
+            }).length;
+            const resigned = zeroWorkingEmployees.filter(emp => {
+                const classification = classifyZeroWorkingEmployee(emp, lang);
+                return classification.category === 'resigned';
+            }).length;
+            const jobChange = zeroWorkingEmployees.filter(emp => {
+                const classification = classifyZeroWorkingEmployee(emp, lang);
+                return classification.category === 'jobChange';
+            }).length;
+            const noReason = zeroWorkingEmployees.filter(emp => {
+                const classification = classifyZeroWorkingEmployee(emp, lang);
+                return classification.category === 'noReason';
+            }).length;
+
+            const legitimateReasons = maternity + resigned;
 
             if (zeroWorkingEmployees.length === 0) {
                 tableRows = `<tr><td colspan="9" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>${getTranslation('zeroWorkingDaysModal.description', lang)}</td></tr>`;
@@ -1541,23 +1654,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // 출결 data가 없으면 0으로 표시 (fact 반영)
 
                     const stopDate = emp['Stop working Date'] || '-';
-                    const workingType = emp['Stop_Working_Type'] || 'active';
                     const position = emp['QIP POSITION 1ST NAME'] || '-';  // Fixed: single space (normalized)
                     const pregnant = emp['pregnant vacation-yes or no'] || '';
                     const remark = emp['RE MARK'] || '-';  // Fixed: no trailing space (normalized)
 
-                    // 상태 라벨 번역
-                    let statusLabel, statusClass;
-                    if (workingType === 'resigned') {
-                        statusLabel = getTranslation('zeroWorkingDaysModal.statusLabels.resigned', lang);
-                        statusClass = 'bg-warning text-dark';
-                    } else if (workingType === 'contract_end') {
-                        statusLabel = getTranslation('zeroWorkingDaysModal.statusLabels.contractEnd', lang);
-                        statusClass = 'bg-info text-white';
-                    } else {
-                        statusLabel = getTranslation('zeroWorkingDaysModal.statusLabels.allAbsent', lang);
-                        statusClass = 'bg-danger';
-                    }
+                    // 새로운 분류 로직 사용 (Option 1)
+                    const classification = classifyZeroWorkingEmployee(emp, lang);
+                    const statusLabel = classification.badge;
+                    const statusClass = `bg-${classification.color}`;
 
                     // 임신 휴가 번역
                     const pregnantLabel = pregnant === 'yes'
@@ -1600,6 +1704,50 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <span data-i18n="zeroWorkingDaysModal.description">${getTranslation('zeroWorkingDaysModal.description', lang)}</span>
                         </div>
                     </div>
+                    ${total > 0 ? `
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="card-title mb-3">
+                                        <i class="fas fa-chart-pie me-2"></i>
+                                        <span data-i18n="zeroWorkingDaysModal.summary.title">${getTranslation('zeroWorkingDaysModal.summary.title', lang)}</span>
+                                    </h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-3 col-6">
+                                            <div class="p-2 bg-light rounded text-center">
+                                                <div class="fs-4 fw-bold text-primary">${total}</div>
+                                                <small class="text-muted" data-i18n="zeroWorkingDaysModal.summary.total">${getTranslation('zeroWorkingDaysModal.summary.total', lang)}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="p-2 bg-danger bg-opacity-10 rounded text-center border border-danger">
+                                                <div class="fs-4 fw-bold text-danger">${noReason}</div>
+                                                <small class="text-danger" data-i18n="zeroWorkingDaysModal.summary.managementNeeded">${getTranslation('zeroWorkingDaysModal.summary.managementNeeded', lang)}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="p-2 bg-warning bg-opacity-10 rounded text-center border border-warning">
+                                                <div class="fs-4 fw-bold text-warning">${jobChange}</div>
+                                                <small class="text-warning" data-i18n="zeroWorkingDaysModal.summary.reviewNeeded">${getTranslation('zeroWorkingDaysModal.summary.reviewNeeded', lang)}</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <div class="p-2 bg-info bg-opacity-10 rounded text-center border border-info">
+                                                <div class="fs-4 fw-bold text-info">${legitimateReasons}</div>
+                                                <small class="text-info" data-i18n="zeroWorkingDaysModal.summary.legitimateReasons">${getTranslation('zeroWorkingDaysModal.summary.legitimateReasons', lang)}</small>
+                                                <div class="mt-1 small text-muted">
+                                                    <span data-i18n="zeroWorkingDaysModal.categories.maternity">${getTranslation('zeroWorkingDaysModal.categories.maternity', lang)}</span>: ${maternity} |
+                                                    <span data-i18n="zeroWorkingDaysModal.categories.resigned">${getTranslation('zeroWorkingDaysModal.categories.resigned', lang)}</span>: ${resigned}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
                     <div class="table-responsive">
                         <table class="table table-hover table-sm">
                             <thead class="unified-table-header">
@@ -1747,6 +1895,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function renderTable() {
             const lang = currentLanguage || 'ko';
 
+            // Calculate statistics before rendering
+            const total = absentEmployees.length;
+            const excluded = absentEmployees.filter(emp => {
+                const days = parseFloat(emp['Unapproved Absences'] || 0);
+                return days >= 3;
+            }).length;
+            const warning = absentEmployees.filter(emp => {
+                const days = parseFloat(emp['Unapproved Absences'] || 0);
+                return days === 2;
+            }).length;
+            const caution = total - excluded - warning;
+
             let tableRows = absentEmployees.map(emp => {
                 const days = parseFloat(emp['Unapproved Absences'] || 0);
                 const position = emp['QIP POSITION 1ST NAME'] || '-';  // Fixed: single space (normalized)
@@ -1793,26 +1953,35 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <td class="unified-table-cell">${remark}</td>
                     </tr>
                 `;
-            }).join('') || `
-                <tr>
-                    <td colspan="8" class="text-center py-5">
-                        <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
-                        <div class="text-muted">무단결근자가 not found</div>
-                    </td>
-                </tr>`;
+            }).join('');
+
+            // Add Total row if there are employees
+            if (total > 0) {
+                tableRows += `
+                    <tr class="table-active fw-bold" style="border-top: 2px solid #dee2e6;">
+                        <td colspan="3" class="unified-table-cell text-end">Total</td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-secondary">${total}</span>
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            <span class="badge bg-danger me-1">${excluded}</span>
+                            <span class="badge bg-warning text-dark me-1">${warning}</span>
+                            <span class="badge bg-info">${caution}</span>
+                        </td>
+                        <td colspan="3" class="unified-table-cell"></td>
+                    </tr>
+                `;
+            } else {
+                tableRows = `
+                    <tr>
+                        <td colspan="8" class="text-center py-5">
+                            <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                            <div class="text-muted">무단결근자가 not found</div>
+                        </td>
+                    </tr>`;
+            }
 
         // 통계 섹션 추가
-        const total = absentEmployees.length;
-        const excluded = absentEmployees.filter(emp => {
-            const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
-            return days >= 3;
-        }).length;
-        const warning = absentEmployees.filter(emp => {
-            const days = parseFloat(emp.unapproved_absences || emp['Unapproved Absences'] || 0);
-            return days === 2;
-        }).length;
-        const caution = total - excluded - warning;
-
         const statsSection = total > 0 ? `
             <div class="alert alert-light border-start border-4 border-warning mb-4">
                 <div class="row text-center">
@@ -2050,7 +2219,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </td>
                     </tr>
                 `;
-            }).join('') || `<tr><td colspan="7" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i><div data-i18n="validationTab.modals.minimumDaysNotMet.emptyMessage">${getTranslation('validationTab.modals.minimumDaysNotMet.emptyMessage', lang)}</div></td></tr>`;
+            }).join('') || (() => {
+                // 리포트 타입에 따라 다른 메시지 표시
+                const isInterim = reportType === 'interim';
+                const messageKey = isInterim ? 'interimMessage' : 'emptyMessage';
+                const iconClass = isInterim ? 'fa-info-circle text-info' : 'fa-check-circle text-success';
+                return `<tr><td colspan="7" class="text-center py-4"><i class="fas ${iconClass} fa-2x mb-2 d-block"></i><div data-i18n="validationTab.modals.minimumDaysNotMet.${messageKey}">${getTranslation('validationTab.modals.minimumDaysNotMet.' + messageKey, lang)}</div></td></tr>`;
+            })();
 
             return tableRows;
         }
@@ -2456,6 +2631,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                          (typeof currentLanguage !== 'undefined' ? currentLanguage : null) ||
                          'ko';
 
+        // 현재 보고서 월 가져오기 (from HTML data attributes)
+        const reportMonthNum = parseInt(document.getElementById('incentiveDataPeriod').getAttribute('data-month'));
+
+        // 월 약어 매핑 (1=Jan, 2=Feb, ..., 12=Dec)
+        const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthKorean = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+
+        // N-1, N-2, N-3 월 계산
+        const month_N = reportMonthNum;  // 현재 월
+        const month_N1 = month_N - 1 > 0 ? month_N - 1 : 12;  // 1개월 전
+        const month_N2 = month_N - 2 > 0 ? month_N - 2 : month_N - 2 + 12;  // 2개월 전
+        const month_N3 = month_N - 3 > 0 ? month_N - 3 : month_N - 3 + 12;  // 3개월 전
+
+        // 동적 월 패턴 생성
+        const pattern3Months = `${monthAbbr[month_N2-1]}-${monthAbbr[month_N1-1]}-${monthAbbr[month_N-1]}`;  // 예: Aug-Sep-Oct
+        const pattern2MonthsHigh = `${monthAbbr[month_N1-1]}-${monthAbbr[month_N-1]}`;  // 예: Sep-Oct (최근 2개월)
+        const pattern2MonthsMedium = `${monthAbbr[month_N2-1]}-${monthAbbr[month_N1-1]}`;  // 예: Aug-Sep (중간 2개월)
+
+        // 한글 월 패턴 (예: 9-10월)
+        const pattern2MonthsKorHigh = `${monthKorean[month_N1-1].replace('월','')}-${monthKorean[month_N-1]}`;
+        const pattern2MonthsKorMedium = `${monthKorean[month_N2-1].replace('월','')}-${monthKorean[month_N1-1]}`;
+
+        // Continuous_FAIL 필터링용 대문자 패턴
+        const filterPatternHigh = `${monthAbbr[month_N1-1].toUpperCase()}_${monthAbbr[month_N-1].toUpperCase()}`;  // 예: SEP_OCT
+        const filterPatternMedium = `${monthAbbr[month_N2-1].toUpperCase()}_${monthAbbr[month_N1-1].toUpperCase()}`;  // 예: AUG_SEP
+
         // 3연속 개월 실패자와 2연속 개월 실패자 분리
         const threeMonthFails = window.employeeData.filter(emp =>
             emp['Continuous_FAIL'] === 'YES_3MONTHS'
@@ -2506,7 +2707,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['position'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['boss_name'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || 'Jul-Aug-Sep') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern3Months) + '</td>';
                 modalHTML += '</tr>';
             });
 
@@ -2518,17 +2719,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         modalHTML += '<div class="section-container">';
         modalHTML += '<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.twoMonthSection') + '</h3>';
 
-        // Aug-Sep, Jul-Aug 카운트 미리 계산
-        const augSepFailsList = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('AUG_SEP'));
-        const julAugFailsList = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('JUL_AUG'));
+        // 동적 월 패턴으로 필터링
+        const augSepFailsList = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternHigh));
+        const julAugFailsList = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternMedium));
 
         if (twoMonthFails.length === 0) {
             modalHTML += '<div class="alert alert-info" style="padding: 15px; background: #d1ecf1; color: #0c5460; border-radius: 5px;">';
             modalHTML += t('validationTab.modals.aqlFail.consecutiveAqlFail.noTwoMonth');
             modalHTML += '<br><br>';
             modalHTML += '<strong>📊 상세 현황:</strong><br>';
-            modalHTML += '• 8-9월 연속 실패: <span style="color: #dc3545; font-weight: bold;">0명</span><br>';
-            modalHTML += '• 7-8월 연속 실패: <span style="color: #ffc107; font-weight: bold;">0명</span>';
+            modalHTML += '• ' + pattern2MonthsKorHigh + ' 연속 실패: <span style="color: #dc3545; font-weight: bold;">0명</span><br>';
+            modalHTML += '• ' + pattern2MonthsKorMedium + ' 연속 실패: <span style="color: #ffc107; font-weight: bold;">0명</span>';
             modalHTML += '</div>';
         } else {
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
@@ -2541,17 +2742,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.risk') + '</th>';
             modalHTML += '</tr></thead><tbody>';
 
-            // 8-9월 연속 failed자를 먼저 표시 (높은 위험)
-            const augSepFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('AUG_SEP'));
-            const julAugFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes('JUL_AUG'));
+            // 최근 2개월 연속 failed자를 먼저 표시 (높은 위험)
+            const augSepFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternHigh));
+            const julAugFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternMedium));
 
             augSepFails.forEach(emp => {
                 modalHTML += '<tr style="background: #fff5f5;">';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || 'Aug-Sep') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern2MonthsHigh) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">🔴 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + '</span></td>';
                 modalHTML += '</tr>';
             });
@@ -2561,8 +2762,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || 'Jul-Aug') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern2MonthsMedium) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 3px;">🟡 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.medium') + '</span></td>';
                 modalHTML += '</tr>';
             });
@@ -2572,8 +2773,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 범례 추가
             modalHTML += '<div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">';
             modalHTML += '<strong>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskExplanation.title') + '</strong><br>';
-            modalHTML += '🔴 <strong>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + ' (Aug-Sep):</strong> ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskExplanation.highDesc') + '<br>';
-            modalHTML += '🟡 <strong>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.medium') + ' (Jul-Aug):</strong> ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskExplanation.mediumDesc');
+            modalHTML += '🔴 <strong>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + ' (' + pattern2MonthsHigh + '):</strong> ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskExplanation.highDesc') + '<br>';
+            modalHTML += '🟡 <strong>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.medium') + ' (' + pattern2MonthsMedium + '):</strong> ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskExplanation.mediumDesc');
             modalHTML += '</div>';
         }
         modalHTML += '</div>';
@@ -2583,8 +2784,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         modalHTML += '<strong>📊 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.title') + '</strong><br>';
         modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.threeMonthFails') + ' <strong>' + threeMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</strong><br>';
         modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.twoMonthFails') + ' <strong>' + twoMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</strong><br>';
-        modalHTML += '&nbsp;&nbsp;- <span style="color: #dc3545; font-weight: bold;">🔴 8-9월 연속 실패: ' + augSepFailsList.length + '명</span><br>';
-        modalHTML += '&nbsp;&nbsp;- <span style="color: #ffc107; font-weight: bold;">🟡 7-8월 연속 실패: ' + julAugFailsList.length + '명</span>';
+        modalHTML += '&nbsp;&nbsp;- <span style="color: #dc3545; font-weight: bold;">🔴 ' + pattern2MonthsKorHigh + ' 연속 실패: ' + augSepFailsList.length + '명</span><br>';
+        modalHTML += '&nbsp;&nbsp;- <span style="color: #ffc107; font-weight: bold;">🟡 ' + pattern2MonthsKorMedium + ' 연속 실패: ' + julAugFailsList.length + '명</span>';
         modalHTML += '</div>';
 
         // Close modal HTML
@@ -2622,7 +2823,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     function showAqlFailDetails() {
         // AQL FAIL이 있는 직원 필터링
         let aqlFailEmployees = window.employeeData.filter(emp => {
-            const aqlFailures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
+            const aqlFailures = parseFloat(emp[window.aqlFailuresColumn] || emp['aql_failures'] || 0);
             return aqlFailures > 0;
         });
 
@@ -2670,8 +2871,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         bVal = parseFloat(b['AQL_Pass_Count'] || 0);
                         break;
                     case 'failures':
-                        aVal = parseFloat(a['September AQL Failures'] || 0);
-                        bVal = parseFloat(b['September AQL Failures'] || 0);
+                        aVal = parseFloat(a[window.aqlFailuresColumn] || 0);
+                        bVal = parseFloat(b[window.aqlFailuresColumn] || 0);
                         break;
                     case 'failPercent':
                         aVal = parseFloat(a['AQL_Fail_Percent'] || 0);
@@ -2736,8 +2937,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 카운트 메시지 업데이트
             const countEl = document.querySelector('#aqlFailModal .alert span[data-i18n="aqlFailCount"]');
             if (countEl) {
+                // 현재 월 이름을 언어별로 생성
+                const monthNamesMap = {
+                    'ko': '__MONTH_KO__',
+                    'en': '__MONTH_EN__',
+                    'vi': '__MONTH_VI__'
+                };
+                const localizedMonth = monthNamesMap[currentLang] || monthNamesMap['en'];
+
                 const countMsg = getTranslation('validationTab.modals.aqlFail.totalCount', currentLang);
-                countEl.textContent = countMsg.replace('{count}', aqlFailEmployees.length);
+                countEl.textContent = countMsg.replace('{' + '{count}' + '}', aqlFailEmployees.length).replace('{' + '{month}' + '}', localizedMonth);
             }
 
             // 테이블 헤더 업데이트
@@ -2793,7 +3002,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (!tbody) return;
 
             let tableRows = aqlFailEmployees.map(emp => {
-                const failures = parseFloat(emp['September AQL Failures'] || 0);
+                const failures = parseFloat(emp[window.aqlFailuresColumn] || 0);
                 const supervisorName = emp['direct boss name'] || '-';
                 const supervisorId = emp['MST direct boss name'] || '-';
 
@@ -2875,7 +3084,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }
 
                 const passCount = parseFloat(emp['AQL_Pass_Count'] || 0);
-                const failCount = parseFloat(emp['September AQL Failures'] || 0);
+                const failCount = parseFloat(emp[window.aqlFailuresColumn] || 0);
 
                 lineLeaderStats[supervisorId].totalPass += passCount;
                 lineLeaderStats[supervisorId].totalFail += failCount;
@@ -2936,7 +3145,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }
 
             let tableRows = aqlFailEmployees.map(emp => {
-                const failures = parseFloat(emp['September AQL Failures'] || 0);
+                const failures = parseFloat(emp[window.aqlFailuresColumn] || 0);
                 const supervisorName = emp['direct boss name'] || '-';
                 const supervisorId = emp['MST direct boss name'] || '-';
 
@@ -3005,7 +3214,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 `;
             }).join('');
 
-            const countMsg = getTranslation('validationTab.modals.aqlFail.totalCount', lang).replace('{count}', aqlFailEmployees.length);
+            // 현재 월 이름을 언어별로 생성
+            const monthNamesMap = {
+                'ko': '__MONTH_KO__',
+                'en': '__MONTH_EN__',
+                'vi': '__MONTH_VI__'
+            };
+            const localizedMonth = monthNamesMap[lang] || monthNamesMap['en'];
+
+            const countMsg = getTranslation('validationTab.modals.aqlFail.totalCount', lang).replace('{' + '{count}' + '}', aqlFailEmployees.length).replace('{' + '{month}' + '}', localizedMonth);
 
             let modalContent = `
                 <div class="modal-dialog modal-xl" style="max-width: 95%; margin: 20px auto;">
@@ -3149,10 +3366,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     function showAreaRejectRateDetails() {
         // ========================================================================
         // Buildingby AQL 검사 성과 분석 - 3개 테이블 구조
-        // 테이블 1: Buildingby AQL 검사 실적 (AQL file 기준 - 1,419cases)
+        // 테이블 1: Buildingby AQL 검사 실적 (AQL file 기준)
         // 테이블 2: Assembly Inspector 인력 기준 검사 실적 (Employee CSV 기준)
         // 테이블 3: Auditor/Trainer incentive 현황 (책임 range)
         // ========================================================================
+
+        // 현재 보고서 연도/월 가져오기
+        const reportYear = parseInt(document.getElementById('incentiveDataPeriod').getAttribute('data-year'));
+        const reportMonthNum = parseInt(document.getElementById('incentiveDataPeriod').getAttribute('data-month'));
+        const monthAbbr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthKorean = ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+        const reportMonthName = monthAbbr[reportMonthNum - 1];
+        const reportMonthKorean = monthKorean[reportMonthNum - 1];
 
         // AQL file data (Python에서 calculation된 actual data use)
         // Buildingby actual 검사 통계 (검사 casescount 기준 Reject Rate)
@@ -3166,6 +3391,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         };
 
         console.log('[AQL Modal] Using AQL File Stats:', aqlFileStats);
+
+        // Total AQL tests count 계산 (window.aqlFileStats의 total에서)
+        const totalAqlTests = aqlFileStats['total'] ? aqlFileStats['total'].total : 0;
 
         // AQL 관련 직원 필터링 함count
         function isAqlRelevantEmployee(emp) {
@@ -3182,29 +3410,40 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return false;
         }
 
-        // Building 매핑 함count (하이브리드)
+        // Building 매핑 함수 (JSON 기반 동적 매핑)
         function getEmployeeArea(emp) {
             const building = emp['BUILDING'];
-            const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
             const aqlTests = parseFloat(emp['AQL_Total_Tests'] || 0);
+            const empNo = String(emp['Employee No'] || emp['emp_no'] || '');
 
-            // 1순위: BUILDING column (actual 검사 count행 28employees)
+            // 1순위: BUILDING column (actual 검사 수행 Assembly Inspectors)
             if (building && aqlTests > 0) {
                 return 'Building ' + building;
             }
 
-            // 2순위: Area_Reject_Rate로 Auditor/Trainer 분류 (10명)
-            if (areaRate > 0) {
-                const rateStr = areaRate.toFixed(2);
+            // 2순위: JSON 매핑 데이터로 Auditor/Trainer/Model Master 분류
+            if (window.auditorAreaMapping && empNo) {
+                // Model Master 체크 (All Buildings 담당)
+                const modelMasters = window.auditorAreaMapping.model_master?.employees || {};
+                if (modelMasters[empNo]) {
+                    return 'All Buildings';
+                }
 
-                // Building 담당 Auditor/Trainer
-                if (rateStr === '4.01') return 'Building C';
-                if (rateStr === '2.64') return 'Building A';
-                if (rateStr === '2.27') return 'Building D';
-                if (rateStr === '0.41') return 'Building B';
-
-                // All Buildings 담당 (Model Master/Team Leader)
-                if (rateStr === '2.54') return 'All Buildings';
+                // Auditor/Trainer 체크 (Building별 담당)
+                const auditorAreas = window.auditorAreaMapping.auditor_trainer_areas || {};
+                if (auditorAreas[empNo]) {
+                    const config = auditorAreas[empNo];
+                    // conditions에서 BUILDING 값 추출
+                    for (const condition of (config.conditions || [])) {
+                        if (condition.type === 'AND') {
+                            for (const filter of (condition.filters || [])) {
+                                if (filter.column === 'BUILDING') {
+                                    return 'Building ' + filter.value;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             // Fallback (발생하면 안 됨)
@@ -3226,6 +3465,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || 0);
             return cond8 === 'FAIL' || areaRejectRate > 3;
         });
+
+        // 조건별 실패 인원 수 계산
+        const cond7FailCount = cond7FailEmployees.length;
+        const cond8FailCount = cond8FailEmployees.length;
 
         // 테이블 2: Assembly Inspector 인원 기준 검사 실적 calculation
         function calculateInspectorStats() {
@@ -3292,51 +3535,100 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return inspectorStats;
         }
 
-        // 테이블 3: Auditor/Trainer incentive 현황 calculation
+        // 테이블 3: Auditor/Trainer incentive 현황 calculation (JSON + CSV 동적 조합)
         function calculateAuditorStats() {
             const auditorStats = [];
 
-            // Auditor/Trainer 매핑 (JSON file 기준) - 개by 직원 10명
-            // 표시 순서대로 정렬 (Building B → D → A → C → All Buildings)
-            const auditorMappingOrder = [
-                { empNo: '618060092', name: 'CAO THỊ TỐ NGUYÊN', building: 'Building B', jobTitle: 'Auditor/Trainer' },
-                { empNo: '619070185', name: 'DANH THỊ KIM ANH', building: 'Building D', jobTitle: 'Auditor/Trainer' },
-                { empNo: '620070020', name: 'PHẠM MỸ HUYỀN', building: 'Building D', jobTitle: 'Auditor/Trainer' },
-                { empNo: '620070013', name: 'NGUYỄN THANH TRÚC', building: 'Building A', jobTitle: 'Auditor/Trainer' },
-                { empNo: '618110087', name: 'NGUYỄN THÚY HẰNG', building: 'Building C', jobTitle: 'Auditor/Trainer' },
-                { empNo: '623080475', name: 'SẦM TRÍ THÀNH', building: 'Building C', jobTitle: 'Auditor/Trainer' },
-                { empNo: '620080295', name: 'VÕ THỊ THÙY LINH', building: 'All Buildings', jobTitle: 'Team Leader' },
-                { empNo: '618030241', name: 'TRẦN THỊ THÚY ANH', building: 'All Buildings', jobTitle: 'Model Master' },
-                { empNo: '618110097', name: 'DANH THỊ ANH ĐÀO', building: 'All Buildings', jobTitle: 'Model Master' },
-                { empNo: '620120386', name: 'NGUYỄN NGỌC TUẤN', building: 'All Buildings', jobTitle: 'Model Master' }
-            ];
+            if (!window.auditorAreaMapping) {
+                console.warn('Auditor Area Mapping not loaded');
+                return auditorStats;
+            }
 
-            // 각 직원을 개by 행으로 표시
-            auditorMappingOrder.forEach(mapping => {
+            // Building 순서 정의 (표시 순서: B → D → A → C → All Buildings)
+            const buildingOrder = { 'B': 1, 'D': 2, 'A': 3, 'C': 4, 'All': 5 };
+
+            // Auditor/Trainer 수집 (JSON에서)
+            const auditorAreas = window.auditorAreaMapping.auditor_trainer_areas || {};
+            Object.keys(auditorAreas).forEach(empNo => {
+                const config = auditorAreas[empNo];
                 const emp = window.employeeData.find(e =>
-                    String(e['Employee No']) === mapping.empNo ||
-                    String(e['emp_no']) === mapping.empNo
+                    String(e['Employee No']) === empNo ||
+                    String(e['emp_no']) === empNo
                 );
 
                 if (emp) {
+                    // Building 추출
+                    let building = 'Unknown';
+                    for (const condition of (config.conditions || [])) {
+                        if (condition.type === 'AND') {
+                            for (const filter of (condition.filters || [])) {
+                                if (filter.column === 'BUILDING') {
+                                    building = 'Building ' + filter.value;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
                     const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
-                    const cond7 = emp['cond_7_consecutive_fail'] !== 'FAIL';
+                    const cond7 = emp['cond_7_aql_team_area'] !== 'FAIL';
                     const cond8 = emp['cond_8_area_reject'] !== 'FAIL';
 
                     auditorStats.push({
-                        empNo: mapping.empNo,
-                        name: mapping.name,
-                        building: mapping.building,
-                        jobTitle: mapping.jobTitle,
-                        count: 1, // 개by 직원이므로 항상 1
+                        empNo: empNo,
+                        name: config.name || emp['Full Name'],
+                        building: building,
+                        jobTitle: 'Auditor/Trainer',
+                        count: 1,
                         rejectRate: areaRate.toFixed(1),
                         consecutive: 0,
                         cond7: cond7,
                         cond8: cond8,
-                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급'
+                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급',
+                        sortOrder: buildingOrder[building.replace('Building ', '')] || 99
                     });
                 }
             });
+
+            // Model Master 수집 (JSON에서)
+            const modelMasters = window.auditorAreaMapping.model_master?.employees || {};
+            Object.keys(modelMasters).forEach(empNo => {
+                const config = modelMasters[empNo];
+                const emp = window.employeeData.find(e =>
+                    String(e['Employee No']) === empNo ||
+                    String(e['emp_no']) === empNo
+                );
+
+                if (emp) {
+                    const areaRate = parseFloat(emp['Area_Reject_Rate'] || 0);
+                    const cond7 = emp['cond_7_aql_team_area'] !== 'FAIL';
+                    const cond8 = emp['cond_8_area_reject'] !== 'FAIL';
+
+                    // Position에서 Job Title 추출
+                    const position = String(emp['QIP POSITION 1ST  NAME'] || '').toUpperCase();
+                    let jobTitle = 'Model Master';
+                    if (position.includes('TEAM LEADER')) {
+                        jobTitle = 'Team Leader';
+                    }
+
+                    auditorStats.push({
+                        empNo: empNo,
+                        name: config.name || emp['Full Name'],
+                        building: 'All Buildings',
+                        jobTitle: jobTitle,
+                        count: 1,
+                        rejectRate: areaRate.toFixed(1),
+                        consecutive: 0,
+                        cond7: cond7,
+                        cond8: cond8,
+                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급',
+                        sortOrder: 5  // All Buildings는 마지막
+                    });
+                }
+            });
+
+            // Building 순서대로 정렬
+            auditorStats.sort((a, b) => a.sortOrder - b.sortOrder);
 
             return auditorStats;
         }
@@ -3344,15 +3636,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const inspectorStats = calculateInspectorStats();
         const auditorStats = calculateAuditorStats();
 
-        // 조건by 미충족 인원 calculation
-        const cond8FailCount = auditorStats.filter(s => !s.cond8).reduce((sum, s) => sum + s.count, 0);
-
         // 번역 텍스트 미리 fetch
         const t = {
             title: getTranslation('aqlModal.title'),
             summaryTitle: getTranslation('aqlModal.summaryTitle'),
             condition7: getTranslation('aqlModal.condition7'),
-            condition7Detail: getTranslation('aqlModal.condition7Detail'),
+            condition7Detail: getTranslation('aqlModal.condition7Detail').replace(/0명|0 people|0 người/, cond7FailCount + (currentLanguage === 'ko' ? '명' : currentLanguage === 'en' ? ' people' : ' người')),
             condition8: getTranslation('aqlModal.condition8'),
             condition8Detail: getTranslation('aqlModal.condition8Detail'),
             auditorTrainer: getTranslation('aqlModal.auditorTrainer'),
@@ -3409,17 +3698,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div class="modal-body">
                 <div class="mb-3">
                     <div class="alert alert-info">
-                        <strong>📊 ${t.summaryTitle}:</strong> 1,419${t.unitTests} (NORMAL PO)<br>
+                        <strong>📊 ${t.summaryTitle}:</strong> ${totalAqlTests}${t.unitTests} (NORMAL PO)<br>
                         <strong>${t.condition7}:</strong> ${t.condition7Detail}<br>
                         <strong>${t.condition8}:</strong> ${t.condition8Detail} ${cond8FailCount}${t.unitPeople} ${t.auditorTrainer}
                     </div>
                     <p><strong>${t.tableNote}:</strong><br><br>${t.tableNoteDetail}</p>
                 </div>
 
-                <!-- 테이블 1: Buildingby AQL 검사 실적 (AQL file 기준 - 1,419cases) -->
+                <!-- 테이블 1: Buildingby AQL 검사 실적 (AQL file 기준) -->
                 <div class="mb-4">
                     <h6 class="mb-3"><i class="fas fa-chart-bar me-2"></i>📊 ${t.table1Title}</h6>
-                    <p class="text-muted small mb-2">${t.dataSource}: 2025${t.unitYear} 9month ${t.aqlFile} 1,419${t.unitTests} (NORMAL PO)</p>
+                    <p class="text-muted small mb-2">${t.dataSource}: ${reportYear}${t.unitYear} ${reportMonthNum}month ${t.aqlFile} ${totalAqlTests}${t.unitTests} (NORMAL PO)</p>
                     <div class="table-responsive">
                         <table class="table table-bordered" style="font-size: 13px;">
                             <thead class="table-light">
@@ -3540,7 +3829,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 <!-- 테이블 3: Auditor/Trainer incentive 현황 -->
                 <div class="mb-4">
-                    <h6 class="mb-3"><i class="fas fa-user-tie me-2"></i>🎯 ${t.table3Title}</h6>
+                    <h6 class="mb-3">🎯 ${t.table3Title}</h6>
                     <p class="text-muted small mb-2">${t.table3AuditorTitle}</p>
                     <div class="table-responsive">
                         <table class="table table-bordered" style="font-size: 13px;">
@@ -3589,7 +3878,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </table>
                     </div>
                     <p class="small text-muted mt-2">
-                        <strong>${t.noteTitle}:</strong>
+                        <strong>${t.noteTitle}:</strong><br>
                         • ${t.condition7Description}<br>
                         • ${t.condition8Description}<br>
                         • ${t.incentiveNote}
@@ -4122,10 +4411,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const position = emp['position'] || emp['FINAL QIP POSITION NAME CODE'] || '-';
                 const inspectionQty = Math.round(parseFloat(emp['validation_qty'] || emp['5PRS Inspection Quantity'] || 0));
 
-                // Inspection Qty에 따른 색상
-                let badgeClass = 'bg-danger';
-                if (inspectionQty >= 80) badgeClass = 'bg-warning';
-                else if (inspectionQty >= 50) badgeClass = 'bg-orange';
+                // Inspection Qty에 따른 색상 및 텍스트 색상
+                // 0-49족: 빨간색 (심각), 50-79족: 주황색 (주의), 80-99족: 노란색 (경고)
+                let badgeClass = 'bg-danger text-white';
+                if (inspectionQty >= 80) {
+                    badgeClass = 'bg-warning text-dark';
+                } else if (inspectionQty >= 50) {
+                    badgeClass = 'bg-orange text-white';
+                }
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -4836,6 +5129,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         .badge.bg-success {{
             background-color: #198754 !important;
+        }}
+
+        .badge.bg-orange {{
+            background-color: #fd7e14 !important;
+            color: #fff !important;
         }}
         
         .modal-content {{
@@ -7243,6 +7541,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     letter-spacing: 0.5px;
                 }}
 
+                .kpi-subtitle {{
+                    color: #95a5a6;
+                    font-size: 0.75em;
+                    font-weight: 400;
+                    margin-top: 5px;
+                    font-style: italic;
+                    opacity: 0.9;
+                }}
+
                 .kpi-card.warning {{
                     background: #fff3cd;
                     border-color: #ffc107;
@@ -7274,17 +7581,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
 
                 <!-- KPI 카드 2: 무단결근 3일 이상 -->
-                <div class="kpi-card" onclick="showValidationModal('absentWithoutInform')" style="--card-color-1: #f39c12; --card-color-2: #f1c40f; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1);">
+                <div class="kpi-card" onclick="showValidationModal('absentWithoutInform')" style="--card-color-1: #f39c12; --card-color-2: #f1c40f; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1);"
+                     title="" data-i18n-title="validationKpi.absentWithoutInformTooltip">
                     <div class="kpi-icon">⚠️</div>
                     <div class="kpi-value" id="kpiAbsentWithoutInform">-</div>
                     <div class="kpi-label" data-i18n="validationKpi.absentWithoutInform">무단결근 ≥3일</div>
+                    <div class="kpi-subtitle" data-i18n="validationKpi.absentWithoutInformSubtitle">인센티브 자동 제외</div>
                 </div>
 
                 <!-- KPI 카드 3: 실제 근무일 0일 -->
-                <div class="kpi-card" onclick="showValidationModal('zeroWorkingDays')" style="--card-color-1: #e74c3c; --card-color-2: #c0392b; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);">
+                <div class="kpi-card" onclick="showValidationModal('zeroWorkingDays')" style="--card-color-1: #e74c3c; --card-color-2: #c0392b; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.1);"
+                     title="" data-i18n-title="validationKpi.zeroWorkingDaysTooltip">
                     <div class="kpi-icon">🚫</div>
                     <div class="kpi-value" id="kpiZeroWorkingDays">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.zeroWorkingDays">실제 근무일 = 0</div>
+                    <div class="kpi-label" data-i18n="validationKpi.zeroWorkingDays">실제 근무일 0일</div>
+                    <div class="kpi-subtitle" data-i18n="validationKpi.zeroWorkingDaysSubtitle">정당한 사유 포함</div>
                 </div>
 
                 <!-- KPI 카드 4: 최소 근무일 미충족 -->
@@ -7295,10 +7606,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
 
                 <!-- KPI 카드 5: 출근율 88% 미만 -->
-                <div class="kpi-card" onclick="showValidationModal('attendanceBelow88')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);">
+                <div class="kpi-card" onclick="showValidationModal('attendanceBelow88')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);"
+                     title="" data-i18n-title="validationKpi.attendanceBelow88Tooltip">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-value" id="kpiAttendanceBelow88">-</div>
                     <div class="kpi-label" data-i18n="validationKpi.attendanceBelow88">출근율 88% 미만</div>
+                    <div class="kpi-subtitle" data-i18n="validationKpi.attendanceBelow88Subtitle">정당한 사유 제외</div>
                 </div>
 
                 <!-- KPI 카드 6: AQL FAIL 보유자 -->
@@ -7400,6 +7713,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         {aql_file_stats_b64}
     </script>
 
+    <script type="application/json" id="auditorMappingBase64">
+        {auditor_mapping_b64}
+    </script>
+
     <script>
         // UTF-8 Base64 디코딩 함count 추가
         function base64DecodeUnicode(str) {{
@@ -7472,6 +7789,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }} else {{
                 console.warn('AQL File Stats element not found, using empty object');
                 window.aqlFileStats = {{}};
+            }}
+
+            // Auditor/Trainer Area Mapping load
+            const auditorMappingElement = document.getElementById('auditorMappingBase64');
+            if (auditorMappingElement) {{
+                const auditorMappingBase64 = auditorMappingElement.textContent.trim();
+                const auditorMappingJson = base64DecodeUnicode(auditorMappingBase64);
+                window.auditorAreaMapping = JSON.parse(auditorMappingJson);
+                console.log('Auditor Area Mapping loaded:',
+                    Object.keys(window.auditorAreaMapping.auditor_trainer_areas || {{}}).length, 'auditors,',
+                    Object.keys(window.auditorAreaMapping.model_master?.employees || {{}}).length, 'model masters');
+            }} else {{
+                console.warn('Auditor Area Mapping element not found, using empty object');
+                window.auditorAreaMapping = {{}};
             }}
 
             // Build condition_results array from individual condition fields
@@ -8887,6 +9218,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const prevMonthName = '{prev_month_name}';
             const currentMonthName = '{month}';
 
+            // AQL Failures 컬럼명 (현재 월 기준으로 동적 생성)
+            const aqlFailuresColumn = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1) + ' AQL Failures';
+            window.aqlFailuresColumn = aqlFailuresColumn; // 전역 변수로 저장
+
             if (prevMonthHeader) {{
                 if (currentLanguage === 'ko') {{
                     prevMonthHeader.textContent = '{get_korean_month(prev_month_name)}';
@@ -10093,11 +10428,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const totalWorkingDays = {working_days}; // Python에서 주입된 값
             document.getElementById('kpiTotalWorkingDays').textContent = totalWorkingDays + daysUnit;
 
-            // 2. 무단결근 현황 (unapproved_absences >= 1)
-            const ar1Total = employeeData.filter(emp =>
-                parseFloat(emp['unapproved_absences'] || emp['Unapproved Absences'] || 0) >= 1
+            // 2. 무단결근 현황
+            // 3일 이상 무단결근 (인센티브 자동 제외)
+            const absent3Plus = employeeData.filter(emp =>
+                parseFloat(emp['unapproved_absences'] || emp['Unapproved Absences'] || 0) >= 3
             ).length;
-            document.getElementById('kpiAbsentWithoutInform').textContent = ar1Total + peopleUnit;
+            document.getElementById('kpiAbsentWithoutInform').textContent = absent3Plus + peopleUnit;
 
             // 3. actual 근무일 0일 (9month 현재 재직자만, TYPE-3 제외)
             const zeroWorkingDays = employeeData.filter(emp => {{
@@ -10142,7 +10478,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 6. AQL FAIL 보유자 (모든 직원 대상)
             const aqlFailEmployees = employeeData.filter(emp => {{
                 // September AQL Failures column 확인 (Excel data에서 directly 가져옴)
-                const aqlFailures = parseFloat(emp['September AQL Failures'] || emp['aql_failures'] || 0);
+                const aqlFailures = parseFloat(emp[window.aqlFailuresColumn] || emp['aql_failures'] || 0);
                 return aqlFailures > 0;
             }}).length;
             document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + peopleUnit;
@@ -10217,13 +10553,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
+            // KPI 카드 부제목 업데이트
+            document.querySelectorAll('.kpi-subtitle').forEach(subtitle => {{
+                const i18nKey = subtitle.getAttribute('data-i18n');
+                if (i18nKey) {{
+                    subtitle.textContent = getTranslation(i18nKey, currentLanguage);
+                }}
+            }});
+
+            // KPI 카드 툴팁 업데이트
+            document.querySelectorAll('[data-i18n-title]').forEach(element => {{
+                const i18nKey = element.getAttribute('data-i18n-title');
+                if (i18nKey) {{
+                    element.setAttribute('title', getTranslation(i18nKey, currentLanguage));
+                }}
+            }});
+
             // KPI 값 업데이트하여 단위 번역 apply
             const isInterimReport = reportType === 'interim';
             updateValidationKPIs(isInterimReport);
         }}
 
         // 개선된 모달 함count들 추가
-        {modal_scripts.replace('__WORKING_DAYS__', str(working_days)).replace('__YEAR__', str(year)).replace('__MONTH_KO__', get_korean_month(month)).replace('__MONTH_EN__', month.capitalize())}
+        {modal_scripts.replace('__WORKING_DAYS__', str(working_days)).replace('__YEAR__', str(year)).replace('__MONTH_KO__', get_month_translation(month, 'ko')).replace('__MONTH_EN__', get_month_translation(month, 'en')).replace('__MONTH_VI__', get_month_translation(month, 'vi')).replace('__WEEKDAYS_ARRAY__', weekdays_array_js).replace('__DAYS_IN_MONTH__', str(days_in_month))}
 
         // 검증 모달 표시 함count
         function showValidationModal(conditionType) {{
@@ -10468,7 +10820,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const position = (emp['FINAL QIP POSITION NAME CODE'] || '').toUpperCase();
                             const isType1 = emp['ROLE TYPE STD'] === 'TYPE-1';
                             const hasAqlCondition = aqlPositions.some(pos => position.includes(pos));
-                            const hasAqlFail = parseFloat(emp['September AQL Failures'] || 0) > 0;
+                            const hasAqlFail = parseFloat(emp[window.aqlFailuresColumn] || 0) > 0;
                             return isType1 && hasAqlCondition && hasAqlFail;
                         }})
                         .map(emp => [
@@ -10476,7 +10828,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             emp['Full Name'],
                             emp['FINAL QIP POSITION NAME CODE'],
                             emp['ROLE TYPE STD'] || 'TYPE-1',
-                            emp['September AQL Failures'],
+                            emp[window.aqlFailuresColumn],
                             emp['cond_5_aql_personal_failure'] || 'FAIL'
                         ]);
                     break;
