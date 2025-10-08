@@ -1151,12 +1151,17 @@ class DataProcessor:
         import re
         
         def load_aql_history(month_name):
-            """AQL history file withload (헤더 processing include)"""
+            """AQL history file withload (헤더 processing include)
+
+            개선사항 (2025-10-07):
+            - Mixed-month 데이터 자동 필터링
+            - October 2025 이슈 재발 방지
+            """
             file_path = f'input_files/AQL history/1.HSRG AQL REPORT-{month_name}.2025.csv'
-            
+
             if not os.path.exists(file_path):
                 return None
-            
+
             try:
                 # file 텍스트with first 읽어서 헤더 processing
                 with open(file_path, 'r', encoding='utf-8-sig') as f:
@@ -1187,58 +1192,128 @@ class DataProcessor:
                 df = pd.read_csv(tmp_path)
                 os.unlink(tmp_path)  # 임시 file 삭제
 
+                # ==========================================
+                # 자동 필터링 로직 추가 (2025-10-07)
+                # ==========================================
+                if 'MONTH' in df.columns and not df.empty:
+                    # 파일명에서 예상되는 월 번호 추출
+                    month_map = {
+                        'JANUARY': 1, 'FEBRUARY': 2, 'MARCH': 3, 'APRIL': 4,
+                        'MAY': 5, 'JUNE': 6, 'JULY': 7, 'AUGUST': 8,
+                        'SEPTEMBER': 9, 'OCTOBER': 10, 'NOVEMBER': 11, 'DECEMBER': 12
+                    }
+
+                    expected_month = month_map.get(month_name.upper())
+
+                    if expected_month is not None:
+                        # 전체 행의 MONTH 값 확인
+                        unique_months = df['MONTH'].dropna().unique()
+
+                        # Mixed-month 데이터 검출 시 자동 필터링
+                        if len(unique_months) > 1:
+                            original_count = len(df)
+                            df = df[df['MONTH'] == expected_month].copy()
+
+                            # Silent filtering (get_latest_three_months에서 이미 출력했으므로)
+                            # 단, 레코드가 완전히 사라진 경우만 경고
+                            if len(df) == 0:
+                                print(f"       ⚠️ {month_name}: All records filtered out (no matching month)")
+                                return None
+
                 return df
 
             except Exception as e:
                 return None
         
         def get_latest_three_months():
-            """최신 3-month 자same 선택 (fileemployeesand MONTH column validation)"""
+            """최신 3-month 자same 선택 (fileemployeesand MONTH column validation)
+
+            개선사항 (2025-10-07):
+            - 첫 행뿐만 아니라 전체 행의 MONTH 값 검증
+            - Mixed-month 데이터 자동 필터링
+            - October 2025 이슈 재발 방지
+            """
             print("\n  🔍 Scanning AQL history files...")
-            
+
             # AQL history 폴더of 모든 CSV file 찾기
             files = glob.glob('input_files/AQL history/*.csv')
-            
+
             month_map = {
                 1: 'JANUARY', 2: 'FEBRUARY', 3: 'MARCH', 4: 'APRIL',
                 5: 'MAY', 6: 'JUNE', 7: 'JULY', 8: 'AUGUST',
                 9: 'SEPTEMBER', 10: 'OCTOBER', 11: 'NOVEMBER', 12: 'DECEMBER'
             }
-            
+
             valid_months = {}
-            
+
             for file_path in files:
                 # fileemployeesfrom month 추출 (예: "1.HSRG AQL REPORT-JULY.2025.csv" → "JULY")
                 match = re.search(r'AQL REPORT-([A-Z]+)\.', os.path.basename(file_path))
                 if match:
                     filename_month = match.group(1)
-                    
+
                     # file withload
                     df = load_aql_history(filename_month)
                     if df is not None and not df.empty:
-                        # MONTH columnof 첫 번째 value checking
+                        # ==========================================
+                        # 개선된 검증 로직 (2025-10-07)
+                        # ==========================================
+
+                        # 1. 첫 행 MONTH 확인 (기존 로직 호환)
+                        first_month = df['MONTH'].iloc[0]
+
+                        # 2. 전체 행의 MONTH 확인 (NEW - October 2025 문제 방지)
+                        unique_months = df['MONTH'].dropna().unique()
+
+                        # 3. 파일명과 일치하는 월 번호 찾기
+                        expected_month_num = None
+                        for num, name in month_map.items():
+                            if name.upper() == filename_month.upper():
+                                expected_month_num = num
+                                break
+
+                        if expected_month_num is None:
+                            print(f"    ⚠️ {filename_month}: Unknown month name")
+                            continue
+
+                        # 4. Mixed-month 데이터 검출 및 자동 필터링
+                        if len(unique_months) > 1:
+                            print(f"    ⚠️ {filename_month}: Multiple months detected - {sorted([int(m) for m in unique_months])}")
+
+                            # 올바른 월만 필터링
+                            original_count = len(df)
+                            df = df[df['MONTH'] == expected_month_num].copy()
+                            filtered_count = original_count - len(df)
+
+                            print(f"       → Auto-filtered: removed {filtered_count} records from other months")
+                            print(f"       → Keeping {len(df)} records for month {expected_month_num}")
+
+                            if len(df) == 0:
+                                print(f"    ❌ {filename_month}: No valid records after filtering")
+                                continue
+
+                        # 5. 첫 행 검증 (기존 로직)
                         month_value = df['MONTH'].iloc[0]
-                        
-                        # 숫자 month 름with 변환
+
                         if pd.notna(month_value):
                             month_num = int(month_value)
                             month_name = month_map.get(month_num, '')
-                            
-                            # fileemployeesand MONTH column value  days치하지 validation
+
+                            # 6. 최종 검증: 파일명 == MONTH 컬럼
                             if filename_month.upper() == month_name.upper():
                                 valid_months[month_num] = filename_month
                                 print(f"    ✅ {filename_month}: validation passed (MONTH={month_num})")
                             else:
                                 print(f"    ⚠️ {filename_month}: 불 days치 - fileemployees={filename_month}, MONTH column={month_name}")
-            
+
             if not valid_months:
                 print("    ❌ No valid AQL history files available.")
                 return None
-            
+
             # 최신 3-month 선택
             sorted_months = sorted(valid_months.keys(), reverse=True)[:3]
             latest_three = [valid_months[m] for m in sorted(sorted_months)]
-            
+
             print(f"    📅 최신 3-month 선택: {latest_three}")
             return latest_three
         

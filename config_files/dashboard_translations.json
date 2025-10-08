@@ -4922,6 +4922,11 @@
           "ko": "모든 직원이 최소 근무일을 충족했습니다",
           "en": "All employees met the minimum working days requirement",
           "vi": "Tất cả nhân viên đã đáp ứng yêu cầu ngày làm việc tối thiểu"
+        },
+        "interimMessage": {
+          "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
+          "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
+          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
         }
       },
       "attendanceBelow88": {
@@ -4999,6 +5004,11 @@
           "en": "All employees achieved attendance rate of 88% or higher",
           "vi": "Tất cả nhân viên đạt tỷ lệ chuyên cần từ 88% trở lên"
         },
+        "interimMessage": {
+          "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
+          "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
+          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
+        },
         "earlyResignBadge": {
           "ko": "조기퇴사",
           "en": "Early Resign",
@@ -5022,9 +5032,9 @@
           "vi": "AQL (Acceptable Quality Level) FAIL cho thấy các trường hợp không đạt kiểm tra chất lượng."
         },
         "totalCount": {
-          "ko": "총 {count}명의 직원이 9월에 AQL FAIL을 기록했습니다.",
-          "en": "Total {count} employees recorded AQL FAIL in September.",
-          "vi": "Tổng cộng {count} nhân viên ghi nhận AQL FAIL trong tháng 9."
+          "ko": "총 {{count}}명의 직원이 {{month}}에 AQL FAIL을 기록했습니다.",
+          "en": "Total {{count}} employees recorded AQL FAIL in {{month}}.",
+          "vi": "Tổng cộng {{count}} nhân viên ghi nhận AQL FAIL trong {{month}}."
         },
         "headers": {
           "empNo": {
@@ -5043,9 +5053,9 @@
             "vi": "Quản lý trực tiếp"
           },
           "inspectorId": {
-            "ko": "적송 상사 ↕",
-            "en": "Inspector ID ↕",
-            "vi": "Mã thanh tra ↕"
+            "ko": "직속 상사 ID ↕",
+            "en": "Supervisor ID ↕",
+            "vi": "Mã quản lý ↕"
           },
           "aqlPass": {
             "ko": "AQL PASS ↕",
@@ -5633,14 +5643,34 @@
       "vi": "Tổng số ngày làm việc"
     },
     "absentWithoutInform": {
-      "ko": "무단결근 현황",
-      "en": "Unapproved Absences",
-      "vi": "Nghỉ không phép"
+      "ko": "무단결근 ≥3일",
+      "en": "Unapproved Absences ≥3 days",
+      "vi": "Nghỉ không phép ≥3 ngày"
+    },
+    "absentWithoutInformSubtitle": {
+      "ko": "인센티브 자동 제외",
+      "en": "Auto-excluded from incentive",
+      "vi": "Tự động loại trừ khuyến khích"
+    },
+    "absentWithoutInformTooltip": {
+      "ko": "정당한 사유 없이 3일 이상 결근한 직원 (출산휴가 등 정당한 사유 제외)",
+      "en": "Employees absent ≥3 days without legitimate reasons (excludes maternity leave, etc.)",
+      "vi": "Nhân viên nghỉ ≥3 ngày không có lý do chính đáng (loại trừ nghỉ thai sản, v.v.)"
     },
     "zeroWorkingDays": {
-      "ko": "실제 근무일 = 0",
+      "ko": "실제 근무일 0일",
       "en": "Actual Working Days = 0",
       "vi": "Ngày làm việc thực tế = 0"
+    },
+    "zeroWorkingDaysSubtitle": {
+      "ko": "정당한 사유 포함",
+      "en": "Includes legitimate reasons",
+      "vi": "Bao gồm lý do chính đáng"
+    },
+    "zeroWorkingDaysTooltip": {
+      "ko": "한 번도 출근하지 않은 직원 전체 (출산휴가, 퇴사 등 정당한 사유 포함)",
+      "en": "All employees with no attendance (includes maternity leave, resignation, etc.)",
+      "vi": "Tất cả nhân viên không có chấm công (bao gồm nghỉ thai sản, nghỉ việc, v.v.)"
     },
     "minimumDaysNotMet": {
       "ko": "최소 근무일 미충족",
@@ -5651,6 +5681,16 @@
       "ko": "출근율 88% 미만",
       "en": "Attendance < 88%",
       "vi": "Chấm công < 88%"
+    },
+    "attendanceBelow88Subtitle": {
+      "ko": "정당한 사유 제외",
+      "en": "Excludes legitimate reasons",
+      "vi": "Loại trừ lý do chính đáng"
+    },
+    "attendanceBelow88Tooltip": {
+      "ko": "정당한 사유 없이 결근이 많아 출근율이 88% 미만인 직원 (출산휴가는 출근으로 인정)",
+      "en": "Employees with attendance <88% without legitimate reasons (maternity leave counted as attendance)",
+      "vi": "Nhân viên có tỷ lệ chấm công <88% không có lý do chính đáng (nghỉ thai sản được tính là chấm công)"
     },
     "aqlFail": {
       "ko": "AQL FAIL 보유자",
@@ -5842,6 +5882,55 @@
         "ko": "아니오",
         "en": "No",
         "vi": "Không"
+      }
+    },
+    "summary": {
+      "title": {
+        "ko": "0일 근무자 현황 요약",
+        "en": "Zero Working Days Summary",
+        "vi": "Tóm tắt nhân viên làm 0 ngày"
+      },
+      "total": {
+        "ko": "총 0일 근무",
+        "en": "Total Zero Days",
+        "vi": "Tổng 0 ngày"
+      },
+      "managementNeeded": {
+        "ko": "🔴 관리 필요 (사유 없음)",
+        "en": "🔴 Management Needed (No Reason)",
+        "vi": "🔴 Cần quản lý (Không lý do)"
+      },
+      "reviewNeeded": {
+        "ko": "🟡 확인 필요 (직무 변경)",
+        "en": "🟡 Review Needed (Job Change)",
+        "vi": "🟡 Cần xem xét (Thay đổi công việc)"
+      },
+      "legitimateReasons": {
+        "ko": "🔵 정당한 사유",
+        "en": "🔵 Legitimate Reasons",
+        "vi": "🔵 Lý do hợp lý"
+      }
+    },
+    "categories": {
+      "maternity": {
+        "ko": "출산휴가",
+        "en": "Maternity Leave",
+        "vi": "Nghỉ thai sản"
+      },
+      "resigned": {
+        "ko": "퇴사",
+        "en": "Resigned",
+        "vi": "Đã nghỉ việc"
+      },
+      "jobChange": {
+        "ko": "직무변경",
+        "en": "Job Change",
+        "vi": "Thay đổi công việc"
+      },
+      "noReason": {
+        "ko": "사유 없음",
+        "en": "No Reason",
+        "vi": "Không có lý do"
       }
     }
   },
@@ -6099,9 +6188,9 @@
       "vi": "TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu tỷ lệ đạt 5PRS dưới 95%."
     },
     "totalCount": {
-      "ko": "총 {count}명이 5PRS 통과율 95% 미만입니다.",
-      "en": "Total {count} people have 5PRS pass rate below 95%.",
-      "vi": "Tổng cộng {count} người có tỷ lệ đạt 5PRS dưới 95%."
+      "ko": "총 {{count}}명이 5PRS 통과율 95% 미만입니다.",
+      "en": "Total {{count}} people have 5PRS pass rate below 95%.",
+      "vi": "Tổng cộng {{count}} người có tỷ lệ đạt 5PRS dưới 95%."
     },
     "table1Title": {
       "ko": "5PRS 통과율 95% 미만 인원",
