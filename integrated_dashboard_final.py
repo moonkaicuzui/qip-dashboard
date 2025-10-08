@@ -2548,7 +2548,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header" data-sort="attendanceRate" style="min-width: 100px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.attendanceRate">${getTranslation('validationTab.modals.attendanceBelow88.headers.attendanceRate', lang)} ${getSortIcon('attendanceRate')}</th>
                                             <th class="sortable-header" data-sort="actualDays" style="min-width: 110px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.actualDays">${getTranslation('validationTab.modals.attendanceBelow88.headers.actualDays', lang)} ${getSortIcon('actualDays')}</th>
                                             <th class="sortable-header" data-sort="totalDays" style="min-width: 100px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.totalDays">${getTranslation('validationTab.modals.attendanceBelow88.headers.totalDays', lang)} ${getSortIcon('totalDays')}</th>
-                                            <th class="sortable-header" data-sort="resignDate" style="min-width: 100px; padding: 12px; cursor: pointer;">퇴사일 ${getSortIcon('resignDate')}</th>
+                                            <th class="sortable-header" data-sort="resignDate" style="min-width: 100px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.resignationDate">${getTranslation('validationTab.modals.attendanceBelow88.resignationDate', lang)} ${getSortIcon('resignDate')}</th>
                                             <th style="min-width: 90px; padding: 12px;" data-i18n="validationTab.modals.attendanceBelow88.headers.conditionMet">${getTranslation('validationTab.modals.attendanceBelow88.headers.conditionMet', lang)}</th>
                                         </tr>
                                     </thead>
@@ -2705,8 +2705,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 modalHTML += '<tr>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['position'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['boss_name'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern3Months) + '</td>';
                 modalHTML += '</tr>';
             });
@@ -3250,7 +3250,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </div>
                             </div>
 
-                            <h6 class="mb-3"><i class="fas fa-list me-2"></i>직원by AQL FAIL 상세</h6>
+                            <h6 class="mb-3" data-i18n="validationTab.modals.aqlFail.title"><i class="fas fa-list me-2"></i>${getTranslation('validationTab.modals.aqlFail.title', lang)}</h6>
 
                             <table class="table table-hover" id="aqlFailEmployeeTable">
                                 <thead class="unified-table-header">
@@ -4434,6 +4434,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }
 
         function createInspectionModal() {
+            // Get current language
+            const lang = currentLanguage || 'ko';
+            const t = (key) => getTranslation(key, lang);
+
             // 백드롭 creation
             backdrop = document.createElement('div');
             backdrop.className = 'modal-backdrop fade show';
@@ -4446,33 +4450,35 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalDiv.style.zIndex = '1050';
             modalDiv.setAttribute('id', 'lowInspectionQtyModal');
 
+            const countText = t('validationTab.modals.lowInspectionQty.count').replace('{count}', lowQtyEmployees.length);
+
             const modalHTML = `
                 <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header unified-modal-header">
-                            <h5 class="modal-title unified-modal-title">
+                            <h5 class="modal-title unified-modal-title" data-i18n="validationTab.modals.lowInspectionQty.title">
                                 <i class="bi bi-search"></i>
-                                5PRS 검사량 100족 미만 상세
+                                ${t('validationTab.modals.lowInspectionQty.title')}
                             </h5>
                             <button type="button" class="btn-close" onclick="window.closeLowInspectionQtyModal()"></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <div class="alert alert-warning">
-                                    <strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 100족 미만인 경우 인센티브를 받을 수 없습니다.
+                                <div class="alert alert-warning" data-i18n="validationTab.modals.lowInspectionQty.alert">
+                                    ${t('validationTab.modals.lowInspectionQty.alert')}
                                 </div>
-                                <p>총 ${lowQtyEmployees.length}명이 5PRS 검사량 100족 미만입니다.</p>
+                                <p data-i18n="validationTab.modals.lowInspectionQty.count">${countText}</p>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead class="unified-table-header">
                                         <tr>
-                                            <th class="sortable-header" data-sort="empNo">사번 ${getSortIcon('empNo')}</th>
-                                            <th class="sortable-header" data-sort="name">이름 ${getSortIcon('name')}</th>
-                                            <th class="sortable-header" data-sort="position">직책 ${getSortIcon('position')}</th>
-                                            <th>type</th>
-                                            <th class="sortable-header" data-sort="inspectionQty">검사량 ${getSortIcon('inspectionQty')}</th>
-                                            <th>조건 충족</th>
+                                            <th class="sortable-header" data-sort="empNo" data-i18n="validationTab.modals.lowInspectionQty.headers.empNo">${t('validationTab.modals.lowInspectionQty.headers.empNo')} ${getSortIcon('empNo')}</th>
+                                            <th class="sortable-header" data-sort="name" data-i18n="validationTab.modals.lowInspectionQty.headers.name">${t('validationTab.modals.lowInspectionQty.headers.name')} ${getSortIcon('name')}</th>
+                                            <th class="sortable-header" data-sort="position" data-i18n="validationTab.modals.lowInspectionQty.headers.position">${t('validationTab.modals.lowInspectionQty.headers.position')} ${getSortIcon('position')}</th>
+                                            <th data-i18n="validationTab.modals.lowInspectionQty.headers.type">${t('validationTab.modals.lowInspectionQty.headers.type')}</th>
+                                            <th class="sortable-header" data-sort="inspectionQty" data-i18n="validationTab.modals.lowInspectionQty.headers.inspectionQty">${t('validationTab.modals.lowInspectionQty.headers.inspectionQty')} ${getSortIcon('inspectionQty')}</th>
+                                            <th data-i18n="validationTab.modals.lowInspectionQty.headers.conditionMet">${t('validationTab.modals.lowInspectionQty.headers.conditionMet')}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

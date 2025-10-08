@@ -5232,6 +5232,55 @@
             }
           }
         }
+      },
+      "lowInspectionQty": {
+        "title": {
+          "ko": "5PRS 검사량 100족 미만 상세",
+          "en": "5PRS Inspection Quantity Below 100 Pairs Details",
+          "vi": "Chi tiết số lượng kiểm tra 5PRS dưới 100 đôi"
+        },
+        "alert": {
+          "ko": "<strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 100족 미만인 경우 인센티브를 받을 수 없습니다.",
+          "en": "<strong>Condition Description:</strong> TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS inspection quantity is below 100 pairs.",
+          "vi": "<strong>Mô tả điều kiện:</strong> TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu số lượng kiểm tra 5PRS dưới 100 đôi."
+        },
+        "count": {
+          "ko": "총 {count}명이 5PRS 검사량 100족 미만입니다.",
+          "en": "Total {count} employees have 5PRS inspection quantity below 100 pairs.",
+          "vi": "Tổng số {count} nhân viên có số lượng kiểm tra 5PRS dưới 100 đôi."
+        },
+        "headers": {
+          "empNo": {
+            "ko": "사번",
+            "en": "Emp No.",
+            "vi": "Mã nhân viên"
+          },
+          "name": {
+            "ko": "이름",
+            "en": "Name",
+            "vi": "Họ tên"
+          },
+          "position": {
+            "ko": "직책",
+            "en": "Position",
+            "vi": "Chức vụ"
+          },
+          "type": {
+            "ko": "type",
+            "en": "type",
+            "vi": "type"
+          },
+          "inspectionQty": {
+            "ko": "검사량",
+            "en": "Inspection Qty",
+            "vi": "Số lượng kiểm tra"
+          },
+          "conditionMet": {
+            "ko": "조건 충족",
+            "en": "Condition Met",
+            "vi": "Đáp ứng điều kiện"
+          }
+        }
       }
     },
     "warnings": {
@@ -5536,15 +5585,6 @@
         "ko": "닫기",
         "en": "Close",
         "vi": "Đóng"
-      }
-    },
-    "modals": {
-      "absentWithoutInform": {
-        "title": {
-          "ko": "무단결근 직원 상세",
-          "en": "Absent Employee Details",
-          "vi": "Chi tiết nhân viên vắng mặt"
-        }
       }
     },
     "modalTitles": {
