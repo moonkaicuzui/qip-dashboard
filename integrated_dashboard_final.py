@@ -148,17 +148,28 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
     # available file 패턴들 - output_files를 먼저 확인
     month_str = 'august' if month == 8 else 'september' if month == 9 else str(month)
     patterns = [
+        f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V8.01_Complete.csv",  # V8.01 exact match
         f"output_files/output_QIP_incentive_{month_str}_{year}_final완성version_v6.0_Complete_enhanced.csv",
         f"output_files/output_QIP_incentive_{month_str}_{year}_final완성version_v6.0_Complete.csv",
         f"output_files/output_QIP_incentive_{month}_{year}_final완성version_v6.0_Complete.csv",
-        f"output_files/output_QIP_incentive_{month_str}_{year}_*.csv",
         f"input_files/{year}년 {get_korean_month(month)} 인센티브 지급 세부 정보.csv"
     ]
-    
+
+    # Try exact patterns first
+    csv_file = None
     for pattern in patterns:
-        files = glob.glob(pattern)
+        if os.path.exists(pattern):
+            csv_file = pattern
+            break
+
+    # Fallback to glob with .backup exclusion
+    if not csv_file:
+        wildcard_pattern = f"output_files/output_QIP_incentive_{month_str}_{year}_*.csv"
+        files = [f for f in glob.glob(wildcard_pattern) if '.backup.' not in f]
         if files:
             csv_file = files[0]
+
+    if csv_file:
             print(f"✅ Incentive data loaded: {csv_file}")
             df = pd.read_csv(csv_file, encoding='utf-8-sig')
             
@@ -518,8 +529,9 @@ def evaluate_conditions(emp_data, condition_matrix):
     applicable = get_applicable_conditions(emp_data.get('position', ''), type_name, condition_matrix)
 
     # Excel에서 조건 결과 fetch (있으면 use, 없으면 자체 calculation)
+    # CRITICAL FIX: Match exact CSV column names
     condition_names = [
-        '출근율_Attendance_Rate_Percent', 'unapproved_absence', 'actual_working_days', 'minimum_days',
+        'attendance_rate', 'unapproved_absence', 'actual_working_days', 'minimum_days',
         'aql_personal_failure', 'aql_continuous', 'aql_team_area', 'area_reject',
         '5prs_pass_rate', '5prs_inspection_qty'
     ]
@@ -536,6 +548,12 @@ def evaluate_conditions(emp_data, condition_matrix):
         # Excel에 조건 평가 결과가 있으면 use
         if cond_col in emp_data:
             excel_result = emp_data.get(cond_col, 'N/A')
+
+            # CRITICAL FIX: NOT_APPLICABLE인 조건은 N/A로 처리
+            if excel_result == 'NOT_APPLICABLE':
+                results.append(create_na_result(cond_id, conditions.get(str(cond_id), {}).get('description', f'조건 {cond_id}')))
+                continue
+
             value_col = f'cond_{cond_id}_value'
             value = emp_data.get(value_col, '')
 
@@ -1459,17 +1477,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         bsModal.show();
 
-        // 모달 닫기 이벤트 리스너 추가
+        // 모달 닫기 이벤트 리스너 추가 (once: true로 중복 방지)
         modalElement.addEventListener('hidden.bs.modal', function () {
             // 모달이 닫힌 후 정리 작업
-            const backdrop = document.querySelector('.modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-            document.body.classList.remove('modal-open');
-            document.body.style.removeProperty('overflow');
-            document.body.style.removeProperty('padding-right');
-        });
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.overflow = '';  // 명시적으로 빈 문자열 설정
+            }, 50);
+        }, { once: true });
     }
 
     function showZeroWorkingDaysDetails() {
@@ -1810,17 +1831,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         bsModal.show();
 
-        // 모달 닫기 이벤트 리스너 추가
+        // 모달 닫기 이벤트 리스너 추가 (once: true로 중복 방지)
         modalElement.addEventListener('hidden.bs.modal', function () {
             // 모달이 닫힌 후 정리 작업
-            const backdrop = document.querySelector('.modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-            document.body.classList.remove('modal-open');
-            document.body.style.removeProperty('overflow');
-            document.body.style.removeProperty('padding-right');
-        });
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.overflow = '';  // 명시적으로 빈 문자열 설정
+            }, 50);
+        }, { once: true });
     }
 
     function showAbsentWithoutInformDetails() {
@@ -2088,17 +2112,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         bsModal.show();
 
-        // 모달 닫기 이벤트 리스너 추가
+        // 모달 닫기 이벤트 리스너 추가 (once: true로 중복 방지)
         modalElement.addEventListener('hidden.bs.modal', function () {
             // 모달이 닫힌 후 정리 작업
-            const backdrop = document.querySelector('.modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-            document.body.classList.remove('modal-open');
-            document.body.style.removeProperty('overflow');
-            document.body.style.removeProperty('padding-right');
-        });
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.overflow = '';  // 명시적으로 빈 문자열 설정
+            }, 50);
+        }, { once: true });
     }
 
     function showMinimumDaysNotMetDetails() {
@@ -2332,17 +2359,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         bsModal.show();
 
-        // 모달 닫기 이벤트 리스너 추가
+        // 모달 닫기 이벤트 리스너 추가 (once: true로 중복 방지)
         modalElement.addEventListener('hidden.bs.modal', function () {
             // 모달이 닫힌 후 정리 작업
-            const backdrop = document.querySelector('.modal-backdrop');
-            if (backdrop) {
-                backdrop.remove();
-            }
-            document.body.classList.remove('modal-open');
-            document.body.style.removeProperty('overflow');
-            document.body.style.removeProperty('padding-right');
-        });
+            setTimeout(() => {
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+                document.body.style.overflow = '';  // 명시적으로 빈 문자열 설정
+            }, 50);
+        }, { once: true });
     }
 
     function showAttendanceBelow88Details() {
@@ -2611,7 +2641,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (backdrop) {
                 backdrop.style.cursor = 'pointer';
                 backdrop.addEventListener('click', function(e) {
-                    if (e.대상 === backdrop) {
+                    if (e.target === backdrop) {
                         bsModal.hide();
                     }
                 });
@@ -3929,7 +3959,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (backdrop) {
                 backdrop.style.cursor = 'pointer';
                 backdrop.addEventListener('click', function(e) {
-                    if (e.대상 === backdrop) {
+                    if (e.target === backdrop) {
                         bsModal.hide();
                     }
                 });
@@ -4313,7 +4343,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 백드롭 클릭으로 닫기
             backdrop.onclick = function(e) {
-                if (e.대상 === backdrop) {
+                if (e.target === backdrop) {
                     window.closeLowPassRateModal();
                 }
             };
@@ -4527,7 +4557,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 백드롭 클릭으로 닫기
             backdrop.onclick = function(e) {
-                if (e.대상 === backdrop) {
+                if (e.target === backdrop) {
                     window.closeLowInspectionQtyModal();
                 }
             };
@@ -7851,10 +7881,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         else if (i === 9) statusField = 'cond_9_5prs_pass_rate';
                         else if (i === 10) statusField = 'cond_10_5prs_inspection_qty';
 
-                        // statusField가 null/undefined/'N/A'이면 조건은 corresponding 직원에게 apply되지 않음
+                        // statusField가 null/undefined/'N/A'/'NOT_APPLICABLE'이면 조건은 corresponding 직원에게 apply되지 않음
                         const statusValue = emp[statusField];
                         if (statusValue === null || statusValue === undefined ||
-                            statusValue === 'N/A' || statusValue === '' ||
+                            statusValue === 'N/A' || statusValue === 'NOT_APPLICABLE' || statusValue === '' ||
                             (typeof statusValue === 'number' && isNaN(statusValue))) {{
                             // excluded_conditions: 조건 자체가 N/A이므로 추가하지 않음
                             continue;
@@ -11150,14 +11180,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (orgSearchInput) {{
                 console.log('Org chart search input found, attaching event listener');
                 orgSearchInput.addEventListener('input', function(e) {{
-                    const searchTerm = e.대상.value.trim();
+                    const searchTerm = e.target.value.trim();
                     searchInTree(searchTerm);
                 }});
 
                 // Enter 키 처리
                 orgSearchInput.addEventListener('keypress', function(e) {{
                     if (e.key === 'Enter') {{
-                        const searchTerm = e.대상.value.trim();
+                        const searchTerm = e.target.value.trim();
                         searchInTree(searchTerm);
                     }}
                 }});
@@ -11572,30 +11602,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 핸들러 함count를 전역에 저장하여 나중에 제거 가능
                 window.incentiveButtonHandler = function(e) {{
-                    console.log('🖱️ 클릭 이벤트 발생:', e.대상.className);
+                    console.log('🖱️ 클릭 이벤트 발생:', e.target.className);
 
                     // 정보 버튼이 클릭된 경우
-                    if (e.대상 && e.대상.classList && e.대상.classList.contains('incentive-detail-btn')) {{
+                    if (e.target && e.target.classList && e.target.classList.contains('incentive-detail-btn')) {{
                         console.log('ℹ️ 정보 버튼 클릭됨 (이벤트 위임)');
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
 
-                        const nodeId = e.대상.getAttribute('data-node-id');
+                        const nodeId = e.target.getAttribute('data-node-id');
                         console.log('📌 노드 ID:', nodeId);
-                        console.log('📌 모달 함count 존재:', typeof window.showIncentiveModal);
+                        console.log('📌 showEmployeeDetail 함수 존재:', typeof window.showEmployeeDetail);
 
-                        if (window.showIncentiveModal && nodeId) {{
-                            console.log('🎯 모달 함count 호출 시도:', nodeId);
+                        if (window.showEmployeeDetail && nodeId) {{
+                            console.log('🎯 직원 상세 모달 호출 시도:', nodeId);
                             try {{
-                                window.showIncentiveModal(nodeId);
-                                console.log('✅ 모달 함count 호출 성공');
+                                // 직원 상세 모달 표시 (Employee No로 조회)
+                                window.showEmployeeDetail(String(nodeId));
+                                console.log('✅ 직원 상세 모달 호출 성공');
                             }} catch(error) {{
-                                console.error('❌ 모달 함count 호출 중 오류:', error);
+                                console.error('❌ 직원 상세 모달 호출 중 오류:', error);
                             }}
                         }} else {{
-                            console.error('❌ 모달 함count가 not exist or 노드 ID가 없음');
-                            console.error('   - showIncentiveModal:', typeof window.showIncentiveModal);
+                            console.error('❌ showEmployeeDetail 함수가 없거나 노드 ID가 없음');
+                            console.error('   - showEmployeeDetail:', typeof window.showEmployeeDetail);
                             console.error('   - nodeId:', nodeId);
                         }}
                         return false;
@@ -11635,19 +11666,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 console.log('✅ 이벤트 위임 리스너 등록 completed');
             }}
 
-            // incentive 클릭 핸들러 함count
+            // incentive 클릭 핸들러 함수
             function handleIncentiveClick(e) {{
-                const incentiveInfo = e.대상.closest('.node-incentive-info');
+                const incentiveInfo = e.target.closest('.node-incentive-info');
                 if (incentiveInfo) {{
                     e.preventDefault();
                     e.stopPropagation();
                     const nodeId = incentiveInfo.getAttribute('data-node-id');
                     console.log('💰 incentive 클릭 감지 - Node ID:', nodeId);
 
-                    if (window.showIncentiveModal) {{
-                        window.showIncentiveModal(nodeId);
+                    if (window.showEmployeeDetail) {{
+                        // 직원 상세 모달 표시 (Employee No로 조회)
+                        window.showEmployeeDetail(String(nodeId));
                     }} else {{
-                        console.error('❌ showIncentiveModal 함count가 not found');
+                        console.error('❌ showEmployeeDetail 함수가 not found');
                     }}
                 }}
             }}
@@ -11709,7 +11741,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.querySelectorAll('.org-node').forEach(node => {{
                 node.addEventListener('click', function(e) {{
                     // incentive 정보를 클릭한 경우는 제외
-                    if (e.대상.closest('.node-incentive-info')) {{
+                    if (e.target.closest('.node-incentive-info')) {{
                         console.log('🚫 incentive 클릭이므로 expand/collapse 무시');
                         return;
                     }}
@@ -15168,7 +15200,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 showEmployeeDetail(empNo);
             }}
         }}
-        
+
+        // showEmployeeDetailFromPosition 함수를 전역으로 노출
+        window.showEmployeeDetailFromPosition = showEmployeeDetailFromPosition;
+
         // 직원 상세 정보 표시 (dashboard 스타th UI)
         function showEmployeeDetail(empNo) {{
             // CRITICAL FIX: type 통th하여 비교 (string로 통th)
@@ -15240,7 +15275,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div class="card-body text-center">
                                 <h6 class="card-title">` + getTranslation('modal.detailPopup.conditionFulfillment', currentLanguage) + `</h6>
                                 <div style="width: 200px; height: 200px; margin: 0 auto; position: relative;">
-                                    <canvas id="conditionChart${{empNo}}"></canvas>
+                                    <canvas id="conditionChart${{empNo}}" width="200" height="200"></canvas>
                                 </div>
                                 <div class="mt-3">
                                     <h4>${{passRate === 'N/A' ? 'N/A' : passRate + '%'}}</h4>
@@ -15486,8 +15521,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             }}]
                         }},
                         options: {{
-                            responsive: true,
-                            maintainAspectRatio: false,
+                            responsive: false,
+                            maintainAspectRatio: true,
                             plugins: {{
                                 legend: {{
                                     position: 'bottom'
@@ -15498,7 +15533,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}, 100);
         }}
-        
+
+        // showEmployeeDetail 함수를 전역으로 노출 (조직도 탭에서 접근 가능하도록)
+        window.showEmployeeDetail = showEmployeeDetail;
+
         // 모달 닫기
         function closeModal() {{
             // 모든 차트 정리

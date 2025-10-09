@@ -4573,7 +4573,19 @@ class CompleteQIPCalculator:
             # 10 conditions 각각 평
             # condition 1: attendance율 >= 88%
             attendance_rate = self.month_data.loc[idx, '출근율_Attendance_Rate_Percent'] if '출근율_Attendance_Rate_Percent' in self.month_data.columns else 0
-            cond_1_result = 'PASS' if attendance_rate >= 88 else 'FAIL'
+
+            # Expected working days 확인 (Total - Approved Leave)
+            # 근무해야 할 날이 0 이하면 출근율 조건 평가 불가 (예: 전체 기간 출산휴가)
+            total_days = self.month_data.loc[idx, 'Total Working Days'] if 'Total Working Days' in self.month_data.columns else 0
+            approved_leave = self.month_data.loc[idx, 'Approved Leave Days'] if 'Approved Leave Days' in self.month_data.columns else 0
+            expected_working_days = total_days - approved_leave
+
+            if expected_working_days <= 0:
+                # 근무해야 할 날이 없으므로 출근율 조건 평가 불가
+                cond_1_result = 'NOT_APPLICABLE'
+            else:
+                cond_1_result = 'PASS' if attendance_rate >= 88 else 'FAIL'
+
             # 'N/A' 대신 'NOT_APPLICABLE' 사용 (pandas가 'N/A'를 NaN으로 변환하는 문제 해결)
             cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_1_attendance_rate'] = cond_1_applicable if cond_1_applicable == 'NOT_APPLICABLE' else cond_1_result
