@@ -6545,14 +6545,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th class="incentive-amount-header">incentive 금액 (VND)</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {''.join([
-                                    f'<tr{"" if month < 12 else " style=\"background-color: #e8f5e9; font-weight: bold;\""}>'
-                                    f'<td><span class="month-text-{month}">{month}개월</span>{" <span class=\"month-or-more\">이상</span>" if month == 12 else ""}</td>'
-                                    f'<td>{progression_table.get(month, 0):,}</td>'
-                                    f'</tr>'
-                                    for month in range(1, 13)
-                                ])}
+                            <tbody>'''
+
+    # Generate progression table rows outside f-string to avoid # and \ issues
+    highlight_style = " style='background-color: #e8f5e9; font-weight: bold;'"
+    month_or_more_span = "<span class='month-or-more'>이상</span>"
+
+    for progression_month in range(1, 13):
+        row_style = highlight_style if progression_month >= 12 else ""
+        month_suffix = month_or_more_span if progression_month == 12 else ""
+        amount = progression_table.get(progression_month, 0)
+        html_content += f'''
+                                <tr{row_style}>
+                                    <td><span class="month-text-{progression_month}">{progression_month}개월</span>{month_suffix}</td>
+                                    <td>{amount:,}</td>
+                                </tr>'''
+
+    html_content += f'''
                             </tbody>
                         </table>
                         
@@ -7950,7 +7959,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             employeeData.forEach(emp => {{
                 const amount = parseInt(
                     emp['{month.lower()}_incentive'] ||
-                    emp['{month.lower().capitalize()}_Incentive'] ||
+                    emp['{month.capitalize()}_Incentive'] ||
                     emp['Final Incentive amount'] ||
                     0
                 );

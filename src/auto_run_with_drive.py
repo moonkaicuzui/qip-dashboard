@@ -70,14 +70,15 @@ class AutomatedQIPRunner:
     Automated runner for QIP Incentive calculations with Google Drive sync
     """
     
-    def __init__(self, drive_config: str = 'config_files/drive_config.json'):
+    def __init__(self, drive_config: str = 'config_files/drive_config.json', force_download: bool = False):
         """
         Initialize the automated runner
-        
+
         Args:
             drive_config: Path to Drive configuration file
+            force_download: If True, always download files (ignore cache)
         """
-        self.drive_manager = GoogleDriveManager(drive_config)
+        self.drive_manager = GoogleDriveManager(drive_config, force_download=force_download)
         self.initialized = False
         
     def initialize(self, auth_type: str = 'service_account', 
@@ -455,7 +456,9 @@ def main():
                        help='Run without Google Drive sync')
     parser.add_argument('--sync-only', action='store_true',
                        help='Only sync data from Google Drive, do not run calculations')
-    
+    parser.add_argument('--force-download', action='store_true',
+                       help='Force download all files (ignore cache)')
+
     args = parser.parse_args()
     
     # Check if month is specified when not in schedule mode
@@ -470,9 +473,9 @@ def main():
         print("\n📖 For more help: python src/auto_run_with_drive.py --help")
         return
     
-    # Create runner
-    runner = AutomatedQIPRunner()
-    
+    # Create runner (with force_download option)
+    runner = AutomatedQIPRunner(force_download=args.force_download)
+
     # Initialize Drive connection if not disabled
     if not args.no_drive:
         if not runner.initialize(args.auth, args.credentials):

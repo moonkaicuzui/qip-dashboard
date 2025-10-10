@@ -930,10 +930,39 @@ class DataProcessor:
     def process_5pairs_conditions(self, prs_df: pd.DataFrame) -> pd.DataFrame:
         """5PRS conditions processing - TQC ID (inspection 대상자) basis"""
         print("\n📊 5PRS Processing conditions...")
-        
+
+        # ✅ CRITICAL FIX: 해당 월 데이터만 필터링 (다른 달 데이터 제외)
+        if 'Inspection Date' in prs_df.columns:
+            # 날짜 컬럼을 datetime으로 변환
+            prs_df['Inspection Date'] = pd.to_datetime(
+                prs_df['Inspection Date'],
+                format='%m/%d/%Y',
+                errors='coerce'
+            )
+
+            # 해당 년도/월 데이터만 필터링
+            target_year = self.config.year
+            target_month = self.config.month.number
+
+            original_count = len(prs_df)
+            prs_df = prs_df[
+                (prs_df['Inspection Date'].dt.year == target_year) &
+                (prs_df['Inspection Date'].dt.month == target_month)
+            ].copy()
+            filtered_count = len(prs_df)
+
+            excluded = original_count - filtered_count
+            print(f"  ✅ 5PRS 데이터 월별 필터링: {original_count}개 → {filtered_count}개 (제외: {excluded}개)")
+
+            if excluded > 0:
+                print(f"  ⚠️ 다른 달 데이터 {excluded}개 제외됨 (정확한 계산을 위해 필수)")
+        else:
+            print("  ⚠️ Warning: 'Inspection Date' 컬럼이 없어 월별 필터링 불가")
+            print("     전체 데이터 사용 - 결과가 부정확할 수 있음!")
+
         # TQC ID inspection 대상자 (Assembly Inspector etc.)
         # Inspector ID inspection 수행자 (Auditor/Trainer)
-        
+
         # TQC ID column 찾기 (inspection 대상자)
         tqc_col = self.detect_column_names(prs_df, [
             'TQC ID', 'TQC_ID', 'TQC', 'Target ID'
@@ -2612,7 +2641,8 @@ class CompleteQIPCalculator:
             condition_1_pass = row.get('cond_1_attendance_rate') == 'PASS'
             condition_2_pass = row.get('cond_2_unapproved_absence') == 'PASS'
             condition_3_pass = row.get('cond_3_actual_working_days') == 'PASS'
-            condition_4_pass = row.get('cond_4_minimum_days') == 'PASS'
+            # FIX: NOT_APPLICABLE should be treated as PASS (e.g., interim reports with < 12 working days)
+            condition_4_pass = row.get('cond_4_minimum_days') in ['PASS', 'NOT_APPLICABLE']
 
             # Condition 8: in charge area reject율 < 3%
             area_reject_rate = total_factory_reject_rate  # MODEL MASTER 전체 factory reject율 사용
@@ -2728,7 +2758,8 @@ class CompleteQIPCalculator:
             if 3 in applicable_conditions:
                 conditions_met[3] = row.get('cond_3_actual_working_days') == 'PASS'
             if 4 in applicable_conditions:
-                conditions_met[4] = row.get('cond_4_minimum_days') == 'PASS'
+                # FIX: NOT_APPLICABLE should be treated as PASS (e.g., interim reports with < 12 working days)
+                conditions_met[4] = row.get('cond_4_minimum_days') in ['PASS', 'NOT_APPLICABLE']
 
             # Condition 7: in charge area reject율 < 3%
             if 7 in applicable_conditions:
@@ -3649,7 +3680,8 @@ class CompleteQIPCalculator:
                 condition_1_pass = row.get('cond_1_attendance_rate') == 'PASS'
                 condition_2_pass = row.get('cond_2_unapproved_absence') == 'PASS'
                 condition_3_pass = row.get('cond_3_actual_working_days') == 'PASS'
-                condition_4_pass = row.get('cond_4_minimum_days') == 'PASS'
+                # FIX: NOT_APPLICABLE should be treated as PASS (e.g., interim reports with < 12 working days)
+                condition_4_pass = row.get('cond_4_minimum_days') in ['PASS', 'NOT_APPLICABLE']
 
                 all_conditions_pass = (condition_1_pass and condition_2_pass and
                                       condition_3_pass and condition_4_pass)
