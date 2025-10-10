@@ -719,6 +719,23 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
 def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None):
     """dashboard_version4.html과 완전히 동th한 dashboard creation - Excel data based"""
 
+    # Load progression table from JSON (Single Source of Truth)
+    progression_table = {}
+    try:
+        with open('config_files/position_condition_matrix.json', 'r', encoding='utf-8') as f:
+            position_config = json.load(f)
+            prog_table_str = position_config['incentive_progression']['TYPE_1_PROGRESSIVE']['progression_table']
+            progression_table = {int(k): int(v) for k, v in prog_table_str.items()}
+            print(f"✅ Progression table loaded from JSON: {len(progression_table)} months")
+    except Exception as e:
+        print(f"⚠️ Failed to load progression table from JSON: {e}")
+        # Fallback to hardcoded values (should not happen)
+        progression_table = {
+            1: 150000, 2: 250000, 3: 300000, 4: 350000, 5: 400000,
+            6: 450000, 7: 500000, 8: 650000, 9: 750000, 10: 850000,
+            11: 950000, 12: 1000000
+        }
+
     # 요일 배열 생성 (실제 달력 기준)
     import calendar
     # calendar.monthrange(year, month) returns (weekday of first day, number of days)
@@ -6529,18 +6546,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td><span class="month-text-1">1개월</span></td><td>150,000</td></tr>
-                                <tr><td><span class="month-text-2">2개월</span></td><td>250,000</td></tr>
-                                <tr><td><span class="month-text-3">3개월</span></td><td>300,000</td></tr>
-                                <tr><td><span class="month-text-4">4개월</span></td><td>350,000</td></tr>
-                                <tr><td><span class="month-text-5">5개월</span></td><td>450,000</td></tr>
-                                <tr><td><span class="month-text-6">6개월</span></td><td>500,000</td></tr>
-                                <tr><td><span class="month-text-7">7개월</span></td><td>600,000</td></tr>
-                                <tr><td><span class="month-text-8">8개월</span></td><td>700,000</td></tr>
-                                <tr><td><span class="month-text-9">9개월</span></td><td>750,000</td></tr>
-                                <tr><td><span class="month-text-10">10개월</span></td><td>850,000</td></tr>
-                                <tr><td><span class="month-text-11">11개월</span></td><td>900,000</td></tr>
-                                <tr style="background-color: #e8f5e9; font-weight: bold;"><td><span class="month-text-12">12개월</span> <span class="month-or-more">이상</span></td><td>1,000,000</td></tr>
+                                {''.join([
+                                    f'<tr{"" if month < 12 else " style=\"background-color: #e8f5e9; font-weight: bold;\""}>'
+                                    f'<td><span class="month-text-{month}">{month}개월</span>{" <span class=\"month-or-more\">이상</span>" if month == 12 else ""}</td>'
+                                    f'<td>{progression_table.get(month, 0):,}</td>'
+                                    f'</tr>'
+                                    for month in range(1, 13)
+                                ])}
                             </tbody>
                         </table>
                         
