@@ -150,14 +150,50 @@ else
     echo -e "${GREEN}✅ Config file verified: $CONFIG_FILE${NC}"
 fi
 
-# Step 0.5: Google Drive sync (file download)
+# Step 0.5: Google Drive sync (CRITICAL for accurate data)
 echo ""
 echo -e "${YELLOW}📥 Syncing required files from Google Drive...${NC}"
-python3 src/auto_run_with_drive.py --month $MONTH --year $YEAR
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Google Drive sync completed${NC}"
+echo -e "${CYAN}   (Using --force-download to ensure latest data)${NC}"
+python3 src/auto_run_with_drive.py --month $MONTH --year $YEAR --force-download
+
+SYNC_RESULT=$?
+
+if [ $SYNC_RESULT -ne 0 ]; then
+    echo ""
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}❌ CRITICAL: Google Drive sync failed!${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}Using cached files may result in incorrect calculations!${NC}"
+    echo -e "${YELLOW}Risks:${NC}"
+    echo -e "${YELLOW}  • Old data or mixed month data may be present${NC}"
+    echo -e "${YELLOW}  • 5PRS and AQL data accuracy cannot be guaranteed${NC}"
+    echo -e "${YELLOW}  • Incentive calculations may be incorrect${NC}"
+    echo ""
+    echo -e "${WHITE}Options:${NC}"
+    echo -e "${WHITE}  1) Continue anyway (not recommended - may cause data errors)${NC}"
+    echo -e "${WHITE}  2) Exit and fix Google Drive connection${NC}"
+    echo ""
+    echo -e "${YELLOW}Choose option (1/2): ${NC}\c"
+    read sync_choice
+
+    if [[ $sync_choice != "1" ]]; then
+        echo ""
+        echo -e "${YELLOW}Please fix Google Drive connection and try again.${NC}"
+        echo ""
+        echo -e "${CYAN}💡 Troubleshooting:${NC}"
+        echo -e "${CYAN}  • Check internet connection${NC}"
+        echo -e "${CYAN}  • Verify service account key: credentials/service-account-key.json${NC}"
+        echo -e "${CYAN}  • Confirm Google Drive folder permissions${NC}"
+        echo -e "${CYAN}  • Check if files are shared with service account email${NC}"
+        exit 1
+    else
+        echo ""
+        echo -e "${YELLOW}⚠️ WARNING: Proceeding with potentially outdated files!${NC}"
+        echo -e "${YELLOW}⚠️ Please verify calculation results carefully!${NC}"
+    fi
 else
-    echo -e "${YELLOW}⚠️ Google Drive sync failed (manual download may be required)${NC}"
+    echo -e "${GREEN}✅ Google Drive sync completed successfully${NC}"
 fi
 
 # Step 0.6: Previous month incentive file sync
@@ -288,6 +324,73 @@ else
     if [[ $continue_without_aql != "y" ]] && [[ $continue_without_aql != "Y" ]]; then
         exit 1
     fi
+fi
+
+# Step 0.10: 5PRS File Validation (CRITICAL - prevents data mixing issues)
+echo ""
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${WHITE}Step 0.10: 5PRS File Validation${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+PRS_FILE="input_files/5prs data ${MONTH}.csv"
+
+if [ -f "$PRS_FILE" ]; then
+    echo -e "${BLUE}📋 Validating: $PRS_FILE${NC}"
+    python3 scripts/validation/validate_5prs_file.py "$PRS_FILE" --month $MONTH_NUM --year $YEAR
+
+    if [ $? -ne 0 ]; then
+        echo ""
+        echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${RED}⚠️  CRITICAL: 5PRS file validation failed!${NC}"
+        echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "${YELLOW}The 5PRS file contains data from multiple months.${NC}"
+        echo -e "${YELLOW}This will cause incorrect 5PRS pass rate calculations!${NC}"
+        echo ""
+        echo -e "${WHITE}Options:${NC}"
+        echo -e "${WHITE}  1) Auto-fix (recommended): Remove other month records${NC}"
+        echo -e "${WHITE}  2) Continue anyway (not recommended)${NC}"
+        echo -e "${WHITE}  3) Exit and fix manually${NC}"
+        echo ""
+        echo -e "${YELLOW}Choose option (1/2/3): ${NC}\c"
+        read prs_fix_choice
+
+        if [[ $prs_fix_choice == "1" ]]; then
+            echo ""
+            echo -e "${BLUE}🔧 Auto-fixing 5PRS file...${NC}"
+            python3 scripts/validation/validate_5prs_file.py "$PRS_FILE" --month $MONTH_NUM --year $YEAR --fix
+
+            if [ $? -eq 0 ]; then
+                echo ""
+                echo -e "${GREEN}✅ 5PRS file fixed successfully!${NC}"
+            else
+                echo ""
+                echo -e "${RED}❌ Failed to fix 5PRS file automatically${NC}"
+                echo -e "${YELLOW}Please fix manually and run again.${NC}"
+                exit 1
+            fi
+        elif [[ $prs_fix_choice == "2" ]]; then
+            echo ""
+            echo -e "${YELLOW}⚠️  WARNING: Continuing with mixed month data${NC}"
+            echo -e "${YELLOW}⚠️  5PRS calculations will be inaccurate!${NC}"
+            echo ""
+            echo -e "${YELLOW}Are you sure? (y/n): ${NC}\c"
+            read confirm_continue
+            if [[ $confirm_continue != "y" ]] && [[ $confirm_continue != "Y" ]]; then
+                echo -e "${YELLOW}Cancelled.${NC}"
+                exit 1
+            fi
+        else
+            echo ""
+            echo -e "${YELLOW}Please fix the 5PRS file manually and run again.${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${GREEN}✅ 5PRS file validation passed${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  5PRS file not found: $PRS_FILE${NC}"
+    echo -e "${YELLOW}5PRS conditions will not be evaluated.${NC}"
 fi
 
 # Step 1: Incentive calculation

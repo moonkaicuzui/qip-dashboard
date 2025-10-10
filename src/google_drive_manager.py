@@ -52,19 +52,21 @@ class GoogleDriveManager:
     Main class for managing Google Drive synchronization
     """
     
-    def __init__(self, config_path: str = 'config_files/drive_config.json'):
+    def __init__(self, config_path: str = 'config_files/drive_config.json', force_download: bool = False):
         """
         Initialize the Google Drive Manager
-        
+
         Args:
             config_path: Path to the configuration file
+            force_download: If True, always download files (ignore cache)
         """
         self.config_path = config_path
         self.config = self._load_config()
         self.service = None
         self.cache_dir = Path(self.config['local_paths']['cache_dir'])
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        
+        self.force_download = force_download  # New: force download flag
+
         # Create necessary directories
         self._setup_directories()
         
@@ -359,11 +361,11 @@ class GoogleDriveManager:
     def _sync_file_from_path(self, drive_path: str, local_path: str) -> bool:
         """
         Sync a file from Drive path to local path
-        
+
         Args:
             drive_path: Path in Google Drive (relative to root folder)
             local_path: Local destination path
-            
+
         Returns:
             bool: True if sync successful
         """
@@ -373,20 +375,23 @@ class GoogleDriveManager:
             if not file_id:
                 logger.warning(f"File not found in Drive: {drive_path}")
                 return False
-            
-            # Check if update needed
-            if self._is_cache_valid(file_id, local_path):
+
+            # Check if update needed (skip cache if force_download is True)
+            if not self.force_download and self._is_cache_valid(file_id, local_path):
                 logger.info(f"Using cached version of {drive_path}")
                 return True
-            
-            # Download file
+
+            # Download file (forced or cache invalid)
+            if self.force_download:
+                logger.info(f"Force downloading {drive_path} (ignoring cache)")
+
             success = self._download_file(file_id, local_path)
             if success:
                 self._update_cache_metadata(file_id, local_path)
                 logger.info(f"Successfully synced {drive_path} to {local_path}")
-            
+
             return success
-            
+
         except Exception as e:
             logger.error(f"Error syncing {drive_path}: {e}")
             return False
