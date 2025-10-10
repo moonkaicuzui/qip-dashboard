@@ -472,10 +472,80 @@ class SpecialCaseHandler:
 
 class DataProcessor:
     """data processing 클래스 (improved 버전)"""
-    
+
     def __init__(self, config: MonthConfig):
         self.config = config
         self.column_cache = {}
+        self.progression_table = self._load_progression_table()
+        print(f"✅ Progression table loaded: {len(self.progression_table)} entries")
+
+    def _load_progression_table(self) -> dict:
+        """
+        progression_table을 position_condition_matrix.json에서 동적으로 로딩
+
+        Returns:
+            dict: {개월수(int): 인센티브금액(int)} 형태의 딕셔너리
+        """
+        try:
+            config_path = "config_files/position_condition_matrix.json"
+
+            if not os.path.exists(config_path):
+                print(f"⚠️ Warning: {config_path} not found. Using default progression table.")
+                # 기본값 (하드코딩 fallback)
+                return {
+                    0: 0, 1: 150000, 2: 250000, 3: 300000, 4: 350000,
+                    5: 400000, 6: 450000, 7: 500000, 8: 650000, 9: 750000,
+                    10: 850000, 11: 950000, 12: 1000000, 13: 1000000,
+                    14: 1000000, 15: 1000000
+                }
+
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config_data = json.load(f)
+
+            # progression_table 추출
+            prog_table_str = config_data.get('incentive_progression', {}).get('TYPE_1_PROGRESSIVE', {}).get('progression_table', {})
+
+            # 문자열 키 → 정수 키로 변환
+            progression_table = {int(k): int(v) for k, v in prog_table_str.items()}
+
+            return progression_table
+
+        except Exception as e:
+            print(f"⚠️ Error loading progression_table: {e}")
+            print("Using default progression table.")
+            return {
+                0: 0, 1: 150000, 2: 250000, 3: 300000, 4: 350000,
+                5: 400000, 6: 450000, 7: 500000, 8: 650000, 9: 750000,
+                10: 850000, 11: 950000, 12: 1000000, 13: 1000000,
+                14: 1000000, 15: 1000000
+            }
+
+    def _reverse_calculate_months_from_incentive(self, incentive_amount: float) -> int:
+        """
+        인센티브 금액에서 개월 수를 역산
+
+        Args:
+            incentive_amount: 인센티브 금액
+
+        Returns:
+            int: 해당 금액에 대응하는 개월 수 (찾지 못하면 1)
+        """
+        if pd.isna(incentive_amount) or incentive_amount <= 0:
+            return 1
+
+        incentive_int = int(float(incentive_amount))
+
+        # progression_table에서 역산
+        for months, amount in self.progression_table.items():
+            if months == 0:
+                continue
+            if incentive_int == amount:
+                return months + 1  # 다음 달 개월 수
+
+        # 찾지 못한 경우
+        print(f"  ⚠️ Incentive amount {incentive_int:,} VND not found in progression_table → defaulting to 1 month")
+        print(f"  ⚠️ This may indicate a special bonus or manual adjustment. Manual verification recommended.")
+        return 1
     
     def standardize_employee_id(self, emp_id: Any) -> str:
         """employee ID 표준화"""
@@ -955,164 +1025,166 @@ class DataProcessor:
     
     
     def calculate_continuous_months_from_history(self, emp_id: str, month_data: pd.DataFrame = None) -> int:
-        """consecutive incentive 수령 month 수 calculation (Single Source of Truth)"""
+        """
+        연속 인센티브 수령 개월 수 계산 (우선순위 기반 로직)
+
+        우선순위:
+        1. Next_Month_Expected 컬럼 직접 읽기
+        2. Continuous_Months 컬럼 + 1
+        3. 인센티브 금액 역산 (progression_table 동적 사용)
+
+        Args:
+            emp_id: 직원 ID
+            month_data: 현재 달 데이터 (옵션)
+
+        Returns:
+            int: 다음 달 연속 개월 수 (1-15)
+        """
         continuous_months = 0
 
-        # month_data 전month되지 않으면 self.month_data 사용 (호환성 유지)
+        # month_data 전달되지 않으면 self.month_data 사용 (호환성 유지)
         if month_data is None and hasattr(self, 'month_data'):
             month_data = self.month_data
 
-        # employee ID 9자리with 패ing
+        # Employee ID 9자리 패딩
         emp_id_padded = str(emp_id).zfill(9)
 
-        # August calculation: July_Incentive column 직접 사용
-        if self.config.month.number == 8 and self.config.year == 2025:
-            # July_Incentive columnfrom 직접 checking
-            july_incentive = 0  # Initialize with default value
-            if month_data is not None:
-                emp_data = month_data[month_data['Employee No'] == emp_id_padded]
+        # ============================================
+        # 이전 달 데이터 로딩
+        # ============================================
+        prev_df, prev_month_name = self._load_previous_month_data()
 
-                if not emp_data.empty and 'July_Incentive' in month_data.columns:
-                    july_incentive = emp_data.iloc[0].get('July_Incentive', 0)
+        if prev_df is None or prev_df.empty:
+            print(f"[New Employee] {emp_id_padded}: No previous month data → Starting at 1 month")
+            return 1
 
-                # July incentive amountwith consecutive months calculation
-                # 원칙: July에 받은 금액 = 해당 개월 수 → 다음 달은 +1개월
-                # ✅ 수정된 Progressive Table 반영 (2025-10-04)
-                if july_incentive == 0:
-                    continuous_months = 1  # 신규 시작
-                    print(f"[July Data] {emp_id_padded}: July 0VND → August 1개월 시작")
-                elif july_incentive == 150000:
-                    continuous_months = 2  # 1개월 → 2개월
-                    print(f"[July Data] {emp_id_padded}: July 150,000VND (1개월) → August 2개월")
-                elif july_incentive == 250000:
-                    continuous_months = 3  # 2개월 → 3개월
-                    print(f"[July Data] {emp_id_padded}: July 250,000VND (2개월) → August 3개월")
-                elif july_incentive == 300000:
-                    continuous_months = 4  # 3개월 → 4개월
-                    print(f"[July Data] {emp_id_padded}: July 300,000VND (3개월) → August 4개월")
-                elif july_incentive == 350000:
-                    continuous_months = 5  # 4개월 → 5개월
-                    print(f"[July Data] {emp_id_padded}: July 350,000VND (4개월) → August 5개월")
-                elif july_incentive == 450000:
-                    continuous_months = 6  # 5개월 → 6개월 ✅ 수정
-                    print(f"[July Data] {emp_id_padded}: July 450,000VND (5개월) → August 6개월")
-                elif july_incentive == 500000:
-                    continuous_months = 7  # 6개월 → 7개월 ✅ 수정
-                    print(f"[July Data] {emp_id_padded}: July 500,000VND (6개월) → August 7개월")
-                elif july_incentive == 600000:
-                    continuous_months = 8  # 7개월 → 8개월 ✅ 신규
-                    print(f"[July Data] {emp_id_padded}: July 600,000VND (7개월) → August 8개월")
-                elif july_incentive == 700000:
-                    continuous_months = 9  # 8개월 → 9개월 ✅ 수정
-                    print(f"[July Data] {emp_id_padded}: July 700,000VND (8개월) → August 9개월")
-                elif july_incentive == 750000:
-                    continuous_months = 10  # 9개월 → 10개월
-                    print(f"[July Data] {emp_id_padded}: July 750,000VND (9개월) → August 10개월")
-                elif july_incentive == 850000:
-                    continuous_months = 11  # 10개월 → 11개월
-                    print(f"[July Data] {emp_id_padded}: July 850,000VND (10개월) → August 11개월")
-                elif july_incentive == 900000:
-                    continuous_months = 12  # 11개월 → 12개월 ✅ 수정
-                    print(f"[July Data] {emp_id_padded}: July 900,000VND (11개월) → August 12개월")
-                elif july_incentive == 1000000:
-                    continuous_months = 12  # 이미 최대값 유지
-                    print(f"[July Data] {emp_id_padded}: July 1,000,000VND (12개월) → August 12개월")
-                else:
-                    continuous_months = 1  # 알 수 없는 금액은 1개월로 시작
-                    print(f"[July Data] {emp_id_padded}: July {july_incentive:,.0f}VND (알 수 없음) → August 1개월")
+        # 이전 달에서 해당 직원 찾기
+        emp_prev = prev_df[prev_df['Employee No'] == emp_id_padded]
 
+        if emp_prev.empty:
+            print(f"[New Employee] {emp_id_padded}: Not found in {prev_month_name} data → Starting at 1 month")
+            return 1
+
+        prev_row = emp_prev.iloc[0]
+
+        # ============================================
+        # 우선순위 1: Next_Month_Expected 컬럼
+        # ============================================
+        if 'Next_Month_Expected' in prev_df.columns:
+            next_expected = prev_row.get('Next_Month_Expected', 0)
+            if pd.notna(next_expected) and next_expected != '' and float(next_expected) > 0:
+                continuous_months = int(next_expected)
+                print(f"✅ {emp_id_padded}: [Priority 1] Next_Month_Expected column → {continuous_months} months")
                 return continuous_months
 
-        # September calculation: August incentive 지급 세부 정보 파일에서 읽기
+        # ============================================
+        # 우선순위 2: Continuous_Months + 1
+        # ============================================
+        if 'Continuous_Months' in prev_df.columns:
+            cont_months = prev_row.get('Continuous_Months', 0)
+            if pd.notna(cont_months) and cont_months != '' and float(cont_months) >= 0:
+                continuous_months = int(cont_months) + 1
+                print(f"✅ {emp_id_padded}: [Priority 2] Continuous_Months + 1 → {int(cont_months)} + 1 = {continuous_months} months")
+                return continuous_months
+
+        # ============================================
+        # 우선순위 3: 인센티브 금액 역산
+        # ============================================
+        # 이전 달 인센티브 금액 확인 (여러 가능한 컬럼명 시도)
+        incentive_columns = [
+            f'{prev_month_name}_Incentive',
+            f'{prev_month_name.capitalize()}_Incentive',
+            'Final Incentive amount',
+            'incentive 지급액',
+            'Source_Final_Incentive'
+        ]
+
+        prev_incentive = None
+        for col_name in incentive_columns:
+            if col_name in prev_df.columns:
+                val = prev_row.get(col_name, 0)
+                if pd.notna(val) and val != '' and float(val) > 0:
+                    prev_incentive = float(val)
+                    print(f"  📊 {emp_id_padded}: Found incentive in column '{col_name}': {prev_incentive:,.0f} VND")
+                    break
+
+        if prev_incentive is not None and prev_incentive > 0:
+            continuous_months = self._reverse_calculate_months_from_incentive(prev_incentive)
+            print(f"✅ {emp_id_padded}: [Priority 3] Reverse calculation from {prev_incentive:,.0f} VND → {continuous_months} months")
+            return continuous_months
+
+        # ============================================
+        # Fallback: 데이터 없음 → 1개월로 시작
+        # ============================================
+        print(f"⚠️ {emp_id_padded}: No valid data in {prev_month_name} → Defaulting to 1 month")
+        return 1
+
+    def _load_previous_month_data(self) -> tuple:
+        """
+        이전 달 데이터 로딩 헬퍼 메서드
+
+        Returns:
+            tuple: (DataFrame, month_name) 또는 (None, None)
+        """
+        # 이전 달 계산
+        prev_month_num = (self.config.month.number - 1) % 12 or 12
+        prev_year = self.config.year if prev_month_num < self.config.month.number else self.config.year - 1
+        prev_month_obj = Month.from_number(prev_month_num)
+        prev_month_name = prev_month_obj.full_name.lower()
+
+        # ============================================
+        # Case 1: August 계산 - July_Incentive 컬럼 사용
+        # ============================================
+        if self.config.month.number == 8 and self.config.year == 2025:
+            if hasattr(self, 'month_data') and self.month_data is not None:
+                if 'July_Incentive' in self.month_data.columns:
+                    print(f"📂 August calculation: Using July_Incentive column from current month_data")
+                    # Employee No 표준화
+                    if 'Employee No' in self.month_data.columns:
+                        self.month_data['Employee No'] = self.month_data['Employee No'].astype(str).str.zfill(9)
+                    return (self.month_data.copy(), 'july')
+
+            print(f"⚠️ August calculation: July_Incentive column not found in month_data")
+            return (None, None)
+
+        # ============================================
+        # Case 2: September 이후 - 이전 달 CSV/Excel 파일 로딩
+        # ============================================
         if self.config.month.number == 9 and self.config.year == 2025:
-            # August incentive CSV file withload - Config에서 경로 가져오기 (Single Source of Truth)
+            # September: August CSV 파일 로딩
             august_file = self.config.file_paths.get('previous_incentive',
                                                      'input_files/2025년 8월 인센티브 지급 세부 정보.csv')
 
             if os.path.exists(august_file):
                 try:
-                    # August data withload
+                    print(f"📂 September calculation: Loading August CSV from {august_file}")
                     august_df = pd.read_csv(august_file, encoding='utf-8-sig')
 
-                    # Employee No 9자리with 패ing
+                    # Employee No 표준화
                     if 'Employee No' in august_df.columns:
                         august_df['Employee No'] = august_df['Employee No'].astype(str).str.zfill(9)
 
-                    # 해당 employeeof August incentive 찾기
-                    emp_august = august_df[august_df['Employee No'] == emp_id_padded]
-
-                    if not emp_august.empty:
-                        # August incentive amount checking - 여러 능한 column 름 attempt
-                        august_row = emp_august.iloc[0]
-                        august_incentive = august_row.get('August_Incentive',
-                                            august_row.get('Final Incentive amount',
-                                            august_row.get('incentive 지급액', 0)))
-                        if pd.isna(august_incentive):
-                            august_incentive = 0
-
-                        # August incentive amountwith September consecutive months calculation
-                        # 원칙: Augustto 받은 amount = 해당 개월 수 → September은 +1개월
-                        # ✅ 수정된 Progressive Table 반영 (2025-10-04)
-                        if august_incentive == 0:
-                            continuous_months = 1  # 신규 시작
-                        elif august_incentive == 150000:
-                            continuous_months = 2  # August 1개월 → September 2개월
-                        elif august_incentive == 250000:
-                            continuous_months = 3  # August 2개월 → September 3개월
-                        elif august_incentive == 300000:
-                            continuous_months = 4  # August 3개월 → September 4개월
-                        elif august_incentive == 350000:
-                            continuous_months = 5  # August 4개월 → September 5개월
-                        elif august_incentive == 450000:
-                            continuous_months = 6  # August 5개월 → September 6개월 ✅ 수정
-                        elif august_incentive == 500000:
-                            continuous_months = 7  # August 6개월 → September 7개월 ✅ 수정
-                        elif august_incentive == 600000:
-                            continuous_months = 8  # August 7개월 → September 8개월 ✅ 신규
-                        elif august_incentive == 700000:
-                            continuous_months = 9  # August 8개월 → September 9개월 ✅ 수정
-                        elif august_incentive == 750000:
-                            continuous_months = 10  # August 9개월 → September 10개월
-                        elif august_incentive == 850000:
-                            continuous_months = 11  # August 10개월 → September 11개월
-                        elif august_incentive == 900000:
-                            continuous_months = 12  # August 11개월 → September 12개월 ✅ 수정
-                        elif august_incentive == 1000000:
-                            continuous_months = 12  # 이미 최대값 유지
-                        else:
-                            continuous_months = 1  # 알 수 없는 금액은 1개월로 시작
-
-                        # debugging 출력
-                        if august_incentive > 0:
-                            print(f"[August Data] {emp_id_padded}: August {august_incentive:,.0f}VND → September {continuous_months}month")
-
-                        return continuous_months
-                    else:
-                        # August datato 없 employee → new
-                        return 1
+                    return (august_df, 'august')
 
                 except Exception as e:
-                    print(f"[August data read error] {e}")
-                    return 1
+                    print(f"⚠️ Error loading August CSV: {e}")
+                    return (None, None)
             else:
-                print(f"[Warning] August incentive file not found: {august_file}")
-                return 1
+                print(f"⚠️ August CSV file not found: {august_file}")
+                return (None, None)
 
-        # 기타 Month: previous month Excel 파일에서 읽기
-        prev_month_num = (self.config.month.number - 1) % 12 or 12
-        prev_year = self.config.year if prev_month_num < self.config.month.number else self.config.year - 1
-        prev_month_obj = Month.from_number(prev_month_num)
-
-        # Excel file 경with
+        # ============================================
+        # Case 3: October 이후 - 이전 달 Excel/CSV 파일 로딩
+        # ============================================
         excel_patterns = [
-            f"output_files/output_QIP_incentive_{prev_month_obj.full_name.lower()}_{prev_year}_Complete_V8.01_Complete.csv",
-            f"output_QIP_incentive_{prev_month_obj.full_name.lower()}_{prev_year}_Complete_V8.01_Complete.csv"
+            f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.01_Complete.csv",
+            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.01_Complete.csv"
         ]
 
-        excel_found = False
         for excel_path in excel_patterns:
             if os.path.exists(excel_path):
                 try:
+                    print(f"📂 Loading previous month data from {os.path.basename(excel_path)}")
                     prev_df = pd.read_csv(excel_path, encoding='utf-8-sig')
 
                     # Employee No 표준화
@@ -1121,25 +1193,15 @@ class DataProcessor:
                             lambda x: str(int(x)).zfill(9) if pd.notna(x) else ''
                         )
 
-                    # 해당 employee 찾기
-                    emp_data = prev_df[prev_df['Employee No'] == emp_id_padded]
+                    return (prev_df, prev_month_name)
 
-                    if not emp_data.empty:
-                        # Next_Month_Expected column 체크
-                        if 'Next_Month_Expected' in emp_data.columns:
-                            expected_months = emp_data.iloc[0].get('Next_Month_Expected', 0)
-                            if pd.notna(expected_months) and expected_months != '':
-                                print(f"[Excel] {emp_id_padded}: {prev_month_obj.full_name} Excelfrom {int(expected_months)}month expected")
-                                return int(expected_months)
-
-                    excel_found = True
                 except Exception as e:
-                    print(f"[Excel 읽기 오류] {excel_path}: {e}")
+                    print(f"⚠️ Error loading {excel_path}: {e}")
+                    continue
 
-        # Excelfrom 못 찾으면 new employeewith 간주 (1-month started)
-        # JSON of존성 완전 제거 - Single Source of Truth
-        print(f"[new employee] {emp_id_padded}: previous month data not found → 1-monthwith started")
-        return 1
+        # 파일을 찾지 못함
+        print(f"⚠️ Previous month CSV not found for {prev_month_name} {prev_year}")
+        return (None, None)
     
     def process_aql_conditions_with_history(self, aql_df: pd.DataFrame = None) -> pd.DataFrame:
         """AQL history file 활용한 3-month consecutive failure 체크"""
