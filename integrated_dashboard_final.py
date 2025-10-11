@@ -11634,20 +11634,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                         const nodeId = e.target.getAttribute('data-node-id');
                         console.log('📌 노드 ID:', nodeId);
-                        console.log('📌 showEmployeeDetail 함수 존재:', typeof window.showEmployeeDetail);
+                        console.log('📌 showIncentiveModal 함수 존재:', typeof window.showIncentiveModal);
 
-                        if (window.showEmployeeDetail && nodeId) {{
-                            console.log('🎯 직원 상세 모달 호출 시도:', nodeId);
+                        if (window.showIncentiveModal && nodeId) {{
+                            console.log('🎯 관리자 계산 모달 호출 시도:', nodeId);
                             try {{
-                                // 직원 상세 모달 표시 (Employee No로 조회)
-                                window.showEmployeeDetail(String(nodeId));
-                                console.log('✅ 직원 상세 모달 호출 성공');
+                                // 조직도 탭에서는 관리자 계산 모달 표시 (부하직원 계산 상세)
+                                window.showIncentiveModal(String(nodeId));
+                                console.log('✅ 관리자 계산 모달 호출 성공');
                             }} catch(error) {{
-                                console.error('❌ 직원 상세 모달 호출 중 오류:', error);
+                                console.error('❌ 관리자 계산 모달 호출 중 오류:', error);
                             }}
                         }} else {{
-                            console.error('❌ showEmployeeDetail 함수가 없거나 노드 ID가 없음');
-                            console.error('   - showEmployeeDetail:', typeof window.showEmployeeDetail);
+                            console.error('❌ showIncentiveModal 함수가 없거나 노드 ID가 없음');
+                            console.error('   - showIncentiveModal:', typeof window.showIncentiveModal);
                             console.error('   - nodeId:', nodeId);
                         }}
                         return false;
@@ -11696,11 +11696,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     const nodeId = incentiveInfo.getAttribute('data-node-id');
                     console.log('💰 incentive 클릭 감지 - Node ID:', nodeId);
 
-                    if (window.showEmployeeDetail) {{
-                        // 직원 상세 모달 표시 (Employee No로 조회)
-                        window.showEmployeeDetail(String(nodeId));
+                    if (window.showIncentiveModal) {{
+                        // 조직도 탭에서는 관리자 계산 모달 표시 (부하직원 계산 상세)
+                        window.showIncentiveModal(String(nodeId));
                     }} else {{
-                        console.error('❌ showEmployeeDetail 함수가 not found');
+                        console.error('❌ showIncentiveModal 함수가 not found');
                     }}
                 }}
             }}
@@ -14874,10 +14874,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <thead style="background: #f8f9fa;">
                                     <tr>
                                         <th width="5%">#</th>
-                                        <th width="40%">${{getTranslation('modal.condition', currentLanguage)}}</th>
-                                        <th width="20%">${{getTranslation('modal.evaluationTarget', currentLanguage)}}</th>
-                                        <th width="15%">${{getTranslation('modal.fulfilled', currentLanguage)}}</th>
-                                        <th width="15%">${{getTranslation('modal.notFulfilled', currentLanguage)}}</th>
+                                        <th width="35%">${{getTranslation('modal.condition', currentLanguage)}}</th>
+                                        <th width="15%">${{getTranslation('modal.evaluationTarget', currentLanguage)}}</th>
+                                        <th width="12%">${{getTranslation('modal.fulfilled', currentLanguage)}}</th>
+                                        <th width="12%">${{getTranslation('modal.notFulfilled', currentLanguage)}}</th>
+                                        <th width="11%" style="background: #f0f0f0;">N/A</th>
                                         <th width="15%">${{getTranslation('modal.fulfillmentRate', currentLanguage)}}</th>
                                     </tr>
                                 </thead>
@@ -14899,6 +14900,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <td style="color: ${{isNA ? '#999' : '#dc3545'}};">
                                                 ${{isNA ? 'N/A' : `${{unmet}}${{getTranslation('common.people', currentLanguage)}}`}}
                                             </td>
+                                            <td style="background: #f8f8f8; color: #999;">
+                                                ${{stat.na_count > 0 ? `${{stat.na_count}}${{getTranslation('common.people', currentLanguage)}}` : '-'}}
+                                            </td>
                                             <td>
                                                 ${{isNA ? `<span style="color: #999;">N/A</span>` : `
                                                 <div style="display: flex; align-items: center; gap: 5px;">
@@ -14915,8 +14919,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- TYPE-1 연속 개월 수 규칙 설명 -->
+                        ${{type === 'TYPE-1' ? `
+                        <div class="alert alert-info mt-3" style="border-left: 4px solid #17a2b8; background: #e7f5f7;">
+                            <h6 style="margin-bottom: 10px;"><i class="fas fa-info-circle"></i> <strong>${{getTranslation('modal.type1ContinuousMonthsRule.title', currentLanguage)}}</strong></h6>
+                            <ul class="mb-0" style="font-size: 0.9rem; line-height: 1.6;">
+                                <li>${{getTranslation('modal.type1ContinuousMonthsRule.allConditionsMet', currentLanguage)}}</li>
+                                <li>${{getTranslation('modal.type1ContinuousMonthsRule.anyConditionFailed', currentLanguage)}}</li>
+                                <li>${{getTranslation('modal.type1ContinuousMonthsRule.zeroMonthsResult', currentLanguage)}}</li>
+                                <li>${{getTranslation('modal.type1ContinuousMonthsRule.example', currentLanguage)}}</li>
+                            </ul>
+                        </div>
+                        ` : ''}}
                     </div>
-                    
+
                     <!-- 직원by 상세 현황 -->
                     <div>
                         <h6 style="color: #666; margin-bottom: 10px;">${{getTranslation('modal.employeeDetails', currentLanguage)}}</h6>
@@ -14957,91 +14974,61 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 ${{(() => {{
                                     if (!emp.condition_results || emp.condition_results.length === 0) return '';
 
-                                    // incentive 지급 여부 먼저 확인
-                                    const isPaidEmployee = parseInt(emp['{month.lower()}_incentive']) > 0;
-
-                                    // 카테고리by로 조건 그룹화 (id 기준으로 필터링)
+                                    // 카테고리별로 조건 그룹화 (id 기준으로 필터링)
                                     const attendance = emp.condition_results.filter(c => c.id >= 1 && c.id <= 4); // 조건 1-4: 출근
                                     const aql = emp.condition_results.filter(c => c.id >= 5 && c.id <= 8); // 조건 5-8: AQL
                                     const prs = emp.condition_results.filter(c => c.id >= 9 && c.id <= 10); // 조건 9-10: 5PRS
 
                                     let badges = [];
 
-                                    // Unpaid 직원의 경우 어떤 조건이 failed했는지 직원확히 표시
-                                    if (!isPaidEmployee) {{
-                                        // 출근 카테고리 평가
-                                        if (attendance.length > 0) {{
-                                            const applicableAttendance = attendance.filter(c => !c.is_na && c.actual !== 'N/A');
-                                            const attendanceMet = applicableAttendance.length > 0 && applicableAttendance.every(c => c.is_met);
-                                            const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
+                                    // 출근 카테고리 평가 (실제 조건 결과 기반)
+                                    if (attendance.length > 0) {{
+                                        const applicableAttendance = attendance.filter(c => !c.is_na && c.actual !== 'N/A');
+                                        const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
 
-                                            if (attendanceNA) {{
-                                                badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ': N/A</span>');
+                                        if (attendanceNA) {{
+                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ': N/A</span>');
+                                        }} else {{
+                                            const attendanceMet = applicableAttendance.length > 0 && applicableAttendance.every(c => c.is_met);
+                                            if (attendanceMet) {{
+                                                badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✓</span>');
                                             }} else {{
-                                                // Unpaid인 경우 actual 충족 여부와 관계without failed로 표시
                                                 badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✗</span>');
                                             }}
                                         }}
+                                    }}
 
-                                        // AQL/5PRS도 비슷하게 처리 (TYPE에 따라)
-                                        if (emp.type === 'TYPE-1') {{
-                                            // TYPE-1은 AQL/5PRS가 N/A
-                                            badges.push('<span class="badge" style="background-color: #999;">AQL: N/A</span>');
-                                            badges.push('<span class="badge" style="background-color: #999;">5PRS: N/A</span>');
+                                    // AQL 카테고리 평가 (실제 조건 결과 기반)
+                                    if (aql.length > 0) {{
+                                        const applicableAql = aql.filter(c => !c.is_na && c.actual !== 'N/A');
+                                        const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
+
+                                        if (aqlNA) {{
+                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ': N/A</span>');
                                         }} else {{
-                                            // TYPE-2의 경우 AQL/5PRS도 평가
-                                            if (aql.length > 0) {{
-                                                const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
-                                                if (aqlNA) {{
-                                                    badges.push('<span class="badge" style="background-color: #999;">AQL: N/A</span>');
-                                                }} else {{
-                                                    badges.push('<span class="badge bg-danger">AQL ✗</span>');
-                                                }}
-                                            }}
-
-                                            if (prs.length > 0) {{
-                                                const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
-                                                if (prsNA) {{
-                                                    badges.push('<span class="badge" style="background-color: #999;">5PRS: N/A</span>');
-                                                }} else {{
-                                                    badges.push('<span class="badge bg-danger">5PRS ✗</span>');
-                                                }}
-                                            }}
-                                        }}
-                                    }} else {{
-                                        // Paid 직원의 경우 모든 apply 조건이 충족된 것으로 표시
-                                        // 출근 카테고리 평가
-                                        if (attendance.length > 0) {{
-                                            const attendanceNA = attendance.every(c => c.is_na || c.actual === 'N/A');
-                                            if (attendanceNA) {{
-                                                badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ': N/A</span>');
-                                            }} else {{
-                                                badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.attendance', currentLanguage) + ' ✓</span>');
-                                            }}
-                                        }}
-
-                                        // AQL 카테고리 평가
-                                        if (aql.length > 0) {{
-                                            const aqlNA = aql.every(c => c.is_na || c.actual === 'N/A');
-                                            if (aqlNA) {{
-                                                badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ': N/A</span>');
-                                            }} else {{
+                                            const aqlMet = applicableAql.length > 0 && applicableAql.every(c => c.is_met);
+                                            if (aqlMet) {{
                                                 badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ' ✓</span>');
-                                            }}
-                                        }} else {{
-                                            badges.push('<span class="badge" style="background-color: #999;">AQL: N/A</span>');
-                                        }}
-
-                                        // 5PRS 카테고리 평가
-                                        if (prs.length > 0) {{
-                                            const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
-                                            if (prsNA) {{
-                                                badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ': N/A</span>');
                                             }} else {{
-                                                badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ' ✓</span>');
+                                                badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.aql', currentLanguage) + ' ✗</span>');
                                             }}
+                                        }}
+                                    }}
+
+                                    // 5PRS 카테고리 평가 (실제 조건 결과 기반)
+                                    if (prs.length > 0) {{
+                                        const applicablePrs = prs.filter(c => !c.is_na && c.actual !== 'N/A');
+                                        const prsNA = prs.every(c => c.is_na || c.actual === 'N/A');
+
+                                        if (prsNA) {{
+                                            badges.push('<span class="badge" style="background-color: #999;">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ': N/A</span>');
                                         }} else {{
-                                            badges.push('<span class="badge" style="background-color: #999;">5PRS: N/A</span>');
+                                            const prsMet = applicablePrs.length > 0 && applicablePrs.every(c => c.is_met);
+                                            if (prsMet) {{
+                                                badges.push('<span class="badge bg-success">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ' ✓</span>');
+                                            }} else {{
+                                                badges.push('<span class="badge bg-danger">' + getTranslation('modal.conditionCategories.prs', currentLanguage) + ' ✗</span>');
+                                            }}
                                         }}
                                     }}
 

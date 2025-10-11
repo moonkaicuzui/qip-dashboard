@@ -2428,7 +2428,51 @@ class CompleteQIPCalculator:
                 if continuous_fail_value.startswith('YES'):
                     return True
         return False
-    
+
+    def get_auditor_area_employees(self, auditor_id: str, area_mapping: dict) -> List[str]:
+        """
+        AUDIT & TRAINING TEAM의 담당 구역 직원 목록 반환
+
+        Args:
+            auditor_id: Auditor Employee No
+            area_mapping: auditor_trainer_area_mapping.json 내용
+
+        Returns:
+            담당 구역의 Employee No 리스트
+        """
+        if str(auditor_id) not in area_mapping.get('auditor_trainer_areas', {}):
+            return []
+
+        config = area_mapping['auditor_trainer_areas'][str(auditor_id)]
+        area_employees = []
+
+        for condition in config.get('conditions', []):
+            condition_type = condition.get('type')
+            filters = condition.get('filters', [])
+
+            # AND 조건: 모든 필터를 만족하는 직원
+            if condition_type == 'AND':
+                mask = pd.Series([True] * len(self.month_data))
+                for filter_item in filters:
+                    column = filter_item.get('column')
+                    value = filter_item.get('value')
+                    if column in self.month_data.columns:
+                        mask &= (self.month_data[column] == value)
+
+                matched_employees = self.month_data[mask]['Employee No'].astype(str).tolist()
+                area_employees.extend(matched_employees)
+
+            # OR 조건: 어느 하나라도 만족하는 직원
+            elif condition_type == 'OR':
+                for filter_item in filters:
+                    column = filter_item.get('column')
+                    value = filter_item.get('value')
+                    if column in self.month_data.columns:
+                        matched = self.month_data[self.month_data[column] == value]['Employee No'].astype(str).tolist()
+                        area_employees.extend(matched)
+
+        return list(set(area_employees))  # 중복 제거
+
     def get_continuous_fail_by_factory(self) -> Dict[str, int]:
         """
         3-month consecutive failuresof factory별 분포 반환
@@ -4786,6 +4830,27 @@ class CompleteQIPCalculator:
                             if not sub_data.empty:
                                 # FIX: Check if Continuous_FAIL starts with 'YES' to match 'YES', 'YES_3MONTHS', 'YES_2MONTHS_AUG_SEP'
                                 continuous_fail_value = str(sub_data.iloc[0].get('Continuous_FAIL', 'NO'))
+                                if continuous_fail_value.startswith('YES'):
+                                    team_aql_fail = True
+                                    break
+
+                # AUDIT & TRAINING TEAM의 경우 담당 구역 직원 중 3개월 연속 실패 확인
+                # MODEL MASTER는 전체 구역 담당이므로 제외
+                elif ('AUDIT' in position or 'TRAINING' in position) and 'MODEL MASTER' not in position:
+                    # auditor_trainer_area_mapping.json 로드
+                    area_mapping_file = Path('config_files') / 'auditor_trainer_area_mapping.json'
+                    if area_mapping_file.exists():
+                        with open(area_mapping_file, 'r', encoding='utf-8') as f:
+                            area_mapping = json.load(f)
+
+                        # 담당 구역 직원 가져오기
+                        area_employees = self.get_auditor_area_employees(emp_id, area_mapping)
+
+                        # 담당 구역 직원 중 3개월 연속 실패자 확인
+                        for area_emp_id in area_employees:
+                            area_emp_data = self.month_data[self.month_data['Employee No'].astype(str) == str(area_emp_id)]
+                            if not area_emp_data.empty:
+                                continuous_fail_value = str(area_emp_data.iloc[0].get('Continuous_FAIL', 'NO'))
                                 if continuous_fail_value.startswith('YES'):
                                     team_aql_fail = True
                                     break
