@@ -2775,8 +2775,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += t('validationTab.modals.aqlFail.consecutiveAqlFail.noTwoMonth');
             modalHTML += '<br><br>';
             modalHTML += '<strong>📊 상세 현황:</strong><br>';
-            modalHTML += '• ' + pattern2MonthsKorHigh + ' 연속 실패: <span style="color: #dc3545; font-weight: bold;">0명</span><br>';
-            modalHTML += '• ' + pattern2MonthsKorMedium + ' 연속 실패: <span style="color: #ffc107; font-weight: bold;">0명</span>';
+            modalHTML += '• ' + pattern2MonthsKorHigh + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + '<span style="color: #dc3545; font-weight: bold;">0</span>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
+            modalHTML += '• ' + pattern2MonthsKorMedium + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + '<span style="color: #ffc107; font-weight: bold;">0</span>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people');
             modalHTML += '</div>';
         } else {
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
@@ -2831,8 +2831,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         modalHTML += '<strong>📊 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.title') + '</strong><br>';
         modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.threeMonthFails') + ' <strong>' + threeMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</strong><br>';
         modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.twoMonthFails') + ' <strong>' + twoMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</strong><br>';
-        modalHTML += '&nbsp;&nbsp;- <span style="color: #dc3545; font-weight: bold;">🔴 ' + pattern2MonthsKorHigh + ' 연속 실패: ' + augSepFailsList.length + '명</span><br>';
-        modalHTML += '&nbsp;&nbsp;- <span style="color: #ffc107; font-weight: bold;">🟡 ' + pattern2MonthsKorMedium + ' 연속 실패: ' + julAugFailsList.length + '명</span>';
+        modalHTML += '&nbsp;&nbsp;- <span style="color: #dc3545; font-weight: bold;">🔴 ' + pattern2MonthsKorHigh + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + augSepFailsList.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</span><br>';
+        modalHTML += '&nbsp;&nbsp;- <span style="color: #ffc107; font-weight: bold;">🟡 ' + pattern2MonthsKorMedium + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + julAugFailsList.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</span>';
         modalHTML += '</div>';
 
         // Close modal HTML
@@ -15317,7 +15317,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? `
                                     <div>
                                         <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
-                                        <h5>` + getTranslation('modal.지급.paid', currentLanguage) + `</h5>
+                                        <h5>` + getTranslation('status.paid', currentLanguage) + `</h5>
                                         <p class="mb-1">${{parseInt(emp['{month.lower()}_incentive']).toLocaleString()}} VND</p>
                                         ${{emp.Talent_Pool_Member === 'Y' ? `
                                         <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px; border-radius: 8px; margin-top: 10px;">
