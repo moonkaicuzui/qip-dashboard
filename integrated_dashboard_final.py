@@ -15108,7 +15108,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 새로운 이벤트 핸들러 creation 및 저장
                 window.positionTableClickHandler = function(event) {{
                     // tbody 내의 tr을 찾기
-                    const row = event.대상.closest('tbody tr.employee-row');
+                    const row = event.target.closest('tbody tr.employee-row');
                     if (!row) return;
                     
                     // data-emp-no 속성에서 직원번호 fetch
