@@ -102,8 +102,8 @@ python src/validate_hr_data.py 9 2025
 [src/convert_attendance_data]  └── Assign final incentive amount
                                        ↓
                                [4] Excel/CSV Output
-                               ├── output_QIP_incentive_[month]_[year]_Complete_V8.01_Complete.xlsx
-                               └── output_QIP_incentive_[month]_[year]_Complete_V8.01_Complete.csv
+                               ├── output_QIP_incentive_[month]_[year]_Complete_V8.02_Complete.xlsx
+                               └── output_QIP_incentive_[month]_[year]_Complete_V8.02_Complete.csv
                                        ↓
                                [5] Dashboard Generation (integrated_dashboard_final.py)
                                ├── Self-contained HTML with inline JS/CSS
@@ -202,8 +202,8 @@ Input:  input_files/[year]년 [month] 인센티브 지급 세부 정보.csv
         input_files/AQL history/9월_AQL_HISTORY.csv
         input_files/5PRS/9월_5PRS_DATA.csv
 
-Output: output_files/output_QIP_incentive_september_2025_Complete_V8.01_Complete.xlsx
-        output_files/output_QIP_incentive_september_2025_Complete_V8.01_Complete.csv
+Output: output_files/output_QIP_incentive_september_2025_Complete_V8.02_Complete.xlsx
+        output_files/output_QIP_incentive_september_2025_Complete_V8.02_Complete.csv
         output_files/Incentive_Dashboard_2025_09_Version_8.html
 
 Config: config_files/config_september_2025.json

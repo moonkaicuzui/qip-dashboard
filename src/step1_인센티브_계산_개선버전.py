@@ -1205,7 +1205,10 @@ class DataProcessor:
         # ============================================
         # Case 3: October 이후 - 이전 달 Excel/CSV 파일 로딩
         # ============================================
+        # Fallback pattern: V8.02 먼저 시도, 없으면 V8.01로 폴백 (버전 전환 호환성)
         excel_patterns = [
+            f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv",
+            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv",
             f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.01_Complete.csv",
             f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.01_Complete.csv"
         ]
@@ -2253,9 +2256,20 @@ class CompleteQIPCalculator:
             prev_year = self.config.year
         
         prev_month_obj = Month.from_number(prev_month)
-        prev_file_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.01_Complete.csv'
-        
-        if not prev_file_path.exists():
+
+        # Fallback pattern: V8.02 먼저 확인, 없으면 V8.01로 폴백
+        prev_file_patterns = [
+            self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.02_Complete.csv',
+            self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.01_Complete.csv'
+        ]
+
+        prev_file_path = None
+        for pattern in prev_file_patterns:
+            if pattern.exists():
+                prev_file_path = pattern
+                break
+
+        if prev_file_path is None:
             print(f"\n📊 {prev_month}month incentive file not found.")
             print(f"   {prev_month}month 자동으로 calculation합니다...")
             
@@ -2316,7 +2330,7 @@ class CompleteQIPCalculator:
             prev_processor.calculate_all_incentives_without_check()
             
             # 결and saved
-            output_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.01_Complete.csv'
+            output_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.02_Complete.csv'
             prev_processor.month_data.to_csv(output_path, index=False, encoding='utf-8-sig')
             
             print(f"✅ {prev_month}month calculation completed\n")
@@ -5109,7 +5123,7 @@ class CompleteQIPCalculator:
                         print(f"   - 100% condition 충족 GROUP LEADERwith서 other GROUP LEADERand same days amount apply")
 
             # CSV saved (condition 평 후)
-            csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.01_Complete.csv")
+            csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.02_Complete.csv")
             self.month_data.to_csv(csv_file, index=False, encoding='utf-8-sig')
 
             # CSV file created validation
@@ -5119,7 +5133,7 @@ class CompleteQIPCalculator:
                 print(f"⚠️ CSV file created failure: {csv_file}")
 
             # Excel saved
-            excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.01_Complete.xlsx")
+            excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.02_Complete.xlsx")
             self.month_data.to_excel(excel_file, index=False)
             
             # Excel file created validation
@@ -6695,7 +6709,7 @@ def init_command():
 def main():
     """메인 실행 함수"""
     print("="*60)
-    print(f"🚀 QIP Incentive Calculation System v8.01")
+    print(f"🚀 QIP Incentive Calculation System v8.02")
     print("="*60)
     
     # employees령어 체크

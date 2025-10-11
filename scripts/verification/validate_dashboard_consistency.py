@@ -39,7 +39,7 @@ class DashboardConsistencyValidator:
 
     def load_csv_data(self):
         """CSV 데이터 로드"""
-        csv_file = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V8.01_Complete.csv'
+        csv_file = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V8.02_Complete.csv'
 
         if not csv_file.exists():
             print(f"❌ CSV 파일 없음: {csv_file}")
@@ -57,7 +57,7 @@ class DashboardConsistencyValidator:
         month_num = self._get_month_number(self.month)
         month_padded = f"{month_num:02d}"
 
-        dashboard_file = self.base_path / 'output_files' / f'Incentive_Dashboard_{self.year}_{month_padded}_Version_8.html'
+        dashboard_file = self.base_path / 'output_files' / f'Incentive_Dashboard_{self.year}_{month_padded}_Version_8.02.html'
 
         if not dashboard_file.exists():
             print(f"❌ Dashboard HTML 없음: {dashboard_file}")

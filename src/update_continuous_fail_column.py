@@ -254,8 +254,8 @@ def find_excel_file(month, year):
 
     # Possible file name patterns (우선순위 순서)
     patterns = [
-        # V8.01 메인 파일 (최우선)
-        f'output_QIP_incentive_{month_name}_{year}_Complete_V8.01_Complete.csv',
+        # V8.02 메인 파일 (최우선)
+        f'output_QIP_incentive_{month_name}_{year}_Complete_V8.02_Complete.csv',
         # 이전 버전들
         f'output_QIP_incentive_{month_name}_{year}_최종완성버전_v6.0_Complete.csv',
         f'output_QIP_incentive_{month_name}_{year}_Complete.csv',
