@@ -5225,6 +5225,11 @@
               "en": "Jul-Aug Consecutive (Monitoring):",
               "vi": "Liên tiếp tháng 7-8 (Theo dõi):"
             },
+            "consecutiveFailure": {
+              "ko": " 연속 실패: ",
+              "en": " consecutive failures: ",
+              "vi": " thất bại liên tiếp: "
+            },
             "people": {
               "ko": "명",
               "en": " people",

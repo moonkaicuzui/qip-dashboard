@@ -87,20 +87,20 @@ POSITION_CONDITION_MATRIX = load_position_condition_matrix()
 def get_position_config_from_matrix(emp_type, position):
     """
     Find and return configuration for the position from JSON matrix
-    
+
     Args:
         emp_type: 'TYPE-1', 'TYPE-2', 'TYPE-3' etc.
         position: Position name
-    
+
     Returns:
         dict: Position configuration (applicable conditions, excluded conditions, etc.)
     """
     if not POSITION_CONDITION_MATRIX:
         return None
-        
+
     position_upper = position.upper()
     type_config = POSITION_CONDITION_MATRIX.get('position_matrix', {}).get(emp_type, {})
-    
+
     # Find configuration by position
     for pos_key, pos_config in type_config.items():
         if pos_key == 'default':
@@ -109,7 +109,7 @@ def get_position_config_from_matrix(emp_type, position):
         for pattern in patterns:
             if pattern in position_upper:
                 return pos_config
-    
+
     # Return default value
     return type_config.get('default', {})
 
@@ -2418,11 +2418,14 @@ class CompleteQIPCalculator:
         """
         if manager_id not in subordinate_mapping:
             return False
-        
+
         for sub_id in subordinate_mapping[manager_id]:
-            sub_data = self.month_data[self.month_data['Employee No'] == sub_id]
+            # FIX: Type-safe comparison - Employee No might be int64 after save_results() conversion
+            sub_data = self.month_data[self.month_data['Employee No'].astype(str) == str(sub_id)]
             if not sub_data.empty:
-                if sub_data.iloc[0].get('Continuous_FAIL', 'NO') == 'YES':
+                # FIX: Check if starts with 'YES' to match 'YES', 'YES_3MONTHS', 'YES_2MONTHS_AUG_SEP'
+                continuous_fail_value = str(sub_data.iloc[0].get('Continuous_FAIL', 'NO'))
+                if continuous_fail_value.startswith('YES'):
                     return True
         return False
     
@@ -2998,13 +3001,16 @@ class CompleteQIPCalculator:
         """
         if manager_id not in subordinate_mapping:
             return False
-        
+
         for sub_id in subordinate_mapping[manager_id]:
-            sub_data = self.month_data[self.month_data['Employee No'] == sub_id]
+            # FIX: Type-safe comparison - Employee No might be int64 after save_results() conversion
+            sub_data = self.month_data[self.month_data['Employee No'].astype(str) == str(sub_id)]
             if not sub_data.empty:
-                if sub_data.iloc[0].get('Continuous_FAIL', 'NO') == 'YES':
+                # FIX: Check if starts with 'YES' to match 'YES', 'YES_3MONTHS', 'YES_2MONTHS_AUG_SEP'
+                continuous_fail_value = str(sub_data.iloc[0].get('Continuous_FAIL', 'NO'))
+                if continuous_fail_value.startswith('YES'):
                     return True
-        
+
         return False
     
     def calculate_aql_inspector_incentive(self, aql_mask, incentive_col: str, aql_col: str):
@@ -4774,9 +4780,13 @@ class CompleteQIPCalculator:
                     # 부하employee in progress consecutive failures checking
                     if emp_id in self.subordinate_mapping_cache:
                         for sub_id in self.subordinate_mapping_cache[emp_id]:
-                            sub_data = self.month_data[self.month_data['Employee No'] == sub_id]
+                            # FIX: Convert both sides to string for type-safe comparison
+                            # Employee No might be int64 after save_results() numeric conversion
+                            sub_data = self.month_data[self.month_data['Employee No'].astype(str) == str(sub_id)]
                             if not sub_data.empty:
-                                if sub_data.iloc[0].get('Continuous_FAIL', 'NO') == 'YES':
+                                # FIX: Check if Continuous_FAIL starts with 'YES' to match 'YES', 'YES_3MONTHS', 'YES_2MONTHS_AUG_SEP'
+                                continuous_fail_value = str(sub_data.iloc[0].get('Continuous_FAIL', 'NO'))
+                                if continuous_fail_value.startswith('YES'):
                                     team_aql_fail = True
                                     break
 
