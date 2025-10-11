@@ -1728,6 +1728,33 @@
       "en": "Not Fulfilled",
       "vi": "Không đạt"
     },
+    "type1ContinuousMonthsRule": {
+      "title": {
+        "ko": "TYPE-1 연속 개월 수 (Continuous Months) 규칙",
+        "en": "TYPE-1 Continuous Months Rule",
+        "vi": "Quy tắc số tháng liên tục TYPE-1"
+      },
+      "allConditionsMet": {
+        "ko": "모든 조건 100% 충족 시: 연속 개월 수 +1 증가 (최대 15개월)",
+        "en": "When all conditions are 100% met: Continuous months +1 (max 15 months)",
+        "vi": "Khi đáp ứng 100% tất cả điều kiện: Số tháng liên tục +1 (tối đa 15 tháng)"
+      },
+      "anyConditionFailed": {
+        "ko": "하나라도 조건 미충족 시: 연속 개월 수 0으로 리셋",
+        "en": "When any condition is not met: Reset continuous months to 0",
+        "vi": "Khi không đáp ứng bất kỳ điều kiện nào: Đặt lại số tháng liên tục về 0"
+      },
+      "zeroMonthsResult": {
+        "ko": "연속 개월 수 0인 경우: 인센티브 0 VND",
+        "en": "When continuous months = 0: Incentive 0 VND",
+        "vi": "Khi số tháng liên tục = 0: Khuyến khích 0 VND"
+      },
+      "example": {
+        "ko": "예시: 조건은 모두 PASS했지만 이전 달 조건 미충족으로 연속 개월 수 = 0 → 인센티브 0 VND",
+        "en": "Example: All conditions PASS this month, but previous month failed → Continuous months = 0 → Incentive 0 VND",
+        "vi": "Ví dụ: Tất cả điều kiện PASS tháng này, nhưng tháng trước không đạt → Số tháng liên tục = 0 → Khuyến khích 0 VND"
+      }
+    },
     "paymentRate": {
       "ko": "지급율",
       "en": "Payment Rate",
