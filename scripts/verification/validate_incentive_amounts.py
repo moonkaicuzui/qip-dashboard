@@ -48,7 +48,7 @@ class IncentiveAmountValidator:
 
     def load_output_data(self):
         """계산 결과 CSV 로드"""
-        output_file = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V8.01_Complete.csv'
+        output_file = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V8.02_Complete.csv'
 
         if not output_file.exists():
             print(f"❌ 출력 파일 없음: {output_file}")

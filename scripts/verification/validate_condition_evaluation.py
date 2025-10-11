@@ -61,8 +61,8 @@ class ConditionEvaluationValidator:
 
     def load_output_data(self):
         """계산 결과 CSV 로드"""
-        # V8.01 형식으로 파일명 생성
-        output_file = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V8.01_Complete.csv'
+        # V8.02 형식으로 파일명 생성
+        output_file = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V8.02_Complete.csv'
 
         if not output_file.exists():
             print(f"❌ 출력 파일 없음: {output_file}")

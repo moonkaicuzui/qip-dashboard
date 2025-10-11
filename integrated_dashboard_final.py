@@ -148,7 +148,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
     # available file 패턴들 - output_files를 먼저 확인
     month_str = 'august' if month == 8 else 'september' if month == 9 else str(month)
     patterns = [
-        f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V8.01_Complete.csv",  # V8.01 exact match
+        f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V8.02_Complete.csv",  # V8.02 exact match
         f"output_files/output_QIP_incentive_{month_str}_{year}_final완성version_v6.0_Complete_enhanced.csv",
         f"output_files/output_QIP_incentive_{month_str}_{year}_final완성version_v6.0_Complete.csv",
         f"output_files/output_QIP_incentive_{month}_{year}_final완성version_v6.0_Complete.csv",
@@ -5948,7 +5948,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP incentive calculation 결과 <span class="version-badge">V8.01</span></h1>
+            <h1 id="mainTitle">QIP incentive calculation 결과 <span class="version-badge">V8.02</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
@@ -9094,7 +9094,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
-                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">V8.01</span>';
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">V8.02</span>';
             }}
             
             // 날짜 관련 업데이트
@@ -15736,12 +15736,12 @@ def main():
     working_days = 13  # default value
 
     # CSV를 directly 읽어서 dashboard data 구조 creation
-    # Version 8.01 file first, then try legacy versions
-    csv_file_v8 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V8.01_Complete.csv'
+    # Version 8.02 file first, then try legacy versions
+    csv_file_v8 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V8.02_Complete.csv'
     csv_file_enhanced = f'output_files/output_QIP_incentive_{month_name}_{args.year}_final완성version_v6.0_Complete_enhanced.csv'
     csv_file = f'output_files/output_QIP_incentive_{month_name}_{args.year}_final완성version_v6.0_Complete.csv'
 
-    # Try V8.01 version first, then enhanced, then normal
+    # Try V8.02 version first, then enhanced, then normal
     if os.path.exists(csv_file_v8):
         csv_file = csv_file_v8
     elif os.path.exists(csv_file_enhanced):
@@ -15862,8 +15862,8 @@ def main():
     html_content = generate_dashboard_html(dashboard_df, month_name, args.year, args.month, working_days, excel_dashboard_data)
 
     # file 저장
-    # file직원 형식 변경: Incentive_Dashboard_YYYY_MM_Version_8.01.html
-    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_8.01.html'
+    # file직원 형식 변경: Incentive_Dashboard_YYYY_MM_Version_8.02.html
+    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_8.02.html'
     os.makedirs('output_files', exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)

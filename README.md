@@ -248,8 +248,8 @@ Translations managed in: `config_files/dashboard_translations.json`
 
 ### Excel/CSV Reports
 ```
-output_files/output_QIP_incentive_[month]_[year]_Complete_V8.01_Complete.xlsx
-output_files/output_QIP_incentive_[month]_[year]_Complete_V8.01_Complete.csv
+output_files/output_QIP_incentive_[month]_[year]_Complete_V8.02_Complete.xlsx
+output_files/output_QIP_incentive_[month]_[year]_Complete_V8.02_Complete.csv
 ```
 
 ### Interactive Dashboard
@@ -304,7 +304,7 @@ Private - All rights reserved
 
 ## 🎯 Version History
 
-- **Version 8.01** (Current) - Integrated dashboard with full feature set
+- **Version 8.02** (Current) - Integrated dashboard with full feature set
 - **Version 6.0** - Modular architecture (82% code reduction)
 - **Version 5.0** - Stable single-file dashboard
 

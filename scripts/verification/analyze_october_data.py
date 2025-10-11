@@ -23,7 +23,7 @@ def load_position_matrix():
 def analyze_output_data():
     """출력 데이터 분석"""
     # CSV 파일 로드
-    output_path = Path("output_files/output_QIP_incentive_october_2025_Complete_V8.01_Complete.csv")
+    output_path = Path("output_files/output_QIP_incentive_october_2025_Complete_V8.02_Complete.csv")
     df = pd.read_csv(output_path, encoding='utf-8-sig')
 
     print("="*100)

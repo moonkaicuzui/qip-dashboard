@@ -21,7 +21,7 @@ def create_validation_report(month: str, year: int):
     print()
 
     # CSV 파일 로드
-    csv_path = Path(f"output_files/output_QIP_incentive_{month}_{year}_Complete_V8.01_Complete.csv")
+    csv_path = Path(f"output_files/output_QIP_incentive_{month}_{year}_Complete_V8.02_Complete.csv")
 
     if not csv_path.exists():
         print(f"❌ CSV 파일을 찾을 수 없습니다: {csv_path}")
