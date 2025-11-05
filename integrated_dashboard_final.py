@@ -2696,9 +2696,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const pattern2MonthsHigh = `${monthAbbr[month_N1-1]}-${monthAbbr[month_N-1]}`;  // 예: Sep-Oct (최근 2개월)
         const pattern2MonthsMedium = `${monthAbbr[month_N2-1]}-${monthAbbr[month_N1-1]}`;  // 예: Aug-Sep (중간 2개월)
 
-        // 한글 월 패턴 (예: 9-10월)
-        const pattern2MonthsKorHigh = `${monthKorean[month_N1-1].replace('월','')}-${monthKorean[month_N-1]}`;
-        const pattern2MonthsKorMedium = `${monthKorean[month_N2-1].replace('월','')}-${monthKorean[month_N1-1]}`;
+        // 언어별 월 패턴
+        const getMonthPattern = (lang, monthIdx1, monthIdx2) => {
+            if (lang === 'ko') {
+                return `${monthKorean[monthIdx1-1].replace('월','')}-${monthKorean[monthIdx2-1]}`;
+            } else if (lang === 'en') {
+                return `${monthAbbr[monthIdx1-1]}-${monthAbbr[monthIdx2-1]}`;
+            } else if (lang === 'vi') {
+                return `Tháng ${monthIdx1}-${monthIdx2}`;
+            }
+            return `${monthAbbr[monthIdx1-1]}-${monthAbbr[monthIdx2-1]}`;
+        };
+
+        const pattern2MonthsHigh = getMonthPattern(currentLang, month_N1, month_N);  // 최근 2개월
+        const pattern2MonthsMedium = getMonthPattern(currentLang, month_N2, month_N1);  // 중간 2개월
 
         // Continuous_FAIL 필터링용 대문자 패턴
         const filterPatternHigh = `${monthAbbr[month_N1-1].toUpperCase()}_${monthAbbr[month_N-1].toUpperCase()}`;  // 예: SEP_OCT
@@ -2775,8 +2786,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += t('validationTab.modals.aqlFail.consecutiveAqlFail.noTwoMonth');
             modalHTML += '<br><br>';
             modalHTML += '<strong>📊 상세 현황:</strong><br>';
-            modalHTML += '• ' + pattern2MonthsKorHigh + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + '<span style="color: #dc3545; font-weight: bold;">0</span>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
-            modalHTML += '• ' + pattern2MonthsKorMedium + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + '<span style="color: #ffc107; font-weight: bold;">0</span>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people');
+            modalHTML += '• ' + pattern2MonthsHigh + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + '<span style="color: #dc3545; font-weight: bold;">0</span>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '<br>';
+            modalHTML += '• ' + pattern2MonthsMedium + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + '<span style="color: #ffc107; font-weight: bold;">0</span>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people');
             modalHTML += '</div>';
         } else {
             modalHTML += '<table style="width: 100%; border-collapse: collapse;">';
@@ -4467,14 +4478,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     badgeClass = 'bg-orange text-white';
                 }
 
+                // 언어별 단위 및 상태 텍스트
+                const qtyUnit = currentLanguage === 'ko' ? '족' : currentLanguage === 'en' ? ' prs' : ' bộ';
+                const statusText = inspectionQty < 100 ?
+                    (currentLanguage === 'ko' ? '미충족' : currentLanguage === 'en' ? 'Not Met' : 'Không đạt') :
+                    (currentLanguage === 'ko' ? '충족' : currentLanguage === 'en' ? 'Met' : 'Đạt');
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${empNo}</td>
                     <td>${name}</td>
                     <td>${position}</td>
                     <td>TYPE-1</td>
-                    <td><span class="badge ${badgeClass}">${inspectionQty}족</span></td>
-                    <td>${inspectionQty < 100 ? '미충족' : '충족'}</td>
+                    <td><span class="badge ${badgeClass}">${inspectionQty}${qtyUnit}</span></td>
+                    <td>${statusText}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -8899,27 +8916,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // Talent Pool 섹션 번역 업데이트
             const talentPoolTitle = document.getElementById('talentPoolTitle');
             if (talentPoolTitle) {{
-                talentPoolTitle.textContent = getTranslation('talentPool.sectionTitle', lang);
+                talentPoolTitle.textContent = getTranslation('talentPool.title', lang);
             }}
-            
+
             const talentPoolMemberCountLabel = document.getElementById('talentPoolMemberCountLabel');
             if (talentPoolMemberCountLabel) {{
                 talentPoolMemberCountLabel.textContent = getTranslation('talentPool.memberCount', lang);
             }}
-            
+
             const talentPoolMonthlyBonusLabel = document.getElementById('talentPoolMonthlyBonusLabel');
             if (talentPoolMonthlyBonusLabel) {{
                 talentPoolMonthlyBonusLabel.textContent = getTranslation('talentPool.monthlyBonus', lang);
             }}
-            
+
             const talentPoolTotalBonusLabel = document.getElementById('talentPoolTotalBonusLabel');
             if (talentPoolTotalBonusLabel) {{
-                talentPoolTotalBonusLabel.textContent = getTranslation('talentPool.totalBonus', lang);
+                // totalBonus 키가 없으므로 fallback 사용
+                talentPoolTotalBonusLabel.textContent = getTranslation('talentPool.totalBenefit', lang) ||
+                    (lang === 'ko' ? '총 보너스 지급액' : lang === 'en' ? 'Total Bonus Amount' : 'Tổng tiền thưởng');
             }}
-            
+
             const talentPoolPaymentPeriodLabel = document.getElementById('talentPoolPaymentPeriodLabel');
             if (talentPoolPaymentPeriodLabel) {{
-                talentPoolPaymentPeriodLabel.textContent = getTranslation('talentPool.paymentPeriod', lang);
+                // paymentPeriod 키가 없으므로 직접 번역
+                talentPoolPaymentPeriodLabel.textContent = lang === 'ko' ? '지급 기간' :
+                    lang === 'en' ? 'Payment Period' : 'Thời gian thanh toán';
             }}
             
             // 조직도 탭 번역 업데이트
@@ -11571,7 +11592,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     if (subordinates.length > 0) {{
                         html += `<div class="subordinate-info">`;
                         html += `<span class="subordinate-label">incentive calculation based:</span>`;
-                        html += `<span class="subordinate-count">TYPE-1 부하 ${{receivingCount}}/${{subordinates.length}}직원</span>`;
+                        html += `<span class="subordinate-count" data-i18n-subordinates="${{receivingCount}}/${{subordinates.length}}"></span>`;
                         html += '</div>';
                     }}
                 }}
@@ -12638,6 +12659,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             const legendNoIncentiveEl = document.getElementById('legendNoIncentive');
             if (legendNoIncentiveEl) legendNoIncentiveEl.textContent = getTranslation('orgChart.noIncentive', currentLanguage);
+
+            // 조직도 내 부하 직원 텍스트 업데이트
+            const subordinateCounts = document.querySelectorAll('.subordinate-count[data-i18n-subordinates]');
+            subordinateCounts.forEach(el => {{
+                const counts = el.getAttribute('data-i18n-subordinates');
+                if (counts) {{
+                    const type1Text = getTranslation('organizationChart.type1Subordinates', currentLanguage);
+                    const employeeUnit = getTranslation('organizationChart.employeeUnit', currentLanguage);
+                    el.textContent = `${{type1Text}} ${{counts}}${{employeeUnit}}`;
+                }}
+            }});
         }}
 
         // 조직도 초기화 함count
@@ -14259,7 +14291,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     lang === 'en' ? 'Outstanding work performance' : 
                     lang === 'vi' ? 'Hiệu suất làm việc xuất sắc' : '업무 성과 우수자',
                     
-                    lang === 'en' ? 'Top 10% in quality 대상 achievement' :
+                    lang === 'en' ? 'Top 10% in quality target achievement' :
                     lang === 'vi' ? 'Top 10% đạt mục tiêu chất lượng' : '품질 목표 달성률 상위 10%',
                     
                     lang === 'en' ? 'Demonstrated teamwork and leadership' :
@@ -14430,7 +14462,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 document.getElementById('talentPoolPeriod').textContent = '2025.07 - 2025.12';
                 
                 // 멤버 목록 creation
-                const membersLabel = getTranslation('talentPool.membersList', currentLanguage) || 'Talent Pool 멤버:';
+                const membersLabel = currentLanguage === 'ko' ? 'Talent Pool 멤버:' :
+                    currentLanguage === 'en' ? 'Talent Pool Members:' : 'Thành viên Talent Pool:';
                 let membersHtml = `<div class="mt-2"><small style="opacity: 0.9;">${{membersLabel}}</small><br>`;
                 talentPoolMembers.forEach(emp => {{
                     membersHtml += `

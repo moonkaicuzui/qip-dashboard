@@ -6324,5 +6324,17 @@
       "en": "pcs",
       "vi": "đôi"
     }
+  },
+  "organizationChart": {
+    "type1Subordinates": {
+      "ko": "TYPE-1 부하",
+      "en": "TYPE-1 Subordinates",
+      "vi": "Cấp dưới TYPE-1"
+    },
+    "employeeUnit": {
+      "ko": "직원",
+      "en": "employees",
+      "vi": "nhân viên"
+    }
   }
 }

@@ -12500,3 +12500,325 @@ FileNotFoundError: CSV 파일을 찾을 수 없습니다: /Users/ksmoon/Download
 2025-10-11 16:45:48,852 - __main__ - INFO - ✅ Dashboard generation completed
 2025-10-11 16:45:48,852 - __main__ - INFO - ✅ Monthly calculation completed successfully for october 2025
 2025-10-11 16:45:48,853 - __main__ - INFO - 📧 Notification: Successfully processed october 2025
+2025-10-11 17:44:36,249 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-11 17:44:37,537 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-11 17:44:37,537 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-11 17:44:37,537 - __main__ - INFO - 🚀 Starting monthly calculation for october 2025
+2025-10-11 17:44:37,537 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-11 17:44:37,537 - google_drive_manager - INFO - Starting sync for october 2025
+2025-10-11 17:44:39,380 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/basic_manpower_data.csv (ignoring cache)
+2025-10-11 17:44:41,532 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/basic_manpower_data.csv to input_files/basic manpower data october.csv
+2025-10-11 17:44:43,681 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/attendance_data.csv (ignoring cache)
+2025-10-11 17:44:45,525 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/attendance_data.csv to input_files/attendance/original/attendance data october.csv
+2025-10-11 17:44:47,548 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/5prs_data.csv (ignoring cache)
+2025-10-11 17:44:49,518 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/5prs_data.csv to input_files/5prs data october.csv
+2025-10-11 17:44:51,360 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_OCTOBER_2025.csv (ignoring cache)
+2025-10-11 17:44:53,204 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_OCTOBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv
+2025-10-11 17:44:54,739 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_SEPTEMBER_2025.csv (ignoring cache)
+2025-10-11 17:44:56,865 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_SEPTEMBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-SEPTEMBER.2025.csv
+2025-10-11 17:44:58,426 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_AUGUST_2025.csv (ignoring cache)
+2025-10-11 17:45:00,576 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-10-11 17:45:01,541 - google_drive_manager - INFO - Force downloading configs/auditor_trainer_area_mapping.json (ignoring cache)
+2025-10-11 17:45:03,342 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to config_files/auditor_trainer_area_mapping.json
+2025-10-11 17:45:04,570 - google_drive_manager - INFO - Force downloading configs/type2_position_mapping.json (ignoring cache)
+2025-10-11 17:45:06,415 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to config_files/type2_position_mapping.json
+2025-10-11 17:45:06,416 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-11 17:45:06,416 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-11 17:45:06,843 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-11 17:45:06,844 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-11 17:45:06,844 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-11 17:45:06,844 - __main__ - INFO - Using existing config: config_october_2025.json
+2025-10-11 17:45:06,844 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-11 17:45:12,093 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-11 17:45:12,093 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-11 17:45:12,093 - __main__ - INFO - Generating dashboard v4 for october 2025...
+2025-10-11 17:45:12,242 - __main__ - WARNING - Dashboard v4 generation warning: Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 1312, in generate_improved_dashboard
+    employees = extract_data_from_html(input_html, month=month, year=year)
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 138, in extract_data_from_html
+    return extract_data_from_csv(month, year)
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 269, in extract_data_from_csv
+    raise FileNotFoundError(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
+FileNotFoundError: CSV 파일을 찾을 수 없습니다: /Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/output_files/output_QIP_incentive_october_2025_최종완성버전_v6.0_Complete.csv
+
+2025-10-11 17:45:12,242 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-11 17:45:12,242 - __main__ - INFO - ✅ Monthly calculation completed successfully for october 2025
+2025-10-11 17:45:12,242 - __main__ - INFO - 📧 Notification: Successfully processed october 2025
+2025-10-13 07:09:03,459 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-13 07:09:04,392 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-13 07:09:04,393 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-13 07:09:04,393 - __main__ - INFO - 🚀 Starting monthly calculation for october 2025
+2025-10-13 07:09:04,393 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-13 07:09:04,393 - google_drive_manager - INFO - Starting sync for october 2025
+2025-10-13 07:09:05,872 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/basic_manpower_data.csv (ignoring cache)
+2025-10-13 07:09:07,768 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/basic_manpower_data.csv to input_files/basic manpower data october.csv
+2025-10-13 07:09:09,041 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/attendance_data.csv (ignoring cache)
+2025-10-13 07:09:10,638 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/attendance_data.csv to input_files/attendance/original/attendance data october.csv
+2025-10-13 07:09:12,275 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/5prs_data.csv (ignoring cache)
+2025-10-13 07:09:13,927 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/5prs_data.csv to input_files/5prs data october.csv
+2025-10-13 07:09:14,732 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_OCTOBER_2025.csv (ignoring cache)
+2025-10-13 07:09:16,372 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_OCTOBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv
+2025-10-13 07:09:17,497 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_SEPTEMBER_2025.csv (ignoring cache)
+2025-10-13 07:09:19,032 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_SEPTEMBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-SEPTEMBER.2025.csv
+2025-10-13 07:09:19,954 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_AUGUST_2025.csv (ignoring cache)
+2025-10-13 07:09:21,389 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-10-13 07:09:22,212 - google_drive_manager - INFO - Force downloading configs/auditor_trainer_area_mapping.json (ignoring cache)
+2025-10-13 07:09:23,786 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to config_files/auditor_trainer_area_mapping.json
+2025-10-13 07:09:24,972 - google_drive_manager - INFO - Force downloading configs/type2_position_mapping.json (ignoring cache)
+2025-10-13 07:09:26,610 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to config_files/type2_position_mapping.json
+2025-10-13 07:09:26,611 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-13 07:09:26,611 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-13 07:09:26,894 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-13 07:09:26,894 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-13 07:09:26,894 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-13 07:09:26,894 - __main__ - INFO - Using existing config: config_october_2025.json
+2025-10-13 07:09:26,894 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-13 07:09:32,172 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-13 07:09:32,172 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-13 07:09:32,172 - __main__ - INFO - Generating dashboard v4 for october 2025...
+2025-10-13 07:09:32,326 - __main__ - WARNING - Dashboard v4 generation warning: Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 1312, in generate_improved_dashboard
+    employees = extract_data_from_html(input_html, month=month, year=year)
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 138, in extract_data_from_html
+    return extract_data_from_csv(month, year)
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 269, in extract_data_from_csv
+    raise FileNotFoundError(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
+FileNotFoundError: CSV 파일을 찾을 수 없습니다: /Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/output_files/output_QIP_incentive_october_2025_최종완성버전_v6.0_Complete.csv
+
+2025-10-13 07:09:32,327 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-13 07:09:32,327 - __main__ - INFO - ✅ Monthly calculation completed successfully for october 2025
+2025-10-13 07:09:32,327 - __main__ - INFO - 📧 Notification: Successfully processed october 2025
+2025-10-13 07:13:20,456 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-13 07:13:21,393 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-13 07:13:21,393 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-13 07:13:21,393 - __main__ - INFO - 🚀 Starting monthly calculation for october 2025
+2025-10-13 07:13:21,393 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-13 07:13:21,393 - google_drive_manager - INFO - Starting sync for october 2025
+2025-10-13 07:13:22,510 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/basic_manpower_data.csv (ignoring cache)
+2025-10-13 07:13:23,995 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/basic_manpower_data.csv to input_files/basic manpower data october.csv
+2025-10-13 07:13:25,102 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/attendance_data.csv (ignoring cache)
+2025-10-13 07:13:27,172 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/attendance_data.csv to input_files/attendance/original/attendance data october.csv
+2025-10-13 07:13:28,479 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/5prs_data.csv (ignoring cache)
+2025-10-13 07:13:29,834 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/5prs_data.csv to input_files/5prs data october.csv
+2025-10-13 07:13:30,635 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_OCTOBER_2025.csv (ignoring cache)
+2025-10-13 07:13:32,132 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_OCTOBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv
+2025-10-13 07:13:32,882 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_SEPTEMBER_2025.csv (ignoring cache)
+2025-10-13 07:13:34,421 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_SEPTEMBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-SEPTEMBER.2025.csv
+2025-10-13 07:13:35,139 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_AUGUST_2025.csv (ignoring cache)
+2025-10-13 07:13:36,314 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-10-13 07:13:37,169 - google_drive_manager - INFO - Force downloading configs/auditor_trainer_area_mapping.json (ignoring cache)
+2025-10-13 07:13:38,857 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to config_files/auditor_trainer_area_mapping.json
+2025-10-13 07:13:40,059 - google_drive_manager - INFO - Force downloading configs/type2_position_mapping.json (ignoring cache)
+2025-10-13 07:13:41,383 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to config_files/type2_position_mapping.json
+2025-10-13 07:13:41,384 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-13 07:13:41,384 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-13 07:13:41,584 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-13 07:13:41,584 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-13 07:13:41,584 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-13 07:13:41,584 - __main__ - INFO - Using existing config: config_october_2025.json
+2025-10-13 07:13:41,584 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-13 07:13:47,142 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-13 07:13:47,142 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-13 07:13:47,142 - __main__ - INFO - Generating dashboard v4 for october 2025...
+2025-10-13 07:13:47,297 - __main__ - WARNING - Dashboard v4 generation warning: Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 1312, in generate_improved_dashboard
+    employees = extract_data_from_html(input_html, month=month, year=year)
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 138, in extract_data_from_html
+    return extract_data_from_csv(month, year)
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 269, in extract_data_from_csv
+    raise FileNotFoundError(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
+FileNotFoundError: CSV 파일을 찾을 수 없습니다: /Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/output_files/output_QIP_incentive_october_2025_최종완성버전_v6.0_Complete.csv
+
+2025-10-13 07:13:47,297 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-13 07:13:47,298 - __main__ - INFO - ✅ Monthly calculation completed successfully for october 2025
+2025-10-13 07:13:47,298 - __main__ - INFO - 📧 Notification: Successfully processed october 2025
+2025-10-13 07:22:14,839 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-13 07:22:16,096 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-10-13 07:22:16,097 - __main__ - INFO - ✅ Google Drive connection established
+2025-10-13 07:22:16,097 - __main__ - INFO - 🚀 Starting monthly calculation for october 2025
+2025-10-13 07:22:16,097 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-10-13 07:22:16,097 - google_drive_manager - INFO - Starting sync for october 2025
+2025-10-13 07:22:17,323 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/basic_manpower_data.csv (ignoring cache)
+2025-10-13 07:22:19,065 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/basic_manpower_data.csv to input_files/basic manpower data october.csv
+2025-10-13 07:22:20,600 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/attendance_data.csv (ignoring cache)
+2025-10-13 07:22:22,239 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/attendance_data.csv to input_files/attendance/original/attendance data october.csv
+2025-10-13 07:22:23,774 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/5prs_data.csv (ignoring cache)
+2025-10-13 07:22:25,621 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/5prs_data.csv to input_files/5prs data october.csv
+2025-10-13 07:22:26,440 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_OCTOBER_2025.csv (ignoring cache)
+2025-10-13 07:22:27,875 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_OCTOBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv
+2025-10-13 07:22:28,793 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_SEPTEMBER_2025.csv (ignoring cache)
+2025-10-13 07:22:30,126 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_SEPTEMBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-SEPTEMBER.2025.csv
+2025-10-13 07:22:31,050 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_AUGUST_2025.csv (ignoring cache)
+2025-10-13 07:22:33,013 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-10-13 07:22:33,852 - google_drive_manager - INFO - Force downloading configs/auditor_trainer_area_mapping.json (ignoring cache)
+2025-10-13 07:22:35,187 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to config_files/auditor_trainer_area_mapping.json
+2025-10-13 07:22:36,094 - google_drive_manager - INFO - Force downloading configs/type2_position_mapping.json (ignoring cache)
+2025-10-13 07:22:37,395 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to config_files/type2_position_mapping.json
+2025-10-13 07:22:37,395 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-10-13 07:22:37,395 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-10-13 07:22:37,604 - __main__ - INFO - 📊 Converting attendance data...
+2025-10-13 07:22:37,604 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-10-13 07:22:37,604 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-10-13 07:22:37,604 - __main__ - INFO - Using existing config: config_october_2025.json
+2025-10-13 07:22:37,604 - __main__ - INFO - 💰 Running incentive calculation...
+2025-10-13 07:22:42,815 - __main__ - INFO - ✅ Incentive calculation completed
+2025-10-13 07:22:42,815 - __main__ - INFO - 📈 Generating dashboards...
+2025-10-13 07:22:42,815 - __main__ - INFO - Generating dashboard v4 for october 2025...
+2025-10-13 07:22:42,974 - __main__ - WARNING - Dashboard v4 generation warning: Traceback (most recent call last):
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 1312, in generate_improved_dashboard
+    employees = extract_data_from_html(input_html, month=month, year=year)
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 138, in extract_data_from_html
+    return extract_data_from_csv(month, year)
+  File "/Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/src/step2_dashboard_version4.py", line 269, in extract_data_from_csv
+    raise FileNotFoundError(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
+FileNotFoundError: CSV 파일을 찾을 수 없습니다: /Users/ksmoon/Downloads/Dashboard  Incentive Version 8_1_sharing_version final/output_files/output_QIP_incentive_october_2025_최종완성버전_v6.0_Complete.csv
+
+2025-10-13 07:22:42,974 - __main__ - INFO - ✅ Dashboard generation completed
+2025-10-13 07:22:42,974 - __main__ - INFO - ✅ Monthly calculation completed successfully for october 2025
+2025-10-13 07:22:42,974 - __main__ - INFO - 📧 Notification: Successfully processed october 2025
+2025-11-03 07:57:22,071 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-11-03 07:57:23,889 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-11-03 07:57:23,889 - __main__ - INFO - ✅ Google Drive connection established
+2025-11-03 07:57:23,889 - __main__ - INFO - 🚀 Starting monthly calculation for october 2025
+2025-11-03 07:57:23,889 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-11-03 07:57:23,890 - google_drive_manager - INFO - Starting sync for october 2025
+2025-11-03 07:57:27,085 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/basic_manpower_data.csv (ignoring cache)
+2025-11-03 07:57:29,136 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/basic_manpower_data.csv to input_files/basic manpower data october.csv
+2025-11-03 07:57:31,340 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/attendance_data.csv (ignoring cache)
+2025-11-03 07:57:34,355 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/attendance_data.csv to input_files/attendance/original/attendance data october.csv
+2025-11-03 07:57:35,886 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/5prs_data.csv (ignoring cache)
+2025-11-03 07:57:38,247 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/5prs_data.csv to input_files/5prs data october.csv
+2025-11-03 07:57:39,272 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_OCTOBER_2025.csv (ignoring cache)
+2025-11-03 07:57:41,217 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_OCTOBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv
+2025-11-03 07:57:42,554 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_SEPTEMBER_2025.csv (ignoring cache)
+2025-11-03 07:57:44,188 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_SEPTEMBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-SEPTEMBER.2025.csv
+2025-11-03 07:57:45,995 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_AUGUST_2025.csv (ignoring cache)
+2025-11-03 07:57:47,464 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-11-03 07:57:48,385 - google_drive_manager - INFO - Force downloading configs/auditor_trainer_area_mapping.json (ignoring cache)
+2025-11-03 07:57:49,921 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to config_files/auditor_trainer_area_mapping.json
+2025-11-03 07:57:50,842 - google_drive_manager - INFO - Force downloading configs/type2_position_mapping.json (ignoring cache)
+2025-11-03 07:57:52,379 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to config_files/type2_position_mapping.json
+2025-11-03 07:57:52,380 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-11-03 07:57:52,380 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-11-03 07:57:52,822 - __main__ - INFO - 📊 Converting attendance data...
+2025-11-03 07:57:52,822 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-11-03 07:57:52,822 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-11-03 07:57:52,822 - __main__ - INFO - Using existing config: config_october_2025.json
+2025-11-03 07:57:52,822 - __main__ - INFO - 💰 Running incentive calculation...
+2025-11-03 07:57:58,846 - __main__ - INFO - ✅ Incentive calculation completed
+2025-11-03 07:57:58,846 - __main__ - INFO - 📈 Generating dashboards...
+2025-11-03 07:57:58,846 - __main__ - INFO - Generating dashboard v4 for october 2025...
+2025-11-03 07:57:59,040 - __main__ - WARNING - Dashboard v4 generation warning: Traceback (most recent call last):
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 1312, in generate_improved_dashboard
+    employees = extract_data_from_html(input_html, month=month, year=year)
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 138, in extract_data_from_html
+    return extract_data_from_csv(month, year)
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 269, in extract_data_from_csv
+    raise FileNotFoundError(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
+FileNotFoundError: CSV 파일을 찾을 수 없습니다: /Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/output_files/output_QIP_incentive_october_2025_최종완성버전_v6.0_Complete.csv
+
+2025-11-03 07:57:59,040 - __main__ - INFO - ✅ Dashboard generation completed
+2025-11-03 07:57:59,040 - __main__ - INFO - ✅ Monthly calculation completed successfully for october 2025
+2025-11-03 07:57:59,040 - __main__ - INFO - 📧 Notification: Successfully processed october 2025
+2025-11-03 13:50:21,765 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-11-03 13:50:23,422 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-11-03 13:50:23,423 - __main__ - INFO - ✅ Google Drive connection established
+2025-11-03 13:50:23,423 - __main__ - INFO - 🚀 Starting monthly calculation for october 2025
+2025-11-03 13:50:23,423 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-11-03 13:50:23,423 - google_drive_manager - INFO - Starting sync for october 2025
+2025-11-03 13:50:25,103 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/basic_manpower_data.csv (ignoring cache)
+2025-11-03 13:50:27,286 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/basic_manpower_data.csv to input_files/basic manpower data october.csv
+2025-11-03 13:50:29,059 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/attendance_data.csv (ignoring cache)
+2025-11-03 13:50:32,529 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/attendance_data.csv to input_files/attendance/original/attendance data october.csv
+2025-11-03 13:50:34,873 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/5prs_data.csv (ignoring cache)
+2025-11-03 13:50:37,645 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/5prs_data.csv to input_files/5prs data october.csv
+2025-11-03 13:50:38,756 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_OCTOBER_2025.csv (ignoring cache)
+2025-11-03 13:50:41,033 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_OCTOBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv
+2025-11-03 13:50:42,111 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_SEPTEMBER_2025.csv (ignoring cache)
+2025-11-03 13:50:45,202 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_SEPTEMBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-SEPTEMBER.2025.csv
+2025-11-03 13:50:46,198 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_AUGUST_2025.csv (ignoring cache)
+2025-11-03 13:50:48,140 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-11-03 13:50:49,482 - google_drive_manager - INFO - Force downloading configs/auditor_trainer_area_mapping.json (ignoring cache)
+2025-11-03 13:50:51,020 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to config_files/auditor_trainer_area_mapping.json
+2025-11-03 13:50:52,246 - google_drive_manager - INFO - Force downloading configs/type2_position_mapping.json (ignoring cache)
+2025-11-03 13:50:53,584 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to config_files/type2_position_mapping.json
+2025-11-03 13:50:53,585 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-11-03 13:50:53,585 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-11-03 13:50:53,839 - __main__ - INFO - 📊 Converting attendance data...
+2025-11-03 13:50:53,839 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-11-03 13:50:53,839 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-11-03 13:50:53,839 - __main__ - INFO - Using existing config: config_october_2025.json
+2025-11-03 13:50:53,839 - __main__ - INFO - 💰 Running incentive calculation...
+2025-11-03 13:51:04,827 - __main__ - INFO - ✅ Incentive calculation completed
+2025-11-03 13:51:04,828 - __main__ - INFO - 📈 Generating dashboards...
+2025-11-03 13:51:04,828 - __main__ - INFO - Generating dashboard v4 for october 2025...
+2025-11-03 13:51:05,009 - __main__ - WARNING - Dashboard v4 generation warning: Traceback (most recent call last):
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 1312, in generate_improved_dashboard
+    employees = extract_data_from_html(input_html, month=month, year=year)
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 138, in extract_data_from_html
+    return extract_data_from_csv(month, year)
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 269, in extract_data_from_csv
+    raise FileNotFoundError(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
+FileNotFoundError: CSV 파일을 찾을 수 없습니다: /Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/output_files/output_QIP_incentive_october_2025_최종완성버전_v6.0_Complete.csv
+
+2025-11-03 13:51:05,009 - __main__ - INFO - ✅ Dashboard generation completed
+2025-11-03 13:51:05,009 - __main__ - INFO - ✅ Monthly calculation completed successfully for october 2025
+2025-11-03 13:51:05,009 - __main__ - INFO - 📧 Notification: Successfully processed october 2025
+2025-11-04 07:29:59,407 - googleapiclient.discovery_cache - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-11-04 07:30:01,118 - google_drive_manager - INFO - Google Drive connection initialized successfully
+2025-11-04 07:30:01,118 - __main__ - INFO - ✅ Google Drive connection established
+2025-11-04 07:30:01,118 - __main__ - INFO - 🚀 Starting monthly calculation for october 2025
+2025-11-04 07:30:01,118 - __main__ - INFO - 📥 Syncing data from Google Drive...
+2025-11-04 07:30:01,118 - google_drive_manager - INFO - Starting sync for october 2025
+2025-11-04 07:30:03,260 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/basic_manpower_data.csv (ignoring cache)
+2025-11-04 07:30:05,619 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/basic_manpower_data.csv to input_files/basic manpower data october.csv
+2025-11-04 07:30:07,254 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/attendance_data.csv (ignoring cache)
+2025-11-04 07:30:10,020 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/attendance_data.csv to input_files/attendance/original/attendance data october.csv
+2025-11-04 07:30:12,272 - google_drive_manager - INFO - Force downloading monthly_data/2025_10/5prs_data.csv (ignoring cache)
+2025-11-04 07:30:15,180 - google_drive_manager - INFO - Successfully synced monthly_data/2025_10/5prs_data.csv to input_files/5prs data october.csv
+2025-11-04 07:30:16,477 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_OCTOBER_2025.csv (ignoring cache)
+2025-11-04 07:30:18,314 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_OCTOBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv
+2025-11-04 07:30:19,544 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_SEPTEMBER_2025.csv (ignoring cache)
+2025-11-04 07:30:21,555 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_SEPTEMBER_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-SEPTEMBER.2025.csv
+2025-11-04 07:30:22,822 - google_drive_manager - INFO - Force downloading aql_history/AQL_REPORT_AUGUST_2025.csv (ignoring cache)
+2025-11-04 07:30:24,772 - google_drive_manager - INFO - Successfully synced aql_history/AQL_REPORT_AUGUST_2025.csv to input_files/AQL history/1.HSRG AQL REPORT-AUGUST.2025.csv
+2025-11-04 07:30:25,993 - google_drive_manager - INFO - Force downloading configs/auditor_trainer_area_mapping.json (ignoring cache)
+2025-11-04 07:30:27,996 - google_drive_manager - INFO - Successfully synced configs/auditor_trainer_area_mapping.json to config_files/auditor_trainer_area_mapping.json
+2025-11-04 07:30:28,972 - google_drive_manager - INFO - Force downloading configs/type2_position_mapping.json (ignoring cache)
+2025-11-04 07:30:30,742 - google_drive_manager - INFO - Successfully synced configs/type2_position_mapping.json to config_files/type2_position_mapping.json
+2025-11-04 07:30:30,743 - google_drive_manager - INFO - Sync completed: 8 succeeded, 0 failed
+2025-11-04 07:30:30,743 - __main__ - INFO - ✅ Successfully synced 8 files
+2025-11-04 07:30:31,180 - __main__ - INFO - 📊 Converting attendance data...
+2025-11-04 07:30:31,180 - __main__ - WARNING - Attendance converter not found, skipping conversion
+2025-11-04 07:30:31,180 - __main__ - INFO - ⚙️ Preparing configuration...
+2025-11-04 07:30:31,180 - __main__ - INFO - Using existing config: config_october_2025.json
+2025-11-04 07:30:31,180 - __main__ - INFO - 💰 Running incentive calculation...
+2025-11-04 07:30:42,308 - __main__ - INFO - ✅ Incentive calculation completed
+2025-11-04 07:30:42,309 - __main__ - INFO - 📈 Generating dashboards...
+2025-11-04 07:30:42,309 - __main__ - INFO - Generating dashboard v4 for october 2025...
+2025-11-04 07:30:42,501 - __main__ - WARNING - Dashboard v4 generation warning: Traceback (most recent call last):
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 5615, in <module>
+    generate_improved_dashboard(str(input_file), str(output_file_local), 
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 1312, in generate_improved_dashboard
+    employees = extract_data_from_html(input_html, month=month, year=year)
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 138, in extract_data_from_html
+    return extract_data_from_csv(month, year)
+  File "/Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/src/step2_dashboard_version4.py", line 269, in extract_data_from_csv
+    raise FileNotFoundError(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
+FileNotFoundError: CSV 파일을 찾을 수 없습니다: /Users/ksmoon/Coding/Dashboard  Incentive Version 8_2_완료/output_files/output_QIP_incentive_october_2025_최종완성버전_v6.0_Complete.csv
+
+2025-11-04 07:30:42,502 - __main__ - INFO - ✅ Dashboard generation completed
+2025-11-04 07:30:42,502 - __main__ - INFO - ✅ Monthly calculation completed successfully for october 2025
+2025-11-04 07:30:42,502 - __main__ - INFO - 📧 Notification: Successfully processed october 2025

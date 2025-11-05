@@ -5093,35 +5093,6 @@ class CompleteQIPCalculator:
             # AQL 통계 정보 추
             self.add_aql_statistics_to_excel()
 
-            # ĐINH KIM NGOAN 최종 보정 (CSV saved 직전)
-            # 버그 수정: GROUP LEADER calculation 제대with apply되지 않 문제
-            ngoan_mask = (self.month_data['Employee No'] == 617100049) | (self.month_data['Employee No'] == '617100049')
-            if ngoan_mask.any():
-                ngoan_idx = self.month_data[ngoan_mask].index[0]
-                ngoan_row = self.month_data.loc[ngoan_idx]
-
-                # condition checking
-                if ngoan_row['ROLE TYPE STD'] == 'TYPE-2' and ngoan_row['QIP POSITION 1ST  NAME'] == 'GROUP LEADER':
-                    # attendance condition checking
-                    attendance_fail = (
-                        ngoan_row.get('cond_1_attendance_rate') == 'FAIL' or
-                        ngoan_row.get('cond_2_unapproved_absence') == 'FAIL' or
-                        ngoan_row.get('cond_3_actual_working_days') == 'FAIL' or
-                        ngoan_row.get('cond_4_minimum_days') == 'FAIL'  # Phase 1: Single Source of Truth
-                    )
-
-                    if not attendance_fail and ngoan_row.get('conditions_pass_rate', 0) == 100:
-                        # other GROUP LEADER들and same days한 amount apply
-                        correct_incentive = 325312
-                        incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
-
-                        # September_Incentiveand Final Incentive amount 모두 수정
-                        self.month_data.loc[ngoan_idx, incentive_col] = correct_incentive
-                        self.month_data.loc[ngoan_idx, 'Final Incentive amount'] = correct_incentive
-
-                        print(f"\n✅ ĐINH KIM NGOAN 최종 보정: {correct_incentive:,.0f} VND")
-                        print(f"   - 100% condition 충족 GROUP LEADERwith서 other GROUP LEADERand same days amount apply")
-
             # CSV saved (condition 평 후)
             csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.02_Complete.csv")
             self.month_data.to_csv(csv_file, index=False, encoding='utf-8-sig')

@@ -377,6 +377,110 @@ gspread>=5.7.0      # For Google Drive
 /validation_reports/                 # Validation Excel reports
 ```
 
+## Version Management & Backward Compatibility
+
+### Current Version: 8.02
+
+**Critical Architecture Decision**: The system implements **fallback pattern** for version transitions to ensure backward compatibility when reading previous month data.
+
+### Version Update Requirements
+
+When updating version numbers (e.g., 8.02 → 8.03), you MUST update these files:
+
+**Tier 1 - Core Calculation Engine**:
+1. **`src/step1_인센티브_계산_개선버전.py`** (7 locations)
+   - Lines 1209-1213: Previous month file loading with fallback pattern
+   - Lines 2260-2270: Ensure previous month exists with fallback
+   - Line 2333: Auto-generated previous month output path
+   - Line 5126: CSV output filename
+   - Line 5136: Excel output filename
+   - Line 6712: Console version message
+
+2. **`integrated_dashboard_final.py`** (8 locations)
+   - Line 151: CSV file pattern for data loading
+   - Line 5951: HTML title version badge
+   - Line 9097: JavaScript language switcher version badge
+   - Lines 15739-15744: CSV file loading logic with comments
+   - Line 15866: HTML output filename
+
+3. **`action.sh`** (5 locations)
+   - Line 413, 427: Validation script Excel file parameters
+   - Line 455-456: Dashboard generation description and DASHBOARD_VERSION variable
+   - Lines 518-519: Completion message file paths
+
+**Tier 2 - Verification Scripts**:
+4. **`scripts/verification/`** (5 files)
+   - `validate_incentive_amounts.py`: Line 51
+   - `validate_condition_evaluation.py`: Lines 64-65
+   - `validate_dashboard_consistency.py`: Lines 42, 60 (CRITICAL - must match dashboard filename)
+   - `generate_simple_validation_report.py`: Line 24
+   - `analyze_october_data.py`: Line 26
+
+5. **`src/update_continuous_fail_column.py`**
+   - Lines 257-258: Primary file pattern (with fallback to older versions)
+
+**Tier 3 - Documentation**:
+6. **`README.md`** and **`CLAUDE.md`**
+   - Update all version references in examples and file paths
+
+### Backward Compatibility Pattern (CRITICAL)
+
+**Problem**: When December 2025 (V8.03) needs November 2025 data, but November was generated with V8.02.
+
+**Solution**: Fallback pattern in `step1_인센티브_계산_개선버전.py`:
+
+```python
+# Lines 1209-1213: Previous month file loading
+excel_patterns = [
+    # Try current version first
+    f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.03_Complete.csv",
+    f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.03_Complete.csv",
+    # Fallback to previous version (backward compatibility)
+    f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv",
+    f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv"
+]
+```
+
+**Why This Matters**:
+- Month 1 (V8.03): Reads Month 0 (V8.02) - SUCCESS with fallback
+- Month 2 (V8.03): Reads Month 1 (V8.03) - SUCCESS with primary pattern
+- Without fallback: Month 1 calculation would FAIL
+
+### Common Version Update Pitfalls
+
+1. **Filename Mismatch in Validators**:
+   - Bug: `validate_dashboard_consistency.py` looking for "Version_8.html" but generator creates "Version_8.02.html"
+   - Impact: All dashboard validation fails silently
+   - Fix: Line 60 must match `integrated_dashboard_final.py` line 15866
+
+2. **Missing Fallback Pattern**:
+   - Impact: Cannot read previous month files during version transitions
+   - Fix: Always maintain fallback to previous version in file loading logic
+
+3. **Incomplete Updates**:
+   - Impact: Mixed version references cause confusion and validation failures
+   - Fix: Use comprehensive grep search to find all references
+
+### Version Update Validation Checklist
+
+After version update, verify:
+```bash
+# 1. Check all V8.XX references updated
+grep -r "V8\\.0[0-9]" . --exclude-dir=.git --include="*.py" --include="*.sh"
+
+# 2. Verify fallback patterns include previous version
+grep -A 5 "excel_patterns\|prev_file_patterns" src/step1_인센티브_계산_개선버전.py
+
+# 3. Test file generation
+./action.sh  # Select a test month
+
+# 4. Verify output filenames
+ls output_files/*Complete_V8*
+
+# 5. Run validation suite
+./run_full_validation.sh
+```
+
 ## Development Notes
 
 - Dashboard HTML is self-contained (3.5-5.7MB) with inline data/JS/CSS
