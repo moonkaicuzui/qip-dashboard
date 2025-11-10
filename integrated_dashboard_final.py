@@ -1077,6 +1077,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp['attendancy condition 4 - minimum working days'] = str(row_dict.get('attendancy condition 4 - minimum working days', 'no'))
 
             # AQL 조건 필드 추가 (현재 월 기준 동적 컬럼명 사용)
+            aql_column_name = f'{month.capitalize()} AQL Failures'
             emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
             emp[aql_column_name] = int(row_dict.get(aql_column_name, row_dict.get('aql_failures', 0)))
             emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
@@ -1200,7 +1201,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     current_minute = current_datetime.minute
 
     # Report type determination (중간 vs final)
-    is_interim_report = current_day < 20
+    # 처리하는 월이 현재 월보다 이전이면 Final Report
+    # 처리하는 월이 현재 월과 같고, 현재 날짜가 20일 미만이면 Interim Report
+    if year < current_year or (year == current_year and month_num < current_month):
+        # 이전 월/년도 데이터는 항상 Final Report
+        is_interim_report = False
+    elif year == current_year and month_num == current_month and current_day < 20:
+        # 현재 월 데이터이고 20일 이전이면 Interim Report
+        is_interim_report = True
+    else:
+        # 그 외는 Final Report (20일 이후 또는 미래 월)
+        is_interim_report = False
+
     report_type_ko = '중간 점검용' if is_interim_report else 'final'
     report_type_en = 'Interim' if is_interim_report else 'Final'
     report_type_vi = 'Tạm thời' if is_interim_report else 'Cuối cùng'
@@ -1280,10 +1292,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         incentive_start_str = '01'
         incentive_end_str = f'{month_last_day:02d}'
 
-    # report type 재determination (incentive data 기간의 last 날 기준)
+    # report type 재determination (incentive data 기간 및 현재 날짜 기준)
     try:
         incentive_end_day = int(incentive_end_str)
-        is_interim_report = incentive_end_day < 20
+
+        # 처리하는 월이 현재 월보다 이전이면 Final Report
+        # 처리하는 월이 현재 월과 같고, 현재 날짜가 20일 미만이면 Interim Report
+        # 데이터가 전체 월(20일 이상)을 포함하면 Final Report
+        if year < current_year or (year == current_year and month_num < current_month):
+            # 이전 월/년도 데이터는 항상 Final Report
+            is_interim_report = False
+        elif year == current_year and month_num == current_month and current_day < 20 and incentive_end_day < 20:
+            # 현재 월 데이터이고, 현재 날짜와 데이터 종료일 모두 20일 미만이면 Interim Report
+            is_interim_report = True
+        else:
+            # 그 외는 Final Report (20일 이후 데이터 포함 또는 이전 월)
+            is_interim_report = False
+
         report_type_ko = '중간 점검용' if is_interim_report else 'final'
         report_type_en = 'Interim' if is_interim_report else 'Final'
         report_type_vi = 'Tạm thời' if is_interim_report else 'Cuối cùng'
@@ -1418,7 +1443,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const monthNames = {
             'ko': '__MONTH_KO__',
             'en': '__MONTH_EN__',
-            'vi': 'Tháng 9'
+            'vi': '__MONTH_VI__'
         };
         const monthText = monthNames[currentLanguage] || monthNames['en'];
 
@@ -9212,10 +9237,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             // 날짜 관련 업데이트
             const yearText = '{year}';
-            const monthText = currentLanguage === 'ko' ? '{get_korean_month(month)}' : 
-                              currentLanguage === 'en' ? '{month.capitalize()}' : 
-                              'Tháng {month if month.isdigit() else "8"}';
-            
+            const monthText = currentLanguage === 'ko' ? '{get_korean_month(month)}' :
+                              currentLanguage === 'en' ? '{month.capitalize()}' :
+                              '{get_month_translation(month, "vi")}';
+
             const mainSubtitle = document.getElementById('mainSubtitle');
             if (mainSubtitle) {{
                 const yearUnit = currentLanguage === 'ko' ? '년' : '';
