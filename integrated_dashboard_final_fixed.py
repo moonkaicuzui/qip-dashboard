@@ -2693,6 +2693,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 동적 월 패턴 생성
         const pattern3Months = `${monthAbbr[month_N2-1]}-${monthAbbr[month_N1-1]}-${monthAbbr[month_N-1]}`;  // 예: Aug-Sep-Oct
+        const pattern2MonthsHigh = `${monthAbbr[month_N1-1]}-${monthAbbr[month_N-1]}`;  // 예: Sep-Oct (최근 2개월)
+        const pattern2MonthsMedium = `${monthAbbr[month_N2-1]}-${monthAbbr[month_N1-1]}`;  // 예: Aug-Sep (중간 2개월)
 
         // 언어별 월 패턴
         const getMonthPattern = (lang, monthIdx1, monthIdx2) => {
@@ -2840,8 +2842,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         modalHTML += '<strong>📊 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.title') + '</strong><br>';
         modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.threeMonthFails') + ' <strong>' + threeMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</strong><br>';
         modalHTML += '• ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.twoMonthFails') + ' <strong>' + twoMonthFails.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</strong><br>';
-        modalHTML += '&nbsp;&nbsp;- <span style="color: #dc3545; font-weight: bold;">🔴 ' + pattern2MonthsHigh + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + augSepFailsList.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</span><br>';
-        modalHTML += '&nbsp;&nbsp;- <span style="color: #ffc107; font-weight: bold;">🟡 ' + pattern2MonthsMedium + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + julAugFailsList.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</span>';
+        modalHTML += '&nbsp;&nbsp;- <span style="color: #dc3545; font-weight: bold;">🔴 ' + pattern2MonthsKorHigh + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + augSepFailsList.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</span><br>';
+        modalHTML += '&nbsp;&nbsp;- <span style="color: #ffc107; font-weight: bold;">🟡 ' + pattern2MonthsKorMedium + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.consecutiveFailure') + julAugFailsList.length + t('validationTab.modals.aqlFail.consecutiveAqlFail.summary.people') + '</span>';
         modalHTML += '</div>';
 
         // Close modal HTML
@@ -5522,7 +5524,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }}
 
-        /* 직급별 색상 - 모던하고 세련된 색상 */
+        /* 직급by 색상 - 모던하고 세련된 색상 */
         .org-node.manager {{
             border-left-color: #6366f1;
             background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);
@@ -5963,7 +5965,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V8.02</span></h1>
+            <h1 id="mainTitle">QIP incentive calculation 결과 <span class="version-badge">V8.02</span></h1>
             <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
@@ -5981,14 +5983,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div style="display: flex; align-items: center;">
                 <span class="icon">{'⚠️' if is_interim_report else '✅'}</span>
                 <div class="message">
-                    <div class="title" id="reportTypeTitle">{'중간 보고서' if is_interim_report else '최종 보고서'}</div>
+                    <div class="title" id="reportTypeTitle">{report_type_ko} report</div>
                     <div class="description" id="reportTypeDesc">
-                        {'이 보고서는 월중 점검용 중간 보고서입니다. 최소 근무일(12일) 및 결근율(12%) 조건이 적용되지 않습니다.' if is_interim_report else '이 보고서는 월말 최종 보고서입니다. 모든 인센티브 조건이 정상적으로 적용됩니다.'}
+                        {'이 report는 month중 점검용 interim report입니다. 최소 근무일(12일) 및 결근율(12%) 조건이 apply되지 not.' if is_interim_report else '이 report는 month말 final report입니다. 모든 incentive 조건이 정상적으로 apply됩니다.'}
                     </div>
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: {current_day}일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;">creationth: {current_day}th</span>
             </div>
         </div>
 
@@ -5997,7 +5999,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="totalEmployeesLabel">전체 직원</h6>
+                        <h6 class="text-muted" id="totalEmployeesLabel">total 직원</h6>
                         <h2><span id="totalEmployeesValue">{total_직원}</span> <span class="unit" id="totalEmployeesUnit"></span></h2>
                     </div>
                 </div>
@@ -6009,13 +6011,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="paymentRateLabel">지급률</h6>
+                        <h6 class="text-muted" id="paymentRateLabel">수령률</h6>
                         <h2 id="paymentRateValue">{지급_rate:.1f}%</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="totalAmountLabel">총 지급액</h6>
+                        <h6 class="text-muted" id="totalAmountLabel">total 지급액</h6>
                         <h2 id="totalAmountValue">{total_amount:,} VND</h2>
                     </div>
                 </div>
@@ -6025,29 +6027,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <!-- 탭 메뉴 -->
             <div class="tabs">
                 <div class="tab active" data-tab="summary" onclick="showTab('summary')" id="tabSummary">요약</div>
-                <div class="tab" data-tab="position" onclick="showTab('position')" id="tabPosition" data-translate-tab="position">직급별 상세</div>
-                <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual" data-translate-tab="individual">개인별 상세</div>
-                <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria" data-translate-tab="criteria">인센티브 기준</div>
+                <div class="tab" data-tab="position" onclick="showTab('position')" id="tabPosition">직급by 상세</div>
+                <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual">개인by 상세</div>
+                <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria">incentive 기준</div>
                 <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart">조직도</div>
                 <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation">요약 및 시스템 검증</div>
             </div>
             
             <!-- 요약 탭 -->
             <div id="summary" class="tab-content active">
-                <h3 id="summaryTabTitle" data-translate="typeSummary">Type별 현황</h3>
+                <h3 id="summaryTabTitle">Typeby 현황</h3>
                 <table class="table">
                     <thead>
                         <tr>
                             <th rowspan="2" id="summaryTypeHeader">Type</th>
-                            <th rowspan="2" id="summaryTotalHeader">전체 인원</th>
+                            <th rowspan="2" id="summaryTotalHeader">total 인원</th>
                             <th rowspan="2" id="summaryEligibleHeader">수령 인원</th>
-                            <th rowspan="2" id="summaryPaymentRateHeader">지급률</th>
-                            <th rowspan="2" id="summaryTotalAmountHeader">총 지급액</th>
+                            <th rowspan="2" id="summaryPaymentRateHeader">수령률</th>
+                            <th rowspan="2" id="summaryTotalAmountHeader">total 지급액</th>
                             <th colspan="2" class="avg-header" id="summaryAvgAmountHeader">평균 지급액</th>
                         </tr>
                         <tr>
-                            <th class="sub-header" id="summaryAvgEligibleHeader" data-translate="avgPaymentPaidBasis">수령인원 기준</th>
-                            <th class="sub-header" id="summaryAvgTotalHeader" data-translate="avgPaymentTotalBasis">전체인원 기준</th>
+                            <th class="sub-header" id="summaryAvgEligibleHeader">수령인원 기준</th>
+                            <th class="sub-header" id="summaryAvgTotalHeader">total원 기준</th>
                         </tr>
                     </thead>
                     <tbody id="typeSummaryBody">
@@ -6058,9 +6060,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </table>
             </div>
             
-            <!-- 직급별 상세 탭 -->
+            <!-- 직급by 상세 탭 -->
             <div id="position" class="tab-content">
-                <h3 id="positionTabTitle" data-translate="positionDetails">직급별 상세 현황</h3>
+                <h3 id="positionTabTitle">직급by 상세 현황</h3>
                 <div id="positionTables">
                     <!-- JavaScript로 채워질 예정 -->
                 </div>
@@ -6106,9 +6108,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
             </div>
             
-            <!-- 개인별 상세 탭 -->
+            <!-- 개인by 상세 탭 -->
             <div id="detail" class="tab-content">
-                <h3 id="individualDetailTitle" data-translate="individualDetails">개인별 상세 정보</h3>
+                <h3 id="individualDetailTitle">개인by 상세 정보</h3>
                 <div class="filter-container mb-3">
                     <div class="row">
                         <div class="col-md-3">
@@ -6169,8 +6171,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <!-- 정책 요약 섹션 -->
                 <div class="alert alert-info mb-4">
                     <h5 class="alert-heading" id="corePrinciplesTitle">📌 핵심 principle</h5>
-                    <p class="mb-2" id="corePrinciplesDesc1">모든 직원은 corresponding 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 incentive를 받을 count 있습니다.</p>
-                    <p class="mb-0" id="corePrinciplesDesc2">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 apply 조건이 다릅니다.</p>
+                    <p class="mb-2" id="corePrinciplesDesc1">모든 직원은 corresponding 직급by로 지정된 <strong>모든 조건을 충족</strong>해야 incentive를 받을 count 있습니다.</p>
+                    <p class="mb-0" id="corePrinciplesDesc2">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급by로 apply 조건이 다릅니다.</p>
                 </div>
                 
                 <!-- 10가지 조건 상세 설직원 -->
@@ -6286,14 +6288,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 </div>
                 
-                <!-- 직급별 apply 조건 매트릭스 -->
+                <!-- 직급by apply 조건 매트릭스 -->
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                        <h5 class="mb-0" id="positionMatrixTitle">🎖️ 직급별 apply 조건</h5>
+                        <h5 class="mb-0" id="positionMatrixTitle">🎖️ 직급by apply 조건</h5>
                     </div>
                     <div class="card-body">
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1Header">TYPE-1 직급별 조건</h6>
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1Header">TYPE-1 직급by 조건</h6>
                         <table class="table table-sm table-hover position-matrix-table" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
@@ -6361,7 +6363,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </tbody>
                         </table>
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type2Header">TYPE-2 직급별 조건</h6>
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type2Header">TYPE-2 직급by 조건</h6>
                         <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
@@ -6381,7 +6383,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </tbody>
                         </table>
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type3Header">TYPE-3 직급별 조건</h6>
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type3Header">TYPE-3 직급by 조건</h6>
                         <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
@@ -6410,7 +6412,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                     <div class="card-body">
                         <!-- TYPE-1 incentive 테이블 -->
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1CalculationTitle">TYPE-1 직급별 incentive calculation 방법 및 actual 예시</h6>
+                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1CalculationTitle">TYPE-1 직급by incentive calculation 방법 및 actual 예시</h6>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
                                 <tr>
@@ -7006,7 +7008,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <li id="attendanceUnapproved1">HR 시스템에서 제공하는 무단결근 thcount data</li>
                                     <li id="attendanceUnapproved2">AR1 (Vắng không phép) 카테고리만 집계</li>
                                     <li id="attendanceUnapproved3">서면통지 결근(Gửi thư)도 AR1에 포함</li>
-                                    <li id="attendanceUnapproved4">incentive 조건: ≤2일 (개인별 최대 허용치)</li>
+                                    <li id="attendanceUnapproved4">incentive 조건: ≤2일 (개인by 최대 허용치)</li>
                                 </ul>
                             </div>
                         </div>
@@ -7223,7 +7225,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <li id="faqAnswer1Reason4">AQL failed (corresponding 직급)</li>
                                         <li id="faqAnswer1Reason5">5PRS 통과율 95% 미만 (corresponding 직급)</li>
                                     </ul>
-                                    <span id="faqAnswer1CheckMethod">개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 count 있습니다.</span>
+                                    <span id="faqAnswer1CheckMethod">개인by 상세 페이지에서 본인의 조건 충족 여부를 확인할 count 있습니다.</span>
                                 </div>
                             </div>
                             
@@ -7341,12 +7343,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="faq-answer">
                                     <span id="faqAnswer10Main">다음 사항을 재확인해 보세요:</span>
                                     <ul>
-                                        <li id="faqAnswer10Reason1"><strong>숨겨진 조건</strong>: 직급별로 apply되는 모든 조건 확인</li>
+                                        <li id="faqAnswer10Reason1"><strong>숨겨진 조건</strong>: 직급by로 apply되는 모든 조건 확인</li>
                                         <li id="faqAnswer10Reason2"><strong>데이터 업데이트</strong>: 최신 data 반영 여부</li>
                                         <li id="faqAnswer10Reason3"><strong>특별한 사유</strong>: 징계, 경고 등 특별 사유</li>
                                         <li id="faqAnswer10Reason4"><strong>시스템 오류</strong>: HR 부서에 문의</li>
                                     </ul>
-                                    <span id="faqAnswer10Conclusion">개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.</span>
+                                    <span id="faqAnswer10Conclusion">개인by 상세 페이지에서 조건by 충족 여부를 상세히 확인하시기 바랍니다.</span>
                                 </div>
                             </div>
 
@@ -7747,7 +7749,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="positionModalLabel" data-translate="positionModal">직급별 상세 정보</h5>
+                    <h5 class="modal-title" id="positionModalLabel">직급by 상세 정보</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="positionModalBody">
@@ -7837,104 +7839,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 console.log('[DEBUG] base64Data length:', base64Data.length);
             const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 use
             console.log('[DEBUG] Decoded JSON string length:', jsonStr.length);
-            const employeeData = JSON.parse(jsonStr);
-            console.log('[DEBUG] Parsed employee data:', employeeData.length, '직원');
-            window.employeeData = employeeData;
+            window.employeeData = JSON.parse(jsonStr);
+            const employeeData = window.employeeData;  // 로컬 참조용
+            console.log('[DEBUG] Parsed employee data:', window.employeeData.length, '직원');
             console.log('Employee data loaded successfully:', employeeData.length, '직원');
-
-            // TYPE 테이블 생성 함수 정의 (데이터 로드 직후, 호출 전에)
-            function generateTypeTable() {{
-                console.log('Generating TYPE table...');
-
-                const typeSummaryBody = document.getElementById('typeSummaryBody');
-                if (!typeSummaryBody) {{
-                    console.error('typeSummaryBody element not found');
-                    return;
-                }}
-
-                // 데이터가 없으면 employeeData를 사용
-                if (!window.employeeData || window.employeeData.length === 0) {{
-                    console.log('No employee data available for TYPE table');
-                    typeSummaryBody.innerHTML = '<tr><td colspan="7" class="text-center">데이터 없음</td></tr>';
-                    return;
-                }}
-
-                // TYPE별 집계
-                const typeStats = {{
-                    'TYPE-1': {{ total: 0, eligible: 0, amount: 0 }},
-                    'TYPE-2': {{ total: 0, eligible: 0, amount: 0 }},
-                    'TYPE-3': {{ total: 0, eligible: 0, amount: 0 }}
-                }};
-
-                window.employeeData.forEach(emp => {{
-                    const empType = emp['type'] || emp['ROLE TYPE STD'] || 'TYPE-2';
-                    const incentiveAmount = parseFloat(emp['october_incentive'] || emp['October_Incentive'] || emp['Final Incentive amount']) || 0;
-
-                    if (typeStats[empType]) {{
-                        typeStats[empType].total++;
-                        if (incentiveAmount > 0) {{
-                            typeStats[empType].eligible++;
-                            typeStats[empType].amount += incentiveAmount;
-                        }}
-                    }}
-                }});
-
-                // 테이블 생성
-                let tableHTML = '';
-                let totalAll = 0, eligibleAll = 0, amountAll = 0;
-
-                ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(type => {{
-                    const stats = typeStats[type];
-                    const paymentRate = stats.total > 0 ? ((stats.eligible / stats.total) * 100).toFixed(1) : '0.0';
-                    const avgEligible = stats.eligible > 0 ? Math.round(stats.amount / stats.eligible) : 0;
-                    const avgTotal = stats.total > 0 ? Math.round(stats.amount / stats.total) : 0;
-
-                    totalAll += stats.total;
-                    eligibleAll += stats.eligible;
-                    amountAll += stats.amount;
-
-                    const typeClass = type === 'TYPE-1' ? 'primary' : (type === 'TYPE-2' ? 'warning' : 'success');
-
-                    tableHTML += `
-                        <tr>
-                            <td><span class="badge bg-${{typeClass}}">${{type}}</span></td>
-                            <td>${{stats.total}}명</td>
-                            <td>${{stats.eligible}}명</td>
-                            <td>${{paymentRate}}%</td>
-                            <td>${{stats.amount.toLocaleString()}} VND</td>
-                            <td>${{avgEligible.toLocaleString()}} VND</td>
-                            <td>${{avgTotal.toLocaleString()}} VND</td>
-                        </tr>
-                    `;
-                }});
-
-                // 합계 행 추가
-                const totalPaymentRate = totalAll > 0 ? ((eligibleAll / totalAll) * 100).toFixed(1) : '0.0';
-                const totalAvgEligible = eligibleAll > 0 ? Math.round(amountAll / eligibleAll) : 0;
-                const totalAvgTotal = totalAll > 0 ? Math.round(amountAll / totalAll) : 0;
-
-                tableHTML += `
-                    <tr class="table-info fw-bold">
-                        <td>Total</td>
-                        <td>${{totalAll}}명</td>
-                        <td>${{eligibleAll}}명</td>
-                        <td>${{totalPaymentRate}}%</td>
-                        <td>${{amountAll.toLocaleString()}} VND</td>
-                        <td>${{totalAvgEligible.toLocaleString()}} VND</td>
-                        <td>${{totalAvgTotal.toLocaleString()}} VND</td>
-                    </tr>
-                `;
-
-                typeSummaryBody.innerHTML = tableHTML;
-                console.log('TYPE table generated successfully');
-            }}
-
-            // 전역 스코프에 함수 노출
-            window.generateTypeTable = generateTypeTable;
-
-            // TYPE 테이블 즉시 생성 (함수 정의 및 노출 완료 직후)
-            console.log('Calling generateTypeTable immediately after definition...');
-            generateTypeTable();
 
             // AQL Inspector Stats load (inspectors 인원 기준)
             const aqlStatsElement = document.getElementById('aqlInspectorStatsBase64');
@@ -8777,7 +8685,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const unapproved4 = document.getElementById('attendanceUnapproved4');
             if (unapproved4) {{
-                unapproved4.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation4?.[lang] || 'incentive 조건: ≤2일 (개인별 최대 허용치)';
+                unapproved4.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation4?.[lang] || 'incentive 조건: ≤2일 (개인by 최대 허용치)';
             }}
         }}
         
@@ -8808,7 +8716,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.getElementById('faqAnswer1Reason3').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.absence?.[lang] || '무단결근 3일 이상';
             document.getElementById('faqAnswer1Reason4').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.aql?.[lang] || 'AQL failed (corresponding 직급)';
             document.getElementById('faqAnswer1Reason5').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.fprs?.[lang] || '5PRS 통과율 95% 미만 (corresponding 직급)';
-            document.getElementById('faqAnswer1CheckMethod').textContent = translations.incentiveCalculation?.faq?.answer1CheckMethod?.[lang] || '개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 count 있습니다.';
+            document.getElementById('faqAnswer1CheckMethod').textContent = translations.incentiveCalculation?.faq?.answer1CheckMethod?.[lang] || '개인by 상세 페이지에서 본인의 조건 충족 여부를 확인할 count 있습니다.';
             
             // Q2
             const q2 = document.getElementById('faqQuestion2');
@@ -8926,7 +8834,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer10Reason1 = document.getElementById('faqAnswer10Reason1');
             if (answer10Reason1) {{
-                answer10Reason1.innerHTML = `<strong>${{lang === 'ko' ? '숨겨진 조건' : lang === 'en' ? 'Hidden conditions' : 'Điều kiện ẩn'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason1?.[lang]?.replace(/.*: (.*)/, '$1') || '직급별로 apply되는 모든 조건 확인'}}`;
+                answer10Reason1.innerHTML = `<strong>${{lang === 'ko' ? '숨겨진 조건' : lang === 'en' ? 'Hidden conditions' : 'Điều kiện ẩn'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason1?.[lang]?.replace(/.*: (.*)/, '$1') || '직급by로 apply되는 모든 조건 확인'}}`;
             }}
             const answer10Reason2 = document.getElementById('faqAnswer10Reason2');
             if (answer10Reason2) {{
@@ -8942,7 +8850,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             const answer10Conclusion = document.getElementById('faqAnswer10Conclusion');
             if (answer10Conclusion) {{
-                answer10Conclusion.textContent = translations.incentiveCalculation?.faq?.answer10Conclusion?.[lang] || '개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.';
+                answer10Conclusion.textContent = translations.incentiveCalculation?.faq?.answer10Conclusion?.[lang] || '개인by 상세 페이지에서 조건by 충족 여부를 상세히 확인하시기 바랍니다.';
             }}
 
             // FAQ Q11 translations
@@ -9179,6 +9087,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             updateTypeSummaryTable();  // Typeby 요약 테이블도 업데이트
             localStorage.setItem('dashboardLanguage', lang);
         }}
+
+        window.changeLanguage = changeLanguage;
         
         // dashboard 변경 함count
         function changeDashboard(type) {{
@@ -9365,7 +9275,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (elem) elem.textContent = getTranslation(key, currentLanguage);
             }}
             
-            // 개인별 상세 테이블 헤더 업데이트
+            // 개인by 상세 테이블 헤더 업데이트
             const individualHeaders = {{
                 'empIdHeader': 'individual.table.columns.employeeId',
                 'nameHeader': 'individual.table.columns.name',
@@ -9504,7 +9414,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 updateChartLabels();
             }}
             
-            // 직급별 테이블 및 개인별 테이블 재creation
+            // 직급by 테이블 및 개인by 테이블 재creation
             updateTabContents();
         }}
         
@@ -9633,13 +9543,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 prsTitle.textContent = getTranslation('criteria.conditions.5prs.title', currentLanguage);
             }}
             
-            // 직급별 apply 조건 섹션
+            // 직급by apply 조건 섹션
             const positionMatrixTitle = document.getElementById('positionMatrixTitle');
             if (positionMatrixTitle) {{
                 positionMatrixTitle.textContent = getTranslation('criteria.positionMatrix.title', currentLanguage);
             }}
 
-            // 직급별 테이블 헤더 번역
+            // 직급by 테이블 헤더 번역
             document.querySelectorAll('.pos-header-position').forEach(th => {{
                 th.textContent = getTranslation('criteria.positionMatrix.tableHeaders.position', currentLanguage) || '직급';
             }});
@@ -10391,11 +10301,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}
             
-            // 직급별 특이사항 업데이트
+            // 직급by 특이사항 업데이트
             updatePositionMatrixNotes();
         }}
         
-        // 직급별 특이사항 동적 업데이트
+        // 직급by 특이사항 동적 업데이트
         function updatePositionMatrixNotes() {{
             // TYPE-1 테이블의 특이사항 column 업데이트
             const type1Tables = document.querySelectorAll('#criteria table');
@@ -10431,30 +10341,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
         
-        
-            // 탭 버튼 텍스트 업데이트 (data-translate-tab 속성 사용)
-            document.querySelectorAll('[data-translate-tab]').forEach(elem => {{
-                const tabKey = elem.getAttribute('data-translate-tab');
-                if (translations.tabs && translations.tabs[tabKey]) {{
-                    elem.textContent = translations.tabs[tabKey][lang] || elem.textContent;
-                }}
-            }});
-
-            // 테이블 헤더 업데이트 (data-translate 속성 사용)
-            document.querySelectorAll('[data-translate]').forEach(elem => {{
-                const key = elem.getAttribute('data-translate');
-                if (translations.tableHeaders && translations.tableHeaders[key]) {{
-                    elem.textContent = translations.tableHeaders[key][lang] || elem.textContent;
-                }}
-                if (translations.sectionTitles && translations.sectionTitles[key]) {{
-                    elem.textContent = translations.sectionTitles[key][lang] || elem.textContent;
-                }}
-                if (translations.modalTitles && translations.modalTitles[key]) {{
-                    elem.textContent = translations.modalTitles[key][lang] || elem.textContent;
-                }}
-            }});
-            
-            // 차트 라벨 업데이트
+        // 차트 라벨 업데이트
         function updateChartLabels() {{
             // 예제 차트 업데이트 코드
         }}
@@ -10559,6 +10446,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}
         }}
+
+        window.updateTypeSummaryTable = updateTypeSummaryTable;
         
         // 초기화
         // 조직도 관련 함count들
@@ -11277,16 +11166,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 initValidationTab();
             }}, 100);
 
-            // TYPE 테이블 초기 생성
-            setTimeout(() => {{
-                console.log('Generating TYPE table on page load...');
-                if (typeof generateTypeTable === 'function') {{
-                    generateTypeTable();
-                }} else {{
-                    console.log('generateTypeTable function not available yet');
-                }}
-            }}, 200);
-
             // Bootstrap 탭 이벤트 리스너 등록
             // 다양한 선택자 시도
             let orgChartTabButton = document.querySelector('button[data-bs-대상="#orgchart"]');
@@ -11473,7 +11352,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return amount > 0;
         }}
 
-        // 직급별 색상 정의
+        // 직급by 색상 정의
         function getPositionColor(position) {{
             if (!position) return '#8c564b'; // Others (brown)
             const pos = position.toUpperCase();
@@ -14639,16 +14518,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.querySelector(`[data-tab="${{tabName}}"]`).classList.add('active');
             document.getElementById(tabName).classList.add('active');
 
-            // 요약 탭이면 TYPE 테이블 생성
-            if (tabName === 'summary') {{
-                console.log('Summary tab selected');
-                if (typeof generateTypeTable === 'function') {{
-                    generateTypeTable();
-                }} else {{
-                    console.log('generateTypeTable function not found');
-                }}
-            }}
-
             // 조직도 탭이면 조직도 그리기
             if (tabName === 'orgchart') {{
                 console.log('Organization chart tab selected');
@@ -14684,6 +14553,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}, 100);
             }}
         }}
+
+        window.showTab = showTab;
         
         // 직원 테이블 creation
         function generateEmployeeTable() {{
@@ -14740,12 +14611,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 tbody.appendChild(tr);
             }});
         }}
+
+        window.generateEmployeeTable = generateEmployeeTable;
         
-        // 직급별 테이블 creation (dashboard_version4.html과 동th한 UI)
+        // 직급by 테이블 creation (dashboard_version4.html과 동th한 UI)
         function generatePositionTables() {{
             window.positionData = {{}}; // 전역 변count를 window 객체로 직원시적 접근
             
-            // Type-직급별 data 집계
+            // Type-직급by data 집계
             employeeData.forEach(emp => {{
                 const key = `${{emp.type}}_${{emp.position}}`;
                 if (!window.positionData[key]) {{
@@ -14790,7 +14663,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     const sectionTitle = type === 'TYPE-1' ? getTranslation('position.sectionTitles.type1', currentLanguage) :
                                        type === 'TYPE-2' ? getTranslation('position.sectionTitles.type2', currentLanguage) :
                                        type === 'TYPE-3' ? getTranslation('position.sectionTitles.type3', currentLanguage) : 
-                                       `${{type}} 직급별 현황`;
+                                       `${{type}} 직급by 현황`;
                     
                     // 칼럼 헤더 번역 먼저 준비
                     const colPosition = getTranslation('position.positionTable.columns.position', currentLanguage);
@@ -14821,7 +14694,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     html += '</thead>';
                     html += '<tbody>';
                     
-                    // 직급별 행 추가
+                    // 직급by 행 추가
                     positions.sort((a, b) => a.position.localeCompare(b.position)).forEach(posData => {{
                         const paymentRate = posData.total > 0 ? (posData.paid / posData.total * 100).toFixed(1) : '0.0';
                         const avgAmount = posData.paid > 0 ? Math.round(posData.totalAmount / posData.paid) : 0;
@@ -14880,6 +14753,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
 
+        window.generatePositionTables = generatePositionTables;
+
         // Position 테이블 업데이트 함count (필터링 등에서 use)
         function updatePositionTable() {{
             // Position Details 탭이 활성화되어 있을 때만 업데이트
@@ -14890,7 +14765,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
 
-        // 직급별 상세 팝업 - 완전 새로운 UI
+        // 직급by 상세 팝업 - 완전 새로운 UI
         function showPositionDetail(type, position) {{
             const 직원 = employeeData.filter(e => e['ROLE TYPE STD'] === type && e['position'] === position);
             if (직원.length === 0) return;
@@ -15331,7 +15206,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}, 100);
         }}
         
-        // 직급별 테이블 필터링
+        // 직급by 테이블 필터링
         function filterPositionTable(filter) {{
             const rows = document.querySelectorAll('#positionEmployeeTable tbody tr');
             rows.forEach(row => {{
@@ -15347,12 +15222,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
         
-        // 직급별 상세 팝업에서 호출하는 개인별 상세 팝업 함count
+        // 직급by 상세 팝업에서 호출하는 개인by 상세 팝업 함count
         function showEmployeeDetailFromPosition(empNo) {{
             console.log('showEmployeeDetailFromPosition called with empNo:', empNo);
             
             try {{
-                // 먼저 직급별 상세 팝업을 닫기
+                // 먼저 직급by 상세 팝업을 닫기
                 const positionModal = document.getElementById('positionModal');
                 console.log('Position modal element:', positionModal);
                 
@@ -15365,14 +15240,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                 }}
                 
-                // 잠시 후에 개인별 상세 팝업 열기 (애니메이션 충돌 방지)
+                // 잠시 후에 개인by 상세 팝업 열기 (애니메이션 충돌 방지)
                 setTimeout(() => {{
                     console.log('Opening employee detail modal for:', empNo);
                     showEmployeeDetail(empNo);
                 }}, 300);
             }} catch (error) {{
                 console.error('Error in showEmployeeDetailFromPosition:', error);
-                // 오류가 있어도 개인별 상세 팝업은 열려야 함
+                // 오류가 있어도 개인by 상세 팝업은 열려야 함
                 showEmployeeDetail(empNo);
             }}
         }}
@@ -15712,19 +15587,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // showEmployeeDetail 함수를 전역으로 노출 (조직도 탭에서 접근 가능하도록)
         window.showEmployeeDetail = showEmployeeDetail;
-
-        // Validation modal 함수들을 전역으로 노출 (onclick 이벤트에서 접근 가능하도록)
-        window.showValidationModal = showValidationModal;
-        window.showTotalWorkingDaysDetails = showTotalWorkingDaysDetails;
-        window.showZeroWorkingDaysDetails = showZeroWorkingDaysDetails;
-        window.showAbsentWithoutInformDetails = showAbsentWithoutInformDetails;
-        window.showMinimumDaysNotMetDetails = showMinimumDaysNotMetDetails;
-        window.showAttendanceBelow88Details = showAttendanceBelow88Details;
-        window.showAqlFailDetails = showAqlFailDetails;
-        window.showConsecutiveAqlFailDetails = showConsecutiveAqlFailDetails;
-        window.showAreaRejectRateDetails = showAreaRejectRateDetails;
-        window.showLowPassRateDetails = showLowPassRateDetails;
-        window.showLowInspectionQtyDetails = showLowInspectionQtyDetails;
 
         // 모달 닫기
         function closeModal() {{
