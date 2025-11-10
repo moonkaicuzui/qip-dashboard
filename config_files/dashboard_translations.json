@@ -13,7 +13,7 @@
     "position": {
       "ko": "직급별 상세",
       "en": "Position Details",
-      "vi": "Chi tiết theo chức vụ"
+      "vi": "Chi tiết vị trí"
     },
     "individual": {
       "ko": "개인별 상세",
@@ -23,7 +23,7 @@
     "criteria": {
       "ko": "인센티브 기준",
       "en": "Incentive Criteria",
-      "vi": "Tiêu chí khen thưởng"
+      "vi": "Tiêu chí khuyến khích"
     },
     "conditions": {
       "ko": "지급 조건",
@@ -6336,5 +6336,76 @@
       "en": "employees",
       "vi": "nhân viên"
     }
+  },
+  "tableHeaders": {
+    "avgPaymentPaid": {
+      "ko": "평균 지급액",
+      "en": "Avg Payment",
+      "vi": "TB thanh toán"
+    },
+    "avgPaymentPaidBasis": {
+      "ko": "수령인원 기준",
+      "en": "Based on Paid",
+      "vi": "Dựa trên đã trả"
+    },
+    "avgPaymentTotal": {
+      "ko": "평균 지급액",
+      "en": "Avg Payment",
+      "vi": "TB thanh toán"
+    },
+    "avgPaymentTotalBasis": {
+      "ko": "전체인원 기준",
+      "en": "Based on Total",
+      "vi": "Dựa trên tổng"
+    },
+    "totalEmployees": {
+      "ko": "전체 직원",
+      "en": "Total Employees",
+      "vi": "Tổng nhân viên"
+    },
+    "eligibleEmployees": {
+      "ko": "수령 직원",
+      "en": "Eligible Employees",
+      "vi": "Nhân viên đủ điều kiện"
+    },
+    "paymentRate": {
+      "ko": "지급률",
+      "en": "Payment Rate",
+      "vi": "Tỷ lệ thanh toán"
+    },
+    "totalAmount": {
+      "ko": "총 지급액",
+      "en": "Total Amount",
+      "vi": "Tổng số tiền"
+    }
+  },
+  "sectionTitles": {
+    "positionDetails": {
+      "ko": "직급별 상세 현황",
+      "en": "Position Details Status",
+      "vi": "Tình trạng chi tiết theo vị trí"
+    },
+    "individualDetails": {
+      "ko": "개인별 상세 정보",
+      "en": "Individual Details Information",
+      "vi": "Thông tin chi tiết cá nhân"
+    },
+    "typeSummary": {
+      "ko": "Type별 현황",
+      "en": "Type Summary",
+      "vi": "Tóm tắt theo loại"
+    }
+  },
+  "modalTitles": {
+    "positionModal": {
+      "ko": "직급별 상세 정보",
+      "en": "Position Detail Information",
+      "vi": "Thông tin chi tiết vị trí"
+    }
+  },
+  "typeSummary": {
+    "ko": "Type별 현황",
+    "en": "Type Summary",
+    "vi": "Tóm tắt theo loại"
   }
 }
