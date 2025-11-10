@@ -2699,7 +2699,8 @@ class CompleteQIPCalculator:
             # 100% 충족 validation - MODEL MASTER condition 1,2,3,4,8 모두 충족해야 함
             # MODEL MASTER condition 체크 (1,2,3,4,8)
             # position_condition_matrix.jsonof CODE 'D' configurationto 따라 condition checking
-            condition_1_pass = row.get('cond_1_attendance_rate') == 'PASS'
+            # FIX: NOT_APPLICABLE should be treated as PASS for interim reports
+            condition_1_pass = row.get('cond_1_attendance_rate') in ['PASS', 'NOT_APPLICABLE']
             condition_2_pass = row.get('cond_2_unapproved_absence') == 'PASS'
             condition_3_pass = row.get('cond_3_actual_working_days') == 'PASS'
             # FIX: NOT_APPLICABLE should be treated as PASS (e.g., interim reports with < 12 working days)
@@ -2813,7 +2814,8 @@ class CompleteQIPCalculator:
 
             # Attendance conditions (1-4) - 새 표준 컬럼 사용
             if 1 in applicable_conditions:
-                conditions_met[1] = row.get('cond_1_attendance_rate') == 'PASS'
+                # FIX: NOT_APPLICABLE should be treated as PASS for interim reports
+                conditions_met[1] = row.get('cond_1_attendance_rate') in ['PASS', 'NOT_APPLICABLE']
             if 2 in applicable_conditions:
                 conditions_met[2] = row.get('cond_2_unapproved_absence') == 'PASS'
             if 3 in applicable_conditions:
@@ -3741,7 +3743,8 @@ class CompleteQIPCalculator:
 
                 # attendance condition 체크 - 모든 positionto 공통 apply (100% 충족 필수)
                 # Phase 1: Single Source of Truth - 새 표준 컬럼(cond_1~4) 사용
-                condition_1_pass = row.get('cond_1_attendance_rate') == 'PASS'
+                # FIX: NOT_APPLICABLE should be treated as PASS for interim reports
+                condition_1_pass = row.get('cond_1_attendance_rate') in ['PASS', 'NOT_APPLICABLE']
                 condition_2_pass = row.get('cond_2_unapproved_absence') == 'PASS'
                 condition_3_pass = row.get('cond_3_actual_working_days') == 'PASS'
                 # FIX: NOT_APPLICABLE should be treated as PASS (e.g., interim reports with < 12 working days)
@@ -4738,17 +4741,26 @@ class CompleteQIPCalculator:
             approved_leave = self.month_data.loc[idx, 'Approved Leave Days'] if 'Approved Leave Days' in self.month_data.columns else 0
             expected_working_days = total_days - approved_leave
 
-            if expected_working_days <= 0:
+            # Interim report (20일 이전)에는 조건 1 예외 처리
+            if is_interim_report and 1 in applicable_conditions:
+                # Interim report: 조건 1을 NOT_APPLICABLE로 처리 (중간 보고서에서는 출근율 조건 완화)
+                cond_1_result = 'NOT_APPLICABLE'
+                cond_1_applicable = 'NOT_APPLICABLE'
+                cond_1_threshold = 'N/A (Interim)'
+            elif expected_working_days <= 0:
                 # 근무해야 할 날이 없으므로 출근율 조건 평가 불가
                 cond_1_result = 'NOT_APPLICABLE'
+                cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
+                cond_1_threshold = 88
             else:
                 cond_1_result = 'PASS' if attendance_rate >= 88 else 'FAIL'
+                cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
+                cond_1_threshold = 88
 
             # 'N/A' 대신 'NOT_APPLICABLE' 사용 (pandas가 'N/A'를 NaN으로 변환하는 문제 해결)
-            cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_1_attendance_rate'] = cond_1_applicable if cond_1_applicable == 'NOT_APPLICABLE' else cond_1_result
             self.month_data.loc[idx, 'cond_1_value'] = attendance_rate
-            self.month_data.loc[idx, 'cond_1_threshold'] = 88
+            self.month_data.loc[idx, 'cond_1_threshold'] = cond_1_threshold
 
             # condition 2: 무단결근 <= 2 days
             unapproved_absence = self.month_data.loc[idx, 'Unapproved Absences'] if 'Unapproved Absences' in self.month_data.columns else 0
