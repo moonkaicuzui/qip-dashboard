@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QIP 인센티브 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-list {
+            list-style: none;
+        }
+
+        .dashboard-item {
+            display: block;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f7f7f7;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .dashboard-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .dashboard-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .dashboard-info {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .status {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .status-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            .logout-btn {
+                position: static;
+                display: block;
+                margin: 20px auto;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/logout" class="logout-btn">로그아웃</a>
+
+        <div class="header">
+            <h1>📊 QIP 인센티브 대시보드</h1>
+            <p>모바일 최적화 버전</p>
+        </div>
+
+        <div class="status">
+            <div class="status-item">
+                <div class="status-value" id="totalCount">0</div>
+                <div class="status-label">전체 대시보드</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="currentMonth">-</div>
+                <div class="status-label">현재 월</div>
+            </div>
+            <div class="status-item">
+                <div class="status-value" id="serverStatus">✅</div>
+                <div class="status-label">서버 상태</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 20px;">📁 사용 가능한 대시보드</h2>
+            <div id="dashboardList" class="dashboard-list">
+                <div class="loading">로딩 중...</div>
+            </div>
+        </div>
+
+        <div class="card" style="text-align: center; opacity: 0.8;">
+            <small>
+                💡 대시보드를 클릭하면 바로 열립니다<br>
+                📱 모바일에서도 최적화되어 있습니다
+            </small>
+        </div>
+    </div>
+
+    <script>
+        // 현재 날짜 표시
+        const now = new Date();
+        document.getElementById('currentMonth').textContent = `${now.getMonth() + 1}월`;
+
+        // 대시보드 목록 로드
+        async function loadDashboards() {
+            try {
+                const response = await fetch('/api/dashboards');
+                const dashboards = await response.json();
+
+                const listEl = document.getElementById('dashboardList');
+
+                if (dashboards.length > 0) {
+                    document.getElementById('totalCount').textContent = dashboards.length;
+
+                    let html = '';
+                    dashboards.forEach(d => {
+                        html += `
+                            <a href="/view/${d.filename}" class="dashboard-item">
+                                <div class="dashboard-title">${d.display} 대시보드</div>
+                                <div class="dashboard-info">
+                                    파일: ${d.filename} | 크기: ${d.size}KB
+                                </div>
+                            </a>
+                        `;
+                    });
+                    listEl.innerHTML = html;
+                } else {
+                    listEl.innerHTML = '<p style="text-align: center; color: #999;">대시보드가 없습니다</p>';
+                }
+            } catch (error) {
+                document.getElementById('dashboardList').innerHTML =
+                    '<p style="color: red; text-align: center;">로드 실패: ' + error + '</p>';
+                document.getElementById('serverStatus').textContent = '❌';
+            }
+        }
+
+        // 서버 상태 체크
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                if (response.ok) {
+                    document.getElementById('serverStatus').textContent = '✅';
+                }
+            } catch {
+                document.getElementById('serverStatus').textContent = '❌';
+            }
+        }
+
+        // 페이지 로드 시 실행
+        loadDashboards();
+        checkStatus();
+
+        // 30초마다 새로고침
+        setInterval(() => {
+            checkStatus();
+        }, 30000);
+    </script>
+</body>
+</html>

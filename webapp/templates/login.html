@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}로그인 - QIP 대시보드{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-6 col-lg-4">
+            <!-- 로고 -->
+            <div class="text-center mb-4">
+                <div style="width: 100px; height: 100px; margin: 0 auto 20px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                    <i class="fas fa-chart-line" style="font-size: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                </div>
+                <h3 style="color: white; font-weight: 600;">QIP 인센티브 대시보드</h3>
+                <p style="color: rgba(255,255,255,0.8);">Google Drive 실시간 연동</p>
+            </div>
+
+            <!-- 로그인 폼 -->
+            <div class="mobile-card">
+                <form method="POST" action="/login">
+                    <div class="mb-4">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i> 비밀번호
+                        </label>
+                        <input type="password"
+                               class="form-control form-control-lg"
+                               id="password"
+                               name="password"
+                               placeholder="비밀번호를 입력하세요"
+                               required
+                               autofocus>
+                    </div>
+
+                    {% if error %}
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <div>{{ error }}</div>
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="mobile-btn">
+                        <i class="fas fa-sign-in-alt"></i> 로그인
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        관리자에게 문의하여 비밀번호를 받으세요
+                    </small>
+                </div>
+            </div>
+
+            <!-- 기능 소개 -->
+            <div class="mobile-card mt-4">
+                <h5 class="mb-3">주요 기능</h5>
+                <div class="mb-2">
+                    <i class="fas fa-check-circle text-success"></i>
+                    실시간 Google Drive 데이터 동기화
+                </div>
+                <div class="mb-2">
+                    <i class="fas fa-check-circle text-success"></i>
+                    모바일 최적화 대시보드
+                </div>
+                <div class="mb-2">
+                    <i class="fas fa-check-circle text-success"></i>
+                    자동 인센티브 계산
+                </div>
+                <div>
+                    <i class="fas fa-check-circle text-success"></i>
+                    다국어 지원 (한/영/베트남어)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 자동 포커스
+    document.getElementById('password').focus();
+
+    // 엔터키로 제출
+    document.getElementById('password').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.querySelector('form').submit();
+        }
+    });
+
+    // 비밀번호 표시/숨기기 토글
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.createElement('button');
+    toggleBtn.type = 'button';
+    toggleBtn.className = 'btn btn-sm position-absolute end-0 top-50 translate-middle-y me-3';
+    toggleBtn.style.border = 'none';
+    toggleBtn.style.background = 'none';
+    toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+
+    passwordInput.parentElement.style.position = 'relative';
+    passwordInput.parentElement.appendChild(toggleBtn);
+
+    toggleBtn.addEventListener('click', function() {
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        } else {
+            passwordInput.type = 'password';
+            this.innerHTML = '<i class="fas fa-eye"></i>';
+        }
+    });
+</script>
+{% endblock %}
