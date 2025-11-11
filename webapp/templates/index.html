@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}QIP 대시보드 - 홈{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <!-- 헤더 카드 -->
+    <div class="mobile-card mb-4">
+        <h4 class="mb-3">
+            <i class="fas fa-chart-bar text-primary"></i> 인센티브 대시보드
+        </h4>
+        <p class="text-muted mb-3">실시간 Google Drive 연동</p>
+
+        <div class="row g-2">
+            <div class="col-6">
+                <div class="text-center p-3 bg-light rounded">
+                    <div class="fs-3 fw-bold text-primary" id="currentMonth">-</div>
+                    <small class="text-muted">현재 월</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center p-3 bg-light rounded">
+                    <div class="fs-3 fw-bold text-success" id="lastUpdate">-</div>
+                    <small class="text-muted">마지막 업데이트</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 빠른 실행 버튼 -->
+    <div class="mobile-card mb-4">
+        <h5 class="mb-3">빠른 실행</h5>
+
+        <button class="mobile-btn" onclick="viewCurrentDashboard()">
+            <i class="fas fa-eye"></i> 현재 월 대시보드 보기
+        </button>
+
+        <button class="mobile-btn mobile-btn-secondary" onclick="syncDrive()">
+            <i class="fas fa-sync"></i> Google Drive 동기화
+        </button>
+
+        <button class="mobile-btn mobile-btn-secondary" onclick="generateDashboard()">
+            <i class="fas fa-hammer"></i> 대시보드 새로 생성
+        </button>
+    </div>
+
+    <!-- 대시보드 목록 -->
+    <div class="mobile-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">사용 가능한 대시보드</h5>
+            <button class="btn btn-sm btn-outline-primary" onclick="refreshList()">
+                <i class="fas fa-refresh"></i>
+            </button>
+        </div>
+
+        <div id="dashboardList">
+            <div class="text-center py-4">
+                <div class="loading-spinner"></div>
+                <p class="mt-2 text-muted">로딩 중...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상태 정보 -->
+    <div class="mobile-card mt-4">
+        <h5 class="mb-3">
+            <i class="fas fa-info-circle"></i> 시스템 상태
+        </h5>
+        <div id="systemStatus">
+            <div class="d-flex justify-content-between mb-2">
+                <span>서버 상태</span>
+                <span class="status-badge status-badge-success">정상</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span>Drive 연결</span>
+                <span class="status-badge" id="driveStatus">확인 중...</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>캐시 상태</span>
+                <span class="status-badge status-badge-info" id="cacheStatus">0개</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 플로팅 액션 버튼 -->
+<button class="fab" onclick="showQuickMenu()">
+    <i class="fas fa-plus"></i>
+</button>
+
+<!-- 빠른 메뉴 모달 -->
+<div class="modal fade" id="quickMenuModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">빠른 메뉴</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-lg" onclick="selectMonth()">
+                        <i class="fas fa-calendar"></i> 특정 월 선택
+                    </button>
+                    <button class="btn btn-success btn-lg" onclick="syncAndGenerate()">
+                        <i class="fas fa-rocket"></i> 동기화 & 생성
+                    </button>
+                    <button class="btn btn-info btn-lg" onclick="viewSettings()">
+                        <i class="fas fa-cog"></i> 설정
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 월 선택 모달 -->
+<div class="modal fade" id="monthSelectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">대시보드 월 선택</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">연도</label>
+                    <select class="form-select form-select-lg" id="yearSelect">
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">월</label>
+                    <select class="form-select form-select-lg" id="monthSelect">
+                        <option value="1">1월</option>
+                        <option value="2">2월</option>
+                        <option value="3">3월</option>
+                        <option value="4">4월</option>
+                        <option value="5">5월</option>
+                        <option value="6">6월</option>
+                        <option value="7">7월</option>
+                        <option value="8">8월</option>
+                        <option value="9">9월</option>
+                        <option value="10">10월</option>
+                        <option value="11">11월</option>
+                        <option value="12">12월</option>
+                    </select>
+                </div>
+                <div class="d-grid">
+                    <button class="btn btn-primary btn-lg" onclick="viewSelectedMonth()">
+                        <i class="fas fa-eye"></i> 대시보드 보기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 현재 날짜 설정
+    const now = new Date();
+    document.getElementById('currentMonth').textContent = `${now.getFullYear()}년 ${now.getMonth() + 1}월`;
+    document.getElementById('yearSelect').value = now.getFullYear();
+    document.getElementById('monthSelect').value = now.getMonth() + 1;
+
+    // 대시보드 목록 로드
+    async function loadDashboards() {
+        try {
+            const response = await fetch('/api/available-dashboards');
+            const dashboards = await response.json();
+
+            let html = '';
+            if (dashboards.length > 0) {
+                dashboards.forEach(d => {
+                    html += `
+                        <a href="/dashboard/${d.year}/${d.month}" class="dashboard-item">
+                            <div>
+                                <div class="dashboard-item-title">${d.display}</div>
+                                <div class="dashboard-item-subtitle">${d.filename}</div>
+                            </div>
+                            <div class="dashboard-item-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </a>
+                    `;
+                });
+            } else {
+                html = '<p class="text-center text-muted py-4">대시보드가 없습니다</p>';
+            }
+
+            document.getElementById('dashboardList').innerHTML = html;
+        } catch (error) {
+            document.getElementById('dashboardList').innerHTML =
+                '<p class="text-center text-danger">로드 실패</p>';
+        }
+    }
+
+    // 시스템 상태 확인
+    async function checkStatus() {
+        try {
+            const response = await fetch('/api/status');
+            const status = await response.json();
+
+            // Drive 상태
+            const driveEl = document.getElementById('driveStatus');
+            if (status.drive_connected) {
+                driveEl.className = 'status-badge status-badge-success';
+                driveEl.textContent = '연결됨';
+            } else {
+                driveEl.className = 'status-badge status-badge-warning';
+                driveEl.textContent = '연결 안 됨';
+            }
+
+            // 캐시 상태
+            document.getElementById('cacheStatus').textContent = `${status.cache_count}개`;
+
+            // 마지막 업데이트
+            if (status.last_update) {
+                const updateTime = new Date(status.last_update);
+                const hours = Math.floor((now - updateTime) / 3600000);
+                document.getElementById('lastUpdate').textContent =
+                    hours > 0 ? `${hours}시간 전` : '방금';
+            }
+        } catch (error) {
+            console.error('Status check failed:', error);
+        }
+    }
+
+    // 현재 월 대시보드 보기
+    function viewCurrentDashboard() {
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        window.location.href = `/dashboard/${year}/${month}`;
+    }
+
+    // Google Drive 동기화
+    async function syncDrive() {
+        if (confirm('Google Drive를 동기화하시겠습니까?')) {
+            try {
+                const btn = event.target;
+                btn.innerHTML = '<span class="loading-spinner"></span> 동기화 중...';
+                btn.disabled = true;
+
+                const response = await fetch('/api/sync-drive');
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ 동기화 완료! ${result.files_synced}개 파일`);
+                    loadDashboards();
+                } else {
+                    alert(`❌ 동기화 실패: ${result.message}`);
+                }
+            } catch (error) {
+                alert('동기화 중 오류가 발생했습니다');
+            } finally {
+                const btn = event.target;
+                btn.innerHTML = '<i class="fas fa-sync"></i> Google Drive 동기화';
+                btn.disabled = false;
+            }
+        }
+    }
+
+    // 대시보드 생성
+    async function generateDashboard() {
+        const year = prompt('연도를 입력하세요:', now.getFullYear());
+        const month = prompt('월을 입력하세요 (1-12):', now.getMonth() + 1);
+
+        if (year && month) {
+            try {
+                const response = await fetch('/api/generate-dashboard', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({year: parseInt(year), month: parseInt(month)})
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ 대시보드 생성 완료!');
+                    loadDashboards();
+                } else {
+                    alert(`❌ 생성 실패: ${result.message}`);
+                }
+            } catch (error) {
+                alert('생성 중 오류가 발생했습니다');
+            }
+        }
+    }
+
+    // 동기화 & 생성
+    async function syncAndGenerate() {
+        if (confirm('Google Drive 동기화 후 현재 월 대시보드를 생성하시겠습니까?')) {
+            await syncDrive();
+            await generateDashboard();
+        }
+    }
+
+    // 빠른 메뉴 표시
+    function showQuickMenu() {
+        const modal = new bootstrap.Modal(document.getElementById('quickMenuModal'));
+        modal.show();
+    }
+
+    // 월 선택 모달
+    function selectMonth() {
+        const modal = new bootstrap.Modal(document.getElementById('monthSelectModal'));
+        modal.show();
+    }
+
+    // 선택한 월 보기
+    function viewSelectedMonth() {
+        const year = document.getElementById('yearSelect').value;
+        const month = document.getElementById('monthSelect').value;
+        window.location.href = `/dashboard/${year}/${month}`;
+    }
+
+    // 목록 새로고침
+    function refreshList() {
+        document.getElementById('dashboardList').innerHTML =
+            '<div class="text-center py-4"><div class="loading-spinner"></div></div>';
+        loadDashboards();
+    }
+
+    // 페이지 로드 시 실행
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDashboards();
+        checkStatus();
+
+        // 30초마다 상태 확인
+        setInterval(checkStatus, 30000);
+    });
+
+    // Pull to Refresh (모바일)
+    let startY = 0;
+    let isPulling = false;
+
+    document.addEventListener('touchstart', e => {
+        startY = e.touches[0].pageY;
+        isPulling = window.scrollY === 0;
+    });
+
+    document.addEventListener('touchmove', e => {
+        if (!isPulling) return;
+
+        const y = e.touches[0].pageY;
+        const diff = y - startY;
+
+        if (diff > 100) {
+            location.reload();
+        }
+    });
+</script>
+{% endblock %}

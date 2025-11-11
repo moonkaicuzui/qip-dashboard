@@ -1,0 +1,46 @@
+name: Deploy Dashboard to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # 매일 오전 9시 자동 실행 (KST)
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install pandas numpy openpyxl
+        pip install gspread oauth2client
+
+    - name: Generate Dashboard
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      run: |
+        # Google 인증 설정
+        echo "$GOOGLE_CREDENTIALS" > credentials.json
+
+        # 대시보드 생성
+        python integrated_dashboard_final.py --month $(date +%m) --year $(date +%Y)
+
+        # index.html로 복사
+        cp output_files/Incentive_Dashboard_*.html docs/index.html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs
+        cname: dashboard.example.com  # 커스텀 도메인 (선택사항)

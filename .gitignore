@@ -11,11 +11,22 @@ __pycache__/
 *$py.class
 *.so
 
-# 환경 설정
+# 환경 설정 (보안 중요!)
 .env
+.env.local
+.env.production
 .venv
 env/
 venv/
+
+# 보안 파일 (절대 커밋 금지!)
+*.pem
+*.key
+service_account_key.json
+config_files/service_account_key.json
+config_files/*_credentials.json
+secrets.toml
+.streamlit/secrets.toml
 
 # IDE
 .vscode/
