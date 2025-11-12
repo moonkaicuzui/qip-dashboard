@@ -1,0 +1,124 @@
+name: 🔄 Auto Update Dashboard from Google Drive
+
+on:
+  schedule:
+    # 매시간 실행 (한국 시간 기준 조정 필요)
+    - cron: '0 * * * *'
+
+  # 수동 실행 가능
+  workflow_dispatch:
+
+  # main 브랜치 푸시시 실행
+  push:
+    branches: [ main ]
+    paths:
+      - 'integrated_dashboard_final.py'
+      - 'scripts/download_from_gdrive.py'
+      - '.github/workflows/auto-update.yml'
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 저장소 체크아웃
+    - uses: actions/checkout@v3
+      with:
+        persist-credentials: true
+        fetch-depth: 0
+
+    # 2. Python 설정
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    # 3. 캐시 설정 (빠른 실행)
+    - name: 📦 Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    # 4. 의존성 설치
+    - name: 📚 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy openpyxl google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client beautifulsoup4
+
+    # 5. Google Drive에서 CSV 다운로드
+    - name: 📥 Download CSV from Google Drive
+      env:
+        GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+        GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+      run: |
+        echo "Downloading latest CSV files from Google Drive..."
+        python scripts/download_from_gdrive.py
+
+    # 6. 대시보드 HTML 생성
+    - name: 🎨 Generate Dashboard HTML
+      run: |
+        echo "Generating dashboard for all available months..."
+        python scripts/generate_dashboard_for_pages.py
+
+    # 7. GitHub Pages 디렉토리 준비
+    - name: 📂 Prepare GitHub Pages directory
+      run: |
+        # docs 폴더 생성 (GitHub Pages용)
+        mkdir -p docs
+
+        # HTML 파일 복사
+        cp output_files/*.html docs/ 2>/dev/null || true
+
+        # index.html 생성 (최신 월 대시보드로 리다이렉트)
+        latest_file=$(ls -t output_files/Incentive_Dashboard_*.html | head -1)
+        if [ -f "$latest_file" ]; then
+          filename=$(basename "$latest_file")
+          echo "<!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset='UTF-8'>
+            <meta http-equiv='refresh' content='0; url=$filename'>
+            <title>QIP Dashboard</title>
+          </head>
+          <body>
+            <p>Loading latest dashboard...</p>
+          </body>
+          </html>" > docs/index.html
+        fi
+
+        # 월 선택 페이지 생성
+        python scripts/create_month_selector.py
+
+    # 8. 변경사항 커밋 및 푸시
+    - name: 📤 Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # 변경사항 체크
+        if [[ -n $(git status -s) ]]; then
+          git add docs/*.html
+          git add output_files/*.csv 2>/dev/null || true
+          git commit -m "🔄 Auto update dashboard from Google Drive $(date '+%Y-%m-%d %H:%M:%S')"
+          git push
+          echo "✅ Dashboard updated successfully!"
+        else
+          echo "ℹ️ No changes detected"
+        fi
+
+    # 9. GitHub Pages 배포 확인
+    - name: 🌐 Deploy to GitHub Pages
+      run: |
+        echo "Dashboard will be available at:"
+        echo "https://moonkaicuzui.github.io/qip-dashboard/"
+        echo ""
+        echo "Individual month dashboards:"
+        for file in docs/Incentive_Dashboard_*.html; do
+          if [ -f "$file" ]; then
+            filename=$(basename "$file")
+            echo "https://moonkaicuzui.github.io/qip-dashboard/$filename"
+          fi
+        done

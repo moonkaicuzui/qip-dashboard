@@ -1,0 +1,307 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+월 선택 페이지 생성 스크립트
+모든 월의 대시보드를 선택할 수 있는 메인 페이지 생성
+"""
+
+import os
+import glob
+from datetime import datetime
+
+def create_month_selector_page():
+    """월 선택 페이지 HTML 생성"""
+
+    # docs 디렉토리의 HTML 파일 찾기
+    html_files = glob.glob("docs/Incentive_Dashboard_*.html")
+
+    # 파일 정보 추출
+    dashboards = []
+    for file in html_files:
+        try:
+            filename = os.path.basename(file)
+            # Incentive_Dashboard_2025_11_Version_8.html 형식 파싱
+            parts = filename.replace('.html', '').split('_')
+            year = int(parts[2])
+            month = int(parts[3])
+
+            month_names = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December']
+            month_name = month_names[month] if 1 <= month <= 12 else str(month)
+
+            dashboards.append({
+                'filename': filename,
+                'year': year,
+                'month': month,
+                'month_name': month_name,
+                'sort_key': year * 100 + month
+            })
+        except Exception as e:
+            print(f"⚠️ 파일 파싱 실패 {file}: {e}")
+            continue
+
+    # 정렬 (최신 순)
+    dashboards.sort(key=lambda x: x['sort_key'], reverse=True)
+
+    # HTML 생성
+    html_content = """<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QIP 인센티브 대시보드 - 월 선택</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .month-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .month-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .month-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .month-year {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .month-name {
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .status-new {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-updated {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .last-update {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .refresh-info {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .month-card {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .month-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <h1>📊 QIP 인센티브 대시보드</h1>
+            <p>원하시는 월을 선택하세요</p>
+        </div>
+
+        <!-- 자동 업데이트 정보 -->
+        <div class="refresh-info">
+            <p class="mb-0">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
+            <small>마지막 업데이트: """ + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + """</small>
+        </div>
+
+        <!-- 월 선택 그리드 -->
+        <div class="month-grid">
+"""
+
+    # 각 월별 카드 추가
+    for i, dashboard in enumerate(dashboards):
+        # 최신 3개월은 NEW 배지
+        badge_html = '<span class="status-badge status-new">NEW</span>' if i < 3 else ''
+
+        # 애니메이션 지연
+        animation_delay = i * 0.1
+
+        html_content += f"""
+            <a href="{dashboard['filename']}" class="month-card" style="animation-delay: {animation_delay}s;">
+                <div class="month-year">{dashboard['year']}년 {dashboard['month']}월</div>
+                <div class="month-name">{dashboard['month_name']}</div>
+                <div class="card-footer">
+                    {badge_html}
+                    <span class="view-btn">보기 →</span>
+                </div>
+            </a>
+"""
+
+    html_content += """
+        </div>
+
+        <!-- 푸터 -->
+        <div class="last-update">
+            <p>💡 모바일에서도 완벽하게 작동합니다</p>
+            <p>🔒 모든 데이터는 안전하게 보호됩니다</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // 카드 클릭 애니메이션
+        document.querySelectorAll('.month-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    window.location.href = this.href;
+                }, 200);
+            });
+        });
+
+        // 페이지 로드시 현재 월 하이라이트
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        document.querySelectorAll('.month-card').forEach(card => {
+            const text = card.querySelector('.month-year').textContent;
+            if (text.includes(`${currentYear}년 ${currentMonth}월`)) {
+                card.style.border = '3px solid #667eea';
+            }
+        });
+    </script>
+</body>
+</html>"""
+
+    # 파일 저장
+    os.makedirs('docs', exist_ok=True)
+    with open('docs/selector.html', 'w', encoding='utf-8') as f:
+        f.write(html_content)
+
+    print(f"✅ 월 선택 페이지 생성 완료: docs/selector.html")
+    print(f"   {len(dashboards)}개월 대시보드 링크 포함")
+
+if __name__ == "__main__":
+    create_month_selector_page()
