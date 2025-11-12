@@ -16,6 +16,12 @@ on:
       - 'scripts/download_from_gdrive.py'
       - '.github/workflows/auto-update.yml'
 
+# GitHub Actions에 write 권한 부여
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   update-dashboard:
     runs-on: ubuntu-latest
