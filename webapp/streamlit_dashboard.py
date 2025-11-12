@@ -17,6 +17,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 from typing import Optional, Dict, List
 import base64
+import sys
+
+# Add parent directory to path for imports (if needed)
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
 # 페이지 설정 - 반드시 맨 처음에 실행
 st.set_page_config(

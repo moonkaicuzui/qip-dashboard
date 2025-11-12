@@ -46,9 +46,11 @@ Thumbs.db
 # 출력 파일
 output_files/*.html
 output_files/*.xlsx
-output_files/*.csv
+# output_files/*.csv  # 대시보드용 CSV는 업로드 필요
 output_files/archived/
 output_files/dashboards/
+# 대시보드용 11월 데이터는 업로드
+!output_files/output_QIP_incentive_november_2025_Complete_V8.02_Complete.csv
 
 # 이미지 파일
 *.png
