@@ -30,6 +30,10 @@ def create_month_selector_page():
                           'July', 'August', 'September', 'October', 'November', 'December']
             month_name = month_names[month] if 1 <= month <= 12 else str(month)
 
+            # 8월(August) 제외
+            if month == 8:
+                continue
+
             dashboards.append({
                 'filename': filename,
                 'year': year,

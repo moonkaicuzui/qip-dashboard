@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="QIP 대시보드">
+    <title>QIP 인센티브 대시보드 바로가기</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .btn-open {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 18px 50px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .btn-open:hover, .btn-open:active {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            color: #764ba2;
+        }
+
+        .info {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        .info strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 5px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 로고 -->
+        <div class="logo">
+            📊
+        </div>
+
+        <!-- 제목 -->
+        <h1>QIP 인센티브 대시보드</h1>
+        <p class="subtitle">
+            실시간 인센티브 계산 결과를 <br>
+            언제 어디서나 확인하세요
+        </p>
+
+        <!-- 열기 버튼 -->
+        <a href="https://moonkaicuzui.github.io/qip-dashboard/" class="btn-open" id="openBtn">
+            📱 대시보드 열기
+        </a>
+
+        <!-- 정보 -->
+        <div class="info">
+            <strong>✨ 주요 기능</strong>
+            <div class="badge">👥 직원별 인센티브 조회</div>
+            <div class="badge">📈 실시간 통계</div>
+            <div class="badge">📅 월별 비교</div>
+            <div class="badge">📱 모바일 최적화</div>
+
+            <div style="margin-top: 20px;">
+                <strong>🔄 자동 업데이트</strong>
+                <p>매시간 Google Drive와 자동 동기화</p>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <strong>💡 사용 팁</strong>
+                <p>이 파일을 휴대폰에 저장하시면<br>언제든지 빠르게 접속할 수 있어요!</p>
+            </div>
+        </div>
+
+        <!-- 푸터 -->
+        <div class="footer">
+            🤖 GitHub Actions로 자동 관리됨
+        </div>
+    </div>
+
+    <script>
+        // 버튼 클릭 시 진동 피드백 (지원되는 디바이스에서)
+        document.getElementById('openBtn').addEventListener('click', function(e) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
+        });
+
+        // iOS Safari에서 홈 화면에 추가 가이드
+        if (navigator.standalone !== undefined) {
+            console.log('iOS Safari detected');
+        }
+    </script>
+</body>
+</html>
