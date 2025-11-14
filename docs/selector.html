@@ -242,14 +242,16 @@
         <!-- 자동 업데이트 정보 -->
         <div class="refresh-info">
             <p class="mb-0" data-i18n="refresh-info">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
-            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-14 07:29:14</small>
+            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-14 07:31:56</small>
         </div>
 
         <!-- 월 선택 그리드 -->
         <div class="month-grid">
 
-            <a href="Incentive_Dashboard_2025_11_Version_8.02.html" class="month-card" style="animation-delay: 0.0s;">
-                <div class="month-year">2025년 11월</div>
+            <a href="Incentive_Dashboard_2025_11_Version_8.02.html" class="month-card" style="animation-delay: 0.0s;" data-year="2025" data-month="11">
+                <div class="month-year">
+                    <span class="year-text">2025</span><span data-i18n="year-suffix">년</span> <span class="month-text">11</span><span data-i18n="month-suffix">월</span>
+                </div>
                 <div class="month-name">November</div>
                 <div class="card-footer">
                     <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
@@ -257,8 +259,10 @@
                 </div>
             </a>
 
-            <a href="Incentive_Dashboard_2025_10_Version_8.02.html" class="month-card" style="animation-delay: 0.1s;">
-                <div class="month-year">2025년 10월</div>
+            <a href="Incentive_Dashboard_2025_10_Version_8.02.html" class="month-card" style="animation-delay: 0.1s;" data-year="2025" data-month="10">
+                <div class="month-year">
+                    <span class="year-text">2025</span><span data-i18n="year-suffix">년</span> <span class="month-text">10</span><span data-i18n="month-suffix">월</span>
+                </div>
                 <div class="month-name">October</div>
                 <div class="card-footer">
                     <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
@@ -266,8 +270,10 @@
                 </div>
             </a>
 
-            <a href="Incentive_Dashboard_2025_09_Version_8.02.html" class="month-card" style="animation-delay: 0.2s;">
-                <div class="month-year">2025년 9월</div>
+            <a href="Incentive_Dashboard_2025_09_Version_8.02.html" class="month-card" style="animation-delay: 0.2s;" data-year="2025" data-month="9">
+                <div class="month-year">
+                    <span class="year-text">2025</span><span data-i18n="year-suffix">년</span> <span class="month-text">9</span><span data-i18n="month-suffix">월</span>
+                </div>
                 <div class="month-name">September</div>
                 <div class="card-footer">
                     <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
@@ -299,7 +305,11 @@
                 'view-btn': '보기 →',
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
-                'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다'
+                'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다',
+                'year-suffix': '년',
+                'month-suffix': '월',
+                'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December']
             },
             en: {
                 'page-title': 'QIP Incentive Dashboard - Select Month',
@@ -310,7 +320,11 @@
                 'view-btn': 'View →',
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 Works perfectly on mobile devices',
-                'footer-security': '🔒 All data is securely protected'
+                'footer-security': '🔒 All data is securely protected',
+                'year-suffix': '',
+                'month-suffix': '',
+                'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December']
             },
             vi: {
                 'page-title': 'Bảng điều khiển Khuyến khích QIP - Chọn Tháng',
@@ -321,7 +335,11 @@
                 'view-btn': 'Xem →',
                 'badge-new': 'MỚI',
                 'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
-                'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn'
+                'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn',
+                'year-suffix': '',
+                'month-suffix': '',
+                'months': ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                          'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
             }
         };
 
@@ -338,6 +356,15 @@
                 const key = element.getAttribute('data-i18n');
                 if (translations[lang] && translations[lang][key]) {
                     element.innerHTML = translations[lang][key];
+                }
+            });
+
+            // 월 카드의 월 이름 업데이트
+            document.querySelectorAll('.month-card').forEach(card => {
+                const month = parseInt(card.getAttribute('data-month'));
+                const monthNameElement = card.querySelector('.month-name');
+                if (monthNameElement && translations[lang] && translations[lang]['months']) {
+                    monthNameElement.textContent = translations[lang]['months'][month];
                 }
             });
 
