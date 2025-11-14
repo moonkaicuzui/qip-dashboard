@@ -1342,6 +1342,120 @@
             max-height: 70vh !important;
             overflow-y: auto !important;
         }
+
+        /* 모바일 반응형 최적화 */
+        @media (max-width: 768px) {
+            /* 컨테이너 여백 조정 */
+            .container {
+                padding: 10px;
+            }
+
+            /* 헤더 크기 조정 */
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            /* 통계 카드 그리드 조정 */
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            /* 테이블 스크롤 컨테이너 */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin: 10px -10px;
+            }
+
+            /* 테이블 최소 너비 설정 */
+            .table {
+                min-width: 800px;
+                font-size: 0.85rem;
+            }
+
+            .table thead th {
+                padding: 8px 4px;
+                font-size: 0.75rem;
+            }
+
+            .table tbody td {
+                padding: 8px 4px;
+                font-size: 0.8rem;
+            }
+
+            /* TYPE 배지 크기 조정 */
+            .type-badge {
+                font-size: 0.7rem;
+                padding: 2px 8px;
+            }
+
+            /* 탭 버튼 조정 */
+            .tab-button {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            /* 차트 컨테이너 높이 조정 */
+            .chart-container {
+                height: 250px;
+                margin-bottom: 15px;
+            }
+
+            /* 모달 크기 조정 */
+            #employeeModal .modal-dialog {
+                max-width: 95% !important;
+                margin: 0.5rem !important;
+            }
+
+            #employeeModal .modal-body {
+                max-height: 60vh !important;
+                padding: 10px;
+            }
+
+            /* Talent Pool 카드 조정 */
+            .talent-pool-card {
+                padding: 15px;
+            }
+
+            /* 버튼 크기 조정 */
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+            }
+
+            /* 언어 선택기 조정 */
+            .lang-btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* 작은 모바일 기기 (320px - 480px) */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.25rem;
+            }
+
+            .table {
+                font-size: 0.75rem;
+                min-width: 700px;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding: 6px 2px;
+            }
+
+            .chart-container {
+                height: 200px;
+            }
+
+            .tab-button {
+                padding: 6px 8px;
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1361,7 +1475,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V8.02</span></h1>
             <p id="mainSubtitle">2025년 10월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="13" data-hour="23" data-minute="20">보고서 생성일: 2025년 11월 13일 23:20</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="14" data-hour="00" data-minute="37">보고서 생성일: 2025년 11월 14일 00:37</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="10" data-startday="01" data-endday="31">• 인센티브 데이터: 2025년 10월 01일 ~ 31일</p>
@@ -1384,7 +1498,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 13일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 14일</span>
             </div>
         </div>
 
@@ -1431,25 +1545,27 @@
             <!-- 요약 탭 -->
             <div id="summary" class="tab-content active">
                 <h3 id="summaryTabTitle" data-translate="typeSummary">Type별 현황</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th rowspan="2" id="summaryTypeHeader">Type</th>
-                            <th rowspan="2" id="summaryTotalHeader">전체 인원</th>
-                            <th rowspan="2" id="summaryEligibleHeader">수령 인원</th>
-                            <th rowspan="2" id="summaryPaymentRateHeader">지급률</th>
-                            <th rowspan="2" id="summaryTotalAmountHeader">총 지급액</th>
-                            <th colspan="2" class="avg-header" id="summaryAvgAmountHeader">평균 지급액</th>
-                        </tr>
-                        <tr>
-                            <th class="sub-header" id="summaryAvgEligibleHeader" data-translate="avgPaymentPaidBasis">수령인원 기준</th>
-                            <th class="sub-header" id="summaryAvgTotalHeader" data-translate="avgPaymentTotalBasis">전체인원 기준</th>
-                        </tr>
-                    </thead>
-                    <tbody id="typeSummaryBody">
-                        <!-- JavaScript로 동적으로 채워질 예정 -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" id="summaryTypeHeader">Type</th>
+                                <th rowspan="2" id="summaryTotalHeader">전체 인원</th>
+                                <th rowspan="2" id="summaryEligibleHeader">수령 인원</th>
+                                <th rowspan="2" id="summaryPaymentRateHeader">지급률</th>
+                                <th rowspan="2" id="summaryTotalAmountHeader">총 지급액</th>
+                                <th colspan="2" class="avg-header" id="summaryAvgAmountHeader">평균 지급액</th>
+                            </tr>
+                            <tr>
+                                <th class="sub-header" id="summaryAvgEligibleHeader" data-translate="avgPaymentPaidBasis">수령인원 기준</th>
+                                <th class="sub-header" id="summaryAvgTotalHeader" data-translate="avgPaymentTotalBasis">전체인원 기준</th>
+                            </tr>
+                        </thead>
+                        <tbody id="typeSummaryBody">
+                            <!-- JavaScript로 동적으로 채워질 예정 -->
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
             
             <!-- 직급별 상세 탭 -->
@@ -1575,7 +1691,8 @@
                     <div class="card-body">
                         <!-- 출근 조건 -->
                         <h6 class="text-success mb-3" id="attendanceConditionTitle">📅 출근 조건 (4개)</h6>
-                        <table class="table table-sm table-bordered mb-4" id="attendanceTable">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-4" id="attendanceTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
@@ -1610,11 +1727,13 @@
                                     <td class="cond-desc-4">월간 최소 12일 이상 work해야 합니다</td>
                                 </tr>
                             </tbody>
-                        </table>
-                        
+                            </table>
+                        </div>
+
                         <!-- AQL 조건 -->
                         <h6 class="text-primary mb-3" id="aqlConditionTitle">🎯 AQL 조건 (4개)</h6>
-                        <table class="table table-sm table-bordered mb-4" id="aqlTable">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-4" id="aqlTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
@@ -1649,11 +1768,13 @@
                                     <td class="cond-desc-8">담당 구역의 AQL 리젝률이 3% 미만이어야 합니다</td>
                                 </tr>
                             </tbody>
-                        </table>
-                        
+                            </table>
+                        </div>
+
                         <!-- 5PRS 조건 -->
                         <h6 class="text-warning mb-3" id="prsConditionTitle">📊 5PRS 조건 (2개)</h6>
-                        <table class="table table-sm table-bordered" id="prsTable">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered" id="prsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
@@ -1676,7 +1797,8 @@
                                     <td class="cond-desc-10">월간 최소 100개 이상 검사를 count행해야 합니다</td>
                                 </tr>
                             </tbody>
-                        </table>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 
@@ -11291,9 +11413,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '13th' :
-                               currentLanguage === 'en' ? 'Day 13' :
-                               'Ngày 13';
+                const dayText = currentLanguage === 'ko' ? '14th' :
+                               currentLanguage === 'en' ? 'Day 14' :
+                               'Ngày 14';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
