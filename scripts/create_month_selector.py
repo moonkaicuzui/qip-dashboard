@@ -309,8 +309,10 @@ def create_month_selector_page():
         animation_delay = i * 0.1
 
         html_content += f"""
-            <a href="{dashboard['filename']}" class="month-card" style="animation-delay: {animation_delay}s;">
-                <div class="month-year">{dashboard['year']}년 {dashboard['month']}월</div>
+            <a href="{dashboard['filename']}" class="month-card" style="animation-delay: {animation_delay}s;" data-year="{dashboard['year']}" data-month="{dashboard['month']}">
+                <div class="month-year">
+                    <span class="year-text">{dashboard['year']}</span><span data-i18n="year-suffix">년</span> <span class="month-text">{dashboard['month']}</span><span data-i18n="month-suffix">월</span>
+                </div>
                 <div class="month-name">{dashboard['month_name']}</div>
                 <div class="card-footer">
                     {badge_html}
@@ -344,7 +346,11 @@ def create_month_selector_page():
                 'view-btn': '보기 →',
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
-                'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다'
+                'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다',
+                'year-suffix': '년',
+                'month-suffix': '월',
+                'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December']
             },
             en: {
                 'page-title': 'QIP Incentive Dashboard - Select Month',
@@ -355,7 +361,11 @@ def create_month_selector_page():
                 'view-btn': 'View →',
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 Works perfectly on mobile devices',
-                'footer-security': '🔒 All data is securely protected'
+                'footer-security': '🔒 All data is securely protected',
+                'year-suffix': '',
+                'month-suffix': '',
+                'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December']
             },
             vi: {
                 'page-title': 'Bảng điều khiển Khuyến khích QIP - Chọn Tháng',
@@ -366,7 +376,11 @@ def create_month_selector_page():
                 'view-btn': 'Xem →',
                 'badge-new': 'MỚI',
                 'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
-                'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn'
+                'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn',
+                'year-suffix': '',
+                'month-suffix': '',
+                'months': ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                          'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
             }
         };
 
@@ -383,6 +397,15 @@ def create_month_selector_page():
                 const key = element.getAttribute('data-i18n');
                 if (translations[lang] && translations[lang][key]) {
                     element.innerHTML = translations[lang][key];
+                }
+            });
+
+            // 월 카드의 월 이름 업데이트
+            document.querySelectorAll('.month-card').forEach(card => {
+                const month = parseInt(card.getAttribute('data-month'));
+                const monthNameElement = card.querySelector('.month-name');
+                if (monthNameElement && translations[lang] && translations[lang]['months']) {
+                    monthNameElement.textContent = translations[lang]['months'][month];
                 }
             });
 
