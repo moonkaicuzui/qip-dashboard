@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QIP 인센티브 대시보드 - 월 선택</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title data-i18n="page-title">QIP 인센티브 대시보드 - 월 선택</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,6 +15,43 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 언어 선택 버튼 */
+        .lang-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .lang-btn:hover {
+            opacity: 1;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+            opacity: 1;
         }
 
         .container {
@@ -159,6 +198,17 @@
         }
 
         @media (max-width: 768px) {
+            .lang-selector {
+                top: 10px;
+                right: 10px;
+                padding: 3px;
+            }
+
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
             .header h1 {
                 font-size: 2rem;
             }
@@ -169,22 +219,30 @@
 
             .container {
                 padding: 10px;
+                padding-top: 60px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- 언어 선택 버튼 -->
+    <div class="lang-selector">
+        <button class="lang-btn active" data-lang="ko" onclick="switchLanguage('ko')">한국어</button>
+        <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">English</button>
+        <button class="lang-btn" data-lang="vi" onclick="switchLanguage('vi')">Tiếng Việt</button>
+    </div>
+
     <div class="container">
         <!-- 헤더 -->
         <div class="header">
-            <h1>📊 QIP 인센티브 대시보드</h1>
-            <p>원하시는 월을 선택하세요</p>
+            <h1><span data-i18n="header-title">📊 QIP 인센티브 대시보드</span></h1>
+            <p data-i18n="header-subtitle">원하시는 월을 선택하세요</p>
         </div>
 
         <!-- 자동 업데이트 정보 -->
         <div class="refresh-info">
-            <p class="mb-0">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
-            <small>마지막 업데이트: 2025-11-13 23:20:57</small>
+            <p class="mb-0" data-i18n="refresh-info">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
+            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-14 07:29:14</small>
         </div>
 
         <!-- 월 선택 그리드 -->
@@ -194,8 +252,8 @@
                 <div class="month-year">2025년 11월</div>
                 <div class="month-name">November</div>
                 <div class="card-footer">
-                    <span class="status-badge status-new">NEW</span>
-                    <span class="view-btn">보기 →</span>
+                    <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
+                    <span class="view-btn" data-i18n="view-btn">보기 →</span>
                 </div>
             </a>
 
@@ -203,8 +261,8 @@
                 <div class="month-year">2025년 10월</div>
                 <div class="month-name">October</div>
                 <div class="card-footer">
-                    <span class="status-badge status-new">NEW</span>
-                    <span class="view-btn">보기 →</span>
+                    <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
+                    <span class="view-btn" data-i18n="view-btn">보기 →</span>
                 </div>
             </a>
 
@@ -212,8 +270,8 @@
                 <div class="month-year">2025년 9월</div>
                 <div class="month-name">September</div>
                 <div class="card-footer">
-                    <span class="status-badge status-new">NEW</span>
-                    <span class="view-btn">보기 →</span>
+                    <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
+                    <span class="view-btn" data-i18n="view-btn">보기 →</span>
                 </div>
             </a>
 
@@ -221,8 +279,8 @@
 
         <!-- 푸터 -->
         <div class="last-update">
-            <p>💡 모바일에서도 완벽하게 작동합니다</p>
-            <p>🔒 모든 데이터는 안전하게 보호됩니다</p>
+            <p data-i18n="footer-mobile">💡 모바일에서도 완벽하게 작동합니다</p>
+            <p data-i18n="footer-security">🔒 모든 데이터는 안전하게 보호됩니다</p>
         </div>
     </div>
 
@@ -230,6 +288,83 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // 다국어 번역 데이터
+        const translations = {
+            ko: {
+                'page-title': 'QIP 인센티브 대시보드 - 월 선택',
+                'header-title': '📊 QIP 인센티브 대시보드',
+                'header-subtitle': '원하시는 월을 선택하세요',
+                'refresh-info': '🔄 Google Drive와 매시간 자동 동기화됩니다',
+                'last-update': '마지막 업데이트:',
+                'view-btn': '보기 →',
+                'badge-new': 'NEW',
+                'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
+                'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다'
+            },
+            en: {
+                'page-title': 'QIP Incentive Dashboard - Select Month',
+                'header-title': '📊 QIP Incentive Dashboard',
+                'header-subtitle': 'Please select the month you want to view',
+                'refresh-info': '🔄 Automatically syncs with Google Drive every hour',
+                'last-update': 'Last updated:',
+                'view-btn': 'View →',
+                'badge-new': 'NEW',
+                'footer-mobile': '💡 Works perfectly on mobile devices',
+                'footer-security': '🔒 All data is securely protected'
+            },
+            vi: {
+                'page-title': 'Bảng điều khiển Khuyến khích QIP - Chọn Tháng',
+                'header-title': '📊 Bảng điều khiển Khuyến khích QIP',
+                'header-subtitle': 'Vui lòng chọn tháng bạn muốn xem',
+                'refresh-info': '🔄 Tự động đồng bộ với Google Drive mỗi giờ',
+                'last-update': 'Cập nhật lần cuối:',
+                'view-btn': 'Xem →',
+                'badge-new': 'MỚI',
+                'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
+                'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn'
+            }
+        };
+
+        // 언어 전환 함수
+        function switchLanguage(lang) {
+            // localStorage에 저장
+            localStorage.setItem('preferredLanguage', lang);
+
+            // HTML lang 속성 변경
+            document.documentElement.lang = lang;
+
+            // 모든 번역 요소 업데이트
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.innerHTML = translations[lang][key];
+                }
+            });
+
+            // 페이지 타이틀 업데이트
+            const titleElement = document.querySelector('title[data-i18n]');
+            if (titleElement && translations[lang]) {
+                document.title = translations[lang]['page-title'];
+            }
+
+            // 활성 버튼 스타일 변경
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.lang-btn[data-lang="${lang}"]`).classList.add('active');
+
+            // 진동 피드백
+            if ('vibrate' in navigator) {
+                navigator.vibrate(30);
+            }
+        }
+
+        // 페이지 로드 시 저장된 언어 적용
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('preferredLanguage') || 'ko';
+            switchLanguage(savedLang);
+        });
+
         // 카드 클릭 애니메이션
         document.querySelectorAll('.month-card').forEach(card => {
             card.addEventListener('click', function(e) {
