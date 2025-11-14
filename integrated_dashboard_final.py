@@ -6405,7 +6405,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </select>
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V8.02</span></h1>
-            <p id="mainSubtitle">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
+            <p id="mainSubtitle" data-year="{year}" data-month="{month}" data-month-name="{get_korean_month(month)}">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
@@ -8317,7 +8317,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 window.employeeData.forEach(emp => {{
                     const empType = emp['type'] || emp['ROLE TYPE STD'] || 'TYPE-2';
-                    const incentiveAmount = parseFloat(emp['october_incentive'] || emp['October_Incentive'] || emp['Final Incentive amount']) || 0;
+                    // 현재 월의 인센티브 컬럼 동적으로 찾기
+                    const monthLower = '{month.lower()}';
+                    const monthCapitalized = monthLower.charAt(0).toUpperCase() + monthLower.slice(1);
+                    const incentiveAmount = parseFloat(
+                        emp[monthLower + '_incentive'] ||
+                        emp[monthCapitalized + '_Incentive'] ||
+                        emp['Final Incentive amount']
+                    ) || 0;
 
                     if (typeStats[empType]) {{
                         typeStats[empType].total++;
@@ -8331,6 +8338,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 테이블 생성
                 let tableHTML = '';
                 let totalAll = 0, eligibleAll = 0, amountAll = 0;
+
+                // 현재 언어에 맞는 단위 가져오기
+                const peopleUnit = getUnit('people');
 
                 ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(type => {{
                     const stats = typeStats[type];
@@ -8347,8 +8357,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     tableHTML += `
                         <tr>
                             <td><span class="badge bg-${{typeClass}}">${{type}}</span></td>
-                            <td>${{stats.total}}명</td>
-                            <td>${{stats.eligible}}명</td>
+                            <td>${{stats.total}}${{peopleUnit}}</td>
+                            <td>${{stats.eligible}}${{peopleUnit}}</td>
                             <td>${{paymentRate}}%</td>
                             <td>${{stats.amount.toLocaleString()}} VND</td>
                             <td>${{avgEligible.toLocaleString()}} VND</td>
@@ -8365,8 +8375,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 tableHTML += `
                     <tr class="table-info fw-bold">
                         <td>Total</td>
-                        <td>${{totalAll}}명</td>
-                        <td>${{eligibleAll}}명</td>
+                        <td>${{totalAll}}${{peopleUnit}}</td>
+                        <td>${{eligibleAll}}${{peopleUnit}}</td>
                         <td>${{totalPaymentRate}}%</td>
                         <td>${{amountAll.toLocaleString()}} VND</td>
                         <td>${{totalAvgEligible.toLocaleString()}} VND</td>
@@ -9959,6 +9969,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         
         // 탭 콘텐츠 업데이트
         function updateTabContents() {{
+            // Summary 테이블 재생성
+            if (typeof generateTypeTable === 'function') {{
+                generateTypeTable();
+            }}
             // 개by 테이블 재creation
             generateEmployeeTable();
             generatePositionTables();
