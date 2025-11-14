@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="QIP 대시보드">
+    <meta name="apple-mobile-web-app-title" content="QIP Dashboard">
     <title>QIP 인센티브 대시보드 바로가기</title>
 
     <style>
@@ -25,6 +25,42 @@
             align-items: center;
             color: white;
             padding: 20px;
+        }
+
+        /* 언어 선택 버튼 */
+        .lang-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .lang-btn:hover {
+            opacity: 1;
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+            opacity: 1;
         }
 
         .container {
@@ -121,9 +157,38 @@
             font-size: 0.85rem;
             opacity: 0.7;
         }
+
+        /* 모바일 최적화 */
+        @media (max-width: 480px) {
+            .lang-selector {
+                top: 10px;
+                right: 10px;
+                padding: 3px;
+            }
+
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- 언어 선택 버튼 -->
+    <div class="lang-selector">
+        <button class="lang-btn active" data-lang="ko" onclick="switchLanguage('ko')">한국어</button>
+        <button class="lang-btn" data-lang="en" onclick="switchLanguage('en')">English</button>
+        <button class="lang-btn" data-lang="vi" onclick="switchLanguage('vi')">Tiếng Việt</button>
+    </div>
+
     <div class="container">
         <!-- 로고 -->
         <div class="logo">
@@ -131,44 +196,127 @@
         </div>
 
         <!-- 제목 -->
-        <h1>QIP 인센티브 대시보드</h1>
-        <p class="subtitle">
-            실시간 인센티브 계산 결과를 <br>
+        <h1 data-i18n="title">QIP 인센티브 대시보드</h1>
+        <p class="subtitle" data-i18n="subtitle">
+            실시간 인센티브 계산 결과를<br>
             언제 어디서나 확인하세요
         </p>
 
         <!-- 열기 버튼 -->
         <a href="https://moonkaicuzui.github.io/qip-dashboard/" class="btn-open" id="openBtn">
-            📱 대시보드 열기
+            <span data-i18n="btn-open">📱 대시보드 열기</span>
         </a>
 
         <!-- 정보 -->
         <div class="info">
-            <strong>✨ 주요 기능</strong>
-            <div class="badge">👥 직원별 인센티브 조회</div>
-            <div class="badge">📈 실시간 통계</div>
-            <div class="badge">📅 월별 비교</div>
-            <div class="badge">📱 모바일 최적화</div>
+            <strong data-i18n="features-title">✨ 주요 기능</strong>
+            <div class="badge" data-i18n="feature-1">👥 직원별 인센티브 조회</div>
+            <div class="badge" data-i18n="feature-2">📈 실시간 통계</div>
+            <div class="badge" data-i18n="feature-3">📅 월별 비교</div>
+            <div class="badge" data-i18n="feature-4">📱 모바일 최적화</div>
 
             <div style="margin-top: 20px;">
-                <strong>🔄 자동 업데이트</strong>
-                <p>매시간 Google Drive와 자동 동기화</p>
+                <strong data-i18n="auto-update-title">🔄 자동 업데이트</strong>
+                <p data-i18n="auto-update-desc">매시간 Google Drive와 자동 동기화</p>
             </div>
 
             <div style="margin-top: 20px;">
-                <strong>💡 사용 팁</strong>
-                <p>이 파일을 휴대폰에 저장하시면<br>언제든지 빠르게 접속할 수 있어요!</p>
+                <strong data-i18n="tips-title">💡 사용 팁</strong>
+                <p data-i18n="tips-desc">이 파일을 휴대폰에 저장하시면<br>언제든지 빠르게 접속할 수 있어요!</p>
             </div>
         </div>
 
         <!-- 푸터 -->
-        <div class="footer">
+        <div class="footer" data-i18n="footer">
             🤖 GitHub Actions로 자동 관리됨
         </div>
     </div>
 
     <script>
-        // 버튼 클릭 시 진동 피드백 (지원되는 디바이스에서)
+        // 다국어 번역 데이터
+        const translations = {
+            ko: {
+                title: 'QIP 인센티브 대시보드',
+                subtitle: '실시간 인센티브 계산 결과를<br>언제 어디서나 확인하세요',
+                'btn-open': '📱 대시보드 열기',
+                'features-title': '✨ 주요 기능',
+                'feature-1': '👥 직원별 인센티브 조회',
+                'feature-2': '📈 실시간 통계',
+                'feature-3': '📅 월별 비교',
+                'feature-4': '📱 모바일 최적화',
+                'auto-update-title': '🔄 자동 업데이트',
+                'auto-update-desc': '매시간 Google Drive와 자동 동기화',
+                'tips-title': '💡 사용 팁',
+                'tips-desc': '이 파일을 휴대폰에 저장하시면<br>언제든지 빠르게 접속할 수 있어요!',
+                footer: '🤖 GitHub Actions로 자동 관리됨'
+            },
+            en: {
+                title: 'QIP Incentive Dashboard',
+                subtitle: 'Check real-time incentive calculation results<br>anytime, anywhere',
+                'btn-open': '📱 Open Dashboard',
+                'features-title': '✨ Key Features',
+                'feature-1': '👥 Employee Incentive Lookup',
+                'feature-2': '📈 Real-time Statistics',
+                'feature-3': '📅 Monthly Comparison',
+                'feature-4': '📱 Mobile Optimized',
+                'auto-update-title': '🔄 Auto Update',
+                'auto-update-desc': 'Automatically syncs with Google Drive every hour',
+                'tips-title': '💡 Usage Tip',
+                'tips-desc': 'Save this file to your phone<br>for quick access anytime!',
+                footer: '🤖 Automatically managed by GitHub Actions'
+            },
+            vi: {
+                title: 'Bảng điều khiển Khuyến khích QIP',
+                subtitle: 'Kiểm tra kết quả tính khuyến khích theo thời gian thực<br>mọi lúc, mọi nơi',
+                'btn-open': '📱 Mở Bảng điều khiển',
+                'features-title': '✨ Tính năng chính',
+                'feature-1': '👥 Tra cứu khuyến khích nhân viên',
+                'feature-2': '📈 Thống kê theo thời gian thực',
+                'feature-3': '📅 So sánh theo tháng',
+                'feature-4': '📱 Tối ưu hóa di động',
+                'auto-update-title': '🔄 Tự động cập nhật',
+                'auto-update-desc': 'Tự động đồng bộ với Google Drive mỗi giờ',
+                'tips-title': '💡 Mẹo sử dụng',
+                'tips-desc': 'Lưu tệp này vào điện thoại của bạn<br>để truy cập nhanh bất cứ lúc nào!',
+                footer: '🤖 Được quản lý tự động bởi GitHub Actions'
+            }
+        };
+
+        // 언어 전환 함수
+        function switchLanguage(lang) {
+            // localStorage에 저장
+            localStorage.setItem('preferredLanguage', lang);
+
+            // HTML lang 속성 변경
+            document.documentElement.lang = lang;
+
+            // 모든 번역 요소 업데이트
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.innerHTML = translations[lang][key];
+                }
+            });
+
+            // 활성 버튼 스타일 변경
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.lang-btn[data-lang="${lang}"]`).classList.add('active');
+
+            // 진동 피드백
+            if ('vibrate' in navigator) {
+                navigator.vibrate(30);
+            }
+        }
+
+        // 페이지 로드 시 저장된 언어 적용
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('preferredLanguage') || 'ko';
+            switchLanguage(savedLang);
+        });
+
+        // 버튼 클릭 시 진동 피드백
         document.getElementById('openBtn').addEventListener('click', function(e) {
             if ('vibrate' in navigator) {
                 navigator.vibrate(50);
