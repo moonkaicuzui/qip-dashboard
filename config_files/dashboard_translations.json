@@ -6407,5 +6407,10 @@
     "ko": "Type별 현황",
     "en": "Type Summary",
     "vi": "Tóm tắt theo loại"
+  },
+  "closeButton": {
+    "ko": "닫기",
+    "en": "Close",
+    "vi": "Đóng"
   }
 }

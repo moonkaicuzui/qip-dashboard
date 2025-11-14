@@ -5976,113 +5976,218 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         @media (max-width: 768px) {{
             /* 컨테이너 여백 조정 */
             .container {{
-                padding: 10px;
+                padding: 15px;
             }}
 
             /* 헤더 크기 조정 */
             .header h1 {{
-                font-size: 1.5rem;
+                font-size: 1.75rem;
+                line-height: 1.3;
             }}
 
             /* 통계 카드 그리드 조정 */
             .stats-grid {{
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 12px;
+            }}
+
+            .stat-card {{
+                padding: 20px;
+            }}
+
+            .stat-card h4 {{
+                font-size: 1.1rem;
+            }}
+
+            .stat-card .stat-value {{
+                font-size: 1.8rem;
             }}
 
             /* 테이블 스크롤 컨테이너 */
             .table-responsive {{
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                margin: 10px -10px;
+                margin: 10px -15px;
+                padding: 0 15px;
             }}
 
             /* 테이블 최소 너비 설정 */
             .table {{
-                min-width: 800px;
-                font-size: 0.85rem;
+                min-width: 900px;
+                font-size: 1rem;
             }}
 
             .table thead th {{
-                padding: 8px 4px;
-                font-size: 0.75rem;
+                padding: 12px 8px;
+                font-size: 0.95rem;
+                white-space: nowrap;
             }}
 
             .table tbody td {{
-                padding: 8px 4px;
-                font-size: 0.8rem;
+                padding: 12px 8px;
+                font-size: 0.95rem;
             }}
 
             /* TYPE 배지 크기 조정 */
             .type-badge {{
-                font-size: 0.7rem;
-                padding: 2px 8px;
+                font-size: 0.85rem;
+                padding: 4px 10px;
             }}
 
             /* 탭 버튼 조정 */
             .tab-button {{
-                padding: 8px 12px;
-                font-size: 0.85rem;
+                padding: 12px 16px;
+                font-size: 1rem;
+                min-height: 48px;
             }}
 
             /* 차트 컨테이너 높이 조정 */
             .chart-container {{
-                height: 250px;
-                margin-bottom: 15px;
+                height: 280px;
+                margin-bottom: 20px;
             }}
 
-            /* 모달 크기 조정 */
-            #employeeModal .modal-dialog {{
-                max-width: 95% !important;
-                margin: 0.5rem !important;
+            /* 모달 전체 화면 스타일 */
+            .modal-dialog {{
+                max-width: 100% !important;
+                margin: 0 !important;
+                height: 100vh;
             }}
 
-            #employeeModal .modal-body {{
-                max-height: 60vh !important;
-                padding: 10px;
+            .modal-content {{
+                height: 100vh;
+                border-radius: 0 !important;
+            }}
+
+            .modal-header {{
+                padding: 20px;
+            }}
+
+            .modal-title {{
+                font-size: 1.3rem !important;
+            }}
+
+            .modal-body {{
+                padding: 20px !important;
+                font-size: 1.05rem;
+                overflow-y: auto;
+                flex: 1;
+            }}
+
+            .modal-body h6 {{
+                font-size: 1.15rem;
+            }}
+
+            .modal-body .table {{
+                font-size: 0.95rem;
+                min-width: 100%;
+            }}
+
+            .modal-body .table td,
+            .modal-body .table th {{
+                padding: 10px 6px;
+            }}
+
+            .modal-footer {{
+                padding: 15px 20px;
+            }}
+
+            .modal-footer .btn {{
+                min-width: 100px;
+                padding: 12px 24px;
+                font-size: 1.1rem;
             }}
 
             /* Talent Pool 카드 조정 */
             .talent-pool-card {{
-                padding: 15px;
+                padding: 20px;
             }}
 
-            /* 버튼 크기 조정 */
+            .talent-pool-card h4 {{
+                font-size: 1.2rem;
+            }}
+
+            .talent-pool-card h3 {{
+                font-size: 2rem;
+            }}
+
+            /* 버튼 크기 조정 - 터치 타겟 최소 44px */
             .btn {{
-                padding: 8px 16px;
-                font-size: 0.85rem;
+                padding: 12px 20px;
+                font-size: 1rem;
+                min-height: 44px;
+            }}
+
+            .btn-lg {{
+                padding: 14px 28px;
+                font-size: 1.15rem;
+                min-height: 50px;
             }}
 
             /* 언어 선택기 조정 */
             .lang-btn {{
-                padding: 6px 10px;
-                font-size: 0.8rem;
+                padding: 10px 14px;
+                font-size: 0.9rem;
+                min-height: 40px;
+            }}
+
+            /* 카드 조정 */
+            .card {{
+                margin-bottom: 20px;
+            }}
+
+            .card-header h5 {{
+                font-size: 1.15rem;
+            }}
+
+            .card-body {{
+                padding: 20px;
             }}
         }}
 
         /* 작은 모바일 기기 (320px - 480px) */
         @media (max-width: 480px) {{
             .header h1 {{
-                font-size: 1.25rem;
+                font-size: 1.5rem;
+            }}
+
+            .container {{
+                padding: 12px;
             }}
 
             .table {{
-                font-size: 0.75rem;
-                min-width: 700px;
+                font-size: 0.9rem;
+                min-width: 750px;
             }}
 
             .table thead th,
             .table tbody td {{
-                padding: 6px 2px;
+                padding: 10px 6px;
+                font-size: 0.9rem;
             }}
 
             .chart-container {{
-                height: 200px;
+                height: 240px;
             }}
 
             .tab-button {{
-                padding: 6px 8px;
-                font-size: 0.75rem;
+                padding: 10px 12px;
+                font-size: 0.9rem;
+                min-height: 44px;
+            }}
+
+            .stat-card {{
+                padding: 16px;
+            }}
+
+            .modal-body {{
+                padding: 15px !important;
+                font-size: 1rem;
+            }}
+
+            .btn-lg {{
+                padding: 12px 24px;
+                font-size: 1.05rem;
             }}
         }}
     </style>
@@ -7883,7 +7988,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <!-- JavaScript로 채워질 예정 -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal" id="employeeModalCloseBtn" data-translate="closeButton">닫기</button>
                 </div>
             </div>
         </div>
@@ -7901,7 +8006,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <!-- JavaScript로 채워질 예정 -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal" id="positionModalCloseBtn" data-translate="closeButton">닫기</button>
                 </div>
             </div>
         </div>
