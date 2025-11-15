@@ -2677,7 +2677,37 @@
         "ko": "12개월+",
         "en": "12 months+",
         "vi": "12 tháng+"
+      },
+      "month13plus": {
+        "ko": "13개월+",
+        "en": "13 months+",
+        "vi": "13 tháng+"
+      },
+      "month1to3": {
+        "ko": "1-3개월",
+        "en": "1-3 months",
+        "vi": "1-3 tháng"
+      },
+      "month4to6": {
+        "ko": "4-6개월",
+        "en": "4-6 months",
+        "vi": "4-6 tháng"
+      },
+      "month7to9": {
+        "ko": "7-9개월",
+        "en": "7-9 months",
+        "vi": "7-9 tháng"
+      },
+      "month10to12": {
+        "ko": "10-12개월",
+        "en": "10-12 months",
+        "vi": "10-12 tháng"
       }
+    },
+    "waitingPeriod": {
+      "ko": "대기 기간",
+      "en": "waiting period",
+      "vi": "thời gian chờ"
     },
     "assemblyInspectorIncentiveTitle": {
       "ko": "TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브",
