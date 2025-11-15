@@ -254,41 +254,65 @@ class AutomatedQIPRunner:
     def _prepare_config(self, year: int, month: str) -> str:
         """
         Prepare configuration file for the calculation
-        
+
         Args:
             year: Year
             month: Month name
-            
+
         Returns:
             str: Path to configuration file
         """
         config_file = f"config_{month}_{year}.json"
-        
+
         # Check if config already exists
         if Path(config_file).exists():
             logger.info(f"Using existing config: {config_file}")
             return config_file
-        
+
+        # Detect previous incentive file intelligently
+        # 1. Try automated output file from previous month (October onward)
+        # 2. Fall back to manual input file (earlier months)
+        prev_months_list = self._get_previous_months(month)
+        prev_month = prev_months_list[-1] if prev_months_list else None
+        prev_month_num = self._get_month_number(month) - 1 if self._get_month_number(month) > 1 else 12
+        prev_year = year if self._get_month_number(month) > 1 else year - 1
+
+        previous_incentive_path = None
+        if prev_month:
+            # First priority: Automated output file
+            output_file = f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_V8.02_Complete.csv"
+            if Path(output_file).exists():
+                previous_incentive_path = output_file
+                logger.info(f"Using automated output file for previous incentive: {output_file}")
+            else:
+                # Second priority: Manual input file (Korean format)
+                input_file = f"input_files/{prev_year}년 {prev_month_num}월 인센티브 지급 세부 정보.csv"
+                previous_incentive_path = input_file
+                logger.warning(f"Automated output not found, using manual input path: {input_file}")
+        else:
+            # Fallback for edge cases
+            previous_incentive_path = f"input_files/{year}년 {prev_month_num}월 인센티브 지급 세부 정보.csv"
+
         # Create new config from template
         config = {
             "year": year,
             "month": month,
             "working_days": 23,  # Default, should be updated
-            "previous_months": self._get_previous_months(month),
+            "previous_months": prev_months_list,
             "file_paths": {
                 "basic": f"input_files/basic manpower data {month}.csv",
-                "previous_incentive": f"input_files/{year}년 {self._get_month_number(month)-1}월 인센티브 지급 세부 정보.csv",
+                "previous_incentive": previous_incentive_path,
                 "aql": f"input_files/AQL history/1.HSRG AQL REPORT-{month.upper()}.{year}.csv",
                 "5prs": f"input_files/5prs data {month}.csv",
                 "attendance": f"input_files/attendance/converted/attendance data {month}_converted.csv"
             },
             "output_prefix": f"output_QIP_incentive_{month}_{year}"
         }
-        
+
         # Save config
         with open(config_file, 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
-        
+
         logger.info(f"Created new config: {config_file}")
         return config_file
     

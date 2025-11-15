@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="googlebot" content="noindex, nofollow">
     <meta name="bingbot" content="noindex, nofollow">
-    <title>QIP Dashboard - Authentication Required</title>
+    <title>🔒 QIP</title>
     <style>
         * {
             margin: 0;
@@ -16,7 +16,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -27,234 +27,291 @@
 
         .auth-container {
             background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 450px;
+            border-radius: 24px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+            max-width: 380px;
             width: 100%;
-            animation: slideIn 0.5s ease-out;
+            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px) scale(0.95);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
 
         .lock-icon {
             text-align: center;
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: #667eea;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.8rem;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
+            font-size: 5rem;
             margin-bottom: 30px;
-            font-size: 0.95rem;
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        .warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            color: #856404;
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .brand-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+            letter-spacing: 2px;
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 5px;
+            letter-spacing: 1px;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            position: relative;
         }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 0.95rem;
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            font-size: 1.3rem;
+            color: #999;
+            pointer-events: none;
+            transition: all 0.3s;
         }
 
         input[type="password"] {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 18px 18px 18px 55px;
+            border: 2px solid #e8e8e8;
+            border-radius: 14px;
+            font-size: 1.05rem;
             transition: all 0.3s;
+            font-family: monospace;
+            letter-spacing: 2px;
         }
 
         input[type="password"]:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="password"]:focus + .input-icon {
+            color: #667eea;
+        }
+
+        input[type="password"]::placeholder {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            letter-spacing: normal;
+            color: #ccc;
         }
 
         .btn-login {
             width: 100%;
-            padding: 15px;
+            padding: 18px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
+            border-radius: 14px;
+            font-size: 1.15rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
 
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .btn-login:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-login:active {
-            transform: translateY(0);
+        .btn-login:active:not(:disabled) {
+            transform: translateY(-1px);
         }
 
         .btn-login:disabled {
-            background: #ccc;
+            background: linear-gradient(135deg, #ccc 0%, #999 100%);
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
         .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 15px;
+            background: linear-gradient(to right, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-top: 20px;
             display: none;
-            border-left: 4px solid #dc3545;
-            font-size: 0.9rem;
+            text-align: center;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
         }
 
         .error-message.show {
             display: block;
-            animation: shake 0.5s;
+            animation: shake 0.5s, fadeIn 0.3s;
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
         }
 
-        .security-info {
-            margin-top: 25px;
-            padding: 15px;
-            background: #e7f3ff;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            color: #004085;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .security-info ul {
-            margin: 10px 0 0 20px;
-            padding: 0;
+        .security-badge {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            border-radius: 14px;
+            text-align: center;
         }
 
-        .security-info li {
-            margin: 5px 0;
+        .security-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .security-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .security-item-icon {
+            font-size: 1.8rem;
+        }
+
+        .security-item-text {
+            font-size: 0.7rem;
+            color: #666;
+            font-weight: 500;
         }
 
         .footer {
             text-align: center;
             margin-top: 25px;
             padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-            color: #999;
-            font-size: 0.85rem;
+            border-top: 1px solid #f0f0f0;
+            font-size: 1.5rem;
+            opacity: 0.5;
         }
 
         @media (max-width: 480px) {
             .auth-container {
-                padding: 30px 20px;
+                padding: 40px 25px;
             }
 
-            h1 {
-                font-size: 1.5rem;
+            .lock-icon {
+                font-size: 4rem;
+            }
+
+            .brand-title {
+                font-size: 1.2rem;
+            }
+
+            .security-items {
+                grid-template-columns: 1fr;
+                gap: 12px;
             }
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <div class="lock-icon">🔒</div>
-        <h1>QIP Incentive Dashboard</h1>
-        <p class="subtitle">Authentication Required / 인증 필요</p>
+        <div class="lock-icon">🔐</div>
 
-        <div class="warning">
-            ⚠️ <strong>Authorized Access Only</strong><br>
-            이 대시보드는 승인된 직원만 접근 가능합니다.<br>
-            무단 접근 시도는 기록됩니다.
+        <div class="brand">
+            <div class="brand-title">QIP</div>
+            <div class="brand-subtitle">DASHBOARD</div>
         </div>
 
         <form id="loginForm">
             <div class="form-group">
-                <label for="password">Access Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="패스워드를 입력하세요"
-                    required
-                    autocomplete="off"
-                >
+                <div class="input-wrapper">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="● ● ● ● ● ●"
+                        required
+                        autocomplete="off"
+                        maxlength="50"
+                    >
+                    <span class="input-icon">🔑</span>
+                </div>
             </div>
 
             <button type="submit" class="btn-login" id="loginBtn">
-                🔓 Access Dashboard
+                🔓
             </button>
 
             <div class="error-message" id="errorMessage"></div>
         </form>
 
-        <div class="security-info">
-            <strong>🛡️ Security Features:</strong>
-            <ul>
-                <li>SHA-256 encrypted authentication</li>
-                <li>30-minute session timeout</li>
-                <li>Brute-force protection (5 attempts)</li>
-                <li>Search engine blocking (robots.txt)</li>
-            </ul>
+        <div class="security-badge">
+            <div class="security-items">
+                <div class="security-item">
+                    <div class="security-item-icon">⏱️</div>
+                    <div class="security-item-text">30 min</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-item-icon">🛡️</div>
+                    <div class="security-item-text">SHA-256</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-item-icon">🚫</div>
+                    <div class="security-item-text">5 attempts</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-item-icon">🔒</div>
+                    <div class="security-item-text">5 min lock</div>
+                </div>
+            </div>
         </div>
 
-        <div class="footer">
-            🔒 Confidential Information - Do Not Share<br>
-            기밀 정보 - 공유 금지
-        </div>
+        <div class="footer">🔐</div>
     </div>
 
     <script>
-        // 보안 설정
+        // Security Configuration
         const SECURITY_CONFIG = {
-            // SHA-256 해시: "QIP2025!Secure#Dashboard"
-            // 실제 배포 시 이 패스워드를 변경하세요
-            PASSWORD_HASH: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', // "admin" (예시)
-            SESSION_TIMEOUT: 30 * 60 * 1000, // 30분
+            PASSWORD_HASH: '19e49d5a0a97333a704097653034a76eaddb6cff5aeff18e4efec4c871d4caae', // "qip"
+            SESSION_TIMEOUT: 30 * 60 * 1000, // 30 minutes
             MAX_ATTEMPTS: 5,
-            LOCKOUT_TIME: 5 * 60 * 1000, // 5분
+            LOCKOUT_TIME: 5 * 60 * 1000, // 5 minutes
             SESSION_KEY: 'qip_auth_session',
             ATTEMPTS_KEY: 'qip_auth_attempts',
             LOCKOUT_KEY: 'qip_auth_lockout'
         };
 
-        // SHA-256 해시 함수
+        // SHA-256 Hash Function
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -263,7 +320,7 @@
             return hashHex;
         }
 
-        // 세션 검증
+        // Check Existing Session
         function checkExistingSession() {
             const session = sessionStorage.getItem(SECURITY_CONFIG.SESSION_KEY);
             if (session) {
@@ -272,11 +329,9 @@
                     const now = Date.now();
 
                     if (now - sessionData.loginTime < SECURITY_CONFIG.SESSION_TIMEOUT) {
-                        // 유효한 세션 - 대시보드로 리다이렉트
                         window.location.href = 'selector.html';
                         return true;
                     } else {
-                        // 세션 만료
                         sessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
                     }
                 } catch (e) {
@@ -286,7 +341,7 @@
             return false;
         }
 
-        // 잠금 상태 확인
+        // Check Lockout Status
         function checkLockout() {
             const lockoutUntil = localStorage.getItem(SECURITY_CONFIG.LOCKOUT_KEY);
             if (lockoutUntil) {
@@ -295,11 +350,10 @@
 
                 if (now < lockoutTime) {
                     const remainingMinutes = Math.ceil((lockoutTime - now) / 60000);
-                    showError(`🚫 Too many failed attempts. Please wait ${remainingMinutes} minute(s).<br>실패 횟수 초과. ${remainingMinutes}분 후 다시 시도하세요.`);
+                    showError(`🚫 ${remainingMinutes} min`);
                     document.getElementById('loginBtn').disabled = true;
                     return true;
                 } else {
-                    // 잠금 해제
                     localStorage.removeItem(SECURITY_CONFIG.LOCKOUT_KEY);
                     localStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
                 }
@@ -307,7 +361,7 @@
             return false;
         }
 
-        // 로그인 시도 기록
+        // Record Failed Attempt
         function recordAttempt() {
             const attempts = parseInt(localStorage.getItem(SECURITY_CONFIG.ATTEMPTS_KEY) || '0') + 1;
             localStorage.setItem(SECURITY_CONFIG.ATTEMPTS_KEY, attempts.toString());
@@ -320,22 +374,22 @@
             }
 
             const remainingAttempts = SECURITY_CONFIG.MAX_ATTEMPTS - attempts;
-            showError(`❌ Invalid password. ${remainingAttempts} attempts remaining.<br>잘못된 패스워드입니다. ${remainingAttempts}회 남음.`);
+            showError(`❌ ${remainingAttempts} / ${SECURITY_CONFIG.MAX_ATTEMPTS}`);
             return false;
         }
 
-        // 에러 메시지 표시
+        // Show Error Message
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
-            errorDiv.innerHTML = message;
+            errorDiv.textContent = message;
             errorDiv.classList.add('show');
 
             setTimeout(() => {
                 errorDiv.classList.remove('show');
-            }, 5000);
+            }, 4000);
         }
 
-        // 로그인 처리
+        // Login Form Handler
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -347,7 +401,7 @@
             const passwordHash = await sha256(password);
 
             if (passwordHash === SECURITY_CONFIG.PASSWORD_HASH) {
-                // 인증 성공
+                // Authentication Success
                 const sessionData = {
                     authenticated: true,
                     loginTime: Date.now(),
@@ -357,55 +411,54 @@
                 sessionStorage.setItem(SECURITY_CONFIG.SESSION_KEY, JSON.stringify(sessionData));
                 localStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
 
-                // 대시보드로 리다이렉트
+                // Redirect to dashboard
                 window.location.href = 'selector.html';
             } else {
-                // 인증 실패
+                // Authentication Failed
                 recordAttempt();
                 document.getElementById('password').value = '';
                 document.getElementById('password').focus();
             }
         });
 
-        // 우클릭 방지
+        // Prevent Right-Click
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         });
 
-        // 개발자 도구 감지
-        const devtools = {
-            isOpen: false,
-            orientation: null
-        };
+        // Prevent Ctrl+S, Ctrl+P
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'p')) {
+                e.preventDefault();
+            }
+        });
 
+        // Developer Tools Detection
+        const devtools = { isOpen: false };
         const threshold = 160;
-        const emitEvent = (isOpen, orientation) => {
+
+        const emitEvent = (isOpen) => {
             if (isOpen && !devtools.isOpen) {
                 console.warn('%c⚠️ WARNING', 'font-size: 30px; color: red; font-weight: bold;');
-                console.warn('%cDeveloper tools detected. Unauthorized access is being logged.', 'font-size: 16px;');
-                console.warn('%c개발자 도구 감지됨. 무단 접근이 기록되고 있습니다.', 'font-size: 16px;');
+                console.warn('%cUnauthorized access is being logged.', 'font-size: 16px;');
             }
             devtools.isOpen = isOpen;
-            devtools.orientation = orientation;
         };
 
         setInterval(() => {
             const widthThreshold = window.outerWidth - window.innerWidth > threshold;
             const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-            const orientation = widthThreshold ? 'vertical' : 'horizontal';
 
-            if (!(heightThreshold && widthThreshold) && ((window.Firebug && window.Firebug.chrome && window.Firebug.chrome.isInitialized) || widthThreshold || heightThreshold)) {
-                emitEvent(true, orientation);
+            if (widthThreshold || heightThreshold) {
+                emitEvent(true);
             } else {
-                emitEvent(false, null);
+                emitEvent(false);
             }
         }, 500);
 
-        // 페이지 로드 시 세션 확인
+        // Initialize
         checkExistingSession();
         checkLockout();
-
-        // 포커스
         document.getElementById('password').focus();
     </script>
 </body>
