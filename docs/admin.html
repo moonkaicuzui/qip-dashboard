@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 검색엔진 차단 -->
+    <!-- Block search engines -->
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="googlebot" content="noindex, nofollow">
-    <meta name="bingbot" content="noindex, nofollow">
+    <parameter name="bingbot" content="noindex, nofollow">
     <title>🔧 QIP Admin</title>
 
     <style>
@@ -315,62 +315,62 @@
     </style>
 </head>
 <body>
-    <!-- 로그인 화면 -->
+    <!-- Login Screen -->
     <div class="login-container" id="loginScreen">
         <div class="lock-icon">🔒</div>
-        <div class="login-title">QIP 관리자 페이지</div>
+        <div class="login-title">QIP Admin Page</div>
         <form id="loginForm">
             <input
                 type="password"
                 id="adminPassword"
-                placeholder="관리자 비밀번호"
+                placeholder="Admin Password"
                 required
                 autocomplete="off"
             >
-            <button type="submit" class="btn btn-primary">로그인</button>
+            <button type="submit" class="btn btn-primary">Login</button>
             <div class="error-message" id="loginError"></div>
         </form>
     </div>
 
-    <!-- 관리 대시보드 -->
+    <!-- Admin Dashboard -->
     <div class="admin-container" id="adminDashboard">
-        <button class="logout-btn" onclick="logout()">로그아웃</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
 
         <div class="header">
-            <h1>🔧 QIP 인센티브 관리 시스템</h1>
-            <p class="subtitle">인센티브 계산 자동화 관리</p>
+            <h1>🔧 QIP Incentive Management System</h1>
+            <p class="subtitle">Automated Incentive Calculation Management</p>
         </div>
 
         <div class="grid">
-            <!-- 현재 상태 -->
+            <!-- Current Status -->
             <div class="card">
-                <h2>📊 현재 상태</h2>
+                <h2>📊 Current Status</h2>
                 <div class="status-item">
-                    <span class="status-label">시스템 상태</span>
-                    <span class="status-badge badge-success">정상 가동</span>
+                    <span class="status-label">System Status</span>
+                    <span class="status-badge badge-success">Operational</span>
                 </div>
                 <div class="status-item">
-                    <span class="status-label">자동 실행</span>
-                    <span class="status-value">매시간 정각</span>
+                    <span class="status-label">Auto Execution</span>
+                    <span class="status-value">Every hour</span>
                 </div>
                 <div class="status-item">
-                    <span class="status-label">마지막 업데이트</span>
-                    <span class="status-value" id="lastUpdate">확인 중...</span>
+                    <span class="status-label">Last Update</span>
+                    <span class="status-value" id="lastUpdate">Checking...</span>
                 </div>
                 <div class="status-item">
-                    <span class="status-label">다음 자동 실행</span>
-                    <span class="status-value" id="nextRun">계산 중...</span>
+                    <span class="status-label">Next Auto Run</span>
+                    <span class="status-value" id="nextRun">Calculating...</span>
                 </div>
             </div>
 
-            <!-- 빠른 작업 -->
+            <!-- Quick Actions -->
             <div class="card">
-                <h2>⚡ 빠른 작업</h2>
+                <h2>⚡ Quick Actions</h2>
                 <button class="btn btn-success" onclick="triggerWorkflow()" style="margin-bottom: 15px;">
-                    🔄 지금 재계산 실행
+                    🔄 Run Recalculation Now
                 </button>
                 <button class="btn btn-primary" onclick="checkWorkflowStatus()">
-                    📊 실행 상태 확인
+                    📊 Check Execution Status
                 </button>
                 <div class="workflow-status" id="workflowStatus">
                     <div class="spinner"></div>
@@ -382,47 +382,47 @@
             </div>
         </div>
 
-        <!-- 작업 로그 -->
+        <!-- Activity Log -->
         <div class="card">
-            <h2>📝 작업 로그</h2>
+            <h2>📝 Activity Log</h2>
             <div class="log-container" id="logContainer">
                 <div class="log-entry">
-                    <span class="log-time">[시스템]</span>
-                    <span class="log-info">관리 페이지에 오신 것을 환영합니다</span>
+                    <span class="log-time">[System]</span>
+                    <span class="log-info">Welcome to the admin page</span>
                 </div>
             </div>
         </div>
 
-        <!-- 도움말 -->
+        <!-- Help Guide -->
         <div class="card">
-            <h2>💡 사용 가이드</h2>
+            <h2>💡 User Guide</h2>
             <div class="status-item">
-                <span>🔄 재계산 실행</span>
-                <span>모든 월의 인센티브를 재계산합니다 (5-10분 소요)</span>
+                <span>🔄 Run Recalculation</span>
+                <span>Recalculates incentives for all months (takes 5-10 minutes)</span>
             </div>
             <div class="status-item">
-                <span>📊 상태 확인</span>
-                <span>현재 실행 중인 작업의 진행 상황을 확인합니다</span>
+                <span>📊 Check Status</span>
+                <span>View the progress of currently running tasks</span>
             </div>
             <div class="status-item">
-                <span>⏰ 자동 실행</span>
-                <span>매시간 정각에 자동으로 Google Drive를 확인하고 업데이트합니다</span>
+                <span>⏰ Auto Execution</span>
+                <span>Automatically checks Google Drive and updates every hour</span>
             </div>
         </div>
     </div>
 
     <script>
-        // 보안 설정
+        // Security settings
         const ADMIN_PASSWORD_HASH = '85a84e034c5b9248758c500f6c1f2b8bb99c9818ce7902ee5bc702c07ecda5a0'; // "hwk"
         const SESSION_KEY = 'qip_admin_session';
-        const SESSION_TIMEOUT = 60 * 60 * 1000; // 1시간
+        const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
 
-        // GitHub 설정
+        // GitHub settings
         const GITHUB_OWNER = 'moonkaicuzui';
         const GITHUB_REPO = 'qip-dashboard';
         const WORKFLOW_ID = 'auto-update.yml';
 
-        // SHA-256 해시 함수
+        // SHA-256 hash function
         async function sha256(message) {
             const msgBuffer = new TextEncoder().encode(message);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -431,7 +431,7 @@
             return hashHex;
         }
 
-        // 로그인 처리
+        // Login handler
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -439,22 +439,22 @@
             const passwordHash = await sha256(password);
 
             if (passwordHash === ADMIN_PASSWORD_HASH) {
-                // 세션 저장
+                // Save session
                 const sessionData = {
                     authenticated: true,
                     loginTime: Date.now()
                 };
                 sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
 
-                // 대시보드 표시
+                // Show dashboard
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
 
                 initDashboard();
-                addLog('로그인 성공', 'success');
+                addLog('Login successful', 'success');
             } else {
                 const errorDiv = document.getElementById('loginError');
-                errorDiv.textContent = '❌ 잘못된 비밀번호입니다';
+                errorDiv.textContent = '❌ Incorrect password';
                 errorDiv.style.display = 'block';
                 document.getElementById('adminPassword').value = '';
 
@@ -464,16 +464,16 @@
             }
         });
 
-        // 로그아웃
+        // Logout
         function logout() {
             sessionStorage.removeItem(SESSION_KEY);
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('adminDashboard').style.display = 'none';
             document.getElementById('adminPassword').value = '';
-            addLog('로그아웃', 'info');
+            addLog('Logged out', 'info');
         }
 
-        // 세션 확인
+        // Check session
         function checkSession() {
             const session = sessionStorage.getItem(SESSION_KEY);
             if (session) {
@@ -496,29 +496,30 @@
             return false;
         }
 
-        // 대시보드 초기화
+        // Initialize dashboard
         function initDashboard() {
             updateLastUpdate();
             updateNextRun();
 
-            // 1분마다 시간 업데이트
+            // Update time every minute
             setInterval(updateNextRun, 60000);
         }
 
-        // 마지막 업데이트 시간
+        // Last update time
         function updateLastUpdate() {
             const now = new Date();
             document.getElementById('lastUpdate').textContent =
-                now.toLocaleString('ko-KR', {
+                now.toLocaleString('en-US', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
                     hour: '2-digit',
-                    minute: '2-digit'
+                    minute: '2-digit',
+                    hour12: false
                 });
         }
 
-        // 다음 실행 시간
+        // Next run time
         function updateNextRun() {
             const now = new Date();
             const nextHour = new Date(now);
@@ -529,15 +530,15 @@
             const diff = nextHour - now;
             const minutes = Math.floor(diff / 60000);
 
-            document.getElementById('nextRun').textContent = `${minutes}분 후`;
+            document.getElementById('nextRun').textContent = `in ${minutes} min`;
         }
 
-        // 워크플로우 트리거
+        // Trigger workflow
         async function triggerWorkflow() {
-            addLog('재계산 요청 중...', 'info');
+            addLog('Requesting recalculation...', 'info');
 
             try {
-                // GitHub API로 워크플로우 트리거
+                // Trigger workflow via GitHub API
                 const response = await fetch(
                     `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`,
                     {
@@ -553,21 +554,21 @@
                 );
 
                 if (response.status === 204) {
-                    addLog('✅ 재계산 시작됨! GitHub Actions 실행 중...', 'success');
+                    addLog('✅ Recalculation started! GitHub Actions running...', 'success');
                     document.getElementById('workflowStatus').style.display = 'block';
                     simulateProgress();
                 } else {
-                    addLog('⚠️ GitHub Actions 수동 실행 필요 (권한 제한)', 'error');
-                    addLog('GitHub.com → Actions → Run workflow 클릭', 'info');
+                    addLog('⚠️ Manual GitHub Actions execution required (permission limited)', 'error');
+                    addLog('GitHub.com → Actions → Run workflow', 'info');
 
-                    // 새 창으로 GitHub Actions 열기
+                    // Open GitHub Actions in new window
                     window.open(
                         `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
                         '_blank'
                     );
                 }
             } catch (error) {
-                addLog('⚠️ 자동 실행 불가: GitHub Actions 페이지로 이동합니다', 'error');
+                addLog('⚠️ Auto-execution unavailable: Redirecting to GitHub Actions page', 'error');
                 window.open(
                     `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
                     '_blank'
@@ -575,24 +576,24 @@
             }
         }
 
-        // 워크플로우 상태 확인
+        // Check workflow status
         async function checkWorkflowStatus() {
-            addLog('실행 상태 확인 중...', 'info');
+            addLog('Checking execution status...', 'info');
             window.open(
                 `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions`,
                 '_blank'
             );
         }
 
-        // 진행 상황 시뮬레이션
+        // Simulate progress
         function simulateProgress() {
             const steps = [
-                { progress: 10, text: 'CSV 다운로드 중...' },
-                { progress: 25, text: 'Config 생성 중...' },
-                { progress: 40, text: '인센티브 계산 중...' },
-                { progress: 70, text: '검증 실행 중...' },
-                { progress: 85, text: '대시보드 생성 중...' },
-                { progress: 100, text: '완료!' }
+                { progress: 10, text: 'Downloading CSV...' },
+                { progress: 25, text: 'Generating config...' },
+                { progress: 40, text: 'Calculating incentives...' },
+                { progress: 70, text: 'Running validation...' },
+                { progress: 85, text: 'Generating dashboard...' },
+                { progress: 100, text: 'Complete!' }
             ];
 
             let currentStep = 0;
@@ -611,20 +612,20 @@
                     setTimeout(() => {
                         document.getElementById('workflowStatus').style.display = 'none';
                         document.getElementById('progressFill').style.width = '0%';
-                        addLog('✅ 대시보드 업데이트 완료!', 'success');
-                        addLog('5분 후 https://moonkaicuzui.github.io/qip-dashboard/ 확인', 'info');
+                        addLog('✅ Dashboard update complete!', 'success');
+                        addLog('Check https://moonkaicuzui.github.io/qip-dashboard/ in 5 minutes', 'info');
                     }, 2000);
                 }
-            }, 30000); // 30초마다 단계 진행 (총 3분)
+            }, 30000); // Step progression every 30 seconds (3 minutes total)
         }
 
-        // 로그 추가
+        // Add log
         function addLog(message, type = 'info') {
             const logContainer = document.getElementById('logContainer');
             const logEntry = document.createElement('div');
             logEntry.className = 'log-entry';
 
-            const time = new Date().toLocaleTimeString('ko-KR');
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
             const logClass = type === 'success' ? 'log-success' : type === 'error' ? 'log-error' : 'log-info';
 
             logEntry.innerHTML = `
@@ -636,7 +637,7 @@
             logContainer.scrollTop = logContainer.scrollHeight;
         }
 
-        // 페이지 로드 시 세션 확인
+        // Check session on page load
         checkSession();
     </script>
 </body>
