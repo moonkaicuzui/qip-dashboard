@@ -1777,7 +1777,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V8.02</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="august" data-month-name="8월">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="14" data-hour="23" data-minute="20">보고서 생성일: 2025년 11월 14일 23:20</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="15" data-hour="00" data-minute="02">보고서 생성일: 2025년 11월 15일 00:02</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="08" data-startday="01" data-endday="30">• 인센티브 데이터: 2025년 08월 01일 ~ 30일</p>
@@ -1800,7 +1800,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 14일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 15일</span>
             </div>
         </div>
 
@@ -2286,7 +2286,7 @@
                                 </tr>
                                 <tr style="background-color: #fff3e0;">
                                     <td><strong><span class="calc-position-aqlinspector">6. AQL INSPECTOR</span></strong></td>
-                                    <td><strong><span class="calc-special-calculation">Part1 + Part2 + Part3 특별 calculation</span></strong><br>
+                                    <td><strong><span class="calc-special-calculation">Part1 + Part2 + Part3 특별 계산</span></strong><br>
                                         <div style="margin-top: 8px;"><strong><span class="calc-aql-evaluation">Part 1: AQL 평가 결과</span></strong></div>
                                         <small><span class="calc-level-a">Level-A</span> <span class="calc-month-range-1">1개월</span>: 150,000 | <span class="calc-month-range-2">2개월</span>: 250,000<br>
                                         <span class="calc-month-range-3">3개월</span>: 300,000 | <span class="calc-month-range-4">4개월</span>: 350,000<br>
@@ -2297,7 +2297,7 @@
                                         <div style="margin-top: 8px;"><strong><span class="calc-cfa-certificate">Part 2: CFA 자격증</span></strong></div>
                                         <small><span class="calc-cfa-holder-bonus">CFA 자격증 보유시</span>: 700,000</small><br>
                                         <div style="margin-top: 8px;"><strong><span class="calc-hwk-claim">Part 3: HWK 클레임 방지</span></strong></div>
-                                        <small><span class="calc-month-range-1-3">1-3개월</span>: 0 (대기 기간)<br>
+                                        <small><span class="calc-month-range-1-3">1-3개월</span>: 0 (<span class="calc-waiting-period">대기 기간</span>)<br>
                                         <span class="calc-month-range-4-6">4-6개월</span>: 300,000<br>
                                         <span class="calc-month-range-7-9">7-9개월</span>: 500,000<br>
                                         <span class="calc-month-range-10-12">10-12개월</span>: 700,000<br>
@@ -6295,7 +6295,37 @@
         "ko": "12개월+",
         "en": "12 months+",
         "vi": "12 tháng+"
+      },
+      "month13plus": {
+        "ko": "13개월+",
+        "en": "13 months+",
+        "vi": "13 tháng+"
+      },
+      "month1to3": {
+        "ko": "1-3개월",
+        "en": "1-3 months",
+        "vi": "1-3 tháng"
+      },
+      "month4to6": {
+        "ko": "4-6개월",
+        "en": "4-6 months",
+        "vi": "4-6 tháng"
+      },
+      "month7to9": {
+        "ko": "7-9개월",
+        "en": "7-9 months",
+        "vi": "7-9 tháng"
+      },
+      "month10to12": {
+        "ko": "10-12개월",
+        "en": "10-12 months",
+        "vi": "10-12 tháng"
       }
+    },
+    "waitingPeriod": {
+      "ko": "대기 기간",
+      "en": "waiting period",
+      "vi": "thời gian chờ"
     },
     "assemblyInspectorIncentiveTitle": {
       "ko": "TYPE-1 ASSEMBLY INSPECTOR 연속 근무 인센티브",
@@ -11730,9 +11760,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '14th' :
-                               currentLanguage === 'en' ? 'Day 14' :
-                               'Ngày 14';
+                const dayText = currentLanguage === 'ko' ? '15th' :
+                               currentLanguage === 'en' ? 'Day 15' :
+                               'Ngày 15';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
@@ -12407,6 +12437,29 @@
             });
             document.querySelectorAll('.calc-month-range-12plus').forEach(el => {
                 el.textContent = getTranslation('incentiveCalculation.monthRanges.month12plus', currentLanguage);
+            });
+            document.querySelectorAll('.calc-month-range-13plus').forEach(el => {
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month13plus', currentLanguage);
+            });
+            document.querySelectorAll('.calc-month-range-1-3').forEach(el => {
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month1to3', currentLanguage);
+            });
+            document.querySelectorAll('.calc-month-range-4-6').forEach(el => {
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month4to6', currentLanguage);
+            });
+            document.querySelectorAll('.calc-month-range-7-9').forEach(el => {
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month7to9', currentLanguage);
+            });
+            document.querySelectorAll('.calc-month-range-10-12').forEach(el => {
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month10to12', currentLanguage);
+            });
+            document.querySelectorAll('.calc-waiting-period').forEach(el => {
+                el.textContent = getTranslation('incentiveCalculation.waitingPeriod', currentLanguage);
+            });
+            document.querySelectorAll('.calc-months-text').forEach(el => {
+                const months = el.dataset.months;
+                const monthUnit = getTranslation('incentiveCalculation.month', currentLanguage);
+                el.textContent = months + monthUnit;
             });
             document.querySelectorAll('.calc-level-a').forEach(el => {
                 el.textContent = getTranslation('incentiveCalculation.levelA', currentLanguage);
