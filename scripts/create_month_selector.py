@@ -56,6 +56,10 @@ def create_month_selector_page():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- 검색엔진 차단 -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="googlebot" content="noindex, nofollow">
+    <meta name="bingbot" content="noindex, nofollow">
     <title data-i18n="page-title">QIP 인센티브 대시보드 - 월 선택</title>
 
     <!-- Bootstrap 5 CSS -->
@@ -335,6 +339,75 @@ def create_month_selector_page():
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // ==================== 보안: 세션 검증 ====================
+        (function() {
+            const SESSION_KEY = 'qip_auth_session';
+            const SESSION_TIMEOUT = 30 * 60 * 1000; // 30분
+
+            function validateSession() {
+                const session = sessionStorage.getItem(SESSION_KEY);
+
+                if (!session) {
+                    // 세션 없음 - 인증 페이지로 리다이렉트
+                    window.location.href = 'auth.html';
+                    return false;
+                }
+
+                try {
+                    const sessionData = JSON.parse(session);
+                    const now = Date.now();
+
+                    if (now - sessionData.loginTime > SESSION_TIMEOUT) {
+                        // 세션 만료
+                        sessionStorage.removeItem(SESSION_KEY);
+                        alert('Session expired. Please login again.\\n세션이 만료되었습니다. 다시 로그인하세요.');
+                        window.location.href = 'auth.html';
+                        return false;
+                    }
+
+                    return true;
+                } catch (e) {
+                    sessionStorage.removeItem(SESSION_KEY);
+                    window.location.href = 'auth.html';
+                    return false;
+                }
+            }
+
+            // 페이지 로드 시 세션 검증
+            if (!validateSession()) {
+                return;
+            }
+
+            // 주기적 세션 검증 (1분마다)
+            setInterval(validateSession, 60000);
+
+            // 우클릭 방지
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // 복사 방지 (선택적)
+            document.addEventListener('copy', function(e) {
+                // 복사 허용하되 경고만 표시
+                console.warn('⚠️ 데이터 복사가 감지되었습니다. 기밀 정보 유출에 주의하세요.');
+            });
+
+            // 개발자 도구 경고
+            const devtoolsWarning = () => {
+                console.clear();
+                console.log('%c⚠️ WARNING / 경고', 'font-size: 30px; color: red; font-weight: bold;');
+                console.log('%cThis dashboard contains confidential employee information.', 'font-size: 16px; color: orange;');
+                console.log('%c이 대시보드는 기밀 직원 정보를 포함하고 있습니다.', 'font-size: 16px; color: orange;');
+                console.log('%cUnauthorized access or data extraction is prohibited and will be reported.', 'font-size: 14px;');
+                console.log('%c무단 접근 또는 데이터 추출은 금지되며 보고됩니다.', 'font-size: 14px;');
+            };
+
+            devtoolsWarning();
+            setInterval(devtoolsWarning, 3000);
+        })();
+        // ==================== 보안 코드 종료 ====================
+
         // 다국어 번역 데이터
         const translations = {
             ko: {
