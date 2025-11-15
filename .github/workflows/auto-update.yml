@@ -69,19 +69,26 @@ jobs:
         echo "Auto-generating config files for new months..."
         python scripts/auto_generate_configs.py
 
-    # 7. 인센티브 자동 계산 (NEW!)
+    # 7. 인센티브 자동 계산
     - name: 💰 Calculate Incentives
       run: |
         echo "Calculating incentives for all months..."
         python scripts/auto_calculate_incentives.py
 
-    # 8. 대시보드 HTML 생성
+    # 8. 자동 검증 실행 (NEW!)
+    - name: 🔍 Auto Validation
+      run: |
+        echo "Validating calculated incentives..."
+        python scripts/auto_validation.py
+      continue-on-error: false
+
+    # 9. 대시보드 HTML 생성
     - name: 🎨 Generate Dashboard HTML
       run: |
         echo "Generating dashboard for all available months..."
         python scripts/generate_dashboard_for_pages.py
 
-    # 9. GitHub Pages 디렉토리 준비
+    # 10. GitHub Pages 디렉토리 준비
     - name: 📂 Prepare GitHub Pages directory
       run: |
         # docs 폴더 생성 (GitHub Pages용)
@@ -148,7 +155,7 @@ jobs:
         # 월 선택 페이지 생성
         python scripts/create_month_selector.py
 
-    # 10. 변경사항 커밋 및 푸시
+    # 11. 변경사항 커밋 및 푸시
     - name: 📤 Commit and push changes
       run: |
         git config --local user.email "action@github.com"
@@ -165,7 +172,7 @@ jobs:
           echo "ℹ️ No changes detected"
         fi
 
-    # 11. GitHub Pages 배포 확인
+    # 12. GitHub Pages 배포 확인
     - name: 🌐 Deploy to GitHub Pages
       run: |
         echo "Dashboard will be available at:"
