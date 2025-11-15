@@ -1,0 +1,26 @@
+# QIP Incentive Dashboard - Private Access Only
+# 검색엔진 크롤링 완전 차단
+
+User-agent: *
+Disallow: /
+
+# 특정 크롤러도 명시적 차단
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Slurp
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+# Sitemap 제공 안 함
