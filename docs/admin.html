@@ -417,7 +417,13 @@
         const SESSION_KEY = 'qip_admin_session';
         const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
 
-        // GitHub settings
+        // API settings
+        // TODO: Update this URL after deploying to Vercel
+        // Example: 'https://your-project.vercel.app/api/trigger-workflow'
+        const API_ENDPOINT = window.location.hostname === 'localhost'
+            ? 'http://localhost:3000/api/trigger-workflow'
+            : '/api/trigger-workflow'; // Will use relative path on production
+
         const GITHUB_OWNER = 'moonkaicuzui';
         const GITHUB_REPO = 'qip-dashboard';
         const WORKFLOW_ID = 'auto-update.yml';
@@ -467,10 +473,8 @@
         // Logout
         function logout() {
             sessionStorage.removeItem(SESSION_KEY);
-            document.getElementById('loginScreen').style.display = 'block';
-            document.getElementById('adminDashboard').style.display = 'none';
-            document.getElementById('adminPassword').value = '';
-            addLog('Logged out', 'info');
+            // Redirect to dashboard login page
+            window.location.href = 'auth.html';
         }
 
         // Check session
@@ -533,46 +537,60 @@
             document.getElementById('nextRun').textContent = `in ${minutes} min`;
         }
 
-        // Trigger workflow
+        // Trigger workflow via Vercel Serverless Function
         async function triggerWorkflow() {
             addLog('Requesting recalculation...', 'info');
 
             try {
-                // Trigger workflow via GitHub API
-                const response = await fetch(
-                    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}/dispatches`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/vnd.github.v3+json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            ref: 'main'
-                        })
-                    }
-                );
+                // Call Vercel Serverless Function with password hash
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        passwordHash: ADMIN_PASSWORD_HASH
+                    })
+                });
 
-                if (response.status === 204) {
+                const data = await response.json();
+
+                if (response.ok && data.success) {
                     addLog('✅ Recalculation started! GitHub Actions running...', 'success');
+                    addLog(`Triggered at: ${data.timestamp}`, 'info');
                     document.getElementById('workflowStatus').style.display = 'block';
                     simulateProgress();
+                } else if (response.status === 401) {
+                    addLog('❌ Authentication failed', 'error');
+                    addLog('Please check admin credentials', 'error');
+                } else if (response.status === 500) {
+                    addLog('⚠️ Server error: ' + (data.message || 'Unknown error'), 'error');
+                    addLog('Fallback: Opening GitHub Actions page...', 'info');
+                    setTimeout(() => {
+                        window.open(
+                            `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
+                            '_blank'
+                        );
+                    }, 2000);
                 } else {
-                    addLog('⚠️ Manual GitHub Actions execution required (permission limited)', 'error');
-                    addLog('GitHub.com → Actions → Run workflow', 'info');
-
-                    // Open GitHub Actions in new window
+                    addLog('⚠️ Unexpected error: ' + (data.message || response.statusText), 'error');
+                    addLog('Fallback: Opening GitHub Actions page...', 'info');
+                    setTimeout(() => {
+                        window.open(
+                            `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
+                            '_blank'
+                        );
+                    }, 2000);
+                }
+            } catch (error) {
+                addLog('⚠️ Network error: ' + error.message, 'error');
+                addLog('Fallback: Opening GitHub Actions page...', 'info');
+                setTimeout(() => {
                     window.open(
                         `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
                         '_blank'
                     );
-                }
-            } catch (error) {
-                addLog('⚠️ Auto-execution unavailable: Redirecting to GitHub Actions page', 'error');
-                window.open(
-                    `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
-                    '_blank'
-                );
+                }, 2000);
             }
         }
 
