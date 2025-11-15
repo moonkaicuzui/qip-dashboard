@@ -6917,7 +6917,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                                 <tr style="background-color: #fff3e0;">
                                     <td><strong><span class="calc-position-aqlinspector">6. AQL INSPECTOR</span></strong></td>
-                                    <td><strong><span class="calc-special-calculation">Part1 + Part2 + Part3 특별 calculation</span></strong><br>
+                                    <td><strong><span class="calc-special-calculation">Part1 + Part2 + Part3 특별 계산</span></strong><br>
                                         <div style="margin-top: 8px;"><strong><span class="calc-aql-evaluation">Part 1: AQL 평가 결과</span></strong></div>
                                         <small><span class="calc-level-a">Level-A</span> <span class="calc-month-range-1">1개월</span>: 150,000 | <span class="calc-month-range-2">2개월</span>: 250,000<br>
                                         <span class="calc-month-range-3">3개월</span>: 300,000 | <span class="calc-month-range-4">4개월</span>: 350,000<br>
@@ -6928,7 +6928,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <div style="margin-top: 8px;"><strong><span class="calc-cfa-certificate">Part 2: CFA 자격증</span></strong></div>
                                         <small><span class="calc-cfa-holder-bonus">CFA 자격증 보유시</span>: 700,000</small><br>
                                         <div style="margin-top: 8px;"><strong><span class="calc-hwk-claim">Part 3: HWK 클레임 방지</span></strong></div>
-                                        <small><span class="calc-month-range-1-3">1-3개월</span>: 0 (대기 기간)<br>
+                                        <small><span class="calc-month-range-1-3">1-3개월</span>: 0 (<span class="calc-waiting-period">대기 기간</span>)<br>
                                         <span class="calc-month-range-4-6">4-6개월</span>: 300,000<br>
                                         <span class="calc-month-range-7-9">7-9개월</span>: 500,000<br>
                                         <span class="calc-month-range-10-12">10-12개월</span>: 700,000<br>
@@ -10591,6 +10591,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
             document.querySelectorAll('.calc-month-range-12plus').forEach(el => {{
                 el.textContent = getTranslation('incentiveCalculation.monthRanges.month12plus', currentLanguage);
+            }});
+            document.querySelectorAll('.calc-month-range-13plus').forEach(el => {{
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month13plus', currentLanguage);
+            }});
+            document.querySelectorAll('.calc-month-range-1-3').forEach(el => {{
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month1to3', currentLanguage);
+            }});
+            document.querySelectorAll('.calc-month-range-4-6').forEach(el => {{
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month4to6', currentLanguage);
+            }});
+            document.querySelectorAll('.calc-month-range-7-9').forEach(el => {{
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month7to9', currentLanguage);
+            }});
+            document.querySelectorAll('.calc-month-range-10-12').forEach(el => {{
+                el.textContent = getTranslation('incentiveCalculation.monthRanges.month10to12', currentLanguage);
+            }});
+            document.querySelectorAll('.calc-waiting-period').forEach(el => {{
+                el.textContent = getTranslation('incentiveCalculation.waitingPeriod', currentLanguage);
+            }});
+            document.querySelectorAll('.calc-months-text').forEach(el => {{
+                const months = el.dataset.months;
+                const monthUnit = getTranslation('incentiveCalculation.month', currentLanguage);
+                el.textContent = months + monthUnit;
             }});
             document.querySelectorAll('.calc-level-a').forEach(el => {{
                 el.textContent = getTranslation('incentiveCalculation.levelA', currentLanguage);
