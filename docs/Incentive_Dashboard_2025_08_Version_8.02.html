@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 검색엔진 차단 -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="googlebot" content="noindex, nofollow">
+    <meta name="bingbot" content="noindex, nofollow">
     <title>QIP 인센티브 계산 결과 - 2025년 8월</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -1777,7 +1781,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V8.02</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="august" data-month-name="8월">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="15" data-hour="01" data-minute="43">보고서 생성일: 2025년 11월 15일 01:43</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="15" data-hour="02" data-minute="19">보고서 생성일: 2025년 11월 15일 02:19</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="08" data-startday="01" data-endday="30">• 인센티브 데이터: 2025년 08월 01일 ~ 30일</p>
@@ -10085,6 +10089,85 @@
     </script>
 
     <script>
+        // ==================== 보안: 세션 검증 ====================
+        (function() {
+            const SESSION_KEY = 'qip_auth_session';
+            const SESSION_TIMEOUT = 30 * 60 * 1000; // 30분
+
+            function validateSession() {
+                const session = sessionStorage.getItem(SESSION_KEY);
+
+                if (!session) {
+                    // 세션 없음 - 인증 페이지로 리다이렉트
+                    window.location.href = 'auth.html';
+                    return false;
+                }
+
+                try {
+                    const sessionData = JSON.parse(session);
+                    const now = Date.now();
+
+                    if (now - sessionData.loginTime > SESSION_TIMEOUT) {
+                        // 세션 만료
+                        sessionStorage.removeItem(SESSION_KEY);
+                        alert('Session expired. Please login again.\n세션이 만료되었습니다. 다시 로그인하세요.');
+                        window.location.href = 'auth.html';
+                        return false;
+                    }
+
+                    return true;
+                } catch (e) {
+                    sessionStorage.removeItem(SESSION_KEY);
+                    window.location.href = 'auth.html';
+                    return false;
+                }
+            }
+
+            // 페이지 로드 시 세션 검증
+            if (!validateSession()) {
+                return;
+            }
+
+            // 주기적 세션 검증 (1분마다)
+            setInterval(validateSession, 60000);
+
+            // 우클릭 방지
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // 복사 방지 (선택적)
+            document.addEventListener('copy', function(e) {
+                // 복사 허용하되 경고만 표시
+                console.warn('⚠️ 데이터 복사가 감지되었습니다. 기밀 정보 유출에 주의하세요.');
+            });
+
+            // Ctrl+S, Ctrl+P 방지 (저장/인쇄 방지)
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'p')) {
+                    e.preventDefault();
+                    alert('This action is disabled for security reasons.\n보안상 이 기능은 비활성화되어 있습니다.');
+                    return false;
+                }
+            });
+
+            // 개발자 도구 경고
+            const devtoolsWarning = () => {
+                console.clear();
+                console.log('%c⚠️ WARNING / 경고', 'font-size: 30px; color: red; font-weight: bold;');
+                console.log('%cThis dashboard contains confidential employee information.', 'font-size: 16px; color: orange;');
+                console.log('%c이 대시보드는 기밀 직원 정보를 포함하고 있습니다.', 'font-size: 16px; color: orange;');
+                console.log('%cUnauthorized access or data extraction is prohibited and will be reported.', 'font-size: 14px;');
+                console.log('%c무단 접근 또는 데이터 추출은 금지되며 보고됩니다.', 'font-size: 14px;');
+                console.log('%c', 'font-size: 1px;'); // Clear previous console output
+            };
+
+            devtoolsWarning();
+            setInterval(devtoolsWarning, 3000);
+        })();
+        // ==================== 보안 코드 종료 ====================
+
         // UTF-8 Base64 디코딩 함count 추가
         function base64DecodeUnicode(str) {
             // Base64 디코딩 후 UTF-8 처리
