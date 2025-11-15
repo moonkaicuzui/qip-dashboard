@@ -75,6 +75,12 @@ scripts/**/__pycache__/
 *.js
 !aql_fail_modal_new.js
 !dashboard_v2/static/js/**
+!api/**/*.js
+
+# Vercel
+.vercel
+.vercel.json
+node_modules/
 
 # Documentation
 docs/reports/*.pdf
