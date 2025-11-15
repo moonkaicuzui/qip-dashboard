@@ -1,22 +1,5 @@
 {
   "version": 2,
-  "name": "qip-dashboard",
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    }
-  ],
-  "env": {
-    "GITHUB_TOKEN": "@github-token",
-    "ADMIN_PASSWORD_HASH": "@admin-password-hash"
-  },
   "headers": [
     {
       "source": "/api/(.*)",
