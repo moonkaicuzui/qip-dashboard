@@ -74,12 +74,19 @@ def calculate_incentive(month_str, year):
     try:
         print(f"\n💰 인센티브 계산 중: {year}년 {month_str}")
 
-        # step1_인센티브_계산_개선버전.py 실행
+        # Config 파일 경로
+        config_file = f"config_files/config_{month_str}_{year}.json"
+
+        # Config 파일 존재 확인
+        if not os.path.exists(os.path.join(parent_dir, config_file)):
+            print(f"  ⚠️ Config 파일이 없습니다: {config_file}")
+            return False
+
+        # step1_인센티브_계산_개선버전.py 실행 (--config 인자 사용)
         cmd = [
             sys.executable,
             "src/step1_인센티브_계산_개선버전.py",
-            "--month", month_str,
-            "--year", str(year)
+            "--config", config_file
         ]
 
         result = subprocess.run(
