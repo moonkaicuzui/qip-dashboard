@@ -100,6 +100,13 @@ def calculate_incentive(month_str, year):
         if result.returncode == 0:
             print(f"  ✅ 인센티브 계산 성공")
 
+            # Print stdout for debugging
+            if result.stdout:
+                print(f"  📝 계산 로그:")
+                for line in result.stdout.split('\n')[-20:]:  # Print last 20 lines
+                    if line.strip():
+                        print(f"    {line}")
+
             # 생성된 파일 확인
             month_names = {
                 'january': 1, 'february': 2, 'march': 3, 'april': 4,
