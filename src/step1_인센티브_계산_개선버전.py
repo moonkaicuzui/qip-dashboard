@@ -6393,10 +6393,10 @@ class CompleteDataLoader:
     def __init__(self, config: MonthConfig):
         self.config = config
         self.file_mapping = {
-            f"{config.month.full_name}_basic": config.get_file_path("basic"),
-            f"{config.previous_months[-1].full_name}_incentive" if config.previous_months else "prev_incentive": 
+            f"{config.month.full_name}_basic": config.get_file_path("basic_manpower"),
+            f"{config.previous_months[-1].full_name}_incentive" if config.previous_months else "prev_incentive":
                 config.get_file_path("previous_incentive"),
-            f"{config.month.full_name}_aql": config.get_file_path("aql"),
+            f"{config.month.full_name}_aql": config.get_file_path("aql_current"),
             f"{config.month.full_name}_5prs": config.get_file_path("5prs"),
             f"{config.month.full_name}_attendance": config.get_file_path("attendance")
         }
