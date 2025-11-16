@@ -176,9 +176,13 @@ def main():
 
     print("=" * 70)
 
-    # 실패가 있으면 에러 코드 반환
-    if failed_calculations:
+    # 모든 월이 실패한 경우에만 에러 코드 반환 (일부 실패는 허용)
+    if not successful_calculations:
+        print("\n❌ 모든 월의 계산이 실패했습니다. 워크플로우를 중단합니다.")
         sys.exit(1)
+    elif failed_calculations:
+        print(f"\n⚠️ 일부 월({len(failed_calculations)}개) 계산 실패했지만 워크플로우를 계속합니다.")
+        # 일부 실패는 정상 종료 (exit code 0) - 후속 단계 진행 허용
 
 if __name__ == "__main__":
     main()
