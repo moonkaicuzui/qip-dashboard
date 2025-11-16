@@ -3301,39 +3301,47 @@ class CompleteQIPCalculator:
             
             # Stop working employeealso 정상 calculation (exclude하지 않음)
             
-            # [condition 1-4] Single Source of Truth: 새 표준 컬럼 사용
-            attendance_fail = (
-                row.get('cond_3_actual_working_days') == 'FAIL' or  # condition3: 실제근무 days>0
-                row.get('cond_2_unapproved_absence') == 'FAIL' or  # condition2: 무단결근≤2
-                row.get('cond_1_attendance_rate') == 'FAIL' or  # condition1: attendance율≥88%
-                row.get('cond_4_minimum_days') == 'FAIL'  # condition4: minimum근무 days≥12
-            )
-            
-            # [condition 9-10] 5PRS conditions: inspection량 100items 상 AND passed율 95% 상
-            prs_pass = row.get('5prs condition 1 - there is  enough 5 prs validation qty or pass rate is over 95%') == 'yes'
-            
-            # [condition 5] AQL 당month failure cases수 0cases
-            aql_fail = row.get(aql_col, 0) > 0
-            # [condition 6] ASSEMBLY INSPECTOR 3-month consecutive failure 체크 apply
-            continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
-            
             # emp_id first 정of (debugging 목적with 사용done)
             emp_id = row.get('Employee No', '')
-            
-            # incentive 결정 with직 - 모든 condition 충족 시only 지급
-            if attendance_fail:
-                incentive = 0
-                # condition 미충족 시 Continuous_Months = 0
-                self.month_data.loc[idx, 'Continuous_Months'] = 0
-            elif continuous_fail:  # 3-month consecutive AQL failure
-                incentive = 0
-                self.month_data.loc[idx, 'Continuous_Months'] = 0
-            elif aql_fail:  # 당month AQL failure
-                incentive = 0
-                self.month_data.loc[idx, 'Continuous_Months'] = 0
-            elif not prs_pass:  # 5PRS conditions 미충족
+
+            # ========================================
+            # 100% 조건 충족 규칙 적용
+            # ========================================
+            # 인센티브는 모든 적용 가능한 조건을 100% 충족할 때만 지급
+            # conditions_pass_rate가 100.0이 아니면 무조건 0 VND
+
+            pass_rate = row.get('conditions_pass_rate', 0)
+
+            if pass_rate < 100.0:
+                # 조건 미충족: 인센티브 0, Continuous_Months 리셋
                 incentive = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
+
+                # 디버깅: 어떤 조건이 실패했는지 기록
+                failed_conditions = []
+                if row.get('cond_1_attendance_rate') == 'FAIL':
+                    failed_conditions.append('출근율<88%')
+                if row.get('cond_2_unapproved_absence') == 'FAIL':
+                    failed_conditions.append('무단결근>2일')
+                if row.get('cond_3_actual_working_days') == 'FAIL':
+                    failed_conditions.append('실제근무일=0')
+                if row.get('cond_4_minimum_days') == 'FAIL':
+                    failed_conditions.append('최소근무일<12')
+                if row.get('cond_5_aql_personal_failure') == 'FAIL':
+                    failed_conditions.append('개인AQL실패>0')
+                if row.get('cond_6_aql_continuous') == 'FAIL':
+                    failed_conditions.append('3개월연속AQL실패')
+                if row.get('cond_7_aql_team_area') == 'FAIL':
+                    failed_conditions.append('팀/지역AQL실패')
+                if row.get('cond_8_area_reject') == 'FAIL':
+                    failed_conditions.append('지역불량률≥3%')
+                if row.get('cond_9_5prs_pass_rate') == 'FAIL':
+                    failed_conditions.append('5PRS합격률<95%')
+                if row.get('cond_10_5prs_inspection_qty') == 'FAIL':
+                    failed_conditions.append('5PRS검사량<100')
+
+                if failed_conditions:
+                    print(f"      {row.get('Full Name', emp_id)}: 조건 미충족 → 0 VND (실패: {', '.join(failed_conditions)})")
             else:
                 # consecutive 충족 month 수 calculation
                 continuous_months = self.data_processor.calculate_continuous_months_from_history(emp_id, self.month_data)
@@ -3992,17 +4000,33 @@ class CompleteQIPCalculator:
                     except:
                         pass
 
-            # TYPE-2 attendance conditiononly 체크 (AQL, 5PRS conditions exclude)
-            attendance_fail = (
-                stop_working_check or  # Stop Working Date 체크 추
-                row.get('cond_1_attendance_rate') == 'FAIL' or
-                row.get('cond_2_unapproved_absence') == 'FAIL' or
-                row.get('cond_3_actual_working_days') == 'FAIL' or
-                row.get('cond_4_minimum_days') == 'FAIL'  # Phase 1: Single Source of Truth
-            )
+            # ========================================
+            # 100% 조건 충족 규칙 적용 (TYPE-2)
+            # ========================================
+            # TYPE-2는 출근 조건만 적용되지만, 적용되는 조건은 100% 충족해야 함
 
-            # attendance condition 미충족 시 0VND
-            if attendance_fail:
+            pass_rate = row.get('conditions_pass_rate', 0)
+
+            # 100% 충족 규칙: 적용 가능한 모든 조건을 충족해야 함
+            if pass_rate < 100.0:
+                # 조건 미충족: 0 VND
+                # (Continuous_Months는 TYPE-2에 적용되지 않음)
+                incentive = 0
+
+                # 디버깅: 어떤 조건이 실패했는지
+                failed_conditions = []
+                if row.get('cond_1_attendance_rate') == 'FAIL':
+                    failed_conditions.append('출근율<88%')
+                if row.get('cond_2_unapproved_absence') == 'FAIL':
+                    failed_conditions.append('무단결근>2일')
+                if row.get('cond_3_actual_working_days') == 'FAIL':
+                    failed_conditions.append('실제근무일=0')
+                if row.get('cond_4_minimum_days') == 'FAIL':
+                    failed_conditions.append('최소근무일<12')
+
+                if failed_conditions:
+                    print(f"      TYPE-2 {position} {row.get('Full Name', emp_id)}: 조건 미충족 → 0 VND (실패: {', '.join(failed_conditions)})")
+            elif stop_working_check:
                 incentive = 0
             else:
                 # matchingdone TYPE-1 포지션 찾기
