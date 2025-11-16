@@ -418,11 +418,10 @@
         const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
 
         // API settings
-        // TODO: Update this URL after deploying to Vercel
-        // Example: 'https://your-project.vercel.app/api/trigger-workflow'
+        // Vercel Serverless Function endpoint
         const API_ENDPOINT = window.location.hostname === 'localhost'
             ? 'http://localhost:3000/api/trigger-workflow'
-            : '/api/trigger-workflow'; // Will use relative path on production
+            : 'https://qip-dashboard-a6u6.vercel.app/api/trigger-workflow'; // Vercel production URL
 
         const GITHUB_OWNER = 'moonkaicuzui';
         const GITHUB_REPO = 'qip-dashboard';
