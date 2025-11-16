@@ -176,8 +176,14 @@ class MonthConfig:
         return str(self.month.number)
     
     def get_file_path(self, file_type: str) -> str:
-        """Return path by file type"""
-        return self.file_paths.get(file_type, "")
+        """Return path by file type (converts drive:// to input_files/)"""
+        path = self.file_paths.get(file_type, "")
+
+        # Convert drive:// protocol to local input_files/ path
+        if path.startswith("drive://"):
+            path = path.replace("drive://", "input_files/", 1)
+
+        return path
     
     def to_dict(self) -> Dict:
         """Convert configuration to dictionary"""
