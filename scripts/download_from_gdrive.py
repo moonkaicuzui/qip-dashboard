@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-Google Drive CSV 자동 다운로드 스크립트
-GitHub Actions에서 실행되어 Google Drive의 CSV 파일들을 다운로드
+Google Drive 데이터 자동 다운로드 스크립트 V2
+drive_config.json의 file_mappings를 따라 올바른 경로에 파일을 다운로드합니다.
 """
 
 import os
@@ -38,144 +38,211 @@ def init_google_drive_service():
         print(f"❌ Google Drive 서비스 초기화 실패: {e}")
         sys.exit(1)
 
-def download_csv_files(service, folder_id):
-    """Google Drive 폴더에서 모든 CSV 파일 다운로드"""
+def load_drive_config():
+    """drive_config.json 로드"""
+    config_path = "config_files/drive_config.json"
 
+    if not os.path.exists(config_path):
+        print(f"⚠️ {config_path} 파일이 없습니다")
+        return None
+
+    with open(config_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def list_files_in_folder(service, folder_id, file_type='csv'):
+    """특정 폴더의 파일 목록 가져오기"""
     try:
-        # output_files 디렉토리 생성
-        os.makedirs('output_files', exist_ok=True)
+        query = f"'{folder_id}' in parents and trashed=false"
+        if file_type:
+            if file_type == 'csv':
+                query += " and (mimeType='text/csv' or name contains '.csv')"
+            elif file_type == 'json':
+                query += " and (mimeType='application/json' or name contains '.json')"
 
-        # 폴더 내 CSV 파일 목록 가져오기
-        query = f"'{folder_id}' in parents and mimeType='text/csv' and trashed=false"
         results = service.files().list(
             q=query,
-            fields="files(id, name, modifiedTime)",
+            fields="files(id, name, modifiedTime, mimeType)",
             orderBy="modifiedTime desc"
         ).execute()
 
-        items = results.get('files', [])
-
-        if not items:
-            print(f"⚠️ 폴더 {folder_id}에 CSV 파일이 없습니다")
-            return []
-
-        print(f"📁 {len(items)}개의 CSV 파일 발견")
-
-        downloaded_files = []
-
-        for item in items:
-            try:
-                file_name = item['name']
-                file_id = item['id']
-                modified_time = item['modifiedTime']
-
-                print(f"📥 다운로드 중: {file_name}")
-
-                # 파일 다운로드
-                request = service.files().get_media(fileId=file_id)
-                fh = io.BytesIO()
-                downloader = MediaIoBaseDownload(fh, request)
-
-                done = False
-                while not done:
-                    status, done = downloader.next_chunk()
-                    if status:
-                        print(f"    진행률: {int(status.progress() * 100)}%")
-
-                # 파일 저장
-                output_path = f"output_files/{file_name}"
-
-                # 파일명 패턴 확인 및 정규화
-                if 'QIP_incentive' in file_name and file_name.endswith('.csv'):
-                    # 기존 패턴 유지
-                    pass
-                elif 'incentive' in file_name.lower() and file_name.endswith('.csv'):
-                    # 파일명 정규화 시도
-                    # 예: "november_2025_incentive.csv" → "output_QIP_incentive_november_2025_Complete_V8.02_Complete.csv"
-                    parts = file_name.lower().replace('.csv', '').split('_')
-                    if any(month in parts for month in ['january', 'february', 'march', 'april', 'may', 'june',
-                                                         'july', 'august', 'september', 'october', 'november', 'december']):
-                        # 월 찾기
-                        month = next((m for m in parts if m in ['january', 'february', 'march', 'april', 'may', 'june',
-                                                                 'july', 'august', 'september', 'october', 'november', 'december']), None)
-                        # 연도 찾기
-                        year = next((p for p in parts if p.isdigit() and len(p) == 4), '2025')
-
-                        if month:
-                            file_name = f"output_QIP_incentive_{month}_{year}_Complete_V8.02_Complete.csv"
-                            output_path = f"output_files/{file_name}"
-
-                with open(output_path, 'wb') as f:
-                    f.write(fh.getvalue())
-
-                print(f"    ✅ 저장 완료: {output_path}")
-                print(f"    📅 수정 시간: {modified_time}")
-
-                downloaded_files.append({
-                    'name': file_name,
-                    'path': output_path,
-                    'modified': modified_time
-                })
-
-            except Exception as e:
-                print(f"    ❌ 다운로드 실패: {e}")
-                continue
-
-        return downloaded_files
+        return results.get('files', [])
 
     except Exception as e:
-        print(f"❌ 파일 목록 가져오기 실패: {e}")
+        print(f"❌ 폴더 목록 조회 실패 ({folder_id}): {e}")
         return []
 
-def create_metadata_file(downloaded_files):
-    """다운로드 메타데이터 파일 생성"""
-    metadata = {
-        'last_update': datetime.now().isoformat(),
-        'files': downloaded_files,
-        'total_files': len(downloaded_files)
-    }
+def download_file(service, file_id, output_path):
+    """Google Drive 파일 다운로드"""
+    try:
+        # 디렉토리 생성
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    with open('output_files/gdrive_metadata.json', 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, ensure_ascii=False, indent=2)
+        # 파일 다운로드
+        request = service.files().get_media(fileId=file_id)
+        fh = io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
 
-    print(f"📝 메타데이터 파일 생성 완료")
+        done = False
+        while not done:
+            status, done = downloader.next_chunk()
+
+        # 파일 저장
+        with open(output_path, 'wb') as f:
+            f.write(fh.getvalue())
+
+        return True
+
+    except Exception as e:
+        print(f"  ❌ 다운로드 실패: {e}")
+        return False
+
+def detect_latest_month_folder(service, monthly_data_folder_id):
+    """최신 월 폴더 찾기 (예: 2025_11)"""
+    try:
+        # monthly_data 폴더 내의 하위 폴더 목록
+        query = f"'{monthly_data_folder_id}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"
+        results = service.files().list(
+            q=query,
+            fields="files(id, name)",
+            orderBy="name desc"
+        ).execute()
+
+        folders = results.get('files', [])
+
+        # YYYY_MM 패턴 찾기
+        import re
+        month_folders = []
+        for folder in folders:
+            match = re.match(r'(\d{4})_(\d{1,2})', folder['name'])
+            if match:
+                year = int(match.group(1))
+                month = int(match.group(2))
+                month_folders.append({
+                    'id': folder['id'],
+                    'name': folder['name'],
+                    'year': year,
+                    'month': month
+                })
+
+        # 최신 월 우선 정렬
+        month_folders.sort(key=lambda x: (x['year'], x['month']), reverse=True)
+
+        return month_folders
+
+    except Exception as e:
+        print(f"❌ 월 폴더 조회 실패: {e}")
+        return []
 
 def main():
     """메인 실행 함수"""
-    print("=" * 60)
-    print("🚀 Google Drive CSV 다운로드 시작")
-    print("=" * 60)
-
-    # Google Drive 폴더 ID 가져오기
-    folder_id = os.environ.get('GDRIVE_FOLDER_ID')
-
-    if not folder_id:
-        print("❌ 오류: GDRIVE_FOLDER_ID 환경변수가 설정되지 않았습니다")
-        print("GitHub Secrets에 GDRIVE_FOLDER_ID를 설정하세요")
-        sys.exit(1)
-
-    print(f"📁 대상 폴더 ID: {folder_id}")
+    print("=" * 70)
+    print("🚀 Google Drive 데이터 자동 다운로드 V2")
+    print("=" * 70)
 
     # Google Drive 서비스 초기화
     service = init_google_drive_service()
 
-    # CSV 파일 다운로드
-    downloaded_files = download_csv_files(service, folder_id)
+    # drive_config.json 로드
+    drive_config = load_drive_config()
 
-    if downloaded_files:
-        # 메타데이터 파일 생성
-        create_metadata_file(downloaded_files)
+    if not drive_config:
+        print("⚠️ drive_config.json 없이 기본 다운로드 모드로 실행합니다")
+        # 기본 폴더 ID 사용
+        folder_id = os.environ.get('GDRIVE_FOLDER_ID')
+        if not folder_id:
+            print("❌ GDRIVE_FOLDER_ID 환경변수가 설정되지 않았습니다")
+            sys.exit(1)
 
-        print("=" * 60)
-        print(f"✅ 다운로드 완료: {len(downloaded_files)}개 파일")
-        print("=" * 60)
+        # 기본 다운로드 (모든 CSV를 output_files에)
+        print(f"📁 폴더 ID: {folder_id}")
+        files = list_files_in_folder(service, folder_id, 'csv')
+        print(f"📥 {len(files)}개 파일 발견")
 
-        # 다운로드된 파일 목록 출력
-        for file_info in downloaded_files:
-            print(f"  - {file_info['name']}")
-    else:
-        print("⚠️ 다운로드된 파일이 없습니다")
-        sys.exit(0)
+        os.makedirs('output_files', exist_ok=True)
+        downloaded = 0
+
+        for file in files:
+            print(f"  다운로드: {file['name']}")
+            if download_file(service, file['id'], f"output_files/{file['name']}"):
+                downloaded += 1
+
+        print(f"✅ 다운로드 완료: {downloaded}/{len(files)}")
+        return
+
+    # drive_config.json 기반 다운로드
+    google_drive_config = drive_config.get('google_drive', {})
+    folder_structure = google_drive_config.get('folder_structure', {})
+
+    # monthly_data 폴더에서 최신 월 찾기
+    monthly_data_id = folder_structure.get('monthly_data', {}).get('id')
+
+    if not monthly_data_id:
+        print("⚠️ monthly_data 폴더 ID를 찾을 수 없습니다")
+        sys.exit(1)
+
+    print(f"📁 monthly_data 폴더 ID: {monthly_data_id}")
+
+    # 최신 월 폴더 찾기
+    month_folders = detect_latest_month_folder(service, monthly_data_id)
+
+    if not month_folders:
+        print("⚠️ 월 폴더를 찾을 수 없습니다")
+        sys.exit(1)
+
+    print(f"\n📅 발견된 월 폴더: {len(month_folders)}개")
+    for folder in month_folders[:3]:  # 최신 3개월만 표시
+        print(f"  - {folder['name']} (ID: {folder['id']})")
+
+    # 최신 월 데이터 다운로드
+    latest_month = month_folders[0]
+    print(f"\n🎯 다운로드 대상: {latest_month['name']}")
+
+    # 월 폴더 내 파일 목록
+    files = list_files_in_folder(service, latest_month['id'])
+    print(f"📥 {len(files)}개 파일 발견")
+
+    downloaded = 0
+
+    # input_files 디렉토리 구조 생성
+    month_dir = f"input_files/monthly_data/{latest_month['name']}"
+    os.makedirs(month_dir, exist_ok=True)
+
+    for file in files:
+        file_name = file['name'].lower()
+        output_path = None
+
+        # 파일명 패턴 매칭
+        if 'basic' in file_name and 'manpower' in file_name:
+            output_path = f"{month_dir}/basic_manpower_data.csv"
+        elif 'attendance' in file_name or '출근' in file_name:
+            output_path = f"{month_dir}/attendance_data.csv"
+        elif '5prs' in file_name or '5PRS' in file['name']:
+            output_path = f"{month_dir}/5prs_data.csv"
+        else:
+            # 기타 파일은 원래 이름 유지
+            output_path = f"{month_dir}/{file['name']}"
+
+        print(f"  다운로드: {file['name']} → {output_path}")
+        if download_file(service, file['id'], output_path):
+            downloaded += 1
+
+    # AQL history 다운로드
+    aql_folder_id = folder_structure.get('aql_history', {}).get('id')
+    if aql_folder_id:
+        print(f"\n📊 AQL History 다운로드 중...")
+        aql_files = list_files_in_folder(service, aql_folder_id, 'csv')
+
+        os.makedirs('input_files/AQL history', exist_ok=True)
+
+        for file in aql_files[:3]:  # 최근 3개월만
+            print(f"  다운로드: {file['name']}")
+            output_path = f"input_files/AQL history/{file['name']}"
+            if download_file(service, file['id'], output_path):
+                downloaded += 1
+
+    print("\n" + "=" * 70)
+    print(f"✅ 다운로드 완료: {downloaded}개 파일")
+    print("=" * 70)
 
 if __name__ == "__main__":
     main()
