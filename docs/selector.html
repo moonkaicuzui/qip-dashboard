@@ -58,43 +58,6 @@
             opacity: 1;
         }
 
-        /* Admin 버튼 */
-        .admin-link {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .admin-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.95);
-            color: #667eea;
-            border: 2px solid rgba(102, 126, 234, 0.3);
-            border-radius: 25px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .admin-btn:hover {
-            background: white;
-            color: #764ba2;
-            border-color: #764ba2;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-
-        .admin-btn .admin-icon {
-            font-size: 1.1rem;
-        }
-
         .container {
             max-width: 1200px;
             padding: 20px;
@@ -250,16 +213,6 @@
                 font-size: 0.8rem;
             }
 
-            .admin-link {
-                top: 60px;
-                right: 10px;
-            }
-
-            .admin-btn {
-                padding: 8px 16px;
-                font-size: 0.85rem;
-            }
-
             .header h1 {
                 font-size: 2rem;
             }
@@ -270,7 +223,7 @@
 
             .container {
                 padding: 10px;
-                padding-top: 100px;
+                padding-top: 60px;
             }
         }
     </style>
@@ -283,14 +236,6 @@
         <button class="lang-btn" data-lang="vi" onclick="switchLanguage('vi')">Tiếng Việt</button>
     </div>
 
-    <!-- Admin 페이지 링크 -->
-    <div class="admin-link">
-        <a href="admin.html" class="admin-btn">
-            <span class="admin-icon">⚙️</span>
-            <span data-i18n="admin-btn">관리</span>
-        </a>
-    </div>
-
     <div class="container">
         <!-- 헤더 -->
         <div class="header">
@@ -301,7 +246,7 @@
         <!-- 자동 업데이트 정보 -->
         <div class="refresh-info">
             <p class="mb-0" data-i18n="refresh-info">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
-            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-15 13:26:25</small>
+            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-16 05:10:21</small>
         </div>
 
         <!-- 월 선택 그리드 -->
@@ -336,6 +281,17 @@
                 <div class="month-name">September</div>
                 <div class="card-footer">
                     <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
+                    <span class="view-btn" data-i18n="view-btn">보기 →</span>
+                </div>
+            </a>
+
+            <a href="Incentive_Dashboard_2025_07_Version_8.02.html" class="month-card" style="animation-delay: 0.30000000000000004s;" data-year="2025" data-month="7">
+                <div class="month-year">
+                    <span class="year-text">2025</span><span data-i18n="year-suffix">년</span> <span class="month-text">7</span><span data-i18n="month-suffix">월</span>
+                </div>
+                <div class="month-name">July</div>
+                <div class="card-footer">
+                    
                     <span class="view-btn" data-i18n="view-btn">보기 →</span>
                 </div>
             </a>
@@ -436,7 +392,6 @@
                 'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다',
                 'year-suffix': '년',
                 'month-suffix': '월',
-                'admin-btn': '관리',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -452,7 +407,6 @@
                 'footer-security': '🔒 All data is securely protected',
                 'year-suffix': '',
                 'month-suffix': '',
-                'admin-btn': 'Admin',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -468,7 +422,6 @@
                 'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn',
                 'year-suffix': '',
                 'month-suffix': '',
-                'admin-btn': 'Quản lý',
                 'months': ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
                           'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
             }
