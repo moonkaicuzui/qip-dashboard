@@ -54,6 +54,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from google_drive_manager import GoogleDriveManager
 
 # Setup logging
+# Ensure logs directory exists
+Path('logs').mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
