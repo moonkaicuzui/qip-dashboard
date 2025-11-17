@@ -1,7 +1,7 @@
 {
   "description": "Assembly Inspector and Progressive Position Continuous Months Tracking",
   "generated_from": "output_QIP_incentive_november_2025_Complete_V8.02_Complete.csv",
-  "generated_date": "2025-11-10 08:10:46",
+  "generated_date": "2025-11-16 20:10:13",
   "month": "november",
   "year": 2025,
   "employees": {
@@ -14,7 +14,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "618060092": {
       "name": "CAO THỊ TỐ NGUYÊN",
@@ -23,20 +23,20 @@
       "november_incentive": 0.0,
       "november_continuous_months": 0,
       "december_expected_months": 1,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "618110087": {
       "name": "NGUYỄN THÚY HẰNG",
       "position": "AUDIT & TRAINING TEAM",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "618110097": {
       "name": "DANH THỊ ANH ĐÀO",
@@ -45,20 +45,20 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 4,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "621030996": {
       "name": "DANH MINH HIẾU",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 5,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "621040446": {
       "name": "THÁI THỊ XUÂN",
@@ -69,7 +69,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621060243": {
       "name": "HÀ CÔNG NHANH",
@@ -80,18 +80,18 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "619070185": {
       "name": "DANH THỊ KIM ANH",
       "position": "AUDIT & TRAINING TEAM",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "622020174": {
       "name": "NGUYỄN NGỌC BÍCH THỦY",
@@ -111,42 +111,42 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 4,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "622021407": {
       "name": "DANH TRƯỜNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 4,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "620070013": {
       "name": "NGUYỄN THANH TRÚC",
       "position": "AUDIT & TRAINING TEAM",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 4,
-      "unapproved_absences": 1,
-      "absence_rate": 81.81818181818183
+      "actual_working_days": 6,
+      "unapproved_absences": 0,
+      "absence_rate": 0.0
     },
     "620070020": {
       "name": "PHẠM MỸ HUYỀN",
       "position": "AUDIT & TRAINING TEAM",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "620080271": {
       "name": "THỊ MINH PHƯỢNG",
@@ -168,7 +168,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622030320": {
       "name": "QUÁCH THANH TOÀN",
@@ -177,9 +177,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 4,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "620110124": {
       "name": "PHẠM THỊ KIM MAI",
@@ -201,7 +201,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622050636": {
       "name": "LÊ THỊ PHƯỢNG UYÊN",
@@ -223,7 +223,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 68.42105263157895
+      "absence_rate": 0.0
     },
     "622070194": {
       "name": "NGUYỄN QUỐC HUY",
@@ -232,31 +232,31 @@
       "november_incentive": 0.0,
       "november_continuous_months": 0,
       "december_expected_months": 1,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "622080458": {
       "name": "NGUYỄN HỒNG CẨM",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 4,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "623030007": {
       "name": "ĐOÀN THỊ MỸ NGÂN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 5,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "623080380": {
       "name": "PHAN THỊ BÉ NGÂN",
@@ -267,18 +267,18 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "623090032": {
       "name": "ĐẶNG CHÍ CÔNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "623090063": {
       "name": "LÝ NHỰT KHOA",
@@ -289,7 +289,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "623090139": {
       "name": "PHẠM THỊ CẨM LINH",
@@ -298,9 +298,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "623090194": {
       "name": "DANH THỊ KIỀU PHƯƠNG",
@@ -311,7 +311,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "623090198": {
       "name": "TRƯƠNG THẢO HUY",
@@ -322,7 +322,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "623100210": {
       "name": "LÊ THỊ KIM ANH",
@@ -333,7 +333,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "623100234": {
       "name": "HUỲNH THỊ HẢO",
@@ -344,7 +344,7 @@
       "december_expected_months": 1,
       "actual_working_days": 0,
       "unapproved_absences": 0,
-      "absence_rate": 100.0
+      "absence_rate": 0.0
     },
     "623110220": {
       "name": "PHAN THỊ MY PHA",
@@ -355,7 +355,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621050282": {
       "name": "PHAN MINH ANH",
@@ -386,20 +386,20 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "621060393": {
       "name": "LÊ VĂN DLEL",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624020086": {
       "name": "NGUYỄN THỊ KIM THOA",
@@ -408,9 +408,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624020152": {
       "name": "HUỲNH THỊ THANH THÙY",
@@ -419,9 +419,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624030105": {
       "name": "DANH THỊ NƯƠNG",
@@ -430,9 +430,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624030271": {
       "name": "ĐẶNG HOÀNG DUY",
@@ -443,29 +443,29 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624030295": {
       "name": "NGUYỄN THỊ ANH THƯ",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624030533": {
       "name": "TRẦN TRẦN TRUNG KIÊN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 5,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 76.19047619047619
+      "absence_rate": 0.0
     },
     "624030608": {
       "name": "TRẦN THỊ TRÚC QUYÊN",
@@ -476,7 +476,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624040282": {
       "name": "ĐOÀN CÔNG HÀO",
@@ -485,9 +485,9 @@
       "november_incentive": 0.0,
       "november_continuous_months": 0,
       "december_expected_months": 1,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 76.19047619047619
+      "absence_rate": 0.0
     },
     "624040283": {
       "name": "TRẦN VĂN HÀ",
@@ -498,7 +498,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624040410": {
       "name": "LÊ THỊ HUYỀN TRÂN",
@@ -509,7 +509,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624050151": {
       "name": "PHẠM THỊ THU THẢO",
@@ -520,18 +520,18 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624050200": {
       "name": "NGUYỄN THỊ HUỲNH HÂN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 4,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "624050450": {
       "name": "TRẦN THỊ MỸ LỆ",
@@ -542,18 +542,18 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624060040": {
       "name": "HỒ NHỰT PHI",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624060316": {
       "name": "NGUYỄN THỊ CẨM NHUNG",
@@ -564,7 +564,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624060318": {
       "name": "NGUYỄN THỊ MỸ HOA",
@@ -575,7 +575,7 @@
       "december_expected_months": 1,
       "actual_working_days": 0,
       "unapproved_absences": 0,
-      "absence_rate": 100.0
+      "absence_rate": 0.0
     },
     "622021338": {
       "name": "THỊ THANH THẢO",
@@ -595,9 +595,9 @@
       "november_incentive": 0.0,
       "november_continuous_months": 0,
       "december_expected_months": 1,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624060384": {
       "name": "TÔ THỊ DIỄM MI",
@@ -619,18 +619,18 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624070060": {
       "name": "TRẦN THANH THANH",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624070252": {
       "name": "PHẠM THỊ KIỀU TRANG",
@@ -641,7 +641,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624070393": {
       "name": "LÊ THỊ CHI",
@@ -652,29 +652,29 @@
       "december_expected_months": 1,
       "actual_working_days": 0,
       "unapproved_absences": 0,
-      "absence_rate": 100.0
+      "absence_rate": 0.0
     },
     "624080082": {
       "name": "TRẦN THỊ BÍCH THẢO",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 4,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "624080083": {
       "name": "CHƯƠNG THỊ YẾN NHI",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 4,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "624080127": {
       "name": "TRẦN KIM Y",
@@ -685,7 +685,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624080430": {
       "name": "NGUYỄN VĂN TOÀN",
@@ -694,9 +694,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624100065": {
       "name": "DIỆP TÚ TIÊN",
@@ -705,9 +705,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 4,
-      "unapproved_absences": 1,
-      "absence_rate": 81.81818181818183
+      "actual_working_days": 6,
+      "unapproved_absences": 0,
+      "absence_rate": 0.0
     },
     "624100308": {
       "name": "NGUYỄN THỊ MỸ ANH",
@@ -716,20 +716,20 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624100316": {
       "name": "TRƯƠNG MINH ĐƯƠNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624110158": {
       "name": "VƯƠNG Ý NHI",
@@ -749,9 +749,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624110274": {
       "name": "NGUYỄN THỊ MINH THY",
@@ -768,23 +768,23 @@
       "name": "LÂM THỊ THU LAN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "623080475": {
       "name": "SẦM TRÍ THÀNH",
       "position": "AUDIT & TRAINING TEAM",
       "type": "TYPE-1",
-      "november_incentive": 150000.0,
-      "november_continuous_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625020179": {
       "name": "NGUYỄN PHÁT LỢI",
@@ -806,7 +806,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625020464": {
       "name": "DANH THỊ THÙY DƯƠNG",
@@ -816,19 +816,19 @@
       "november_continuous_months": 0,
       "december_expected_months": 1,
       "actual_working_days": 0,
-      "unapproved_absences": 5,
+      "unapproved_absences": 10,
       "absence_rate": 100.0
     },
     "625020551": {
       "name": "TRẦN VĂN SÁNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625020591": {
       "name": "ĐẶNG THỊ DIỄM ÁI",
@@ -837,9 +837,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "625030063": {
       "name": "THỊ XUÂN",
@@ -848,9 +848,9 @@
       "november_incentive": 150000.0,
       "november_continuous_months": 1,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "623090218": {
       "name": "HUỲNH CHÍ TÂM",
@@ -911,9 +911,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "625030234": {
       "name": "VÕ THỊ CẨM TIÊN",
@@ -924,7 +924,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625030296": {
       "name": "NGUYỄN THỊ MỸ SAL",
@@ -944,9 +944,9 @@
       "november_incentive": 150000.0,
       "november_continuous_months": 1,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "625030363": {
       "name": "HUỲNH NGỌC TRÂN",
@@ -957,7 +957,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625050156": {
       "name": "NGUYỄN TUYẾT ĐÀO",
@@ -968,18 +968,18 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625050250": {
       "name": "LÊ HUYỀN TRÂN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625060019": {
       "name": "DƯƠNG THỊ HẬU",
@@ -990,7 +990,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624020170": {
       "name": "HUỲNH TẤN TƯỚC",
@@ -1018,12 +1018,12 @@
       "name": "NGUYỄN THỊ NHƯ Ý",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 3,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 85.0
+      "absence_rate": 0.0
     },
     "619060201": {
       "name": "BÙI THỊ KIỀU LY",
@@ -1034,7 +1034,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "620030032": {
       "name": "NGUYỄN THỊ KIỀU TIÊN",
@@ -1043,9 +1043,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624030607": {
       "name": "THÁI PHƯƠNG YẾN",
@@ -1067,7 +1067,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624040238": {
       "name": "TRẦN MINH KHÁNH",
@@ -1099,17 +1099,17 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621030280": {
       "name": "NGUYỄN THỊ THỦY QUỲNH",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621030557": {
       "name": "THỊ NHÀN",
@@ -1120,7 +1120,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621070084": {
       "name": "THỊ NGỌC ĐIỆP",
@@ -1129,9 +1129,9 @@
       "november_incentive": 150000.0,
       "november_continuous_months": 1,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "621100361": {
       "name": "TRẦN THỊ TÚ NGA",
@@ -1142,7 +1142,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624050331": {
       "name": "THỊ NHẬT THANH",
@@ -1164,7 +1164,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621110407": {
       "name": "LÊ YẾN NHI",
@@ -1175,7 +1175,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624060131": {
       "name": "PHẠM THỊ THÙY DƯƠNG",
@@ -1192,15 +1192,26 @@
       "name": "NGUYỄN THỊ KIM LOAN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621120120": {
       "name": "LÊ HỒNG ĐÀO",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
+      "unapproved_absences": 0,
+      "absence_rate": 0.0
+    },
+    "621120400": {
+      "name": "TRẦN THỊ NGỌC QUYỀN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
       "november_incentive": 150000.0,
@@ -1208,18 +1219,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
-    },
-    "621120400": {
-      "name": "TRẦN THỊ NGỌC QUYỀN",
-      "position": "ASSEMBLY INSPECTOR",
-      "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 5,
-      "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "622020056": {
       "name": "NGUYỄN ÚT TÝ",
@@ -1228,9 +1228,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "622021048": {
       "name": "NGUYỄN MỘNG THÊM",
@@ -1241,7 +1241,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622021050": {
       "name": "LÊ THỊ DẠ LÝ",
@@ -1252,7 +1252,7 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622030023": {
       "name": "LƯU HUỲNH BỬU XUYẾN",
@@ -1263,29 +1263,29 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622050542": {
       "name": "BÙI THANH THẲNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622070156": {
       "name": "ĐÀO HỒNG NHIỀU",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624080015": {
       "name": "TRƯƠNG KIM MỴ",
@@ -1307,29 +1307,29 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624020153": {
       "name": "HUỲNH THỊ THANH THÚY",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 5,
+      "november_incentive": 250000.0,
+      "november_continuous_months": 2,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "622020913": {
       "name": "LÂM THỊ THU PHƯƠNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624080166": {
       "name": "LƯU THỊ THU UYÊN",
@@ -1357,11 +1357,11 @@
       "name": "NGUYỄN THỊ KIM CHI",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "624090322": {
       "name": "NGÔ THANH NHƯ",
@@ -1389,31 +1389,31 @@
       "name": "TRẦN THỊ TỐ QUYÊN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621030474": {
       "name": "NGUYỄN THỊ KIỀU ANH",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "621031108": {
       "name": "PHẠM THỊ SÂM",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 76.19047619047619
+      "absence_rate": 0.0
     },
     "624100346": {
       "name": "NGUYỄN THỊ NGỌC HÂN",
@@ -1441,31 +1441,31 @@
       "name": "HUỲNH NGỌC LÀNH",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "620110399": {
       "name": "VÕ THỊ HỒNG TƯƠI",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622050244": {
       "name": "LÊ VĂN KHANG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624120070": {
       "name": "NGUYỄN ANH KIỆT",
@@ -1482,21 +1482,21 @@
       "name": "CHUNG THÀNH PHONG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622050265": {
       "name": "LÊ THỊ BẾN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "625020385": {
       "name": "LÊ THÀNH THUẬN",
@@ -1513,21 +1513,21 @@
       "name": "LÊ THỊ THOẢNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "624020044": {
       "name": "DANH VÀNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625020482": {
       "name": "LÊ ANH TÁNH",
@@ -1543,11 +1543,11 @@
       "name": "PHAN VĂN BỔNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "623100187": {
       "name": "NGUYỄN MINH KHANG",
@@ -1577,67 +1577,67 @@
       "november_continuous_months": 0,
       "actual_working_days": 0,
       "unapproved_absences": 0,
-      "absence_rate": 100.0
+      "absence_rate": 0.0
     },
     "621020323": {
       "name": "NGUYỄN THỊ BÍCH",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621030755": {
       "name": "NGUYỄN THỊ BÉ BA",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621110051": {
       "name": "VÕ KIM THANH",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 5,
-      "unapproved_absences": 1,
-      "absence_rate": 78.26086956521739
+      "actual_working_days": 6,
+      "unapproved_absences": 0,
+      "absence_rate": 0.0
     },
     "622040679": {
       "name": "ONG THỊ CẨM NƯƠNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "622070130": {
       "name": "THỊ BÉ BẢY",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "623090111": {
       "name": "THỊ TUYỀN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 4,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 80.95238095238095
+      "absence_rate": 0.0
     },
     "625030361": {
       "name": "HUỲNH THỊ NHƯ Ý",
@@ -1654,11 +1654,11 @@
       "name": "ĐÀO THỊ NGUYỆT",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625040238": {
       "name": "VÕ THỊ BẢO HIỀN",
@@ -1675,32 +1675,32 @@
       "name": "TRẦN CẨM TIÊN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "621020156": {
       "name": "THỊ OÁCH HA",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "621040440": {
       "name": "THỊ THANH",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625050278": {
       "name": "NGUYỄN THỊ MỸ TIÊN",
@@ -1717,31 +1717,31 @@
       "name": "LĂM THỊ THẮM",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625040239": {
       "name": "HUỲNH THỊ ANH THƯ",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 3,
+      "actual_working_days": 5,
       "unapproved_absences": 0,
-      "absence_rate": 85.0
+      "absence_rate": 0.0
     },
     "625070269": {
       "name": "VÕ THỊ HUỲNH NHƯ",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "625080102": {
       "name": "ĐOÀN THẢO NHI",
@@ -1750,9 +1750,9 @@
       "november_incentive": 250000.0,
       "november_continuous_months": 2,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "625080141": {
       "name": "NGUYỄN THỊ KHẢ DUY",
@@ -1763,17 +1763,17 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625080251": {
       "name": "LÊ THỊ TRÚC LINH",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625080253": {
       "name": "LÊ NGỌC KIM NGÂN",
@@ -1784,7 +1784,7 @@
       "december_expected_months": 1,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625080255": {
       "name": "LÂM CẨM NHI",
@@ -1795,18 +1795,18 @@
       "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625080289": {
       "name": "ĐOÀN ĐÌNH LỘC",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 250000.0,
-      "november_continuous_months": 2,
-      "december_expected_months": 2,
+      "november_incentive": 0.0,
+      "november_continuous_months": 0,
+      "december_expected_months": 1,
       "actual_working_days": 3,
-      "unapproved_absences": 1,
-      "absence_rate": 85.71428571428571
+      "unapproved_absences": 3,
+      "absence_rate": 0.0
     },
     "625090049": {
       "name": "TRẦN MỸ NGỌC",
@@ -1826,61 +1826,72 @@
       "november_incentive": 150000.0,
       "november_continuous_months": 1,
       "december_expected_months": 2,
-      "actual_working_days": 5,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
     },
     "625090201": {
       "name": "DANH BẠC",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625090237": {
       "name": "LÊ KIM LIÊN",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625090240": {
       "name": "BÙI THỊ THÙY DUNG",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-2",
-      "november_incentive": 234375.0,
+      "november_incentive": 232558.0,
       "november_continuous_months": 0,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625090293": {
       "name": "DANH LỜI",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
       "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 73.91304347826086
+      "absence_rate": 0.0
     },
     "625100040": {
       "name": "TRẦN THỊ CẨM LY",
       "position": "ASSEMBLY INSPECTOR",
       "type": "TYPE-1",
-      "november_incentive": 0.0,
-      "november_continuous_months": 0,
-      "december_expected_months": 1,
-      "actual_working_days": 5,
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
       "unapproved_absences": 0,
-      "absence_rate": 77.27272727272727
+      "absence_rate": 0.0
+    },
+    "625100092": {
+      "name": "HỒ THÚY HUỲNH",
+      "position": "ASSEMBLY INSPECTOR",
+      "type": "TYPE-1",
+      "november_incentive": 150000.0,
+      "november_continuous_months": 1,
+      "december_expected_months": 2,
+      "actual_working_days": 6,
+      "unapproved_absences": 0,
+      "absence_rate": 0.0
     }
   }
 }
