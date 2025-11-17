@@ -23,6 +23,9 @@ from googleapiclient.http import MediaIoBaseDownload
 import io
 
 # Setup logging
+# Ensure logs directory exists
+Path('logs').mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
