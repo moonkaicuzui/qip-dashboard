@@ -42,6 +42,10 @@ Thumbs.db
 # 임시 파일
 *.tmp
 *.log
+logs/
+
+# 캐시 파일
+.cache/
 
 # 출력 파일
 output_files/*.html
