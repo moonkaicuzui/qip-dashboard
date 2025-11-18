@@ -4079,18 +4079,19 @@ class CompleteQIPCalculator:
 
         print(f"    TYPE-2 GROUP LEADER 수: {type2_group_mask.sum()}명")
 
-        # Type-1 GROUP LEADER 평균
-        type1_group_leaders = self.month_data[
+        # TYPE-1 LINE LEADER 평균 (GROUP LEADER 계산 기준)
+        type1_line_leaders = self.month_data[
             (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
-            (self.month_data['QIP POSITION 1ST  NAME'] == 'GROUP LEADER')
+            (self.month_data['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
         ]
 
-        if len(type1_group_leaders) > 0 and incentive_col in self.month_data.columns:
-            type1_group_avg = type1_group_leaders[incentive_col].mean()
+        receiving_type1_line_leaders = type1_line_leaders[type1_line_leaders[incentive_col] > 0]
+        if len(receiving_type1_line_leaders) > 0 and incentive_col in self.month_data.columns:
+            type1_line_avg = receiving_type1_line_leaders[incentive_col].mean()
         else:
-            type1_group_avg = 0
+            type1_line_avg = 0
 
-        # TYPE-2 LINE LEADER 평균 calculation
+        # TYPE-2 LINE LEADER 평균 calculation (fallback용)
         type2_line_leaders = self.month_data[
             (self.month_data['ROLE TYPE STD'] == 'TYPE-2') &
             (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LINE', na=False)) &
@@ -4103,7 +4104,7 @@ class CompleteQIPCalculator:
         else:
             type2_line_avg = 0
 
-        print(f"    TYPE-1 GROUP LEADER 평균: {type1_group_avg:,.0f} VND")
+        print(f"    TYPE-1 LINE LEADER 평균: {type1_line_avg:,.0f} VND")
         print(f"    TYPE-2 LINE LEADER 평균: {type2_line_avg:,.0f} VND")
 
         # 각 GROUP LEADER calculation
@@ -4140,7 +4141,7 @@ class CompleteQIPCalculator:
             if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
                 print(f"      [DEBUG] current value(무시done): {current_value}")
                 print(f"      [DEBUG] attendance_fail: {attendance_fail}")
-                print(f"      [DEBUG] type1_group_avg: {type1_group_avg}")
+                print(f"      [DEBUG] type1_line_avg: {type1_line_avg}")
                 print(f"      [DEBUG] type2_line_avg: {type2_line_avg}")
 
             # 무condition 재calculation - existing value 완전 무시
@@ -4148,16 +4149,16 @@ class CompleteQIPCalculator:
                 incentive = 0
                 if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
                     print(f"      ❌ attendance_fail = True → 0VND")
-            elif type1_group_avg > 0:
-                # TYPE-1 평균 사용
-                incentive = type1_group_avg
+            elif type1_line_avg > 0:
+                # TYPE-1 LINE LEADER 평균 × 2 사용
+                incentive = int(type1_line_avg * 2)
                 if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      → TYPE-1 평균 사용: {type1_group_avg}")
+                    print(f"      → TYPE-1 LINE LEADER 평균 × 2: {type1_line_avg} × 2 = {incentive}")
             elif type2_line_avg > 0:
-                # TYPE-2 LINE LEADER 평균 × 2
+                # TYPE-2 LINE LEADER 평균 × 2 (fallback)
                 incentive = int(type2_line_avg * 2)
                 if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      → TYPE-2 LINE LEADER 평균 × 2: {type2_line_avg} × 2 = {incentive}")
+                    print(f"      → TYPE-2 LINE LEADER 평균 × 2 (fallback): {type2_line_avg} × 2 = {incentive}")
             else:
                 # defaultvalue (LINE LEADER defaultvalue × 2)
                 incentive = 107360 * 2
@@ -4172,7 +4173,7 @@ class CompleteQIPCalculator:
             # debugging 정보 - 모든 GROUP LEADER 출력
             print(f"    {name} ({emp_id}):")
             print(f"      condition 충족: {'NO' if attendance_fail else 'YES'}")
-            print(f"      TYPE-1 평균: {type1_group_avg:,.0f}, TYPE-2 LINE 평균: {type2_line_avg:,.0f}")
+            print(f"      TYPE-1 LINE 평균: {type1_line_avg:,.0f}, TYPE-2 LINE 평균: {type2_line_avg:,.0f}")
             print(f"      calculationdone incentive: {incentive:,.0f} VND")
 
     def calculate_type2_group_leader_independent(self, emp_id: str, subordinate_mapping: Dict[str, List[str]]) -> int:
