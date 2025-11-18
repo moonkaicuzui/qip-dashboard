@@ -30,7 +30,10 @@ def create_month_selector_page():
                           'July', 'August', 'September', 'October', 'November', 'December']
             month_name = month_names[month] if 1 <= month <= 12 else str(month)
 
-            # 8월(August) 제외
+            # 2025년 11월 이후만 표시 (10월 확정 지급 완료)
+            if year == 2025 and month < 11:
+                continue
+            # 8월(August) 제외 (다른 해도 적용)
             if month == 8:
                 continue
 
@@ -233,6 +236,25 @@ def create_month_selector_page():
             opacity: 0.9;
         }
 
+        .admin-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .admin-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
         .refresh-info {
             background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
@@ -332,6 +354,9 @@ def create_month_selector_page():
         <div class="last-update">
             <p data-i18n="footer-mobile">💡 모바일에서도 완벽하게 작동합니다</p>
             <p data-i18n="footer-security">🔒 모든 데이터는 안전하게 보호됩니다</p>
+            <p style="margin-top: 20px;">
+                <a href="admin.html" class="admin-link" data-i18n="admin-link">⚙️ 관리자 로그인</a>
+            </p>
         </div>
     </div>
 
@@ -420,6 +445,7 @@ def create_month_selector_page():
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
                 'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다',
+                'admin-link': '⚙️ 관리자 로그인',
                 'year-suffix': '년',
                 'month-suffix': '월',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
@@ -435,6 +461,7 @@ def create_month_selector_page():
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 Works perfectly on mobile devices',
                 'footer-security': '🔒 All data is securely protected',
+                'admin-link': '⚙️ Admin Login',
                 'year-suffix': '',
                 'month-suffix': '',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
@@ -450,6 +477,7 @@ def create_month_selector_page():
                 'badge-new': 'MỚI',
                 'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
                 'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn',
+                'admin-link': '⚙️ Đăng nhập Quản trị',
                 'year-suffix': '',
                 'month-suffix': '',
                 'months': ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
