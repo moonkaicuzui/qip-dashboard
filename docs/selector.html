@@ -273,18 +273,7 @@
 
             <a href="Incentive_Dashboard_2025_11_Version_8.02.html" class="month-card" style="animation-delay: 0.0s;" data-year="2025" data-month="11">
                 <div class="month-year">
-                    <span class="year-text">2025</span><span data-i18n="year-suffix">년</span> <span class="month-text">11</span><span data-i18n="month-suffix">월</span>
-                </div>
-                <div class="month-name">November</div>
-                <div class="card-footer">
-                    <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
-                    <span class="view-btn" data-i18n="view-btn">보기 →</span>
-                </div>
-            </a>
-
-            <a href="Incentive_Dashboard_2025_11_Version_9.0.html" class="month-card" style="animation-delay: 0.1s;" data-year="2025" data-month="11">
-                <div class="month-year">
-                    <span class="year-text">2025</span><span data-i18n="year-suffix">년</span> <span class="month-text">11</span><span data-i18n="month-suffix">월</span>
+                    <span class="year-text">2025</span><span class="year-suffix" data-i18n="year-suffix">년</span> <span class="month-text">11</span><span class="month-suffix" data-i18n="month-suffix">월</span>
                 </div>
                 <div class="month-name">November</div>
                 <div class="card-footer">
@@ -455,6 +444,14 @@
                 }
             });
 
+            // 년/월 suffix 업데이트 (영어/베트남어에서는 빈 문자열)
+            document.querySelectorAll('.year-suffix').forEach(element => {
+                element.textContent = translations[lang]['year-suffix'] || '';
+            });
+            document.querySelectorAll('.month-suffix').forEach(element => {
+                element.textContent = translations[lang]['month-suffix'] || '';
+            });
+
             // 페이지 타이틀 업데이트
             const titleElement = document.querySelector('title[data-i18n]');
             if (titleElement && translations[lang]) {
@@ -475,7 +472,7 @@
 
         // 페이지 로드 시 저장된 언어 적용
         document.addEventListener('DOMContentLoaded', function() {
-            const savedLang = localStorage.getItem('preferredLanguage') || 'ko';
+            const savedLang = localStorage.getItem('preferredLanguage') || 'en';
             switchLanguage(savedLang);
         });
 
