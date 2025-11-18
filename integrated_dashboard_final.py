@@ -6413,6 +6413,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <button id="downloadCsvBtn" onclick="downloadCSV()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="downloadCsvBtnText">📊 CSV 다운로드</span>
                 </button>
+                <button id="downloadExcelBtn" onclick="downloadExcel()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
+                    <span id="downloadExcelBtnText">📗 Excel 다운로드</span>
+                </button>
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V8.02</span></h1>
             <p id="mainSubtitle" data-year="{year}" data-month="{month}" data-month-name="{get_korean_month(month)}">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
@@ -9850,6 +9853,34 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             alert(messages[currentLanguage] || messages['ko']);
         }}
 
+        // Excel 파일 다운로드 함수
+        function downloadExcel() {{
+            const currentYear = '{year}';
+            const currentMonth = '{str(month_num).zfill(2)}';
+            const monthName = '{month}';
+            const filename = `output_QIP_incentive_${{monthName}}_${{currentYear}}_Complete_V8.02_Complete.xlsx`;
+
+            // Excel 파일 경로 (GitHub Pages 호스팅)
+            const excelPath = filename;
+
+            // 다운로드 링크 생성
+            const link = document.createElement('a');
+            link.href = excelPath;
+            link.download = filename;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 다운로드 확인 메시지
+            const messages = {{
+                'ko': '✅ Excel 파일이 다운로드되었습니다.',
+                'en': '✅ Excel file has been downloaded.',
+                'vi': '✅ Tệp Excel đã được tải xuống.'
+            }};
+            alert(messages[currentLanguage] || messages['ko']);
+        }}
+
         // 모든 텍스트 업데이트 - 완전한 구현
         function updateAllTexts() {{
             // 메인 헤더 업데이트
@@ -10171,6 +10202,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     'vi': '📊 Tải CSV'
                 }};
                 downloadCsvBtnText.textContent = csvTexts[currentLanguage] || csvTexts['ko'];
+            }}
+
+            const downloadExcelBtnText = document.getElementById('downloadExcelBtnText');
+            if (downloadExcelBtnText) {{
+                const excelTexts = {{
+                    'ko': '📗 Excel 다운로드',
+                    'en': '📗 Download Excel',
+                    'vi': '📗 Tải Excel'
+                }};
+                downloadExcelBtnText.textContent = excelTexts[currentLanguage] || excelTexts['ko'];
             }}
 
             // 직급별 테이블 및 개인별 테이블 재creation
