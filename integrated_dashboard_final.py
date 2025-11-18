@@ -6396,7 +6396,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 <body>
     <div class="container">
         <div class="header">
-            <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
+            <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; max-width: 600px;">
                 <select id="languageSelector" class="form-select" onchange="changeLanguage(this.value)" style="width: 150px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
                     <option value="ko">한국어</option>
                     <option value="en">English</option>
@@ -6407,6 +6407,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="management">📊 Management Dashboard</option>
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
+                <button id="downloadHtmlBtn" onclick="downloadDashboard()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
+                    <span id="downloadHtmlBtnText">📥 HTML 다운로드</span>
+                </button>
+                <button id="downloadCsvBtn" onclick="downloadCSV()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
+                    <span id="downloadCsvBtnText">📊 CSV 다운로드</span>
+                </button>
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V8.02</span></h1>
             <p id="mainSubtitle" data-year="{year}" data-month="{month}" data-month-name="{get_korean_month(month)}">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
@@ -9726,7 +9732,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function changeDashboard(type) {{
             const currentMonth = '{str(month_num).zfill(2)}';  // month 번호를 2자리로 패딩
             const currentYear = '{year}';
-            
+
             switch(type) {{
                 case 'management':
                     // Management Dashboard로 이동
@@ -9743,7 +9749,107 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     break;
             }}
         }}
-        
+
+        // HTML 대시보드 다운로드 함수
+        function downloadDashboard() {{
+            const currentYear = '{year}';
+            const currentMonth = '{str(month_num).zfill(2)}';
+            const filename = `Incentive_Dashboard_${{currentYear}}_${{currentMonth}}_Version_8.02.html`;
+
+            // 현재 페이지의 HTML을 Blob으로 생성
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], {{ type: 'text/html;charset=utf-8' }});
+
+            // 다운로드 링크 생성 및 클릭
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+
+            // 다운로드 확인 메시지
+            const messages = {{
+                'ko': '✅ HTML 파일이 다운로드되었습니다.',
+                'en': '✅ HTML file has been downloaded.',
+                'vi': '✅ Tệp HTML đã được tải xuống.'
+            }};
+            alert(messages[currentLanguage] || messages['ko']);
+        }}
+
+        // CSV 데이터 다운로드 함수
+        function downloadCSV() {{
+            const currentYear = '{year}';
+            const currentMonth = '{str(month_num).zfill(2)}';
+            const monthName = '{month}';
+            const filename = `output_QIP_incentive_${{monthName}}_${{currentYear}}_Complete_V8.02_Complete.csv`;
+
+            // CSV 헤더 생성
+            const headers = [
+                'Full Name', 'Team', 'Area', 'Position', 'Shift', 'Gender', 'TYPE',
+                'Continuous Months', 'Final Incentive (VND)',
+                'Condition 1 (Attendance Rate)', 'Condition 2 (Unapproved Absences)',
+                'Condition 3 (Actual Working Days)', 'Condition 4 (Total Working Days)',
+                'Condition 5 (Personal AQL)', 'Condition 6 (Continuous Personal AQL)',
+                'Condition 7 (Team/Area AQL)', 'Condition 8 (Area Reject Rate)',
+                'Condition 9 (5PRS Pass Rate)', 'Condition 10 (5PRS Quantity)',
+                'Pass Rate (%)', 'Previous Month Incentive', 'Stop working Date'
+            ];
+
+            // CSV 행 데이터 생성
+            let csvContent = headers.join(',') + '\\n';
+
+            // employeesData 배열 사용
+            if (typeof employeesData !== 'undefined' && Array.isArray(employeesData)) {{
+                employeesData.forEach(emp => {{
+                    const row = [
+                        `"${{emp['Full Name'] || ''}}"`,
+                        `"${{emp['Team'] || ''}}"`,
+                        `"${{emp['Area'] || ''}}"`,
+                        `"${{emp['Position'] || ''}}"`,
+                        `"${{emp['Shift'] || ''}}"`,
+                        `"${{emp['Gender'] || ''}}"`,
+                        `"${{emp['TYPE'] || ''}}"`,
+                        emp['continuous_months'] || 0,
+                        emp['final_incentive'] || 0,
+                        `"${{emp['조건1_출근율'] || 'NO'}}"`,
+                        `"${{emp['조건2_무단결근'] || 'NO'}}"`,
+                        `"${{emp['조건3_실제근무일'] || 'NO'}}"`,
+                        `"${{emp['조건4_최소근무일'] || 'NO'}}"`,
+                        `"${{emp['조건5_개인AQL'] || 'NO'}}"`,
+                        `"${{emp['조건6_개인AQL연속실패'] || 'NO'}}"`,
+                        `"${{emp['조건7_팀에리어AQL'] || 'NO'}}"`,
+                        `"${{emp['조건8_에리어불량률'] || 'NO'}}"`,
+                        `"${{emp['조건9_5PRS합격률'] || 'NO'}}"`,
+                        `"${{emp['조건10_5PRS검사수량'] || 'NO'}}"`,
+                        emp['pass_rate'] || 0,
+                        emp['previous_month_incentive'] || 0,
+                        `"${{emp['Stop working Date'] || ''}}"`
+                    ];
+                    csvContent += row.join(',') + '\\n';
+                }});
+            }}
+
+            // Blob 생성 및 다운로드
+            const blob = new Blob([csvContent], {{ type: 'text/csv;charset=utf-8;' }});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+
+            // 다운로드 확인 메시지
+            const messages = {{
+                'ko': '✅ CSV 파일이 다운로드되었습니다.',
+                'en': '✅ CSV file has been downloaded.',
+                'vi': '✅ Tệp CSV đã được tải xuống.'
+            }};
+            alert(messages[currentLanguage] || messages['ko']);
+        }}
+
         // 모든 텍스트 업데이트 - 완전한 구현
         function updateAllTexts() {{
             // 메인 헤더 업데이트
@@ -10045,7 +10151,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (window.pieChart) {{
                 updateChartLabels();
             }}
-            
+
+            // 다운로드 버튼 텍스트 업데이트
+            const downloadHtmlBtnText = document.getElementById('downloadHtmlBtnText');
+            if (downloadHtmlBtnText) {{
+                const htmlTexts = {{
+                    'ko': '📥 HTML 다운로드',
+                    'en': '📥 Download HTML',
+                    'vi': '📥 Tải HTML'
+                }};
+                downloadHtmlBtnText.textContent = htmlTexts[currentLanguage] || htmlTexts['ko'];
+            }}
+
+            const downloadCsvBtnText = document.getElementById('downloadCsvBtnText');
+            if (downloadCsvBtnText) {{
+                const csvTexts = {{
+                    'ko': '📊 CSV 다운로드',
+                    'en': '📊 Download CSV',
+                    'vi': '📊 Tải CSV'
+                }};
+                downloadCsvBtnText.textContent = csvTexts[currentLanguage] || csvTexts['ko'];
+            }}
+
             // 직급별 테이블 및 개인별 테이블 재creation
             updateTabContents();
         }}
