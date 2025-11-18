@@ -102,8 +102,8 @@ python src/validate_hr_data.py 9 2025
 [src/convert_attendance_data]  └── Assign final incentive amount
                                        ↓
                                [4] Excel/CSV Output
-                               ├── output_QIP_incentive_[month]_[year]_Complete_V8.02_Complete.xlsx
-                               └── output_QIP_incentive_[month]_[year]_Complete_V8.02_Complete.csv
+                               ├── output_QIP_incentive_[month]_[year]_Complete_V9.0_Complete.xlsx
+                               └── output_QIP_incentive_[month]_[year]_Complete_V9.0_Complete.csv
                                        ↓
                                [5] Dashboard Generation (integrated_dashboard_final.py)
                                ├── Self-contained HTML with inline JS/CSS
@@ -202,9 +202,9 @@ Input:  input_files/[year]년 [month] 인센티브 지급 세부 정보.csv
         input_files/AQL history/9월_AQL_HISTORY.csv
         input_files/5PRS/9월_5PRS_DATA.csv
 
-Output: output_files/output_QIP_incentive_september_2025_Complete_V8.02_Complete.xlsx
-        output_files/output_QIP_incentive_september_2025_Complete_V8.02_Complete.csv
-        output_files/Incentive_Dashboard_2025_09_Version_8.html
+Output: output_files/output_QIP_incentive_september_2025_Complete_V9.0_Complete.xlsx
+        output_files/output_QIP_incentive_september_2025_Complete_V9.0_Complete.csv
+        output_files/Incentive_Dashboard_2025_09_Version_9.0.html
 
 Config: config_files/config_september_2025.json
 
@@ -379,13 +379,13 @@ gspread>=5.7.0      # For Google Drive
 
 ## Version Management & Backward Compatibility
 
-### Current Version: 8.02
+### Current Version: 9.0
 
 **Critical Architecture Decision**: The system implements **fallback pattern** for version transitions to ensure backward compatibility when reading previous month data.
 
 ### Version Update Requirements
 
-When updating version numbers (e.g., 8.02 → 8.03), you MUST update these files:
+When updating version numbers (e.g., 9.0 → 9.1), you MUST update these files:
 
 **Tier 1 - Core Calculation Engine**:
 1. **`src/step1_인센티브_계산_개선버전.py`** (7 locations)
@@ -425,31 +425,31 @@ When updating version numbers (e.g., 8.02 → 8.03), you MUST update these files
 
 ### Backward Compatibility Pattern (CRITICAL)
 
-**Problem**: When December 2025 (V8.03) needs November 2025 data, but November was generated with V8.02.
+**Problem**: When December 2025 (V9.0) needs November 2025 data, but November was generated with V8.02.
 
 **Solution**: Fallback pattern in `step1_인센티브_계산_개선버전.py`:
 
 ```python
-# Lines 1209-1213: Previous month file loading
+# Lines 1214-1220: Previous month file loading
 excel_patterns = [
     # Try current version first
-    f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.03_Complete.csv",
-    f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.03_Complete.csv",
-    # Fallback to previous version (backward compatibility)
+    f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
+    f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
+    # Fallback to previous versions (backward compatibility)
     f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv",
     f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv"
 ]
 ```
 
 **Why This Matters**:
-- Month 1 (V8.03): Reads Month 0 (V8.02) - SUCCESS with fallback
-- Month 2 (V8.03): Reads Month 1 (V8.03) - SUCCESS with primary pattern
+- Month 1 (V9.0): Reads Month 0 (V8.02) - SUCCESS with fallback
+- Month 2 (V9.0): Reads Month 1 (V9.0) - SUCCESS with primary pattern
 - Without fallback: Month 1 calculation would FAIL
 
 ### Common Version Update Pitfalls
 
 1. **Filename Mismatch in Validators**:
-   - Bug: `validate_dashboard_consistency.py` looking for "Version_8.html" but generator creates "Version_8.02.html"
+   - Bug: `validate_dashboard_consistency.py` looking for "Version_9.0.html" but generator creates different version
    - Impact: All dashboard validation fails silently
    - Fix: Line 60 must match `integrated_dashboard_final.py` line 15866
 

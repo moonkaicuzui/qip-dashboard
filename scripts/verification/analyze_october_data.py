@@ -22,8 +22,17 @@ def load_position_matrix():
 
 def analyze_output_data():
     """출력 데이터 분석"""
-    # CSV 파일 로드
-    output_path = Path("output_files/output_QIP_incentive_october_2025_Complete_V8.02_Complete.csv")
+    # CSV 파일 로드 (Try V9.0 first, then fallback to V8.02 - 버전 전환 호환성)
+    output_path_v9 = Path("output_files/output_QIP_incentive_october_2025_Complete_V9.0_Complete.csv")
+    output_path_v8 = Path("output_files/output_QIP_incentive_october_2025_Complete_V8.02_Complete.csv")
+
+    if output_path_v9.exists():
+        output_path = output_path_v9
+    elif output_path_v8.exists():
+        output_path = output_path_v8
+    else:
+        output_path = output_path_v9  # For error message
+
     df = pd.read_csv(output_path, encoding='utf-8-sig')
 
     print("="*100)

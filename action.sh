@@ -410,7 +410,7 @@ fi
 echo ""
 echo -e "${YELLOW}📝 Generating JSON files from Excel data...${NC}"
 python3 src/generate_json_from_excel.py \
-    --excel "output_files/output_QIP_incentive_${MONTH}_${YEAR}_Complete_V8.02_Complete.csv" \
+    --excel "output_files/output_QIP_incentive_${MONTH}_${YEAR}_Complete_V9.0_Complete.csv" \
     --month "$MONTH" \
     --year "$YEAR" \
     --validate
@@ -424,7 +424,7 @@ fi
 echo ""
 echo -e "${YELLOW}🔍 Validating Excel vs JSON data consistency...${NC}"
 python3 src/validate_excel_json_consistency.py \
-    --excel "output_files/output_QIP_incentive_${MONTH}_${YEAR}_Complete_V8.02_Complete.csv" \
+    --excel "output_files/output_QIP_incentive_${MONTH}_${YEAR}_Complete_V9.0_Complete.csv" \
     --json "config_files/assembly_inspector_continuous_months.json"
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✅ Data consistency validation completed${NC}"
@@ -452,8 +452,8 @@ echo -e "${CYAN}  • Fully modularized for easy maintenance${NC}"
 echo -e "${CYAN}  • Compatible with AI tools like Vibe${NC}"
 echo ""
 
-run_step "Step 2: HTML Dashboard generation (V8.02 integrated)" "python3 integrated_dashboard_final.py --month $MONTH_NUM --year $YEAR"
-DASHBOARD_VERSION="8.02"
+run_step "Step 2: HTML Dashboard generation (V9.0 Web-based)" "python3 integrated_dashboard_final.py --month $MONTH_NUM --year $YEAR"
+DASHBOARD_VERSION="9.0"
 
 # Step 3: Data validation (optional)
 echo ""
@@ -515,8 +515,8 @@ echo -e "${GREEN}🎉 All tasks completed!${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 echo -e "${WHITE}📁 Generated files:${NC}"
-echo -e "  ${BLUE}• Excel: output_files/output_QIP_incentive_${MONTH}_${YEAR}_Complete_V8.02_Complete.xlsx${NC}"
-echo -e "  ${BLUE}• CSV: output_files/output_QIP_incentive_${MONTH}_${YEAR}_Complete_V8.02_Complete.csv${NC}"
+echo -e "  ${BLUE}• Excel: output_files/output_QIP_incentive_${MONTH}_${YEAR}_Complete_V9.0_Complete.xlsx${NC}"
+echo -e "  ${BLUE}• CSV: output_files/output_QIP_incentive_${MONTH}_${YEAR}_Complete_V9.0_Complete.csv${NC}"
 if [ "$month_choice" -lt 10 ]; then
     echo -e "  ${BLUE}• Incentive Dashboard: output_files/Incentive_Dashboard_${YEAR}_0${month_choice}_Version_${DASHBOARD_VERSION}.html${NC}"
 else
