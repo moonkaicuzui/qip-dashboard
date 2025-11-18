@@ -16,7 +16,7 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -54,7 +54,7 @@
 
         .lang-btn.active {
             background: white;
-            color: #667eea;
+            color: #dc2626;
             opacity: 1;
         }
 
@@ -116,7 +116,7 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #ef4444, #dc2626);
         }
 
         .month-year {
@@ -128,7 +128,7 @@
 
         .month-name {
             font-size: 1.2rem;
-            color: #667eea;
+            color: #dc2626;
             margin-bottom: 15px;
         }
 
@@ -142,7 +142,7 @@
         }
 
         .view-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             border: none;
             padding: 8px 20px;
@@ -153,7 +153,7 @@
 
         .view-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
         }
 
         .status-badge {
@@ -493,7 +493,7 @@
         document.querySelectorAll('.month-card').forEach(card => {
             const text = card.querySelector('.month-year').textContent;
             if (text.includes(`${currentYear}년 ${currentMonth}월`)) {
-                card.style.border = '3px solid #667eea';
+                card.style.border = '3px solid #ef4444';
             }
         });
     </script>
