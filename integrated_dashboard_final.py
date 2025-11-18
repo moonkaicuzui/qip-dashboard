@@ -4799,7 +4799,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
     .calendar-day.work-day {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
         border: none;
     }
@@ -4864,9 +4864,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         border: 2px solid;
     }
     .legend-badge.legend-workday {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white !important;
-        border-color: #667eea;
+        border-color: #ef4444;
     }
     .legend-badge.legend-nodata {
         background: #f8f9fa;
@@ -4922,7 +4922,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
         
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             padding: 40px;
             border-radius: 15px;
@@ -4985,7 +4985,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
         
         .tab.active {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
         }}
         
@@ -5251,7 +5251,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         
         /* 팝업 내 통계 카드 */
         .stat-card {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             padding: 20px;
             border-radius: 10px;
@@ -5315,7 +5315,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
         
         .modal-header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             padding: 20px 30px;
             border-radius: 12px 12px 0 0;
@@ -5511,7 +5511,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             position: absolute;
             left: -30px;
             top: 0;
-            border-left: 2px solid #667eea;
+            border-left: 2px solid #ef4444;
             height: 100%;
         }}
 
@@ -5521,7 +5521,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             left: -30px;
             top: 40px;
             width: 30px;
-            border-top: 2px solid #667eea;
+            border-top: 2px solid #ef4444;
         }}
 
         .collapsible-tree li:last-child::before {{
@@ -5645,7 +5645,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         .incentive-detail-btn {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             border: none;
             border-radius: 50%;
@@ -5667,7 +5667,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         .incentive-detail-btn:hover {{
             transform: scale(1.2);
             box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
         }}
 
         .incentive-info-icon {{
@@ -5709,28 +5709,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             width: 24px;
             height: 24px;
             background: white;
-            border: 2px solid #667eea;
+            border: 2px solid #ef4444;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             font-size: 16px;
-            color: #667eea;
+            color: #ef4444;
             font-weight: bold;
             transition: all 0.3s;
             z-index: 10;
         }}
 
         .toggle-btn:hover {{
-            background: #667eea;
+            background: #ef4444;
             color: white;
             transform: translateY(-50%) scale(1.1);
         }}
 
         /* 자식 count 표시 */
         .child-count {{
-            background: #667eea;
+            background: #ef4444;
             color: white;
             border-radius: 10px;
             padding: 2px 8px;
@@ -5888,7 +5888,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         .org-stat-item {{
             text-align: center;
             padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             border-radius: 10px;
             color: white;
         }}
@@ -5917,7 +5917,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             width: 40px;
             height: 40px;
             border: 4px solid #e5e7eb;
-            border-top-color: #667eea;
+            border-top-color: #ef4444;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }}
@@ -6525,7 +6525,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <!-- Talent Pool 시각화 섹션 -->
                 <div class="row mb-4" id="talentPoolSection" style="display: none;">
                     <div class="col-12">
-                        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <div class="card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
                             <div class="card-body">
                                 <h4 class="mb-3" id="talentPoolTitle">🌟 QIP Talent Pool 특별 incentive</h4>
                                 <div class="row">
@@ -6751,14 +6751,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 <!-- 직급별 apply 조건 매트릭스 -->
                 <div class="card mb-4 border-0 shadow-sm">
-                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="card-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
                         <h5 class="mb-0" id="positionMatrixTitle">🎖️ 직급별 apply 조건</h5>
                     </div>
                     <div class="card-body">
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1Header">TYPE-1 직급별 조건</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type1Header">TYPE-1 직급별 조건</h6>
                         <table class="table table-sm table-hover position-matrix-table" style="border: 1px solid #e0e0e0;">
-                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
+                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
                                     <th class="pos-header-position">직급</th>
                                     <th class="pos-header-conditions">apply 조건</th>
@@ -6824,9 +6824,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </tbody>
                         </table>
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type2Header">TYPE-2 직급별 조건</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3 mt-4" id="type2Header">TYPE-2 직급별 조건</h6>
                         <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
-                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
+                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
                                     <th class="type2-header-position">직급</th>
                                     <th class="type2-header-conditions">apply 조건</th>
@@ -6844,9 +6844,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </tbody>
                         </table>
                         
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3 mt-4" id="type3Header">TYPE-3 직급별 조건</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3 mt-4" id="type3Header">TYPE-3 직급별 조건</h6>
                         <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
-                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
+                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
                                     <th class="type3-header-position">직급</th>
                                     <th class="type3-header-conditions">apply 조건</th>
@@ -6868,14 +6868,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 <!-- incentive 금액 정보 -->
                 <div class="card mb-4 border-0 shadow-sm">
-                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="card-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
                         <h5 class="mb-0">💰 incentive 지급액 calculation 방법</h5>
                     </div>
                     <div class="card-body">
                         <!-- TYPE-1 incentive 테이블 -->
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type1CalculationTitle">TYPE-1 직급별 incentive calculation 방법 및 actual 예시</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type1CalculationTitle">TYPE-1 직급별 incentive calculation 방법 및 actual 예시</h6>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
-                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
+                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
                                     <th width="20%" class="calc-header-position">직급</th>
                                     <th width="40%" class="calc-header-method">calculation 방법</th>
@@ -7015,9 +7015,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </table>
                         
                         <!-- TYPE-1 ASSEMBLY INSPECTOR 연속 목표 달성시 incentive 지급 기준 -->
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="assemblyInspectorIncentiveTitle">TYPE-1 ASSEMBLY INSPECTOR 연속 work incentive</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="assemblyInspectorIncentiveTitle">TYPE-1 ASSEMBLY INSPECTOR 연속 work incentive</h6>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
-                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
+                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
                                     <th class="consecutive-achievement-header">연속 목표 달성 개월</th>
                                     <th class="incentive-amount-header">incentive 금액 (VND)</th>
@@ -7044,12 +7044,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </table>
                         
                         <!-- TYPE-2 incentive calculation 방법 -->
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type2CalculationTitle">TYPE-2 total 직급 incentive calculation 방법</h6>
-                        <div class="alert" style="background-color: #f0f4ff; border-left: 4px solid #667eea; color: #333;" class="mb-3">
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type2CalculationTitle">TYPE-2 total 직급 incentive calculation 방법</h6>
+                        <div class="alert" style="background-color: #f0f4ff; border-left: 4px solid #ef4444; color: #333;" class="mb-3">
                             <strong>📊 <span id="type2PrincipleLabel">TYPE-2 calculation principle:</span></strong> <span id="type2PrincipleText">TYPE-2 직급은 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
                         </div>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
-                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
+                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
                                     <th width="25%" class="type2-calc-header-position">TYPE-2 직급</th>
                                     <th width="25%" class="type2-calc-header-reference">참조 TYPE-1 직급</th>
@@ -7157,9 +7157,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
 
                         <!-- TYPE-3 incentive -->
-                        <h6 style="color: #667eea; font-weight: 600;" class="mb-3" id="type3SectionTitle">TYPE-3 신입 직원 incentive</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type3SectionTitle">TYPE-3 신입 직원 incentive</h6>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
-                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
+                            <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
                                     <th class="type3-position-header">구분</th>
                                     <th class="type3-standard-incentive-header">기준 incentive</th>
@@ -7283,7 +7283,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="table-responsive">
                             <table class="table table-sm">
                                 <thead>
-                                    <tr style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #667eea;">
+                                    <tr style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                         <th id="faqTableHeaderName">직원employees</th>
                                         <th id="faqTableHeaderBuilding">담당 Building</th>
                                         <th id="faqTableHeaderDesc">설직원</th>
@@ -7478,7 +7478,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 <!-- QIP Talent Pool 프로그램 설직원 섹션 -->
                 <div class="card mb-4">
-                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <div class="card-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
                         <h5 class="mb-0" id="talentProgramTitle">🌟 QIP Talent Pool incentive 프로그램</h5>
                     </div>
                     <div class="card-body">
@@ -7542,7 +7542,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 .timeline-number {{
                                     width: 40px;
                                     height: 40px;
-                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
                                     color: white;
                                     border-radius: 50%;
                                     display: flex;
@@ -7952,7 +7952,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </div>
 
                             <!-- 사용 안내 -->
-                            <div class="alert alert-info mb-3" role="alert" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-left: 4px solid #6366f1;">
+                            <div class="alert alert-info mb-3" role="alert" style="background: linear-gradient(135deg, #ef444415 0%, #dc262615 100%); border-left: 4px solid #6366f1;">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <strong>💡 <span id="usageGuideTitle"></span></strong> <span id="usageGuideText"></span>
                                 <span class="float-end text-muted small" id="usageGuideHelpText"></span>
@@ -11871,7 +11871,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return `
                 <div id="validationModal" class="modal" onclick="if(event.대상 === this) closeValidationModal();" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
                     <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">
-                        <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px 10px 0 0;">
+                        <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 10px 10px 0 0;">
                             <span class="close" onclick="closeValidationModal()" style="color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
                             <h2>${{modalTitle}}</h2>
                         </div>
