@@ -71,6 +71,8 @@ scripts/**/__pycache__/
 *.backup
 *.bak
 *backup*.py
+# Exception: System management scripts (not backup files themselves)
+!scripts/cleanup_backups.py
 
 # 브라우저 테스트 캐시
 .playwright-mcp/

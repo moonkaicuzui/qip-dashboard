@@ -1,0 +1,250 @@
+{
+  "_description": "Column name standardization and mapping for QIP Dashboard System",
+  "_version": "1.0",
+  "_last_updated": "2025-11-18",
+
+  "standard_names": {
+    "incentive_columns": {
+      "current_month_incentive": "Final_Incentive",
+      "previous_month_incentive": "Previous_Incentive",
+      "excel_actual_payment": "October_Incentive",
+      "excel_backup_value": "Source_Final_Incentive"
+    },
+
+    "employee_info": {
+      "employee_number": "EMP.NO",
+      "employee_name": "NAME",
+      "position": "QIP POSITION 1ST  NAME",
+      "department": "DEPARTMENT (NEW)",
+      "role_type": "ROLE TYPE STD"
+    },
+
+    "attendance_columns": {
+      "working_days": "WORKING DAY",
+      "attendance_rate": "ATTENDANCE RATE",
+      "unapproved_absences": "UNAPPROVED ABSENCES",
+      "actual_working_days": "Actual Working Days",
+      "total_working_days": "Total Working Days"
+    },
+
+    "quality_columns": {
+      "aql_failure": "AQL Failure (Current Month)",
+      "aql_consecutive_3months": "AQL Consecutive 3 Months Failure",
+      "team_aql_consecutive": "Team AQL Consecutive Failure",
+      "area_reject_rate": "Area Reject Rate",
+      "5prs_pass_rate": "5PRS Pass Rate",
+      "5prs_quantity": "5PRS Inspection Quantity"
+    },
+
+    "condition_columns": {
+      "condition_1": "Condition_1",
+      "condition_2": "Condition_2",
+      "condition_3": "Condition_3",
+      "condition_4": "Condition_4",
+      "condition_5": "Condition_5",
+      "condition_6": "Condition_6",
+      "condition_7": "Condition_7",
+      "condition_8": "Condition_8",
+      "condition_9": "Condition_9",
+      "condition_10": "Condition_10"
+    },
+
+    "calculation_columns": {
+      "continuous_months": "Continuous_Months",
+      "final_incentive": "Final_Incentive",
+      "previous_incentive": "Previous_Incentive"
+    }
+  },
+
+  "column_aliases": {
+    "_comment": "Alternative names that may appear in different data sources",
+
+    "Final_Incentive": [
+      "current_incentive",
+      "incentive_amount",
+      "calculated_incentive"
+    ],
+
+    "Previous_Incentive": [
+      "previous_amount",
+      "last_month_incentive",
+      "prev_incentive"
+    ],
+
+    "EMP.NO": [
+      "employee_number",
+      "emp_no",
+      "employee_id",
+      "사번"
+    ],
+
+    "NAME": [
+      "employee_name",
+      "full_name",
+      "성명"
+    ],
+
+    "WORKING DAY": [
+      "working_days",
+      "work_days",
+      "출근일수"
+    ],
+
+    "ATTENDANCE RATE": [
+      "attendance_rate",
+      "attendance_pct",
+      "출근율"
+    ],
+
+    "Continuous_Months": [
+      "continuous_months",
+      "consecutive_months",
+      "연속개월"
+    ]
+  },
+
+  "data_source_mappings": {
+    "_comment": "How column names differ across data sources",
+
+    "excel_source": {
+      "actual_payment_column": "October_Incentive",
+      "backup_column": "Source_Final_Incentive",
+      "employee_id": "EMP.NO"
+    },
+
+    "csv_output": {
+      "current_month": "Final_Incentive",
+      "previous_month": "Previous_Incentive",
+      "employee_id": "EMP.NO"
+    },
+
+    "config_json": {
+      "previous_file_key": "previous_incentive",
+      "output_prefix_key": "output_prefix"
+    },
+
+    "dashboard_html": {
+      "embedded_data_var": "dashboardData",
+      "same_as_csv": true
+    }
+  },
+
+  "validation_rules": {
+    "_comment": "Rules for validating column names and data",
+
+    "required_columns": {
+      "csv_output": [
+        "EMP.NO",
+        "NAME",
+        "Final_Incentive",
+        "Previous_Incentive",
+        "Continuous_Months",
+        "Condition_1",
+        "Condition_2",
+        "Condition_3",
+        "Condition_4",
+        "Condition_5",
+        "Condition_6",
+        "Condition_7",
+        "Condition_8",
+        "Condition_9",
+        "Condition_10"
+      ],
+
+      "excel_source": [
+        "EMP.NO",
+        "October_Incentive"
+      ],
+
+      "dashboard_html": [
+        "EMP.NO",
+        "Final_Incentive",
+        "Continuous_Months"
+      ]
+    },
+
+    "data_types": {
+      "EMP.NO": "string",
+      "NAME": "string",
+      "Final_Incentive": "float64",
+      "Previous_Incentive": "float64",
+      "Continuous_Months": "float64",
+      "WORKING DAY": "int64",
+      "ATTENDANCE RATE": "float64"
+    },
+
+    "value_constraints": {
+      "Final_Incentive": {
+        "min": 0,
+        "max": 1000000,
+        "allow_null": false
+      },
+      "Previous_Incentive": {
+        "min": 0,
+        "max": 1000000,
+        "allow_null": false
+      },
+      "Continuous_Months": {
+        "min": 0,
+        "max": 15,
+        "allow_null": false
+      },
+      "ATTENDANCE RATE": {
+        "min": 0,
+        "max": 100,
+        "allow_null": false
+      }
+    }
+  },
+
+  "naming_conventions": {
+    "_comment": "Standards for naming columns in future development",
+
+    "guidelines": {
+      "employee_fields": "Use dot notation for IDs (e.g., EMP.NO)",
+      "percentage_fields": "Include 'Rate' or 'Pct' suffix (e.g., ATTENDANCE RATE)",
+      "count_fields": "Use 'Quantity' or 'Count' suffix (e.g., 5PRS Inspection Quantity)",
+      "condition_fields": "Use Condition_N format (e.g., Condition_1)",
+      "incentive_fields": "Use '_Incentive' suffix (e.g., Final_Incentive)",
+      "boolean_fields": "Use 'YES'/'NO' string values, not true/false"
+    },
+
+    "case_style": {
+      "csv_columns": "UPPERCASE with spaces or underscores",
+      "json_keys": "snake_case",
+      "javascript_vars": "camelCase"
+    }
+  },
+
+  "migration_notes": {
+    "_comment": "Notes for future column name standardization",
+
+    "planned_changes": {
+      "none": "Current naming is stable, no changes planned"
+    },
+
+    "deprecated_names": {
+      "Source_Final_Incentive": {
+        "reason": "Backup column, should not be used for calculations",
+        "replacement": "Use October_Incentive from Excel source",
+        "deprecated_since": "V9.1"
+      }
+    },
+
+    "version_history": {
+      "V9.1": "Standardized to use October_Incentive from Excel",
+      "V9.0": "Added column mapping documentation",
+      "V8.02": "Initial column structure established"
+    }
+  },
+
+  "usage_examples": {
+    "_comment": "Code examples for using this mapping",
+
+    "python_example": "import json\nwith open('config_files/column_mapping.json') as f:\n    mapping = json.load(f)\n    incentive_col = mapping['standard_names']['incentive_columns']['current_month_incentive']\n    # incentive_col = 'Final_Incentive'",
+
+    "validation_example": "# Check if required columns exist\nrequired = mapping['validation_rules']['required_columns']['csv_output']\nassert all(col in df.columns for col in required)",
+
+    "alias_lookup_example": "# Find column by alias\nfor standard_name, aliases in mapping['column_aliases'].items():\n    if 'employee_number' in aliases:\n        actual_column = standard_name  # 'EMP.NO'"
+  }
+}
