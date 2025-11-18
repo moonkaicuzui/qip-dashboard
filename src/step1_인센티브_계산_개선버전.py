@@ -1211,12 +1211,12 @@ class DataProcessor:
         # ============================================
         # Case 3: October 이후 - 이전 달 Excel/CSV 파일 로딩
         # ============================================
-        # Fallback pattern: V8.02 먼저 시도, 없으면 V8.01로 폴백 (버전 전환 호환성)
+        # Fallback pattern: V9.0 먼저 시도, 없으면 V8.02, V8.01로 폴백 (버전 전환 호환성)
         excel_patterns = [
+            f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
+            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
             f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv",
-            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv",
-            f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.01_Complete.csv",
-            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.01_Complete.csv"
+            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv"
         ]
 
         for excel_path in excel_patterns:
@@ -2263,8 +2263,9 @@ class CompleteQIPCalculator:
         
         prev_month_obj = Month.from_number(prev_month)
 
-        # Fallback pattern: V8.02 먼저 확인, 없으면 V8.01로 폴백
+        # Fallback pattern: V9.0 먼저 확인, 없으면 V8.02, V8.01로 폴백
         prev_file_patterns = [
+            self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V9.0_Complete.csv',
             self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.02_Complete.csv',
             self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.01_Complete.csv'
         ]
@@ -2334,9 +2335,9 @@ class CompleteQIPCalculator:
             
             # 재귀 방지 위해 previous monthof previous month은 체크하지 않음
             prev_processor.calculate_all_incentives_without_check()
-            
+
             # 결and saved
-            output_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.02_Complete.csv'
+            output_path = self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V9.0_Complete.csv'
             prev_processor.month_data.to_csv(output_path, index=False, encoding='utf-8-sig')
             
             print(f"✅ {prev_month}month calculation completed\n")
@@ -5136,7 +5137,7 @@ class CompleteQIPCalculator:
             self.add_aql_statistics_to_excel()
 
             # CSV saved (condition 평 후)
-            csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.02_Complete.csv")
+            csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V9.0_Complete.csv")
             self.month_data.to_csv(csv_file, index=False, encoding='utf-8-sig')
 
             # CSV file created validation
@@ -5146,7 +5147,7 @@ class CompleteQIPCalculator:
                 print(f"⚠️ CSV file created failure: {csv_file}")
 
             # Excel saved
-            excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V8.02_Complete.xlsx")
+            excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V9.0_Complete.xlsx")
             self.month_data.to_excel(excel_file, index=False)
             
             # Excel file created validation

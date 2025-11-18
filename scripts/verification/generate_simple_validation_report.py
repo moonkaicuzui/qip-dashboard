@@ -20,8 +20,16 @@ def create_validation_report(month: str, year: int):
     print("=" * 80)
     print()
 
-    # CSV 파일 로드
-    csv_path = Path(f"output_files/output_QIP_incentive_{month}_{year}_Complete_V8.02_Complete.csv")
+    # CSV 파일 로드 (Try V9.0 first, then fallback to V8.02 - 버전 전환 호환성)
+    csv_path_v9 = Path(f"output_files/output_QIP_incentive_{month}_{year}_Complete_V9.0_Complete.csv")
+    csv_path_v8 = Path(f"output_files/output_QIP_incentive_{month}_{year}_Complete_V8.02_Complete.csv")
+
+    if csv_path_v9.exists():
+        csv_path = csv_path_v9
+    elif csv_path_v8.exists():
+        csv_path = csv_path_v8
+    else:
+        csv_path = csv_path_v9  # For error message
 
     if not csv_path.exists():
         print(f"❌ CSV 파일을 찾을 수 없습니다: {csv_path}")
