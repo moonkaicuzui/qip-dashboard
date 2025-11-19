@@ -15332,6 +15332,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.querySelector(`[data-tab="${{tabName}}"]`).classList.add('active');
             document.getElementById(tabName).classList.add('active');
 
+            // CRITICAL FIX: 언어 전환 상태 유지 - 탭 전환 후 언어 재적용
+            if (window.currentLanguage) {{
+                console.log('[Language] Preserving language state on tab change:', window.currentLanguage);
+                // 탭 전환 후 언어 업데이트를 다시 적용
+                setTimeout(() => {{
+                    if (typeof updateAllTexts === 'function') {{
+                        updateAllTexts();
+                    }}
+                    // 탭별 특별 언어 업데이트
+                    if (tabName === 'validation' && typeof updateValidationTabTexts === 'function') {{
+                        updateValidationTabTexts(window.currentLanguage);
+                    }}
+                }}, 50);
+            }}
+
             // 요약 탭이면 TYPE 테이블 생성
             if (tabName === 'summary') {{
                 console.log('Summary tab selected');
