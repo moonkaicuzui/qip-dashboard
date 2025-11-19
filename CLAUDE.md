@@ -75,6 +75,110 @@ See `PROJECT_IDENTITY_WEB_DASHBOARD.md` for comprehensive web deployment archite
 - Example: September calculation excludes employees who resigned before 2025-09-01
 - Implementation: `src/step1_인센티브_계산_개선버전.py:3146-3156` (create_manager_subordinate_mapping)
 
+### 5. Deployment and Documentation Workflow (배포 및 문서화 필수 원칙)
+**MANDATORY FOR ALL PROJECT WORK** - Every code change MUST follow this complete workflow:
+
+#### Step 1: Code Changes
+- Make necessary code modifications
+- Test locally to verify functionality
+- Never skip testing before deployment
+
+#### Step 2: File Regeneration (if applicable)
+- Regenerate affected files after code changes
+- Dashboard code change → Regenerate dashboard HTML
+- Selector code change → Regenerate selector.html
+- Calculation logic change → Recalculate incentive data
+- **Example**: `python integrated_dashboard_final.py --month 11 --year 2025`
+
+#### Step 3: Web Deployment (CRITICAL)
+**Copy latest files to `/docs` folder for GitHub Pages:**
+```bash
+# Dashboard HTML
+cp output_files/Incentive_Dashboard_2025_11_Version_9.0.html docs/
+
+# Selector page (if changed)
+cp docs/selector.html docs/
+
+# Any other web-accessible files
+```
+**Why**: `/docs` folder is GitHub Pages root - files MUST be here for web access
+
+#### Step 4: Documentation Update (MANDATORY)
+**Update CLAUDE.md with:**
+- Problem description and root cause
+- Solution implemented with file/line references
+- Verification steps performed
+- Commit hash for future reference
+- Prevention measures for similar issues
+
+**Example documentation format:**
+```markdown
+X. **[Issue Name]** (FIXED: YYYY-MM-DD):
+   - **Problem**: Clear description of the issue
+   - **Root Cause**: Technical explanation
+   - **Solution**: Code changes made (file:line)
+   - **Verification**: How it was tested
+   - **Commit**: [commit_hash]
+   - **Prevention**: How to avoid in future
+```
+
+#### Step 5: Git Commit and Push (ALWAYS)
+```bash
+# Stage all changes
+git add -A
+
+# Commit with descriptive message
+git commit -m "fix: [brief description]
+
+- Detailed change 1
+- Detailed change 2
+- Updated documentation in CLAUDE.md"
+
+# Push to GitHub (triggers GitHub Pages deployment)
+git push origin main
+```
+
+**Important Git Notes:**
+- Use `git pull --rebase origin main` before push if needed
+- Resolve conflicts carefully (prefer `--ours` for auto-generated files)
+- Never force push without explicit user permission
+- GitHub Pages deploys automatically within 1-2 minutes after push
+
+#### Step 6: Web Verification (FINAL CHECK)
+**Verify changes are live on web:**
+1. Wait 2 minutes for GitHub Pages deployment
+2. Open browser in incognito/private mode
+3. Navigate to production URL: `https://moonkaicuzui.github.io/qip-dashboard/`
+4. Verify changes are visible on live site
+5. Test affected functionality in browser
+
+**Common verification checks:**
+- Language switcher shows correct text
+- CSV download contains data
+- Dashboard displays correct values
+- Selector page shows all months
+- Mobile responsive layout works
+
+#### Workflow Summary Checklist
+- [ ] Code changes completed and tested locally
+- [ ] Files regenerated (if applicable)
+- [ ] Latest files copied to `/docs` folder
+- [ ] CLAUDE.md updated with comprehensive documentation
+- [ ] Git add, commit with descriptive message
+- [ ] Git push to GitHub (handle conflicts if needed)
+- [ ] Wait 2 minutes for GitHub Pages deployment
+- [ ] Verify changes live on web URL
+- [ ] Confirm all functionality works in browser
+
+**Rationale**: This workflow ensures:
+1. No confusion from outdated files
+2. Complete documentation for future work
+3. Web deployment always reflects latest code
+4. All changes are version-controlled
+5. Issues can be traced and prevented
+
+**NEVER skip any step** - incomplete workflows cause confusion and rework.
+
 ## Key Commands
 
 ### Complete Workflow Execution
