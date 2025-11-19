@@ -481,6 +481,117 @@ gspread>=5.7.0      # For Google Drive
 - `/docs/*` = Web-served files accessible via `https://moonkaicuzui.github.io/qip-dashboard/`
 - All other folders = Development/build files (NOT web-accessible)
 
+## Documentation Structure & Management Guidelines
+
+### Official Documentation Structure (2025-11-19)
+
+**Root Level Documentation (3 Core Files ONLY)**:
+```
+/CLAUDE.md                           # Technical guide for Claude Code
+/README.md                           # Project overview for developers
+/PROJECT_IDENTITY_WEB_DASHBOARD.md   # Web deployment architecture
+```
+
+**Active Technical Documentation** (`/docs/`):
+```
+/docs/
+├── selector.html                    # Web-served month selector (GitHub Pages)
+├── Incentive_Dashboard_*.html       # Web-served dashboards (GitHub Pages)
+├── *.csv, *.xlsx                    # Web-served download files (GitHub Pages)
+├── auth.html                        # Web-served authentication page (GitHub Pages)
+├── AQL_VALIDATION_GUIDE.md          # AQL validation technical guide
+├── DATA_FLOW.md                     # System data flow documentation
+└── MANAGER_INCENTIVE_CALCULATION_LOGIC.md  # Manager incentive calculation formulas
+```
+
+**Archived Documentation** (`/docs/archive/`):
+```
+/docs/archive/
+├── DASHBOARD_IMPROVEMENTS_2025_11.md        # Resolved: Dashboard enhancements
+├── TYPE_TABLE_FIX_2025_11_05.md            # Resolved: TYPE table calculation fix
+├── VIETNAMESE_MONTH_FIX_2025_11_10.md      # Resolved: Vietnamese month translation
+├── SECURITY_TIMELINE.md                     # Resolved: Security incident timeline
+├── SECURITY_URGENT.md                       # Resolved: Security urgent actions
+└── [12 total resolved issue documents]
+```
+
+**User Guides** (`/docs/guides/`):
+```
+/docs/guides/
+├── USER_ACCESS_GUIDE.md             # User access and deployment guide
+├── SETUP_GUIDE.md                   # Project setup instructions
+└── WEB_DEPLOYMENT_GUIDE.md          # Web deployment procedures
+```
+
+### Documentation Management Rules
+
+**When to UPDATE existing docs (PREFERRED)**:
+1. **Bug fixes**: Update `CLAUDE.md` "Common Issues & Solutions" section
+2. **Calculation logic changes**: Update `MANAGER_INCENTIVE_CALCULATION_LOGIC.md`
+3. **Data flow changes**: Update `DATA_FLOW.md`
+4. **AQL validation changes**: Update `AQL_VALIDATION_GUIDE.md`
+5. **Version updates**: Update `CLAUDE.md` and `README.md` version references
+
+**When to CREATE new docs (RARELY)**:
+1. **Entirely new system component** (e.g., new payment integration system)
+2. **Major architectural change** (e.g., migration to new framework)
+3. **New user guide** (place in `/docs/guides/`)
+4. **NEVER for bug fixes or minor improvements** - use existing core docs
+
+**When to MOVE to `/docs/archive/`**:
+1. **Issue is resolved** and documented in core files (CLAUDE.md or MANAGER_INCENTIVE_CALCULATION_LOGIC.md)
+2. **Temporary investigation** completed (e.g., TYPE_TABLE_FIX_2025_11_05.md)
+3. **Time-bound incident** resolved (e.g., SECURITY_URGENT.md)
+4. **Historical reference** needed but not actively referenced
+
+**When to DELETE entirely**:
+1. **Obsolete technology** no longer used (e.g., VERCEL_SETUP.md when using GitHub Pages)
+2. **Temporary validation reports** after results integrated (e.g., COMPREHENSIVE_VALIDATION_REPORT_NOVEMBER_2025.md)
+3. **Local file guides** for web-deployed project (e.g., 📱모바일에서_보는_방법.md)
+4. **Duplicate information** already in core docs
+
+### Documentation Cleanup History (2025-11-19)
+
+**Deleted (3 files)**:
+- `VERCEL_SETUP.md` - Project uses GitHub Pages, not Vercel
+- `📱모바일에서_보는_방법.md` - Local file guide, project now web-deployed
+- `COMPREHENSIVE_VALIDATION_REPORT_NOVEMBER_2025.md` - Temporary validation report
+
+**Moved to `/docs/archive/` (5 files)**:
+- `docs/DASHBOARD_IMPROVEMENTS_2025_11.md` - Dashboard improvements now in core docs
+- `docs/TYPE_TABLE_FIX_2025_11_05.md` - TYPE table fix documented in CLAUDE.md
+- `docs/VIETNAMESE_MONTH_FIX_2025_11_10.md` - Vietnamese fix documented in CLAUDE.md
+- `SECURITY_TIMELINE.md` - Security incident resolved
+- `SECURITY_URGENT.md` - Security urgent actions completed
+
+**Moved to `/docs/guides/` (1 file)**:
+- `USER_ACCESS_GUIDE.md` - User guide properly categorized
+
+**Result**: Root directory reduced to 6 essential files (action.sh, CLAUDE.md, README.md, PROJECT_IDENTITY_WEB_DASHBOARD.md, integrated_dashboard_final.py, run_full_validation.sh)
+
+### Anti-Pattern Prevention
+
+**❌ DON'T DO THIS**:
+```
+# Creating new doc for every bug fix
+docs/FIX_CONTINUOUS_MONTHS_BUG_2025_11_19.md
+docs/FIX_LANGUAGE_SWITCHER_2025_11_19.md
+docs/FIX_TYPE1_AVERAGE_2025_11_18.md
+```
+
+**✅ DO THIS INSTEAD**:
+```
+# Document fixes in existing core files
+CLAUDE.md: "Common Issues & Solutions" section
+MANAGER_INCENTIVE_CALCULATION_LOGIC.md: "중요 수정 이력 (CRITICAL FIXES)" section
+```
+
+**Rationale**:
+- Prevents 50+ scattered markdown files (31 found before cleanup)
+- Avoids orphaned documents causing old problems in new conversations
+- Maintains single source of truth for each topic
+- Enables context-aware Claude Code to find answers quickly
+
 ## Version Management & Backward Compatibility
 
 ### Current Version: 9.1 (as of 2025-11-19)
