@@ -7070,16 +7070,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td>A.MANAGER <span class="average-text">평균</span></td>
                                     <td>383,301 VND</td>
                                 </tr>
-                                <tr>
+                                <tr style="background-color: #fff9e6;">
                                     <td><strong>3. GROUP LEADER</strong></td>
-                                    <td>TYPE-1 GROUP LEADER</td>
-                                    <td>GROUP LEADER <span class="average-text">평균</span></td>
+                                    <td>TYPE-1 LINE LEADER</td>
+                                    <td>TYPE-1 LINE LEADER <span class="average-text">평균</span> × 2</td>
                                     <td>254,659 VND</td>
                                 </tr>
-                                <tr>
+                                <tr style="background-color: #e8f5ff;">
                                     <td><strong>4. LINE LEADER</strong></td>
-                                    <td>TYPE-1 LINE LEADER</td>
-                                    <td>LINE LEADER <span class="average-text">평균</span></td>
+                                    <td>부하직원 인센티브</td>
+                                    <td>부하직원 인센티브 합계 × 12% × 수령 비율</td>
                                     <td>127,767 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
