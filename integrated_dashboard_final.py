@@ -8356,10 +8356,35 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         let positionMatrix = {{}};
         let excelDashboardData = {{}};
 
+        // CRITICAL FIX: Initialize employeeData globally BEFORE DOMContentLoaded
+        window.employeeData = [];
+
+        // CRITICAL FIX: Define showEmployeeDetail globally BEFORE DOMContentLoaded
+        // This ensures onclick handlers work immediately after page load
+        window.showEmployeeDetail = function(empNo) {{
+            // Safety check: wait for data to be loaded
+            if (!window.employeeData || window.employeeData.length === 0) {{
+                console.error('Employee data not yet loaded. Please wait...');
+                setTimeout(() => window.showEmployeeDetail(empNo), 500);
+                return;
+            }}
+
+            // Safety check: wait for DOM elements
+            const modal = document.getElementById('employeeModal');
+            if (!modal) {{
+                console.error('Modal element not found. DOM not ready.');
+                return;
+            }}
+
+            // Actual function will be replaced after DOMContentLoaded
+            // This is just a placeholder to prevent errors
+            console.log('showEmployeeDetail called for:', empNo);
+        }};
+
         document.addEventListener('DOMContentLoaded', function() {{
             console.log('[DEBUG] DOMContentLoaded event fired - starting data initialization');
 
-            window.employeeData = [];
+            // employeeData already initialized globally
             window.aqlInspectorStats = null;
             try {{
                 // DOM에서 Base64 data read

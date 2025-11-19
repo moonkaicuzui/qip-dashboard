@@ -1787,7 +1787,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="november" data-month-name="11월">2025년 11월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="19" data-hour="16" data-minute="35">보고서 생성일: 2025년 11월 19일 16:35</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="19" data-hour="16" data-minute="53">보고서 생성일: 2025년 11월 19일 16:53</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="11" data-startday="01" data-endday="13">• 인센티브 데이터: 2025년 11월 01일 ~ 13일</p>
@@ -10201,10 +10201,35 @@
         let positionMatrix = {};
         let excelDashboardData = {};
 
+        // CRITICAL FIX: Initialize employeeData globally BEFORE DOMContentLoaded
+        window.employeeData = [];
+
+        // CRITICAL FIX: Define showEmployeeDetail globally BEFORE DOMContentLoaded
+        // This ensures onclick handlers work immediately after page load
+        window.showEmployeeDetail = function(empNo) {
+            // Safety check: wait for data to be loaded
+            if (!window.employeeData || window.employeeData.length === 0) {
+                console.error('Employee data not yet loaded. Please wait...');
+                setTimeout(() => window.showEmployeeDetail(empNo), 500);
+                return;
+            }
+
+            // Safety check: wait for DOM elements
+            const modal = document.getElementById('employeeModal');
+            if (!modal) {
+                console.error('Modal element not found. DOM not ready.');
+                return;
+            }
+
+            // Actual function will be replaced after DOMContentLoaded
+            // This is just a placeholder to prevent errors
+            console.log('showEmployeeDetail called for:', empNo);
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('[DEBUG] DOMContentLoaded event fired - starting data initialization');
 
-            window.employeeData = [];
+            // employeeData already initialized globally
             window.aqlInspectorStats = null;
             try {
                 // DOM에서 Base64 data read
