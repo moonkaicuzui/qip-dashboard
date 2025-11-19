@@ -21,10 +21,15 @@ def create_month_selector_page():
     for file in html_files:
         try:
             filename = os.path.basename(file)
-            # Incentive_Dashboard_2025_11_Version_8.html 형식 파싱
+            # Incentive_Dashboard_2025_11_Version_9.0.html 형식 파싱
             parts = filename.replace('.html', '').split('_')
             year = int(parts[2])
             month = int(parts[3])
+
+            # Version 파싱 (예: Version_9.0 → 9.0)
+            version_str = '0.0'
+            if len(parts) >= 5 and parts[4] == 'Version':
+                version_str = parts[5] if len(parts) > 5 else '0.0'
 
             month_names = ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
@@ -42,13 +47,28 @@ def create_month_selector_page():
                 'year': year,
                 'month': month,
                 'month_name': month_name,
+                'version': version_str,
                 'sort_key': year * 100 + month
             })
         except Exception as e:
             print(f"⚠️ 파일 파싱 실패 {file}: {e}")
             continue
 
-    # 정렬 (최신 순)
+    # 중복 제거: 동일한 year/month에서 가장 높은 버전만 선택
+    unique_dashboards = {}
+    for dashboard in dashboards:
+        key = (dashboard['year'], dashboard['month'])
+        if key not in unique_dashboards:
+            unique_dashboards[key] = dashboard
+        else:
+            # 버전 비교 (9.0 > 8.02 > 8.01)
+            current_version = tuple(map(float, dashboard['version'].split('.')))
+            existing_version = tuple(map(float, unique_dashboards[key]['version'].split('.')))
+            if current_version > existing_version:
+                unique_dashboards[key] = dashboard
+
+    # 리스트로 변환 및 정렬 (최신 순)
+    dashboards = list(unique_dashboards.values())
     dashboards.sort(key=lambda x: x['sort_key'], reverse=True)
 
     # HTML 생성
@@ -70,7 +90,7 @@ def create_month_selector_page():
 
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -108,7 +128,7 @@ def create_month_selector_page():
 
         .lang-btn.active {
             background: white;
-            color: #667eea;
+            color: #ef4444;
             opacity: 1;
         }
 
@@ -170,7 +190,7 @@ def create_month_selector_page():
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #ef4444, #dc2626);
         }
 
         .month-year {
@@ -182,7 +202,7 @@ def create_month_selector_page():
 
         .month-name {
             font-size: 1.2rem;
-            color: #667eea;
+            color: #ef4444;
             margin-bottom: 15px;
         }
 
@@ -196,7 +216,7 @@ def create_month_selector_page():
         }
 
         .view-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             border: none;
             padding: 8px 20px;
@@ -334,12 +354,15 @@ def create_month_selector_page():
         # 애니메이션 지연
         animation_delay = i * 0.1
 
+        # Month-specific translation key
+        month_i18n_key = f"month-{dashboard['month']}"
+
         html_content += f"""
             <a href="{dashboard['filename']}" class="month-card" style="animation-delay: {animation_delay}s;" data-year="{dashboard['year']}" data-month="{dashboard['month']}">
                 <div class="month-year">
                     <span class="year-text">{dashboard['year']}</span><span data-i18n="year-suffix">년</span> <span class="month-text">{dashboard['month']}</span><span data-i18n="month-suffix">월</span>
                 </div>
-                <div class="month-name">{dashboard['month_name']}</div>
+                <div class="month-name" data-i18n="{month_i18n_key}">{dashboard['month_name']}</div>
                 <div class="card-footer">
                     {badge_html}
                     <span class="view-btn" data-i18n="view-btn">보기 →</span>
@@ -448,6 +471,7 @@ def create_month_selector_page():
                 'admin-link': '⚙️ 관리자 로그인',
                 'year-suffix': '년',
                 'month-suffix': '월',
+                'month-11': '11월',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -464,6 +488,7 @@ def create_month_selector_page():
                 'admin-link': '⚙️ Admin Login',
                 'year-suffix': '',
                 'month-suffix': '',
+                'month-11': 'November 2025',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -480,6 +505,7 @@ def create_month_selector_page():
                 'admin-link': '⚙️ Đăng nhập Quản trị',
                 'year-suffix': '',
                 'month-suffix': '',
+                'month-11': 'Tháng 11 năm 2025',
                 'months': ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
                           'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
             }
@@ -551,7 +577,7 @@ def create_month_selector_page():
         document.querySelectorAll('.month-card').forEach(card => {
             const text = card.querySelector('.month-year').textContent;
             if (text.includes(`${currentYear}년 ${currentMonth}월`)) {
-                card.style.border = '3px solid #667eea';
+                card.style.border = '3px solid #ef4444';
             }
         });
     </script>

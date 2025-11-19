@@ -2,8 +2,28 @@
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
+[![Live Dashboard](https://img.shields.io/badge/dashboard-live-brightgreen.svg)](https://moonkaicuzui.github.io/qip-dashboard/)
 
-**Quality Inspection Process (QIP) Incentive Calculation and Dashboard System** for factory worker incentive management with automated data processing, interactive dashboards, and multi-language support (Korean/English/Vietnamese).
+**Real-time Internet Web-based Incentive Dashboard** - Quality Inspection Process (QIP) Incentive Calculation and Dashboard System for factory worker incentive management with automated GitHub Pages deployment, interactive dashboards, Google Drive sync, and multi-language support (Korean/English/Vietnamese).
+
+---
+
+## 🌐 Live Web Dashboard
+
+**Production URL**: https://moonkaicuzui.github.io/qip-dashboard/
+
+### Quick Access
+- 📊 **Dashboard Selector**: [selector.html](https://moonkaicuzui.github.io/qip-dashboard/selector.html)
+- 📅 **November 2025**: [Dashboard](https://moonkaicuzui.github.io/qip-dashboard/Incentive_Dashboard_2025_11_Version_9.0.html)
+- 📅 **October 2025**: [Dashboard](https://moonkaicuzui.github.io/qip-dashboard/Incentive_Dashboard_2025_10_Version_9.0.html)
+
+### Auto-Update System
+- ⏰ **Frequency**: Hourly automatic deployment (GitHub Actions)
+- 🔄 **Process**: Google Drive sync → Calculation → Dashboard generation → Web deployment
+- 🚀 **Deployment**: Automatic via GitHub Pages (1-2 min after commit)
+- 📱 **Access**: Any device with internet (mobile/desktop)
+
+> **Note**: This is a **web deployment project**, not a local file viewer. All dashboards are automatically deployed to GitHub Pages and accessible via the web URL above.
 
 ---
 
@@ -46,55 +66,69 @@ Select month and year, and the system will automatically:
 ## 📁 Project Structure
 
 ```
-Dashboard Incentive Version 8_1_sharing/
-├── 📄 integrated_dashboard_final.py  # Main dashboard generator (Version 8)
-├── 📄 action.sh                      # One-click execution script
-├── 📄 requirements.txt               # Python dependencies
-├── 📄 CLAUDE.md                      # Detailed project documentation
+Dashboard Incentive Version 8_2/
+├── 📄 integrated_dashboard_final.py     # Dashboard generator (Version 9)
+├── 📄 action.sh                         # One-click execution script
+├── 📄 run_full_validation.sh            # Validation pipeline
+├── 📄 requirements.txt                  # Python dependencies
+├── 📄 CLAUDE.md                         # Technical documentation
+├── 📄 README.md                         # This file
+├── 📄 PROJECT_IDENTITY_WEB_DASHBOARD.md # Web deployment architecture
 │
-├── 📂 src/                           # Core business logic (25 modules)
+├── 📂 docs/                          # 🌐 GITHUB PAGES WEB ROOT (PUBLIC)
+│   ├── selector.html                 # ← Web: /selector.html
+│   ├── Incentive_Dashboard_2025_11_Version_9.0.html  # ← Web dashboard
+│   ├── output_QIP_incentive_november_2025_*.csv      # ← Download files
+│   ├── output_QIP_incentive_november_2025_*.xlsx     # ← Download files
+│   ├── auth.html                     # ← Password protection
+│   └── MANAGER_INCENTIVE_CALCULATION_LOGIC.md        # ← Manager docs
+│
+├── 📂 src/                           # Core business logic (NOT web-served)
 │   ├── step0_create_monthly_config.py
-│   ├── step1_인센티브_계산_개선버전.py  # Incentive calculation engine
-│   ├── step2_dashboard_version4.py
-│   ├── google_drive_manager.py
+│   ├── step1_인센티브_계산_개선버전.py  # Main calculation engine
+│   ├── update_continuous_fail_column.py
 │   ├── validate_hr_data.py
+│   ├── auto_run_with_drive.py       # Google Drive sync
 │   └── ...
 │
-├── 📂 dashboard_v2/                  # Modular dashboard (Version 6)
-│   ├── modules/
-│   │   ├── complete_renderer.py
-│   │   └── incentive_calculator.py
-│   ├── static/js/
-│   └── templates/
+├── 📂 scripts/                       # Utility scripts (NOT web-served)
+│   ├── verification/                # Data validation system
+│   │   ├── validate_condition_evaluation.py
+│   │   ├── validate_incentive_amounts.py
+│   │   ├── validate_dashboard_consistency.py
+│   │   └── generate_final_report.py
+│   ├── create_month_selector.py    # Selector.html generator
+│   ├── analysis/
+│   └── legacy/
 │
-├── 📂 config_files/                  # Configuration files (141 JSONs)
-│   ├── position_condition_matrix.json  # Master business rules
+├── 📂 dashboard_v2/                  # Modular dashboard V6 (maintenance)
+│   ├── modules/complete_renderer.py
+│   ├── modules/incentive_calculator.py
+│   └── static/js/dashboard_complete.js
+│
+├── 📂 config_files/                  # Business rules configuration
+│   ├── position_condition_matrix.json  # Master rules (10 conditions)
 │   ├── assembly_inspector_continuous_months.json
 │   └── config_[month]_[year].json
 │
-├── 📂 scripts/                       # Utility scripts
-│   ├── verification/
-│   ├── analysis/
-│   ├── utils/
-│   ├── dashboard_tools/
-│   └── legacy/
-│
-├── 📂 docs/                          # Documentation
-│   ├── guides/
-│   ├── reports/
-│   ├── architecture/
-│   └── improvements/
-│
-├── 📂 input_files/                   # Input data
+├── 📂 input_files/                   # Source data (Google Drive sync)
 │   ├── attendance/
 │   ├── AQL history/
+│   ├── 5PRS/
 │   └── [year]년 [month] 인센티브 지급 세부 정보.csv
 │
-└── 📂 output_files/                  # Generated outputs
-    ├── *.xlsx                        # Excel reports
-    ├── *.csv                         # CSV data
-    └── Incentive_Dashboard_*.html    # Interactive dashboards
+├── 📂 output_files/                  # Generated reports (→ copied to /docs)
+│   ├── output_QIP_incentive_*.xlsx
+│   ├── output_QIP_incentive_*.csv
+│   └── Incentive_Dashboard_*.html
+│
+└── 📂 validation_reports/            # Validation Excel reports
+    └── INTEGRATED_VALIDATION_REPORT_*.xlsx
 ```
+
+**📌 Key Distinction**:
+- `/docs/*` = **Web-served** (accessible at https://ksmooncoding.github.io/...)
+- All other folders = **Development/build** (NOT web-accessible)
 
 ---
 
