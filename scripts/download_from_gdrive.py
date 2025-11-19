@@ -71,11 +71,28 @@ def list_files_in_folder(service, folder_id, file_type='csv'):
         print(f"❌ 폴더 목록 조회 실패 ({folder_id}): {e}")
         return []
 
-def download_file(service, file_id, output_path):
-    """Google Drive 파일 다운로드"""
+def download_file(service, file_id, output_path, force=True):
+    """Google Drive 파일 다운로드
+
+    Args:
+        service: Google Drive 서비스 객체
+        file_id: 다운로드할 파일 ID
+        output_path: 저장 경로
+        force: True면 기존 파일 강제 삭제 후 다운로드 (default: True)
+    """
     try:
         # 디렉토리 생성
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # 기존 파일 존재 확인 및 강제 삭제
+        if os.path.exists(output_path):
+            if force:
+                old_mtime = datetime.fromtimestamp(os.path.getmtime(output_path))
+                print(f"  🔄 기존 파일 삭제 (수정일: {old_mtime.strftime('%Y-%m-%d %H:%M:%S')})")
+                os.remove(output_path)
+            else:
+                print(f"  ⚠️ 파일이 이미 존재합니다 (건너뜀)")
+                return False
 
         # 파일 다운로드
         request = service.files().get_media(fileId=file_id)
@@ -89,6 +106,11 @@ def download_file(service, file_id, output_path):
         # 파일 저장
         with open(output_path, 'wb') as f:
             f.write(fh.getvalue())
+
+        # 다운로드 후 파일 정보 출력
+        new_mtime = datetime.fromtimestamp(os.path.getmtime(output_path))
+        file_size = os.path.getsize(output_path)
+        print(f"  ✅ 다운로드 완료 ({file_size:,} bytes, 수정일: {new_mtime.strftime('%Y-%m-%d %H:%M:%S')})")
 
         return True
 
@@ -163,7 +185,7 @@ def main():
 
         for file in files:
             print(f"  다운로드: {file['name']}")
-            if download_file(service, file['id'], f"output_files/{file['name']}"):
+            if download_file(service, file['id'], f"output_files/{file['name']}", force=True):
                 downloaded += 1
 
         print(f"✅ 다운로드 완료: {downloaded}/{len(files)}")
@@ -223,7 +245,7 @@ def main():
             output_path = f"{month_dir}/{file['name']}"
 
         print(f"  다운로드: {file['name']} → {output_path}")
-        if download_file(service, file['id'], output_path):
+        if download_file(service, file['id'], output_path, force=True):
             downloaded += 1
 
     # AQL history 다운로드
@@ -237,7 +259,7 @@ def main():
         for file in aql_files[:3]:  # 최근 3개월만
             print(f"  다운로드: {file['name']}")
             output_path = f"input_files/AQL history/{file['name']}"
-            if download_file(service, file['id'], output_path):
+            if download_file(service, file['id'], output_path, force=True):
                 downloaded += 1
 
     print("\n" + "=" * 70)
