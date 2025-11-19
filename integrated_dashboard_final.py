@@ -11280,8 +11280,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const peopleUnit = getUnit('people');
             const daysUnit = getUnit('days');
 
-            // 1. total 근무일count - config에서 가져온 값 use (employeeby data가 아님)
-            const totalWorkingDays = {working_days}; // Python에서 주입된 값
+            // 1. total 근무일count - actual attendance data에서 계산 (NOT config값)
+            const totalWorkingDays = (window.excelDashboardData && window.excelDashboardData.attendance)
+                ? window.excelDashboardData.attendance.total_working_days
+                : {working_days}; // Fallback: config값
             document.getElementById('kpiTotalWorkingDays').textContent = totalWorkingDays + daysUnit;
 
             // 2. 무단결근 현황

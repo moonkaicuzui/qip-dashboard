@@ -704,8 +704,30 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - Check GitHub Actions logs for "🔄 기존 파일 삭제" and "✅ 다운로드 완료" messages
      - Verify file modification times are updated
    - **Implementation**: `scripts/download_from_gdrive.py:74-119, 188, 248, 262`
-   - **Commit**: [to be committed]
+   - **Commit**: cc2627f
    - **Note**: This ensures GitHub Actions always downloads latest Google Drive data
+
+17. **KPI vs Calendar Working Days Mismatch** (FIXED: 2025-11-19):
+   - **Problem**: Calendar modal shows 13 working days (correct) but KPI card shows 11 days (wrong)
+     - KPI used hardcoded config value: `const totalWorkingDays = {working_days};`
+     - Calendar used actual attendance data: `window.excelDashboardData.attendance.total_working_days`
+     - When data updates from Nov 13 (11 days) to Nov 15 (13 days), config wasn't regenerated
+     - Result: Calendar and KPI showed different values
+   - **Root Cause**: `integrated_dashboard_final.py:11284` used static config value instead of dynamic data
+     - Config value comes from Python template: `{working_days}` (11)
+     - Actual attendance data has correct value from CSV processing
+   - **Solution**: Changed KPI calculation to use excelDashboardData instead of config
+     - Lines 11283-11287: Added conditional to read from `window.excelDashboardData.attendance.total_working_days`
+     - Fallback to config value only if excelDashboardData not available
+     - Now KPI and calendar use same data source (Single Source of Truth)
+   - **Verification**:
+     1. Regenerate dashboard: `python integrated_dashboard_final.py --month 11 --year 2025`
+     2. Open "요약 및 시스템 검증" tab
+     3. KPI card should show same value as calendar modal
+     4. After Google Drive sync with Nov 15 data, both should show 13 days
+   - **Implementation**: `integrated_dashboard_final.py:11283-11287`
+   - **Commit**: [to be committed]
+   - **Prevention**: Always use actual data sources (excelDashboardData) instead of config templates for dynamic values
 
 ### Debugging Dashboard Issues
 ```bash
