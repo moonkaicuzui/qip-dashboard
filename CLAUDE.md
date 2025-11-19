@@ -4,7 +4,52 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-QIP (Quality Inspection Process) Incentive Dashboard System - Factory worker incentive calculation with interactive dashboards, Google Drive sync, and multi-language support (Korean/English/Vietnamese).
+QIP (Quality Inspection Process) Incentive Dashboard System - **Real-time Internet Web-based Incentive Dashboard** with automatic updates, factory worker incentive calculation, interactive dashboards, Google Drive sync, and multi-language support (Korean/English/Vietnamese).
+
+## 🌐 Web Deployment Information
+
+**CRITICAL**: This is a **GitHub Pages web deployment project**, NOT a local HTML file generator.
+
+### Official Web URL (Production)
+```
+https://moonkaicuzui.github.io/qip-dashboard/
+```
+
+**Access Method:**
+1. Open web browser (Chrome, Safari, Firefox, Edge - mobile or desktop)
+2. Navigate to the URL above
+3. Internet connection required
+4. Authentication required (password protection)
+
+### Web Pages
+- **Selector**: https://moonkaicuzui.github.io/qip-dashboard/selector.html
+- **November 2025**: https://moonkaicuzui.github.io/qip-dashboard/Incentive_Dashboard_2025_11_Version_9.0.html
+- **October 2025**: https://moonkaicuzui.github.io/qip-dashboard/Incentive_Dashboard_2025_10_Version_9.0.html
+
+### Automatic Deployment System
+**GitHub Actions Workflow**: `.github/workflows/auto-update.yml`
+- **Frequency**: Hourly automatic execution (Cron: `0 * * * *`)
+- **Process**:
+  1. Google Drive sync (latest data)
+  2. Incentive calculation
+  3. Dashboard HTML generation
+  4. Selector page regeneration
+  5. Git commit & push
+  6. GitHub Pages auto-deploy (1-2 min)
+
+### Local Files vs Web Deployment
+| Aspect | Web Deployment (Production) | Local Files (Development) |
+|--------|---------------------------|-------------------------|
+| **Access** | Web browser + Internet | File explorer |
+| **URL** | `https://ksmooncoding.github.io/...` | `file:///Users/...` |
+| **Update** | GitHub Actions (hourly) | Manual script execution |
+| **Purpose** | End-user access | Development & testing |
+| **Location** | `/docs` folder (GitHub Pages) | Entire project |
+
+**IMPORTANT**: When users ask for "웹주소" (web address), provide the `https://` URL, NOT `file:///` paths.
+
+### Detailed Documentation
+See `PROJECT_IDENTITY_WEB_DASHBOARD.md` for comprehensive web deployment architecture.
 
 ## Core Development Principles
 
@@ -110,11 +155,17 @@ python src/validate_hr_data.py 9 2025
                                ├── Chart.js visualizations
                                └── Multi-language support (KO/EN/VN)
                                        ↓
-                               [6] Data Validation (NEW - scripts/verification/)
+                               [6] Data Validation (scripts/verification/)
                                ├── validate_condition_evaluation.py (10 conditions)
                                ├── validate_incentive_amounts.py (TYPE-1/2/3 logic)
                                ├── validate_dashboard_consistency.py (CSV vs Dashboard)
                                └── generate_final_report.py (integrated Excel report)
+                                       ↓
+                               [7] Web Deployment (GitHub Pages)
+                               ├── Copy outputs to /docs folder
+                               ├── Regenerate selector.html (create_month_selector.py)
+                               ├── Git commit & push
+                               └── GitHub Pages auto-deploy → https://moonkaicuzui.github.io/qip-dashboard/
 ```
 
 ### Dashboard Versions
@@ -269,10 +320,12 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
 
 ### TYPE-2 Calculation Logic
 **CRITICAL**: TYPE-2 does NOT use fixed 50K-300K range
-- TYPE-2 uses TYPE-1 position average
-- Example: LINE LEADER (TYPE-2) gets LINE LEADER (TYPE-1) average
+- TYPE-2 uses TYPE-1 position average OR TYPE-2 average depending on position
+- **LINE LEADER (TYPE-2)**: Uses TYPE-1 LINE LEADER average
+- **GROUP LEADER (TYPE-2)**: Uses TYPE-2 LINE LEADER average × 2 (Primary), TYPE-1 LINE LEADER average × 2 (Fallback)
+- **Other TYPE-2 positions**: Use corresponding TYPE-1 position average
 - Only validates 100% rule compliance
-- Reference: `src/step1_인센티브_계산_개선버전.py:3478-3571`
+- Reference: `src/step1_인센티브_계산_개선버전.py:3478-3571` (LINE LEADER), `4070-4165` (GROUP LEADER)
 
 ### Condition Thresholds
 - **Condition 2**: <= 2 days (NOT = 0)
@@ -350,32 +403,47 @@ gspread>=5.7.0      # For Google Drive
 /                                    # Root (clean - only 6 essential files)
 ├── action.sh                        # Main execution script
 ├── run_full_validation.sh           # Validation pipeline
-├── integrated_dashboard_final.py    # Dashboard generator (Version 8)
+├── integrated_dashboard_final.py    # Dashboard generator (Version 9)
 ├── CLAUDE.md                        # This file
 ├── README.md                        # Project documentation
+├── PROJECT_IDENTITY_WEB_DASHBOARD.md  # Web deployment architecture
 └── .gitignore
 
-/src/                                # Core business logic (25 modules)
+/docs/                               # 🌐 GitHub Pages Web Root (PUBLIC - WEB SERVED)
+├── selector.html                    # ← https://...github.io/.../selector.html
+├── Incentive_Dashboard_2025_11_Version_9.0.html  # ← November dashboard (web)
+├── Incentive_Dashboard_2025_10_Version_9.0.html  # ← October dashboard (web)
+├── output_QIP_incentive_november_2025_Complete_V9.0_Complete.csv   # ← Download
+├── output_QIP_incentive_november_2025_Complete_V9.0_Complete.xlsx  # ← Download
+├── auth.html                        # ← Password authentication page
+└── MANAGER_INCENTIVE_CALCULATION_LOGIC.md  # ← Manager calculation documentation
+
+/src/                                # Core business logic (NOT web-served)
 ├── step0_create_monthly_config.py
 ├── step1_인센티브_계산_개선버전.py    # Main calculation engine
 ├── update_continuous_fail_column.py
 ├── validate_hr_data.py
 └── ...
 
-/scripts/verification/               # Data validation system (NEW)
-├── validate_condition_evaluation.py
-├── validate_incentive_amounts.py
-├── validate_dashboard_consistency.py
-└── generate_final_report.py
+/scripts/                            # Utility scripts (NOT web-served)
+├── verification/                    # Data validation system
+│   ├── validate_condition_evaluation.py
+│   ├── validate_incentive_amounts.py
+│   ├── validate_dashboard_consistency.py
+│   └── generate_final_report.py
+├── create_month_selector.py        # Selector.html generator
+└── legacy/                          # Legacy/backup scripts
 
-/scripts/legacy/                     # Legacy/backup scripts
-/docs/                               # Documentation
-/dashboard_v2/                       # Modular dashboard (Version 6)
+/dashboard_v2/                       # Modular dashboard V6 (maintenance mode)
 /config_files/                       # JSON configuration
 /input_files/                        # Source data
-/output_files/                       # Generated reports/dashboards
+/output_files/                       # Generated reports (→ copied to /docs)
 /validation_reports/                 # Validation Excel reports
 ```
+
+**Web vs Development**:
+- `/docs/*` = Web-served files accessible via `https://moonkaicuzui.github.io/qip-dashboard/`
+- All other folders = Development/build files (NOT web-accessible)
 
 ## Version Management & Backward Compatibility
 

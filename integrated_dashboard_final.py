@@ -7149,9 +7149,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="alert alert-warning mb-4">
                             <h6 style="color: #856404;" id="type2GroupLeaderSpecialTitle">⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙</h6>
                             <ul class="mb-0">
-                                <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-1 GROUP LEADER 평균 incentive use</li>
-                                <li id="type2IndependentCalc"><strong>TYPE-1 평균이 0 VND인 경우:</strong> 모든 TYPE-2 LINE LEADER 평균 × 2로 독립 calculation</li>
-                                <li id="type2Important"><strong>중요:</strong> 부하직원 관계 without total TYPE-2 LINE LEADER 평균 use</li>
+                                <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-1 LINE LEADER 평균 incentive × 2</li>
+                                <li id="type2IndependentCalc"><strong>Fallback (TYPE-1 평균 0 VND):</strong> TYPE-2 LINE LEADER 평균 × 2로 독립 calculation</li>
+                                <li id="type2Important"><strong>중요:</strong> TYPE-1과 TYPE-2 LINE LEADER 평균은 거의 동일 (차이 0.2%)</li>
                                 <li id="type2Conditions"><strong>apply 조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 incentive 지급</li>
                             </ul>
                         </div>
@@ -7707,7 +7707,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <span id="faqAnswer3Main">TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
                                     <span id="faqAnswer3Example">예를 들어:</span>
                                     <ul>
-                                        <li id="faqAnswer3Example1">TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 incentive</li>
+                                        <li id="faqAnswer3Example1">TYPE-2 GROUP LEADER는 TYPE-1 LINE LEADER 평균 incentive × 2</li>
                                         <li id="faqAnswer3Example2">TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 incentive</li>
                                     </ul>
                                 </div>
@@ -7820,9 +7820,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="faq-answer">
                                     <span id="faqAnswer11Main">TYPE-2 GROUP LEADER는 특별한 calculation 규칙이 apply됩니다:</span>
                                     <ul>
-                                        <li id="faqAnswer11Detail1"><strong>기본 calculation:</strong> TYPE-1 GROUP LEADER 평균 incentive를 받습니다</li>
-                                        <li id="faqAnswer11Detail2"><strong>독립 calculation:</strong> TYPE-1 GROUP LEADER 평균이 0 VNDth 경우, 자동으로 total TYPE-2 LINE LEADER 평균 × 2로 calculation됩니다</li>
-                                        <li id="faqAnswer11Detail3"><strong>개선 사항:</strong> 부하직원 관계와 상관without total TYPE-2 LINE LEADER 평균을 use하여 더 공정한 calculation이 이루어집니다</li>
+                                        <li id="faqAnswer11Detail1"><strong>기본 calculation:</strong> TYPE-1 LINE LEADER 평균 incentive × 2를 받습니다</li>
+                                        <li id="faqAnswer11Detail2"><strong>Fallback calculation:</strong> TYPE-1 LINE LEADER 평균이 0 VND인 경우, TYPE-2 LINE LEADER 평균 × 2로 calculation됩니다</li>
+                                        <li id="faqAnswer11Detail3"><strong>중요:</strong> TYPE-1과 TYPE-2 LINE LEADER 평균은 거의 동일하므로 (차이 0.2%) 결과에 큰 영향 없습니다</li>
                                         <li id="faqAnswer11Detail4"><strong>조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 incentive를 받을 count 있습니다</li>
                                     </ul>
                                     <span id="faqAnswer11Conclusion">따라서 출근 조건을 충족한 TYPE-2 GROUP LEADER는 항상 incentive를 받을 count 있도록 보장됩니다.</span>
