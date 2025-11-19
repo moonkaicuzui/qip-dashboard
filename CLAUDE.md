@@ -423,13 +423,24 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
 ## Common Issues & Solutions
 
 ### TYPE-2 Calculation Logic
-**CRITICAL**: TYPE-2 does NOT use fixed 50K-300K range
-- TYPE-2 uses TYPE-1 position average OR TYPE-2 average depending on position
-- **LINE LEADER (TYPE-2)**: Uses TYPE-1 LINE LEADER average
-- **GROUP LEADER (TYPE-2)**: Uses TYPE-2 LINE LEADER average × 2 (Primary), TYPE-1 LINE LEADER average × 2 (Fallback)
-- **Other TYPE-2 positions**: Use corresponding TYPE-1 position average
-- Only validates 100% rule compliance
-- Reference: `src/step1_인센티브_계산_개선버전.py:3478-3571` (LINE LEADER), `4070-4165` (GROUP LEADER)
+**CRITICAL**: TYPE-2 does NOT use fixed 50K-300K range - Each position has specific calculation method
+
+**LINE LEADER (TYPE-2)**: Special subordinate-based formula
+- Formula: `(Total Subordinate Incentive) × 12% × Receiving Ratio`
+- Receiving Ratio: `(Subordinates with incentive > 0) / (Total active subordinates)`
+- NOT based on TYPE-1 average like other TYPE-2 positions
+- Reference: `src/step1_인센티브_계산_개선버전.py:3255-3323`
+
+**GROUP LEADER (TYPE-2)**: Based on LINE LEADER (TYPE-1) average
+- Primary: TYPE-1 LINE LEADER average × 2
+- Fallback (if TYPE-1 avg = 0): TYPE-2 LINE LEADER average × 2
+- Reference: `src/step1_인센티브_계산_개선버전.py:4070-4165`
+
+**Other TYPE-2 positions**: Use corresponding TYPE-1 position average
+- (V) SUPERVISOR → TYPE-1 (V) SUPERVISOR average
+- A.MANAGER → TYPE-1 A.MANAGER average
+- STITCHING INSPECTOR → TYPE-1 ASSEMBLY INSPECTOR average
+- Only validates 100% rule compliance (conditions 1-4: attendance)
 
 ### Condition Thresholds
 - **Condition 2**: <= 2 days (NOT = 0)
@@ -527,6 +538,38 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Implementation**: `integrated_dashboard_final.py:9807-9809`
    - **Commit**: `45c0f9d` (2025-11-19)
    - **Prevention**: Always verify variable names match between definition and usage
+
+9. **TYPE-2 Incentive Calculation Method Display Error** (FIXED: 2025-11-19):
+   - **Problem**: Dashboard "인센티브 기준" tab showing incorrect calculation methods for TYPE-2 positions
+     - GROUP LEADER showed: "GROUP LEADER 평균" (incorrect)
+     - LINE LEADER showed: "LINE LEADER 평균" (incorrect)
+   - **User Impact**: Misleading information about how TYPE-2 incentives are calculated
+   - **Root Cause**: Hardcoded table in dashboard HTML with outdated calculation method descriptions
+     - Lines 7074-7083 in `integrated_dashboard_final.py`
+     - Table did not reflect actual calculation logic used in `step1_인센티브_계산_개선버전.py`
+   - **Correct Calculation Methods**:
+     - **GROUP LEADER (TYPE-2)**: TYPE-1 LINE LEADER average × 2 (NOT GROUP LEADER average)
+     - **LINE LEADER (TYPE-2)**: Subordinate incentive total × 12% × receiving ratio (NOT simple average)
+   - **Solution**: Updated TYPE-2 calculation method table
+     - Line 7073-7078: GROUP LEADER row updated
+       - "참조 TYPE-1 직급": Changed from "TYPE-1 GROUP LEADER" → "TYPE-1 LINE LEADER"
+       - "calculation 방법": Changed from "GROUP LEADER 평균" → "TYPE-1 LINE LEADER 평균 × 2"
+       - Added yellow highlight (background: #fff9e6) to emphasize special calculation
+     - Line 7079-7084: LINE LEADER row updated
+       - "참조 TYPE-1 직급": Changed from "TYPE-1 LINE LEADER" → "부하직원 인센티브"
+       - "calculation 방법": Changed from "LINE LEADER 평균" → "부하직원 인센티브 합계 × 12% × 수령 비율"
+       - Added blue highlight (background: #e8f5ff) to emphasize special formula
+   - **Verification Steps**:
+     1. Regenerate dashboard: `python integrated_dashboard_final.py --month 11 --year 2025`
+     2. Open "인센티브 기준" tab → scroll to "TYPE-2 전체 직급 인센티브 계산 방법" table
+     3. Verify GROUP LEADER shows "TYPE-1 LINE LEADER 평균 × 2"
+     4. Verify LINE LEADER shows "부하직원 인센티브 합계 × 12% × 수령 비율"
+   - **Related Documentation**: Updated TYPE-2 Calculation Logic section (Lines 425-443)
+     - Clarified LINE LEADER uses subordinate-based formula, NOT TYPE-1 average
+     - Clarified GROUP LEADER uses TYPE-1 LINE LEADER average × 2
+   - **Implementation**: `integrated_dashboard_final.py:7073-7084`
+   - **Commit**: [to be committed]
+   - **Prevention**: Always verify dashboard display text matches actual calculation logic in calculation engine
 
 ### Debugging Dashboard Issues
 ```bash
