@@ -169,20 +169,39 @@ jobs:
 
         # 변경사항 체크
         if [[ -n $(git status -s) ]]; then
-          git add docs/*.html
+          # Stash any unstaged changes before pull
+          echo "Stashing unstaged changes..."
+          git stash --include-untracked || true
+
+          # Add only files we want to commit (docs and output)
+          git add docs/*.html 2>/dev/null || true
+          git add docs/*.csv 2>/dev/null || true
           git add output_files/*.csv 2>/dev/null || true
-          git commit -m "🔄 Auto update dashboard from Google Drive $(date '+%Y-%m-%d %H:%M:%S')"
+
+          # Commit changes
+          git commit -m "🔄 Auto update dashboard from Google Drive $(date '+%Y-%m-%d %H:%M:%S')" || {
+            echo "⚠️ Nothing to commit, unstashing..."
+            git stash pop || true
+            exit 0
+          }
 
           # Pull latest changes with rebase before pushing
           echo "Pulling latest changes from remote..."
           git pull --rebase origin main || {
-            echo "⚠️ Rebase conflict detected, using theirs strategy for auto-generated files"
-            git checkout --theirs docs/*.html output_files/*.csv 2>/dev/null || true
-            git add docs/*.html output_files/*.csv 2>/dev/null || true
-            git rebase --continue || true
+            echo "⚠️ Rebase failed, aborting and retrying with merge..."
+            git rebase --abort || true
+            git pull origin main --no-rebase || true
           }
 
-          git push
+          # Push changes
+          git push || {
+            echo "❌ Push failed, manual intervention required"
+            exit 1
+          }
+
+          # Restore stashed changes
+          git stash pop || true
+
           echo "✅ Dashboard updated successfully!"
         else
           echo "ℹ️ No changes detected"
