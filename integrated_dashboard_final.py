@@ -16127,6 +16127,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' ' + getTranslation('modal.detailPopup.conditionsFulfilled', currentLanguage) :
                                         getTranslation('modal.detailPopup.noConditions', currentLanguage)
                                     }}</p>
+                                    ${{
+                                        // 특이 케이스: 중간 리포트에서 100% 표시되지만 최소 근무일 미충족
+                                        isInterimReport && passRate === 100.0 && !isPaidEmployee &&
+                                        emp['Actual Working Days'] && parseFloat(emp['Actual Working Days']) < 12 ?
+                                        `<div class="alert alert-warning mt-2 mb-0" style="font-size: 0.85rem; padding: 0.5rem;">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            <strong>${{currentLanguage === 'ko' ? '중간 리포트 특이 케이스' :
+                                                      currentLanguage === 'en' ? 'Interim Report Special Case' :
+                                                      'Trường hợp đặc biệt báo cáo tạm thời'}}</strong><br>
+                                            <small>${{currentLanguage === 'ko' ?
+                                                '최소 근무일 조건이 중간 리포트에서 미평가되었습니다.' :
+                                                currentLanguage === 'en' ?
+                                                'Minimum working days condition not evaluated in interim report.' :
+                                                'Điều kiện số ngày làm việc tối thiểu chưa được đánh giá trong báo cáo tạm thời.'}}</small><br>
+                                            <small>${{currentLanguage === 'ko' ?
+                                                `현재 근무일: ${{parseFloat(emp['Actual Working Days']).toFixed(1)}}일 / 필요: 12일` :
+                                                currentLanguage === 'en' ?
+                                                `Current: ${{parseFloat(emp['Actual Working Days']).toFixed(1)}} days / Required: 12 days` :
+                                                `Hiện tại: ${{parseFloat(emp['Actual Working Days']).toFixed(1)}} ngày / Yêu cầu: 12 ngày`}}</small>
+                                        </div>` : ''
+                                    }}
                                 </div>
                             </div>
                         </div>
