@@ -28,8 +28,8 @@ def detect_months_from_drive():
     """
     months_data = []
 
-    # Drive 다운로드 경로 확인
-    drive_pattern = "input_files/monthly_data/*/basic_manpower_data.csv"
+    # ✅ 새로운 경로 패턴: input_files/basic manpower data {month_name}.csv
+    drive_pattern = "input_files/basic manpower data *.csv"
     drive_files = glob.glob(drive_pattern)
 
     month_names = {
@@ -38,15 +38,19 @@ def detect_months_from_drive():
         9: 'september', 10: 'october', 11: 'november', 12: 'december'
     }
 
-    for file_path in drive_files:
-        # 폴더명에서 년도/월 추출: monthly_data/2025_11/
-        match = re.search(r'monthly_data/(\d{4})_(\d{1,2})/', file_path)
-        if match:
-            year = int(match.group(1))
-            month_num = int(match.group(2))
-            month_name = month_names.get(month_num)
+    # 월 이름을 숫자로 변환하는 역매핑
+    month_name_to_num = {v: k for k, v in month_names.items()}
 
-            if month_name:
+    for file_path in drive_files:
+        # 파일명에서 월 이름 추출: basic manpower data november.csv
+        match = re.search(r'basic manpower data ([a-z]+)\.csv', file_path, re.IGNORECASE)
+        if match:
+            month_name = match.group(1).lower()
+            month_num = month_name_to_num.get(month_name)
+
+            if month_num:
+                # 현재 연도 사용 (또는 파일 수정 시간에서 추출)
+                year = datetime.now().year
                 months_data.append((year, month_name, month_num))
                 print(f"  ✅ 발견: {year}년 {month_num}월 ({month_name})")
 
