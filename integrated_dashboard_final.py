@@ -16088,8 +16088,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // showEmployeeDetailFromPosition 함수를 전역으로 노출
         window.showEmployeeDetailFromPosition = showEmployeeDetailFromPosition;
 
-        // 직원 상세 정보 표시 (dashboard 스타th UI)
-        function showEmployeeDetail(empNo) {{
+        // 직원 상세 정보 표시 - 전역 함수 업데이트
+        // CRITICAL: DOMContentLoaded 내부에서 재정의하지 않고 전역 함수를 업데이트만 함
+        window.showEmployeeDetail = function(empNo) {{
             // CRITICAL FIX: type 통th하여 비교 (string로 통th)
             const empNoStr = String(empNo);
             const emp = employeeData.find(e => {{
@@ -16438,10 +16439,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }});
                 }}
             }}, 100);
-        }}
+        }};  // window.showEmployeeDetail 함수 끝
 
-        // showEmployeeDetail 함수를 전역으로 노출 (조직도 탭에서 접근 가능하도록)
-        window.showEmployeeDetail = showEmployeeDetail;
+        // REMOVED: 중복 할당 제거 (이미 위에서 window.showEmployeeDetail로 정의함)
+        // window.showEmployeeDetail = showEmployeeDetail; <- 이 줄이 문제였음!
 
         // Validation modal 함수들을 전역으로 노출 (onclick 이벤트에서 접근 가능하도록)
         window.showValidationModal = showValidationModal;
