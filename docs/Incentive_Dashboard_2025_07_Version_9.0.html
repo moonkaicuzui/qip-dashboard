@@ -1787,7 +1787,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="july" data-month-name="7월">2025년 7월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="19" data-hour="06" data-minute="35">보고서 생성일: 2025년 11월 19일 06:35</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="19" data-hour="06" data-minute="39">보고서 생성일: 2025년 11월 19일 06:39</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="07" data-startday="01" data-endday="31">• 인센티브 데이터: 2025년 07월 01일 ~ 31일</p>
@@ -21259,6 +21259,27 @@
                                         totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' ' + getTranslation('modal.detailPopup.conditionsFulfilled', currentLanguage) :
                                         getTranslation('modal.detailPopup.noConditions', currentLanguage)
                                     }</p>
+                                    ${
+                                        // 특이 케이스: 중간 리포트에서 100% 표시되지만 최소 근무일 미충족
+                                        isInterimReport && passRate === 100.0 && !isPaidEmployee &&
+                                        emp['Actual Working Days'] && parseFloat(emp['Actual Working Days']) < 12 ?
+                                        `<div class="alert alert-warning mt-2 mb-0" style="font-size: 0.85rem; padding: 0.5rem;">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            <strong>${currentLanguage === 'ko' ? '중간 리포트 특이 케이스' :
+                                                      currentLanguage === 'en' ? 'Interim Report Special Case' :
+                                                      'Trường hợp đặc biệt báo cáo tạm thời'}</strong><br>
+                                            <small>${currentLanguage === 'ko' ?
+                                                '최소 근무일 조건이 중간 리포트에서 미평가되었습니다.' :
+                                                currentLanguage === 'en' ?
+                                                'Minimum working days condition not evaluated in interim report.' :
+                                                'Điều kiện số ngày làm việc tối thiểu chưa được đánh giá trong báo cáo tạm thời.'}</small><br>
+                                            <small>${currentLanguage === 'ko' ?
+                                                `현재 근무일: ${parseFloat(emp['Actual Working Days']).toFixed(1)}일 / 필요: 12일` :
+                                                currentLanguage === 'en' ?
+                                                `Current: ${parseFloat(emp['Actual Working Days']).toFixed(1)} days / Required: 12 days` :
+                                                `Hiện tại: ${parseFloat(emp['Actual Working Days']).toFixed(1)} ngày / Yêu cầu: 12 ngày`}</small>
+                                        </div>` : ''
+                                    }
                                 </div>
                             </div>
                         </div>
