@@ -359,7 +359,7 @@ def create_month_selector_page():
 
         html_content += f"""
             <a href="{dashboard['filename']}" class="month-card" style="animation-delay: {animation_delay}s;" data-year="{dashboard['year']}" data-month="{dashboard['month']}">
-                <div class="month-year">
+                <div class="month-year" data-lang-show="ko">
                     <span class="year-text">{dashboard['year']}</span><span data-i18n="year-suffix">년</span> <span class="month-text">{dashboard['month']}</span><span data-i18n="month-suffix">월</span>
                 </div>
                 <div class="month-name" data-i18n="{month_i18n_key}">{dashboard['month_name']}</div>
@@ -541,6 +541,16 @@ def create_month_selector_page():
             if (titleElement && translations[lang]) {
                 document.title = translations[lang]['page-title'];
             }
+
+            // 언어별 요소 표시/숨김 (data-lang-show 속성)
+            document.querySelectorAll('[data-lang-show]').forEach(element => {
+                const showLang = element.getAttribute('data-lang-show');
+                if (showLang === lang) {
+                    element.style.display = ''; // 표시
+                } else {
+                    element.style.display = 'none'; // 숨김
+                }
+            });
 
             // 활성 버튼 스타일 변경
             document.querySelectorAll('.lang-btn').forEach(btn => {
