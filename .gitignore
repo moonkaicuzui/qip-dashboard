@@ -1,4 +1,12 @@
-# 백업 파일들
+# 백업 파일들 (문제 야기 방지)
+*_backup_*
+*.backup
+*backup*.py
+*backup*.json
+*backup*.csv
+*backup*.html
+*backup*.css
+*backup*.js
 config_files/*_backup_*.json
 
 # 검증 파일들
