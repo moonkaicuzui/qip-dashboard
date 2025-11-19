@@ -83,10 +83,12 @@
         }
 
         .month-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 20px;
             margin-bottom: 40px;
+            width: 100%;
         }
 
         .month-card {
@@ -100,6 +102,8 @@
             color: inherit;
             position: relative;
             overflow: hidden;
+            width: 100%;
+            max-width: 400px;
         }
 
         .month-card:hover {
@@ -237,7 +241,11 @@
             }
 
             .month-grid {
-                grid-template-columns: 1fr;
+                /* 이미 flex column으로 설정되어 있음 */
+            }
+
+            .month-card {
+                max-width: 100%;
             }
 
             .container {
@@ -265,7 +273,7 @@
         <!-- 자동 업데이트 정보 -->
         <div class="refresh-info">
             <p class="mb-0" data-i18n="refresh-info">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
-            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-19 08:27:53</small>
+            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-19 20:09:03</small>
         </div>
 
         <!-- 월 선택 그리드 -->
