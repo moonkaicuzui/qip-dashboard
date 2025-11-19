@@ -376,21 +376,30 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Verification**: Employee 621040446 now correctly shows 13 months → 1,000,000 VND
 
 7. **Language Switcher - Korean Date Format Visibility** (FIXED: 2025-11-19):
-   - **Problem**: English/Vietnamese selected, but "2025년 11월" (Korean format) still visible
-   - **Root Cause**: `month-year` div with hardcoded "YYYY년 MM월" format always displayed
+   - **Problem 1**: English/Vietnamese selected, but "2025년 11월" (Korean format) still visible
+   - **Root Cause 1**: `month-year` div with hardcoded "YYYY년 MM월" format always displayed
      - Korean translations: `month-11: "11월"` (needs separate year display)
      - English translations: `month-11: "November 2025"` (already includes year)
      - Vietnamese translations: `month-11: "Tháng 11 năm 2025"` (already includes year)
-   - **Solution**: Added `data-lang-show="ko"` attribute to hide Korean-specific elements
+   - **Solution 1**: Added `data-lang-show="ko"` attribute to hide Korean-specific elements
      - Line 275: Added `data-lang-show="ko"` to `month-year` div
      - Lines 456-464: Added language-specific visibility logic in `switchLanguage()`
+   - **Commit**: `45c22f4` (2025-11-19)
+
+   - **Problem 2**: English shows "November" only (year missing), Vietnamese shows "Tháng 11" only
+   - **Root Cause 2**: Translation override bug in `switchLanguage()` function
+     - Lines 434-439: Sets `month-name` to "November 2025" via `data-i18n="month-11"` ✅
+     - Lines 441-448: Overrides with `months[11]` = "November" (year lost) ❌
+   - **Solution 2**: Modified Lines 441-448 to skip if `data-i18n` attribute exists
+     - Added `!monthNameElement.hasAttribute('data-i18n')` condition
+     - Prevents second translation from overriding first translation
    - **How it works**:
      - Korean: Shows "2025년 11월" + "11월" ✅
-     - English: Shows "November 2025" only (month-year hidden) ✅
-     - Vietnamese: Shows "Tháng 11 năm 2025" only (month-year hidden) ✅
-   - **Pattern for future use**: Use `data-lang-show="[lang]"` attribute for language-specific elements
-   - **Implementation**: `docs/selector.html:275, 456-464`
-   - **Commit**: `45c22f4` (2025-11-19)
+     - English: Shows "November 2025" (not overridden) ✅
+     - Vietnamese: Shows "Tháng 11 năm 2025" (not overridden) ✅
+   - **Pattern for future use**: Use `data-i18n="[key]"` for specific translations, `data-lang-show="[lang]"` for visibility
+   - **Implementation**: `docs/selector.html:275, 441-451`, `scripts/create_month_selector.py:530-540`
+   - **Commit**: TBD (2025-11-19)
 
 ### Debugging Dashboard Issues
 ```bash

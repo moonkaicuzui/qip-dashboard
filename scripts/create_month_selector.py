@@ -527,12 +527,15 @@ def create_month_selector_page():
                 }
             });
 
-            // 월 카드의 월 이름 업데이트
+            // 월 카드의 월 이름 업데이트 (data-i18n이 없는 경우만)
             document.querySelectorAll('.month-card').forEach(card => {
-                const month = parseInt(card.getAttribute('data-month'));
                 const monthNameElement = card.querySelector('.month-name');
-                if (monthNameElement && translations[lang] && translations[lang]['months']) {
-                    monthNameElement.textContent = translations[lang]['months'][month];
+                // data-i18n 속성이 있으면 이미 Lines 434-439에서 처리되었으므로 skip
+                if (monthNameElement && !monthNameElement.hasAttribute('data-i18n')) {
+                    const month = parseInt(card.getAttribute('data-month'));
+                    if (translations[lang] && translations[lang]['months']) {
+                        monthNameElement.textContent = translations[lang]['months'][month];
+                    }
                 }
             });
 
