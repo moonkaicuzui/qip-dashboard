@@ -58,6 +58,7 @@ output_files/dashboards/
 
 # 이미지 파일
 *.png
+!docs/icon-*.png  # PWA 아이콘은 포함 (GitHub Pages 배포 필수)
 *.jpg
 *.jpeg
 screenshots/*.png
