@@ -356,6 +356,25 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - Verify subordinate mapping in `create_manager_subordinate_mapping()`
    - Dashboard and calculation script must use same subordinate filtering logic
 
+6. **Continuous Months Calculation Priority Order** (FIXED: 2025-11-19):
+   - **Problem**: October V9.1 file contained corrupted `Next_Month_Expected` values
+     - Example: Employee 621040446 had `Next_Month_Expected: 2` (wrong) vs `Continuous_Months: 12` (correct)
+     - Old priority read `Next_Month_Expected` first → returned wrong value (2)
+   - **Solution**: Priority order changed in `calculate_continuous_months_from_history()` (Lines 1066-1123)
+     - **NEW Priority 1**: `Continuous_Months + 1` (most reliable - mathematically sound)
+     - **NEW Priority 2**: `Next_Month_Expected` (fallback only - can contain errors)
+     - **Priority 3**: Reverse calculation from incentive amount (last resort)
+   - **Why Continuous_Months + 1 is more reliable**:
+     - Direct calculation from validated monthly data
+     - No intermediate computation that can introduce errors
+     - Mathematically verifiable: if October = 12 and all conditions pass → November = 13
+   - **Why Next_Month_Expected can be unreliable**:
+     - Pre-calculated value that can be corrupted during data processing
+     - Subject to errors in previous month's calculation logic
+     - Not validated against actual monthly conditions
+   - **Implementation**: `src/step1_인센티브_계산_개선버전.py:1062-1131`
+   - **Verification**: Employee 621040446 now correctly shows 13 months → 1,000,000 VND
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
