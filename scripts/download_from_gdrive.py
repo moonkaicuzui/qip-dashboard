@@ -118,6 +118,15 @@ def download_file(service, file_id, output_path, force=True):
         print(f"  ❌ 다운로드 실패: {e}")
         return False
 
+def month_number_to_name(month_num):
+    """월 숫자를 영문 이름으로 변환 (1 → january)"""
+    month_names = {
+        1: 'january', 2: 'february', 3: 'march', 4: 'april',
+        5: 'may', 6: 'june', 7: 'july', 8: 'august',
+        9: 'september', 10: 'october', 11: 'november', 12: 'december'
+    }
+    return month_names.get(month_num, 'unknown')
+
 def detect_latest_month_folder(service, monthly_data_folder_id):
     """최신 월 폴더 찾기 (예: 2025_11)"""
     try:
@@ -143,7 +152,8 @@ def detect_latest_month_folder(service, monthly_data_folder_id):
                     'id': folder['id'],
                     'name': folder['name'],
                     'year': year,
-                    'month': month
+                    'month': month,
+                    'month_name': month_number_to_name(month)  # 월 이름 추가
                 })
 
         # 최신 월 우선 정렬
@@ -217,7 +227,10 @@ def main():
 
     # 최신 월 데이터 다운로드
     latest_month = month_folders[0]
-    print(f"\n🎯 다운로드 대상: {latest_month['name']}")
+    month_name = latest_month['month_name']  # 예: 'november'
+    year = latest_month['year']  # 예: 2025
+
+    print(f"\n🎯 다운로드 대상: {latest_month['name']} ({month_name} {year})")
 
     # 월 폴더 내 파일 목록
     files = list_files_in_folder(service, latest_month['id'])
@@ -225,24 +238,26 @@ def main():
 
     downloaded = 0
 
-    # input_files 디렉토리 구조 생성
-    month_dir = f"input_files/monthly_data/{latest_month['name']}"
-    os.makedirs(month_dir, exist_ok=True)
-
+    # ✅ drive_config.json file_mappings 기반 경로 사용
     for file in files:
         file_name = file['name'].lower()
         output_path = None
 
-        # 파일명 패턴 매칭
+        # 파일명 패턴 매칭 → drive_config.json 경로로 저장
         if 'basic' in file_name and 'manpower' in file_name:
-            output_path = f"{month_dir}/basic_manpower_data.csv"
+            # drive_config.json Line 33-35
+            output_path = f"input_files/basic manpower data {month_name}.csv"
         elif 'attendance' in file_name or '출근' in file_name:
-            output_path = f"{month_dir}/attendance_data.csv"
+            # drive_config.json Line 37-40
+            output_path = f"input_files/attendance/original/attendance data {month_name}.csv"
         elif '5prs' in file_name or '5PRS' in file['name']:
-            output_path = f"{month_dir}/5prs_data.csv"
+            # drive_config.json Line 42-45
+            output_path = f"input_files/5prs data {month_name}.csv"
         else:
-            # 기타 파일은 원래 이름 유지
-            output_path = f"{month_dir}/{file['name']}"
+            # 기타 파일은 원래 이름 유지 (backup용)
+            backup_dir = f"input_files/monthly_data/{latest_month['name']}"
+            os.makedirs(backup_dir, exist_ok=True)
+            output_path = f"{backup_dir}/{file['name']}"
 
         print(f"  다운로드: {file['name']} → {output_path}")
         if download_file(service, file['id'], output_path, force=True):
