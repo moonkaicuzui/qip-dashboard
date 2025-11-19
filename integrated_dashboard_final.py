@@ -6411,9 +6411,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <button id="downloadHtmlBtn" onclick="downloadDashboard()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="downloadHtmlBtnText">📥 HTML 다운로드</span>
                 </button>
-                <button id="downloadCsvBtn" onclick="downloadCSV()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
-                    <span id="downloadCsvBtnText">📊 CSV 다운로드</span>
-                </button>
                 <button id="downloadExcelBtn" onclick="downloadExcel()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="downloadExcelBtnText">📗 Excel 다운로드</span>
                 </button>
@@ -9782,77 +9779,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             alert(messages[currentLanguage] || messages['ko']);
         }}
 
-        // CSV 데이터 다운로드 함수
+        // CSV download function removed per user request (2025-11-19)
+        // Reason: CSV download button has been removed from the dashboard
+        /*
         function downloadCSV() {{
-            const currentYear = '{year}';
-            const currentMonth = '{str(month_num).zfill(2)}';
-            const monthName = '{month}';
-            const filename = `output_QIP_incentive_${{monthName}}_${{currentYear}}_Complete_V9.0_Complete.csv`;
-
-            // CSV 헤더 생성
-            const headers = [
-                'Full Name', 'Team', 'Area', 'Position', 'Shift', 'Gender', 'TYPE',
-                'Continuous Months', 'Final Incentive (VND)',
-                'Condition 1 (Attendance Rate)', 'Condition 2 (Unapproved Absences)',
-                'Condition 3 (Actual Working Days)', 'Condition 4 (Total Working Days)',
-                'Condition 5 (Personal AQL)', 'Condition 6 (Continuous Personal AQL)',
-                'Condition 7 (Team/Area AQL)', 'Condition 8 (Area Reject Rate)',
-                'Condition 9 (5PRS Pass Rate)', 'Condition 10 (5PRS Quantity)',
-                'Pass Rate (%)', 'Previous Month Incentive', 'Stop working Date'
-            ];
-
-            // CSV 행 데이터 생성
-            let csvContent = headers.join(',') + '\\n';
-
-            // employeeData 배열 사용 (단수형 - window.employeeData와 일치)
-            if (typeof employeeData !== 'undefined' && Array.isArray(employeeData)) {{
-                employeeData.forEach(emp => {{
-                    const row = [
-                        `"${{emp['Full Name'] || ''}}"`,
-                        `"${{emp['Team'] || ''}}"`,
-                        `"${{emp['Area'] || ''}}"`,
-                        `"${{emp['Position'] || ''}}"`,
-                        `"${{emp['Shift'] || ''}}"`,
-                        `"${{emp['Gender'] || ''}}"`,
-                        `"${{emp['TYPE'] || ''}}"`,
-                        emp['continuous_months'] || 0,
-                        emp['final_incentive'] || 0,
-                        `"${{emp['조건1_출근율'] || 'NO'}}"`,
-                        `"${{emp['조건2_무단결근'] || 'NO'}}"`,
-                        `"${{emp['조건3_실제근무일'] || 'NO'}}"`,
-                        `"${{emp['조건4_최소근무일'] || 'NO'}}"`,
-                        `"${{emp['조건5_개인AQL'] || 'NO'}}"`,
-                        `"${{emp['조건6_개인AQL연속실패'] || 'NO'}}"`,
-                        `"${{emp['조건7_팀에리어AQL'] || 'NO'}}"`,
-                        `"${{emp['조건8_에리어불량률'] || 'NO'}}"`,
-                        `"${{emp['조건9_5PRS합격률'] || 'NO'}}"`,
-                        `"${{emp['조건10_5PRS검사수량'] || 'NO'}}"`,
-                        emp['pass_rate'] || 0,
-                        emp['previous_month_incentive'] || 0,
-                        `"${{emp['Stop working Date'] || ''}}"`
-                    ];
-                    csvContent += row.join(',') + '\\n';
-                }});
-            }}
-
-            // Blob 생성 및 다운로드
-            const blob = new Blob([csvContent], {{ type: 'text/csv;charset=utf-8;' }});
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-
-            // 다운로드 확인 메시지
-            const messages = {{
-                'ko': '✅ CSV 파일이 다운로드되었습니다.',
-                'en': '✅ CSV file has been downloaded.',
-                'vi': '✅ Tệp CSV đã được tải xuống.'
-            }};
-            alert(messages[currentLanguage] || messages['ko']);
+            // Function disabled - CSV download removed
         }}
+        */
 
         // Excel 파일 다운로드 함수
         function downloadExcel() {{
@@ -10195,15 +10128,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 downloadHtmlBtnText.textContent = htmlTexts[currentLanguage] || htmlTexts['ko'];
             }}
 
-            const downloadCsvBtnText = document.getElementById('downloadCsvBtnText');
-            if (downloadCsvBtnText) {{
-                const csvTexts = {{
-                    'ko': '📊 CSV 다운로드',
-                    'en': '📊 Download CSV',
-                    'vi': '📊 Tải CSV'
-                }};
-                downloadCsvBtnText.textContent = csvTexts[currentLanguage] || csvTexts['ko'];
-            }}
+            // CSV download button removed per user request
 
             const downloadExcelBtnText = document.getElementById('downloadExcelBtnText');
             if (downloadExcelBtnText) {{

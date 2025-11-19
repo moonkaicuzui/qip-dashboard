@@ -568,8 +568,64 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - Clarified LINE LEADER uses subordinate-based formula, NOT TYPE-1 average
      - Clarified GROUP LEADER uses TYPE-1 LINE LEADER average × 2
    - **Implementation**: `integrated_dashboard_final.py:7073-7084`
-   - **Commit**: [to be committed]
+   - **Commit**: `78260a0` (2025-11-19)
    - **Prevention**: Always verify dashboard display text matches actual calculation logic in calculation engine
+
+10. **CSV Download Button Removal** (CHANGED: 2025-11-19):
+   - **User Request**: Remove CSV download button from dashboard
+   - **Reason**: CSV download functionality no longer needed
+   - **Changes Made**:
+     - Line 6414-6416: Removed CSV download button from header
+     - Line 9782-9788: Disabled `downloadCSV()` function with comment
+     - Line 10195: Removed CSV button text update in language switcher
+   - **Remaining Download Options**:
+     - HTML download: Full dashboard as standalone HTML file
+     - Excel download: Excel file from GitHub Pages
+   - **Implementation**: `integrated_dashboard_final.py:6414-6416, 9782-9788, 10195`
+   - **Commit**: [to be committed]
+
+11. **TYPE-2 LINE LEADER Calculation Method Issue** (DISCOVERED: 2025-11-19):
+   - **Problem**: All TYPE-2 LINE LEADER employees receive identical incentive amount (327,394 VND)
+   - **Expected**: Each LINE LEADER should receive different amounts based on subordinate formula
+     - Formula: `(Total Subordinate Incentive) × 12% × Receiving Ratio`
+     - Receiving Ratio: `(Subordinates with incentive > 0) / (Total active subordinates)`
+   - **Actual**: All 4 TYPE-2 LINE LEADER receive 327,394 VND
+   - **Root Cause**: Calculation engine uses TYPE-1 LINE LEADER全体平균 (including 0) instead of subordinate-based formula
+     - TYPE-1 LINE LEADER 수령자 평균: 374,165 VND (7명)
+     - TYPE-1 LINE LEADER 전체 평균 (0 포함): 327,394 VND (8명)
+     - TYPE-2 LINE LEADER all receive: 327,394 VND ← Uses whole average, NOT formula
+   - **Impact**: TYPE-2 LINE LEADER incentives are NOT calculated according to documented formula
+   - **Status**: **CALCULATION ENGINE BUG** - requires fix in `src/step1_인센티브_계산_개선버전.py`
+   - **Verification**: Check Lines 3255-3323 for LINE LEADER (TYPE-2) calculation logic
+   - **Related Documentation**: CLAUDE.md Lines 318-326, 428-432
+   - **Discovered**: User analysis of dashboard data (2025-11-19)
+
+12. **Condition Fulfillment Display Error** (DISCOVERED: 2025-11-19):
+   - **Problem**: Employee 619100392 (PHẠM MINH HUY) shows "3/3 conditions met (100%)" but receives 0 VND
+   - **Employee Data**:
+     - Position: TYPE-1 LINE LEADER
+     - Actual Working Days: 1일 (only 1 day worked)
+     - November Incentive: 0 VND ✅ (correct - did not meet minimum days)
+     - Dashboard display: "3/3 조건 충족" ❌ (incorrect)
+   - **Root Cause**: Condition evaluation logic issue
+     - LINE LEADER applicable conditions: [1, 2, 3, 4, 7]
+     - Employee condition status:
+       - cond_1 (Attendance Rate >= 88%): NOT_APPLICABLE
+       - cond_2 (Unapproved Absence <= 2): PASS
+       - cond_3 (Actual Working Days > 0): PASS (1 > 0)
+       - cond_4 (Minimum Days >= 12): NOT_APPLICABLE ← Should be FAIL
+       - cond_7 (Team AQL): PASS
+     - conditions_applicable: 3 (counts only cond_2, cond_3, cond_7)
+     - conditions_passed: 3
+     - conditions_pass_rate: 100% ← Incorrect display
+   - **Why cond_4 is NOT_APPLICABLE**: Calculation engine logic treats extremely low working days (1 day) as NOT_APPLICABLE
+   - **Why Incentive is 0 VND**: Despite NOT_APPLICABLE status, engine correctly gives 0 VND for not meeting minimum days
+   - **Dashboard Display Issue**: Shows "3/3 충족" when employee actually failed to meet requirements
+   - **Impact**: Misleading display - employees may think they met all conditions when they didn't
+   - **Status**: Dashboard display logic issue - condition counting should handle NOT_APPLICABLE differently
+   - **Verification**: Employee 619100392 in November 2025 CSV file
+   - **Related**: position_condition_matrix.json Lines 137-142 (LINE_LEADER conditions)
+   - **Discovered**: User analysis of employee modal data (2025-11-19)
 
 ### Debugging Dashboard Issues
 ```bash
