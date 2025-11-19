@@ -166,6 +166,16 @@ jobs:
           git add docs/*.html
           git add output_files/*.csv 2>/dev/null || true
           git commit -m "🔄 Auto update dashboard from Google Drive $(date '+%Y-%m-%d %H:%M:%S')"
+
+          # Pull latest changes with rebase before pushing
+          echo "Pulling latest changes from remote..."
+          git pull --rebase origin main || {
+            echo "⚠️ Rebase conflict detected, using theirs strategy for auto-generated files"
+            git checkout --theirs docs/*.html output_files/*.csv 2>/dev/null || true
+            git add docs/*.html output_files/*.csv 2>/dev/null || true
+            git rebase --continue || true
+          }
+
           git push
           echo "✅ Dashboard updated successfully!"
         else
