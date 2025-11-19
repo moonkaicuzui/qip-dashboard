@@ -63,13 +63,19 @@ jobs:
         echo "Downloading latest CSV files from Google Drive..."
         python scripts/download_from_gdrive.py
 
-    # 6. Config 파일 자동 생성/업데이트 (NEW!)
+    # 6. Attendance 데이터 변환 (CRITICAL!)
+    - name: 🔄 Convert Attendance Data
+      run: |
+        echo "Converting attendance data to processed format..."
+        python src/convert_attendance_data.py
+
+    # 7. Config 파일 자동 생성/업데이트
     - name: 🔧 Auto-generate Config Files
       run: |
         echo "Auto-generating config files for new months..."
         python scripts/auto_generate_configs.py
 
-    # 7. 인센티브 자동 계산
+    # 8. 인센티브 자동 계산
     - name: 💰 Calculate Incentives
       run: |
         echo "Calculating incentives for all months..."
