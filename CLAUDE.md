@@ -399,7 +399,7 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - Vietnamese: Shows "Tháng 11 năm 2025" (not overridden) ✅
    - **Pattern for future use**: Use `data-i18n="[key]"` for specific translations, `data-lang-show="[lang]"` for visibility
    - **Implementation**: `docs/selector.html:275, 441-451`, `scripts/create_month_selector.py:530-540`
-   - **Commit**: TBD (2025-11-19)
+   - **Commit**: `775e48c` (2025-11-19)
 
 ### Debugging Dashboard Issues
 ```bash
