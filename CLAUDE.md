@@ -670,27 +670,35 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
 
 16. **Google Drive Multiple File Overwrite Bug** (FIXED: 2025-11-19):
    - **Problem**: Dashboard showing Nov 13 data despite Google Drive having Nov 15 data
-     - Google Drive folder contains multiple attendance files (e.g., "attendance_data.csv", "attendance_data_new.csv")
+     - Google Drive folder contains multiple files matching same pattern (e.g., "attendance_data.csv", "attendance_data_new.csv")
      - Files sorted by modifiedTime desc (newest first)
      - ALL matching files downloaded sequentially to SAME output path
      - Older files overwrite newer files → Final result contains OLD data
-   - **Root Cause**: `scripts/download_from_gdrive.py:242-264` downloaded all matching files without tracking
+     - **Affects**: Monthly data (attendance, basic_manpower, 5prs) AND AQL history files
+   - **Root Cause**: `scripts/download_from_gdrive.py` downloaded all matching files without tracking
      - Pattern: 'attendance' in filename → matches multiple files
      - Loop downloads file 1 (newest) → then file 2 (older) → file 2 OVERWRITES file 1
      - No break or tracking mechanism to stop after first match
+     - Same issue for AQL files: Multiple files with same month/year go to same output_path
    - **Solution**: Added pattern tracking system to download only FIRST (newest) file per pattern
-     - Line 240: Added `downloaded_patterns = set()` to track downloaded patterns
-     - Line 246: Added `pattern_type` variable to identify file type ('basic_manpower', 'attendance', '5prs')
-     - Lines 249-266: Assigned pattern_type for each file pattern
-     - Lines 268-271: Skip file if pattern already downloaded (with log message)
-     - Lines 274-277: Add pattern to downloaded_patterns after successful download
+     - **Monthly Data** (Lines 240-277):
+       - Line 240: Added `downloaded_patterns = set()` to track downloaded patterns
+       - Line 246: Added `pattern_type` variable ('basic_manpower', 'attendance', '5prs')
+       - Lines 268-271: Skip file if pattern already downloaded
+       - Lines 274-277: Add pattern to downloaded_patterns after successful download
+     - **AQL History** (Lines 287-313):
+       - Line 287: Added `aql_downloaded_months = set()` to track month/year combinations
+       - Line 298: Create `month_year_key` (e.g., "NOVEMBER_2025")
+       - Lines 300-303: Skip file if month/year already downloaded
+       - Line 306: Add month_year_key to aql_downloaded_months after successful download
    - **Verification**:
      1. Trigger GitHub Actions from Admin page
      2. Check "Download CSV from Google Drive" logs
-     3. Should see "⏭️ 건너뜀: [filename] (이미 최신 [pattern] 파일 다운로드됨)" for duplicate patterns
-     4. Dashboard should now show Nov 15 data (13 working days)
-   - **Implementation**: `scripts/download_from_gdrive.py:240-277`
-   - **Commit**: [to be committed]
+     3. Should see "⏭️ 건너뜀: [filename]" messages for duplicate patterns
+     4. Verify all data types (attendance, basic_manpower, 5prs, AQL) reflect latest files
+     5. Dashboard should show Nov 15 data (13 working days)
+   - **Implementation**: `scripts/download_from_gdrive.py:240-277, 287-313`
+   - **Commit**: df0ac5c (monthly data), [to be committed] (AQL fix)
    - **Prevention**: Always use pattern tracking when multiple files may match the same output destination
    - **Verification**:
      - Check GitHub Actions logs for "🔄 기존 파일 삭제" and "✅ 다운로드 완료" messages

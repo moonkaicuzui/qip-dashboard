@@ -284,6 +284,8 @@ def main():
 
         os.makedirs('input_files/AQL history', exist_ok=True)
 
+        aql_downloaded_months = set()  # 이미 다운로드한 월 추적 (최신 파일만 다운로드)
+
         for file in aql_files[:3]:  # 최근 3개월만
             # ✅ drive_config.json 경로 매핑 (Line 48-51)
             # Google Drive: AQL_REPORT_NOVEMBER_2025.csv
@@ -293,7 +295,15 @@ def main():
             if match:
                 month_upper = match.group(1).upper()  # NOVEMBER
                 year_str = match.group(2)  # 2025
+                month_year_key = f"{month_upper}_{year_str}"  # 월-연도 조합으로 추적
+
+                # 이미 해당 월의 파일을 다운로드했으면 건너뜀 (최신 파일 우선)
+                if month_year_key in aql_downloaded_months:
+                    print(f"  ⏭️  건너뜀: {file['name']} (이미 최신 {month_upper} {year_str} AQL 파일 다운로드됨)")
+                    continue
+
                 output_path = f"input_files/AQL history/1.HSRG AQL REPORT-{month_upper}.{year_str}.csv"
+                aql_downloaded_months.add(month_year_key)
             else:
                 # 패턴 매칭 실패 시 원본 이름 유지
                 output_path = f"input_files/AQL history/{file['name']}"
