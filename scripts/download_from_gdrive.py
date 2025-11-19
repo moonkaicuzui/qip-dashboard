@@ -272,8 +272,20 @@ def main():
         os.makedirs('input_files/AQL history', exist_ok=True)
 
         for file in aql_files[:3]:  # 최근 3개월만
-            print(f"  다운로드: {file['name']}")
-            output_path = f"input_files/AQL history/{file['name']}"
+            # ✅ drive_config.json 경로 매핑 (Line 48-51)
+            # Google Drive: AQL_REPORT_NOVEMBER_2025.csv
+            # Local: 1.HSRG AQL REPORT-NOVEMBER.2025.csv
+            import re
+            match = re.search(r'AQL_REPORT_([A-Z]+)_(\d{4})', file['name'], re.IGNORECASE)
+            if match:
+                month_upper = match.group(1).upper()  # NOVEMBER
+                year_str = match.group(2)  # 2025
+                output_path = f"input_files/AQL history/1.HSRG AQL REPORT-{month_upper}.{year_str}.csv"
+            else:
+                # 패턴 매칭 실패 시 원본 이름 유지
+                output_path = f"input_files/AQL history/{file['name']}"
+
+            print(f"  다운로드: {file['name']} → {output_path}")
             if download_file(service, file['id'], output_path, force=True):
                 downloaded += 1
 
