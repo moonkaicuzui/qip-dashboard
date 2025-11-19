@@ -16,7 +16,7 @@
 
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -54,7 +54,7 @@
 
         .lang-btn.active {
             background: white;
-            color: #667eea;
+            color: #ef4444;
             opacity: 1;
         }
 
@@ -116,7 +116,7 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #ef4444, #dc2626);
         }
 
         .month-year {
@@ -128,7 +128,7 @@
 
         .month-name {
             font-size: 1.2rem;
-            color: #667eea;
+            color: #ef4444;
             margin-bottom: 15px;
         }
 
@@ -142,7 +142,7 @@
         }
 
         .view-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             color: white;
             border: none;
             padding: 8px 20px;
@@ -265,28 +265,17 @@
         <!-- 자동 업데이트 정보 -->
         <div class="refresh-info">
             <p class="mb-0" data-i18n="refresh-info">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
-            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-18 23:21:44</small>
+            <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-19 01:12:23</small>
         </div>
 
         <!-- 월 선택 그리드 -->
         <div class="month-grid">
 
-            <a href="Incentive_Dashboard_2025_11_Version_8.02.html" class="month-card" style="animation-delay: 0.0s;" data-year="2025" data-month="11">
+            <a href="Incentive_Dashboard_2025_11_Version_9.0.html" class="month-card" style="animation-delay: 0.0s;" data-year="2025" data-month="11">
                 <div class="month-year">
                     <span class="year-text">2025</span><span data-i18n="year-suffix">년</span> <span class="month-text">11</span><span data-i18n="month-suffix">월</span>
                 </div>
-                <div class="month-name">November</div>
-                <div class="card-footer">
-                    <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
-                    <span class="view-btn" data-i18n="view-btn">보기 →</span>
-                </div>
-            </a>
-
-            <a href="Incentive_Dashboard_2025_11_Version_9.0.html" class="month-card" style="animation-delay: 0.1s;" data-year="2025" data-month="11">
-                <div class="month-year">
-                    <span class="year-text">2025</span><span data-i18n="year-suffix">년</span> <span class="month-text">11</span><span data-i18n="month-suffix">월</span>
-                </div>
-                <div class="month-name">November</div>
+                <div class="month-name" data-i18n="month-11">November</div>
                 <div class="card-footer">
                     <span class="status-badge status-new" data-i18n="badge-new">NEW</span>
                     <span class="view-btn" data-i18n="view-btn">보기 →</span>
@@ -393,6 +382,7 @@
                 'admin-link': '⚙️ 관리자 로그인',
                 'year-suffix': '년',
                 'month-suffix': '월',
+                'month-11': '11월',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -409,6 +399,7 @@
                 'admin-link': '⚙️ Admin Login',
                 'year-suffix': '',
                 'month-suffix': '',
+                'month-11': 'November 2025',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -425,6 +416,7 @@
                 'admin-link': '⚙️ Đăng nhập Quản trị',
                 'year-suffix': '',
                 'month-suffix': '',
+                'month-11': 'Tháng 11 năm 2025',
                 'months': ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
                           'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
             }
@@ -496,7 +488,7 @@
         document.querySelectorAll('.month-card').forEach(card => {
             const text = card.querySelector('.month-year').textContent;
             if (text.includes(`${currentYear}년 ${currentMonth}월`)) {
-                card.style.border = '3px solid #667eea';
+                card.style.border = '3px solid #ef4444';
             }
         });
     </script>
