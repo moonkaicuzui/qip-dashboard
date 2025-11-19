@@ -384,3 +384,68 @@ ELSE:
 **보고서 작성:** Claude Code - Ultrathink Analysis
 **검증 기준:** November 2025 Dashboard (V9.0)
 **마지막 업데이트:** 2025-11-19
+
+---
+
+## 🔧 중요 수정 이력 (CRITICAL FIXES)
+
+### 2025-11-19: Continuous Months 계산 우선순위 변경
+
+**문제 발견:**
+- Employee 621040446 (THÁI THỊ XUÂN): 연속월 2개월 (잘못됨) → 인센티브 250,000 VND
+- 실제 정확한 값: 연속월 13개월 → 인센티브 1,000,000 VND
+- **원인**: October V9.1 파일의 `Next_Month_Expected: 2.0` 값이 오염됨 (정확한 값: 13)
+
+**근본 원인 분석:**
+```
+October V9.1 파일 데이터:
+- Continuous_Months: 12.0 ✅ (정확)
+- Next_Month_Expected: 2.0 ❌ (오염된 데이터)
+
+기존 우선순위:
+1. Next_Month_Expected 읽기 → 2 반환 (잘못된 값)
+2. Continuous_Months + 1 → 13 반환 (정확한 값, 하지만 실행 안 됨)
+```
+
+**해결 방법:**
+`calculate_continuous_months_from_history()` 함수의 우선순위 순서 변경 (Lines 1062-1131):
+
+```python
+# 새로운 우선순위 (2025-11-19 수정):
+우선순위 1: Continuous_Months + 1  (가장 신뢰성 높음)
+우선순위 2: Next_Month_Expected    (fallback만 사용)
+우선순위 3: 인센티브 금액 역산      (최후 수단)
+```
+
+**왜 Continuous_Months + 1이 더 신뢰할 수 있는가:**
+1. **직접 계산**: 검증된 월별 데이터에서 직접 계산
+2. **수학적 검증 가능**: October = 12 + 조건 충족 → November = 13 (논리적으로 명확)
+3. **중간 계산 없음**: 오류가 개입될 여지가 없음
+4. **데이터 오염 방지**: 이전 달 계산 로직의 버그에 영향받지 않음
+
+**왜 Next_Month_Expected가 신뢰할 수 없는가:**
+1. **미리 계산된 값**: 이전 달 계산 로직에서 생성된 값
+2. **데이터 처리 중 오염 가능**: 중간 계산 과정에서 오류 발생 가능
+3. **검증되지 않음**: 실제 월별 조건과 대조 검증되지 않음
+4. **전파 오류**: 한 달의 오류가 다음 달로 전파됨
+
+**수정 결과:**
+```
+Employee 621040446 (THÁI THỊ XUÂN):
+- Before: Continuous_Months = 2, Incentive = 250,000 VND ❌
+- After:  Continuous_Months = 13, Incentive = 1,000,000 VND ✅
+
+TYPE-1 vs TYPE-2 LINE LEADER 평균:
+- TYPE-1 LINE LEADER: 327,394.12 VND (8명)
+- TYPE-2 LINE LEADER: 327,394.00 VND (6명)
+- 차이: 0.12 VND (0.0000%) - 사실상 동일 ✅
+```
+
+**코드 위치:**
+- `src/step1_인센티브_계산_개선버전.py:1062-1131`
+- Commit: `1cc2f13` (2025-11-19)
+
+**교훈:**
+- **Next_Month_Expected 필드는 참고용으로만 사용** - 계산 로직에 의존하지 말 것
+- **Continuous_Months + 1이 수학적으로 가장 신뢰할 수 있는 방법**
+- **데이터 검증 없이 미리 계산된 값을 신뢰하지 말 것**
