@@ -237,31 +237,44 @@ def main():
     print(f"📥 {len(files)}개 파일 발견")
 
     downloaded = 0
+    downloaded_patterns = set()  # 이미 다운로드한 패턴 추적 (최신 파일만 다운로드)
 
     # ✅ drive_config.json file_mappings 기반 경로 사용
     for file in files:
         file_name = file['name'].lower()
         output_path = None
+        pattern_type = None  # 파일 패턴 타입 추적
 
         # 파일명 패턴 매칭 → drive_config.json 경로로 저장
         if 'basic' in file_name and 'manpower' in file_name:
             # drive_config.json Line 33-35
+            pattern_type = 'basic_manpower'
             output_path = f"input_files/basic manpower data {month_name}.csv"
         elif 'attendance' in file_name or '출근' in file_name:
             # drive_config.json Line 37-40
+            pattern_type = 'attendance'
             output_path = f"input_files/attendance/original/attendance data {month_name}.csv"
         elif '5prs' in file_name or '5PRS' in file['name']:
             # drive_config.json Line 42-45
+            pattern_type = '5prs'
             output_path = f"input_files/5prs data {month_name}.csv"
         else:
             # 기타 파일은 원래 이름 유지 (backup용)
             backup_dir = f"input_files/monthly_data/{latest_month['name']}"
             os.makedirs(backup_dir, exist_ok=True)
             output_path = f"{backup_dir}/{file['name']}"
+            pattern_type = None  # Backup 파일은 추적 안함
+
+        # 이미 해당 패턴의 파일을 다운로드했으면 건너뜀 (최신 파일 우선)
+        if pattern_type and pattern_type in downloaded_patterns:
+            print(f"  ⏭️  건너뜀: {file['name']} (이미 최신 {pattern_type} 파일 다운로드됨)")
+            continue
 
         print(f"  다운로드: {file['name']} → {output_path}")
         if download_file(service, file['id'], output_path, force=True):
             downloaded += 1
+            if pattern_type:
+                downloaded_patterns.add(pattern_type)
 
     # AQL history 다운로드
     aql_folder_id = folder_structure.get('aql_history', {}).get('id')
