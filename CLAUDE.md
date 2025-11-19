@@ -447,9 +447,14 @@ gspread>=5.7.0      # For Google Drive
 
 ## Version Management & Backward Compatibility
 
-### Current Version: 9.0
+### Current Version: 9.1 (as of 2025-11-19)
 
 **Critical Architecture Decision**: The system implements **fallback pattern** for version transitions to ensure backward compatibility when reading previous month data.
+
+**Important Version Fix (2025-11-19):**
+- **V9.1 is the correct version** with proper continuous months calculation and average rounding
+- **V9.0 created later has incorrect data** - fallback pattern now prioritizes V9.1 over V9.0
+- File reading priority: **V9.1 → V9.0 → V8.02** (highest version first)
 
 ### Version Update Requirements
 
@@ -493,26 +498,30 @@ When updating version numbers (e.g., 9.0 → 9.1), you MUST update these files:
 
 ### Backward Compatibility Pattern (CRITICAL)
 
-**Problem**: When December 2025 (V9.0) needs November 2025 data, but November was generated with V8.02.
+**Problem**: When December 2025 needs November 2025 data, but multiple versions exist (V9.1 correct, V9.0 incorrect).
 
-**Solution**: Fallback pattern in `step1_인센티브_계산_개선버전.py`:
+**Solution**: Fallback pattern in `step1_인센티브_계산_개선버전.py` (Updated 2025-11-19):
 
 ```python
-# Lines 1214-1220: Previous month file loading
+# Lines 1214-1225: Previous month file loading (highest version first)
 excel_patterns = [
-    # Try current version first
+    # V9.1 version (latest - correct data)
+    f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
+    f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
+    # V9.0 version
     f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
     f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
-    # Fallback to previous versions (backward compatibility)
+    # V8.02 version (backward compatibility)
     f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv",
     f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv"
 ]
 ```
 
 **Why This Matters**:
-- Month 1 (V9.0): Reads Month 0 (V8.02) - SUCCESS with fallback
-- Month 2 (V9.0): Reads Month 1 (V9.0) - SUCCESS with primary pattern
-- Without fallback: Month 1 calculation would FAIL
+- Month 1 (V9.1): Reads Month 0 (V9.1 or V9.0 or V8.02) - SUCCESS with fallback
+- Month 2 (V9.1): Reads Month 1 (V9.1) - SUCCESS with primary pattern
+- **V9.1 prioritized over V9.0** to use correct data with proper continuous months calculation
+- Without correct priority: Would read V9.0 (wrong data) before V9.1 (correct data)
 
 ### Common Version Update Pitfalls
 

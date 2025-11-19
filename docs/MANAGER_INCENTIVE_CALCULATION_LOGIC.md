@@ -242,15 +242,20 @@ ELSE:
 **실제 데이터 검증 (November 2025):**
 - TYPE-1 LINE LEADER 평균: 214,144 VND
 - TYPE-2 GROUP LEADER 계산: 214,144 × 2 = 428,288 VND
-- TYPE-1 LINE LEADER와 TYPE-2 LINE LEADER 평균 차이: 0.2% (거의 동일)
+- TYPE-1 LINE LEADER와 TYPE-2 LINE LEADER 평균: **완전히 동일** (동일한 계산 방식 사용)
+
+**계산 방식 (수정 완료 - 2025-11-19):**
+- 모든 직원 포함 (0 VND 포함)
+- `round()` 함수 사용하여 정확한 반올림
+- TYPE-1과 TYPE-2가 동일한 평균 공유
 
 **Fallback 로직:**
 - TYPE-1 LINE LEADER 평균이 0이거나 없으면 → TYPE-2 LINE LEADER 평균 × 2 사용
-- 양쪽 평균이 거의 동일하므로 (차이 0.2%) 결과에 큰 영향 없음
+- 양쪽 평균이 완전히 동일하므로 결과 동일
 
 **특징:**
 - TYPE-2 직급이지만 상급 관리자이므로 TYPE-1 LINE LEADER를 기준으로 계산
-- TYPE-1 LINE LEADER 평균 ≈ TYPE-2 LINE LEADER 평균 (차이 508 VND)
+- TYPE-1 LINE LEADER 평균 = TYPE-2 LINE LEADER 평균 (동일한 계산 방식)
 
 ---
 

@@ -1211,10 +1211,15 @@ class DataProcessor:
         # ============================================
         # Case 3: October 이후 - 이전 달 Excel/CSV 파일 로딩
         # ============================================
-        # Fallback pattern: V9.0 먼저 시도, 없으면 V8.02, V8.01로 폴백 (버전 전환 호환성)
+        # Fallback pattern: 최신 버전 우선 (V9.1 → V9.0 → V8.02 → V8.01)
         excel_patterns = [
+            # V9.1 버전 (최신)
+            f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
+            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
+            # V9.0 버전
             f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
             f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
+            # V8.02 버전 (하위 호환성)
             f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv",
             f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv"
         ]
@@ -4323,26 +4328,25 @@ class CompleteQIPCalculator:
         return ''
     
     def _create_type1_reference_map(self) -> Dict[str, int]:
-        """Type-1 참조 맵 created"""
+        """Type-1 참조 맵 created (모든 직원 포함, 반올림 사용)"""
         reference_map = {}
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
-        
+
         type1_mask = self.month_data['ROLE TYPE STD'] == 'TYPE-1'
-        
-        # 포지션별 평균 calculation
+
+        # 포지션별 평균 calculation (모든 직원 포함, 0 VND 포함)
         for position in self.month_data[type1_mask]['QIP POSITION 1ST  NAME'].unique():
             if pd.notna(position):
                 pos_employees = self.month_data[
                     (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
                     (self.month_data['QIP POSITION 1ST  NAME'] == position)
                 ]
-                
-                receiving_employees = pos_employees[pos_employees[incentive_col] > 0]
-                
-                if len(receiving_employees) > 0:
-                    avg_incentive = int(receiving_employees[incentive_col].mean())
+
+                # 모든 직원 포함 (0 VND 포함) - TYPE-2와 동일한 기준
+                if len(pos_employees) > 0:
+                    avg_incentive = round(pos_employees[incentive_col].mean())
                     reference_map[position.upper()] = avg_incentive
-        
+
         return reference_map
     
     def calculate_type3_incentive(self):
