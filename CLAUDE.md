@@ -600,32 +600,79 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Related Documentation**: CLAUDE.md Lines 318-326, 428-432
    - **Discovered**: User analysis of dashboard data (2025-11-19)
 
-12. **Condition Fulfillment Display Error** (DISCOVERED: 2025-11-19):
+12. **Condition Fulfillment Display Error** (FIXED: 2025-11-19):
    - **Problem**: Employee 619100392 (PHẠM MINH HUY) shows "3/3 conditions met (100%)" but receives 0 VND
    - **Employee Data**:
      - Position: TYPE-1 LINE LEADER
      - Actual Working Days: 1일 (only 1 day worked)
      - November Incentive: 0 VND ✅ (correct - did not meet minimum days)
      - Dashboard display: "3/3 조건 충족" ❌ (incorrect)
-   - **Root Cause**: Condition evaluation logic issue
-     - LINE LEADER applicable conditions: [1, 2, 3, 4, 7]
-     - Employee condition status:
-       - cond_1 (Attendance Rate >= 88%): NOT_APPLICABLE
-       - cond_2 (Unapproved Absence <= 2): PASS
-       - cond_3 (Actual Working Days > 0): PASS (1 > 0)
-       - cond_4 (Minimum Days >= 12): NOT_APPLICABLE ← Should be FAIL
-       - cond_7 (Team AQL): PASS
-     - conditions_applicable: 3 (counts only cond_2, cond_3, cond_7)
-     - conditions_passed: 3
-     - conditions_pass_rate: 100% ← Incorrect display
-   - **Why cond_4 is NOT_APPLICABLE**: Calculation engine logic treats extremely low working days (1 day) as NOT_APPLICABLE
-   - **Why Incentive is 0 VND**: Despite NOT_APPLICABLE status, engine correctly gives 0 VND for not meeting minimum days
-   - **Dashboard Display Issue**: Shows "3/3 충족" when employee actually failed to meet requirements
-   - **Impact**: Misleading display - employees may think they met all conditions when they didn't
-   - **Status**: Dashboard display logic issue - condition counting should handle NOT_APPLICABLE differently
-   - **Verification**: Employee 619100392 in November 2025 CSV file
-   - **Related**: position_condition_matrix.json Lines 137-142 (LINE_LEADER conditions)
-   - **Discovered**: User analysis of employee modal data (2025-11-19)
+   - **Root Cause**: Condition fulfillment text logic did not check incentive payment status
+     - Line 16119-16126: Modal shows "X/Y conditions fulfilled" based on applicable conditions only
+     - Did not account for employees who failed to receive incentive despite passing some conditions
+   - **Solution**: Added incentive payment status check before displaying condition count
+     - Line 16123: Added `!isPaidEmployee && totalConditions > 0 ?` condition
+     - If employee received 0 VND → displays "Conditions not met" message instead of count
+   - **Verification**:
+     1. Regenerate dashboard: `python integrated_dashboard_final.py --month 11 --year 2025`
+     2. Open employee modal for 619100392 (PHẠM MINH HUY)
+     3. Verify shows "Conditions not met" instead of "3/3 충족"
+   - **Implementation**: `integrated_dashboard_final.py:16119-16127`
+   - **Commit**: [to be committed]
+   - **Prevention**: Always cross-check display logic with actual business logic (incentive amount = 0 → conditions not met)
+
+13. **TYPE-2 LINE LEADER Calculation Method Display Update** (FIXED: 2025-11-19):
+   - **Problem**: Dashboard displayed incorrect calculation method for TYPE-2 LINE LEADER
+     - Displayed: "참조: 부하직원 인센티브", "계산: 부하직원 인센티브 합계 × 12% × 수령 비율"
+     - Reality: Calculation engine uses TYPE-1 LINE LEADER average (Common Issue #11)
+   - **User Request**: Update display to match actual calculation logic
+   - **Solution**: Updated "인센티브 기준" tab TYPE-2 calculation table
+     - Line 7077-7081: LINE LEADER row updated
+     - "참조 TYPE-1 직급": Changed from "부하직원 인센티브" → "TYPE-1 LINE LEADER"
+     - "calculation 방법": Changed from "부하직원 인센티브 합계 × 12% × 수령 비율" → "TYPE-1 LINE LEADER 평균"
+   - **Verification**:
+     1. Open "인센티브 기준" tab → "TYPE-2 전체 직급 인센티브 계산 방법" table
+     2. LINE LEADER row shows "TYPE-1 LINE LEADER" and "TYPE-1 LINE LEADER 평균"
+   - **Implementation**: `integrated_dashboard_final.py:7077-7081`
+   - **Commit**: [to be committed]
+   - **Note**: This aligns dashboard display with actual calculation engine behavior (Issue #11)
+
+14. **Talent Pool Members Translation Error** (FIXED: 2025-11-19):
+   - **Problem**: English/Vietnamese mode still shows "1직원" (Korean) in Talent Pool section
+   - **Root Cause**: Hardcoded Korean suffix in Talent Pool count display
+     - Line 15247: `talentPoolMembers.length + '직원'` (no translation logic)
+   - **Solution**: Added language-specific translation for employee count suffix
+     - Line 15247-15250: Added conditional logic for Korean/English/Vietnamese
+     - English: "employee" (singular) or "employees" (plural)
+     - Korean: "직원"
+     - Vietnamese: "nhân viên"
+   - **Verification**:
+     1. Regenerate dashboard: `python integrated_dashboard_final.py --month 11 --year 2025`
+     2. Switch to English mode
+     3. Verify Talent Pool section shows "1 employee" or "N employees" (not "1직원")
+   - **Implementation**: `integrated_dashboard_final.py:15247-15250`
+   - **Commit**: [to be committed]
+   - **Prevention**: Always use translation system for dynamic text, avoid hardcoded language strings
+
+15. **Google Drive Force Download Enhancement** (FIXED: 2025-11-19):
+   - **Problem**: User concern about file synchronization - files may not be re-downloaded if already exist
+   - **User Request**: Force re-download even if file with same name exists
+   - **Solution**: Enhanced `download_from_gdrive.py` with explicit force download logic
+     - Line 74-119: Updated `download_file()` function
+       - Added `force=True` parameter (default)
+       - Explicit file deletion before download if file exists
+       - Added detailed logging: old file modification time, new file size and time
+     - Line 188, 248, 262: All download calls use `force=True` explicitly
+   - **Benefits**:
+     - Clear logs showing old file deletion and new file download
+     - File size and modification time verification
+     - Prevents stale data issues
+   - **Verification**:
+     - Check GitHub Actions logs for "🔄 기존 파일 삭제" and "✅ 다운로드 완료" messages
+     - Verify file modification times are updated
+   - **Implementation**: `scripts/download_from_gdrive.py:74-119, 188, 248, 262`
+   - **Commit**: [to be committed]
+   - **Note**: This ensures GitHub Actions always downloads latest Google Drive data
 
 ### Debugging Dashboard Issues
 ```bash

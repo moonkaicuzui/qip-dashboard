@@ -7075,8 +7075,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                                 <tr style="background-color: #e8f5ff;">
                                     <td><strong>4. LINE LEADER</strong></td>
-                                    <td>부하직원 인센티브</td>
-                                    <td>부하직원 인센티브 합계 × 12% × 수령 비율</td>
+                                    <td>TYPE-1 LINE LEADER</td>
+                                    <td>TYPE-1 LINE LEADER <span class="average-text">평균</span></td>
                                     <td>127,767 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
@@ -15239,12 +15239,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (talentPoolMembers.length > 0) {{
                 // Talent Pool 섹션 표시
                 document.getElementById('talentPoolSection').style.display = 'block';
-                
+
                 // 통계 업데이트
                 const totalBonus = talentPoolMembers.reduce((sum, emp) => sum + parseInt(emp.Talent_Pool_Bonus || 0), 0);
                 const monthlyBonus = talentPoolMembers[0]?.Talent_Pool_Bonus || 0; // 첫 번째 멤버의 월 보너스
-                
-                document.getElementById('talentPoolCount').textContent = talentPoolMembers.length + '직원';
+
+                // 직원 수 번역 처리
+                const countSuffix = currentLanguage === 'ko' ? '직원' :
+                    currentLanguage === 'en' ? (talentPoolMembers.length > 1 ? ' employees' : ' employee') : ' nhân viên';
+                document.getElementById('talentPoolCount').textContent = talentPoolMembers.length + countSuffix;
                 document.getElementById('talentPoolMonthlyBonus').textContent = parseInt(monthlyBonus).toLocaleString() + ' VND';
                 document.getElementById('talentPoolTotalBonus').textContent = totalBonus.toLocaleString() + ' VND';
                 document.getElementById('talentPoolPeriod').textContent = '2025.07 - 2025.12';
@@ -16120,6 +16123,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <h4>${{passRate === 'N/A' ? 'N/A' : passRate + '%'}}</h4>
                                     <p class="text-muted">${{
                                         emp['ROLE TYPE STD'] === 'TYPE-3' ? getTranslation('modal.detailPopup.type3PolicyExcluded', currentLanguage) || 'TYPE-3: 정책적 제외 대상' :
+                                        !isPaidEmployee && totalConditions > 0 ? getTranslation('modal.detailPopup.conditionNotMet', currentLanguage) :
                                         totalConditions > 0 ? passedConditions + ' / ' + totalConditions + ' ' + getTranslation('modal.detailPopup.conditionsFulfilled', currentLanguage) :
                                         getTranslation('modal.detailPopup.noConditions', currentLanguage)
                                     }}</p>
