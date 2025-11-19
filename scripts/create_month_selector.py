@@ -157,10 +157,12 @@ def create_month_selector_page():
         }
 
         .month-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 20px;
             margin-bottom: 40px;
+            width: 100%;
         }
 
         .month-card {
@@ -174,6 +176,8 @@ def create_month_selector_page():
             color: inherit;
             position: relative;
             overflow: hidden;
+            width: 100%;
+            max-width: 400px;
         }
 
         .month-card:hover {
@@ -311,7 +315,11 @@ def create_month_selector_page():
             }
 
             .month-grid {
-                grid-template-columns: 1fr;
+                /* 이미 flex column으로 설정되어 있음 */
+            }
+
+            .month-card {
+                max-width: 100%;
             }
 
             .container {
