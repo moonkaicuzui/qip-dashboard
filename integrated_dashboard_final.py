@@ -9804,9 +9804,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // CSV 행 데이터 생성
             let csvContent = headers.join(',') + '\\n';
 
-            // employeesData 배열 사용
-            if (typeof employeesData !== 'undefined' && Array.isArray(employeesData)) {{
-                employeesData.forEach(emp => {{
+            // employeeData 배열 사용 (단수형 - window.employeeData와 일치)
+            if (typeof employeeData !== 'undefined' && Array.isArray(employeeData)) {{
+                employeeData.forEach(emp => {{
                     const row = [
                         `"${{emp['Full Name'] || ''}}"`,
                         `"${{emp['Team'] || ''}}"`,
