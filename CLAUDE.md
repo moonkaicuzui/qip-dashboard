@@ -375,6 +375,23 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Implementation**: `src/step1_인센티브_계산_개선버전.py:1062-1131`
    - **Verification**: Employee 621040446 now correctly shows 13 months → 1,000,000 VND
 
+7. **Language Switcher - Korean Date Format Visibility** (FIXED: 2025-11-19):
+   - **Problem**: English/Vietnamese selected, but "2025년 11월" (Korean format) still visible
+   - **Root Cause**: `month-year` div with hardcoded "YYYY년 MM월" format always displayed
+     - Korean translations: `month-11: "11월"` (needs separate year display)
+     - English translations: `month-11: "November 2025"` (already includes year)
+     - Vietnamese translations: `month-11: "Tháng 11 năm 2025"` (already includes year)
+   - **Solution**: Added `data-lang-show="ko"` attribute to hide Korean-specific elements
+     - Line 275: Added `data-lang-show="ko"` to `month-year` div
+     - Lines 456-464: Added language-specific visibility logic in `switchLanguage()`
+   - **How it works**:
+     - Korean: Shows "2025년 11월" + "11월" ✅
+     - English: Shows "November 2025" only (month-year hidden) ✅
+     - Vietnamese: Shows "Tháng 11 năm 2025" only (month-year hidden) ✅
+   - **Pattern for future use**: Use `data-lang-show="[lang]"` attribute for language-specific elements
+   - **Implementation**: `docs/selector.html:275, 456-464`
+   - **Commit**: `45c22f4` (2025-11-19)
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
