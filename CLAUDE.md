@@ -401,6 +401,29 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Implementation**: `docs/selector.html:275, 441-451`, `scripts/create_month_selector.py:530-540`
    - **Commit**: `775e48c` (2025-11-19)
 
+8. **CSV Download Empty File Bug** (FIXED: 2025-11-19):
+   - **Problem**: CSV download button returns empty file (header only, no data)
+   - **User Impact**: Unable to download employee data from dashboard
+   - **Root Cause**: Variable name mismatch in downloadCSV() function
+     - Dashboard defines: `window.employeeData` (singular)
+     - Download function uses: `employeesData` (plural - incorrect)
+     - Result: `typeof employeesData` is undefined → no data written to CSV
+   - **Solution**: Changed `employeesData` to `employeeData` in CSV download function
+     - Line 9807-9809 in `integrated_dashboard_final.py`
+     - Added comment: "employeeData 배열 사용 (단수형 - window.employeeData와 일치)"
+   - **Verification Steps**:
+     1. Regenerate dashboard: `python integrated_dashboard_final.py --month 11 --year 2025`
+     2. Check HTML: `grep "typeof employee" output_files/Incentive_Dashboard_2025_11_Version_9.0.html`
+     3. Expected: `typeof employeeData` (singular) ✅
+   - **Data Consistency Verified**:
+     - CSV, Excel, Dashboard all show identical values ✅
+     - October incentive: `Previous_Month_Incentive` column
+     - November incentive: `November_Incentive` column
+     - Total: 115,654,952 VND (350 employees receiving)
+   - **Implementation**: `integrated_dashboard_final.py:9807-9809`
+   - **Commit**: `45c0f9d` (2025-11-19)
+   - **Prevention**: Always verify variable names match between definition and usage
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
