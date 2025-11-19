@@ -53,6 +53,25 @@ See `PROJECT_IDENTITY_WEB_DASHBOARD.md` for comprehensive web deployment archite
 
 ## Core Development Principles
 
+### 0. NEVER LIE TO USER (절대 거짓말 금지 - 최우선 원칙)
+- **NEVER claim completion when not actually done** - 실제로 완료하지 않았으면 완료했다고 하지 마라
+- **NEVER make excuses or blame caching** - 핑계 대지 말고 문제의 근본 원인을 찾아라
+- **ALWAYS verify before claiming success** - 성공했다고 주장하기 전에 반드시 검증하라
+- **ADMIT mistakes immediately** - 실수는 즉시 인정하고 수정하라
+- **ASK for help when stuck** - 막히면 포기하지 말고 사용자에게 물어봐라
+
+### Google Drive Data-First Principle (Google Drive 데이터 우선 원칙)
+- **ALWAYS use Google Drive as single source of truth** - 항상 Google Drive를 유일한 데이터 소스로 사용
+- **NEVER rely on outdated local data** - 오래된 로컬 데이터에 의존하지 마라
+- **Service account credentials location**: `/Users/ksmoon/Downloads/qip-dashboard-dabdc4d51ac9.json`
+- **Manual download when GitHub Actions fails**:
+  ```bash
+  GOOGLE_SERVICE_ACCOUNT=$(cat /Users/ksmoon/Downloads/qip-dashboard-dabdc4d51ac9.json) \
+  python scripts/download_from_gdrive.py
+  ```
+- **ALWAYS verify data freshness** - Check file modification dates and content dates
+- **Data validation after download** - Verify expected date ranges exist in downloaded files
+
 ### 1. No Fake Data Policy (절대 가짜 데이터 금지)
 - **NEVER generate fake/dummy data** - display empty, 0, or "데이터 없음"
 - "우리사전에 가짜 데이타는 없다" - fundamental principle
@@ -728,6 +747,27 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Implementation**: `integrated_dashboard_final.py:11283-11287`
    - **Commit**: [to be committed]
    - **Prevention**: Always use actual data sources (excelDashboardData) instead of config templates for dynamic values
+
+17. **GitHub Actions Google Drive Sync Failure** (IDENTIFIED: 2025-11-19):
+   - **Problem**: Google Drive has attendance data up to Nov 15, but system only shows Nov 13 data
+   - **User Report**: "구글드라이브엔 15일까지 출근 데이타가 있어" (Google Drive has attendance data up to the 15th)
+   - **Root Cause**: GitHub Actions workflow running but not downloading latest data
+     - Service account authentication may be failing silently
+     - Workflow shows success but data not updated since Nov 17
+   - **Impact**:
+     - Working days shows 11 (Nov 1-13) instead of 13 (Nov 1-15)
+     - Missing 2 days of attendance data affects incentive calculations
+   - **Temporary Fix Applied**:
+     - Manually updated `config_november_2025.json` working_days from 11 to 13
+     - Commit: `bd8d933` (2025-11-19)
+   - **Permanent Fix Required**:
+     - Verify GitHub Actions service account authentication
+     - Check GOOGLE_SERVICE_ACCOUNT secret in GitHub repository settings
+     - Ensure service account has proper Google Drive API access permissions
+   - **Verification**:
+     - Attendance data only has dates: Nov 1, 3-8, 10-13 (11 unique dates)
+     - Should have: Nov 1, 3-8, 10-15 (13 unique dates)
+   - **Status**: **GITHUB ACTIONS AUTH ISSUE** - requires service account fix
 
 ### Debugging Dashboard Issues
 ```bash
