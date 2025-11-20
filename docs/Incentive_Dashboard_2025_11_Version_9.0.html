@@ -239,7 +239,7 @@
 
         /* report type 알림 */
         .report-type-banner {
-            background: linear-gradient(135deg, #FFA500 0%, #FFD700 100%);
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
             padding: 15px 25px;
             margin-bottom: 20px;
@@ -1787,7 +1787,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="november" data-month-name="11월">2025년 11월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="19" data-hour="21" data-minute="00">보고서 생성일: 2025년 11월 19일 21:00</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="20" data-hour="07" data-minute="07">보고서 생성일: 2025년 11월 20일 07:07</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="11" data-startday="01" data-endday="15">• 인센티브 데이터: 2025년 11월 01일 ~ 15일</p>
@@ -1801,16 +1801,16 @@
         <!-- report type 알림 배너 -->
         <div class="report-type-banner" id="reportTypeBanner">
             <div style="display: flex; align-items: center;">
-                <span class="icon">⚠️</span>
+                <span class="icon">✅</span>
                 <div class="message">
-                    <div class="title" id="reportTypeTitle">중간 보고서</div>
+                    <div class="title" id="reportTypeTitle">최종 보고서</div>
                     <div class="description" id="reportTypeDesc">
-                        이 보고서는 월중 점검용 중간 보고서입니다. 최소 근무일(12일) 및 결근율(12%) 조건이 적용되지 않습니다.
+                        이 보고서는 월말 최종 보고서입니다. 모든 인센티브 조건이 정상적으로 적용됩니다.
                     </div>
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 19일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 20일</span>
             </div>
         </div>
 
@@ -11921,7 +11921,7 @@
             // Report Type Banner 업데이트
             const reportTypeBanner = document.getElementById('reportTypeBanner');
             if (reportTypeBanner) {
-                const isInterim = true;
+                const isInterim = false;
                 reportType = isInterim ? 'interim' : 'final'; // const 제거, 전역 변count use
 
                 // Title 업데이트
@@ -11938,9 +11938,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '19th' :
-                               currentLanguage === 'en' ? 'Day 19' :
-                               'Ngày 19';
+                const dayText = currentLanguage === 'ko' ? '20th' :
+                               currentLanguage === 'en' ? 'Day 20' :
+                               'Ngày 20';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
@@ -21250,6 +21250,11 @@
 
             // incentive 지급 여부 확인
             const isPaidEmployee = parseInt(emp['november_incentive']) > 0;
+
+            // FIXED: isInterimReport를 함수 내부에서 직접 계산 (스코프 에러 해결)
+            const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
+            const dataEndDay = incentiveDataPeriod ? parseInt(incentiveDataPeriod.getAttribute('data-endday')) : 0;
+            const isInterimReport = dataEndDay < 20;
 
             // TYPE-3 처리: 모든 조건이 N/A인 경우
             let passRate = 0;
