@@ -490,7 +490,32 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - Verify subordinate mapping in `create_manager_subordinate_mapping()`
    - Dashboard and calculation script must use same subordinate filtering logic
 
-6. **Continuous Months Calculation Priority Order** (FIXED: 2025-11-19):
+6. **Employee Detail Modal Not Opening** (FIXED: 2025-11-20):
+   - **Problem**: Clicking employee names doesn't open detail modal
+   - **Error**: `ReferenceError: isInterimReport is not defined` at showEmployeeDetail()
+   - **Root Cause**: Variable `isInterimReport` defined in validation tab scope but referenced globally
+   - **Solution**: Calculate `isInterimReport` inside showEmployeeDetail() function
+   - **Implementation**: `integrated_dashboard_final.py:16122-16125`
+   - **Critical Fix**: Must regenerate HTML after code fix: `python integrated_dashboard_final.py --month 11 --year 2025`
+   - **Verification**: Modal opens without console errors after deployment
+   - **Commit**: `d5cb492` (2025-11-20)
+
+7. **Config File Automation** (ADDED: 2025-11-20):
+   - **Problem**: Config files needed manual update after Google Drive downloads
+   - **Solution**: Created automated config update system
+   - **Scripts Added**:
+     - `scripts/enhanced_download_with_config.py`: Integrated download + config update
+     - `scripts/update_config_after_download.py`: Standalone config updater
+     - `scripts/test_config_update.py`: Automation testing utility
+   - **Features**:
+     - Auto-detect downloaded file paths
+     - Calculate working_days from attendance data
+     - Update config with actual paths (not virtual drive://)
+     - Add timestamps for tracking
+   - **GitHub Actions**: `.github/workflows/auto-update-enhanced.yml`
+   - **Usage**: `python scripts/enhanced_download_with_config.py`
+
+8. **Continuous Months Calculation Priority Order** (FIXED: 2025-11-19):
    - **Problem**: October V9.1 file contained corrupted `Next_Month_Expected` values
      - Example: Employee 621040446 had `Next_Month_Expected: 2` (wrong) vs `Continuous_Months: 12` (correct)
      - Old priority read `Next_Month_Expected` first → returned wrong value (2)
@@ -509,7 +534,7 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Implementation**: `src/step1_인센티브_계산_개선버전.py:1062-1131`
    - **Verification**: Employee 621040446 now correctly shows 13 months → 1,000,000 VND
 
-7. **Language Switcher - Korean Date Format Visibility** (FIXED: 2025-11-19):
+9. **Language Switcher - Korean Date Format Visibility** (FIXED: 2025-11-19):
    - **Problem 1**: English/Vietnamese selected, but "2025년 11월" (Korean format) still visible
    - **Root Cause 1**: `month-year` div with hardcoded "YYYY년 MM월" format always displayed
      - Korean translations: `month-11: "11월"` (needs separate year display)
@@ -535,7 +560,7 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Implementation**: `docs/selector.html:275, 441-451`, `scripts/create_month_selector.py:530-540`
    - **Commit**: `775e48c` (2025-11-19)
 
-8. **CSV Download Empty File Bug** (FIXED: 2025-11-19):
+10. **CSV Download Empty File Bug** (FIXED: 2025-11-19):
    - **Problem**: CSV download button returns empty file (header only, no data)
    - **User Impact**: Unable to download employee data from dashboard
    - **Root Cause**: Variable name mismatch in downloadCSV() function
@@ -558,7 +583,7 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commit**: `45c0f9d` (2025-11-19)
    - **Prevention**: Always verify variable names match between definition and usage
 
-9. **TYPE-2 Incentive Calculation Method Display Error** (FIXED: 2025-11-19):
+11. **TYPE-2 Incentive Calculation Method Display Error** (FIXED: 2025-11-19):
    - **Problem**: Dashboard "인센티브 기준" tab showing incorrect calculation methods for TYPE-2 positions
      - GROUP LEADER showed: "GROUP LEADER 평균" (incorrect)
      - LINE LEADER showed: "LINE LEADER 평균" (incorrect)
@@ -590,7 +615,7 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commit**: `78260a0` (2025-11-19)
    - **Prevention**: Always verify dashboard display text matches actual calculation logic in calculation engine
 
-10. **CSV Download Button Removal** (CHANGED: 2025-11-19):
+12. **CSV Download Button Removal** (CHANGED: 2025-11-19):
    - **User Request**: Remove CSV download button from dashboard
    - **Reason**: CSV download functionality no longer needed
    - **Changes Made**:
@@ -603,7 +628,7 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Implementation**: `integrated_dashboard_final.py:6414-6416, 9782-9788, 10195`
    - **Commit**: [to be committed]
 
-11. **TYPE-2 LINE LEADER Calculation Method Issue** (DISCOVERED: 2025-11-19):
+13. **TYPE-2 LINE LEADER Calculation Method Issue** (DISCOVERED: 2025-11-19):
    - **Problem**: All TYPE-2 LINE LEADER employees receive identical incentive amount (327,394 VND)
    - **Expected**: Each LINE LEADER should receive different amounts based on subordinate formula
      - Formula: `(Total Subordinate Incentive) × 12% × Receiving Ratio`
@@ -619,7 +644,7 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Related Documentation**: CLAUDE.md Lines 318-326, 428-432
    - **Discovered**: User analysis of dashboard data (2025-11-19)
 
-12. **Condition Fulfillment Display Error** (FIXED: 2025-11-19):
+14. **Condition Fulfillment Display Error** (FIXED: 2025-11-19):
    - **Problem**: Employee 619100392 (PHẠM MINH HUY) shows "3/3 conditions met (100%)" but receives 0 VND
    - **Employee Data**:
      - Position: TYPE-1 LINE LEADER
