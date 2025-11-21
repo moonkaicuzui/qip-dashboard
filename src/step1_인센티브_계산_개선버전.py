@@ -4737,25 +4737,42 @@ class CompleteQIPCalculator:
             self.month_data[col] = None  # Initialize as None to create object dtype
             self.month_data[col] = self.month_data[col].astype('object')
 
-        # Interim vs Final report 판정 (조건 4 예외 처리용)
+        # Interim vs Final report 판정 (조건 1&4 예외 처리용)
         from datetime import datetime
         current_date = datetime.now()
         is_current_month = (current_date.year == self.config.year and
                            current_date.month == self.config.month.number)
 
-        if is_current_month:
-            # Current month: interim report before 20th
-            is_interim_report = current_date.day < 20
-            if is_interim_report:
-                print(f"  ℹ️ Interim report (current date: {current_date.day}일) - 조건 4 (최소 12일 근무) 예외 처리")
-        else:
-            # Past month: always apply full conditions
-            is_interim_report = False
-
         # 각 employee별with 10 conditions 평
         for idx in self.month_data.index:
             emp_type = self.month_data.loc[idx, 'ROLE TYPE STD']
             position = self.month_data.loc[idx, 'QIP POSITION 1ST  NAME']
+            position_code = self.month_data.loc[idx, 'FINAL QIP POSITION NAME CODE']
+
+            # Check if this is QC Assembly Inspector type
+            is_qc_assembly = False
+            if pd.notna(position):
+                position_upper = str(position).upper()
+                is_qc_assembly = (
+                    ('QC' in position_upper and 'ASSEMBLY' in position_upper and 'INSPECTOR' in position_upper) or
+                    ('ASSEMBLY' in position_upper and 'INSPECTOR' in position_upper)
+                )
+            if pd.notna(position_code):
+                position_code_upper = str(position_code).upper()
+                if position_code_upper.startswith('A') and len(position_code_upper) >= 2 and position_code_upper[1].isdigit():
+                    is_qc_assembly = True  # A1-A5 codes
+
+            # Determine if this is an interim report based on position type
+            if is_current_month:
+                cutoff_day = 15 if is_qc_assembly else 20
+                is_interim_report = current_date.day < cutoff_day
+
+                # Log only for QC Assembly Inspector types
+                if is_interim_report and is_qc_assembly:
+                    print(f"  ℹ️ QC Assembly Inspector Interim report: {self.month_data.loc[idx, 'Full Name']} (day {current_date.day} < {cutoff_day}) - 조건 1&4 예외 처리")
+            else:
+                # Past month: always apply full conditions
+                is_interim_report = False
 
             # position_condition_matrix.jsonfrom 해당 positionof condition configuration 져오기
             pos_config = get_position_config_from_matrix(emp_type, position)
