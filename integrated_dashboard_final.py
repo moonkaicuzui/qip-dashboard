@@ -6409,7 +6409,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
                 <button id="downloadHtmlBtn" onclick="downloadDashboard()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
-                    <span id="downloadHtmlBtnText">📥 HTML 다운로드</span>
+                    <span id="downloadHtmlBtnText">📦 Offline 버전</span>
                 </button>
                 <button id="downloadExcelBtn" onclick="downloadExcel()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="downloadExcelBtnText">📗 Excel 다운로드</span>
@@ -9776,44 +9776,43 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
 
-        // HTML 대시보드 다운로드 함수
+        // HTML 대시보드 다운로드 함수 (Self-Contained Offline Version)
         function downloadDashboard() {{
-            // 경고 메시지: 로컬에서 작동하지 않음을 명시
-            const warningMessages = {{
-                'ko': '⚠️ 중요 안내\\n\\n다운로드된 HTML 파일은 로컬 파일 시스템에서 열 수 없습니다.\\n(ERR_FILE_NOT_FOUND 오류 발생)\\n\\n이 대시보드는 웹 전용입니다:\\nhttps://moonkaicuzui.github.io/qip-dashboard/\\n\\n그래도 다운로드하시겠습니까?',
-                'en': '⚠️ Important Notice\\n\\nThe downloaded HTML file cannot be opened from local file system.\\n(ERR_FILE_NOT_FOUND error will occur)\\n\\nThis dashboard is web-only:\\nhttps://moonkaicuzui.github.io/qip-dashboard/\\n\\nDo you still want to download?',
-                'vi': '⚠️ Thông báo quan trọng\\n\\nTệp HTML đã tải xuống không thể mở từ hệ thống tệp cục bộ.\\n(Lỗi ERR_FILE_NOT_FOUND sẽ xảy ra)\\n\\nBảng điều khiển này chỉ dành cho web:\\nhttps://moonkaicuzui.github.io/qip-dashboard/\\n\\nBạn vẫn muốn tải xuống?'
+            const currentYear = '{year}';
+            const currentMonth = '{str(month_num).zfill(2)}';
+            const filename = `Incentive_Dashboard_${{currentYear}}_${{currentMonth}}_Version_9.0_SelfContained.html`;
+
+            // 안내 메시지
+            const infoMessages = {{
+                'ko': '📦 Offline 버전 다운로드\\n\\n✅ 인터넷 없이 작동\\n✅ 비밀번호 불필요\\n✅ 더블클릭으로 바로 열림\\n❌ Excel 다운로드 기능 없음\\n\\n다운로드하시겠습니까?',
+                'en': '📦 Download Offline Version\\n\\n✅ Works without internet\\n✅ No password required\\n✅ Double-click to open\\n❌ Excel download not available\\n\\nDo you want to download?',
+                'vi': '📦 Tải phiên bản ngoại tuyến\\n\\n✅ Hoạt động không cần internet\\n✅ Không cần mật khẩu\\n✅ Nhấp đúp để mở\\n❌ Không có tải xuống Excel\\n\\nBạn có muốn tải xuống không?'
             }};
 
             // 사용자 확인
-            if (!confirm(warningMessages[currentLanguage] || warningMessages['ko'])) {{
+            if (!confirm(infoMessages[currentLanguage] || infoMessages['ko'])) {{
                 return; // 취소 시 다운로드 중단
             }}
 
-            const currentYear = '{year}';
-            const currentMonth = '{str(month_num).zfill(2)}';
-            const filename = `Incentive_Dashboard_${{currentYear}}_${{currentMonth}}_Version_9.0.html`;
-
-            // 현재 페이지의 HTML을 Blob으로 생성
-            const htmlContent = document.documentElement.outerHTML;
-            const blob = new Blob([htmlContent], {{ type: 'text/html;charset=utf-8' }});
-
-            // 다운로드 링크 생성 및 클릭
+            // Self-Contained 파일 경로 (GitHub Pages에서 다운로드)
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
+            link.href = filename;  // Same directory as current page
             link.download = filename;
+            link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
 
             // 다운로드 확인 메시지
-            const messages = {{
-                'ko': '✅ HTML 파일이 다운로드되었습니다.\\n\\n⚠️ 주의: 로컬에서 열지 마시고, 웹 URL을 사용하세요.',
-                'en': '✅ HTML file has been downloaded.\\n\\n⚠️ Note: Do not open locally, use web URL instead.',
-                'vi': '✅ Tệp HTML đã được tải xuống.\\n\\n⚠️ Lưu ý: Không mở tệp cục bộ, hãy sử dụng URL web.'
+            const successMessages = {{
+                'ko': '✅ Offline 버전이 다운로드되었습니다!\\n\\n📝 사용 방법:\\n1. 다운로드된 파일을 더블클릭\\n2. 브라우저에서 바로 열림\\n3. 비밀번호 입력 불필요\\n\\n💡 파일을 다른 사람에게 공유할 수 있습니다.',
+                'en': '✅ Offline version downloaded!\\n\\n📝 How to use:\\n1. Double-click the downloaded file\\n2. Opens directly in browser\\n3. No password needed\\n\\n💡 You can share this file with others.',
+                'vi': '✅ Đã tải xuống phiên bản ngoại tuyến!\\n\\n📝 Cách sử dụng:\\n1. Nhấp đúp vào tệp đã tải xuống\\n2. Mở trực tiếp trong trình duyệt\\n3. Không cần mật khẩu\\n\\n💡 Bạn có thể chia sẻ tệp này với người khác.'
             }};
-            alert(messages[currentLanguage] || messages['ko']);
+
+            setTimeout(() => {{
+                alert(successMessages[currentLanguage] || successMessages['ko']);
+            }}, 500);
         }}
 
         // CSV download function removed per user request (2025-11-19)
@@ -10158,9 +10157,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const downloadHtmlBtnText = document.getElementById('downloadHtmlBtnText');
             if (downloadHtmlBtnText) {{
                 const htmlTexts = {{
-                    'ko': '📥 HTML 다운로드',
-                    'en': '📥 Download HTML',
-                    'vi': '📥 Tải HTML'
+                    'ko': '📦 Offline 버전',
+                    'en': '📦 Offline Version',
+                    'vi': '📦 Phiên bản ngoại tuyến'
                 }};
                 downloadHtmlBtnText.textContent = htmlTexts[currentLanguage] || htmlTexts['ko'];
             }}
