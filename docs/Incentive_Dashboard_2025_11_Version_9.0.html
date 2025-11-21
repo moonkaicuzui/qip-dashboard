@@ -1787,7 +1787,17 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="november" data-month-name="11월">2025년 11월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="21" data-hour="17" data-minute="02">보고서 생성일: 2025년 11월 21일 17:02</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="21" data-hour="19" data-minute="32">보고서 생성일: 2025년 11월 21일 19:32</p>
+
+            <!-- 데이터 신선도 인디케이터 -->
+            <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; transition: all 0.3s ease;">
+                <span id="freshnessIcon" style="font-size: 1.3em;"></span>
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <span id="freshnessText" style="font-weight: 600;"></span>
+                    <span id="freshnessDetail" style="font-size: 0.85em; opacity: 0.9;"></span>
+                </div>
+            </div>
+
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="11" data-startday="01" data-endday="19">• 인센티브 데이터: 2025년 11월 01일 ~ 19일</p>
@@ -11595,6 +11605,7 @@
         function changeLanguage(lang) {
             currentLanguage = lang;
             updateAllTexts();
+            updateDataFreshness();  // 데이터 신선도 배지도 언어 변경 반영
             updateTypeSummaryTable();  // Typeby 요약 테이블도 업데이트
             localStorage.setItem('dashboardLanguage', lang);
         }
@@ -11694,6 +11705,94 @@
                 'vi': '✅ Tệp Excel đã được tải xuống.'
             };
             alert(messages[currentLanguage] || messages['ko']);
+        }
+
+        // 데이터 신선도 업데이트 함수
+        function updateDataFreshness() {
+            // Config의 last_updated 타임스탬프 (embedded in HTML during generation)
+            const configLastUpdated = '2025-11-21T12:54:38.600870'; // Format: "2025-11-21T12:54:38.600870"
+
+            if (!configLastUpdated || configLastUpdated === '') {
+                console.warn('Config last_updated timestamp not found');
+                return;
+            }
+
+            try {
+                const lastUpdate = new Date(configLastUpdated);
+                const now = new Date();
+                const minutesAgo = Math.floor((now - lastUpdate) / 60000);
+
+                const badge = document.getElementById('dataFreshnessBadge');
+                const icon = document.getElementById('freshnessIcon');
+                const text = document.getElementById('freshnessText');
+                const detail = document.getElementById('freshnessDetail');
+
+                if (!badge || !icon || !text || !detail) return;
+
+                // 언어별 텍스트
+                const texts = {
+                    ko: {
+                        fresh: '🟢 최신 데이터',
+                        moderate: '🟡 업데이트 권장',
+                        stale: '🔴 데이터 오래됨',
+                        lastUpdate: '마지막 업데이트',
+                        minutesAgo: '분 전',
+                        nextUpdate: '다음 자동 업데이트',
+                        minutes: '분 후'
+                    },
+                    en: {
+                        fresh: '🟢 Fresh Data',
+                        moderate: '🟡 Update Recommended',
+                        stale: '🔴 Data Outdated',
+                        lastUpdate: 'Last Update',
+                        minutesAgo: 'min ago',
+                        nextUpdate: 'Next Auto Update',
+                        minutes: 'min'
+                    },
+                    vi: {
+                        fresh: '🟢 Dữ liệu mới',
+                        moderate: '🟡 Nên cập nhật',
+                        stale: '🔴 Dữ liệu cũ',
+                        lastUpdate: 'Cập nhật cuối',
+                        minutesAgo: 'phút trước',
+                        nextUpdate: 'Tự động cập nhật tiếp',
+                        minutes: 'phút'
+                    }
+                };
+
+                const lang = currentLanguage || 'ko';
+                const t = texts[lang];
+
+                // 다음 자동 업데이트 시간 계산 (30분 주기)
+                const nextUpdateMinutes = 30 - (minutesAgo % 30);
+
+                // 색상 및 텍스트 결정
+                let bgColor, textColor, statusText;
+                if (minutesAgo < 20) {
+                    bgColor = 'rgba(40, 167, 69, 0.15)';
+                    textColor = '#28a745';
+                    statusText = t.fresh;
+                } else if (minutesAgo < 40) {
+                    bgColor = 'rgba(255, 193, 7, 0.15)';
+                    textColor = '#ffc107';
+                    statusText = t.moderate;
+                } else {
+                    bgColor = 'rgba(220, 53, 69, 0.15)';
+                    textColor = '#dc3545';
+                    statusText = t.stale;
+                }
+
+                // 스타일 및 내용 업데이트
+                badge.style.background = bgColor;
+                badge.style.border = `2px solid ${textColor}`;
+                badge.style.color = textColor;
+
+                text.textContent = statusText;
+                detail.textContent = `${t.lastUpdate}: ${minutesAgo}${t.minutesAgo} | ${t.nextUpdate}: ${nextUpdateMinutes}${t.minutes}`;
+
+            } catch (error) {
+                console.error('Error updating data freshness:', error);
+            }
         }
 
         // 모든 텍스트 업데이트 - 완전한 구현
@@ -20110,6 +20209,7 @@
                 generatePositionTables();
                 updatePositionFilter();
                 updateAllTexts();
+                updateDataFreshness();  // 데이터 신선도 업데이트
                 updateTalentPoolSection();
 
                 // Typeby 테이블 업데이트 시도
