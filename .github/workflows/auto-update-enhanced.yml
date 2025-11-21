@@ -2,8 +2,8 @@ name: 🔄 Enhanced Auto Update Dashboard with Config Sync
 
 on:
   schedule:
-    # 매시간 실행 (한국 시간 기준 조정 필요)
-    - cron: '0 * * * *'
+    # 30분마다 실행 (데이터 신선도 개선)
+    - cron: '*/30 * * * *'
 
   # 수동 실행 가능
   workflow_dispatch:

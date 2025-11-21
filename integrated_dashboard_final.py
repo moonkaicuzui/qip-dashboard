@@ -717,7 +717,7 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
     pass
 '''
 
-def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None):
+def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None, config_last_updated=""):
     """dashboard_version4.html과 완전히 동th한 dashboard creation - Excel data based"""
 
     # Load progression table from JSON (Single Source of Truth)
@@ -6418,6 +6418,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="{year}" data-month="{month}" data-month-name="{get_korean_month(month)}">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
+
+            <!-- 데이터 신선도 인디케이터 -->
+            <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; transition: all 0.3s ease;">
+                <span id="freshnessIcon" style="font-size: 1.3em;"></span>
+                <div style="display: flex; flex-direction: column; gap: 3px;">
+                    <span id="freshnessText" style="font-weight: 600;"></span>
+                    <span id="freshnessDetail" style="font-size: 0.85em; opacity: 0.9;"></span>
+                </div>
+            </div>
+
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{incentive_start_str}" data-endday="{incentive_end_str}">• 인센티브 데이터: {year}년 {month_num:02d}월 {incentive_start_str}일 ~ {incentive_end_str}일</p>
@@ -9750,6 +9760,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function changeLanguage(lang) {{
             currentLanguage = lang;
             updateAllTexts();
+            updateDataFreshness();  // 데이터 신선도 배지도 언어 변경 반영
             updateTypeSummaryTable();  // Typeby 요약 테이블도 업데이트
             localStorage.setItem('dashboardLanguage', lang);
         }}
@@ -9849,6 +9860,94 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 'vi': '✅ Tệp Excel đã được tải xuống.'
             }};
             alert(messages[currentLanguage] || messages['ko']);
+        }}
+
+        // 데이터 신선도 업데이트 함수
+        function updateDataFreshness() {{
+            // Config의 last_updated 타임스탬프 (embedded in HTML during generation)
+            const configLastUpdated = '{config_last_updated}'; // Format: "2025-11-21T12:54:38.600870"
+
+            if (!configLastUpdated || configLastUpdated === '') {{
+                console.warn('Config last_updated timestamp not found');
+                return;
+            }}
+
+            try {{
+                const lastUpdate = new Date(configLastUpdated);
+                const now = new Date();
+                const minutesAgo = Math.floor((now - lastUpdate) / 60000);
+
+                const badge = document.getElementById('dataFreshnessBadge');
+                const icon = document.getElementById('freshnessIcon');
+                const text = document.getElementById('freshnessText');
+                const detail = document.getElementById('freshnessDetail');
+
+                if (!badge || !icon || !text || !detail) return;
+
+                // 언어별 텍스트
+                const texts = {{
+                    ko: {{
+                        fresh: '🟢 최신 데이터',
+                        moderate: '🟡 업데이트 권장',
+                        stale: '🔴 데이터 오래됨',
+                        lastUpdate: '마지막 업데이트',
+                        minutesAgo: '분 전',
+                        nextUpdate: '다음 자동 업데이트',
+                        minutes: '분 후'
+                    }},
+                    en: {{
+                        fresh: '🟢 Fresh Data',
+                        moderate: '🟡 Update Recommended',
+                        stale: '🔴 Data Outdated',
+                        lastUpdate: 'Last Update',
+                        minutesAgo: 'min ago',
+                        nextUpdate: 'Next Auto Update',
+                        minutes: 'min'
+                    }},
+                    vi: {{
+                        fresh: '🟢 Dữ liệu mới',
+                        moderate: '🟡 Nên cập nhật',
+                        stale: '🔴 Dữ liệu cũ',
+                        lastUpdate: 'Cập nhật cuối',
+                        minutesAgo: 'phút trước',
+                        nextUpdate: 'Tự động cập nhật tiếp',
+                        minutes: 'phút'
+                    }}
+                }};
+
+                const lang = currentLanguage || 'ko';
+                const t = texts[lang];
+
+                // 다음 자동 업데이트 시간 계산 (30분 주기)
+                const nextUpdateMinutes = 30 - (minutesAgo % 30);
+
+                // 색상 및 텍스트 결정
+                let bgColor, textColor, statusText;
+                if (minutesAgo < 20) {{
+                    bgColor = 'rgba(40, 167, 69, 0.15)';
+                    textColor = '#28a745';
+                    statusText = t.fresh;
+                }} else if (minutesAgo < 40) {{
+                    bgColor = 'rgba(255, 193, 7, 0.15)';
+                    textColor = '#ffc107';
+                    statusText = t.moderate;
+                }} else {{
+                    bgColor = 'rgba(220, 53, 69, 0.15)';
+                    textColor = '#dc3545';
+                    statusText = t.stale;
+                }}
+
+                // 스타일 및 내용 업데이트
+                badge.style.background = bgColor;
+                badge.style.border = `2px solid ${{textColor}}`;
+                badge.style.color = textColor;
+
+                text.textContent = statusText;
+                detail.textContent = `${{t.lastUpdate}}: ${{minutesAgo}}${{t.minutesAgo}} | ${{t.nextUpdate}}: ${{nextUpdateMinutes}}${{t.minutes}}`;
+
+            }} catch (error) {{
+                console.error('Error updating data freshness:', error);
+            }}
         }}
 
         // 모든 텍스트 업데이트 - 완전한 구현
@@ -14978,6 +15077,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 generatePositionTables();
                 updatePositionFilter();
                 updateAllTexts();
+                updateDataFreshness();  // 데이터 신선도 업데이트
                 updateTalentPoolSection();
 
                 // Typeby 테이블 업데이트 시도
@@ -16688,12 +16788,15 @@ def main():
             import json
             config_path = f'config_files/config_{month_name}_{args.year}.json'
             attendance_file_path = None
+            config_last_updated = ""  # 데이터 신선도 표시용
             if os.path.exists(config_path):
                 with open(config_path, 'r', encoding='utf-8') as f:
                     config_data = json.load(f)
                     working_days = config_data.get('working_days', 22)
                     attendance_file_path = config_data.get('file_paths', {}).get('attendance', None)
+                    config_last_updated = config_data.get('last_updated', config_data.get('working_days_updated_at', ""))
                     print(f"📊 actual total 근무일count (Config based): {working_days}th")
+                    print(f"🕐 Config last updated: {config_last_updated}")
             else:
                 working_days = 22  # attendance data에서 calculation된 actual 값
                 print(f"📊 actual total 근무일count (default value): {working_days}th")
@@ -16790,7 +16893,7 @@ def main():
     # dashboard creation - Excel data를 전달
     # df_csv를 사용 (최신 데이터)
     dashboard_df = df_csv if 'df_csv' in locals() else df
-    html_content = generate_dashboard_html(dashboard_df, month_name, args.year, args.month, working_days, excel_dashboard_data)
+    html_content = generate_dashboard_html(dashboard_df, month_name, args.year, args.month, working_days, excel_dashboard_data, config_last_updated)
 
     # file 저장
     # file직원 형식 변경: Incentive_Dashboard_YYYY_MM_Version_9.0.html
