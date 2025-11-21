@@ -1787,7 +1787,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="november" data-month-name="11월">2025년 11월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="20" data-hour="07" data-minute="07">보고서 생성일: 2025년 11월 20일 07:07</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="11" data-day="21" data-hour="12" data-minute="16">보고서 생성일: 2025년 11월 21일 12:16</p>
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
                 <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="11" data-startday="01" data-endday="15">• 인센티브 데이터: 2025년 11월 01일 ~ 15일</p>
@@ -1810,7 +1810,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 20일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 21일</span>
             </div>
         </div>
 
@@ -11623,6 +11623,18 @@
 
         // HTML 대시보드 다운로드 함수
         function downloadDashboard() {
+            // 경고 메시지: 로컬에서 작동하지 않음을 명시
+            const warningMessages = {
+                'ko': '⚠️ 중요 안내\n\n다운로드된 HTML 파일은 로컬 파일 시스템에서 열 수 없습니다.\n(ERR_FILE_NOT_FOUND 오류 발생)\n\n이 대시보드는 웹 전용입니다:\nhttps://moonkaicuzui.github.io/qip-dashboard/\n\n그래도 다운로드하시겠습니까?',
+                'en': '⚠️ Important Notice\n\nThe downloaded HTML file cannot be opened from local file system.\n(ERR_FILE_NOT_FOUND error will occur)\n\nThis dashboard is web-only:\nhttps://moonkaicuzui.github.io/qip-dashboard/\n\nDo you still want to download?',
+                'vi': '⚠️ Thông báo quan trọng\n\nTệp HTML đã tải xuống không thể mở từ hệ thống tệp cục bộ.\n(Lỗi ERR_FILE_NOT_FOUND sẽ xảy ra)\n\nBảng điều khiển này chỉ dành cho web:\nhttps://moonkaicuzui.github.io/qip-dashboard/\n\nBạn vẫn muốn tải xuống?'
+            };
+
+            // 사용자 확인
+            if (!confirm(warningMessages[currentLanguage] || warningMessages['ko'])) {
+                return; // 취소 시 다운로드 중단
+            }
+
             const currentYear = '2025';
             const currentMonth = '11';
             const filename = `Incentive_Dashboard_${currentYear}_${currentMonth}_Version_9.0.html`;
@@ -11642,9 +11654,9 @@
 
             // 다운로드 확인 메시지
             const messages = {
-                'ko': '✅ HTML 파일이 다운로드되었습니다.',
-                'en': '✅ HTML file has been downloaded.',
-                'vi': '✅ Tệp HTML đã được tải xuống.'
+                'ko': '✅ HTML 파일이 다운로드되었습니다.\n\n⚠️ 주의: 로컬에서 열지 마시고, 웹 URL을 사용하세요.',
+                'en': '✅ HTML file has been downloaded.\n\n⚠️ Note: Do not open locally, use web URL instead.',
+                'vi': '✅ Tệp HTML đã được tải xuống.\n\n⚠️ Lưu ý: Không mở tệp cục bộ, hãy sử dụng URL web.'
             };
             alert(messages[currentLanguage] || messages['ko']);
         }
@@ -11938,9 +11950,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '20th' :
-                               currentLanguage === 'en' ? 'Day 20' :
-                               'Ngày 20';
+                const dayText = currentLanguage === 'ko' ? '21th' :
+                               currentLanguage === 'en' ? 'Day 21' :
+                               'Ngày 21';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;

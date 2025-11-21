@@ -794,6 +794,33 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - Should have: Nov 1, 3-8, 10-15 (13 unique dates)
    - **Status**: **GITHUB ACTIONS AUTH ISSUE** - requires service account fix
 
+18. **HTML Download Local File Error** (FIXED: 2025-11-21):
+   - **Problem**: Users download HTML file from dashboard but cannot open locally
+     - Error: `ERR_FILE_NOT_FOUND` when opening `file:///C:/Users/ASUS/Downloads/auth.html`
+     - Expected behavior unclear - users assume downloaded HTML should work offline
+   - **User Impact**: Confusion about why downloaded file doesn't work
+   - **Root Cause**: Project is **GitHub Pages web-only application**
+     - Dashboard designed for web server environment (`https://` URLs)
+     - Local file system (`file://` URLs) lacks web server capabilities
+     - Resources and paths depend on web server structure
+   - **Solution**: Added confirmation warning before HTML download
+     - Lines 9781-9791: Multi-language warning dialog before download
+       - Korean: "다운로드된 HTML 파일은 로컬 파일 시스템에서 열 수 없습니다"
+       - English: "The downloaded HTML file cannot be opened from local file system"
+       - Vietnamese: "Tệp HTML đã tải xuống không thể mở từ hệ thống tệp cục bộ"
+     - Warning includes production web URL: `https://moonkaicuzui.github.io/qip-dashboard/`
+     - User must confirm to proceed with download
+     - Lines 9811-9816: Post-download reminder to use web URL instead
+   - **Verification**:
+     1. Click HTML download button → warning dialog appears
+     2. Warning explains ERR_FILE_NOT_FOUND will occur locally
+     3. Warning provides web URL for proper access
+     4. User can cancel or proceed after confirmation
+   - **Implementation**: `integrated_dashboard_final.py:9781-9816`
+   - **Commit**: [to be committed]
+   - **Prevention**: Always warn users when downloaded files won't work as expected
+   - **Related**: See "Web-First Deployment Architecture" (CLAUDE.md Lines 79-107)
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
