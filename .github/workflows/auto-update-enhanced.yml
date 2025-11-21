@@ -1,0 +1,240 @@
+name: 🔄 Enhanced Auto Update Dashboard with Config Sync
+
+on:
+  schedule:
+    # 매시간 실행 (한국 시간 기준 조정 필요)
+    - cron: '0 * * * *'
+
+  # 수동 실행 가능
+  workflow_dispatch:
+
+  # main 브랜치 푸시시 실행
+  push:
+    branches: [ main ]
+    paths:
+      - 'integrated_dashboard_final.py'
+      - 'scripts/enhanced_download_with_config.py'
+      - '.github/workflows/auto-update-enhanced.yml'
+
+# GitHub Actions에 write 권한 부여
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 저장소 체크아웃
+    - uses: actions/checkout@v3
+      with:
+        persist-credentials: true
+        fetch-depth: 0
+
+    # 2. Python 설정
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    # 3. 캐시 설정 (빠른 실행)
+    - name: 📦 Cache pip packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    # 4. 의존성 설치
+    - name: 📚 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas numpy openpyxl google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client beautifulsoup4
+
+    # 5. 🆕 통합 다운로드 + Config 자동 업데이트
+    - name: 📥 Download from Google Drive + Auto Update Config
+      env:
+        GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+        GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+      run: |
+        echo "====================================="
+        echo "🚀 통합 자동화 시스템 실행"
+        echo "====================================="
+        echo ""
+        echo "1. Google Drive에서 최신 데이터 다운로드"
+        echo "2. Config 파일 자동 업데이트 (실제 파일 경로 반영)"
+        echo "3. Working days 자동 계산 및 업데이트"
+        echo ""
+        python scripts/enhanced_download_with_config.py
+
+        # Config 파일 변경사항 확인
+        echo ""
+        echo "📋 Config 파일 변경사항:"
+        git diff config_files/*.json || true
+
+    # 6. Attendance 데이터 변환 (CRITICAL!)
+    - name: 🔄 Convert Attendance Data
+      run: |
+        echo "Converting attendance data to processed format..."
+        python src/convert_attendance_data.py
+
+    # 7. 인센티브 자동 계산
+    - name: 💰 Calculate Incentives
+      run: |
+        echo "Calculating incentives for all months..."
+        python scripts/auto_calculate_incentives.py
+
+    # 8. 자동 검증 실행
+    - name: 🔍 Auto Validation
+      run: |
+        echo "Validating calculated incentives..."
+        python scripts/auto_validation.py
+      continue-on-error: false
+
+    # 9. 대시보드 HTML 생성
+    - name: 🎨 Generate Dashboard HTML
+      run: |
+        echo "Generating dashboard for all available months..."
+        python scripts/generate_dashboard_for_pages.py
+
+    # 10. GitHub Pages 디렉토리 준비
+    - name: 📂 Prepare GitHub Pages directory
+      run: |
+        # docs 폴더 생성 (GitHub Pages용)
+        mkdir -p docs
+
+        # HTML 파일 복사
+        cp output_files/*.html docs/ 2>/dev/null || true
+
+        # CSV/Excel 파일 복사 (다운로드용)
+        cp output_files/*.csv docs/ 2>/dev/null || true
+        cp output_files/*.xlsx docs/ 2>/dev/null || true
+
+        # index.html 생성 (월 선택 페이지로 리다이렉트)
+        echo "<!DOCTYPE html>
+        <html lang=\"ko\">
+        <head>
+            <meta charset='UTF-8'>
+            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+            <meta http-equiv='refresh' content='0; url=selector.html'>
+            <title>QIP 인센티브 대시보드</title>
+            <style>
+                body {
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                }
+                .loading {
+                    text-align: center;
+                }
+                .spinner {
+                    border: 4px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    border-top: 4px solid white;
+                    width: 40px;
+                    height: 40px;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 20px;
+                }
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        </head>
+        <body>
+            <div class=\"loading\">
+                <div class=\"spinner\"></div>
+                <h2>QIP 인센티브 대시보드</h2>
+                <p>월 선택 페이지로 이동 중...</p>
+            </div>
+        </body>
+        </html>" > docs/index.html
+
+        # 월 선택 페이지 생성
+        python scripts/create_month_selector.py
+
+    # 11. 변경사항 커밋 및 푸시
+    - name: 📤 Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+        # 변경사항 체크
+        if [[ -n $(git status -s) ]]; then
+          # Stash any unstaged changes before pull
+          echo "Stashing unstaged changes..."
+          git stash --include-untracked || true
+
+          # Add files we want to commit
+          git add config_files/*.json 2>/dev/null || true
+          git add docs/*.html 2>/dev/null || true
+          git add docs/*.csv 2>/dev/null || true
+          git add docs/*.xlsx 2>/dev/null || true
+          git add output_files/*.csv 2>/dev/null || true
+          git add output_files/*.xlsx 2>/dev/null || true
+
+          # Commit changes
+          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+          git commit -m "🔄 Auto update dashboard + config sync from Google Drive $TIMESTAMP
+
+          - Google Drive 데이터 자동 다운로드
+          - Config 파일 자동 업데이트 (실제 파일 경로 반영)
+          - Working days 자동 계산 및 업데이트
+          - 인센티브 계산 및 대시보드 생성" || {
+            echo "⚠️ Nothing to commit, unstashing..."
+            git stash pop || true
+            exit 0
+          }
+
+          # Pull latest changes with rebase before pushing
+          echo "Pulling latest changes from remote..."
+          git pull --rebase origin main || {
+            echo "⚠️ Rebase failed, aborting and retrying with merge..."
+            git rebase --abort || true
+            git pull origin main --no-rebase || true
+          }
+
+          # Push changes
+          git push || {
+            echo "❌ Push failed, manual intervention required"
+            exit 1
+          }
+
+          # Restore stashed changes
+          git stash pop || true
+
+          echo "✅ Dashboard and config updated successfully!"
+        else
+          echo "ℹ️ No changes detected"
+        fi
+
+    # 12. 성공 알림
+    - name: 🎉 Success Notification
+      run: |
+        echo "=================================="
+        echo "✅ 자동화 완료!"
+        echo "=================================="
+        echo ""
+        echo "📊 업데이트된 항목:"
+        echo "  - Google Drive 데이터 동기화"
+        echo "  - Config 파일 자동 업데이트"
+        echo "  - Working days 계산 및 반영"
+        echo "  - 인센티브 계산"
+        echo "  - 대시보드 생성"
+        echo ""
+        echo "🌐 대시보드 URL:"
+        echo "https://moonkaicuzui.github.io/qip-dashboard/"
+        echo ""
+        echo "📝 Config 파일들:"
+        ls -la config_files/config_*.json | tail -5
+        echo ""
+        echo "⏰ 다음 실행: 1시간 후"
