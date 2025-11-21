@@ -1,7 +1,7 @@
 {
   "year": 2025,
   "month": "november",
-  "working_days": 13,
+  "working_days": 16,
   "previous_months": [
     "september",
     "october"
@@ -17,5 +17,6 @@
   "created_at": "2025-11-10T07:24:39.438633",
   "data_source": "google_drive",
   "working_days_source": "attendance_data",
-  "working_days_updated_at": "2025-11-19T20:20:32.601345"
+  "working_days_updated_at": "2025-11-21T12:54:38.600859",
+  "last_updated": "2025-11-21T12:54:38.600870"
 }

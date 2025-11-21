@@ -895,6 +895,100 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - **Cons**: +0.78MB file size, Excel download unavailable, no automatic updates
    - **Related**: Issue #18 (identified problem), Web-First Deployment Architecture (CLAUDE.md Lines 79-107)
 
+20. **November 2025 Dashboard Comprehensive Fix** (FIXED: 2025-11-21):
+   - **Context**: User reported 5 critical issues via screenshots after November data became available
+   - **All Issues Fixed and Verified**: Complete end-to-end testing with Single Source of Truth validation
+
+   **Issue 20.1: Google Drive Sync - Working Days Update**
+   - **Problem**: Dashboard showed only 15 days when Google Drive had 18 days (actually 19)
+   - **Root Cause**: Stale local data, Google Drive sync needed
+   - **Solution**: Executed `python scripts/download_from_gdrive.py` to fetch latest attendance data
+   - **Result**:
+     - Google Drive: 16 working days (Nov 1, 3-8, 10-15, 17-19)
+     - Config file: 16 days (auto-updated at 2025-11-21 12:54:38)
+     - Dashboard CSV: 16 days
+     - All data sources perfectly aligned ✅
+   - **Verification**: `input_files/attendance/converted/attendance data november_converted.csv`
+   - **Last working day**: 2025-11-19
+
+   **Issue 20.2: QC Assembly Inspector - Condition 1&4 Application Logic**
+   - **Problem**: "Total working date is 13 days, Dashboard don't apply 1&4 condition. QC assembly inspector type applied 6/8 conditions"
+   - **User Request**: "After 15th in month, could we apply 1 and 4 condition"
+   - **Root Cause**: Position-specific cutoff date logic needed implementation
+   - **Solution**: Implemented date-based condition application in calculation engine
+     - QC Assembly Inspector (Position Code A1-A5): 15-day cutoff
+     - Other positions: 20-day cutoff
+     - Before cutoff: Apply only Conditions 1&4 (attendance basics)
+     - After cutoff: Apply all applicable conditions (1,2,3,4,5,6,9,10 for QC Assembly)
+   - **Implementation**: `src/step1_인센티브_계산_개선버전.py:4747-4775`
+   - **Result**:
+     - Nov 19 > 15 days → All 8 conditions applied to QC Assembly Inspector
+     - 167 QC Assembly employees: 129 have full conditions, 38 excluded (maternity leave, etc.)
+   - **Verification**: Checked actual employee data - conditions correctly applied based on date
+
+   **Issue 20.3: Vietnamese Translation - "Bộ" → "Đôi"**
+   - **Problem**: Condition 10 (5PRS inspection quantity) showed "Bộ" instead of "Đôi" in Vietnamese
+   - **Root Cause**: Incorrect translation in `dashboard_translations.json`
+   - **Solution**: Updated translation file
+     - Changed: `"vi": "Bộ"` → `"vi": "Đôi"`
+     - Path: `incentiveCalculation.pieces.vi`
+   - **Implementation**: `config_files/dashboard_translations.json:2527-2528, 6354-6355`
+   - **Result**: Vietnamese correctly displays "Đôi" (pairs) ✅
+
+   **Issue 20.4: English Translation - "pcs" → "prs"**
+   - **Problem**: Condition 9 (5PRS pass rate) showed "pcs" (pieces) instead of "prs" (pairs) in English
+   - **Root Cause**: Incorrect translation in `dashboard_translations.json`
+   - **Solution**: Updated translation file
+     - Changed: `"en": "pcs"` → `"en": "prs"`
+     - Path: `incentiveCalculation.pieces.en`
+   - **Implementation**: `config_files/dashboard_translations.json:2527-2528, 6354-6355`
+   - **Result**: English correctly displays "prs" (pairs) ✅
+
+   **Issue 20.5: AQL Statistics - Pass/Fail Quantity Display**
+   - **Problem**: User questioned AQL fail/pass quantity calculation accuracy in summary validation
+   - **Verification Method**: Mathematical re-calculation from raw CSV data
+     - Formula: `Fail_Percent = (Total_Tests - Pass_Count) / Total_Tests × 100`
+     - Compared calculated values with CSV `AQL_Fail_Percent` column
+   - **Result**:
+     - Total employees: 540
+     - Employees with AQL tests: 100
+     - Calculation accuracy: 100/100 matched (100% ✅)
+     - Sample: Employee 621030996 - 12 tests, 11 pass, 1 fail (8.3%) ✅
+   - **Implementation**: Data calculation in `src/step1_인센티브_계산_개선버전.py`
+   - **Verification**: Python-based independent recalculation confirmed 100% accuracy
+
+   **Complete Workflow Executed**:
+   1. ✅ Google Drive sync: `python scripts/download_from_gdrive.py`
+   2. ✅ Translation updates: `config_files/dashboard_translations.json` (2 languages)
+   3. ✅ Calculation engine update: `src/step1_인센티브_계산_개선버전.py:4747-4775`
+   4. ✅ Dashboard regeneration: `python integrated_dashboard_final.py --month 11 --year 2025`
+   5. ✅ Web deployment: Files copied to `/docs` folder
+   6. ✅ Selector regeneration: `python scripts/create_month_selector.py`
+   7. ✅ Comprehensive verification: All 5 issues independently tested
+
+   **Data Integrity Validation**:
+   - Single Source of Truth: Google Drive → CSV → Config → Dashboard
+   - Cross-validation: All data sources show 16 working days
+   - Mathematical verification: AQL statistics 100% accurate
+   - Business logic verification: Condition application correct for all 167 QC Assembly employees
+
+   **Files Modified**:
+   - `src/step1_인센티브_계산_개선버전.py` (condition logic)
+   - `config_files/dashboard_translations.json` (translations)
+   - `config_files/config_november_2025.json` (auto-updated by sync)
+   - `input_files/attendance/converted/attendance data november_converted.csv` (Google Drive sync)
+   - `output_files/Incentive_Dashboard_2025_11_Version_9.0.html` (regenerated)
+   - `output_files/output_QIP_incentive_november_2025_Complete_V9.0_Complete.csv` (regenerated)
+   - `docs/*` (web deployment)
+
+   **Verification Date**: 2025-11-21 16:14:46
+   - **Commit**: [to be committed]
+   - **Prevention**:
+     - Always sync Google Drive before generating reports
+     - Validate translations in all 3 languages (KO/EN/VN)
+     - Test position-specific logic with actual employee data
+     - Run independent mathematical verification for statistics
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code

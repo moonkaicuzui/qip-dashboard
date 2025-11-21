@@ -2524,8 +2524,8 @@
     },
     "pieces": {
       "ko": "족",
-      "en": "pcs",
-      "vi": "đôi"
+      "en": "prs",
+      "vi": "Đôi"
     },
     "cases": {
       "ko": "건",
@@ -6351,8 +6351,8 @@
     },
     "unitPcs": {
       "ko": "족",
-      "en": "pcs",
-      "vi": "đôi"
+      "en": "prs",
+      "vi": "Đôi"
     }
   },
   "organizationChart": {
