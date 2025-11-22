@@ -8,7 +8,7 @@
   ],
   "file_paths": {
     "basic_manpower": "input_files/basic manpower data october.csv",
-    "attendance": "input_files/attendance/converted/attendance data october_converted.csv",
+    "attendance": "input_files/attendance/original/attendance data october.csv",
     "5prs": "input_files/5prs data october.csv",
     "aql_current": "input_files/AQL history/1.HSRG AQL REPORT-OCTOBER.2025.csv",
     "previous_incentive": "output_files/output_QIP_incentive_september_2025_Complete_V9.0_Complete.csv"
@@ -17,6 +17,6 @@
   "created_at": "2025-10-06T12:29:59.545881",
   "data_source": "google_drive",
   "working_days_source": "attendance_data",
-  "working_days_updated_at": "2025-11-21T12:54:38.611093",
-  "last_updated": "2025-11-21T12:54:38.611104"
+  "working_days_updated_at": "2025-11-22T00:53:07.979267",
+  "last_updated": "2025-11-22T00:53:07.979284"
 }
