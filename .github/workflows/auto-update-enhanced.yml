@@ -170,11 +170,10 @@ jobs:
 
         # 변경사항 체크
         if [[ -n $(git status -s) ]]; then
-          # Stash any unstaged changes before pull
-          echo "Stashing unstaged changes..."
-          git stash --include-untracked || true
+          echo "📝 변경사항 발견, 커밋 준비 중..."
 
-          # Add files we want to commit
+          # Add files we want to commit FIRST (before any stash)
+          echo "📦 파일 추가 중..."
           git add config_files/*.json 2>/dev/null || true
           git add docs/*.html 2>/dev/null || true
           git add docs/*.csv 2>/dev/null || true
@@ -182,37 +181,41 @@ jobs:
           git add output_files/*.csv 2>/dev/null || true
           git add output_files/*.xlsx 2>/dev/null || true
 
-          # Commit changes
-          TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-          git commit -m "🔄 Auto update dashboard + config sync from Google Drive $TIMESTAMP
+          # Check if there are staged changes
+          if [[ -n $(git diff --cached --name-only) ]]; then
+            echo "✅ Staged files:"
+            git diff --cached --name-only
 
-          - Google Drive 데이터 자동 다운로드
-          - Config 파일 자동 업데이트 (실제 파일 경로 반영)
-          - Working days 자동 계산 및 업데이트
-          - 인센티브 계산 및 대시보드 생성" || {
-            echo "⚠️ Nothing to commit, unstashing..."
-            git stash pop || true
-            exit 0
-          }
+            # Pull latest changes before committing
+            echo "Pulling latest changes from remote..."
+            git pull --rebase origin main || {
+              echo "⚠️ Rebase failed, aborting and retrying with merge..."
+              git rebase --abort || true
+              git pull origin main --no-rebase || true
+            }
 
-          # Pull latest changes with rebase before pushing
-          echo "Pulling latest changes from remote..."
-          git pull --rebase origin main || {
-            echo "⚠️ Rebase failed, aborting and retrying with merge..."
-            git rebase --abort || true
-            git pull origin main --no-rebase || true
-          }
+            # Commit changes
+            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+            git commit -m "🔄 Auto update dashboard + config sync from Google Drive $TIMESTAMP
 
-          # Push changes
-          git push || {
-            echo "❌ Push failed, manual intervention required"
-            exit 1
-          }
+            - Google Drive 데이터 자동 다운로드
+            - Config 파일 자동 업데이트 (실제 파일 경로 반영)
+            - Working days 자동 계산 및 업데이트
+            - 인센티브 계산 및 대시보드 생성" || {
+              echo "⚠️ Commit failed"
+              exit 0
+            }
 
-          # Restore stashed changes
-          git stash pop || true
+            # Push changes
+            git push || {
+              echo "❌ Push failed, manual intervention required"
+              exit 1
+            }
 
-          echo "✅ Dashboard and config updated successfully!"
+            echo "✅ Dashboard and config updated successfully!"
+          else
+            echo "ℹ️ No files to commit after staging"
+          fi
         else
           echo "ℹ️ No changes detected"
         fi
