@@ -9756,13 +9756,43 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             updatePositionFilter();
         }}
         
-        // 언어 변경 함count
+        // 언어 변경 함수 - 모든 UI 요소 업데이트
         function changeLanguage(lang) {{
+            console.log('Language changed to:', lang);
+
+            // 전역 언어 변수 모두 업데이트
             currentLanguage = lang;
-            updateAllTexts();
-            updateDataFreshness();  // 데이터 신선도 배지도 언어 변경 반영
-            updateTypeSummaryTable();  // Typeby 요약 테이블도 업데이트
+            window.currentLanguage = lang;
+            if (typeof currentLang !== 'undefined') currentLang = lang;
+
+            // 저장 먼저 (페이지 새로고침 시 복원용)
             localStorage.setItem('dashboardLanguage', lang);
+
+            // 1. 모든 텍스트 업데이트 (헤더, 탭, 테이블 등)
+            updateAllTexts();
+
+            // 2. 데이터 신선도 배지 업데이트
+            updateDataFreshness();
+
+            // 3. TYPE 요약 테이블 업데이트
+            updateTypeSummaryTable();
+
+            // 4. Validation 탭 KPI 카드 업데이트
+            if (typeof updateValidationKPICards === 'function') {{
+                updateValidationKPICards();
+            }}
+
+            // 5. 직원 테이블 재생성 (상태 텍스트 번역)
+            if (typeof generateEmployeeTable === 'function') {{
+                generateEmployeeTable();
+            }}
+
+            // 6. 조직도 텍스트 업데이트
+            if (typeof updateOrgChartUIText === 'function') {{
+                updateOrgChartUIText();
+            }}
+
+            console.log('All UI elements updated for language:', lang);
         }}
         
         // dashboard 변경 함count
@@ -9960,6 +9990,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 모든 텍스트 업데이트 - 완전한 구현
         function updateAllTexts() {{
+            // === 1단계: data-i18n 속성을 가진 모든 요소 자동 업데이트 ===
+            document.querySelectorAll('[data-i18n]').forEach(element => {{
+                const key = element.getAttribute('data-i18n');
+                if (key) {{
+                    const translation = getTranslation(key, currentLanguage);
+                    if (translation && translation !== key) {{
+                        element.textContent = translation;
+                    }}
+                }}
+            }});
+
+            // data-i18n-title 속성 (툴팁) 업데이트
+            document.querySelectorAll('[data-i18n-title]').forEach(element => {{
+                const key = element.getAttribute('data-i18n-title');
+                if (key) {{
+                    const translation = getTranslation(key, currentLanguage);
+                    if (translation && translation !== key) {{
+                        element.setAttribute('title', translation);
+                    }}
+                }}
+            }});
+
+            // === 2단계: 개별 요소 업데이트 ===
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
