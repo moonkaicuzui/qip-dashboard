@@ -9777,17 +9777,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 3. TYPE 요약 테이블 업데이트
             updateTypeSummaryTable();
 
-            // 4. Validation 탭 KPI 카드 업데이트
-            if (typeof updateValidationKPICards === 'function') {{
-                updateValidationKPICards();
+            // 4. Validation 탭 KPI 카드 업데이트 (언어 단위 변경)
+            if (typeof updateValidationKPIs === 'function') {{
+                // isInterimReport 계산 (validation 탭에서 사용하는 것과 동일한 로직)
+                const totalWorkingDays = (window.excelDashboardData && window.excelDashboardData.attendance)
+                    ? window.excelDashboardData.attendance.total_working_days
+                    : {working_days};
+                const isInterim = totalWorkingDays < 20;
+                updateValidationKPIs(isInterim);
             }}
 
-            // 5. 직원 테이블 재생성 (상태 텍스트 번역)
+            // 5. Validation 탭 라벨 텍스트 업데이트
+            if (typeof updateValidationTexts === 'function') {{
+                updateValidationTexts();
+            }}
+
+            // 6. 직원 테이블 재생성 (상태 텍스트 번역)
             if (typeof generateEmployeeTable === 'function') {{
                 generateEmployeeTable();
             }}
 
-            // 6. 조직도 텍스트 업데이트
+            // 7. 조직도 텍스트 업데이트
             if (typeof updateOrgChartUIText === 'function') {{
                 updateOrgChartUIText();
             }}
