@@ -6420,11 +6420,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
 
             <!-- 데이터 신선도 인디케이터 -->
-            <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 10px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; transition: all 0.3s ease;">
-                <span id="freshnessIcon" style="font-size: 1.3em;"></span>
+            <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                <span id="freshnessIcon" style="font-size: 1.5em;"></span>
                 <div style="display: flex; flex-direction: column; gap: 3px;">
-                    <span id="freshnessText" style="font-weight: 600;"></span>
-                    <span id="freshnessDetail" style="font-size: 0.85em; opacity: 0.9;"></span>
+                    <span id="freshnessText" style="font-weight: 600; color: #333;"></span>
+                    <span id="freshnessDetail" style="font-size: 0.85em; color: #666;"></span>
                 </div>
             </div>
 
@@ -9921,29 +9921,37 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 다음 자동 업데이트 시간 계산 (30분 주기)
                 const nextUpdateMinutes = 30 - (minutesAgo % 30);
 
-                // 색상 및 텍스트 결정
-                let bgColor, textColor, statusText;
-                if (minutesAgo < 20) {{
-                    bgColor = 'rgba(40, 167, 69, 0.15)';
-                    textColor = '#28a745';
-                    statusText = t.fresh;
-                }} else if (minutesAgo < 40) {{
-                    bgColor = 'rgba(255, 193, 7, 0.15)';
-                    textColor = '#ffc107';
-                    statusText = t.moderate;
+                // 시간/분 단위 처리
+                let timeAgoText;
+                if (minutesAgo >= 60) {{
+                    const hoursAgo = Math.floor(minutesAgo / 60);
+                    const remainingMinutes = minutesAgo % 60;
+                    const hourUnit = currentLanguage === 'ko' ? '시간' : currentLanguage === 'vi' ? 'giờ' : 'hr';
+                    timeAgoText = remainingMinutes > 0
+                        ? `${{hoursAgo}}${{hourUnit}} ${{remainingMinutes}}${{t.minutesAgo}}`
+                        : `${{hoursAgo}}${{hourUnit}} ${{t.minutesAgo.replace('분 ', '').replace('min ', '').replace('phút ', '')}}`;
                 }} else {{
-                    bgColor = 'rgba(220, 53, 69, 0.15)';
-                    textColor = '#dc3545';
-                    statusText = t.stale;
+                    timeAgoText = `${{minutesAgo}}${{t.minutesAgo}}`;
                 }}
 
-                // 스타일 및 내용 업데이트
-                badge.style.background = bgColor;
-                badge.style.border = `2px solid ${{textColor}}`;
-                badge.style.color = textColor;
+                // 상태 텍스트 및 테두리 색상 결정
+                let statusText, borderColor;
+                if (minutesAgo < 20) {{
+                    statusText = t.fresh;
+                    borderColor = '#28a745';  // 초록
+                }} else if (minutesAgo < 40) {{
+                    statusText = t.moderate;
+                    borderColor = '#ffc107';  // 노랑
+                }} else {{
+                    statusText = t.stale;
+                    borderColor = '#dc3545';  // 빨강
+                }}
+
+                // 스타일 업데이트 (흰색 배경 유지, 테두리 색상만 변경)
+                badge.style.borderLeft = `4px solid ${{borderColor}}`;
 
                 text.textContent = statusText;
-                detail.textContent = `${{t.lastUpdate}}: ${{minutesAgo}}${{t.minutesAgo}} | ${{t.nextUpdate}}: ${{nextUpdateMinutes}}${{t.minutes}}`;
+                detail.textContent = `${{t.lastUpdate}}: ${{timeAgoText}} | ${{t.nextUpdate}}: ${{nextUpdateMinutes}}${{t.minutes}}`;
 
             }} catch (error) {{
                 console.error('Error updating data freshness:', error);
