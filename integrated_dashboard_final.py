@@ -1632,8 +1632,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         bVal = b['QIP POSITION 1ST NAME'] || '';  // Fixed: single space (normalized)
                         break;
                     case 'totalDays':
-                        aVal = a['Total Working Days'] || {working_days};
-                        bVal = b['Total Working Days'] || {working_days};
+                        aVal = a['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18);
+                        bVal = b['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18);
                         break;
                     case 'actualDays':
                         aVal = a['Actual Working Days'] || 0;
@@ -2479,8 +2479,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         bVal = parseFloat(b['Actual Working Days'] || b['actual_working_days'] || 0);
                         break;
                     case 'totalDays':
-                        aVal = parseFloat(a['Total Working Days'] || {working_days});
-                        bVal = parseFloat(b['Total Working Days'] || {working_days});
+                        aVal = parseFloat(a['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18));
+                        bVal = parseFloat(b['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18));
                         break;
                     case 'resignDate':
                         aVal = a['Stop working Date'] || '9999-12-31';
@@ -2506,7 +2506,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 let name = emp['Full Name'] || emp['name'];
                 const attendanceRate = parseFloat(emp['Attendance Rate'] || emp['출근율_Attendance_Rate_Percent'] || 0).toFixed(1);
                 const actualDays = parseFloat(emp['Actual Working Days'] || emp['actual_working_days'] || 0);
-                const totalDays = parseFloat(emp['Total Working Days'] || {working_days});
+                const totalDays = parseFloat(emp['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18));
 
                 // 조기 퇴사 확인 (해당 월 10일 이내 퇴사)
                 let earlyResignBadge = '';
@@ -4507,7 +4507,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }
 
                 // 언어별 단위 및 상태 텍스트
-                const qtyUnit = currentLanguage === 'ko' ? '족' : currentLanguage === 'en' ? ' prs' : ' bộ';
+                const qtyUnit = currentLanguage === 'ko' ? '족' : currentLanguage === 'en' ? ' prs' : ' đôi';
                 const statusText = inspectionQty < 100 ?
                     (currentLanguage === 'ko' ? '미충족' : currentLanguage === 'en' ? 'Not Met' : 'Không đạt') :
                     (currentLanguage === 'ko' ? '충족' : currentLanguage === 'en' ? 'Met' : 'Đạt');
@@ -9782,7 +9782,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // isInterimReport 계산 (validation 탭에서 사용하는 것과 동일한 로직)
                 const totalWorkingDays = (window.excelDashboardData && window.excelDashboardData.attendance)
                     ? window.excelDashboardData.attendance.total_working_days
-                    : {working_days};
+                    : 18;
                 const isInterim = totalWorkingDays < 20;
                 updateValidationKPIs(isInterim);
             }}
@@ -11489,7 +11489,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 1. total 근무일count - actual attendance data에서 계산 (NOT config값)
             const totalWorkingDays = (window.excelDashboardData && window.excelDashboardData.attendance)
                 ? window.excelDashboardData.attendance.total_working_days
-                : {working_days}; // Fallback: config값
+                : 18; // Fallback: default값
             document.getElementById('kpiTotalWorkingDays').textContent = totalWorkingDays + daysUnit;
 
             // 2. 무단결근 현황
@@ -11752,7 +11752,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     modalTitle = getTranslation('validationTab.modalTitles.totalWorkingDays', currentLanguage);
                     tableHeaders = ['날짜', '요th', 'work 인원count'];
                     // actual로는 thby data가 없으므로 total 근무일count만 표시
-                    const totalDays = employeeData[0]?.['Total Working Days'] || {working_days};
+                    const totalDays = employeeData[0]?.['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18);
                     tableData = [[
                         `{year}year {get_korean_month(month)}month`,
                         '-',
@@ -11829,7 +11829,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             emp['Employee No'],
                             emp['Full Name'],
                             emp['FINAL QIP POSITION NAME CODE'],
-                            emp['Total Working Days'] || {working_days},
+                            emp['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18),
                             emp['Actual Working Days'],
                             emp['attendancy condition 1 - acctual working days is zero'] || 'FAIL'
                         ]);
@@ -11851,7 +11851,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     if (isInterim) {{
                         tableData = []; // 중간보고 시 표시 안함
                     }} else {{
-                        const totalWorkingDays = parseFloat(employeeData[0]?.['Total Working Days'] || {working_days});
+                        const totalWorkingDays = parseFloat(employeeData[0]?.['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18));
                         const minDays = Math.ceil(totalWorkingDays / 2);
                         tableData = employeeData
                             .filter(emp => parseFloat(emp['Actual Working Days'] || 0) < minDays)
