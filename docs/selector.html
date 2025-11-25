@@ -274,6 +274,9 @@
         <div class="refresh-info">
             <p class="mb-0" data-i18n="refresh-info">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
             <small><span data-i18n="last-update">마지막 업데이트:</span> 2025-11-25 05:23:56</small>
+            <button onclick="triggerManualUpdate()" class="btn btn-light btn-sm mt-3" style="background: white; border: 2px solid #4A90E2; color: #4A90E2; font-weight: 600;">
+                🔄 <span data-i18n="manual-update">최신 데이터로 즉시 업데이트</span>
+            </button>
         </div>
 
         <!-- 월 선택 그리드 -->
@@ -383,6 +386,7 @@
                 'header-subtitle': '원하시는 월을 선택하세요',
                 'refresh-info': '🔄 Google Drive와 매시간 자동 동기화됩니다',
                 'last-update': '마지막 업데이트:',
+                'manual-update': '최신 데이터로 즉시 업데이트',
                 'view-btn': '보기 →',
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
@@ -400,6 +404,7 @@
                 'header-subtitle': 'Please select the month you want to view',
                 'refresh-info': '🔄 Automatically syncs with Google Drive every hour',
                 'last-update': 'Last updated:',
+                'manual-update': 'Update Now',
                 'view-btn': 'View →',
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 Works perfectly on mobile devices',
@@ -417,6 +422,7 @@
                 'header-subtitle': 'Vui lòng chọn tháng bạn muốn xem',
                 'refresh-info': '🔄 Tự động đồng bộ với Google Drive mỗi giờ',
                 'last-update': 'Cập nhật lần cuối:',
+                'manual-update': 'Cập nhật ngay',
                 'view-btn': 'Xem →',
                 'badge-new': 'MỚI',
                 'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
@@ -512,6 +518,32 @@
                 card.style.border = '3px solid #ef4444';
             }
         });
+
+        // 수동 업데이트 트리거 함수
+        function triggerManualUpdate() {
+            const lang = localStorage.getItem('preferredLanguage') || 'ko';
+            const messages = {
+                ko: {
+                    confirm: 'GitHub Actions 페이지로 이동합니다.\n\n1. "Run workflow" 버튼 클릭\n2. "Run workflow" 녹색 버튼 클릭\n3. 5-10분 후 대시보드 새로고침\n\n계속하시겠습니까?',
+                    opened: 'GitHub Actions 페이지가 열렸습니다.\n\n"Run workflow" 버튼을 클릭하여 최신 데이터를 가져오세요.'
+                },
+                en: {
+                    confirm: 'Opening GitHub Actions page.\n\n1. Click "Run workflow" button\n2. Click green "Run workflow" button\n3. Refresh dashboard after 5-10 minutes\n\nContinue?',
+                    opened: 'GitHub Actions page opened.\n\nClick "Run workflow" button to fetch latest data.'
+                },
+                vi: {
+                    confirm: 'Mở trang GitHub Actions.\n\n1. Nhấp nút "Run workflow"\n2. Nhấp nút xanh "Run workflow"\n3. Làm mới bảng điều khiển sau 5-10 phút\n\nTiếp tục?',
+                    opened: 'Đã mở trang GitHub Actions.\n\nNhấp nút "Run workflow" để lấy dữ liệu mới nhất.'
+                }
+            };
+
+            if (confirm(messages[lang].confirm)) {
+                window.open('https://github.com/moonkaicuzui/qip-dashboard/actions/workflows/auto-update-enhanced.yml', '_blank');
+                setTimeout(() => {
+                    alert(messages[lang].opened);
+                }, 500);
+            }
+        }
     </script>
 </body>
 </html>
