@@ -989,6 +989,65 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - Test position-specific logic with actual employee data
      - Run independent mathematical verification for statistics
 
+21. **November 2025 Recalculation with Formula Fixes** (COMPLETED: 2025-11-25):
+   - **Context**: Implemented and deployed two critical formula fixes identified in previous session
+   - **Formula Fix 1: TYPE-2 Average Calculation** (Line 4328-4354)
+     - **Change**: "모든 직원 포함 (0 VND 포함)" → "수령자만 평균 (0 VND 제외)"
+     - **Code**: `receiving_employees = pos_employees[pos_employees[incentive_col] > 0]`
+     - **Expected Impact**: TYPE-2 incentives increase ~72% when TYPE-1 employees receive incentive
+     - **November Result**: 0 VND (correct - no TYPE-1 employees passed 100% of conditions)
+     - **Verification**: Formula verified in code at `src/step1_인센티브_계산_개선버전.py:4340`
+
+   - **Formula Fix 2: Attendance Rate Calculation** (Line 4698-4720)
+     - **Change**: `(actual / (total - approved_leave))` → `(actual / total)`
+     - **Code**: `attendance_rate = (actual_days / total_days) * 100`
+     - **Policy**: Approved leave now included in total days denominator
+     - **Verification**: ✅ Tested with 3 employees with approved leave - formula working correctly
+     - **Example**: Employee with 16 actual, 19 total, 1 approved leave → 84.21% (16/19)
+
+   - **November 2025 Calculation Results**:
+     - Total employees: 541
+     - Eligible (not resigned before Nov): 420 employees
+     - **Receiving incentive: 1 employee** (100% Condition Fulfillment Rule enforced)
+     - **Total amount: 150,000 VND**
+     - **TYPE-1 ASSEMBLY INSPECTOR**: 0/129 employees passed 100% (most at 75-87.5%)
+     - **AQL Inspector Config**: Auto-updated - all 6 inspectors 0 months → 0 VND
+
+   - **Business Logic Validation**:
+     - ✅ **100% Condition Fulfillment Rule**: Strictly enforced (no partial incentives)
+     - ✅ **TYPE-2 Reference Average**: Correctly uses receiving-only average (0 when none received)
+     - ✅ **Attendance Rate Formula**: Policy-aligned (approved leave in denominator)
+     - ✅ **AQL Config Auto-Update**: Step 7.5 integration working (backup created)
+
+   - **Complete Workflow Executed**:
+     1. ✅ Backup existing files: CSV and Excel outputs
+     2. ✅ Recalculation: `python scripts/auto_calculate_incentives.py`
+     3. ✅ AQL config update: `python scripts/auto_update_aql_config.py november 2025`
+     4. ✅ Dashboard generation: `python integrated_dashboard_final.py --month 11 --year 2025`
+     5. ✅ Web deployment: Files copied to `/docs` folder
+     6. ✅ Selector regeneration: `python scripts/create_month_selector.py`
+     7. ✅ Git commit & push: Commit `9023fd3` (2025-11-25 13:23)
+
+   - **Files Modified**:
+     - `output_files/output_QIP_incentive_november_2025_Complete_V9.0_Complete.csv`
+     - `output_files/output_QIP_incentive_november_2025_Complete_V9.0_Complete.xlsx`
+     - `config_files/aql_inspector_incentive_config.json` (auto-updated via Step 7.5)
+     - `docs/Incentive_Dashboard_2025_11_Version_9.0.html`
+     - `docs/output_QIP_incentive_november_2025_Complete_V9.0_Complete.*`
+     - `docs/selector.html`
+
+   - **Verification**:
+     - Formula Fix 1: Verified in code (line 4340) and calculation results (0 VND correct)
+     - Formula Fix 2: Verified with 3 sample employees with approved leave (84.21%, 63.16%, 78.95%)
+     - AQL Config: Backup created `aql_inspector_incentive_config.json.backup.20251125_132339`
+     - GitHub Pages: Deployed successfully after push
+
+   - **Commit**: `9023fd3` (2025-11-25 13:23)
+   - **Prevention**:
+     - Both formula fixes are permanent and will apply to all future calculations
+     - AQL Inspector config auto-update integrated in GitHub Actions Step 7.5
+     - Validate calculation results against business logic (100% rule, reference averages)
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
