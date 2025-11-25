@@ -17,6 +17,12 @@
   "created_at": "2025-10-06T12:29:59.545881",
   "data_source": "google_drive",
   "working_days_source": "attendance_data",
-  "working_days_updated_at": "2025-11-25T14:31:29.095892",
-  "last_updated": "2025-11-25T14:31:29.095922"
+  "working_days_updated_at": "2025-11-25T14:37:15.027232",
+  "last_updated": "2025-11-03T12:00:06.000Z",
+  "files_modified_times": {
+    "basic_manpower": "2025-11-03T12:00:06.000Z",
+    "attendance": "2025-11-01T11:27:51.000Z",
+    "5prs": "2025-11-01T11:24:49.000Z",
+    "aql_current": "2025-11-01T11:26:34.000Z"
+  }
 }
