@@ -11276,22 +11276,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         const cells = row.querySelectorAll('td');
                         if (cells.length === 4) {{
                             const noteText = cells[3].textContent.trim();
-                            // 특이사항 매핑
-                            if (noteText.includes('출근 조건만') || noteText.includes('Attendance only')) {{
+                            // 특이사항 매핑 (모든 언어 매칭 조건 포함 - 베트남어 추가)
+                            if (noteText.includes('출근 조건만') || noteText.includes('Attendance only') || noteText.includes('Chỉ điều kiện chấm công')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceOnly', currentLanguage);
-                            }} else if (noteText.includes('출근 + 팀/구역 AQL') && !noteText.includes('reject')) {{
+                            }} else if ((noteText.includes('출근 + 팀/구역 AQL') || noteText.includes('Attendance + Team/Area AQL') || noteText.includes('Chấm công + AQL nhóm/khu vực')) && !noteText.includes('reject') && !noteText.includes('Từ chối')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceTeamAql', currentLanguage);
-                            }} else if (noteText.includes('특별 calculation') || noteText.includes('Special calculation')) {{
+                            }} else if (noteText.includes('특별 계산') || noteText.includes('Special calculation') || noteText.includes('Đặc biệt')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceMonthAql', currentLanguage);
-                            }} else if (noteText.includes('출근 + 개인 AQL + 5PRS')) {{
+                            }} else if (noteText.includes('출근 + 개인 AQL + 5PRS') || noteText.includes('Attendance + Personal AQL + 5PRS') || noteText.includes('Chấm công + AQL cá nhân + 5PRS')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendancePersonalAql5prs', currentLanguage);
-                            }} else if (noteText.includes('출근 + 팀/구역 AQL + 담당구역 reject')) {{
+                            }} else if (noteText.includes('출근 + 팀/구역 AQL + 담당구역 reject') || noteText.includes('Attendance + Team/Area AQL + Area reject') || noteText.includes('Chấm công + AQL nhóm/khu vực + Từ chối khu vực')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceTeamAreaReject', currentLanguage);
-                            }} else if (noteText.includes('출근 + 담당구역 reject')) {{
+                            }} else if (noteText.includes('출근 + 담당구역 reject') || noteText.includes('Attendance + Area reject') || noteText.includes('Chấm công + Từ chối khu vực')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.attendanceAreaReject', currentLanguage);
-                            }} else if (noteText.includes('모든 조건') || noteText.includes('All conditions')) {{
+                            }} else if (noteText.includes('모든 조건') || noteText.includes('All conditions') || noteText.includes('Tất cả điều kiện')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.allConditions', currentLanguage);
-                            }} else if (noteText.includes('조건 없음') || noteText.includes('No conditions')) {{
+                            }} else if (noteText.includes('조건 없음') || noteText.includes('No conditions') || noteText.includes('Không có điều kiện')) {{
                                 cells[3].textContent = getTranslation('criteria.positionMatrix.notes.noConditions', currentLanguage);
                             }}
                         }}
