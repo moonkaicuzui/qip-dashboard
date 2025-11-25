@@ -1,0 +1,73 @@
+name: 🔄 Reliable Auto Update (Enhanced Monitoring)
+
+on:
+  schedule:
+    # 30분마다 실행
+    - cron: '*/30 * * * *'
+
+  # 수동 실행
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if no changes'
+        required: false
+        default: 'false'
+
+  # Push 시 실행 (즉시 업데이트)
+  push:
+    branches: [ main ]
+    paths:
+      - 'integrated_dashboard_final.py'
+      - 'src/step1_인센티브_계산_개선버전.py'
+      - 'scripts/download_from_gdrive.py'
+      - '.github/workflows/auto-update-reliable.yml'
+
+# GitHub Actions에 write 권한 부여
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+  actions: write
+
+jobs:
+  # Job 1: 건강 체크 (Cron 작동 여부 모니터링)
+  health-check:
+    runs-on: ubuntu-latest
+    outputs:
+      last_run_hours: ${{ steps.check.outputs.hours_since_last_run }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 10
+
+      - name: 📊 Check last successful run
+        id: check
+        run: |
+          LAST_COMMIT_TIME=$(git log --grep="🔄 Auto update" -1 --format=%ct 2>/dev/null || echo "0")
+          CURRENT_TIME=$(date +%s)
+          HOURS_AGO=$(( ($CURRENT_TIME - $LAST_COMMIT_TIME) / 3600 ))
+          
+          echo "hours_since_last_run=$HOURS_AGO" >> $GITHUB_OUTPUT
+          echo "⏰ Last auto-update: $HOURS_AGO hours ago"
+          
+          # 2시간 이상 업데이트 없으면 경고
+          if [ $HOURS_AGO -gt 2 ]; then
+            echo "::warning::⚠️ Auto-update hasn't run for $HOURS_AGO hours!"
+          fi
+
+  # Job 2: 실제 업데이트
+  update-dashboard:
+    needs: health-check
+    runs-on: ubuntu-latest
+    # Cron 지연 대비: 2시간 이상 업데이트 없거나, 수동 실행이거나, push 이벤트면 항상 실행
+    if: |
+      needs.health-check.outputs.last_run_hours > 2 ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push'
+    
+    steps:
+      # ... (기존 auto-update-enhanced.yml 내용 복사)
+      - name: 📝 Log execution
+        run: |
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Hours since last run: ${{ needs.health-check.outputs.last_run_hours }}"

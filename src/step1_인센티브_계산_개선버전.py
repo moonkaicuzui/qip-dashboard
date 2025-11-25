@@ -4328,13 +4328,13 @@ class CompleteQIPCalculator:
         return ''
     
     def _create_type1_reference_map(self) -> Dict[str, int]:
-        """Type-1 참조 맵 created (모든 직원 포함, 반올림 사용)"""
+        """Type-1 참조 맵 created (수령자만 평균, 반올림 사용)"""
         reference_map = {}
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
 
         type1_mask = self.month_data['ROLE TYPE STD'] == 'TYPE-1'
 
-        # 포지션별 평균 calculation (모든 직원 포함, 0 VND 포함)
+        # 포지션별 평균 calculation (수령자만 평균 - 0 VND 제외)
         for position in self.month_data[type1_mask]['QIP POSITION 1ST  NAME'].unique():
             if pd.notna(position):
                 pos_employees = self.month_data[
@@ -4342,10 +4342,16 @@ class CompleteQIPCalculator:
                     (self.month_data['QIP POSITION 1ST  NAME'] == position)
                 ]
 
-                # 모든 직원 포함 (0 VND 포함) - TYPE-2와 동일한 기준
-                if len(pos_employees) > 0:
-                    avg_incentive = round(pos_employees[incentive_col].mean())
+                # ✅ POLICY CHANGE (2025-11-25): 수령자만 평균 (0 VND 제외)
+                # 인센티브를 받은 직원들만 평균 계산
+                receiving_employees = pos_employees[pos_employees[incentive_col] > 0]
+
+                if len(receiving_employees) > 0:
+                    avg_incentive = round(receiving_employees[incentive_col].mean())
                     reference_map[position.upper()] = avg_incentive
+                else:
+                    # 수령자가 한 명도 없으면 0
+                    reference_map[position.upper()] = 0
 
         return reference_map
     
@@ -4692,31 +4698,24 @@ class CompleteQIPCalculator:
                 approved_leave_days = self.calculate_approved_leave_days(emp_no)
                 self.month_data.loc[idx, 'Approved Leave Days'] = approved_leave_days
 
-                # ✅ FIXED: 출근율 = (실제 근무일 / (총 근무일 - 승인휴가)) × 100
-                # 승인휴가는 "근무하지 않은 날"이므로 분모에서 제외해야 함
+                # ✅ POLICY ALIGNED: 출근율 = (실제 근무일 / 총 근무일) × 100
+                # 정책: 승인휴가도 결근일에 포함하여 총 근무일 대비 계산
+                # 승인휴가는 기록용으로만 보관하고 출근율 계산에는 사용하지 않음
                 if total_days > 0:
-                    # 근무해야 할 일수 = 총 근무일 - 승인휴가
-                    expected_working_days = total_days - approved_leave_days
+                    # 출근율 = 실제 근무일 / 총 근무일
+                    attendance_rate = (actual_days / total_days) * 100
 
-                    if expected_working_days > 0:
-                        # 출근율 = 실제 근무일 / 근무해야 할 일수
-                        attendance_rate = (actual_days / expected_working_days) * 100
+                    # 결근일 = 총 근무일 - 실제 근무일 (승인휴가 포함)
+                    absence_days = total_days - actual_days
+                    absence_days = max(0, absence_days)
+                    absence_rate = (absence_days / total_days) * 100
 
-                        # 결근일 = 근무해야 할 일수 - 실제 근무일
-                        absence_days = expected_working_days - actual_days
-                        absence_days = max(0, absence_days)
-                        absence_rate = (absence_days / expected_working_days) * 100
-                    else:
-                        # 모두 승인휴가인 경우 (근무해야 할 일수가 0)
-                        attendance_rate = 100
-                        absence_days = 0
-                        absence_rate = 0
-
-                    # 100% 초and 방지
+                    # 100% 초과 방지
                     attendance_rate = min(100, max(0, attendance_rate))
                 else:
                     attendance_rate = 0
                     absence_rate = 0
+                    absence_days = 0
                     absence_days = 0
 
                 self.month_data.loc[idx, '출근율_Attendance_Rate_Percent'] = attendance_rate

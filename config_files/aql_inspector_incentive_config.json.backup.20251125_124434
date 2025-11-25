@@ -67,42 +67,27 @@
       "name": "BÙI TRƯƠNG NGỌC NHỨT",
       "cfa_certified": true,
       "november_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 1,
-        "total": 0
-      },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 2,
-        "total": 850000
+        "part1_months": 13,
+        "part3_months": 14,
+        "total": 2600000
       }
     },
     "618110077": {
       "name": "LÊ NGỌC LÂM MỸ HUỲNH",
       "cfa_certified": true,
       "november_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 1,
-        "total": 0
-      },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 2,
-        "total": 850000
+        "part1_months": 13,
+        "part3_months": 14,
+        "total": 2600000
       }
     },
     "619100307": {
       "name": "DANH THÁI",
       "cfa_certified": true,
       "november_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 1,
-        "total": 0
-      },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 2,
-        "total": 850000
+        "part1_months": 13,
+        "part3_months": 14,
+        "total": 2600000
       }
     },
     "621110376": {
@@ -112,39 +97,24 @@
         "part1_months": 0,
         "part3_months": 1,
         "total": 0
-      },
-      "september_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 1,
-        "total": 0
       }
     },
     "620120306": {
       "name": "NGUYỄN NGÔ TUYẾT NGÂN",
       "cfa_certified": true,
       "november_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 1,
-        "total": 0
-      },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 2,
-        "total": 850000
+        "part1_months": 7,
+        "part3_months": 8,
+        "total": 1700000
       }
     },
     "622030225": {
       "name": "NGUYỄN THỊ TƯỜNG VY",
       "cfa_certified": true,
       "november_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 1,
-        "total": 0
-      },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 2,
-        "total": 850000
+        "part1_months": 7,
+        "part3_months": 8,
+        "total": 1700000
       }
     }
   },

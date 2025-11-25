@@ -3,13 +3,13 @@
     "name": "ĐINH KIM NGOAN",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 377142.0,
+    "amount": 168680.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -52,13 +52,13 @@
     "name": "TRẦN KIỀU EM",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 468867.0,
+    "amount": 252563.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -101,13 +101,13 @@
     "name": "LƯƠNG THỊ CẨM TIÊN",
     "position": "A.MANAGER",
     "type": "TYPE-1",
-    "amount": 551729.0,
+    "amount": 253020.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -164,13 +164,13 @@
     "name": "NGUYỄN THỊ BÍCH NGỌC",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -219,7 +219,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -288,13 +288,13 @@
     "name": "CAO THỊ MIỀN",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 412500.0,
+    "amount": 175000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -357,7 +357,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -426,13 +426,13 @@
     "name": "THỊ BÍCH NGÀ",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 183909.0,
+    "amount": 84340.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -480,8 +480,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -538,13 +538,13 @@
     "name": "LÊ NGỌC LÂM MỸ HUỲNH",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 2600000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -599,7 +599,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -668,13 +668,13 @@
     "name": "DANH THỊ ANH ĐÀO",
     "position": "MODEL MASTER",
     "type": "TYPE-1",
-    "amount": 250000.0,
-    "calculation_basis": "Model Master incentive",
+    "amount": 0.0,
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -748,8 +748,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -812,7 +812,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -869,13 +869,13 @@
     "name": "DANH THÁI",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 2600000.0,
+    "amount": 0.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -900,7 +900,7 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
+          "passed": false,
           "value": 0,
           "threshold": 0,
           "applicable": true
@@ -929,8 +929,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -973,13 +973,13 @@
     "name": "THỊ KIM THO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 377142.0,
+    "amount": 168680.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -1022,13 +1022,13 @@
     "name": "THỊ MY",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 188571.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -1085,13 +1085,13 @@
     "name": "BÙI TRƯƠNG NGỌC NHỨT",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 2600000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -1140,13 +1140,13 @@
     "name": "NGUYỄN THỊ BÍCH CHƯƠNG",
     "position": "GROUP LEADER",
     "type": "TYPE-1",
-    "amount": 377142.0,
+    "amount": 168680.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -1203,13 +1203,13 @@
     "name": "DANH THỊ CẨM MINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 65.38461538461539,
           "threshold": 88,
           "applicable": true
         },
@@ -1252,13 +1252,13 @@
     "name": "LÊ THỊ DIỄM LINH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 468867.0,
+    "amount": 252563.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -1306,8 +1306,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -1350,13 +1350,13 @@
     "name": "NGUYỄN NGÔ TUYẾT NGÂN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 1700000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -1411,7 +1411,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -1468,13 +1468,13 @@
     "name": "THÁI UYỂN NHI",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 517247.0,
+    "amount": 291345.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -1536,8 +1536,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -1585,8 +1585,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -1629,13 +1629,13 @@
     "name": "DANH THỊ KIM ANH",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 250000.0,
-    "calculation_basis": "Auditor/Trainer incentive",
+    "amount": 0.0,
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 76.92307692307692,
           "threshold": 88,
           "applicable": true
         },
@@ -1704,13 +1704,13 @@
     "name": "TRẦN THỊ THÙY ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -1753,13 +1753,13 @@
     "name": "TRẦN NHÃ LINH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -1802,13 +1802,13 @@
     "name": "VÕ THỊ TÝ NỊ",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 468867.0,
+    "amount": 252563.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -1851,13 +1851,13 @@
     "name": "NGUYỄN THỊ MỸ TRÂM",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 105000.0,
+    "amount": 34285.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -1914,13 +1914,13 @@
     "name": "VÕ THỊ BÍCH NGÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -1968,8 +1968,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -2017,8 +2017,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 7.692307692307693,
           "threshold": 88,
           "applicable": true
         },
@@ -2130,13 +2130,13 @@
     "name": "PHẠM MINH HUY",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 168000.0,
+    "amount": 70000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -2242,13 +2242,13 @@
     "name": "NGUYỄN THỊ TƯỜNG VY",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 1700000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -2297,13 +2297,13 @@
     "name": "LÊ THỊ THANH TUYỀN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -2395,13 +2395,13 @@
     "name": "VÕ VĂN KIỆT",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 501974.0,
+    "amount": 291345.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -2458,13 +2458,13 @@
     "name": "NGUYỄN THỊ BÍCH PHƯỢNG",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 468867.0,
+    "amount": 252563.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -2507,13 +2507,13 @@
     "name": "NGUYỄN TẤN THÀNH",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -2550,8 +2550,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 30.769230769230774,
           "threshold": 88,
           "applicable": true
         },
@@ -2608,13 +2608,13 @@
     "name": "THỊ NGỌC CHÚC",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -2657,13 +2657,13 @@
     "name": "NGUYỄN THỊ MỸ TIÊN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 183909.0,
+    "amount": 84340.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -2712,7 +2712,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -2769,13 +2769,13 @@
     "name": "NGUYỄN THỊ HẠNH",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 183909.0,
+    "amount": 84340.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -2818,13 +2818,13 @@
     "name": "LÊ HUỲNH GIAO",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 443750.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -2881,13 +2881,13 @@
     "name": "TRẦN THỊ BÍCH LY",
     "position": "MANAGER",
     "type": "TYPE-1",
-    "amount": 643684.0,
+    "amount": 295190.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -2950,7 +2950,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -3025,7 +3025,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -3094,13 +3094,13 @@
     "name": "MAI TUYẾT ANH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 468867.0,
+    "amount": 252563.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -3261,7 +3261,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -3336,7 +3336,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -3393,13 +3393,13 @@
     "name": "NGUYỄN THỊ MAI LAN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -3442,13 +3442,13 @@
     "name": "TRẦN THỊ MỸ MIỀU",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 468867.0,
+    "amount": 252563.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -3491,13 +3491,13 @@
     "name": "ĐOÀN THỊ NGỌC THƠ",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 377142.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -3540,13 +3540,13 @@
     "name": "THỊ KIM THẢO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 377142.0,
+    "amount": 168680.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -3594,8 +3594,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -3652,13 +3652,13 @@
     "name": "TRƯƠNG THỊ XUÂN QUỲNH",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 183909.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 76.92307692307692,
           "threshold": 88,
           "applicable": true
         },
@@ -3819,7 +3819,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -3876,13 +3876,13 @@
     "name": "NGUYỄN VĂN LUÂN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 226875.0,
+    "amount": 120000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -3939,13 +3939,13 @@
     "name": "PHÙNG THỊ THỦY",
     "position": "A.MANAGER",
     "type": "TYPE-2",
-    "amount": 551729.0,
+    "amount": 253020.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -3988,13 +3988,13 @@
     "name": "PHẠM THỊ BÍCH XUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -4086,13 +4086,13 @@
     "name": "LÊ THỊ PHƯỢNG UYÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 150000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4149,13 +4149,13 @@
     "name": "NGUYỄN VĂN DƯƠNG",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -4193,7 +4193,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4268,7 +4268,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4331,7 +4331,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4388,13 +4388,13 @@
     "name": "HUỲNH THIỆN YẾN PHƯƠNG",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4443,7 +4443,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -4469,7 +4469,7 @@
       "aql": {
         "monthly_failure": {
           "passed": false,
-          "value": 1,
+          "value": 2,
           "threshold": 0,
           "applicable": true
         },
@@ -4500,13 +4500,13 @@
     "name": "LÊ THẢO THANH",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -4555,7 +4555,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4618,7 +4618,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4675,13 +4675,13 @@
     "name": "LÂM THỊ NHƯ Ý",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 76.92307692307692,
           "threshold": 88,
           "applicable": true
         },
@@ -4730,7 +4730,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4787,13 +4787,13 @@
     "name": "THỊ BÁCH HỢP",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 69.23076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4836,13 +4836,13 @@
     "name": "LƯU GIA HÂN",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 377142.0,
+    "amount": 168680.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -4891,7 +4891,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -4948,13 +4948,13 @@
     "name": "HỨA THỊ KIM NHẢN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -5003,7 +5003,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -5028,8 +5028,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -5060,13 +5060,13 @@
     "name": "VŨ HỒNG TIÊN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -5129,7 +5129,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -5186,13 +5186,13 @@
     "name": "NGUYỄN THỊ THU HÀ",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -5241,7 +5241,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -5303,8 +5303,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -5367,7 +5367,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -5424,13 +5424,13 @@
     "name": "NGUYỄN ANH KHOA",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -5462,13 +5462,13 @@
     "name": "HÀ THỊ MỘNG TUYỀN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 183909.0,
+    "amount": 84340.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -5574,13 +5574,13 @@
     "name": "PHẠM CHÍ THIỆN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -5693,7 +5693,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -5750,13 +5750,13 @@
     "name": "LÊ VĂN DLEL",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -5804,8 +5804,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -5854,7 +5854,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -5917,7 +5917,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -5980,7 +5980,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -6037,13 +6037,13 @@
     "name": "SỬ HUYỀN TRANG",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 162000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 76.92307692307692,
           "threshold": 88,
           "applicable": true
         },
@@ -6100,13 +6100,13 @@
     "name": "NGUYỄN THỊ THU DIỆU",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -6155,7 +6155,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -6212,13 +6212,13 @@
     "name": "LÊ VĂN NAM",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 377142.0,
+    "amount": 168680.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -6261,13 +6261,13 @@
     "name": "PHẠM NGỌC CHĂM",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -6316,7 +6316,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -6373,13 +6373,13 @@
     "name": "PHAN THỊ MỸ PHÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -6422,13 +6422,13 @@
     "name": "HỒ MINH TÝ",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -6460,13 +6460,13 @@
     "name": "TRẦN TRẦN TRUNG KIÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -6529,7 +6529,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -6586,13 +6586,13 @@
     "name": "DANH THỊ ANH THƯ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -6640,8 +6640,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -6667,7 +6667,7 @@
       "aql": {
         "monthly_failure": {
           "passed": false,
-          "value": 1,
+          "value": 2,
           "threshold": 0,
           "applicable": true
         },
@@ -6698,13 +6698,13 @@
     "name": "TRẦN VĂN HÀ",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 150000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -6761,13 +6761,13 @@
     "name": "HUỲNH THỊ ÁNH TUYẾT",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -6816,7 +6816,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -6873,13 +6873,13 @@
     "name": "PHẠM THỊ MỸ TIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -6922,13 +6922,13 @@
     "name": "LÊ THỊ THÚY LIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -6977,7 +6977,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -7034,13 +7034,13 @@
     "name": "NGUYỄN THỊ MỸ NHUNG",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -7083,13 +7083,13 @@
     "name": "NGUYỄN THỊ HUỲNH HÂN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 150000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -7146,13 +7146,13 @@
     "name": "NGUYỄN CHÍ LUẬN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -7195,13 +7195,13 @@
     "name": "VÕ MINH TÂM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -7244,13 +7244,13 @@
     "name": "TĂNG THỊ ÁNH HỒNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -7293,13 +7293,13 @@
     "name": "VÕ THỊ NHỊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 61.53846153846153,
           "threshold": 88,
           "applicable": true
         },
@@ -7348,7 +7348,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -7459,8 +7459,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 95.45454545454545,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -7517,13 +7517,13 @@
     "name": "TRƯƠNG THỊ THÚY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -7572,7 +7572,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -7634,8 +7634,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -7761,7 +7761,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -7787,7 +7787,7 @@
       "aql": {
         "monthly_failure": {
           "passed": false,
-          "value": 1,
+          "value": 2,
           "threshold": 0,
           "applicable": true
         },
@@ -7818,13 +7818,13 @@
     "name": "LÊ THỊ XUYẾN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -7867,13 +7867,13 @@
     "name": "TRƯƠNG YẾN MY",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -7916,13 +7916,13 @@
     "name": "THỊ YẾN NHI",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -7965,13 +7965,13 @@
     "name": "NGUYỄN THỊ VIỆT THƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -8014,13 +8014,13 @@
     "name": "TRẦN NGÔ KIM TUYẾN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 186923.0,
+    "amount": 113076.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -8077,13 +8077,13 @@
     "name": "TÔ THỊ DIỄM MI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -8140,13 +8140,13 @@
     "name": "DANH CAO HUY LỘC",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -8184,7 +8184,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 33.33333333333334,
+          "value": 26.31578947368422,
           "threshold": 88,
           "applicable": true
         },
@@ -8227,13 +8227,13 @@
     "name": "NGUYỄN NGỌC TẤN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -8290,13 +8290,13 @@
     "name": "VŨ HOÀNG KHA",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -8328,13 +8328,13 @@
     "name": "PHAN VÂN ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -8377,13 +8377,13 @@
     "name": "TRẦN PHỤNG KIỀU",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -8431,8 +8431,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -8495,7 +8495,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -8552,13 +8552,13 @@
     "name": "MAI THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -8606,8 +8606,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 19.230769230769226,
           "threshold": 88,
           "applicable": true
         },
@@ -8704,8 +8704,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -8762,13 +8762,13 @@
     "name": "NGUYỄN THANH HÀO",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -8800,13 +8800,13 @@
     "name": "PHẠM THỊ NGỌC THƠ",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -8849,13 +8849,13 @@
     "name": "TRẦN THỊ BÍCH THẢO",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -8912,13 +8912,13 @@
     "name": "NGÔ THỊ NGỌC NGÂN",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -8961,13 +8961,13 @@
     "name": "NGUYỄN ANH THƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -9016,7 +9016,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -9079,7 +9079,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -9136,13 +9136,13 @@
     "name": "CHÂU THỊ LỆ TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -9185,13 +9185,13 @@
     "name": "DANH HOÀI NAM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -9234,13 +9234,13 @@
     "name": "HUỲNH MỘNG NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -9283,13 +9283,13 @@
     "name": "NGUYỄN VĂN TOÀN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 95.65217391304348,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -9346,13 +9346,13 @@
     "name": "ĐOÀN THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -9395,13 +9395,13 @@
     "name": "DIỆP TÚ TIÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -9426,8 +9426,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -9464,7 +9464,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -9521,13 +9521,13 @@
     "name": "CHÂU THỊ CHÚC LY",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -9619,13 +9619,13 @@
     "name": "THỊ QUÝ MÙI",
     "position": "RQC",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -9668,13 +9668,13 @@
     "name": "NGUYỄN THỊ NGỌC HUYỀN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -9723,7 +9723,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -9780,13 +9780,13 @@
     "name": "HUỲNH ANH THƯ",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -9829,13 +9829,13 @@
     "name": "HUỲNH TRƯƠNG YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -9878,13 +9878,13 @@
     "name": "NGUYỄN NGỌC TRÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -9927,13 +9927,13 @@
     "name": "DANH VIỆT NGHI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10030,8 +10030,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 42.307692307692314,
           "threshold": 88,
           "applicable": true
         },
@@ -10143,7 +10143,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -10200,13 +10200,13 @@
     "name": "NGUYỄN THỊ NGỌC NHƯ",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -10249,13 +10249,13 @@
     "name": "BÙI THỊ MỸ DUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10298,13 +10298,13 @@
     "name": "THỊ KIM YẾN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -10347,13 +10347,13 @@
     "name": "LÊ VŨ HỒNG TRÂM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10401,8 +10401,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 76.92307692307692,
           "threshold": 88,
           "applicable": true
         },
@@ -10459,13 +10459,13 @@
     "name": "NGUYỄN THỊ HUỲNH NHƯ",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 527142.0,
+    "amount": 318680.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10508,13 +10508,13 @@
     "name": "PHẠM THỊ HUYỀN TRANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -10612,7 +10612,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10767,13 +10767,13 @@
     "name": "NGUYỄN TRƯƠNG HỒNG NHIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10822,7 +10822,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10891,13 +10891,13 @@
     "name": "LÊ THỊ HỒNG LIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10940,13 +10940,13 @@
     "name": "NGUYỄN THỊ THÙY TRANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -10995,7 +10995,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 28.57142857142857,
+          "value": 26.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -11052,13 +11052,13 @@
     "name": "NGUYỄN THỊ DIỄM MY",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 61.53846153846153,
           "threshold": 88,
           "applicable": true
         },
@@ -11115,13 +11115,13 @@
     "name": "DANH THỊ THÙY DƯƠNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 69.23076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -11184,7 +11184,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -11241,7 +11241,7 @@
     "name": "LÊ THỊ MỘNG NGHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -11296,7 +11296,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -11359,7 +11359,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -11479,13 +11479,13 @@
     "name": "TRẦN THỊ KIM CHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -11675,13 +11675,13 @@
     "name": "THỊ MỸ HẠNH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -11779,7 +11779,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -11885,13 +11885,13 @@
     "name": "XÀ THỊ NGÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -11934,13 +11934,13 @@
     "name": "LÊ THANH NGÂN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -11965,8 +11965,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -11997,13 +11997,13 @@
     "name": "VÕ THỊ CẨM TIÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -12065,8 +12065,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -12158,13 +12158,13 @@
     "name": "TRẦN THỊ KIM NÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -12319,13 +12319,13 @@
     "name": "SƠN THỊ MỪNG",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -12368,13 +12368,13 @@
     "name": "DANH THỊ NGUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 95.45454545454545,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -12423,7 +12423,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -12480,13 +12480,13 @@
     "name": "CAO VĂN PHẨM",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -12518,13 +12518,13 @@
     "name": "HUỲNH NGỌC TRÂN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -12581,13 +12581,13 @@
     "name": "TRƯƠNG THỊ THẢO EM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -12636,7 +12636,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -12742,13 +12742,13 @@
     "name": "TRẦN QUỐC KIỆT",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -12796,8 +12796,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -12859,8 +12859,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -12917,13 +12917,13 @@
     "name": "HUỲNH THIỆN THUYỀN NGỌC",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -13034,8 +13034,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -13078,13 +13078,13 @@
     "name": "NGUYỄN THỊ THÙY NHUNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -13127,13 +13127,13 @@
     "name": "TRƯƠNG NỮ VÂN ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -13176,13 +13176,13 @@
     "name": "LÊ TRÚC LY",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -13214,13 +13214,13 @@
     "name": "PHẠM NGỌC HƯỞNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -13326,13 +13326,13 @@
     "name": "LIÊNG THỊ THÚY HUỲNH",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -13375,13 +13375,13 @@
     "name": "TRẦN MỸ ÁI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -13479,7 +13479,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -13585,13 +13585,13 @@
     "name": "BÙI THỊ KIỀU LY",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 69.23076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -13648,13 +13648,13 @@
     "name": "DANH THỊ VIỆT HỒNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -13697,13 +13697,13 @@
     "name": "NGUYỄN THỊ KIỀU TIÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -13809,13 +13809,13 @@
     "name": "ĐỖ THỊ HỒNG THÚY",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 76.92307692307692,
           "threshold": 88,
           "applicable": true
         },
@@ -13935,13 +13935,13 @@
     "name": "DƯƠNG THỊ MỸ XUYÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -14101,8 +14101,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -14145,13 +14145,13 @@
     "name": "MÃ TẤN THIÊM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -14312,7 +14312,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -14369,13 +14369,13 @@
     "name": "NGUYỄN THỊ THỦY QUỲNH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -14418,13 +14418,13 @@
     "name": "HUỲNH THỊ BÉ TƯ",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -14467,13 +14467,13 @@
     "name": "TRƯƠNG KIM LĨNH",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -14522,7 +14522,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -14579,13 +14579,13 @@
     "name": "THỊ NGỌC ĐIỆP",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -14648,7 +14648,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -14774,7 +14774,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -14831,13 +14831,13 @@
     "name": "NGUYỄN TRƯỜNG SƠN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -14880,13 +14880,13 @@
     "name": "LÝ THỊ MỸ LINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -14929,13 +14929,13 @@
     "name": "TRƯƠNG KIM THÙY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -14984,7 +14984,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -15090,13 +15090,13 @@
     "name": "TRẦN THỊ NGỌC ÂN",
     "position": "OCPT STFF",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -15202,13 +15202,13 @@
     "name": "LA THẢO MY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -15251,13 +15251,13 @@
     "name": "HOÀNG VŨ ANH PHÚ",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -15300,13 +15300,13 @@
     "name": "NGUYỄN THỊ KIM LOAN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -15363,13 +15363,13 @@
     "name": "LÊ THỊ HUẾ MINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -15418,7 +15418,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -15481,7 +15481,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -15544,7 +15544,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -15601,13 +15601,13 @@
     "name": "TRẦN THỊ HUỲNH NHAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -15650,13 +15650,13 @@
     "name": "TRẦN THỊ MỸ TIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -15699,13 +15699,13 @@
     "name": "NGUYỄN MỘNG THÊM",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -15730,8 +15730,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -15768,7 +15768,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -15825,13 +15825,13 @@
     "name": "HỒ THỊ MAI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -15874,13 +15874,13 @@
     "name": "NGUYỄN THỊ MỘNG MI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -15923,13 +15923,13 @@
     "name": "LÊ THỊ KIM TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -15972,13 +15972,13 @@
     "name": "TRẦN NGỌC TIỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -16021,13 +16021,13 @@
     "name": "PHAN THỊ YẾN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 76.92307692307692,
           "threshold": 88,
           "applicable": true
         },
@@ -16059,13 +16059,13 @@
     "name": "NGUYỄN THÚY VY",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -16114,7 +16114,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -16177,7 +16177,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -16239,8 +16239,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 73.33333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -16283,13 +16283,13 @@
     "name": "LÝ NGUYỄN TRUNG DUY",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -16332,13 +16332,13 @@
     "name": "LÊ THÀNH THẢO",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -16381,13 +16381,13 @@
     "name": "ĐÀO HỒNG NHIỀU",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 250000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -16412,8 +16412,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -16444,13 +16444,13 @@
     "name": "DANH THỊ CHANH ĐA",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -16556,13 +16556,13 @@
     "name": "NGUYỄN NGỌC HIỀN NGOAN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -16611,7 +16611,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -16674,7 +16674,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -16731,13 +16731,13 @@
     "name": "LÝ THỊ MỸ AN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -16786,7 +16786,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -16906,13 +16906,13 @@
     "name": "LÊ THỊ MỸ NGỌC",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -16955,13 +16955,13 @@
     "name": "THỊ THU THẢO",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -17067,13 +17067,13 @@
     "name": "PHẠM THỊ NHƯ Ý",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -17116,13 +17116,13 @@
     "name": "THỊ NGỌC HÀ",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -17203,13 +17203,13 @@
     "name": "THỊ THÚY KIỀU",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -17252,13 +17252,13 @@
     "name": "THỊ HỒNG THẮM",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -17301,13 +17301,13 @@
     "name": "NGUYỄN THỊ KIM CHI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -17399,13 +17399,13 @@
     "name": "LÊ THANH TUẤN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -17448,13 +17448,13 @@
     "name": "DƯƠNG THỊ THU THẢO",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -17497,13 +17497,13 @@
     "name": "TRẦN THỊ KIỀU TRANG",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -17546,13 +17546,13 @@
     "name": "NGUYỄN HỒNG THƯ",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -17595,13 +17595,13 @@
     "name": "DƯƠNG KIỀU TIÊN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -17644,13 +17644,13 @@
     "name": "HỒ THỊ KIM QUÍ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -17693,13 +17693,13 @@
     "name": "TRẦN ANH THI",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -17791,13 +17791,13 @@
     "name": "NGUYỄN THỊ THÙY OANH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -17840,13 +17840,13 @@
     "name": "NGUYỄN KIM MINH NGỌC",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -17952,13 +17952,13 @@
     "name": "HỨA THỊ YẾN NHI",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -18064,13 +18064,13 @@
     "name": "NGUYỄN NGỌC TUYỀN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -18113,13 +18113,13 @@
     "name": "TRẦN THANH LIÊM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -18162,13 +18162,13 @@
     "name": "NGUYỄN NGỌC HÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -18211,13 +18211,13 @@
     "name": "HỒ NGUYỄN QUỲNH ANH",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -18260,13 +18260,13 @@
     "name": "TRẦN THỊ TỐ QUYÊN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -18309,13 +18309,13 @@
     "name": "NGÔ THANH KIM HÂN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -18358,13 +18358,13 @@
     "name": "DANH THỊ CẨM ĐIỀU",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -18407,13 +18407,13 @@
     "name": "LƯƠNG THỊ KIM THOA",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -18456,13 +18456,13 @@
     "name": "NGUYỄN THỊ KIỀU ANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -18505,13 +18505,13 @@
     "name": "PHẠM THỊ SÂM",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -18554,13 +18554,13 @@
     "name": "MAI HỒNG LỤA",
     "position": "CUTTING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -18666,13 +18666,13 @@
     "name": "DANH NGỌC TUẤN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -18778,13 +18778,13 @@
     "name": "LÊ THỊ MINH THƯ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -18827,13 +18827,13 @@
     "name": "TRẦN NGỌC BẢO TRÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -18876,13 +18876,13 @@
     "name": "HUỲNH NGỌC LÀNH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -18925,13 +18925,13 @@
     "name": "VÕ THỊ HỒNG TƯƠI",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -18974,13 +18974,13 @@
     "name": "LÊ VĂN KHANG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -19023,13 +19023,13 @@
     "name": "DANH THỊ BÍCH HỢP",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -19124,13 +19124,13 @@
     "name": "DANH THỊ NGỌC TRINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -19222,13 +19222,13 @@
     "name": "PHAN THỊ NGỌC THẢO",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -19271,13 +19271,13 @@
     "name": "LÝ THỊ TRÚC QUYÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -19320,13 +19320,13 @@
     "name": "CHUNG THÀNH PHONG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -19418,13 +19418,13 @@
     "name": "NGUYỄN THỊ MỸ CHI",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -19467,13 +19467,13 @@
     "name": "LƯU KIM TRỌN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 183909.0,
+    "amount": 84340.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -19516,13 +19516,13 @@
     "name": "LÊ THỊ BẾN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -19614,13 +19614,13 @@
     "name": "THỊ CẨM THU",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 61.53846153846153,
           "threshold": 88,
           "applicable": true
         },
@@ -19824,13 +19824,13 @@
     "name": "LÊ THỊ THOẢNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -19879,7 +19879,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 28.57142857142857,
+          "value": 26.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -19922,13 +19922,13 @@
     "name": "DANH VÀNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -20069,13 +20069,13 @@
     "name": "TRƯƠNG THỦY TIÊN",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -20118,13 +20118,13 @@
     "name": "NGUYỄN THỊ NGỌC ÁNH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -20172,8 +20172,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -20216,13 +20216,13 @@
     "name": "PHAN VĂN BỔNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 61.53846153846153,
           "threshold": 88,
           "applicable": true
         },
@@ -20265,13 +20265,13 @@
     "name": "NGUYỄN MINH KHANG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 90.47619047619048,
+          "passed": false,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -20439,13 +20439,13 @@
     "name": "NGUYỄN HOÀNG LONG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -20488,13 +20488,13 @@
     "name": "HUỲNH NGỌC ANH THƯ",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -20586,13 +20586,13 @@
     "name": "NGUYỄN THỊ BÍCH TRÂM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -20684,13 +20684,13 @@
     "name": "BÙI VĂN CÒN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -20825,8 +20825,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -20918,13 +20918,13 @@
     "name": "LÊ THỊ KIM THÙY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -20967,13 +20967,13 @@
     "name": "NGUYỄN THỊ BÍCH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -21054,13 +21054,13 @@
     "name": "LƯU NGUYỄN TẤN DŨNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -21103,13 +21103,13 @@
     "name": "NGUYỄN THỊ BÉ BA",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -21152,13 +21152,13 @@
     "name": "VÕ KIM THANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -21201,13 +21201,13 @@
     "name": "THỊ DƯỢC",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -21239,13 +21239,13 @@
     "name": "ONG THỊ CẨM NƯƠNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 57.69230769230769,
           "threshold": 88,
           "applicable": true
         },
@@ -21294,7 +21294,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 85.0,
+          "value": 65.38461538461539,
           "threshold": 88,
           "applicable": true
         },
@@ -21337,13 +21337,13 @@
     "name": "DANH NGỌC HUYỀN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -21424,13 +21424,13 @@
     "name": "THỊ BÉ BẢY",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -21473,13 +21473,13 @@
     "name": "THỊ TUYỀN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -21585,13 +21585,13 @@
     "name": "THỊ KIM MỪNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -21634,13 +21634,13 @@
     "name": "ĐÀO THỊ NGUYỆT",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -21683,13 +21683,13 @@
     "name": "NGUYỄN QUỐC CƯỜNG",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 95.45454545454545,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -21770,13 +21770,13 @@
     "name": "NGUYỄN THỊ BÍCH VY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -21819,13 +21819,13 @@
     "name": "THÁI NGỌC TRÂM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -22020,13 +22020,13 @@
     "name": "PHẠM THỊ THU HẰNG",
     "position": "AQL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -22127,7 +22127,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -22184,13 +22184,13 @@
     "name": "THÁI THỊ CẨM TIÊN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -22233,13 +22233,13 @@
     "name": "LÊ NGỌC LINH ĐAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -22282,13 +22282,13 @@
     "name": "NGUYỄN THỊ HẰNG",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -22369,13 +22369,13 @@
     "name": "THỊ DƯƠNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -22418,13 +22418,13 @@
     "name": "NGUYỄN NGỌC TRÂM",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -22630,13 +22630,13 @@
     "name": "TRẦN HỒ QUẾ PHƯƠNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -22679,13 +22679,13 @@
     "name": "THỊ YẾN NHI",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 76.92307692307692,
           "threshold": 88,
           "applicable": true
         },
@@ -22728,13 +22728,13 @@
     "name": "THỊ OÁCH HA",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -22820,8 +22820,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 0.0,
           "threshold": 88,
           "applicable": true
         },
@@ -22864,13 +22864,13 @@
     "name": "THỊ HỒNG NGA",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -22951,13 +22951,13 @@
     "name": "TRƯƠNG THỊ TUYẾT LOAN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23114,13 +23114,13 @@
     "name": "THỊ THANH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23163,13 +23163,13 @@
     "name": "NGUYỄN THU THẢO",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -23212,13 +23212,13 @@
     "name": "DANH THỊ NGỌC DIỄM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23261,13 +23261,13 @@
     "name": "NGUYỄN THỊ CHÚC GIANG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23373,13 +23373,13 @@
     "name": "LÝ THỊ MỸ HUYỀN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23422,13 +23422,13 @@
     "name": "LÝ THỊ THÚY",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23471,13 +23471,13 @@
     "name": "BÙI THỊ MỸ NHIÊN",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23520,13 +23520,13 @@
     "name": "LÊ THỊ THANH THÚY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -23569,13 +23569,13 @@
     "name": "LĂM THỊ THẮM",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -23618,13 +23618,13 @@
     "name": "HUỲNH THỊ MỸ DUNG",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23705,13 +23705,13 @@
     "name": "HUỲNH THỊ KỲ ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -23754,13 +23754,13 @@
     "name": "LƯƠNG THỊ HOA",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -23803,13 +23803,13 @@
     "name": "LÊ THỊ HOÀI MỸ",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -23852,13 +23852,13 @@
     "name": "TRẦN LÂM NGỌC HUYỀN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -23939,13 +23939,13 @@
     "name": "CAO THỊ TUYẾT NGÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -23988,13 +23988,13 @@
     "name": "HUỲNH THỊ ANH THƯ",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -24037,13 +24037,13 @@
     "name": "HUỲNH TÚ GẤM",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -24124,13 +24124,13 @@
     "name": "ĐOÀN THỊ THU TRANG",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -24173,13 +24173,13 @@
     "name": "VÕ THỊ HUỲNH NHƯ",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -24222,13 +24222,13 @@
     "name": "PHẠM TRƯỜNG PHƯỢNG ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -24271,13 +24271,13 @@
     "name": "LÊ THỊ CHINH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -24358,13 +24358,13 @@
     "name": "THỊ HỒNG XUÂN",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -24412,8 +24412,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -24470,13 +24470,13 @@
     "name": "ĐINH THỊ KIM THOA",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -24525,7 +24525,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -24582,13 +24582,13 @@
     "name": "LÝ THỊ THU HỒNG",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -24631,13 +24631,13 @@
     "name": "DƯƠNG THỊ HOÀNG DUY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -24680,13 +24680,13 @@
     "name": "HỒ THỊ HỒNG ÂN",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -24729,13 +24729,13 @@
     "name": "LÂM THỊ CHÚC ANH",
     "position": "STITCHING INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 46.15384615384615,
           "threshold": 88,
           "applicable": true
         },
@@ -24778,13 +24778,13 @@
     "name": "LÊ THỊ TRÚC LINH",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -24833,7 +24833,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 15.384615384615387,
+          "value": 13.333333333333329,
           "threshold": 88,
           "applicable": true
         },
@@ -24870,8 +24870,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 84.61538461538461,
           "threshold": 88,
           "applicable": true
         },
@@ -24928,13 +24928,13 @@
     "name": "ĐẶNG THỊ KIM THOA",
     "position": "OSC INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -24983,7 +24983,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 88.46153846153847,
           "threshold": 88,
           "applicable": true
         },
@@ -25040,13 +25040,13 @@
     "name": "CHÂU MAI QUỐC DUY",
     "position": "BOTTOM INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 69.23076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -25089,13 +25089,13 @@
     "name": "DANH THỊ DIỄM HẰNG",
     "position": "MTL INSPECTOR",
     "type": "TYPE-2",
-    "amount": 234848.0,
+    "amount": 224468.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 92.3076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -25181,8 +25181,8 @@
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
-          "passed": true,
-          "value": 100.0,
+          "passed": false,
+          "value": 80.76923076923077,
           "threshold": 88,
           "applicable": true
         },
@@ -25245,7 +25245,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 50.0,
+          "value": 25.0,
           "threshold": 88,
           "applicable": true
         },
@@ -25283,7 +25283,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 86.36363636363636,
+          "value": 73.07692307692308,
           "threshold": 88,
           "applicable": true
         },
@@ -25321,7 +25321,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 69.23076923076923,
           "threshold": 88,
           "applicable": true
         },
@@ -25359,7 +25359,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 70.0,
+          "value": 53.84615384615385,
           "threshold": 88,
           "applicable": true
         },
@@ -25397,7 +25397,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 61.53846153846153,
           "threshold": 88,
           "applicable": true
         },
@@ -25435,7 +25435,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 21.42857142857143,
+          "value": 20.0,
           "threshold": 88,
           "applicable": true
         },
@@ -25473,7 +25473,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 63.63636363636363,
+          "value": 53.84615384615385,
           "threshold": 88,
           "applicable": true
         },
@@ -25511,7 +25511,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 42.10526315789473,
+          "value": 30.769230769230774,
           "threshold": 88,
           "applicable": true
         },
@@ -25549,7 +25549,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 52.17391304347826,
+          "value": 46.15384615384615,
           "threshold": 88,
           "applicable": true
         },
@@ -25587,7 +25587,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 43.47826086956522,
+          "value": 38.46153846153846,
           "threshold": 88,
           "applicable": true
         },
@@ -25625,7 +25625,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 22.222222222222214,
+          "value": 21.05263157894737,
           "threshold": 88,
           "applicable": true
         },
@@ -25663,7 +25663,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 43.47826086956522,
+          "value": 38.46153846153846,
           "threshold": 88,
           "applicable": true
         },
@@ -25701,7 +25701,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 34.78260869565217,
+          "value": 30.769230769230774,
           "threshold": 88,
           "applicable": true
         },
@@ -25739,7 +25739,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 26.31578947368422,
+          "value": 25.0,
           "threshold": 88,
           "applicable": true
         },
@@ -25777,7 +25777,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 26.08695652173914,
+          "value": 23.076923076923066,
           "threshold": 88,
           "applicable": true
         },
@@ -25815,7 +25815,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 10.526315789473685,
+          "value": 7.692307692307693,
           "threshold": 88,
           "applicable": true
         },
@@ -25853,7 +25853,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 26.08695652173914,
+          "value": 23.076923076923066,
           "threshold": 88,
           "applicable": true
         },
@@ -25891,7 +25891,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 26.08695652173914,
+          "value": 23.076923076923066,
           "threshold": 88,
           "applicable": true
         },
@@ -25929,7 +25929,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 22.727272727272734,
+          "value": 19.230769230769226,
           "threshold": 88,
           "applicable": true
         },
@@ -25967,7 +25967,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 26.08695652173914,
+          "value": 23.076923076923066,
           "threshold": 88,
           "applicable": true
         },
@@ -26005,7 +26005,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 17.391304347826093,
+          "value": 15.384615384615387,
           "threshold": 88,
           "applicable": true
         },
@@ -26043,7 +26043,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 17.391304347826093,
+          "value": 15.384615384615387,
           "threshold": 88,
           "applicable": true
         },
@@ -26081,7 +26081,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 4.347826086956516,
+          "value": 3.8461538461538396,
           "threshold": 88,
           "applicable": true
         },
@@ -26119,7 +26119,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 8.695652173913047,
+          "value": 7.692307692307693,
           "threshold": 88,
           "applicable": true
         },
