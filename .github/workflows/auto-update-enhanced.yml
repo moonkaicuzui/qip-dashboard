@@ -87,6 +87,39 @@ jobs:
         echo "Calculating incentives for all months..."
         python scripts/auto_calculate_incentives.py
 
+    # 7.5 AQL Inspector Config 자동 업데이트 (NEW!)
+    - name: 🔄 Auto Update AQL Inspector Config
+      run: |
+        echo "====================================="
+        echo "🔄 AQL Inspector Config Auto-Update"
+        echo "====================================="
+        echo ""
+        echo "📋 최신 인센티브 계산 결과를 config에 반영합니다..."
+        echo ""
+
+        # 최신 config 파일에서 월 정보 읽기
+        LATEST_CONFIG=$(ls -t config_files/config_*.json | head -1)
+        echo "📂 Using config: $LATEST_CONFIG"
+
+        # JSON에서 month와 year 추출
+        MONTH=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('month', 'november'))")
+        YEAR=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('year', 2025))")
+
+        echo "📅 Month: $MONTH"
+        echo "📅 Year: $YEAR"
+        echo ""
+
+        # AQL Inspector config 자동 업데이트
+        python scripts/auto_update_aql_config.py $MONTH $YEAR
+
+        echo ""
+        echo "✅ AQL Inspector config updated successfully!"
+        echo ""
+
+        # 변경사항 확인
+        echo "📋 Config 변경사항:"
+        git diff config_files/aql_inspector_incentive_config.json || echo "변경사항 없음"
+
     # 8. 자동 검증 실행
     - name: 🔍 Auto Validation
       run: |

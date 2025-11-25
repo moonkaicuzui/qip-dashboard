@@ -64,57 +64,57 @@
   },
   "aql_inspectors": {
     "620020923": {
-      "name": "AQL Inspector 1",
+      "name": "BÙI TRƯƠNG NGỌC NHỨT",
       "cfa_certified": true,
-      "june_2025_incentive": {
-        "part1_months": 12,
-        "part3_months": 13,
+      "november_2025_incentive": {
+        "part1_months": 13,
+        "part3_months": 14,
         "total": 2600000
       }
     },
     "618110077": {
-      "name": "AQL Inspector 2",
+      "name": "LÊ NGỌC LÂM MỸ HUỲNH",
       "cfa_certified": true,
-      "june_2025_incentive": {
-        "part1_months": 12,
-        "part3_months": 13,
+      "november_2025_incentive": {
+        "part1_months": 13,
+        "part3_months": 14,
         "total": 2600000
       }
     },
     "619100307": {
-      "name": "AQL Inspector 3",
+      "name": "DANH THÁI",
       "cfa_certified": true,
-      "june_2025_incentive": {
-        "part1_months": 12,
-        "part3_months": 13,
+      "november_2025_incentive": {
+        "part1_months": 13,
+        "part3_months": 14,
         "total": 2600000
       }
     },
     "621110376": {
-      "name": "AQL Inspector 4",
+      "name": "ĐOÀN PHAN NHI",
       "cfa_certified": true,
-      "june_2025_incentive": {
-        "part1_months": 6,
-        "part3_months": 6,
-        "total": 1450000
+      "november_2025_incentive": {
+        "part1_months": 0,
+        "part3_months": 1,
+        "total": 0
       }
     },
     "620120306": {
-      "name": "AQL Inspector 5",
+      "name": "NGUYỄN NGÔ TUYẾT NGÂN",
       "cfa_certified": true,
-      "june_2025_incentive": {
-        "part1_months": 6,
-        "part3_months": 6,
-        "total": 1450000
+      "november_2025_incentive": {
+        "part1_months": 7,
+        "part3_months": 8,
+        "total": 1700000
       }
     },
     "622030225": {
-      "name": "AQL Inspector 6",
+      "name": "NGUYỄN THỊ TƯỜNG VY",
       "cfa_certified": true,
-      "june_2025_incentive": {
-        "part1_months": 6,
-        "part3_months": 6,
-        "total": 1450000
+      "november_2025_incentive": {
+        "part1_months": 7,
+        "part3_months": 8,
+        "total": 1700000
       }
     }
   },
