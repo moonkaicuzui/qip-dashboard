@@ -65,18 +65,26 @@ def list_files_in_folder(service, folder_id, file_type='csv'):
         return []
 
 def download_file(service, file_id, output_path, force=True):
-    """Google Drive 파일 다운로드"""
+    """Google Drive 파일 다운로드 + modifiedTime 반환"""
     try:
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # Google Drive에서 파일 메타데이터 가져오기 (modifiedTime 포함)
+        file_metadata = service.files().get(
+            fileId=file_id,
+            fields='modifiedTime, size'
+        ).execute()
+
+        google_modified_time = file_metadata.get('modifiedTime')
 
         if os.path.exists(output_path):
             if force:
                 old_mtime = datetime.fromtimestamp(os.path.getmtime(output_path))
-                print(f"  🔄 기존 파일 삭제 (수정일: {old_mtime.strftime('%Y-%m-%d %H:%M:%S')})")
+                print(f"  🔄 기존 파일 삭제 (로컬 수정일: {old_mtime.strftime('%Y-%m-%d %H:%M:%S')})")
                 os.remove(output_path)
             else:
                 print(f"  ⚠️ 파일이 이미 존재합니다 (건너뜀)")
-                return False
+                return None
 
         request = service.files().get_media(fileId=file_id)
         fh = io.BytesIO()
@@ -89,15 +97,15 @@ def download_file(service, file_id, output_path, force=True):
         with open(output_path, 'wb') as f:
             f.write(fh.getvalue())
 
-        new_mtime = datetime.fromtimestamp(os.path.getmtime(output_path))
         file_size = os.path.getsize(output_path)
-        print(f"  ✅ 다운로드 완료 ({file_size:,} bytes, 수정일: {new_mtime.strftime('%Y-%m-%d %H:%M:%S')})")
+        print(f"  ✅ 다운로드 완료 ({file_size:,} bytes)")
+        print(f"     📅 Google Drive 수정일: {google_modified_time}")
 
-        return True
+        return google_modified_time
 
     except Exception as e:
         print(f"  ❌ 다운로드 실패: {e}")
-        return False
+        return None
 
 def month_number_to_name(month_num):
     """월 숫자를 영문 이름으로 변환"""
@@ -132,7 +140,7 @@ def calculate_working_days_from_attendance(attendance_file_path):
         return None
 
 def update_config_for_month(year, month_name, downloaded_files):
-    """특정 월의 config 파일을 업데이트"""
+    """특정 월의 config 파일을 업데이트 (modifiedTime 포함)"""
     config_path = f"config_files/config_{month_name}_{year}.json"
 
     print(f"\n  📝 Config 업데이트: {config_path}")
@@ -150,24 +158,36 @@ def update_config_for_month(year, month_name, downloaded_files):
             "working_days": 23
         }
 
-    # 실제 다운로드된 파일 경로 매핑
+    # 실제 다운로드된 파일 경로 매핑 + modifiedTime 저장
     file_paths = {}
+    files_modified_times = {}
 
     for file_info in downloaded_files:
         file_path = file_info['local_path']
         file_name = os.path.basename(file_path).lower()
+        modified_time = file_info.get('modified_time')
 
         if 'basic' in file_name and 'manpower' in file_name:
             file_paths['basic_manpower'] = file_path
+            if modified_time:
+                files_modified_times['basic_manpower'] = modified_time
         elif 'attendance' in file_name or '출근' in file_name:
             if 'converted' in file_path:
                 file_paths['attendance'] = file_path
+                if modified_time:
+                    files_modified_times['attendance'] = modified_time
             elif 'attendance' not in file_paths:  # converted가 없으면 original 사용
                 file_paths['attendance'] = file_path
+                if modified_time:
+                    files_modified_times['attendance'] = modified_time
         elif '5prs' in file_name.lower():
             file_paths['5prs'] = file_path
+            if modified_time:
+                files_modified_times['5prs'] = modified_time
         elif 'aql' in file_name.lower() and month_name.upper() in file_name.upper():
             file_paths['aql_current'] = file_path
+            if modified_time:
+                files_modified_times['aql_current'] = modified_time
 
     # Previous incentive 파일 경로 설정
     prev_month_names = {
@@ -189,6 +209,7 @@ def update_config_for_month(year, month_name, downloaded_files):
         file_paths['previous_incentive'] = f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_V9.1_Complete.csv"
 
     config['file_paths'] = file_paths
+    config['files_modified_times'] = files_modified_times
 
     # Working days 계산 및 업데이트
     if 'attendance' in file_paths and os.path.exists(file_paths['attendance']):
@@ -215,7 +236,14 @@ def update_config_for_month(year, month_name, downloaded_files):
     config['output_prefix'] = f"output_QIP_incentive_{month_name}_{year}"
     config['data_source'] = 'google_drive'
     config['created_at'] = config.get('created_at', datetime.now().isoformat())
-    config['last_updated'] = datetime.now().isoformat()
+
+    # last_updated: 가장 최근 파일 수정 시간 사용 (Google Drive modifiedTime)
+    if files_modified_times:
+        latest_modified = max(files_modified_times.values())
+        config['last_updated'] = latest_modified
+        print(f"    📅 가장 최근 파일 수정 시간: {latest_modified}")
+    else:
+        config['last_updated'] = datetime.now().isoformat()
 
     # Config 저장
     os.makedirs('config_files', exist_ok=True)
@@ -319,11 +347,13 @@ def main():
 
             if output_path:
                 print(f"  다운로드: {file['name']} → {output_path}")
-                if download_file(service, file['id'], output_path, force=True):
+                modified_time = download_file(service, file['id'], output_path, force=True)
+                if modified_time:
                     downloaded_files.append({
                         'google_name': file['name'],
                         'local_path': output_path,
-                        'file_id': file['id']
+                        'file_id': file['id'],
+                        'modified_time': modified_time
                     })
 
         # AQL 파일 다운로드
@@ -340,11 +370,13 @@ def main():
                     if aql_month == month_folder['month_name'].upper() and aql_year == str(month_folder['year']):
                         output_path = f"input_files/AQL history/1.HSRG AQL REPORT-{aql_month}.{aql_year}.csv"
                         print(f"  다운로드: {file['name']} → {output_path}")
-                        if download_file(service, file['id'], output_path, force=True):
+                        modified_time = download_file(service, file['id'], output_path, force=True)
+                        if modified_time:
                             downloaded_files.append({
                                 'google_name': file['name'],
                                 'local_path': output_path,
-                                'file_id': file['id']
+                                'file_id': file['id'],
+                                'modified_time': modified_time
                             })
                         break
 
