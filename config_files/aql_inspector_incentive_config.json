@@ -70,6 +70,11 @@
         "part1_months": 13,
         "part3_months": 14,
         "total": 2600000
+      },
+      "september_2025_incentive": {
+        "part1_months": 1,
+        "part3_months": 2,
+        "total": 850000
       }
     },
     "618110077": {
@@ -79,6 +84,11 @@
         "part1_months": 13,
         "part3_months": 14,
         "total": 2600000
+      },
+      "september_2025_incentive": {
+        "part1_months": 1,
+        "part3_months": 2,
+        "total": 850000
       }
     },
     "619100307": {
@@ -88,12 +98,22 @@
         "part1_months": 13,
         "part3_months": 14,
         "total": 2600000
+      },
+      "september_2025_incentive": {
+        "part1_months": 1,
+        "part3_months": 2,
+        "total": 850000
       }
     },
     "621110376": {
       "name": "ĐOÀN PHAN NHI",
       "cfa_certified": true,
       "november_2025_incentive": {
+        "part1_months": 0,
+        "part3_months": 1,
+        "total": 0
+      },
+      "september_2025_incentive": {
         "part1_months": 0,
         "part3_months": 1,
         "total": 0
@@ -106,6 +126,11 @@
         "part1_months": 7,
         "part3_months": 8,
         "total": 1700000
+      },
+      "september_2025_incentive": {
+        "part1_months": 1,
+        "part3_months": 2,
+        "total": 850000
       }
     },
     "622030225": {
@@ -115,6 +140,11 @@
         "part1_months": 7,
         "part3_months": 8,
         "total": 1700000
+      },
+      "september_2025_incentive": {
+        "part1_months": 1,
+        "part3_months": 2,
+        "total": 850000
       }
     }
   },
