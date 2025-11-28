@@ -78,7 +78,7 @@
       },
       "september_2025_incentive": {
         "part1_months": 1,
-        "part3_months": 2,
+        "part3_months": 0,
         "total": 850000
       }
     },
@@ -97,7 +97,7 @@
       },
       "september_2025_incentive": {
         "part1_months": 1,
-        "part3_months": 2,
+        "part3_months": 0,
         "total": 850000
       }
     },
@@ -154,7 +154,7 @@
       },
       "september_2025_incentive": {
         "part1_months": 1,
-        "part3_months": 2,
+        "part3_months": 0,
         "total": 850000
       }
     },
@@ -173,7 +173,7 @@
       },
       "september_2025_incentive": {
         "part1_months": 1,
-        "part3_months": 2,
+        "part3_months": 0,
         "total": 850000
       }
     }
