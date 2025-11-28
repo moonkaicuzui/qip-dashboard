@@ -3185,21 +3185,34 @@ class CompleteQIPCalculator:
         return {}
     
     def get_aql_inspector_continuous_months(self, emp_id: str, aql_config: Dict) -> Tuple[int, int]:
-        """AQL Inspectorof Part 1and Part 3 consecutive month성 month 수 calculation"""
-        # previous month 정보from 읽기 (6월 정보 based)
+        """AQL Inspector Part 1 and Part 3 continuous months calculation"""
         if emp_id in aql_config.get('aql_inspectors', {}):
-            june_info = aql_config['aql_inspectors'][emp_id].get('june_2025_incentive', {})
-            # July은 6월 + 1-month (condition 충족 정)
-            part1_months = june_info.get('part1_months', 0) + 1
-            part3_months = june_info.get('part3_months', 0) + 1
-            
-            # 최대value 제한
+            # 동적으로 이전 달 키 생성 (Fixed: 2025-11-26 - removed hardcoded 'june_2025_incentive')
+            prev_month_info = {}
+
+            if self.config.previous_months:
+                # Try to read from previous month (e.g., October for November calculation)
+                prev_month = self.config.previous_months[-1]
+                prev_month_key = f"{prev_month}_{self.config.year}_incentive"
+                prev_month_info = aql_config['aql_inspectors'][emp_id].get(prev_month_key, {})
+
+                # Fallback: if previous month data not found, try second-to-last month
+                if not prev_month_info and len(self.config.previous_months) > 1:
+                    fallback_month = self.config.previous_months[-2]
+                    fallback_key = f"{fallback_month}_{self.config.year}_incentive"
+                    prev_month_info = aql_config['aql_inspectors'][emp_id].get(fallback_key, {})
+
+            # If conditions met, increment months; if failed, will be reset by caller
+            part1_months = prev_month_info.get('part1_months', 0) + 1
+            part3_months = prev_month_info.get('part3_months', 0) + 1
+
+            # Cap at 15 months max
             part1_months = min(part1_months, 15)
             part3_months = min(part3_months, 15)
-            
+
             return part1_months, part3_months
-        
-        # new employee인 경우
+
+        # New employee case
         return 1, 1
     
     def calculate_aql_part1_amount(self, months: int, aql_config: Dict) -> int:

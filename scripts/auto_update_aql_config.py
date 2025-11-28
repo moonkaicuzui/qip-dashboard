@@ -41,6 +41,50 @@ def find_latest_output_file(year, month_name):
     print(f"❌ ERROR: No output file found for {month_name} {year}")
     sys.exit(1)
 
+def reverse_calculate_months(incentive, is_cfa_certified):
+    """실제 지급액에서 Part1/Part3 개월 수 역산 (Fixed: 2025-11-26)"""
+
+    # Part1 progression table (1-15 months)
+    part1_table = {
+        1: 150000, 2: 250000, 3: 300000, 4: 350000, 5: 400000,
+        6: 450000, 7: 500000, 8: 650000, 9: 750000, 10: 850000,
+        11: 950000, 12: 1000000, 13: 1000000, 14: 1000000, 15: 1000000
+    }
+
+    # Part3 HWK table (0-15 months)
+    part3_table = {
+        0: 0, 1: 0, 2: 0, 3: 0,
+        4: 300000, 5: 300000, 6: 300000,
+        7: 500000, 8: 500000, 9: 500000,
+        10: 700000, 11: 700000, 12: 700000,
+        13: 900000, 14: 900000, 15: 900000
+    }
+
+    # 조건 실패 (인센티브 0)
+    if incentive == 0:
+        return 0, 1  # Part1 reset, Part3 minimum
+
+    # Part2 (CFA) 차감
+    part2 = 700000 if is_cfa_certified else 0
+    remaining = incentive - part2
+
+    # Part1 + Part3 조합 찾기 (역산)
+    for p1_months in range(1, 16):
+        part1_amount = part1_table[p1_months]
+        part3_amount_needed = remaining - part1_amount
+
+        # Part3 개월 수 찾기
+        for p3_months in range(0, 16):
+            if part3_table[p3_months] == part3_amount_needed:
+                return p1_months, p3_months
+
+    # 매칭 실패 시 보수적 추정 (Part1만 계산)
+    for p1_months in range(15, 0, -1):
+        if part1_table[p1_months] <= remaining:
+            return p1_months, 0
+
+    return 1, 1  # 기본값
+
 def update_config_from_data(config, csv_path, month_name, year):
     """CSV 데이터에서 config 업데이트"""
 
@@ -74,13 +118,6 @@ def update_config_from_data(config, csv_path, month_name, year):
 
         emp_row = emp_data.iloc[0]
 
-        # Continuous_Months 읽기
-        continuous_months = emp_row.get('Continuous_Months', 0)
-        if pd.isna(continuous_months):
-            continuous_months = 0
-        else:
-            continuous_months = int(continuous_months)
-
         # 인센티브 읽기
         incentive = emp_row.get(incentive_col, 0)
         if pd.isna(incentive):
@@ -88,12 +125,15 @@ def update_config_from_data(config, csv_path, month_name, year):
         else:
             incentive = int(incentive)
 
-        # Part 3 months (다음 달 계산용)
-        part3_months = min(continuous_months + 1, 15)  # Cap at 15
+        # 실제 지급액 역산으로 Part1/Part3 개월 수 계산 (Fixed: 2025-11-26)
+        part1_months, part3_months = reverse_calculate_months(
+            incentive,
+            inspector_config.get('cfa_certified', False)
+        )
 
         # Config 업데이트
         new_data = {
-            "part1_months": continuous_months,
+            "part1_months": part1_months,
             "part3_months": part3_months,
             "total": incentive
         }
@@ -101,7 +141,7 @@ def update_config_from_data(config, csv_path, month_name, year):
         inspector_config[month_key] = new_data
 
         print(f"✅ {inspector_config['name']} ({emp_id}): "
-              f"{continuous_months}개월 → {incentive:,} VND")
+              f"Part1={part1_months}개월, Part3={part3_months}개월 → {incentive:,} VND")
 
         updated_count += 1
 

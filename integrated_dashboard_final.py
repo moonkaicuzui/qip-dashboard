@@ -1176,6 +1176,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     aql_file_stats_str = json.dumps(aql_file_stats if 'aql_file_stats' in locals() else {}, ensure_ascii=False, separators=(',', ':'))
     aql_file_stats_b64 = base64.b64encode(aql_file_stats_str.encode('utf-8')).decode('ascii')
 
+    # AQL Inspector 인센티브 Config 로드 (Part 1/2/3 breakdown 표시용)
+    try:
+        aql_incentive_config_path = os.path.join('config_files', 'aql_inspector_incentive_config.json')
+        with open(aql_incentive_config_path, 'r', encoding='utf-8') as f:
+            aql_incentive_config = json.load(f)
+        aql_incentive_config_str = json.dumps(aql_incentive_config, ensure_ascii=False, separators=(',', ':'))
+        aql_incentive_config_b64 = base64.b64encode(aql_incentive_config_str.encode('utf-8')).decode('ascii')
+        print(f"✅ AQL Inspector incentive config loaded: {len(aql_incentive_config.get('aql_inspectors', {}))} inspectors")
+    except Exception as e:
+        print(f"⚠️ Failed to load aql_inspector_incentive_config.json: {e}")
+        aql_incentive_config_b64 = base64.b64encode('{"aql_inspectors":{}}'.encode('utf-8')).decode('ascii')
+
     # Auditor/Trainer Area Mapping JSON load and encode to Base64
     try:
         auditor_mapping_path = os.path.join('config_files', 'auditor_trainer_area_mapping.json')
@@ -8259,6 +8271,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         {auditor_mapping_b64}
     </script>
 
+    <script type="application/json" id="aqlIncentiveConfigBase64">
+        {aql_incentive_config_b64}
+    </script>
+
     <script>
         // ==================== 보안: 세션 검증 ====================
         (function() {{
@@ -8553,6 +8569,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }} else {{
                 console.warn('Auditor Area Mapping element not found, using empty object');
                 window.auditorAreaMapping = {{}};
+            }}
+
+            // AQL Inspector 인센티브 Config 로드 (Part 1/2/3 breakdown 표시용)
+            const aqlIncentiveConfigElement = document.getElementById('aqlIncentiveConfigBase64');
+            if (aqlIncentiveConfigElement) {{
+                const aqlIncentiveConfigBase64 = aqlIncentiveConfigElement.textContent.trim();
+                const aqlIncentiveConfigJson = base64DecodeUnicode(aqlIncentiveConfigBase64);
+                window.aqlIncentiveConfig = JSON.parse(aqlIncentiveConfigJson);
+                console.log('AQL Inspector Incentive Config loaded:',
+                    Object.keys(window.aqlIncentiveConfig.aql_inspectors || {{}}).length, 'inspectors');
+            }} else {{
+                console.warn('AQL Incentive Config element not found, using empty object');
+                window.aqlIncentiveConfig = {{ aql_inspectors: {{}}, parts: {{}} }};
             }}
 
             // Build condition_results array from individual condition fields
@@ -16316,7 +16345,118 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }} else if (totalConditions > 0) {{
                 passRate = (passedConditions / totalConditions * 100).toFixed(0);
             }}
-            
+
+            // AQL Inspector 특별 처리: Part 1/2/3 breakdown
+            const isAqlInspector = (emp['QIP POSITION 1ST NAME'] || emp['QIP POSITION 1ST  NAME'] || '').toUpperCase().includes('AQL INSPECTOR');
+            let aqlInspectorSection = '';
+
+            if (isAqlInspector && window.aqlIncentiveConfig) {{
+                const aqlConfig = window.aqlIncentiveConfig;
+                const inspectorData = aqlConfig.aql_inspectors?.[empNoStr] || {{}};
+                const monthKey = '{month.lower()}_{year}_incentive';
+                const monthData = inspectorData[monthKey] || {{}};
+
+                // Part 1/2/3 테이블 구성
+                const part1Months = monthData.part1_months || 0;
+                const part3Months = monthData.part3_months || 0;
+                const isCfaCertified = inspectorData.cfa_certified || false;
+
+                // Part 1 금액 계산 (progression table)
+                const part1Table = aqlConfig.parts?.part1?.incentive_table?.sustained_performance?.amounts || {{}};
+                const part1Amount = part1Table[String(part1Months)] || 0;
+
+                // Part 2 금액 (CFA 자격증)
+                const part2Amount = isCfaCertified ? (aqlConfig.parts?.part2?.amount || 700000) : 0;
+
+                // Part 3 금액 계산 (HWK)
+                const part3Table = aqlConfig.parts?.part3?.incentive_table || {{}};
+                const part3Amount = part3Table[String(part3Months)] || 0;
+
+                // 총액
+                const totalAmount = part1Amount + part2Amount + part3Amount;
+
+                // 번역
+                const langLabels = {{
+                    ko: {{
+                        title: '🎯 AQL Inspector 인센티브 상세 (3-Part 계산)',
+                        part1: 'Part 1: AQL 검사 평가',
+                        part2: 'Part 2: CFA 자격증',
+                        part3: 'Part 3: HWK 클레임 방지',
+                        months: '개월',
+                        certified: '보유',
+                        notCertified: '미보유',
+                        total: '합계',
+                        conditionFailed: '⚠️ 출근 조건 미충족으로 지급 보류'
+                    }},
+                    en: {{
+                        title: '🎯 AQL Inspector Incentive Details (3-Part Calculation)',
+                        part1: 'Part 1: AQL Evaluation',
+                        part2: 'Part 2: CFA Certificate',
+                        part3: 'Part 3: HWK Claim Prevention',
+                        months: 'months',
+                        certified: 'Certified',
+                        notCertified: 'Not Certified',
+                        total: 'Total',
+                        conditionFailed: '⚠️ Payment suspended due to attendance condition not met'
+                    }},
+                    vi: {{
+                        title: '🎯 Chi tiết khuyến khích AQL Inspector (Tính toán 3 phần)',
+                        part1: 'Phần 1: Đánh giá AQL',
+                        part2: 'Phần 2: Chứng chỉ CFA',
+                        part3: 'Phần 3: Ngăn ngừa khiếu nại HWK',
+                        months: 'tháng',
+                        certified: 'Đã có',
+                        notCertified: 'Chưa có',
+                        total: 'Tổng cộng',
+                        conditionFailed: '⚠️ Tạm ngưng thanh toán do không đạt điều kiện chuyên cần'
+                    }}
+                }};
+
+                const labels = langLabels[currentLanguage] || langLabels.ko;
+                const conditionFailedMsg = !isPaidEmployee ? `<div class="alert alert-warning mt-2 mb-0" style="font-size: 0.9rem;">${{labels.conditionFailed}}</div>` : '';
+
+                aqlInspectorSection = `
+                <div class="card mb-4" style="border: 2px solid #17a2b8; background: linear-gradient(135deg, #f8f9fa 0%, #e8f4f8 100%);">
+                    <div class="card-body">
+                        <h6 class="card-title" style="color: #17a2b8; font-weight: bold;">
+                            ${{labels.title}}
+                        </h6>
+                        <table class="table table-sm table-bordered mb-0">
+                            <thead style="background-color: #17a2b8; color: white;">
+                                <tr>
+                                    <th width="50%">구분</th>
+                                    <th width="25%">조건</th>
+                                    <th width="25%" class="text-end">금액</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>${{labels.part1}}</strong></td>
+                                    <td>${{part1Months}} ${{labels.months}}</td>
+                                    <td class="text-end">${{part1Amount.toLocaleString()}} VND</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>${{labels.part2}}</strong></td>
+                                    <td>${{isCfaCertified ? '✅ ' + labels.certified : '❌ ' + labels.notCertified}}</td>
+                                    <td class="text-end">${{part2Amount.toLocaleString()}} VND</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>${{labels.part3}}</strong></td>
+                                    <td>${{part3Months}} ${{labels.months}}</td>
+                                    <td class="text-end">${{part3Amount.toLocaleString()}} VND</td>
+                                </tr>
+                                <tr style="background-color: #d4edda;">
+                                    <td colspan="2"><strong>${{labels.total}}</strong></td>
+                                    <td class="text-end"><strong>${{totalAmount.toLocaleString()}} VND</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        ${{conditionFailedMsg}}
+                    </div>
+                </div>
+                `;
+            }}
+
             modalBody.innerHTML = `
                 <!-- 상단 통계 카드 -->
                 <div class="row mb-4">
@@ -16339,7 +16479,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- AQL Inspector 특별 섹션 (Part 1/2/3 breakdown) -->
+                ${{aqlInspectorSection}}
+
                 <!-- 차트와 조건 충족도 -->
                 <div class="row mb-4">
                     <div class="col-md-6">

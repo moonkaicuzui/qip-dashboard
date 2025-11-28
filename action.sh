@@ -444,6 +444,19 @@ else
     echo -e "${YELLOW}⚠️ Warning during consecutive AQL failure update (dashboard generation continues)${NC}"
 fi
 
+# Step 1.8: Auto-update AQL Inspector incentive config (Part 1/2/3 tracking)
+echo ""
+echo -e "${YELLOW}🔄 Updating AQL Inspector incentive config (3-Part calculation)...${NC}"
+python3 scripts/auto_update_aql_config.py $MONTH $YEAR
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ AQL Inspector config auto-update completed${NC}"
+    echo -e "${CYAN}   • Part 1 (AQL 평가): Updated continuous months${NC}"
+    echo -e "${CYAN}   • Part 2 (CFA 자격증): Verified certification status${NC}"
+    echo -e "${CYAN}   • Part 3 (HWK 클레임 방지): Updated continuous months${NC}"
+else
+    echo -e "${YELLOW}⚠️ Warning during AQL Inspector config update (dashboard generation continues)${NC}"
+fi
+
 # Step 2: Modular Dashboard generation (improved structure v6.0)
 echo ""
 echo -e "${GREEN}✨ Generating improved modular dashboard v6.0${NC}"

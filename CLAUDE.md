@@ -1083,6 +1083,43 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commit**: [to be committed]
    - **Prevention**: Always use Google Drive API modifiedTime for accurate file change detection
 
+23. **AQL Inspector Part 1/2/3 Breakdown Display** (IMPLEMENTED: 2025-11-28):
+   - **Problem**: AQL Inspector employees shown with generic modal, no 3-Part incentive breakdown
+   - **User Request**: "AQL Inspector 인센티브 정책 확인 및 자동 표시"
+   - **Root Cause**: Dashboard modal did not have special handling for AQL Inspector position
+   - **Solution**: Implemented comprehensive AQL Inspector display system
+     - **Dashboard Modal Enhancement** (`integrated_dashboard_final.py:16349-16458`):
+       - Detect AQL Inspector position from employee data
+       - Load `aql_inspector_incentive_config.json` data
+       - Display Part 1/2/3 breakdown table with amounts
+       - 3-language support (Korean/English/Vietnamese)
+       - Warning message when attendance condition not met
+     - **Config Data Integration** (`integrated_dashboard_final.py:1179-1189, 8274-8276, 8574-8585`):
+       - Load AQL Inspector incentive config as Base64
+       - Decode and make available as `window.aqlIncentiveConfig`
+     - **Workflow Integration** (`action.sh:447-458`):
+       - Added Step 1.8: Auto-update AQL Inspector config after calculation
+       - Runs `scripts/auto_update_aql_config.py` automatically
+   - **AQL Inspector 3-Part Calculation Logic**:
+     - **Part 1** (AQL 평가): Progression table 1-15 months (150K → 1,000K VND)
+     - **Part 2** (CFA 자격증): Fixed 700,000 VND if certified
+     - **Part 3** (HWK 클레임 방지): 4개월부터 시작 (300K → 900K VND)
+     - **Total** = Part 1 + Part 2 + Part 3
+   - **Config Data Correction**:
+     - Fixed ĐOÀN PHAN NHI (621110376) October data: 1,350,000 → 0 (per screenshot)
+   - **Files Modified**:
+     - `integrated_dashboard_final.py` (+145 lines)
+     - `action.sh` (+13 lines - Step 1.8)
+     - `config_files/aql_inspector_incentive_config.json` (data correction)
+   - **Verification**:
+     - Dashboard modal shows Part 1/2/3 breakdown for AQL Inspector employees
+     - Language switching works correctly
+     - Condition warning displayed when attendance fails
+   - **Commit**: [to be committed]
+   - **Prevention**:
+     - Always verify config data against actual source (Excel/screenshot)
+     - Test AQL Inspector modal with different language settings
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
