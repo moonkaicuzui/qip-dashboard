@@ -42,7 +42,11 @@ def find_latest_output_file(year, month_name):
     sys.exit(1)
 
 def reverse_calculate_months(incentive, is_cfa_certified):
-    """실제 지급액에서 Part1/Part3 개월 수 역산 (Fixed: 2025-11-26)"""
+    """실제 지급액에서 Part1/Part3 개월 수 역산 (Fixed: 2025-11-29)
+
+    핵심 로직: Part1과 Part3는 CFA 취득 후 동일하게 증가하므로,
+    Part1 == Part3인 경우를 우선 탐색
+    """
 
     # Part1 progression table (1-15 months)
     part1_table = {
@@ -62,18 +66,22 @@ def reverse_calculate_months(incentive, is_cfa_certified):
 
     # 조건 실패 (인센티브 0)
     if incentive == 0:
-        return 0, 1  # Part1 reset, Part3 minimum
+        return 0, 0  # Part1, Part3 모두 리셋
 
     # Part2 (CFA) 차감
     part2 = 700000 if is_cfa_certified else 0
     remaining = incentive - part2
 
-    # Part1 + Part3 조합 찾기 (역산)
+    # 우선 탐색: Part1 == Part3 (CFA 취득 후 동시 증가하는 경우)
+    for months in range(1, 16):
+        if part1_table[months] + part3_table.get(months, 0) == remaining:
+            return months, months
+
+    # 차선 탐색: Part1 + Part3 조합 (다른 경우)
     for p1_months in range(1, 16):
         part1_amount = part1_table[p1_months]
         part3_amount_needed = remaining - part1_amount
 
-        # Part3 개월 수 찾기
         for p3_months in range(0, 16):
             if part3_table[p3_months] == part3_amount_needed:
                 return p1_months, p3_months
