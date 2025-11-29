@@ -4711,17 +4711,22 @@ class CompleteQIPCalculator:
                 approved_leave_days = self.calculate_approved_leave_days(emp_no)
                 self.month_data.loc[idx, 'Approved Leave Days'] = approved_leave_days
 
-                # ✅ POLICY ALIGNED: 출근율 = (실제 근무일 / 총 근무일) × 100
-                # 정책: 승인휴가도 결근일에 포함하여 총 근무일 대비 계산
-                # 승인휴가는 기록용으로만 보관하고 출근율 계산에는 사용하지 않음
+                # ✅ POLICY ALIGNED (Fixed 2025-11-29): 승인휴가는 결근에서 제외
+                # 정책 공식:
+                #   결근일 = 총 근무일 - 실제 근무일 - 승인휴가
+                #   결근율 = 결근일 / 총 근무일 × 100
+                #   출근율 = 100 - 결근율
+                # 예시: 총 18일, 실제 14일, 승인휴가 2일 → 결근 2일 → 출근율 88.9%
                 if total_days > 0:
-                    # 출근율 = 실제 근무일 / 총 근무일
-                    attendance_rate = (actual_days / total_days) * 100
+                    # 결근일 = 총 근무일 - 실제 근무일 - 승인휴가 (무단결근만 카운트)
+                    absence_days = total_days - actual_days - approved_leave_days
+                    absence_days = max(0, absence_days)  # 음수 방지
 
-                    # 결근일 = 총 근무일 - 실제 근무일 (승인휴가 포함)
-                    absence_days = total_days - actual_days
-                    absence_days = max(0, absence_days)
+                    # 결근율 = 결근일 / 총 근무일 × 100
                     absence_rate = (absence_days / total_days) * 100
+
+                    # 출근율 = 100 - 결근율 (승인휴가는 출근으로 인정)
+                    attendance_rate = 100 - absence_rate
 
                     # 100% 초과 방지
                     attendance_rate = min(100, max(0, attendance_rate))

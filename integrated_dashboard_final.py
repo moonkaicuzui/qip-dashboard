@@ -16557,7 +16557,83 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- 출근 상세 정보 (Added 2025-11-29) -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title">` + getTranslation('modal.detailPopup.attendanceDetails', currentLanguage) + `</h6>
+                        ${{(() => {{
+                            const totalDays = parseFloat(emp['Total Working Days'] || 0);
+                            const actualDays = parseFloat(emp['Actual Working Days'] || 0);
+                            const approvedLeave = parseFloat(emp['Approved Leave Days'] || 0);
+                            const absenceDays = Math.max(0, totalDays - actualDays - approvedLeave);
+                            const absenceRate = totalDays > 0 ? ((absenceDays / totalDays) * 100).toFixed(1) : 0;
+                            const attendanceRate = totalDays > 0 ? (100 - absenceRate).toFixed(1) : 0;
+
+                            const translations = {{
+                                ko: {{
+                                    totalDays: '총 근무일',
+                                    actualDays: '실제 근무일',
+                                    approvedLeave: '승인휴가',
+                                    absenceDays: '결근일',
+                                    absenceRate: '결근율',
+                                    attendanceRate: '출근율',
+                                    formula: '계산식',
+                                    days: '일'
+                                }},
+                                en: {{
+                                    totalDays: 'Total Working Days',
+                                    actualDays: 'Actual Working Days',
+                                    approvedLeave: 'Approved Leave',
+                                    absenceDays: 'Absence Days',
+                                    absenceRate: 'Absence Rate',
+                                    attendanceRate: 'Attendance Rate',
+                                    formula: 'Formula',
+                                    days: 'days'
+                                }},
+                                vi: {{
+                                    totalDays: 'Tổng ngày làm việc',
+                                    actualDays: 'Ngày làm việc thực tế',
+                                    approvedLeave: 'Nghỉ phép',
+                                    absenceDays: 'Ngày vắng mặt',
+                                    absenceRate: 'Tỷ lệ vắng',
+                                    attendanceRate: 'Tỷ lệ đi làm',
+                                    formula: 'Công thức',
+                                    days: 'ngày'
+                                }}
+                            }};
+                            const t = translations[currentLanguage] || translations.ko;
+
+                            return `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><strong>${{t.totalDays}}:</strong></td><td>${{totalDays}} ${{t.days}}</td></tr>
+                                        <tr><td><strong>${{t.actualDays}}:</strong></td><td>${{actualDays}} ${{t.days}}</td></tr>
+                                        <tr><td><strong>${{t.approvedLeave}}:</strong></td><td>${{approvedLeave}} ${{t.days}}</td></tr>
+                                        <tr><td><strong>${{t.absenceDays}}:</strong></td><td>${{absenceDays}} ${{t.days}}</td></tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tr><td><strong>${{t.absenceRate}}:</strong></td><td>${{absenceRate}}%</td></tr>
+                                        <tr class="${{parseFloat(attendanceRate) >= 88 ? 'table-success' : 'table-danger'}}">
+                                            <td><strong>${{t.attendanceRate}}:</strong></td>
+                                            <td><strong>${{attendanceRate}}%</strong> ${{parseFloat(attendanceRate) >= 88 ? '✅' : '❌'}}</td>
+                                        </tr>
+                                    </table>
+                                    <small class="text-muted d-block mt-2">
+                                        <strong>${{t.formula}}:</strong><br>
+                                        ${{t.absenceDays}} = ${{totalDays}} - ${{actualDays}} - ${{approvedLeave}} = ${{absenceDays}}<br>
+                                        ${{t.attendanceRate}} = 100 - (${{absenceDays}}/${{totalDays}}×100) = ${{attendanceRate}}%
+                                    </small>
+                                </div>
+                            </div>
+                            `;
+                        }})()}}
+                    </div>
+                </div>
+
                 <!-- 조건 충족 상세 테이블 -->
                 <div class="card">
                     <div class="card-body">

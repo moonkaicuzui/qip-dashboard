@@ -2076,6 +2076,46 @@
         "ko": "결과",
         "en": "Result",
         "vi": "Kết quả"
+      },
+      "attendanceDetails": {
+        "ko": "출근 상세 정보",
+        "en": "Attendance Details",
+        "vi": "Chi tiết chấm công"
+      },
+      "totalWorkingDays": {
+        "ko": "총 근무일",
+        "en": "Total Working Days",
+        "vi": "Tổng ngày làm việc"
+      },
+      "actualWorkingDays": {
+        "ko": "실제 출근일",
+        "en": "Actual Working Days",
+        "vi": "Ngày làm thực tế"
+      },
+      "approvedLeave": {
+        "ko": "승인휴가",
+        "en": "Approved Leave",
+        "vi": "Nghỉ được duyệt"
+      },
+      "absenceDays": {
+        "ko": "결근일 (무단)",
+        "en": "Absence Days (Unapproved)",
+        "vi": "Ngày vắng (không phép)"
+      },
+      "absenceRate": {
+        "ko": "결근율",
+        "en": "Absence Rate",
+        "vi": "Tỷ lệ vắng"
+      },
+      "attendanceRate": {
+        "ko": "출근율",
+        "en": "Attendance Rate",
+        "vi": "Tỷ lệ chấm công"
+      },
+      "formula": {
+        "ko": "계산식",
+        "en": "Formula",
+        "vi": "Công thức"
       }
     },
     "conditionTexts": {
