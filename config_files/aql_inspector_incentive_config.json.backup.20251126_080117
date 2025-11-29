@@ -68,17 +68,17 @@
       "cfa_certified": true,
       "november_2025_incentive": {
         "part1_months": 0,
-        "part3_months": 0,
+        "part3_months": 1,
         "total": 0
       },
       "october_2025_incentive": {
-        "part1_months": 13,
+        "part1_months": 12,
         "part3_months": 13,
         "total": 2600000
       },
       "september_2025_incentive": {
         "part1_months": 1,
-        "part3_months": 0,
+        "part3_months": 2,
         "total": 850000
       }
     },
@@ -87,17 +87,17 @@
       "cfa_certified": true,
       "november_2025_incentive": {
         "part1_months": 0,
-        "part3_months": 0,
+        "part3_months": 1,
         "total": 0
       },
       "october_2025_incentive": {
-        "part1_months": 13,
+        "part1_months": 12,
         "part3_months": 13,
         "total": 2600000
       },
       "september_2025_incentive": {
         "part1_months": 1,
-        "part3_months": 0,
+        "part3_months": 2,
         "total": 850000
       }
     },
@@ -106,11 +106,11 @@
       "cfa_certified": true,
       "november_2025_incentive": {
         "part1_months": 0,
-        "part3_months": 0,
+        "part3_months": 1,
         "total": 0
       },
       "october_2025_incentive": {
-        "part1_months": 13,
+        "part1_months": 12,
         "part3_months": 13,
         "total": 2600000
       },
@@ -125,13 +125,13 @@
       "cfa_certified": true,
       "november_2025_incentive": {
         "part1_months": 0,
-        "part3_months": 0,
+        "part3_months": 1,
         "total": 0
       },
       "october_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 0,
-        "total": 0
+        "part1_months": 8,
+        "part3_months": 3,
+        "total": 1350000
       },
       "september_2025_incentive": {
         "part1_months": 0,
@@ -144,17 +144,17 @@
       "cfa_certified": true,
       "november_2025_incentive": {
         "part1_months": 0,
-        "part3_months": 0,
+        "part3_months": 1,
         "total": 0
       },
       "october_2025_incentive": {
-        "part1_months": 7,
-        "part3_months": 7,
+        "part1_months": 12,
+        "part3_months": 3,
         "total": 1700000
       },
       "september_2025_incentive": {
         "part1_months": 1,
-        "part3_months": 0,
+        "part3_months": 2,
         "total": 850000
       }
     },
@@ -163,17 +163,17 @@
       "cfa_certified": true,
       "november_2025_incentive": {
         "part1_months": 0,
-        "part3_months": 0,
+        "part3_months": 1,
         "total": 0
       },
       "october_2025_incentive": {
-        "part1_months": 7,
-        "part3_months": 7,
+        "part1_months": 12,
+        "part3_months": 3,
         "total": 1700000
       },
       "september_2025_incentive": {
         "part1_months": 1,
-        "part3_months": 0,
+        "part3_months": 2,
         "total": 850000
       }
     }
