@@ -4525,6 +4525,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     (currentLanguage === 'ko' ? '충족' : currentLanguage === 'en' ? 'Met' : 'Đạt');
 
                 const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.onclick = function(e) {
+                    e.stopPropagation();
+                    showInlineDetail(emp, this);
+                };
                 row.innerHTML = `
                     <td>${empNo}</td>
                     <td>${name}</td>
@@ -4535,6 +4540,143 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 `;
                 tbody.appendChild(row);
             });
+        }
+
+        // 인라인 상세 팝업 표시 함수 (Added 2025-11-30)
+        function showInlineDetail(emp, rowElement) {
+            // 기존 팝업 제거
+            closeInlineDetail();
+
+            const lang = currentLanguage || 'ko';
+
+            // 다국어 라벨
+            const labels = {
+                ko: {
+                    title: '직원 상세 정보',
+                    entranceDate: '입사일',
+                    stopDate: '퇴사일',
+                    actualDays: '실제 근무일',
+                    status: '상태',
+                    normal: '정상 근무',
+                    resigned: '퇴사',
+                    maternity: '출산휴가',
+                    days: '일',
+                    none: '-',
+                    clickHint: '행을 클릭하면 상세정보를 볼 수 있습니다'
+                },
+                en: {
+                    title: 'Employee Details',
+                    entranceDate: 'Entrance Date',
+                    stopDate: 'Stop Date',
+                    actualDays: 'Actual Working Days',
+                    status: 'Status',
+                    normal: 'Active',
+                    resigned: 'Resigned',
+                    maternity: 'Maternity Leave',
+                    days: ' days',
+                    none: '-',
+                    clickHint: 'Click row to see details'
+                },
+                vi: {
+                    title: 'Chi tiết nhân viên',
+                    entranceDate: 'Ngày vào làm',
+                    stopDate: 'Ngày nghỉ việc',
+                    actualDays: 'Ngày làm thực tế',
+                    status: 'Trạng thái',
+                    normal: 'Đang làm',
+                    resigned: 'Đã nghỉ',
+                    maternity: 'Nghỉ thai sản',
+                    days: ' ngày',
+                    none: '-',
+                    clickHint: 'Nhấp hàng để xem chi tiết'
+                }
+            };
+            const t = labels[lang] || labels.ko;
+
+            // 직원 데이터 추출
+            const entranceDate = emp['Entrance Date'] || emp['entrance_date'] || t.none;
+            const stopDate = emp['Stop working Date'] || emp['stop_working_date'] || t.none;
+            const actualDays = emp['Actual Working Days'] || emp['actual_working_days'] || emp['Actual_Working_Days'] || 0;
+
+            // 상태 결정
+            let status = t.normal;
+            let statusClass = 'status-normal';
+            const pregnant = (emp['Pregnant vacation'] || emp['pregnant_vacation'] || emp['Display Pregnant Women'] || '').toString().toLowerCase();
+            const remark = (emp['Remark'] || emp['remark'] || emp['RE MARK'] || '').toString().toLowerCase();
+
+            if (stopDate && stopDate !== t.none && stopDate !== '-') {
+                status = t.resigned;
+                statusClass = 'status-resigned';
+            } else if (pregnant === 'yes' || pregnant === 'thai san' || remark.includes('maternity') || remark.includes('출산') || remark.includes('thai san')) {
+                status = t.maternity;
+                statusClass = 'status-maternity';
+            }
+
+            // 팝업 HTML 생성
+            const popupHTML = `
+                <div id="inlineDetailPopup" class="inline-detail-popup">
+                    <div class="popup-header">
+                        <h6><i class="fas fa-user me-2"></i>${t.title}</h6>
+                        <button class="popup-close" onclick="closeInlineDetail()">&times;</button>
+                    </div>
+                    <div class="popup-body">
+                        <div class="detail-item">
+                            <span class="detail-label">${t.entranceDate}</span>
+                            <span class="detail-value">${entranceDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">${t.stopDate}</span>
+                            <span class="detail-value">${stopDate}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">${t.actualDays}</span>
+                            <span class="detail-value">${actualDays}${t.days}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">${t.status}</span>
+                            <span class="detail-value">
+                                <span class="status-badge ${statusClass}">${status}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 팝업 추가
+            const modalBody = document.querySelector('#lowInspectionQtyModal .modal-body');
+            if (!modalBody) return;
+
+            modalBody.style.position = 'relative';
+            modalBody.insertAdjacentHTML('beforeend', popupHTML);
+
+            // 팝업 위치 계산
+            const popup = document.getElementById('inlineDetailPopup');
+            const rowRect = rowElement.getBoundingClientRect();
+            const modalRect = modalBody.getBoundingClientRect();
+
+            // 모달 바디 기준 상대 위치
+            let topPos = rowRect.top - modalRect.top + modalBody.scrollTop + rowElement.offsetHeight + 5;
+            let leftPos = rowRect.left - modalRect.left + 50;
+
+            // 화면 경계 체크
+            if (leftPos + popup.offsetWidth > modalBody.offsetWidth) {
+                leftPos = modalBody.offsetWidth - popup.offsetWidth - 20;
+            }
+            if (leftPos < 10) leftPos = 10;
+
+            popup.style.top = topPos + 'px';
+            popup.style.left = leftPos + 'px';
+        }
+
+        // 인라인 팝업 닫기 (글로벌 함수로 등록)
+        window.closeInlineDetail = function() {
+            const popup = document.getElementById('inlineDetailPopup');
+            if (popup) {
+                popup.remove();
+            }
+        };
+        function closeInlineDetail() {
+            window.closeInlineDetail();
         }
 
         function createInspectionModal() {
@@ -4783,6 +4925,88 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     .sortable-header.desc::after {
         content: '▼' !important;
         opacity: 1 !important;
+    }
+
+    /* 5PRS 인라인 상세 팝업 스타일 (Added 2025-11-30) */
+    .inline-detail-popup {
+        position: absolute;
+        background: white;
+        border: 2px solid #2196f3;
+        border-radius: 10px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+        padding: 15px;
+        z-index: 1100;
+        min-width: 300px;
+        max-width: 380px;
+    }
+    .inline-detail-popup .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 10px;
+        margin-bottom: 12px;
+    }
+    .inline-detail-popup .popup-header h6 {
+        margin: 0;
+        color: #1565c0;
+        font-weight: bold;
+        font-size: 1rem;
+    }
+    .inline-detail-popup .popup-close {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #666;
+        padding: 0;
+        line-height: 1;
+    }
+    .inline-detail-popup .popup-close:hover {
+        color: #c62828;
+    }
+    .inline-detail-popup .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .inline-detail-popup .detail-item:last-child {
+        border-bottom: none;
+    }
+    .inline-detail-popup .detail-label {
+        color: #666;
+        font-weight: 500;
+    }
+    .inline-detail-popup .detail-value {
+        color: #333;
+        font-weight: 600;
+    }
+    .inline-detail-popup .status-badge {
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+    .inline-detail-popup .status-maternity {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+    .inline-detail-popup .status-resigned {
+        background: #ffebee;
+        color: #c62828;
+    }
+    .inline-detail-popup .status-normal {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+    /* 행 클릭 가능 표시 */
+    #lowInspectionQtyModal tbody tr {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    #lowInspectionQtyModal tbody tr:hover {
+        background-color: #e3f2fd !important;
     }
 
     .calendar-grid {
