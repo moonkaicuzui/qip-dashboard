@@ -3713,15 +3713,14 @@ class CompleteQIPCalculator:
                     incentive = int(avg_incentive * 2)
                     print(f"    → Head/Group Leader {row.get('Full Name', 'Unknown')} ({head_id}): Line Leader 평균 {avg_incentive:,.0f} × 2 = {incentive:,} VND")
                 else:
-                    # Fallback: 전체 TYPE-1 LINE LEADER 평균 사용
+                    # Fallback: 전체 TYPE-1 LINE LEADER 평균 사용 (0 포함) - 2025-11-30 변경
                     all_line_leaders = self.month_data[
                         (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
                         (self.month_data['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
                     ]
-                    receiving_ll = all_line_leaders[all_line_leaders[incentive_col] > 0]
 
-                    if len(receiving_ll) > 0:
-                        avg_incentive = int(receiving_ll[incentive_col].mean())
+                    if len(all_line_leaders) > 0:
+                        avg_incentive = int(all_line_leaders[incentive_col].mean())
                         incentive = int(avg_incentive * 2)
                         print(f"    → Head/Group Leader {row.get('Full Name', 'Unknown')} ({head_id}): 전체 LINE LEADER 평균 {avg_incentive:,.0f} × 2 = {incentive:,} VND (Fallback)")
                     else:
@@ -3814,15 +3813,14 @@ class CompleteQIPCalculator:
                             incentive = int(avg_incentive * multiplier)
                             print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): Line Leader 평균 {avg_incentive:,.0f} × {multiplier} = {incentive:,} VND")
                         else:
-                            # Fallback: 전체 TYPE-1 LINE LEADER 평균 사용
+                            # Fallback: 전체 TYPE-1 LINE LEADER 평균 사용 (0 포함) - 2025-11-30 변경
                             all_line_leaders = self.month_data[
                                 (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
                                 (self.month_data['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
                             ]
-                            receiving_ll = all_line_leaders[all_line_leaders[incentive_col] > 0]
 
-                            if len(receiving_ll) > 0:
-                                avg_incentive = int(receiving_ll[incentive_col].mean())
+                            if len(all_line_leaders) > 0:
+                                avg_incentive = int(all_line_leaders[incentive_col].mean())
                                 incentive = int(avg_incentive * multiplier)
                                 print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): 전체 LINE LEADER 평균 {avg_incentive:,.0f} × {multiplier} = {incentive:,} VND")
                             else:
@@ -3847,15 +3845,14 @@ class CompleteQIPCalculator:
                                 incentive = int(avg_incentive * config['multiplier'])
                                 print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): Line Leader 평균 based (fallback) → {incentive:,} VND")
                             else:
-                                # Fallback: 전체 TYPE-1 LINE LEADER 평균 사용
+                                # Fallback: 전체 TYPE-1 LINE LEADER 평균 사용 (0 포함) - 2025-11-30 변경
                                 all_line_leaders = self.month_data[
                                     (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
                                     (self.month_data['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
                                 ]
-                                receiving_ll = all_line_leaders[all_line_leaders[incentive_col] > 0]
 
-                                if len(receiving_ll) > 0:
-                                    avg_incentive = int(receiving_ll[incentive_col].mean())
+                                if len(all_line_leaders) > 0:
+                                    avg_incentive = int(all_line_leaders[incentive_col].mean())
                                     incentive = int(avg_incentive * config['multiplier'])
                                     print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): 전체 LINE LEADER 평균 {avg_incentive:,.0f} × {config['multiplier']} = {incentive:,} VND")
                                 else:
@@ -4103,9 +4100,9 @@ class CompleteQIPCalculator:
             (self.month_data['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
         ]
 
-        receiving_type1_line_leaders = type1_line_leaders[type1_line_leaders[incentive_col] > 0]
-        if len(receiving_type1_line_leaders) > 0 and incentive_col in self.month_data.columns:
-            type1_line_avg = receiving_type1_line_leaders[incentive_col].mean()
+        # 전체 평균 사용 (0 포함) - 2025-11-30 변경: 수령자만 → 전체 평균
+        if len(type1_line_leaders) > 0 and incentive_col in self.month_data.columns:
+            type1_line_avg = type1_line_leaders[incentive_col].mean()
         else:
             type1_line_avg = 0
 
@@ -4116,14 +4113,14 @@ class CompleteQIPCalculator:
             (self.month_data['QIP POSITION 1ST  NAME'].str.upper().str.contains('LEADER', na=False))
         ]
 
-        receiving_line_leaders = type2_line_leaders[type2_line_leaders[incentive_col] > 0]
-        if len(receiving_line_leaders) > 0:
-            type2_line_avg = receiving_line_leaders[incentive_col].mean()
+        # 전체 평균 사용 (0 포함) - 2025-11-30 변경: 수령자만 → 전체 평균
+        if len(type2_line_leaders) > 0:
+            type2_line_avg = type2_line_leaders[incentive_col].mean()
         else:
             type2_line_avg = 0
 
-        print(f"    TYPE-1 LINE LEADER 평균: {type1_line_avg:,.0f} VND")
-        print(f"    TYPE-2 LINE LEADER 평균: {type2_line_avg:,.0f} VND")
+        print(f"    TYPE-1 LINE LEADER 평균 (전체): {type1_line_avg:,.0f} VND")
+        print(f"    TYPE-2 LINE LEADER 평균 (전체): {type2_line_avg:,.0f} VND")
 
         # 각 GROUP LEADER calculation
         for idx, row in self.month_data[type2_group_mask].iterrows():
@@ -4276,18 +4273,16 @@ class CompleteQIPCalculator:
             if type2_line_leaders.empty:
                 return 0
 
-        # incentive 받 Line Leader들of 평균 calculation
-        receiving_line_leaders = type2_line_leaders[type2_line_leaders[incentive_col] > 0]
-
-        if len(receiving_line_leaders) > 0:
-            avg_incentive = receiving_line_leaders[incentive_col].mean()
+        # 전체 평균 사용 (0 포함) - 2025-11-30 변경: 수령자만 → 전체 평균
+        if len(type2_line_leaders) > 0:
+            avg_incentive = type2_line_leaders[incentive_col].mean()
 
             # SUPERVISOR 배수 apply (2.5배)
             multiplier = 2.5
             result = int(avg_incentive * multiplier)
 
             # debugging 정보 출력
-            print(f"    → TYPE-2 LINE LEADER {len(receiving_line_leaders)}명 평균: {avg_incentive:,.0f} VND")
+            print(f"    → TYPE-2 LINE LEADER {len(type2_line_leaders)}명 전체 평균: {avg_incentive:,.0f} VND")
             print(f"    → {supervisor_position} incentive (평균 × {multiplier}): {result:,.0f} VND")
 
             return result

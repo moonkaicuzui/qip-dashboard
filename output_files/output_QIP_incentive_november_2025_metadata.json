@@ -9,7 +9,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -58,7 +58,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -107,7 +107,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -170,7 +170,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -219,7 +219,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -294,7 +294,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -357,7 +357,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -432,7 +432,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -481,7 +481,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -544,7 +544,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -599,7 +599,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -674,7 +674,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -749,7 +749,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -812,7 +812,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -875,7 +875,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -930,7 +930,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -979,7 +979,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1028,7 +1028,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1091,7 +1091,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1146,7 +1146,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -1209,7 +1209,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1258,7 +1258,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1307,7 +1307,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -1356,7 +1356,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1411,7 +1411,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1474,7 +1474,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -1537,7 +1537,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -1586,7 +1586,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -1635,7 +1635,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -1710,7 +1710,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -1759,7 +1759,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1808,7 +1808,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1857,7 +1857,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -1920,7 +1920,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -1969,7 +1969,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2018,7 +2018,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2136,7 +2136,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2248,7 +2248,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -2303,7 +2303,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -2401,7 +2401,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2464,7 +2464,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -2513,7 +2513,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2551,7 +2551,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -2614,7 +2614,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2663,7 +2663,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -2712,7 +2712,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -2775,7 +2775,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2824,7 +2824,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2887,7 +2887,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -2950,7 +2950,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -3025,7 +3025,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -3100,7 +3100,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -3261,7 +3261,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -3336,7 +3336,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -3399,7 +3399,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -3448,7 +3448,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -3497,7 +3497,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -3546,7 +3546,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -3595,7 +3595,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -3658,7 +3658,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -3819,7 +3819,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -3882,7 +3882,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -3945,7 +3945,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -3994,7 +3994,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4155,7 +4155,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4193,7 +4193,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 86.95652173913044,
+          "value": 83.33333333333334,
           "threshold": 88,
           "applicable": true
         },
@@ -4268,7 +4268,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4331,7 +4331,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4394,7 +4394,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4443,7 +4443,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -4506,7 +4506,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -4555,7 +4555,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4618,7 +4618,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4681,7 +4681,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -4730,7 +4730,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4793,7 +4793,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -4842,7 +4842,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -4891,7 +4891,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -4954,7 +4954,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5003,7 +5003,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5066,7 +5066,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5129,7 +5129,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5192,7 +5192,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5241,7 +5241,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5304,7 +5304,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -5367,7 +5367,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -5430,7 +5430,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -5468,7 +5468,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -5693,7 +5693,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5756,7 +5756,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5819,7 +5819,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -5868,7 +5868,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -5931,7 +5931,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -5994,7 +5994,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6057,7 +6057,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -6120,7 +6120,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6169,7 +6169,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6232,7 +6232,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 82.6086956521739,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -6281,7 +6281,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6330,7 +6330,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -6393,7 +6393,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6442,7 +6442,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6480,7 +6480,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -6543,7 +6543,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -6606,7 +6606,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -6655,7 +6655,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 86.95652173913044,
+          "value": 83.33333333333334,
           "threshold": 88,
           "applicable": true
         },
@@ -6718,7 +6718,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6781,7 +6781,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -6830,7 +6830,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -6893,7 +6893,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6942,7 +6942,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -6991,7 +6991,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -7054,7 +7054,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -7103,7 +7103,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 86.95652173913044,
+          "value": 83.33333333333334,
           "threshold": 88,
           "applicable": true
         },
@@ -7166,7 +7166,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -7215,7 +7215,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 86.95652173913044,
+          "value": 83.33333333333334,
           "threshold": 88,
           "applicable": true
         },
@@ -7264,7 +7264,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -7313,7 +7313,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -7362,7 +7362,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -7474,7 +7474,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -7537,7 +7537,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -7586,7 +7586,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -7649,7 +7649,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -7775,7 +7775,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -7838,7 +7838,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -7887,7 +7887,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -7936,7 +7936,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -7985,7 +7985,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -8160,7 +8160,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -8247,7 +8247,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -8310,7 +8310,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -8348,7 +8348,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -8397,7 +8397,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -8446,7 +8446,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -8509,7 +8509,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -8572,7 +8572,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -8621,7 +8621,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -8719,7 +8719,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -8782,7 +8782,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -8820,7 +8820,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -8869,7 +8869,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -8932,7 +8932,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -8981,7 +8981,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9030,7 +9030,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9093,7 +9093,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -9156,7 +9156,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9205,7 +9205,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9254,7 +9254,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -9303,7 +9303,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9366,7 +9366,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -9415,7 +9415,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -9478,7 +9478,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9541,7 +9541,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9639,7 +9639,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9688,7 +9688,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9737,7 +9737,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9800,7 +9800,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9849,7 +9849,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9898,7 +9898,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -9947,7 +9947,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -10157,7 +10157,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -10220,7 +10220,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -10269,7 +10269,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -10318,7 +10318,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -10367,7 +10367,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -10479,7 +10479,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -10528,7 +10528,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -10626,7 +10626,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -10787,7 +10787,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -10836,7 +10836,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -10911,7 +10911,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -10960,7 +10960,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -11072,7 +11072,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -11198,7 +11198,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -11310,7 +11310,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -11373,7 +11373,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -11499,7 +11499,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -11695,7 +11695,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -11905,7 +11905,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -11954,7 +11954,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -12017,7 +12017,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -12178,7 +12178,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 82.6086956521739,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -12339,7 +12339,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -12388,7 +12388,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -12437,7 +12437,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -12500,7 +12500,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -12538,7 +12538,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -12601,7 +12601,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -12650,7 +12650,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -12762,7 +12762,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -12811,7 +12811,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -12874,7 +12874,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -12937,7 +12937,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -13049,7 +13049,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -13098,7 +13098,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -13147,7 +13147,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -13196,7 +13196,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -13234,7 +13234,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -13346,7 +13346,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -13493,7 +13493,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -13605,7 +13605,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -13668,7 +13668,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -13717,7 +13717,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -13829,7 +13829,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -13941,7 +13941,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -14102,7 +14102,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -14151,7 +14151,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -14312,7 +14312,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -14375,7 +14375,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -14424,7 +14424,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -14473,7 +14473,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -14522,7 +14522,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -14585,7 +14585,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -14648,7 +14648,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -14774,7 +14774,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -14837,7 +14837,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -14886,7 +14886,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -14935,7 +14935,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -14984,7 +14984,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 82.6086956521739,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -15096,7 +15096,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -15208,7 +15208,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -15257,7 +15257,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -15306,7 +15306,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -15369,7 +15369,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -15418,7 +15418,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -15481,7 +15481,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -15544,7 +15544,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -15607,7 +15607,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -15705,7 +15705,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 82.6086956521739,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -15768,7 +15768,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -15831,7 +15831,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -15880,7 +15880,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -15929,7 +15929,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -15978,7 +15978,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -16027,7 +16027,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -16065,7 +16065,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -16114,7 +16114,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -16177,7 +16177,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -16289,7 +16289,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -16338,7 +16338,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -16387,7 +16387,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -16450,7 +16450,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -16562,7 +16562,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -16611,7 +16611,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -16674,7 +16674,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -16737,7 +16737,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -16786,7 +16786,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -16912,7 +16912,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -16961,7 +16961,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -17073,7 +17073,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -17122,7 +17122,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -17209,7 +17209,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -17258,7 +17258,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -17307,7 +17307,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -17405,7 +17405,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -17454,7 +17454,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -17503,7 +17503,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -17552,7 +17552,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -17601,7 +17601,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -17650,7 +17650,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -17699,7 +17699,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -17797,7 +17797,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -17846,7 +17846,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -17958,7 +17958,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18070,7 +18070,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -18119,7 +18119,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18168,7 +18168,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18217,7 +18217,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18266,7 +18266,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 82.6086956521739,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -18315,7 +18315,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18364,7 +18364,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18413,7 +18413,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18462,7 +18462,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18511,7 +18511,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -18560,7 +18560,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -18672,7 +18672,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18784,7 +18784,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -18833,7 +18833,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18882,7 +18882,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18931,7 +18931,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -18980,7 +18980,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -19029,7 +19029,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -19228,7 +19228,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -19277,7 +19277,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -19326,7 +19326,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -19424,7 +19424,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -19473,7 +19473,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -19522,7 +19522,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -19620,7 +19620,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -19830,7 +19830,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -19928,7 +19928,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -20075,7 +20075,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -20124,7 +20124,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -20173,7 +20173,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -20222,7 +20222,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -20445,7 +20445,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -20494,7 +20494,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -20592,7 +20592,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -20826,7 +20826,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -20924,7 +20924,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -20973,7 +20973,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -21060,7 +21060,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -21109,7 +21109,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -21158,7 +21158,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -21207,7 +21207,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -21245,7 +21245,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -21294,7 +21294,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -21343,7 +21343,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -21430,7 +21430,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -21479,7 +21479,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -21591,7 +21591,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -21640,7 +21640,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -21776,7 +21776,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -21825,7 +21825,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -22026,7 +22026,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -22127,7 +22127,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -22190,7 +22190,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -22239,7 +22239,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -22288,7 +22288,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -22375,7 +22375,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -22424,7 +22424,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -22636,7 +22636,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -22685,7 +22685,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -22734,7 +22734,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -22821,7 +22821,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -22870,7 +22870,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 95.65217391304348,
+          "value": 91.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -22957,7 +22957,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -23120,7 +23120,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -23169,7 +23169,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -23218,7 +23218,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -23267,7 +23267,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -23379,7 +23379,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -23428,7 +23428,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -23477,7 +23477,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -23526,7 +23526,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -23575,7 +23575,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -23624,7 +23624,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -23711,7 +23711,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -23760,7 +23760,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -23809,7 +23809,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -23858,7 +23858,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -23945,7 +23945,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -23994,7 +23994,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": true,
-          "value": 100.0,
+          "value": 95.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -24043,7 +24043,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -24130,7 +24130,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -24179,7 +24179,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -24228,7 +24228,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -24364,7 +24364,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -24413,7 +24413,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -24476,7 +24476,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -24525,7 +24525,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -24588,7 +24588,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -24637,7 +24637,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -24686,7 +24686,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -24784,7 +24784,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -24871,7 +24871,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -24934,7 +24934,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -24983,7 +24983,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -25095,7 +25095,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -25346,7 +25346,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -25395,7 +25395,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 82.6086956521739,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -25444,7 +25444,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -25531,7 +25531,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -25618,7 +25618,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -25667,7 +25667,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -25768,7 +25768,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -25991,7 +25991,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -26116,7 +26116,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -26165,7 +26165,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -26214,7 +26214,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -26301,7 +26301,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -26364,7 +26364,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 82.6086956521739,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -26451,7 +26451,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 86.95652173913044,
+          "value": 83.33333333333334,
           "threshold": 88,
           "applicable": true
         },
@@ -26514,7 +26514,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 82.6086956521739,
+          "value": 79.16666666666666,
           "threshold": 88,
           "applicable": true
         },
@@ -26639,7 +26639,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -26702,7 +26702,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -26751,7 +26751,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -26876,7 +26876,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -26925,7 +26925,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -26974,7 +26974,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -27023,7 +27023,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -27072,7 +27072,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -27135,7 +27135,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -27198,7 +27198,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -27247,7 +27247,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -27296,7 +27296,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -27334,7 +27334,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -27383,7 +27383,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -27446,7 +27446,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -27495,7 +27495,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -27582,7 +27582,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -27620,7 +27620,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 69.56521739130434,
+          "value": 66.66666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -27658,7 +27658,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -27696,7 +27696,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 73.91304347826087,
+          "value": 70.83333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -27772,7 +27772,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 56.52173913043478,
+          "value": 54.16666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -27810,7 +27810,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 60.869565217391305,
+          "value": 58.33333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -27848,7 +27848,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 60.869565217391305,
+          "value": 58.33333333333333,
           "threshold": 88,
           "applicable": true
         },
@@ -27886,7 +27886,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 78.26086956521739,
+          "value": 75.0,
           "threshold": 88,
           "applicable": true
         },
@@ -27924,7 +27924,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 56.52173913043478,
+          "value": 54.16666666666667,
           "threshold": 88,
           "applicable": true
         },
@@ -27962,7 +27962,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 34.78260869565217,
+          "value": 33.33333333333334,
           "threshold": 88,
           "applicable": true
         },
@@ -28000,7 +28000,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 39.13043478260869,
+          "value": 37.5,
           "threshold": 88,
           "applicable": true
         },
@@ -28076,7 +28076,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 4.347826086956516,
+          "value": 4.166666666666657,
           "threshold": 88,
           "applicable": true
         },
@@ -28114,7 +28114,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 4.347826086956516,
+          "value": 4.166666666666657,
           "threshold": 88,
           "applicable": true
         },
@@ -28152,7 +28152,7 @@
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
           "passed": false,
-          "value": 4.347826086956516,
+          "value": 4.166666666666657,
           "threshold": 88,
           "applicable": true
         },
