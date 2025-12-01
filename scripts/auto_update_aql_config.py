@@ -25,9 +25,8 @@ def find_latest_output_file(year, month_name):
     """최신 인센티브 계산 결과 파일 찾기"""
     output_dir = Path("output_files")
 
-    # Version priority: V9.1 > V9.0 > V8.02
+    # Version priority: V9.0 > V8.02 (V9.1 제거됨 2025-12-01)
     patterns = [
-        f"output_QIP_incentive_{month_name}_{year}_Complete_V9.1_Complete.csv",
         f"output_QIP_incentive_{month_name}_{year}_Complete_V9.0_Complete.csv",
         f"output_QIP_incentive_{month_name}_{year}_Complete_V8.02_Complete.csv",
     ]

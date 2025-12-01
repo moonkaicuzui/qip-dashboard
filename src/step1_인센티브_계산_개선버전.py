@@ -1211,12 +1211,10 @@ class DataProcessor:
         # ============================================
         # Case 3: October 이후 - 이전 달 Excel/CSV 파일 로딩
         # ============================================
-        # Fallback pattern: 최신 버전 우선 (V9.1 → V9.0 → V8.02 → V8.01)
+        # Fallback pattern: 최신 버전 우선 (V9.0 → V8.02)
+        # 2025-12-01: V9.1 제거 - V9.0이 최신이며 BFS 로직 적용됨
         excel_patterns = [
-            # V9.1 버전 (최신)
-            f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
-            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
-            # V9.0 버전
+            # V9.0 버전 (최신 - BFS 적용됨)
             f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
             f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
             # V8.02 버전 (하위 호환성)

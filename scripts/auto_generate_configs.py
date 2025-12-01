@@ -96,19 +96,25 @@ def detect_previous_incentive_file(year, month_name):
     prev_year = year if current_month_num > 1 else year - 1
     prev_month_name = months[prev_month_num - 1]
 
-    # 1순위: Automated output file
+    # 1순위: Automated output file (V9.0 - 최신)
+    output_file_v9 = f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv"
+    if Path(output_file_v9).exists():
+        print(f"  → Previous incentive: {output_file_v9} (automated V9.0)")
+        return output_file_v9
+
+    # 2순위: V8.02 fallback
     output_file = f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V8.02_Complete.csv"
     if Path(output_file).exists():
-        print(f"  → Previous incentive: {output_file} (automated)")
+        print(f"  → Previous incentive: {output_file} (automated V8.02)")
         return output_file
 
-    # 2순위: Manual input file (Korean format)
+    # 3순위: Manual input file (Korean format)
     input_file = f"input_files/{prev_year}년 {prev_month_num}월 인센티브 지급 세부 정보.csv"
     if Path(input_file).exists():
         print(f"  → Previous incentive: {input_file} (manual)")
         return input_file
 
-    # 3순위: Manual input file (English format)
+    # 4순위: Manual input file (English format)
     input_file_en = f"input_files/{prev_year}year {prev_month_name.capitalize()} incentive 지급 세부 정보.csv"
     if Path(input_file_en).exists():
         print(f"  → Previous incentive: {input_file_en} (manual)")

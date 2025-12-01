@@ -1322,14 +1322,14 @@ MANAGER_INCENTIVE_CALCULATION_LOGIC.md: "중요 수정 이력 (CRITICAL FIXES)" 
 
 ## Version Management & Backward Compatibility
 
-### Current Version: 9.1 (as of 2025-11-19)
+### Current Version: 9.0 (as of 2025-12-01)
 
 **Critical Architecture Decision**: The system implements **fallback pattern** for version transitions to ensure backward compatibility when reading previous month data.
 
-**Important Version Fix (2025-11-19):**
-- **V9.1 is the correct version** with proper continuous months calculation and average rounding
-- **V9.0 created later has incorrect data** - fallback pattern now prioritizes V9.1 over V9.0
-- File reading priority: **V9.1 → V9.0 → V8.02** (highest version first)
+**Important Version Fix (2025-12-01):**
+- **V9.0 is the correct/latest version** with BFS logic applied for manager incentive calculation
+- **V9.1 was an older version** created on 2025-11-18 (BEFORE BFS fix) - now archived
+- File reading priority: **V9.0 → V8.02** (V9.1 removed from fallback)
 
 ### Version Update Requirements
 
@@ -1373,17 +1373,14 @@ When updating version numbers (e.g., 9.0 → 9.1), you MUST update these files:
 
 ### Backward Compatibility Pattern (CRITICAL)
 
-**Problem**: When December 2025 needs November 2025 data, but multiple versions exist (V9.1 correct, V9.0 incorrect).
+**Problem**: When December 2025 needs November 2025 data, multiple versions may exist.
 
-**Solution**: Fallback pattern in `step1_인센티브_계산_개선버전.py` (Updated 2025-11-19):
+**Solution**: Fallback pattern in `step1_인센티브_계산_개선버전.py` (Updated 2025-12-01):
 
 ```python
-# Lines 1214-1225: Previous month file loading (highest version first)
+# Lines 1214-1223: Previous month file loading (V9.0 first, V9.1 removed)
 excel_patterns = [
-    # V9.1 version (latest - correct data)
-    f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
-    f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
-    # V9.0 version
+    # V9.0 version (latest - BFS applied)
     f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
     f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
     # V8.02 version (backward compatibility)
@@ -1392,11 +1389,11 @@ excel_patterns = [
 ]
 ```
 
-**Why This Matters**:
-- Month 1 (V9.1): Reads Month 0 (V9.1 or V9.0 or V8.02) - SUCCESS with fallback
-- Month 2 (V9.1): Reads Month 1 (V9.1) - SUCCESS with primary pattern
-- **V9.1 prioritized over V9.0** to use correct data with proper continuous months calculation
-- Without correct priority: Would read V9.0 (wrong data) before V9.1 (correct data)
+**Why V9.1 Was Removed (2025-12-01)**:
+- V9.1 was created on 2025-11-18 BEFORE BFS logic was applied
+- V9.0 files were regenerated on 2025-12-01 WITH BFS logic
+- V9.1 files moved to `output_files/archive/` to prevent confusion
+- **V9.0 is now the only current version** with correct manager incentive calculations
 
 ### Common Version Update Pitfalls
 
