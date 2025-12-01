@@ -1063,9 +1063,9 @@ class DataProcessor:
         """
         연속 인센티브 수령 개월 수 계산 (우선순위 기반 로직)
 
-        우선순위 (수정: 2025-11-19 - Continuous_Months가 더 신뢰성 높음):
-        1. Continuous_Months 컬럼 + 1 (가장 신뢰성 높음)
-        2. Next_Month_Expected 컬럼 직접 읽기 (fallback)
+        우선순위 (V9.1 원본 복원: 2025-12-01):
+        1. Next_Month_Expected 컬럼 직접 읽기 (가장 신뢰성 높음)
+        2. Continuous_Months 컬럼 + 1 (fallback)
         3. 인센티브 금액 역산 (progression_table 동적 사용)
 
         Args:
@@ -1103,23 +1103,23 @@ class DataProcessor:
         prev_row = emp_prev.iloc[0]
 
         # ============================================
-        # 우선순위 1: Continuous_Months + 1 (가장 신뢰성 높음)
-        # ============================================
-        if 'Continuous_Months' in prev_df.columns:
-            cont_months = prev_row.get('Continuous_Months', 0)
-            if pd.notna(cont_months) and cont_months != '' and float(cont_months) >= 0:
-                continuous_months = int(cont_months) + 1
-                print(f"✅ {emp_id_padded}: [Priority 1] Continuous_Months + 1 → {int(cont_months)} + 1 = {continuous_months} months")
-                return continuous_months
-
-        # ============================================
-        # 우선순위 2: Next_Month_Expected 컬럼 (fallback)
+        # 우선순위 1: Next_Month_Expected 컬럼 (V9.1 원본 - 가장 신뢰성 높음)
         # ============================================
         if 'Next_Month_Expected' in prev_df.columns:
             next_expected = prev_row.get('Next_Month_Expected', 0)
             if pd.notna(next_expected) and next_expected != '' and float(next_expected) > 0:
                 continuous_months = int(next_expected)
-                print(f"✅ {emp_id_padded}: [Priority 2] Next_Month_Expected column → {continuous_months} months")
+                print(f"✅ {emp_id_padded}: [Priority 1] Next_Month_Expected column → {continuous_months} months")
+                return continuous_months
+
+        # ============================================
+        # 우선순위 2: Continuous_Months + 1 (fallback)
+        # ============================================
+        if 'Continuous_Months' in prev_df.columns:
+            cont_months = prev_row.get('Continuous_Months', 0)
+            if pd.notna(cont_months) and cont_months != '' and float(cont_months) >= 0:
+                continuous_months = int(cont_months) + 1
+                print(f"✅ {emp_id_padded}: [Priority 2] Continuous_Months + 1 → {int(cont_months)} + 1 = {continuous_months} months")
                 return continuous_months
 
         # ============================================
@@ -1211,10 +1211,14 @@ class DataProcessor:
         # ============================================
         # Case 3: October 이후 - 이전 달 Excel/CSV 파일 로딩
         # ============================================
-        # Fallback pattern: 최신 버전 우선 (V9.0 → V8.02)
-        # 2025-12-01: V9.1 제거 - V9.0이 최신이며 BFS 로직 적용됨
+        # Fallback pattern: V9.1 → V9.0 → V8.02
+        # 2025-12-01: V9.1 복원 - V9.1이 올바른 계산 로직을 가진 데이터
+        # (V9.0은 의도하지 않은 변경이 포함되어 잘못된 데이터)
         excel_patterns = [
-            # V9.0 버전 (최신 - BFS 적용됨)
+            # V9.1 버전 (올바른 데이터 - BFS 추가 전 원본)
+            f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
+            f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.1_Complete.csv",
+            # V9.0 버전 (fallback - BFS 적용됨)
             f"output_files/output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
             f"output_QIP_incentive_{prev_month_name}_{prev_year}_Complete_V9.0_Complete.csv",
             # V8.02 버전 (하위 호환성)
@@ -2266,8 +2270,10 @@ class CompleteQIPCalculator:
         
         prev_month_obj = Month.from_number(prev_month)
 
-        # Fallback pattern: V9.0 먼저 확인, 없으면 V8.02, V8.01로 폴백
+        # Fallback pattern: V9.1 → V9.0 → V8.02 → V8.01
+        # 2025-12-01: V9.1 복원 - 올바른 계산 로직을 가진 데이터
         prev_file_patterns = [
+            self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V9.1_Complete.csv',
             self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V9.0_Complete.csv',
             self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.02_Complete.csv',
             self.base_path / 'output_files' / f'output_QIP_incentive_{prev_month_obj.full_name}_{prev_year}_Complete_V8.01_Complete.csv'
@@ -4493,7 +4499,7 @@ class CompleteQIPCalculator:
         return ''
     
     def _create_type1_reference_map(self) -> Dict[str, int]:
-        """Type-1 참조 맵 created (수령자만 평균, 반올림 사용)"""
+        """Type-1 참조 맵 created (V9.1 원본 복원: 수령자만 평균, int() 사용)"""
         reference_map = {}
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
 
@@ -4507,16 +4513,13 @@ class CompleteQIPCalculator:
                     (self.month_data['QIP POSITION 1ST  NAME'] == position)
                 ]
 
-                # ✅ POLICY CHANGE (2025-11-25): 수령자만 평균 (0 VND 제외)
-                # 인센티브를 받은 직원들만 평균 계산
+                # V9.1 원본: 수령자만 평균 (0 VND 제외)
                 receiving_employees = pos_employees[pos_employees[incentive_col] > 0]
 
                 if len(receiving_employees) > 0:
-                    avg_incentive = round(receiving_employees[incentive_col].mean())
+                    # V9.1 원본: int() 사용 (truncation)
+                    avg_incentive = int(receiving_employees[incentive_col].mean())
                     reference_map[position.upper()] = avg_incentive
-                else:
-                    # 수령자가 한 명도 없으면 0
-                    reference_map[position.upper()] = 0
 
         return reference_map
     
@@ -4863,29 +4866,34 @@ class CompleteQIPCalculator:
                 approved_leave_days = self.calculate_approved_leave_days(emp_no)
                 self.month_data.loc[idx, 'Approved Leave Days'] = approved_leave_days
 
-                # ✅ POLICY ALIGNED (Fixed 2025-11-29): 승인휴가는 결근에서 제외
+                # ✅ V9.1 원본 복원 (2025-12-01): 출근율 = 실제 근무일 / (총 근무일 - 승인휴가) × 100
                 # 정책 공식:
-                #   결근일 = 총 근무일 - 실제 근무일 - 승인휴가
-                #   결근율 = 결근일 / 총 근무일 × 100
-                #   출근율 = 100 - 결근율
-                # 예시: 총 18일, 실제 14일, 승인휴가 2일 → 결근 2일 → 출근율 88.9%
+                #   근무해야 할 일수 = 총 근무일 - 승인휴가
+                #   출근율 = 실제 근무일 / 근무해야 할 일수 × 100
+                # 예시: 총 18일, 실제 14일, 승인휴가 2일 → 출근율 = 14 / (18-2) = 87.5%
                 if total_days > 0:
-                    # 결근일 = 총 근무일 - 실제 근무일 - 승인휴가 (무단결근만 카운트)
-                    absence_days = total_days - actual_days - approved_leave_days
-                    absence_days = max(0, absence_days)  # 음수 방지
+                    # 근무해야 할 일수 = 총 근무일 - 승인휴가
+                    expected_working_days = total_days - approved_leave_days
 
-                    # 결근율 = 결근일 / 총 근무일 × 100
-                    absence_rate = (absence_days / total_days) * 100
+                    if expected_working_days > 0:
+                        # 출근율 = 실제 근무일 / 근무해야 할 일수
+                        attendance_rate = (actual_days / expected_working_days) * 100
 
-                    # 출근율 = 100 - 결근율 (승인휴가는 출근으로 인정)
-                    attendance_rate = 100 - absence_rate
+                        # 결근일 = 근무해야 할 일수 - 실제 근무일
+                        absence_days = expected_working_days - actual_days
+                        absence_days = max(0, absence_days)
+                        absence_rate = (absence_days / expected_working_days) * 100
+                    else:
+                        # 모두 승인휴가인 경우 (근무해야 할 일수가 0)
+                        attendance_rate = 100
+                        absence_days = 0
+                        absence_rate = 0
 
                     # 100% 초과 방지
                     attendance_rate = min(100, max(0, attendance_rate))
                 else:
                     attendance_rate = 0
                     absence_rate = 0
-                    absence_days = 0
                     absence_days = 0
 
                 self.month_data.loc[idx, '출근율_Attendance_Rate_Percent'] = attendance_rate
