@@ -146,9 +146,11 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
         prev_month_name, prev_year = generate_previous_month_data(month, year)
     
     # available file 패턴들 - output_files를 먼저 확인
+    # V9.1 → V9.0 → V8.02 순서로 확인 - 통일된 fallback 패턴 (2025-12-01)
     month_str = 'august' if month == 8 else 'september' if month == 9 else str(month)
     patterns = [
-        f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V9.0_Complete.csv",  # V9.0 exact match
+        f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V9.1_Complete.csv",  # V9.1 exact match
+        f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V9.0_Complete.csv",  # V9.0 fallback
         f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V8.02_Complete.csv",  # V8.02 fallback
         f"output_files/output_QIP_incentive_{month_str}_{year}_final완성version_v6.0_Complete_enhanced.csv",
         f"output_files/output_QIP_incentive_{month_str}_{year}_final완성version_v6.0_Complete.csv",
@@ -17292,14 +17294,17 @@ def main():
     working_days = 13  # default value
 
     # CSV를 directly 읽어서 dashboard data 구조 creation
-    # Version 9.0 file first, then fallback to V8.02, then try legacy versions
+    # V9.1 → V9.0 → V8.02 순서로 확인 - 통일된 fallback 패턴 (2025-12-01)
+    csv_file_v91 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V9.1_Complete.csv'
     csv_file_v9 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V9.0_Complete.csv'
     csv_file_v8 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V8.02_Complete.csv'
     csv_file_enhanced = f'output_files/output_QIP_incentive_{month_name}_{args.year}_final완성version_v6.0_Complete_enhanced.csv'
     csv_file = f'output_files/output_QIP_incentive_{month_name}_{args.year}_final완성version_v6.0_Complete.csv'
 
-    # Try V9.0 version first, then V8.02, then enhanced, then normal
-    if os.path.exists(csv_file_v9):
+    # Try V9.1 version first, then V9.0, then V8.02, then enhanced, then normal
+    if os.path.exists(csv_file_v91):
+        csv_file = csv_file_v91
+    elif os.path.exists(csv_file_v9):
         csv_file = csv_file_v9
     elif os.path.exists(csv_file_v8):
         csv_file = csv_file_v8

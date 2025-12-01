@@ -39,16 +39,19 @@ class DashboardConsistencyValidator:
 
     def load_csv_data(self):
         """CSV 데이터 로드"""
-        # Try V9.0 first, then fallback to V8.02
+        # V9.1 → V9.0 → V8.02 순서로 확인 - 통일된 fallback 패턴 (2025-12-01)
+        csv_file_v91 = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V9.1_Complete.csv'
         csv_file_v9 = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V9.0_Complete.csv'
         csv_file_v8 = self.base_path / 'output_files' / f'output_QIP_incentive_{self.month}_{self.year}_Complete_V8.02_Complete.csv'
 
-        if csv_file_v9.exists():
+        if csv_file_v91.exists():
+            csv_file = csv_file_v91
+        elif csv_file_v9.exists():
             csv_file = csv_file_v9
         elif csv_file_v8.exists():
             csv_file = csv_file_v8
         else:
-            csv_file = csv_file_v9  # For error message
+            csv_file = csv_file_v91  # For error message
 
         if not csv_file.exists():
             print(f"❌ CSV 파일 없음: {csv_file}")

@@ -95,8 +95,9 @@ def detect_downloaded_files(year, month_name):
     prev_month = prev_month_names.get(month_name.lower())
     prev_year = year if month_name.lower() != 'january' else year - 1
 
-    # 여러 버전 패턴 시도 (V9.0 → V8.02 순서) - V9.1 제거됨 (2025-12-01)
+    # 여러 버전 패턴 시도 (V9.1 → V9.0 → V8.02 순서) - 통일된 fallback 패턴 (2025-12-01)
     prev_incentive_patterns = [
+        f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_V9.1_Complete.csv",
         f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_V9.0_Complete.csv",
         f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_V8.02_Complete.csv"
     ]

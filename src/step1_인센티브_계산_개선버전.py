@@ -3380,13 +3380,7 @@ class CompleteQIPCalculator:
                     print(f"    → {row.get('Full Name', 'Unknown')} ({emp_id}): {continuous_months}month consecutive → {incentive:,} VND")
 
             self.month_data.loc[idx, incentive_col] = incentive
-            
-            # debugging: 619060201 employee checking
-            if emp_id == '619060201':
-                print(f"    [debug] 619060201 updated: {incentive_col} = {incentive:,.0f} VND")
-                actual_value = self.month_data.loc[idx, incentive_col]
-                print(f"    [debug] 실제 saveddone value: {actual_value:,.0f} VND")
-        
+
         # 통계 출력
         receiving_count = (self.month_data[assembly_mask][incentive_col] > 0).sum()
         total_amount = self.month_data[assembly_mask][incentive_col].sum()
@@ -3413,37 +3407,7 @@ class CompleteQIPCalculator:
             return subordinate_mapping
 
         print(f"  → 사용 중인 boss column: '{boss_col}'")
-
-        # 디버그용 카운터
-        debug_employees = {619020468, 621110013}  # THỊ MY, SỬ HUYỀN TRANG
-        debug_found = {emp_id: 0 for emp_id in debug_employees}
-        debug_names = {}  # 문제 직원들의 실제 이름 저장
-
-        # 문제 직원들의 이름 찾기
-        print(f"  → Employee No column dtype: {self.month_data['Employee No'].dtype}")
         print(f"  → 총 직원 수: {len(self.month_data)}")
-
-        for debug_id in debug_employees:
-            # int와 str 모두 시도
-            emp_row1 = self.month_data[self.month_data['Employee No'] == debug_id]
-            emp_row2 = self.month_data[self.month_data['Employee No'] == str(debug_id)]
-
-            if not emp_row1.empty:
-                name = emp_row1.iloc[0]['Full Name']
-                debug_names[debug_id] = name
-                print(f"  → 찾은 직원 (int): {debug_id} = '{name}'")
-            elif not emp_row2.empty:
-                name = emp_row2.iloc[0]['Full Name']
-                debug_names[debug_id] = name
-                print(f"  → 찾은 직원 (str): {debug_id} = '{name}'")
-            else:
-                print(f"  → 직원 찾을 수 없음: {debug_id}")
-                # 샘플 Employee No 출력
-                sample_ids = self.month_data['Employee No'].head(3).tolist()
-                print(f"     샘플 Employee No: {sample_ids}")
-
-        # 디버그: boss_name이 debug_names와 일치하는지 추적
-        boss_name_matches = {debug_name: 0 for debug_name in debug_names.values()}
 
         # 퇴사자 필터링 카운터
         excluded_resigned_count = 0
@@ -3465,19 +3429,10 @@ class CompleteQIPCalculator:
                     except (ValueError, TypeError):
                         pass  # 날짜 변환 실패 시 퇴사자 아님으로 처리
 
-                # 디버그: 문제 직원 이름과 매칭되는지 확인
-                if boss_name in debug_names.values():
-                    boss_name_matches[boss_name] += 1
-
                 # 상사의 Employee No 찾기
                 boss_data = self.month_data[
                     self.month_data['Full Name'] == boss_name
                 ]
-
-                # 디버그: 문제 직원인 경우 상세 출력
-                if boss_name in debug_names.values() and not boss_data.empty:
-                    boss_id_test = boss_data.iloc[0].get('Employee No', '')
-                    print(f"  [DEBUG] Boss '{boss_name}' 찾음, boss_id = {boss_id_test} (type: {type(boss_id_test)})")
 
                 if not boss_data.empty:
                     boss_id = boss_data.iloc[0].get('Employee No', '')
@@ -3494,38 +3449,9 @@ class CompleteQIPCalculator:
                             subordinate_mapping[boss_id] = []
                         subordinate_mapping[boss_id].append(emp_id)
 
-                        # 디버그: 문제 LINE LEADER의 부하직원 카운트
-                        if boss_id in debug_employees:
-                            debug_found[boss_id] += 1
-                            print(f"  [DEBUG] {boss_id}의 부하직원 추가: {emp_id}")
-                    else:
-                        if boss_name in debug_names.values():
-                            print(f"  [DEBUG] Boss '{boss_name}' 찾았지만 boss_id가 비어있음!")
-                else:
-                    # 디버그: boss_name이 문제 직원 이름인 경우 출력
-                    for debug_id, debug_name in debug_names.items():
-                        if boss_name == debug_name:
-                            print(f"  [DEBUG] '{boss_name}'를 상사로 가진 직원 발견, 하지만 month_data에서 '{boss_name}' 찾을 수 없음!")
-                            # month_data에 이 이름이 있는지 확인
-                            name_exists = (self.month_data['Full Name'] == boss_name).any()
-                            print(f"  [DEBUG] month_data에 '{boss_name}' 존재 여부: {name_exists}")
-
         if excluded_resigned_count > 0:
             print(f"  → 퇴사자 제외: {excluded_resigned_count}명 (계산 월 이전 퇴사)")
 
-        # 디버그: boss_name 매칭 결과 출력
-        print(f"\n  → Boss name 매칭 결과:")
-        for name, count in boss_name_matches.items():
-            print(f"     '{name}': {count}명이 이 직원을 상사로 가짐")
-
-        # 디버그 출력
-        for debug_id in debug_employees:
-            count = debug_found.get(debug_id, 0)
-            if count > 0:
-                print(f"  [DEBUG] Employee {debug_id}: {count}명의 부하직원 매핑됨")
-            else:
-                print(f"  [DEBUG] Employee {debug_id}: 부하직원 없음 (boss로 인식되지 않음)")
-        
         print(f"✅ mapping completed: {len(subordinate_mapping)} employeesof manager")
         return subordinate_mapping
     

@@ -115,10 +115,11 @@ def calculate_incentive(month_str, year):
             }
             month_num = month_names[month_str.lower()]
 
-            # V9.0 우선 확인, 없으면 V8.02 fallback
+            # V9.1 → V9.0 → V8.02 순서로 확인 - 통일된 fallback 패턴 (2025-12-01)
+            csv_pattern_v91 = f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V9.1_Complete.csv"
             csv_pattern_v9 = f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V9.0_Complete.csv"
             csv_pattern_v8 = f"output_files/output_QIP_incentive_{month_str}_{year}_Complete_V8.02_Complete.csv"
-            csv_files = glob.glob(csv_pattern_v9) or glob.glob(csv_pattern_v8)
+            csv_files = glob.glob(csv_pattern_v91) or glob.glob(csv_pattern_v9) or glob.glob(csv_pattern_v8)
 
             if csv_files:
                 print(f"  📄 생성된 CSV: {csv_files[0]}")

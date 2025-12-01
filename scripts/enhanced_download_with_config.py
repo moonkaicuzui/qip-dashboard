@@ -199,8 +199,8 @@ def update_config_for_month(year, month_name, downloaded_files):
     prev_month = prev_month_names.get(month_name.lower())
     prev_year = year if month_name.lower() != 'january' else year - 1
 
-    # 여러 버전 체크 (V9.0 → V8.02) - V9.1 제거됨 (2025-12-01)
-    for version in ['V9.0', 'V8.02']:
+    # 여러 버전 체크 (V9.1 → V9.0 → V8.02) - 통일된 fallback 패턴 (2025-12-01)
+    for version in ['V9.1', 'V9.0', 'V8.02']:
         prev_path = f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_{version}_Complete.csv"
         if os.path.exists(prev_path):
             file_paths['previous_incentive'] = prev_path
