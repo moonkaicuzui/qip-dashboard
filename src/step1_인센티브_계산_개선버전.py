@@ -3698,8 +3698,10 @@ class CompleteQIPCalculator:
                 incentive = 0
                 print(f"    → Head/Group Leader {row.get('Full Name', 'Unknown')} ({head_id}): attendance condition 미충족")
             else:
-                # 자신of 팀 내 Line Leader들 찾기 및 평균 calculation
-                line_leaders = self._find_team_line_leaders(head_id, subordinate_mapping)
+                # 자신의 팀 내 Line Leader들 찾기 및 평균 calculation
+                # 2025-12-01: 모든 관리자 직급에서 BFS 사용 (직접 + 간접 부하 포함)
+                # Dashboard JavaScript와 동일한 로직: 조직도 하위의 모든 LINE LEADER 포함
+                line_leaders = self._find_all_subordinate_line_leaders(head_id, subordinate_mapping)
 
                 avg_incentive = 0
                 if line_leaders:
@@ -3804,12 +3806,10 @@ class CompleteQIPCalculator:
                     if calc_method == 'line_leader_average':
                         # Line Leader 평균 based calculation (JSON same적 calculation)
                         multiplier = incentive_config.get('multiplier', config['multiplier'])
-                        # 2025-12-01: MANAGER는 모든 하위 LINE LEADER 사용, 나머지는 직접 부하만
-                        position_name = row.get('QIP POSITION 1ST  NAME', '')
-                        if position_name == 'MANAGER':
-                            line_leaders = self._find_all_subordinate_line_leaders(manager_id, subordinate_mapping)
-                        else:
-                            line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
+                        # 2025-12-01: 모든 관리자 직급에서 BFS 사용 (직접 + 간접 부하 포함)
+                        # Dashboard JavaScript와 동일한 로직: 조직도 하위의 모든 LINE LEADER 포함
+                        # 예: (V) SUPERVISOR → GROUP LEADER → LINE LEADER 경로도 포함
+                        line_leaders = self._find_all_subordinate_line_leaders(manager_id, subordinate_mapping)
 
                         if line_leaders:
                             avg_incentive = self._calculate_line_leader_average_unified(
@@ -3841,12 +3841,9 @@ class CompleteQIPCalculator:
                             print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): JSON 고정value → {incentive:,} VND")
                         else:
                             # Line Leader 평균 based calculation (Fallback)
-                            # 2025-12-01: MANAGER는 모든 하위 LINE LEADER 사용, 나머지는 직접 부하만
-                            position_name = row.get('QIP POSITION 1ST  NAME', '')
-                            if position_name == 'MANAGER':
-                                line_leaders = self._find_all_subordinate_line_leaders(manager_id, subordinate_mapping)
-                            else:
-                                line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
+                            # 2025-12-01: 모든 관리자 직급에서 BFS 사용 (직접 + 간접 부하 포함)
+                            # Dashboard JavaScript와 동일한 로직: 조직도 하위의 모든 LINE LEADER 포함
+                            line_leaders = self._find_all_subordinate_line_leaders(manager_id, subordinate_mapping)
 
                             if line_leaders:
                                 avg_incentive = self._calculate_line_leader_average_unified(
