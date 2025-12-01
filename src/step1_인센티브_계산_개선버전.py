@@ -3877,78 +3877,128 @@ class CompleteQIPCalculator:
         total_amount = self.month_data[manager_mask][incentive_col].sum()
         print(f"  → manager 총 수령 인원: {receiving_count}명, 총액: {total_amount:,.0f} VND")
     
-    def _find_team_line_leaders(self, manager_id: str, subordinate_mapping: Dict[str, List[str]]) -> List:
-        """팀 내 모든 Line Leader 찾기 (직접 부하 + 부하of 부하)"""
+    def _find_team_line_leaders(self, manager_id, subordinate_mapping: Dict[str, List[str]]) -> List:
+        """팀 내 소속 Line Leader 찾기 (역방향 매핑 - direct boss 기준)
+
+        2025-12-01 수정:
+        - 기존 subordinate_mapping 대신 역방향 매핑 사용
+        - LINE LEADER의 'direct boss name' 또는 'MST direct boss name'이
+          manager와 일치하는 경우 소속으로 판단
+        - 임산부, 퇴사자 제외
+        """
         line_leaders = []
-        visited = set()
 
-        # DEBUG: manager_id와 subordinate_mapping 타입 확인
-        print(f"      [DEBUG] _find_team_line_leaders called: manager_id={manager_id} (type: {type(manager_id)})")
-        print(f"      [DEBUG] manager_id in subordinate_mapping: {manager_id in subordinate_mapping}")
-        if manager_id in subordinate_mapping:
-            print(f"      [DEBUG] Subordinates: {subordinate_mapping[manager_id]}")
+        # manager의 이름과 ID 가져오기
+        manager_data = self.month_data[
+            (self.month_data['Employee No'] == str(manager_id)) |
+            (self.month_data['Employee No'] == int(manager_id) if str(manager_id).isdigit() else False)
+        ]
 
-        def find_line_leaders_recursive(boss_id: str, depth: int = 0):
-            if depth > 5 or boss_id in visited:  # 무한 루프 방지
-                return
-            visited.add(boss_id)
+        if manager_data.empty:
+            print(f"      → Manager {manager_id} 정보 없음")
+            return line_leaders
 
-            if boss_id in subordinate_mapping:
-                for sub_id in subordinate_mapping[boss_id]:
-                    # DEBUG: 타입 확인
-                    print(f"      [DEBUG] Looking for sub_id={sub_id} (type: {type(sub_id)})")
-                    print(f"      [DEBUG] month_data['Employee No'].dtype: {self.month_data['Employee No'].dtype}")
+        manager_name = manager_data.iloc[0].get('Full Name', '')
 
-                    # FIX: month_data['Employee No']는 str 타입이므로 sub_id를 str로 변환하여 비교
-                    sub_data = self.month_data[self.month_data['Employee No'] == str(sub_id)]
-                    print(f"      [DEBUG] sub_data found: {len(sub_data)} rows")
+        # 계산 월 시작일 (퇴사자 필터링용)
+        calc_month_start = pd.Timestamp(self.config.year, self.config.month.number, 1)
 
-                    if not sub_data.empty:
-                        sub_row = sub_data.iloc[0]
-                        position = str(sub_row.get('QIP POSITION 1ST  NAME', '')).upper()
-                        role_type = sub_row.get('ROLE TYPE STD', '')
+        # TYPE-1 LINE LEADER 필터링
+        line_leader_mask = (
+            (self.month_data['ROLE TYPE STD'] == 'TYPE-1') &
+            (self.month_data['QIP POSITION 1ST  NAME'] == 'LINE LEADER')
+        )
 
-                        print(f"      [DEBUG] Checking subordinate {sub_id}: position={position}, role_type={role_type}")
+        type1_line_leaders = self.month_data[line_leader_mask]
 
-                        if (role_type == 'TYPE-1' and
-                            'LINE' in position and 'LEADER' in position):
-                            line_leaders.append(sub_row.to_dict())
-                            print(f"      [DEBUG] ✅ Found LINE LEADER: {sub_row.get('Full Name')}")
+        for _, ll_row in type1_line_leaders.iterrows():
+            # 역방향 매핑: LINE LEADER의 boss가 이 manager인지 확인
+            mst_boss = ll_row.get('MST direct boss name', '')
+            direct_boss = ll_row.get('direct boss name', '')
 
-                        # 재귀적with 부하of 부하 탐색
-                        find_line_leaders_recursive(sub_id, depth + 1)
+            # MST direct boss name은 Employee No (숫자)
+            # direct boss name은 Full Name (문자열)
+            is_my_subordinate = False
 
-        find_line_leaders_recursive(manager_id)
-        print(f"      [DEBUG] Found {len(line_leaders)} LINE LEADER(s)")
+            # MST direct boss name으로 매칭 (Employee No 비교)
+            if pd.notna(mst_boss) and str(mst_boss).strip():
+                try:
+                    mst_boss_id = int(float(str(mst_boss).strip()))
+                    if mst_boss_id == int(manager_id):
+                        is_my_subordinate = True
+                except (ValueError, TypeError):
+                    pass
+
+            # direct boss name으로 매칭 (Full Name 비교)
+            if not is_my_subordinate and pd.notna(direct_boss) and str(direct_boss).strip():
+                if str(direct_boss).strip() == manager_name:
+                    is_my_subordinate = True
+
+            if is_my_subordinate:
+                # 퇴사자 제외: 계산 월 이전 퇴사자 제외
+                stop_date_str = ll_row.get('Stop working Date')
+                if pd.notna(stop_date_str):
+                    try:
+                        stop_date = pd.to_datetime(stop_date_str)
+                        if stop_date < calc_month_start:
+                            print(f"      → {ll_row.get('Full Name')} 제외 (퇴사자)")
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+
+                # 임산부 제외
+                pregnant = ll_row.get('pregnant vacation-yes or no', '')
+                if pd.notna(pregnant) and str(pregnant).strip().lower() == 'yes':
+                    print(f"      → {ll_row.get('Full Name')} 제외 (임산부)")
+                    continue
+
+                line_leaders.append(ll_row.to_dict())
+
+        if line_leaders:
+            incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
+            print(f"      → {manager_name} ({manager_id}) 소속 LINE LEADER {len(line_leaders)}명 발견")
+            for ll in line_leaders:
+                ll_incentive = ll.get(incentive_col, 0) or 0
+                print(f"         - {ll.get('Full Name')}: {ll_incentive:,.0f} VND")
+
         return line_leaders
     
     def _calculate_line_leader_average_unified(self, line_leaders: List, manager_id: str, position: str) -> float:
-        """Line Leader 평균 incentive calculation"""
+        """Line Leader 평균 incentive calculation - 전체 평균 (0 포함)
+
+        2025-12-01 수정:
+        - 기존: 수령자만 평균 (incentive > 0인 직원만)
+        - 변경: 전체 평균 (0 포함) - 단, 임산부/퇴사자는 _find_team_line_leaders에서 이미 제외됨
+        - 소속 LINE LEADER 중 0 VND 수령자도 평균 계산에 포함
+        - 이유: 내 팀원이 인센티브를 못 받으면 내 인센티브도 줄어들어야 함
+        """
         if not line_leaders:
             return 0
-        
+
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
         total_incentive = 0
         count = 0
-        
+
         for leader in line_leaders:
             if isinstance(leader, dict):
-                current_incentive = float(leader.get(incentive_col, 0))
+                current_incentive = float(leader.get(incentive_col, 0) or 0)
             else:
                 current_leader_data = self.month_data[
                     self.month_data['Employee No'] == leader
                 ]
                 if not current_leader_data.empty:
-                    current_incentive = float(current_leader_data.iloc[0].get(incentive_col, 0))
+                    current_incentive = float(current_leader_data.iloc[0].get(incentive_col, 0) or 0)
                 else:
                     current_incentive = 0
-            
-            if current_incentive > 0:
-                total_incentive += current_incentive
-                count += 1
-        
+
+            # ✅ 변경: 모든 LINE LEADER 포함 (0 VND도 포함)
+            total_incentive += current_incentive
+            count += 1
+
         if count > 0:
-            return total_incentive / count
+            avg = total_incentive / count
+            print(f"      → 평균 계산: {total_incentive:,.0f} / {count} = {avg:,.0f} VND (0 포함 전체 평균)")
+            return avg
         return 0
     
     def calculate_type2_incentive(self):
