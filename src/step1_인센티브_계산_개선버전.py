@@ -3945,16 +3945,13 @@ class CompleteQIPCalculator:
                     is_my_subordinate = True
 
             if is_my_subordinate:
-                # 퇴사자 제외: 계산 월 이전 퇴사자 제외
+                # 퇴사자 제외 (월중 퇴사자도 포함 - 현재 근무하지 않으면 평균 계산에서 제외)
+                # 2025-12-01 수정: 퇴사일이 있으면 모두 제외 (월 시작일 기준이 아님)
+                # 이유: 퇴사자는 인센티브가 0이므로 평균 계산에서 제외해야 공정함
                 stop_date_str = ll_row.get('Stop working Date')
-                if pd.notna(stop_date_str):
-                    try:
-                        stop_date = pd.to_datetime(stop_date_str)
-                        if stop_date < calc_month_start:
-                            print(f"      → {ll_row.get('Full Name')} 제외 (퇴사자)")
-                            continue
-                    except (ValueError, TypeError):
-                        pass
+                if pd.notna(stop_date_str) and str(stop_date_str).strip():
+                    print(f"      → {ll_row.get('Full Name')} 제외 (퇴사자: {stop_date_str})")
+                    continue
 
                 # 임산부 제외
                 pregnant = ll_row.get('pregnant vacation-yes or no', '')
@@ -4049,15 +4046,13 @@ class CompleteQIPCalculator:
                     emp_position = row.get('QIP POSITION 1ST  NAME', '')
                     emp_type = row.get('ROLE TYPE STD', '')
 
-                    # 퇴사자 제외
+                    # 퇴사자 제외 (월중 퇴사자도 포함 - 현재 근무하지 않으면 평균 계산에서 제외)
+                    # 2025-12-01 수정: 퇴사일이 있으면 모두 제외 (월 시작일 기준이 아님)
+                    # 이유: 퇴사자는 인센티브가 0이므로 평균 계산에서 제외해야 공정함
                     stop_date_str = row.get('Stop working Date')
-                    if pd.notna(stop_date_str):
-                        try:
-                            stop_date = pd.to_datetime(stop_date_str)
-                            if stop_date < calc_month_start:
-                                continue
-                        except (ValueError, TypeError):
-                            pass
+                    if pd.notna(stop_date_str) and str(stop_date_str).strip():
+                        print(f"         ⚠️ 퇴사자 제외: {emp_name} ({emp_id_int}) - 퇴사일: {stop_date_str}")
+                        continue
 
                     # 임산부 제외
                     pregnant = row.get('pregnant vacation-yes or no', '')
