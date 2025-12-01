@@ -4866,28 +4866,23 @@ class CompleteQIPCalculator:
                 approved_leave_days = self.calculate_approved_leave_days(emp_no)
                 self.month_data.loc[idx, 'Approved Leave Days'] = approved_leave_days
 
-                # ✅ V9.1 원본 복원 (2025-12-01): 출근율 = 실제 근무일 / (총 근무일 - 승인휴가) × 100
+                # ✅ 정책 반영 (2025-12-01): 승인휴가는 결근에서 제외 (출근으로 인정)
                 # 정책 공식:
-                #   근무해야 할 일수 = 총 근무일 - 승인휴가
-                #   출근율 = 실제 근무일 / 근무해야 할 일수 × 100
-                # 예시: 총 18일, 실제 14일, 승인휴가 2일 → 출근율 = 14 / (18-2) = 87.5%
+                #   결근일 = 총 근무일 - 실제 근무일 - 승인휴가 (무단결근만 카운트)
+                #   결근율 = 결근일 / 총 근무일 × 100
+                #   출근율 = 100 - 결근율
+                # 예시: 총 18일, 실제 14일, 승인휴가 2일
+                #   → 결근 2일, 결근율 11.1%, 출근율 88.9% (PASS)
                 if total_days > 0:
-                    # 근무해야 할 일수 = 총 근무일 - 승인휴가
-                    expected_working_days = total_days - approved_leave_days
+                    # 결근일 = 총 근무일 - 실제 근무일 - 승인휴가 (무단결근만 카운트)
+                    absence_days = total_days - actual_days - approved_leave_days
+                    absence_days = max(0, absence_days)  # 음수 방지
 
-                    if expected_working_days > 0:
-                        # 출근율 = 실제 근무일 / 근무해야 할 일수
-                        attendance_rate = (actual_days / expected_working_days) * 100
+                    # 결근율 = 결근일 / 총 근무일 × 100
+                    absence_rate = (absence_days / total_days) * 100
 
-                        # 결근일 = 근무해야 할 일수 - 실제 근무일
-                        absence_days = expected_working_days - actual_days
-                        absence_days = max(0, absence_days)
-                        absence_rate = (absence_days / expected_working_days) * 100
-                    else:
-                        # 모두 승인휴가인 경우 (근무해야 할 일수가 0)
-                        attendance_rate = 100
-                        absence_days = 0
-                        absence_rate = 0
+                    # 출근율 = 100 - 결근율 (승인휴가는 출근으로 인정)
+                    attendance_rate = 100 - absence_rate
 
                     # 100% 초과 방지
                     attendance_rate = min(100, max(0, attendance_rate))
