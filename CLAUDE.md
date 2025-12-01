@@ -628,21 +628,16 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Implementation**: `integrated_dashboard_final.py:6414-6416, 9782-9788, 10195`
    - **Commit**: [to be committed]
 
-13. **TYPE-2 LINE LEADER Calculation Method Issue** (DISCOVERED: 2025-11-19):
-   - **Problem**: All TYPE-2 LINE LEADER employees receive identical incentive amount (327,394 VND)
-   - **Expected**: Each LINE LEADER should receive different amounts based on subordinate formula
-     - Formula: `(Total Subordinate Incentive) × 12% × Receiving Ratio`
-     - Receiving Ratio: `(Subordinates with incentive > 0) / (Total active subordinates)`
-   - **Actual**: All 4 TYPE-2 LINE LEADER receive 327,394 VND
-   - **Root Cause**: Calculation engine uses TYPE-1 LINE LEADER全体平균 (including 0) instead of subordinate-based formula
-     - TYPE-1 LINE LEADER 수령자 평균: 374,165 VND (7명)
-     - TYPE-1 LINE LEADER 전체 평균 (0 포함): 327,394 VND (8명)
-     - TYPE-2 LINE LEADER all receive: 327,394 VND ← Uses whole average, NOT formula
-   - **Impact**: TYPE-2 LINE LEADER incentives are NOT calculated according to documented formula
-   - **Status**: **CALCULATION ENGINE BUG** - requires fix in `src/step1_인센티브_계산_개선버전.py`
-   - **Verification**: Check Lines 3255-3323 for LINE LEADER (TYPE-2) calculation logic
-   - **Related Documentation**: CLAUDE.md Lines 318-326, 428-432
-   - **Discovered**: User analysis of dashboard data (2025-11-19)
+13. **TYPE-2 LINE LEADER Calculation Method - BFS 관리자 인센티브** (INTENTIONAL CHANGE: 2025-12-01):
+   - **Original Issue (2025-11-19)**: All TYPE-2 LINE LEADER employees received identical amount
+   - **Implemented Solution**: BFS (Breadth-First Search) 관리자 인센티브 계산 방식
+     - TYPE-2 LINE LEADER가 관리하는 부하직원 중 LINE LEADER 직급 검색
+     - BFS로 모든 부하 LINE LEADER의 인센티브 합계 계산
+     - 해당 합계의 일정 비율로 TYPE-2 LINE LEADER 인센티브 결정
+   - **Status**: ✅ **의도된 변경** - BFS 로직이 정상 작동 중
+   - **Implementation**: `src/step1_인센티브_계산_개선버전.py` BFS manager incentive logic
+   - **Note**: 이전에 "CALCULATION ENGINE BUG"로 표시되었으나, 사용자 요청에 따른 의도된 변경임
+   - **Verification**: TYPE-2 LINE LEADER 인센티브가 부하 LINE LEADER 인센티브 기반으로 계산됨
 
 14. **Condition Fulfillment Display Error** (FIXED: 2025-11-19):
    - **Problem**: Employee 619100392 (PHẠM MINH HUY) shows "3/3 conditions met (100%)" but receives 0 VND
@@ -998,12 +993,25 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - **November Result**: 0 VND (correct - no TYPE-1 employees passed 100% of conditions)
      - **Verification**: Formula verified in code at `src/step1_인센티브_계산_개선버전.py:4340`
 
-   - **Formula Fix 2: Attendance Rate Calculation** (Line 4698-4720)
-     - **Change**: `(actual / (total - approved_leave))` → `(actual / total)`
-     - **Code**: `attendance_rate = (actual_days / total_days) * 100`
-     - **Policy**: Approved leave now included in total days denominator
-     - **Verification**: ✅ Tested with 3 employees with approved leave - formula working correctly
-     - **Example**: Employee with 16 actual, 19 total, 1 approved leave → 84.21% (16/19)
+   - **Formula Fix 2: Attendance Rate Calculation** (Line 4869-4892, Updated 2025-12-01)
+     - **Change**: `(actual / (total - approved_leave))` → `100 - (무단결근/total×100)`
+     - **Policy Formula** (정책 반영):
+       ```
+       결근일 = 총 근무일 - 실제 근무일 - 승인휴가 (무단결근만 카운트)
+       결근율 = 결근일 / 총 근무일 × 100
+       출근율 = 100 - 결근율 (승인휴가는 출근으로 인정)
+       ```
+     - **Code**:
+       ```python
+       absence_days = total_days - actual_days - approved_leave_days
+       absence_rate = (absence_days / total_days) * 100
+       attendance_rate = 100 - absence_rate
+       ```
+     - **Verification**: ✅ Tested with policy example - formula working correctly
+     - **Example**: Worker 625080250 (Total=18, Actual=14, ApprovedLeave=2)
+       - 결근일: 18-14-2 = 2일
+       - 결근율: 2/18 = 11.1%
+       - 출근율: 100-11.1 = **88.9%** (PASS ✅, threshold 88%)
 
    - **November 2025 Calculation Results**:
      - Total employees: 541
@@ -1016,7 +1024,7 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Business Logic Validation**:
      - ✅ **100% Condition Fulfillment Rule**: Strictly enforced (no partial incentives)
      - ✅ **TYPE-2 Reference Average**: Correctly uses receiving-only average (0 when none received)
-     - ✅ **Attendance Rate Formula**: Policy-aligned (approved leave in denominator)
+     - ✅ **Attendance Rate Formula**: Policy-aligned (승인휴가=출근 인정, 무단결근만 결근 처리)
      - ✅ **AQL Config Auto-Update**: Step 7.5 integration working (backup created)
 
    - **Complete Workflow Executed**:
