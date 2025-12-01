@@ -13345,15 +13345,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                 }};
             }} else {{
-                // Others: average × multiplier
-                const avgIncentive = receivingSubordinates.length > 0 ?
-                    receivingSubordinates.reduce((sum, sub) =>
-                        sum + Number(sub['{month.lower()}_incentive'] || 0), 0
-                    ) / receivingSubordinates.length : 0;
+                // Others: average × multiplier (전체 평균 사용 - 0 포함, 2025-11-30 변경)
+                const totalIncentiveAll = subordinates.reduce((sum, sub) =>
+                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                );
+                const avgIncentive = subordinates.length > 0 ?
+                    totalIncentiveAll / subordinates.length : 0;
                 return {{
                     expected: Math.round(avgIncentive * config.multiplier),
                     metrics: {{
-                        total: 0,
+                        total: totalIncentiveAll,
                         receiving: receivingSubordinates.length,
                         count: subordinates.length,
                         receivingRatio: 0,
@@ -13383,11 +13384,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     subordinatesByGroup[groupName].push(sub);
                 }});
 
-                const totalIncentive = receivingSubordinates.reduce((sum, sub) =>
+                // 전체 평균 사용 (0 포함) - 2025-11-30 변경
+                const totalIncentive = subordinates.reduce((sum, sub) =>
                     sum + Number(sub['{month.lower()}_incentive'] || 0), 0
                 );
-                const avgIncentive = receivingSubordinates.length > 0 ?
-                    totalIncentive / receivingSubordinates.length : 0;
+                const avgIncentive = subordinates.length > 0 ?
+                    totalIncentive / subordinates.length : 0;
 
                 return `
                     <div class="mt-3">
@@ -13428,8 +13430,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th></th>
                                 </tr>
                                 <tr>
-                                    <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
-                                        .replace('{{{{receiving}}}}', receivingSubordinates.length)
+                                    <th colspan="3">${{getTranslation('orgChart.modal.averageAll', currentLanguage)
                                         .replace('{{{{total}}}}', subordinates.length)}}</th>
                                     <th class="text-end">₫${{Math.round(avgIncentive).toLocaleString('ko-KR')}}</th>
                                     <th></th>
@@ -13439,12 +13440,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 `;
             }} else {{
-                // Simple table (LINE LEADER, GROUP LEADER)
-                const totalIncentive = receivingSubordinates.reduce((sum, sub) =>
+                // Simple table (LINE LEADER, GROUP LEADER) - 전체 평균 사용 (0 포함, 2025-11-30 변경)
+                const totalIncentive = subordinates.reduce((sum, sub) =>
                     sum + Number(sub['{month.lower()}_incentive'] || 0), 0
                 );
-                const avgIncentive = receivingSubordinates.length > 0 ?
-                    totalIncentive / receivingSubordinates.length : 0;
+                const avgIncentive = subordinates.length > 0 ?
+                    totalIncentive / subordinates.length : 0;
 
                 return `
                     <div class="mt-3">
@@ -13479,8 +13480,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th></th>
                                 </tr>
                                 <tr>
-                                    <th colspan="2">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
-                                        .replace('{{{{receiving}}}}', receivingSubordinates.length)
+                                    <th colspan="2">${{getTranslation('orgChart.modal.averageAll', currentLanguage)
                                         .replace('{{{{total}}}}', subordinates.length)}}</th>
                                     <th class="text-end">₫${{Math.round(avgIncentive).toLocaleString('ko-KR')}}</th>
                                     <th></th>

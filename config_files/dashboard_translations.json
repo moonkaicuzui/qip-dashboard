@@ -459,6 +459,11 @@
         "en": "Average ({{receiving}}/{{total}} receiving)",
         "vi": "Trung bình ({{receiving}}/{{total}} nhận)"
       },
+      "averageAll": {
+        "ko": "전체 평균 ({{total}}명)",
+        "en": "Average ({{total}} total)",
+        "vi": "Trung bình ({{total}} tổng)"
+      },
       "labels": {
         "formula": {
           "ko": "계산 공식",
