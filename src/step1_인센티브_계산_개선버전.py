@@ -3804,7 +3804,12 @@ class CompleteQIPCalculator:
                     if calc_method == 'line_leader_average':
                         # Line Leader 평균 based calculation (JSON same적 calculation)
                         multiplier = incentive_config.get('multiplier', config['multiplier'])
-                        line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
+                        # 2025-12-01: MANAGER는 모든 하위 LINE LEADER 사용, 나머지는 직접 부하만
+                        position_name = row.get('QIP POSITION 1ST  NAME', '')
+                        if position_name == 'MANAGER':
+                            line_leaders = self._find_all_subordinate_line_leaders(manager_id, subordinate_mapping)
+                        else:
+                            line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
 
                         if line_leaders:
                             avg_incentive = self._calculate_line_leader_average_unified(
@@ -3836,7 +3841,12 @@ class CompleteQIPCalculator:
                             print(f"      → {config['name']} {row.get('Full Name', 'Unknown')} ({manager_id}): JSON 고정value → {incentive:,} VND")
                         else:
                             # Line Leader 평균 based calculation (Fallback)
-                            line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
+                            # 2025-12-01: MANAGER는 모든 하위 LINE LEADER 사용, 나머지는 직접 부하만
+                            position_name = row.get('QIP POSITION 1ST  NAME', '')
+                            if position_name == 'MANAGER':
+                                line_leaders = self._find_all_subordinate_line_leaders(manager_id, subordinate_mapping)
+                            else:
+                                line_leaders = self._find_team_line_leaders(manager_id, subordinate_mapping)
 
                             if line_leaders:
                                 avg_incentive = self._calculate_line_leader_average_unified(
@@ -3962,7 +3972,114 @@ class CompleteQIPCalculator:
                 print(f"         - {ll.get('Full Name')}: {ll_incentive:,.0f} VND")
 
         return line_leaders
-    
+
+    def _find_all_subordinate_line_leaders(self, manager_id, subordinate_mapping: Dict[str, List[str]]) -> List:
+        """MANAGER용: 모든 하위 LINE LEADER 찾기 (직접 + 간접 부하 포함)
+
+        2025-12-01 추가:
+        - MANAGER는 여러 단계 아래의 LINE LEADER까지 포함
+        - 조직도 계층: MANAGER → (V) SUPERVISOR/GROUP LEADER/A.MANAGER → LINE LEADER
+        - BFS(너비 우선 탐색)로 모든 하위 직원 탐색
+        - 임산부, 퇴사자 제외
+        """
+        line_leaders = []
+        visited = set()
+
+        # manager의 이름과 ID 가져오기
+        try:
+            manager_id_int = int(manager_id)
+        except (ValueError, TypeError):
+            print(f"      → Manager ID 변환 실패: {manager_id}")
+            return line_leaders
+
+        manager_data = self.month_data[
+            self.month_data['Employee No'].astype(str) == str(manager_id_int)
+        ]
+
+        if manager_data.empty:
+            print(f"      → Manager {manager_id} 정보 없음")
+            return line_leaders
+
+        manager_name = manager_data.iloc[0].get('Full Name', '')
+
+        # 계산 월 시작일 (퇴사자 필터링용)
+        calc_month_start = pd.Timestamp(self.config.year, self.config.month.number, 1)
+
+        incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
+
+        # BFS로 모든 하위 직원 탐색
+        # 시작점: manager_id와 manager_name
+        queue = [(manager_id_int, manager_name)]
+        visited.add(manager_id_int)
+
+        while queue:
+            current_id, current_name = queue.pop(0)
+
+            # 현재 직원의 직접 부하 찾기 (MST direct boss name 또는 direct boss name이 현재 직원인 경우)
+            for _, row in self.month_data.iterrows():
+                emp_id = row.get('Employee No', '')
+                try:
+                    emp_id_int = int(float(str(emp_id).strip())) if pd.notna(emp_id) else None
+                except (ValueError, TypeError):
+                    continue
+
+                if emp_id_int is None or emp_id_int in visited:
+                    continue
+
+                mst_boss = row.get('MST direct boss name', '')
+                direct_boss = row.get('direct boss name', '')
+
+                # MST direct boss name으로 매칭
+                is_subordinate = False
+                try:
+                    mst_boss_id = int(float(str(mst_boss).strip())) if pd.notna(mst_boss) and str(mst_boss).strip() else None
+                    if mst_boss_id == current_id:
+                        is_subordinate = True
+                except (ValueError, TypeError):
+                    pass
+
+                # direct boss name으로 매칭
+                if not is_subordinate and pd.notna(direct_boss) and str(direct_boss).strip():
+                    if str(direct_boss).strip() == current_name:
+                        is_subordinate = True
+
+                if is_subordinate:
+                    visited.add(emp_id_int)
+                    emp_name = row.get('Full Name', '')
+                    emp_position = row.get('QIP POSITION 1ST  NAME', '')
+                    emp_type = row.get('ROLE TYPE STD', '')
+
+                    # 퇴사자 제외
+                    stop_date_str = row.get('Stop working Date')
+                    if pd.notna(stop_date_str):
+                        try:
+                            stop_date = pd.to_datetime(stop_date_str)
+                            if stop_date < calc_month_start:
+                                continue
+                        except (ValueError, TypeError):
+                            pass
+
+                    # 임산부 제외
+                    pregnant = row.get('pregnant vacation-yes or no', '')
+                    if pd.notna(pregnant) and str(pregnant).strip().lower() == 'yes':
+                        continue
+
+                    # TYPE-1 LINE LEADER인 경우 결과에 추가
+                    if emp_type == 'TYPE-1' and emp_position == 'LINE LEADER':
+                        line_leaders.append(row.to_dict())
+
+                    # 중간 관리자인 경우 큐에 추가 (더 아래 탐색)
+                    if emp_position in ['(V) SUPERVISOR', 'SUPERVISOR', 'GROUP LEADER', 'A.MANAGER', 'ASSISTANT MANAGER']:
+                        queue.append((emp_id_int, emp_name))
+
+        if line_leaders:
+            print(f"      → {manager_name} ({manager_id}) 모든 하위 LINE LEADER {len(line_leaders)}명 발견")
+            for ll in line_leaders:
+                ll_incentive = ll.get(incentive_col, 0) or 0
+                print(f"         - {ll.get('Full Name')}: {ll_incentive:,.0f} VND")
+
+        return line_leaders
+
     def _calculate_line_leader_average_unified(self, line_leaders: List, manager_id: str, position: str) -> float:
         """Line Leader 평균 incentive calculation - 전체 평균 (0 포함)
 
