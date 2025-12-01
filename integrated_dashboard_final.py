@@ -1038,7 +1038,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             'pass_rate': float(row_dict.get('pass_rate', 0)),
             'validation_qty': int(row_dict.get('validation_qty', 0)),
             'Talent_Pool_Member': str(row_dict.get('Talent_Pool_Member', 'N')),
-            'Talent_Pool_Bonus': int(row_dict.get('Talent_Pool_Bonus', 0))
+            'Talent_Pool_Bonus': int(row_dict.get('Talent_Pool_Bonus', 0)),
+            # 퇴사일 추가 (2025-12-01): LINE LEADER 평균 계산에서 퇴사자 제외용
+            'stop_date': str(row_dict.get('Stop working Date', '')) if pd.notna(row_dict.get('Stop working Date')) else '',
+            'Stop working Date': str(row_dict.get('Stop working Date', '')) if pd.notna(row_dict.get('Stop working Date')) else ''
         }
 
         # 조건 관련 column 추가 (cond_1 ~ cond_10)
@@ -13161,7 +13164,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             directSubordinates.forEach(sub => {{
                 const position = (sub.position || '').toUpperCase();
 
-                // TYPE-1 LINE LEADER인 경우 추가
+                // 퇴사자 제외: stop_date가 있으면 평균 계산에서 제외
+                // 2025-12-01 추가: 퇴사자는 인센티브가 0이므로 평균 계산에서 제외해야 공정함
+                const stopDate = sub.stop_date || '';
+                if (stopDate && stopDate.trim() !== '') {{
+                    // 퇴사자는 건너뜀
+                    // 하지만 재귀 탐색은 계속 (퇴사자 아래에 근무중인 부하가 있을 수 있음)
+                    const subLineLeaders = findTeamLineLeaders(String(sub.emp_no || ''), depth + 1, visited);
+                    lineLeaders = lineLeaders.concat(subLineLeaders);
+                    return; // continue to next iteration
+                }}
+
+                // TYPE-1 LINE LEADER인 경우 추가 (퇴사자가 아닌 경우만)
                 if (sub.type === 'TYPE-1' && position.includes('LINE') && position.includes('LEADER')) {{
                     lineLeaders.push(sub);
                 }}
