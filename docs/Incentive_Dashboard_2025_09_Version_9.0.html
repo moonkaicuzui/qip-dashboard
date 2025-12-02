@@ -1869,7 +1869,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="september" data-month-name="9월">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="02" data-hour="05" data-minute="33">보고서 생성일: 2025년 12월 02일 05:33</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="02" data-hour="05" data-minute="41">보고서 생성일: 2025년 12월 02일 05:41</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -10368,15 +10368,11 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('[DEBUG] DOMContentLoaded event fired - starting data initialization');
-
             // employeeData already initialized globally
             window.aqlInspectorStats = null;
             try {
                 // DOM에서 Base64 data read
-                console.log('[DEBUG] Starting employee data load...');
                 const base64Element = document.getElementById('employeeDataBase64');
-                console.log('[DEBUG] base64Element found:', !!base64Element);
 
                 if (!base64Element) {
                     console.error('[ERROR] employeeDataBase64 element not found in DOM!');
@@ -10384,11 +10380,8 @@
                 }
 
                 const base64Data = base64Element.textContent.trim();
-                console.log('[DEBUG] base64Data length:', base64Data.length);
             const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 use
-            console.log('[DEBUG] Decoded JSON string length:', jsonStr.length);
             const employeeData = JSON.parse(jsonStr);
-            console.log('[DEBUG] Parsed employee data:', employeeData.length, '직원');
             window.employeeData = employeeData;
             console.log('Employee data loaded successfully:', employeeData.length, '직원');
 
@@ -10762,9 +10755,6 @@
                     }
                 }
             });
-
-            console.log('Employee data normalized. Sample:', employeeData.slice(0, 2));
-            console.log('[DEBUG] DOMContentLoaded initialization complete');
 
         }); // End of DOMContentLoaded event listener
 
@@ -11919,27 +11909,27 @@
                         fresh: '🟢 최신 데이터',
                         moderate: '🟡 업데이트 권장',
                         stale: '🔴 데이터 오래됨',
-                        lastUpdate: '마지막 업데이트',
+                        lastUpdate: '데이터 동기화',
                         minutesAgo: '분 전',
-                        nextUpdate: '다음 자동 업데이트',
+                        nextUpdate: '다음 자동 동기화',
                         minutes: '분 후'
                     },
                     en: {
                         fresh: '🟢 Fresh Data',
                         moderate: '🟡 Update Recommended',
                         stale: '🔴 Data Outdated',
-                        lastUpdate: 'Last Update',
+                        lastUpdate: 'Data Sync',
                         minutesAgo: 'min ago',
-                        nextUpdate: 'Next Auto Update',
+                        nextUpdate: 'Next Auto Sync',
                         minutes: 'min'
                     },
                     vi: {
                         fresh: '🟢 Dữ liệu mới',
                         moderate: '🟡 Nên cập nhật',
                         stale: '🔴 Dữ liệu cũ',
-                        lastUpdate: 'Cập nhật cuối',
+                        lastUpdate: 'Đồng bộ dữ liệu',
                         minutesAgo: 'phút trước',
-                        nextUpdate: 'Tự động cập nhật tiếp',
+                        nextUpdate: 'Tự động đồng bộ tiếp',
                         minutes: 'phút'
                     }
                 };
