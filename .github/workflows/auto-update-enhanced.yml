@@ -273,4 +273,4 @@ jobs:
         echo "📝 Config 파일들:"
         ls -la config_files/config_*.json | tail -5
         echo ""
-        echo "⏰ 다음 실행: 1시간 후"
+        echo "⏰ 다음 실행: 30분 후"

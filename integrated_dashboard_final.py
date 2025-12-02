@@ -1167,12 +1167,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     직원_json_str = json.dumps(직원_clean, ensure_ascii=False, separators=(',', ':'))
     직원_json_base64 = base64.b64encode(직원_json_str.encode('utf-8')).decode('ascii')
 
-    # DEBUG: Print encoding status
-    print(f"🔍 [DEBUG] 직원 list: {len(직원)}직원")
-    print(f"🔍 [DEBUG] 직원_clean list: {len(직원_clean)}직원")
-    print(f"🔍 [DEBUG] JSON string length: {len(직원_json_str)} characters")
-    print(f"🔍 [DEBUG] Base64 encoding length: {len(직원_json_base64)} characters")
-
     # AQL Inspector Stats를 Base64로 encoding
     aql_inspector_stats_str = json.dumps(aql_inspector_stats, ensure_ascii=False, separators=(',', ':'))
     aql_inspector_stats_b64 = base64.b64encode(aql_inspector_stats_str.encode('utf-8')).decode('ascii')
@@ -8637,15 +8631,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }};
 
         document.addEventListener('DOMContentLoaded', function() {{
-            console.log('[DEBUG] DOMContentLoaded event fired - starting data initialization');
-
             // employeeData already initialized globally
             window.aqlInspectorStats = null;
             try {{
                 // DOM에서 Base64 data read
-                console.log('[DEBUG] Starting employee data load...');
                 const base64Element = document.getElementById('employeeDataBase64');
-                console.log('[DEBUG] base64Element found:', !!base64Element);
 
                 if (!base64Element) {{
                     console.error('[ERROR] employeeDataBase64 element not found in DOM!');
@@ -8653,11 +8643,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
 
                 const base64Data = base64Element.textContent.trim();
-                console.log('[DEBUG] base64Data length:', base64Data.length);
             const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 use
-            console.log('[DEBUG] Decoded JSON string length:', jsonStr.length);
             const employeeData = JSON.parse(jsonStr);
-            console.log('[DEBUG] Parsed employee data:', employeeData.length, '직원');
             window.employeeData = employeeData;
             console.log('Employee data loaded successfully:', employeeData.length, '직원');
 
@@ -9031,9 +9018,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                 }}
             }});
-
-            console.log('Employee data normalized. Sample:', employeeData.slice(0, 2));
-            console.log('[DEBUG] DOMContentLoaded initialization complete');
 
         }}); // End of DOMContentLoaded event listener
 
@@ -10188,27 +10172,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         fresh: '🟢 최신 데이터',
                         moderate: '🟡 업데이트 권장',
                         stale: '🔴 데이터 오래됨',
-                        lastUpdate: '마지막 업데이트',
+                        lastUpdate: '데이터 동기화',
                         minutesAgo: '분 전',
-                        nextUpdate: '다음 자동 업데이트',
+                        nextUpdate: '다음 자동 동기화',
                         minutes: '분 후'
                     }},
                     en: {{
                         fresh: '🟢 Fresh Data',
                         moderate: '🟡 Update Recommended',
                         stale: '🔴 Data Outdated',
-                        lastUpdate: 'Last Update',
+                        lastUpdate: 'Data Sync',
                         minutesAgo: 'min ago',
-                        nextUpdate: 'Next Auto Update',
+                        nextUpdate: 'Next Auto Sync',
                         minutes: 'min'
                     }},
                     vi: {{
                         fresh: '🟢 Dữ liệu mới',
                         moderate: '🟡 Nên cập nhật',
                         stale: '🔴 Dữ liệu cũ',
-                        lastUpdate: 'Cập nhật cuối',
+                        lastUpdate: 'Đồng bộ dữ liệu',
                         minutesAgo: 'phút trước',
-                        nextUpdate: 'Tự động cập nhật tiếp',
+                        nextUpdate: 'Tự động đồng bộ tiếp',
                         minutes: 'phút'
                     }}
                 }};
