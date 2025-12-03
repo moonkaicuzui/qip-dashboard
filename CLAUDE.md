@@ -94,7 +94,40 @@ See `PROJECT_IDENTITY_WEB_DASHBOARD.md` for comprehensive web deployment archite
 - Example: September calculation excludes employees who resigned before 2025-09-01
 - Implementation: `src/step1_인센티브_계산_개선버전.py:3146-3156` (create_manager_subordinate_mapping)
 
-### 5. Deployment and Documentation Workflow (배포 및 문서화 필수 원칙)
+### 5. Continuous Months Calculation Priority (연속월 계산 우선순위 - 2025-12-03)
+- **ALWAYS use `Continuous_Months + 1` as primary calculation method**
+- **NEVER trust `Next_Month_Expected` as primary source** - this field can contain corrupted/wrong values
+- **Priority Order** (MUST follow this order):
+  1. **Priority 1**: `Continuous_Months + 1` (가장 신뢰성 높음 - 수학적으로 검증 가능)
+  2. **Priority 2**: `Next_Month_Expected` (fallback only - 오류 가능성 있음)
+  3. **Priority 3**: Reverse calculation from incentive amount (last resort)
+- **Why Continuous_Months + 1 is more reliable**:
+  - Direct calculation from validated monthly data
+  - No intermediate computation that can introduce errors
+  - Mathematically verifiable: if October = 12 and all conditions pass → November = 13
+- **Why Next_Month_Expected can be unreliable**:
+  - Pre-calculated value that can be corrupted during data processing
+  - Subject to errors in previous month's calculation logic
+  - Not validated against actual monthly conditions
+- **Implementation**: `src/step1_인센티브_계산_개선버전.py:1105-1124` (calculate_continuous_months_from_history)
+- **Historical Bug** (2025-12-03): October file had `Next_Month_Expected: 2` but `Continuous_Months: 12` - using wrong priority caused 12-month employees to show as 2-month
+
+### 6. Always Sync Google Drive Before Calculation (계산 전 Google Drive 동기화 필수)
+- **NEVER calculate incentives with potentially outdated local data**
+- **ALWAYS download fresh data from Google Drive before any calculation**
+- **Verification required**: Compare local file dates with Google Drive `modifiedTime`
+- **Historical Bug** (2025-12-03): Local attendance data showed 13 days, Google Drive had 25 days - caused all employees to fail attendance condition
+- **Command to sync**:
+  ```python
+  # Load service account and download fresh data
+  import os, json
+  with open("/Users/ksmoon/Downloads/qip-dashboard-dabdc4d51ac9.json") as f:
+      os.environ['GOOGLE_SERVICE_ACCOUNT'] = json.dumps(json.load(f))
+  exec(open('scripts/download_from_gdrive.py').read())
+  ```
+- **Workflow**: Download → Convert Attendance → Calculate → Generate Dashboard
+
+### 7. Deployment and Documentation Workflow (배포 및 문서화 필수 원칙)
 **MANDATORY FOR ALL PROJECT WORK** - Every code change MUST follow this complete workflow:
 
 #### Step 1: Code Changes
