@@ -3499,12 +3499,6 @@ class CompleteQIPCalculator:
                 cond4 == 'FAIL'
             )
 
-            # 디버그: 문제 직원인 경우 출근 조건 값 출력
-            if leader_id in {619020468, 621110013}:
-                print(f"    [DEBUG] {row.get('Full Name')} ({leader_id}):")
-                print(f"       cond1={cond1}, cond2={cond2}, cond3={cond3}, cond4={cond4}")
-                print(f"       attendance_fail={attendance_fail}")
-
             # attendance condition 미충족 시 incentive 0
             if attendance_fail:
                 incentive = 0
@@ -3516,20 +3510,9 @@ class CompleteQIPCalculator:
                 receiving_count = 0  # incentive 받 employee 수
                 total_count = 0      # 전체 부하employee 수
 
-                # 디버그: 문제 직원인 경우
-                if leader_id in {619020468, 621110013}:
-                    print(f"       부하직원 수: {len(subordinates)}")
-
                 for sub_id in subordinates:
                     # Employee No 타입 일치를 위해 str로 변환하여 검색
                     sub_data = self.month_data[self.month_data['Employee No'] == str(sub_id)]
-
-                    # 디버그: 부하직원을 찾지 못하는 경우
-                    if leader_id in {619020468, 621110013} and sub_data.empty:
-                        print(f"       [WARNING] 부하직원 {sub_id} (type: {type(sub_id)}) 찾을 수 없음!")
-                        # Employee No 컬럼의 타입 확인
-                        sample_emp_no = self.month_data['Employee No'].iloc[0]
-                        print(f"       month_data Employee No 타입: {type(sample_emp_no)}")
 
                     if not sub_data.empty:
                         sub_row = sub_data.iloc[0]
@@ -4216,20 +4199,6 @@ class CompleteQIPCalculator:
             emp_id = row.get('Employee No', '')
             name = row.get('Full Name', '')
 
-            # 모든 GROUP LEADER 출력with ĐINH KIM NGOAN include checking
-            print(f"    processing in progress: {name} ({emp_id}) - Type: {type(emp_id)}")
-
-            # ĐINH KIM NGOAN 특별 debugging - 다양한 형태with checking
-            if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                print(f"\n    🔍 ĐINH KIM NGOAN 발견! 특별 debugging:")
-                print(f"      emp_id: {emp_id} (type: {type(emp_id)})")
-                print(f"      name: {name}")
-                print(f"      current September_Incentive: {self.month_data.loc[idx, incentive_col]}")
-                print(f"      condition1 (cond_1): {row.get('cond_1_attendance_rate', 'PASS')}")
-                print(f"      condition2 (cond_2): {row.get('cond_2_unapproved_absence', 'PASS')}")
-                print(f"      condition3 (cond_3): {row.get('cond_3_actual_working_days', 'PASS')}")
-                print(f"      condition4 (cond_4): {row.get('cond_4_minimum_days', 'PASS')}")
-
             # attendance condition 체크
             attendance_fail = (
                 row.get('cond_1_attendance_rate') == 'FAIL' or
@@ -4241,40 +4210,22 @@ class CompleteQIPCalculator:
             # debugging용 current value checking
             current_value = self.month_data.loc[idx, incentive_col]
 
-            # ĐINH KIM NGOAN 특별 추적
-            if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                print(f"      [DEBUG] current value(무시done): {current_value}")
-                print(f"      [DEBUG] attendance_fail: {attendance_fail}")
-                print(f"      [DEBUG] type1_line_avg: {type1_line_avg}")
-                print(f"      [DEBUG] type2_line_avg: {type2_line_avg}")
-
             # 무condition 재calculation - existing value 완전 무시
             if attendance_fail:
                 incentive = 0
-                if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      ❌ attendance_fail = True → 0VND")
             elif type1_line_avg > 0:
                 # TYPE-1 LINE LEADER 평균 × 2 사용
                 incentive = int(type1_line_avg * 2)
-                if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      → TYPE-1 LINE LEADER 평균 × 2: {type1_line_avg} × 2 = {incentive}")
             elif type2_line_avg > 0:
                 # TYPE-2 LINE LEADER 평균 × 2 (fallback)
                 incentive = int(type2_line_avg * 2)
-                if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      → TYPE-2 LINE LEADER 평균 × 2 (fallback): {type2_line_avg} × 2 = {incentive}")
             else:
                 # defaultvalue (LINE LEADER defaultvalue × 2)
                 incentive = 107360 * 2
-                if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                    print(f"      → defaultvalue 사용: 107360 × 2 = {incentive}")
 
             self.month_data.loc[idx, incentive_col] = incentive
 
-            if str(emp_id) == '617100049' or emp_id == 617100049 or name.startswith('ĐINH KIM NGOAN'):
-                print(f"      최종 calculationvalue: {incentive}")
-
-            # debugging 정보 - 모든 GROUP LEADER 출력
+            # GROUP LEADER calculation 로그
             print(f"    {name} ({emp_id}):")
             print(f"      condition 충족: {'NO' if attendance_fail else 'YES'}")
             print(f"      TYPE-1 LINE 평균: {type1_line_avg:,.0f}, TYPE-2 LINE 평균: {type2_line_avg:,.0f}")
