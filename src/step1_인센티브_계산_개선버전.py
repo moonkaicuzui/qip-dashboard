@@ -1063,9 +1063,9 @@ class DataProcessor:
         """
         연속 인센티브 수령 개월 수 계산 (우선순위 기반 로직)
 
-        우선순위 (V9.1 원본 복원: 2025-12-01):
-        1. Next_Month_Expected 컬럼 직접 읽기 (가장 신뢰성 높음)
-        2. Continuous_Months 컬럼 + 1 (fallback)
+        우선순위 (CLAUDE.md Issue #8 수정: 2025-12-03):
+        1. Continuous_Months 컬럼 + 1 (가장 신뢰성 높음 - 수학적으로 검증 가능)
+        2. Next_Month_Expected 컬럼 직접 읽기 (fallback - 오류 가능성 있음)
         3. 인센티브 금액 역산 (progression_table 동적 사용)
 
         Args:
@@ -1103,23 +1103,24 @@ class DataProcessor:
         prev_row = emp_prev.iloc[0]
 
         # ============================================
-        # 우선순위 1: Next_Month_Expected 컬럼 (V9.1 원본 - 가장 신뢰성 높음)
-        # ============================================
-        if 'Next_Month_Expected' in prev_df.columns:
-            next_expected = prev_row.get('Next_Month_Expected', 0)
-            if pd.notna(next_expected) and next_expected != '' and float(next_expected) > 0:
-                continuous_months = int(next_expected)
-                print(f"✅ {emp_id_padded}: [Priority 1] Next_Month_Expected column → {continuous_months} months")
-                return continuous_months
-
-        # ============================================
-        # 우선순위 2: Continuous_Months + 1 (fallback)
+        # 우선순위 1: Continuous_Months + 1 (가장 신뢰성 높음 - CLAUDE.md Issue #8)
+        # 이유: 수학적으로 검증 가능, Next_Month_Expected는 손상 가능성 있음
         # ============================================
         if 'Continuous_Months' in prev_df.columns:
             cont_months = prev_row.get('Continuous_Months', 0)
             if pd.notna(cont_months) and cont_months != '' and float(cont_months) >= 0:
                 continuous_months = int(cont_months) + 1
-                print(f"✅ {emp_id_padded}: [Priority 2] Continuous_Months + 1 → {int(cont_months)} + 1 = {continuous_months} months")
+                print(f"✅ {emp_id_padded}: [Priority 1] Continuous_Months + 1 → {int(cont_months)} + 1 = {continuous_months} months")
+                return continuous_months
+
+        # ============================================
+        # 우선순위 2: Next_Month_Expected 컬럼 (fallback - 오류 가능성 있음)
+        # ============================================
+        if 'Next_Month_Expected' in prev_df.columns:
+            next_expected = prev_row.get('Next_Month_Expected', 0)
+            if pd.notna(next_expected) and next_expected != '' and float(next_expected) > 0:
+                continuous_months = int(next_expected)
+                print(f"✅ {emp_id_padded}: [Priority 2] Next_Month_Expected column → {continuous_months} months")
                 return continuous_months
 
         # ============================================
