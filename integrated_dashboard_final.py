@@ -13345,16 +13345,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                 }};
             }} else {{
-                // Others: average × multiplier (전체 평균 사용 - 0 포함, 2025-11-30 변경)
-                const totalIncentiveAll = subordinates.reduce((sum, sub) =>
+                // Others: average × multiplier (수령자만 평균 - 0 제외, 2025-12-04 수정)
+                // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
+                const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
                     sum + Number(sub['{month.lower()}_incentive'] || 0), 0
                 );
-                const avgIncentive = subordinates.length > 0 ?
-                    totalIncentiveAll / subordinates.length : 0;
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    receivingIncentive / receivingSubordinates.length : 0;
                 return {{
                     expected: Math.round(avgIncentive * config.multiplier),
                     metrics: {{
-                        total: totalIncentiveAll,
+                        total: receivingIncentive,
                         receiving: receivingSubordinates.length,
                         count: subordinates.length,
                         receivingRatio: 0,
@@ -13384,12 +13385,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     subordinatesByGroup[groupName].push(sub);
                 }});
 
-                // 전체 평균 사용 (0 포함) - 2025-11-30 변경
-                const totalIncentive = subordinates.reduce((sum, sub) =>
+                // 수령자만 평균 (0 제외) - 2025-12-04 수정
+                // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
+                const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
                     sum + Number(sub['{month.lower()}_incentive'] || 0), 0
                 );
-                const avgIncentive = subordinates.length > 0 ?
-                    totalIncentive / subordinates.length : 0;
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    receivingIncentive / receivingSubordinates.length : 0;
 
                 return `
                     <div class="mt-3">
@@ -13430,7 +13432,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th></th>
                                 </tr>
                                 <tr>
-                                    <th colspan="3">${{getTranslation('orgChart.modal.averageAll', currentLanguage)
+                                    <th colspan="3">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
+                                        .replace('{{{{receiving}}}}', receivingSubordinates.length)
                                         .replace('{{{{total}}}}', subordinates.length)}}</th>
                                     <th class="text-end">₫${{Math.round(avgIncentive).toLocaleString('ko-KR')}}</th>
                                     <th></th>
@@ -13440,12 +13443,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 `;
             }} else {{
-                // Simple table (LINE LEADER, GROUP LEADER) - 전체 평균 사용 (0 포함, 2025-11-30 변경)
+                // Simple table (LINE LEADER, GROUP LEADER) - 수령자만 평균 (0 제외, 2025-12-04 수정)
+                // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const totalIncentive = subordinates.reduce((sum, sub) =>
                     sum + Number(sub['{month.lower()}_incentive'] || 0), 0
                 );
-                const avgIncentive = subordinates.length > 0 ?
-                    totalIncentive / subordinates.length : 0;
+                const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
+                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                );
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    receivingIncentive / receivingSubordinates.length : 0;
 
                 return `
                     <div class="mt-3">
@@ -13480,7 +13487,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th></th>
                                 </tr>
                                 <tr>
-                                    <th colspan="2">${{getTranslation('orgChart.modal.averageAll', currentLanguage)
+                                    <th colspan="2">${{getTranslation('orgChart.modal.averageReceiving', currentLanguage)
+                                        .replace('{{{{receiving}}}}', receivingSubordinates.length)
                                         .replace('{{{{total}}}}', subordinates.length)}}</th>
                                     <th class="text-end">₫${{Math.round(avgIncentive).toLocaleString('ko-KR')}}</th>
                                     <th></th>
