@@ -13672,9 +13672,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // existing 모달이 있으면 강제 닫기
                 window.forceCloseModal();
 
-                const employee = employeeData.find(emp => emp.emp_no === nodeId);
+                // CRITICAL FIX: nodeId를 문자열로 변환하여 비교 (타입 불일치 방지)
+                const nodeIdStr = String(nodeId);
+                const employee = employeeData.find(emp => String(emp.emp_no) === nodeIdStr || String(emp['Employee No']) === nodeIdStr);
                 if (!employee) {{
-                    console.error('❌ 직원 data를 find count 없음:', nodeId);
+                    console.error('❌ 직원 data를 find count 없음:', nodeId, '(변환된 값:', nodeIdStr, ')');
                     alert('직원 data를 find count not found. ID: ' + nodeId);
                     return;
                 }}
@@ -13683,8 +13685,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const position = (employee.position || '').toUpperCase();
                 const employeeIncentive = Number(employee['{month.lower()}_incentive'] || 0);
 
-                // 부하 직원 찾기 (TYPE-1만)
-                const subordinates = employeeData.filter(emp => emp.boss_id === nodeId && emp.type === 'TYPE-1');
+                // 부하 직원 찾기 (TYPE-1만) - 문자열 비교로 수정
+                const subordinates = employeeData.filter(emp => String(emp.boss_id) === nodeIdStr && emp.type === 'TYPE-1');
                 const receivingSubordinates = subordinates.filter(sub => {{
                     const incentive = sub['{month.lower()}_incentive'] || 0;
                     return Number(incentive) > 0;

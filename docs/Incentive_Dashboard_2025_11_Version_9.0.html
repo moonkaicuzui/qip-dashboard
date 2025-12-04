@@ -1869,7 +1869,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="november" data-month-name="11월">2025년 11월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="04" data-hour="16" data-minute="50">보고서 생성일: 2025년 12월 04일 16:50</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="04" data-hour="17" data-minute="00">보고서 생성일: 2025년 12월 04일 17:00</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -18837,9 +18837,11 @@
                 // existing 모달이 있으면 강제 닫기
                 window.forceCloseModal();
 
-                const employee = employeeData.find(emp => emp.emp_no === nodeId);
+                // CRITICAL FIX: nodeId를 문자열로 변환하여 비교 (타입 불일치 방지)
+                const nodeIdStr = String(nodeId);
+                const employee = employeeData.find(emp => String(emp.emp_no) === nodeIdStr || String(emp['Employee No']) === nodeIdStr);
                 if (!employee) {
-                    console.error('❌ 직원 data를 find count 없음:', nodeId);
+                    console.error('❌ 직원 data를 find count 없음:', nodeId, '(변환된 값:', nodeIdStr, ')');
                     alert('직원 data를 find count not found. ID: ' + nodeId);
                     return;
                 }
@@ -18848,8 +18850,8 @@
                 const position = (employee.position || '').toUpperCase();
                 const employeeIncentive = Number(employee['november_incentive'] || 0);
 
-                // 부하 직원 찾기 (TYPE-1만)
-                const subordinates = employeeData.filter(emp => emp.boss_id === nodeId && emp.type === 'TYPE-1');
+                // 부하 직원 찾기 (TYPE-1만) - 문자열 비교로 수정
+                const subordinates = employeeData.filter(emp => String(emp.boss_id) === nodeIdStr && emp.type === 'TYPE-1');
                 const receivingSubordinates = subordinates.filter(sub => {
                     const incentive = sub['november_incentive'] || 0;
                     return Number(incentive) > 0;
