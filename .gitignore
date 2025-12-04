@@ -91,6 +91,7 @@ scripts/**/__pycache__/
 !aql_fail_modal_new.js
 !dashboard_v2/static/js/**
 !api/**/*.js
+!static/cdn_libraries/*.js
 
 # Vercel
 .vercel
