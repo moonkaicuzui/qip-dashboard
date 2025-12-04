@@ -1869,7 +1869,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="september" data-month-name="9월">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="04" data-hour="09" data-minute="48">보고서 생성일: 2025년 12월 04일 09:48</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="04" data-hour="10" data-minute="04">보고서 생성일: 2025년 12월 04일 10:04</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -15188,11 +15188,9 @@
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.risk') + '</th>';
             modalHTML += '</tr></thead><tbody>';
 
-            // 최근 2개월 연속 failed자를 먼저 표시 (높은 위험)
-            const augSepFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternHigh));
-            const julAugFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternMedium));
-
-            augSepFails.forEach(emp => {
+            // 2개월 연속 실패자 모두 표시 (Continuous_FAIL_2Month === 'YES'인 직원)
+            // 위험도: 현재 월에 가까울수록 높음 (10-11월 > 9-10월)
+            twoMonthFails.forEach(emp => {
                 modalHTML += '<tr style="background: #fff5f5;">';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
@@ -15200,17 +15198,6 @@
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern2MonthsHigh) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">🔴 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + '</span></td>';
-                modalHTML += '</tr>';
-            });
-
-            julAugFails.forEach(emp => {
-                modalHTML += '<tr>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern2MonthsMedium) + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 3px;">🟡 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.medium') + '</span></td>';
                 modalHTML += '</tr>';
             });
 
@@ -18850,9 +18837,11 @@
                 // existing 모달이 있으면 강제 닫기
                 window.forceCloseModal();
 
-                const employee = employeeData.find(emp => emp.emp_no === nodeId);
+                // CRITICAL FIX: nodeId를 문자열로 변환하여 비교 (타입 불일치 방지)
+                const nodeIdStr = String(nodeId);
+                const employee = employeeData.find(emp => String(emp.emp_no) === nodeIdStr || String(emp['Employee No']) === nodeIdStr);
                 if (!employee) {
-                    console.error('❌ 직원 data를 find count 없음:', nodeId);
+                    console.error('❌ 직원 data를 find count 없음:', nodeId, '(변환된 값:', nodeIdStr, ')');
                     alert('직원 data를 find count not found. ID: ' + nodeId);
                     return;
                 }
@@ -18861,8 +18850,8 @@
                 const position = (employee.position || '').toUpperCase();
                 const employeeIncentive = Number(employee['september_incentive'] || 0);
 
-                // 부하 직원 찾기 (TYPE-1만)
-                const subordinates = employeeData.filter(emp => emp.boss_id === nodeId && emp.type === 'TYPE-1');
+                // 부하 직원 찾기 (TYPE-1만) - 문자열 비교로 수정
+                const subordinates = employeeData.filter(emp => String(emp.boss_id) === nodeIdStr && emp.type === 'TYPE-1');
                 const receivingSubordinates = subordinates.filter(sub => {
                     const incentive = sub['september_incentive'] || 0;
                     return Number(incentive) > 0;
