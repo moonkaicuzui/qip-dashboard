@@ -1348,31 +1348,53 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commits**: `34149fd0` (테이블 수정), `4b3c7c59` (필터링 수정)
    - **Prevention**: CSV 컬럼명과 대시보드 JavaScript 참조가 일치하는지 항상 검증 필요
 
-28. **조직도 인센티브 모달 에러 (showIncentiveModal)** (FIXED: 2025-12-04):
+28. **조직도 인센티브 모달 에러 (showIncentiveModal)** (COMPLETELY FIXED: 2025-12-05):
    - **Problem**: TYPE-1 관리자 인센티브 구조에서 노드 클릭 시 "모달을 표시하는 중 오류가 발생했습니다" 에러 발생
-   - **Root Cause**: `emp.emp_no === nodeId` 비교에서 타입 불일치
+   - **Root Cause**: 여러 위치에서 `===` 비교 시 타입 불일치 발생
      - `emp.emp_no`: 문자열 ("617100049")
-     - `nodeId`: 정수형일 수 있음 (617100049)
+     - `emp.boss_id`: 정수형 (617100049)
+     - `nodeId`: 문자열 또는 정수형
      - JavaScript에서 `"617100049" === 617100049`는 `false` (타입이 다름)
-   - **Solution**: nodeId를 문자열로 변환하여 비교 (Line 13675-13689)
+
+   - **Phase 1 Fix** (2025-12-04 - Partial): showIncentiveModal 함수 수정
+     - Line 13675-13689: 직원 조회 시 String() 변환 추가
+     - 커밋: `4137c07e`
+
+   - **Phase 2 Fix** (2025-12-05 - Complete): POSITION_CONFIG findSubordinates 수정
+     - **문제**: LINE LEADER의 findSubordinates에서 `emp.boss_id === nodeId` 직접 비교
+     - **해결**: Line 13340-13349에 String() 변환 추가
      ```javascript
-     // 수정 전 (타입 불일치로 직원 찾기 실패)
-     const employee = employeeData.find(emp => emp.emp_no === nodeId);
-     const subordinates = employeeData.filter(emp => emp.boss_id === nodeId && emp.type === 'TYPE-1');
+     // 수정 전 (타입 불일치로 부하직원 찾기 실패)
+     findSubordinates: (nodeId) => {
+         return employeeData.filter(emp =>
+             emp.boss_id === nodeId &&  // ❌ 타입 불일치
+             emp.position.toUpperCase().includes('ASSEMBLY INSPECTOR')
+         );
+     }
 
      // 수정 후 (문자열 변환으로 타입 통일)
-     const nodeIdStr = String(nodeId);
-     const employee = employeeData.find(emp =>
-         String(emp.emp_no) === nodeIdStr ||
-         String(emp['Employee No']) === nodeIdStr
-     );
-     const subordinates = employeeData.filter(emp =>
-         String(emp.boss_id) === nodeIdStr && emp.type === 'TYPE-1'
-     );
+     findSubordinates: (nodeId) => {
+         const nodeIdStr = String(nodeId || '');
+         return employeeData.filter(emp =>
+             String(emp.boss_id || '') === nodeIdStr &&  // ✅ 타입 통일
+             emp.position.toUpperCase().includes('ASSEMBLY INSPECTOR')
+         );
+     }
      ```
-   - **Implementation**: `integrated_dashboard_final.py:13675-13689`
-   - **Commit**: `4137c07e`
-   - **Prevention**: JavaScript에서 ID 비교 시 항상 `String()` 변환 사용, `===` 연산자는 타입까지 비교함
+     - 커밋: `fe448e5b` (소스 수정), `dbfb4a30` (HTML 배포)
+
+   - **Note**: GROUP LEADER, SUPERVISOR, A.MANAGER, MANAGER는 `findTeamLineLeaders(nodeId)` 호출 시
+     해당 함수 내부에서 이미 `managerId = String(managerId || '')` 변환 처리됨 (Line 13212)
+
+   - **Implementation**:
+     - `integrated_dashboard_final.py:13340-13349` (LINE LEADER findSubordinates)
+     - `integrated_dashboard_final.py:13675-13689` (showIncentiveModal)
+     - `integrated_dashboard_final.py:13204-13212` (findTeamLineLeaders - 기존 정상)
+
+   - **Prevention**:
+     - JavaScript에서 ID 비교 시 항상 `String()` 변환 사용
+     - `===` 연산자는 타입까지 비교하므로 주의 필요
+     - employeeData의 숫자형 필드 (boss_id, emp_no)와 문자열 nodeId 비교 시 항상 변환 필수
 
 ### Debugging Dashboard Issues
 ```bash
