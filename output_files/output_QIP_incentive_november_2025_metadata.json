@@ -538,7 +538,7 @@
     "name": "LÊ NGỌC LÂM MỸ HUỲNH",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 850000.0,
+    "amount": 2600000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -869,7 +869,7 @@
     "name": "DANH THÁI",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 850000.0,
+    "amount": 2600000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -1085,7 +1085,7 @@
     "name": "BÙI TRƯƠNG NGỌC NHỨT",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 850000.0,
+    "amount": 2600000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -1350,7 +1350,7 @@
     "name": "NGUYỄN NGÔ TUYẾT NGÂN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 850000.0,
+    "amount": 1850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -2242,7 +2242,7 @@
     "name": "NGUYỄN THỊ TƯỜNG VY",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 850000.0,
+    "amount": 1850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {

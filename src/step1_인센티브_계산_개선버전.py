@@ -3192,19 +3192,23 @@ class CompleteQIPCalculator:
     def get_aql_inspector_continuous_months(self, emp_id: str, aql_config: Dict) -> Tuple[int, int]:
         """AQL Inspector Part 1 and Part 3 continuous months calculation"""
         if emp_id in aql_config.get('aql_inspectors', {}):
-            # 동적으로 이전 달 키 생성 (Fixed: 2025-11-26 - removed hardcoded 'june_2025_incentive')
+            # 동적으로 이전 달 키 생성 (Fixed: 2025-12-04 - Month 객체를 문자열로 올바르게 변환)
+            # BUG FIX: str(Month.OCTOBER) = "Month.OCTOBER" (잘못됨)
+            #          Month.OCTOBER.full_name.lower() = "october" (올바름)
             prev_month_info = {}
 
             if self.config.previous_months:
                 # Try to read from previous month (e.g., October for November calculation)
                 prev_month = self.config.previous_months[-1]
-                prev_month_key = f"{prev_month}_{self.config.year}_incentive"
+                # CRITICAL FIX: Month 객체를 .full_name.lower()로 변환하여 JSON 키와 일치시킴
+                prev_month_key = f"{prev_month.full_name.lower()}_{self.config.year}_incentive"
                 prev_month_info = aql_config['aql_inspectors'][emp_id].get(prev_month_key, {})
 
                 # Fallback: if previous month data not found, try second-to-last month
                 if not prev_month_info and len(self.config.previous_months) > 1:
                     fallback_month = self.config.previous_months[-2]
-                    fallback_key = f"{fallback_month}_{self.config.year}_incentive"
+                    # CRITICAL FIX: Month 객체를 .full_name.lower()로 변환
+                    fallback_key = f"{fallback_month.full_name.lower()}_{self.config.year}_incentive"
                     prev_month_info = aql_config['aql_inspectors'][emp_id].get(fallback_key, {})
 
             # If conditions met, increment months; if failed, will be reset by caller
