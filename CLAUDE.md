@@ -1203,6 +1203,39 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commit**: `74611d60`
    - **Prevention**: SelfContained HTML is now automatically kept in sync with Web Dashboard
 
+25. **AQL Inspector 인센티브 계산 버그 - Month 객체 문자열 변환** (FIXED: 2025-12-04):
+   - **Problem**: TYPE-1 AQL Inspector 인센티브가 잘못 계산됨
+     - 수정 전: `Continuous_Months=1`, `Incentive=850,000 VND` (모든 AQL Inspector)
+     - 예상값: `Continuous_Months=14`, `Incentive=2,600,000 VND`
+   - **Root Cause**: `get_aql_inspector_continuous_months()` 함수에서 Month 객체를 JSON 키 형식과 다르게 변환
+     - **잘못된 변환**: `str(Month.OCTOBER)` = `"Month.OCTOBER"`
+     - **올바른 변환**: `Month.OCTOBER.full_name.lower()` = `"october"`
+     - JSON 키: `"october_2025_incentive"` (lowercase)
+     - 생성된 키: `"Month.OCTOBER_2025_incentive"` (불일치!)
+     - 결과: 이전 달 데이터를 찾지 못함 → 기본값 0 반환 → 1개월로 리셋
+   - **Solution**: Line 3204, 3211에서 Month 객체 변환 방식 수정
+     ```python
+     # 수정 전
+     prev_month_key = f"{prev_month}_{self.config.year}_incentive"
+
+     # 수정 후
+     prev_month_key = f"{prev_month.full_name.lower()}_{self.config.year}_incentive"
+     ```
+   - **Impact**:
+     | Employee | 수정 전 | 수정 후 |
+     |----------|---------|---------|
+     | 620020923 | 1개월, 850K VND | **14개월, 2,600K VND** ✅ |
+     | 618110077 | 1개월, 850K VND | **14개월, 2,600K VND** ✅ |
+     | 619100307 | 1개월, 850K VND | **14개월, 2,600K VND** ✅ |
+     | 620120306 | 1개월, 850K VND | **8개월, 1,850K VND** ✅ |
+     | 622030225 | 1개월, 850K VND | **8개월, 1,850K VND** ✅ |
+   - **Incentive Calculation Verification**:
+     - 14개월: Part1(1,000K) + Part2(700K) + Part3(900K) = 2,600,000 VND ✅
+     - 8개월: Part1(650K) + Part2(700K) + Part3(500K) = 1,850,000 VND ✅
+   - **Implementation**: `src/step1_인센티브_계산_개선버전.py:3195-3212`
+   - **Commit**: `5f1a6b43`
+   - **Prevention**: Always use `.full_name.lower()` when converting Month objects to JSON key strings
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
