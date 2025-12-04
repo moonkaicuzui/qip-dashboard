@@ -1929,7 +1929,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="october" data-month-name="10월">2025년 10월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="04" data-hour="07" data-minute="44">보고서 생성일: 2025년 12월 04일 07:44</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="04" data-hour="07" data-minute="51">보고서 생성일: 2025년 12월 04일 07:51</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -18577,16 +18577,17 @@
                     }
                 };
             } else {
-                // Others: average × multiplier (전체 평균 사용 - 0 포함, 2025-11-30 변경)
-                const totalIncentiveAll = subordinates.reduce((sum, sub) =>
+                // Others: average × multiplier (수령자만 평균 - 0 제외, 2025-12-04 수정)
+                // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
+                const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
                     sum + Number(sub['october_incentive'] || 0), 0
                 );
-                const avgIncentive = subordinates.length > 0 ?
-                    totalIncentiveAll / subordinates.length : 0;
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    receivingIncentive / receivingSubordinates.length : 0;
                 return {
                     expected: Math.round(avgIncentive * config.multiplier),
                     metrics: {
-                        total: totalIncentiveAll,
+                        total: receivingIncentive,
                         receiving: receivingSubordinates.length,
                         count: subordinates.length,
                         receivingRatio: 0,
@@ -18616,12 +18617,13 @@
                     subordinatesByGroup[groupName].push(sub);
                 });
 
-                // 전체 평균 사용 (0 포함) - 2025-11-30 변경
-                const totalIncentive = subordinates.reduce((sum, sub) =>
+                // 수령자만 평균 (0 제외) - 2025-12-04 수정
+                // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
+                const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
                     sum + Number(sub['october_incentive'] || 0), 0
                 );
-                const avgIncentive = subordinates.length > 0 ?
-                    totalIncentive / subordinates.length : 0;
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    receivingIncentive / receivingSubordinates.length : 0;
 
                 return `
                     <div class="mt-3">
@@ -18662,7 +18664,8 @@
                                     <th></th>
                                 </tr>
                                 <tr>
-                                    <th colspan="3">${getTranslation('orgChart.modal.averageAll', currentLanguage)
+                                    <th colspan="3">${getTranslation('orgChart.modal.averageReceiving', currentLanguage)
+                                        .replace('{{receiving}}', receivingSubordinates.length)
                                         .replace('{{total}}', subordinates.length)}</th>
                                     <th class="text-end">₫${Math.round(avgIncentive).toLocaleString('ko-KR')}</th>
                                     <th></th>
@@ -18672,12 +18675,16 @@
                     </div>
                 `;
             } else {
-                // Simple table (LINE LEADER, GROUP LEADER) - 전체 평균 사용 (0 포함, 2025-11-30 변경)
+                // Simple table (LINE LEADER, GROUP LEADER) - 수령자만 평균 (0 제외, 2025-12-04 수정)
+                // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const totalIncentive = subordinates.reduce((sum, sub) =>
                     sum + Number(sub['october_incentive'] || 0), 0
                 );
-                const avgIncentive = subordinates.length > 0 ?
-                    totalIncentive / subordinates.length : 0;
+                const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
+                    sum + Number(sub['october_incentive'] || 0), 0
+                );
+                const avgIncentive = receivingSubordinates.length > 0 ?
+                    receivingIncentive / receivingSubordinates.length : 0;
 
                 return `
                     <div class="mt-3">
@@ -18712,7 +18719,8 @@
                                     <th></th>
                                 </tr>
                                 <tr>
-                                    <th colspan="2">${getTranslation('orgChart.modal.averageAll', currentLanguage)
+                                    <th colspan="2">${getTranslation('orgChart.modal.averageReceiving', currentLanguage)
+                                        .replace('{{receiving}}', receivingSubordinates.length)
                                         .replace('{{total}}', subordinates.length)}</th>
                                     <th class="text-end">₫${Math.round(avgIncentive).toLocaleString('ko-KR')}</th>
                                     <th></th>
