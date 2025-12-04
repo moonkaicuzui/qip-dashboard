@@ -13338,8 +13338,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 subordinateLabel: 'assemblyInspectorList',
                 countLabel: 'inspectorCount',
                 findSubordinates: (nodeId) => {{
+                    // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
+                    // emp.boss_id (number)와 nodeId (string) 비교 시 === 실패 방지
+                    const nodeIdStr = String(nodeId || '');
                     return employeeData.filter(emp =>
-                        emp.boss_id === nodeId &&
+                        String(emp.boss_id || '') === nodeIdStr &&
                         emp.position &&
                         emp.position.toUpperCase().includes('ASSEMBLY INSPECTOR')
                     );
