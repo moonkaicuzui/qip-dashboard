@@ -1161,6 +1161,48 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - Always verify config data against actual source (Excel/screenshot)
      - Test AQL Inspector modal with different language settings
 
+24. **SelfContained HTML Auto-Sync with Web Dashboard** (IMPLEMENTED: 2025-12-04):
+   - **Problem**: SelfContained HTML was outdated compared to Web Dashboard
+     - Web Dashboard: Updated every 30 minutes by GitHub Actions
+     - SelfContained: Generated manually, often 24+ hours behind
+     - Users downloading offline version received stale data
+   - **User Request**: "웹대시보드가 30분마다 업데이트 된다고 했지? 그때 selfcontained html도 30분마다 재생성되어야 sync가 되고 말이 되는거야"
+   - **Solution**: Implemented automatic SelfContained HTML generation in GitHub Actions
+     - **Step 9.5 Added** (`.github/workflows/auto-update-enhanced.yml:136-155`):
+       - Runs after Step 9 (Dashboard HTML generation)
+       - Generates SelfContained versions for ALL available months
+       - Logs generated files for verification
+     - **New Script** (`scripts/generate_all_selfcontained.py`):
+       - Finds all dashboard HTML files in docs/
+       - Generates SelfContained version for each (7월~11월)
+       - Validates CDN library availability before processing
+     - **CDN Libraries Added to Git** (`static/cdn_libraries/`):
+       - `bootstrap.bundle.min.js` (78KB)
+       - `chart.min.js` (208KB)
+       - `d3.v7.min.js` (279KB)
+       - Updated `.gitignore` to allow `!static/cdn_libraries/*.js`
+   - **Automation Flow**:
+     ```
+     [Every 30 minutes]
+     Step 9: Generate Dashboard HTML
+         ↓
+     Step 9.5: Generate SelfContained HTML (NEW!)
+         ↓
+     Step 10: Prepare GitHub Pages
+     ```
+   - **Verification Results** (2025-12-04):
+     - 직원 수: Web=422 / Self=422 ✅
+     - 총 인센티브: 140,886,342 VND (both) ✅
+     - 수령자 수: 353명 (both) ✅
+     - 데이터 해시: 100% 일치 ✅
+   - **Files Modified**:
+     - `.github/workflows/auto-update-enhanced.yml` (Step 9.5 추가)
+     - `.gitignore` (CDN JS 파일 예외 추가)
+     - `scripts/generate_all_selfcontained.py` (신규)
+     - `static/cdn_libraries/*.js` (Git 추적 추가)
+   - **Commit**: `74611d60`
+   - **Prevention**: SelfContained HTML is now automatically kept in sync with Web Dashboard
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
