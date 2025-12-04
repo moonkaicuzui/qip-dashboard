@@ -1236,6 +1236,31 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commit**: `5f1a6b43`
    - **Prevention**: Always use `.full_name.lower()` when converting Month objects to JSON key strings
 
+26. **MANAGER Expected Incentive 모달 표시 오류 - 전체 vs 수령자 평균** (FIXED: 2025-12-04):
+   - **Problem**: MANAGER 직급 모달에서 Expected와 Actual 인센티브가 불일치
+     - MANAGER (TRẦN THỊ BÍCH LY) 예시:
+     - Expected: ₫1,022,016 (모달에 표시된 값)
+     - Actual: ₫1,226,419 (CSV 실제 값)
+     - 차이: ₫204,403
+   - **Root Cause**: 모달에서 평균 계산 시 전체 직원 수 사용
+     - 모달: `totalIncentive / subordinates.length` (6명 전체)
+     - 실제 계산: `receivingIncentive / receivingSubordinates.length` (5명 수령자만)
+     - 사용자 확인: **"인센티브를 받는 사람만으로 계산하는게 맞다"**
+   - **Solution**: 대시보드 모달 평균 계산을 수령자 기준으로 변경
+     - `calculateExpectedIncentive()`: 수령자만 평균 계산
+     - `generateSubordinateTable()`: 그룹별/단순 테이블 모두 수정
+     - 표시 형식: "평균 (X/Y명 수령)" → `averageReceiving` 번역키 사용
+   - **Before/After**:
+     | 항목 | 수정 전 | 수정 후 |
+     |------|---------|---------|
+     | 평균 기준 | 6명 전체 | **5명 수령자** |
+     | LINE LEADER 평균 | ₫292,005 | **₫350,406** |
+     | Expected (×3.5) | ₫1,022,016 | **₫1,226,419** |
+     | Actual과 일치 | ❌ | ✅ |
+   - **Implementation**: `integrated_dashboard_final.py:13347-13365, 13388-13394, 13435-13437, 13445-13454, 13489-13491`
+   - **Commit**: `baafb028`
+   - **Prevention**: 대시보드 모달 로직과 계산 엔진 로직이 항상 동일한 기준(수령자만) 사용하도록 유지
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
