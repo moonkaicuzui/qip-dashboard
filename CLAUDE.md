@@ -127,7 +127,51 @@ See `PROJECT_IDENTITY_WEB_DASHBOARD.md` for comprehensive web deployment archite
   ```
 - **Workflow**: Download → Convert Attendance → Calculate → Generate Dashboard
 
-### 7. Deployment and Documentation Workflow (배포 및 문서화 필수 원칙)
+### 7. Automatic Web Dashboard Sync Principle (웹 대시보드 자동 동기화 원칙 - 2025-12-04)
+**ALL improvements MUST be automatically reflected across all outputs:**
+
+- **Code improvements → Automatic web deployment** via GitHub Actions (every 30 minutes)
+- **Web Dashboard = CSV Download = HTML Download** - 모든 파일은 항상 동일한 정보를 제공해야 함
+- **Single Source of Truth Chain**:
+  ```
+  Google Drive Data → Calculation Engine → CSV/Excel → Dashboard HTML → Web Deployment
+                                              ↓
+                                    Downloads (CSV, HTML)
+  ```
+
+**Automatic Deployment Flow**:
+```
+[Code Push to GitHub]
+       ↓
+[GitHub Actions Trigger] (every 30 min or manual)
+       ↓
+[Step 1-9: Data sync, Calculate, Generate Dashboard]
+       ↓
+[Step 9.5: Generate SelfContained HTML]
+       ↓
+[Step 10: Deploy to GitHub Pages]
+       ↓
+[Web Dashboard Live] → https://moonkaicuzui.github.io/qip-dashboard/
+```
+
+**Data Consistency Requirements**:
+| Output | Must Match | Verification |
+|--------|------------|--------------|
+| Web Dashboard | CSV 데이터와 100% 일치 | 직원 수, 총 인센티브, 수령자 수 |
+| CSV Download | Web Dashboard와 100% 일치 | 동일한 계산 결과 |
+| HTML Download (SelfContained) | Web Dashboard와 100% 일치 | 동일한 JavaScript 데이터 |
+
+**When Code is Improved**:
+1. ✅ `integrated_dashboard_final.py` 수정 → Git push
+2. ✅ GitHub Actions 자동 실행 (30분 이내 또는 수동 트리거)
+3. ✅ 새 대시보드 HTML 자동 생성 (수정된 코드 사용)
+4. ✅ SelfContained HTML 자동 생성
+5. ✅ GitHub Pages 자동 배포
+6. ✅ 웹에서 즉시 확인 가능 (브라우저 캐시 새로고침 필요할 수 있음)
+
+**Historical Bug** (2025-12-04): Git conflict 해결 시 `--ours` 사용으로 수정된 코드가 배포되지 않음 → GitHub Actions 자동 업데이트로 해결됨
+
+### 8. Deployment and Documentation Workflow (배포 및 문서화 필수 원칙)
 **MANDATORY FOR ALL PROJECT WORK** - Every code change MUST follow this complete workflow:
 
 #### Step 1: Code Changes
