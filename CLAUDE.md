@@ -1261,6 +1261,38 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commit**: `baafb028`
    - **Prevention**: 대시보드 모달 로직과 계산 엔진 로직이 항상 동일한 기준(수령자만) 사용하도록 유지
 
+27. **2개월 연속 AQL 실패자 모달 표시 버그** (FIXED: 2025-12-04):
+   - **Problem**: "요약 및 시스템 검증" 탭의 "3개월 연속 AQL FAIL" KPI 모달에서 2개월 연속 실패자가 0명으로 표시됨
+     - 실제 데이터: 4명 존재 (621030996, 621060393, 624060331, 625020551)
+     - 모달 표시: 0명 (버그)
+   - **Root Cause**: 대시보드 코드가 잘못된 컬럼/값 형식을 참조
+     - **잘못된 코드**: `Continuous_FAIL` 컬럼에서 `'2MONTHS'` 문자열 검색
+     - **실제 데이터 구조**:
+       - `Continuous_FAIL`: "NO" 또는 "YES_3MONTHS" (3개월 연속 실패 여부)
+       - `Continuous_FAIL_2Month`: "NO" 또는 "YES" (2개월 연속 실패 여부 - **별도 컬럼!**)
+   - **Solution**: Line 2762-2764 필터링 로직 수정
+     ```javascript
+     // 수정 전 (잘못됨)
+     const twoMonthFails = window.employeeData.filter(emp =>
+         emp['Continuous_FAIL'] && emp['Continuous_FAIL'].includes('2MONTHS')
+     );
+
+     // 수정 후 (올바름)
+     const twoMonthFails = window.employeeData.filter(emp =>
+         emp['Continuous_FAIL_2Month'] === 'YES'
+     );
+     ```
+   - **Affected Employees** (now correctly displayed):
+     | Employee No | 이름 |
+     |-------------|------|
+     | 621030996 | DANH MINH HIẾU |
+     | 621060393 | LÊ VĂN DLEL |
+     | 624060331 | HUỲNH LÊ THANH TÚ |
+     | 625020551 | TRẦN VĂN SÁNG |
+   - **Implementation**: `integrated_dashboard_final.py:2762-2765`
+   - **Commit**: `4b3c7c59`
+   - **Prevention**: CSV 컬럼명과 대시보드 JavaScript 참조가 일치하는지 항상 검증 필요
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
