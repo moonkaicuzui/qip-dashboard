@@ -1333,9 +1333,46 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      | 621060393 | LÊ VĂN DLEL |
      | 624060331 | HUỲNH LÊ THANH TÚ |
      | 625020551 | TRẦN VĂN SÁNG |
-   - **Implementation**: `integrated_dashboard_final.py:2762-2765`
-   - **Commit**: `4b3c7c59`
+   - **Additional Fix**: 테이블 생성 코드도 수정 (Line 2844-2855)
+     ```javascript
+     // 수정 전 (테이블이 비어있음)
+     const augSepFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternHigh));
+     const julAugFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternMedium));
+
+     // 수정 후 (4명 모두 표시)
+     twoMonthFails.forEach(emp => {
+         modalHTML += '<tr>...</tr>';  // 모든 2개월 연속 실패자 직접 표시
+     });
+     ```
+   - **Implementation**: `integrated_dashboard_final.py:2762-2765, 2844-2855`
+   - **Commits**: `34149fd0` (테이블 수정), `4b3c7c59` (필터링 수정)
    - **Prevention**: CSV 컬럼명과 대시보드 JavaScript 참조가 일치하는지 항상 검증 필요
+
+28. **조직도 인센티브 모달 에러 (showIncentiveModal)** (FIXED: 2025-12-04):
+   - **Problem**: TYPE-1 관리자 인센티브 구조에서 노드 클릭 시 "모달을 표시하는 중 오류가 발생했습니다" 에러 발생
+   - **Root Cause**: `emp.emp_no === nodeId` 비교에서 타입 불일치
+     - `emp.emp_no`: 문자열 ("617100049")
+     - `nodeId`: 정수형일 수 있음 (617100049)
+     - JavaScript에서 `"617100049" === 617100049`는 `false` (타입이 다름)
+   - **Solution**: nodeId를 문자열로 변환하여 비교 (Line 13675-13689)
+     ```javascript
+     // 수정 전 (타입 불일치로 직원 찾기 실패)
+     const employee = employeeData.find(emp => emp.emp_no === nodeId);
+     const subordinates = employeeData.filter(emp => emp.boss_id === nodeId && emp.type === 'TYPE-1');
+
+     // 수정 후 (문자열 변환으로 타입 통일)
+     const nodeIdStr = String(nodeId);
+     const employee = employeeData.find(emp =>
+         String(emp.emp_no) === nodeIdStr ||
+         String(emp['Employee No']) === nodeIdStr
+     );
+     const subordinates = employeeData.filter(emp =>
+         String(emp.boss_id) === nodeIdStr && emp.type === 'TYPE-1'
+     );
+     ```
+   - **Implementation**: `integrated_dashboard_final.py:13675-13689`
+   - **Commit**: `4137c07e`
+   - **Prevention**: JavaScript에서 ID 비교 시 항상 `String()` 변환 사용, `===` 연산자는 타입까지 비교함
 
 ### Debugging Dashboard Issues
 ```bash
