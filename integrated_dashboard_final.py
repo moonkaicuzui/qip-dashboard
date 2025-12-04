@@ -2759,8 +2759,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp['Continuous_FAIL'] === 'YES_3MONTHS'
         );
 
+        // 수정: Continuous_FAIL_2Month 컬럼 사용 (별도 컬럼으로 분리되어 있음)
         const twoMonthFails = window.employeeData.filter(emp =>
-            emp['Continuous_FAIL'] && emp['Continuous_FAIL'].includes('2MONTHS')
+            emp['Continuous_FAIL_2Month'] === 'YES'
         );
 
         // 번역 함count

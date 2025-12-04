@@ -1487,8 +1487,9 @@ class DataProcessor:
         month2_failures = get_failures(month2_df, latest_months[1])
         month3_failures = get_failures(month3_df, latest_months[2])
         
-        # 3. 3-month consecutive failures 찾기
-        continuous_fail_employees = set()
+        # 3. 연속 실패 찾기 (2개월 및 3개월)
+        continuous_fail_3month = set()  # 3개월 연속 실패
+        continuous_fail_2month = set()  # 2개월 연속 실패 (최근 2개월: month2 + month3)
 
         # 모든 employee ID 수집 (current month basiswith 모든 employee include)
         all_employees = set(month1_failures.keys()) | set(month2_failures.keys()) | set(month3_failures.keys())
@@ -1498,11 +1499,19 @@ class DataProcessor:
             month2_fail = month2_failures.get(emp_id, 0) > 0
             month3_fail = month3_failures.get(emp_id, 0) > 0
 
+            # 3개월 연속 실패 (month1 + month2 + month3)
             if month1_fail and month2_fail and month3_fail:
-                continuous_fail_employees.add(emp_id)
-                print(f"    ✅ {emp_id}: 3-month consecutive failure ({latest_months[0]}:{month1_failures.get(emp_id)}cases, {latest_months[1]}:{month2_failures.get(emp_id)}cases, {latest_months[2]}:{month3_failures.get(emp_id)}cases)")
+                continuous_fail_3month.add(emp_id)
+                print(f"    ✅ {emp_id}: 3개월 연속 실패 ({latest_months[0]}:{month1_failures.get(emp_id)}건, {latest_months[1]}:{month2_failures.get(emp_id)}건, {latest_months[2]}:{month3_failures.get(emp_id)}건)")
 
-        print(f"\n  📊 3-month consecutive failures: {len(continuous_fail_employees)}명")
+            # 2개월 연속 실패 (최근 2개월: month2 + month3)
+            # 3개월 연속 실패자는 제외 (이미 더 심각한 상태)
+            elif month2_fail and month3_fail:
+                continuous_fail_2month.add(emp_id)
+                print(f"    ⚠️ {emp_id}: 2개월 연속 실패 ({latest_months[1]}:{month2_failures.get(emp_id)}건, {latest_months[2]}:{month3_failures.get(emp_id)}건)")
+
+        print(f"\n  📊 3개월 연속 실패: {len(continuous_fail_3month)}명")
+        print(f"  📊 2개월 연속 실패: {len(continuous_fail_2month)}명 (3개월 연속 제외)")
 
         # 4. 결and DataFrame created (BUILDING 정보 include)
         aql_results = []
@@ -1547,14 +1556,18 @@ class DataProcessor:
                 all_employees_combined.add(emp_id_str)
 
         for emp_id in all_employees_combined:
-            continuous_fail = 'YES' if emp_id in continuous_fail_employees else 'NO'
+            # 3개월 연속 실패 여부
+            continuous_fail_3 = 'YES' if emp_id in continuous_fail_3month else 'NO'
+            # 2개월 연속 실패 여부
+            continuous_fail_2 = 'YES' if emp_id in continuous_fail_2month else 'NO'
             # 최신 month(3번째 month)of failure cases수
             current_month_fail_count = month3_failures.get(emp_id, 0)
 
             aql_results.append({
                 'Employee No': emp_id,
                 current_month_fail_col: current_month_fail_count,
-                'Continuous_FAIL': continuous_fail,
+                'Continuous_FAIL': continuous_fail_3,  # 기존 컬럼 유지 (3개월 연속)
+                'Continuous_FAIL_2Month': continuous_fail_2,  # 새 컬럼 추가 (2개월 연속)
                 'BUILDING': employee_buildings.get(emp_id, '')
             })
         
