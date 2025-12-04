@@ -2841,11 +2841,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.risk') + '</th>';
             modalHTML += '</tr></thead><tbody>';
 
-            // 최근 2개월 연속 failed자를 먼저 표시 (높은 위험)
-            const augSepFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternHigh));
-            const julAugFails = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternMedium));
-
-            augSepFails.forEach(emp => {
+            // 2개월 연속 실패자 모두 표시 (Continuous_FAIL_2Month === 'YES'인 직원)
+            // 위험도: 현재 월에 가까울수록 높음 (10-11월 > 9-10월)
+            twoMonthFails.forEach(emp => {
                 modalHTML += '<tr style="background: #fff5f5;">';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
@@ -2853,17 +2851,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern2MonthsHigh) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">🔴 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + '</span></td>';
-                modalHTML += '</tr>';
-            });
-
-            julAugFails.forEach(emp => {
-                modalHTML += '<tr>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern2MonthsMedium) + '</td>';
-                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 3px;">🟡 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.medium') + '</span></td>';
                 modalHTML += '</tr>';
             });
 
