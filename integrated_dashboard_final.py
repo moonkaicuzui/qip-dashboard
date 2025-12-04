@@ -7379,85 +7379,91 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td><strong>1. (V) SUPERVISOR</strong></td>
                                     <td>TYPE-1 (V) SUPERVISOR</td>
                                     <td>(V) SUPERVISOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>357,977 VND</td>
+                                    <td>969,758 VND</td>
                                 </tr>
                                 <tr>
                                     <td><strong>2. A.MANAGER</strong></td>
                                     <td>TYPE-1 A.MANAGER</td>
                                     <td>A.MANAGER <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>383,301 VND</td>
+                                    <td>990,000 VND</td>
                                 </tr>
                                 <tr style="background-color: #fff9e6;">
                                     <td><strong>3. GROUP LEADER</strong></td>
                                     <td>TYPE-1 LINE LEADER</td>
                                     <td>TYPE-1 LINE LEADER <span class="average-text" style="color: #d32f2f;">수령자 평균</span> × 2</td>
-                                    <td>254,659 VND</td>
+                                    <td>679,866 VND</td>
                                 </tr>
                                 <tr style="background-color: #e8f5ff;">
                                     <td><strong>4. LINE LEADER</strong></td>
                                     <td>TYPE-1 LINE LEADER</td>
                                     <td>TYPE-1 LINE LEADER <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>127,767 VND</td>
+                                    <td>339,933 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>5. AQL INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>6. ASSEMBLY INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>7. STITCHING INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>8. BOTTOM INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>9. CUTTING INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>10. MTL INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>11. OCPT STAFF</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>12. OSC INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
-                                <tr style="background-color: #fafafa;">
-                                    <td><strong>13. QA TEAM</strong></td>
+                                <tr style="background-color: #fff3cd;">
+                                    <td><strong>13. QA TEAM (QA3B)</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
+                                </tr>
+                                <tr style="background-color: #d4edda;">
+                                    <td><strong>14. QA TEAM (QA3A)</strong></td>
+                                    <td>TYPE-1 GROUP LEADER</td>
+                                    <td>GROUP LEADER <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>662,400 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
-                                    <td><strong>14. RQC</strong></td>
+                                    <td><strong>15. RQC</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
                                     <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
-                                    <td>369,531 VND</td>
+                                    <td>359,210 VND</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -7466,10 +7472,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="alert alert-warning mb-4">
                             <h6 style="color: #856404;" id="type2GroupLeaderSpecialTitle">⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙</h6>
                             <ul class="mb-0">
-                                <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-1 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 incentive × 2</li>
+                                <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-1 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 incentive × 2 = 339,933 × 2 = <strong>679,866 VND</strong></li>
                                 <li id="type2IndependentCalc"><strong>Fallback (TYPE-1 평균 0 VND):</strong> TYPE-2 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 × 2로 독립 calculation</li>
                                 <li id="type2Important"><strong>중요:</strong> 모든 평균은 인센티브 수령자만 대상 (0 VND 제외)</li>
                                 <li id="type2Conditions"><strong>apply 조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 incentive 지급</li>
+                            </ul>
+                        </div>
+
+                        <!-- TYPE-2 QA TEAM 특별 calculation 규칙 (2025-12-04 추가) -->
+                        <div class="alert" style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460;" class="mb-4">
+                            <h6 style="color: #0c5460;" id="type2QATeamSpecialTitle">📋 TYPE-2 QA TEAM 특별 calculation 규칙</h6>
+                            <ul class="mb-0">
+                                <li id="type2QATeamQA3B"><strong>QA3B 코드:</strong> TYPE-1 ASSEMBLY INSPECTOR <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 = <strong>359,210 VND</strong></li>
+                                <li id="type2QATeamQA3A"><strong>QA3A 코드:</strong> TYPE-1 GROUP LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 = <strong>662,400 VND</strong></li>
+                                <li id="type2QATeamNote"><strong>구분 기준:</strong> 직원의 FINAL QIP POSITION NAME CODE 값으로 QA3A/QA3B 구분</li>
                             </ul>
                         </div>
 
