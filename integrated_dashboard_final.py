@@ -1087,6 +1087,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp['aql condition 7 - team/area fail AQL'] = str(row_dict.get('aql condition 7 - team/area fail AQL', 'no'))
             emp[aql_column_name] = int(row_dict.get(aql_column_name, row_dict.get('aql_failures', 0)))
             emp['Continuous_FAIL'] = str(row_dict.get('Continuous_FAIL', row_dict.get('continuous_fail', 'NO')))
+            emp['Continuous_FAIL_2Month'] = str(row_dict.get('Continuous_FAIL_2Month', 'NO'))  # 2개월 연속 실패 컬럼 추가
             emp['Consecutive_Fail_Months'] = int(row_dict.get('Consecutive_Fail_Months', 0))
 
             # 5PRS 조건 필드 추가
