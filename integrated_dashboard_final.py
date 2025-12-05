@@ -13470,6 +13470,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     subordinatesByGroup[groupName].push(sub);
                 }});
 
+                // CRITICAL FIX (2025-12-05): totalIncentive 변수 누락으로 인한 ReferenceError 수정
+                // 문제: config.useGrouping === true 브랜치에서 totalIncentive 미정의
+                // 원인: 2025-12-04 수정 시 receivingIncentive만 추가하고 totalIncentive 누락
+                const totalIncentive = subordinates.reduce((sum, sub) =>
+                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                );
                 // 수령자만 평균 (0 제외) - 2025-12-04 수정
                 // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
