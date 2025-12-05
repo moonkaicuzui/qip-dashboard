@@ -62,7 +62,7 @@ export default async function handler(req, res) {
 
     // Trigger GitHub Actions workflow
     const githubResponse = await fetch(
-      'https://api.github.com/repos/moonkaicuzui/qip-dashboard/actions/workflows/auto-update.yml/dispatches',
+      'https://api.github.com/repos/moonkaicuzui/qip-dashboard/actions/workflows/auto-update-enhanced.yml/dispatches',
       {
         method: 'POST',
         headers: {
