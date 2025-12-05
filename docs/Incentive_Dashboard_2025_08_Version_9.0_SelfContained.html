@@ -1929,7 +1929,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="august" data-month-name="8월">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="00" data-minute="01">보고서 생성일: 2025년 12월 05일 00:01</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="00" data-minute="07">보고서 생성일: 2025년 12월 05일 00:07</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -18128,8 +18128,9 @@
                 // LINE LEADER의 경우 부하직원 표시
                 if (node.position && node.position.toUpperCase().includes('LINE LEADER')) {
                     // 부하직원 찾기 (incentive calculation에 영향을 미치는 TYPE-1 부하만)
+                    // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
                     const subordinates = employeeData.filter(emp =>
-                        emp.boss_id === node.id &&
+                        String(emp.boss_id || '') === String(node.id || '') &&
                         emp.type === 'TYPE-1'
                     );
 
@@ -18691,7 +18692,8 @@
                 // Grouped table (SUPERVISOR, A.MANAGER, MANAGER)
                 const subordinatesByGroup = {};
                 subordinates.forEach(sub => {
-                    const groupLeader = employeeData.find(emp => emp.emp_no === sub.boss_id);
+                    // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
+                    const groupLeader = employeeData.find(emp => String(emp.emp_no || '') === String(sub.boss_id || ''));
                     const groupName = groupLeader ? groupLeader.name : 'Unknown';
                     if (!subordinatesByGroup[groupName]) {
                         subordinatesByGroup[groupName] = [];
@@ -20413,7 +20415,8 @@
 
                     if (emp.boss_id && emp.boss_id !== '' && emp.boss_id !== 'nan' && emp.boss_id !== '0') {
                         // 상사가 actual로 employeeData에 존재하는지 확인
-                        const bossExists = employeeData.some(e => e.emp_no === emp.boss_id);
+                        // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
+                        const bossExists = employeeData.some(e => String(e.emp_no || '') === String(emp.boss_id || ''));
 
                         if (bossExists && !requiredIds.has(emp.boss_id)) {
                             requiredIds.add(emp.boss_id);
@@ -20661,7 +20664,8 @@
 
         function nodeClick(event, d) {
             // 노드 클릭시 corresponding 직원 상세 정보 표시
-            const emp = employeeData.find(e => e.emp_no === d.data.id);
+            // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
+            const emp = employeeData.find(e => String(e.emp_no || '') === String(d.data.id || ''));
             if (emp) {
                 showEmployeeDetail(emp);
             }
