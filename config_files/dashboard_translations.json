@@ -4953,6 +4953,20 @@
       }
     },
     "modals": {
+      "common": {
+        "headers": {
+          "received": {
+            "ko": "수령",
+            "en": "Received",
+            "vi": "Nhận"
+          },
+          "incentiveAmount": {
+            "ko": "인센티브",
+            "en": "Incentive",
+            "vi": "Thưởng"
+          }
+        }
+      },
       "absentWithoutInform": {
         "title": {
           "ko": "무단결근 직원 상세",
