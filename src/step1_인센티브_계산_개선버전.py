@@ -4237,14 +4237,16 @@ class CompleteQIPCalculator:
             current_value = self.month_data.loc[idx, incentive_col]
 
             # 무condition 재calculation - existing value 완전 무시
+            # 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 기준으로 계산
+            # (이전: TYPE-1 LINE LEADER 우선 → 변경: TYPE-2 LINE LEADER 우선)
             if attendance_fail:
                 incentive = 0
-            elif type1_line_avg > 0:
-                # TYPE-1 LINE LEADER 평균 × 2 사용
-                incentive = int(type1_line_avg * 2)
             elif type2_line_avg > 0:
-                # TYPE-2 LINE LEADER 평균 × 2 (fallback)
+                # TYPE-2 LINE LEADER 평균 × 2 사용 (Primary - TYPE-2 GROUP LEADER 기준)
                 incentive = int(type2_line_avg * 2)
+            elif type1_line_avg > 0:
+                # TYPE-1 LINE LEADER 평균 × 2 (Fallback - TYPE-2 LINE LEADER 없을 때)
+                incentive = int(type1_line_avg * 2)
             else:
                 # defaultvalue (LINE LEADER defaultvalue × 2)
                 incentive = 107360 * 2
