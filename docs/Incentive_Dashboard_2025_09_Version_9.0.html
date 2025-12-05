@@ -1869,7 +1869,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="september" data-month-name="9월">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="01" data-minute="10">보고서 생성일: 2025년 12월 05일 01:10</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="01" data-minute="22">보고서 생성일: 2025년 12월 05일 01:22</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -14074,7 +14074,7 @@
             const legitimateReasons = maternity + resigned;
 
             if (zeroWorkingEmployees.length === 0) {
-                tableRows = `<tr><td colspan="9" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>${getTranslation('zeroWorkingDaysModal.description', lang)}</td></tr>`;
+                tableRows = `<tr><td colspan="11" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>${getTranslation('zeroWorkingDaysModal.description', lang)}</td></tr>`;
             } else {
                 tableRows = zeroWorkingEmployees.map(emp => {
                     // Excel에서 가져온 필드 use (Single Source of Truth)
@@ -14107,6 +14107,16 @@
                         ? getTranslation('zeroWorkingDaysModal.statusLabels.no', lang)
                         : '-';
 
+                    // 인센티브 정보 가져오기 (수령 여부 및 금액)
+                    const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                    const isReceived = incentiveAmount > 0;
+                    const receivedCell = isReceived
+                        ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                        : `<span style="color: #e74c3c;">❌</span>`;
+                    const amountCell = incentiveAmount > 0
+                        ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
+                        : `<span style="color: #95a5a6;">0 ₫</span>`;
+
                     return `
                         <tr class="unified-table-row">
                             <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
@@ -14122,6 +14132,8 @@
                             <td class="unified-table-cell text-center">${stopDate}</td>
                             <td class="unified-table-cell text-center">${pregnantLabel}</td>
                             <td class="unified-table-cell">${remark}</td>
+                            <td class="unified-table-cell text-center">${receivedCell}</td>
+                            <td class="unified-table-cell text-end">${amountCell}</td>
                         </tr>
                     `;
                 }).join('');
@@ -14198,6 +14210,8 @@
                                     <th class="text-center sortable-header ${sortColumn === 'stopDate' ? sortOrder : ''}" onclick="window.zeroModalSort('stopDate')" data-i18n="zeroWorkingDaysModal.headers.stopDate">${getTranslation('zeroWorkingDaysModal.headers.stopDate', lang)}</th>
                                     <th class="text-center sortable-header ${sortColumn === 'pregnant' ? sortOrder : ''}" onclick="window.zeroModalSort('pregnant')" data-i18n="zeroWorkingDaysModal.headers.pregnantVacation">${getTranslation('zeroWorkingDaysModal.headers.pregnantVacation', lang)}</th>
                                     <th class="sortable-header ${sortColumn === 'remark' ? sortOrder : ''}" onclick="window.zeroModalSort('remark')" data-i18n="zeroWorkingDaysModal.headers.remark">${getTranslation('zeroWorkingDaysModal.headers.remark', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'received' ? sortOrder : ''}" onclick="window.zeroModalSort('received')" data-i18n="validationTab.tableHeaders.incentiveReceived">${getTranslation('validationTab.tableHeaders.incentiveReceived', lang)}</th>
+                                    <th class="text-end sortable-header ${sortColumn === 'amount' ? sortOrder : ''}" onclick="window.zeroModalSort('amount')" data-i18n="validationTab.tableHeaders.incentiveAmount">${getTranslation('validationTab.tableHeaders.incentiveAmount', lang)}</th>
                                 </tr>
                             </thead>
                             <tbody>${tableRows}</tbody>
