@@ -2039,7 +2039,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
                     ? '<span class="badge bg-success">✅</span>'
-                    : '<span class="badge bg-secondary">❌</span>';
+                    : '<span style="color: #e74c3c; font-size: 1.2em;">❌</span>';
                 const amountCell = incentiveAmount > 0
                     ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
                     : '<span style="color: #95a5a6;">0 ₫</span>';
@@ -2148,8 +2148,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th class="text-center sortable-header ${sortColumn === 'stopDate' ? sortOrder : ''}" onclick="window.absentModalSort('stopDate')" data-i18n="zeroWorkingDaysModal.headers.stopDate">${getTranslation('zeroWorkingDaysModal.headers.stopDate', lang)}</th>
                                     <th class="text-center sortable-header ${sortColumn === 'pregnant' ? sortOrder : ''}" onclick="window.absentModalSort('pregnant')" data-i18n="zeroWorkingDaysModal.headers.pregnantVacation">${getTranslation('zeroWorkingDaysModal.headers.pregnantVacation', lang)}</th>
                                     <th class="sortable-header ${sortColumn === 'remark' ? sortOrder : ''}" onclick="window.absentModalSort('remark')" data-i18n="zeroWorkingDaysModal.headers.remark">${getTranslation('zeroWorkingDaysModal.headers.remark', lang)}</th>
-                                    <th class="text-center sortable-header" data-i18n="validationTab.incentiveReceived">${getTranslation('validationTab.incentiveReceived', lang) || (lang === 'ko' ? '수령' : lang === 'en' ? 'Received' : 'Nhận')}</th>
-                                    <th class="text-center sortable-header" data-i18n="validationTab.incentiveAmount">${getTranslation('validationTab.incentiveAmount', lang) || (lang === 'ko' ? '인센티브 금액' : lang === 'en' ? 'Incentive Amount' : 'Số tiền')}</th>
+                                    <th class="text-center sortable-header" data-i18n="validationTab.tableHeaders.incentiveReceived">${getTranslation('validationTab.tableHeaders.incentiveReceived', lang) || (lang === 'ko' ? '수령' : lang === 'en' ? 'Received' : 'Nhận')}</th>
+                                    <th class="text-center sortable-header" data-i18n="validationTab.tableHeaders.incentiveAmount">${getTranslation('validationTab.tableHeaders.incentiveAmount', lang) || (lang === 'ko' ? '인센티브 금액' : lang === 'en' ? 'Incentive Amount' : 'Số tiền')}</th>
                                 </tr>
                             </thead>
                             <tbody>${tableRows}</tbody>
