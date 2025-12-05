@@ -1929,7 +1929,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="october" data-month-name="10월">2025년 10월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="04" data-hour="23" data-minute="43">보고서 생성일: 2025년 12월 04일 23:43</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="00" data-minute="01">보고서 생성일: 2025년 12월 05일 00:01</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -1962,7 +1962,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 4일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 5일</span>
             </div>
         </div>
 
@@ -12410,9 +12410,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '4th' :
-                               currentLanguage === 'en' ? 'Day 4' :
-                               'Ngày 4';
+                const dayText = currentLanguage === 'ko' ? '5th' :
+                               currentLanguage === 'en' ? 'Day 5' :
+                               'Ngày 5';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
@@ -18569,8 +18569,11 @@
                 subordinateLabel: 'assemblyInspectorList',
                 countLabel: 'inspectorCount',
                 findSubordinates: (nodeId) => {
+                    // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
+                    // emp.boss_id (number)와 nodeId (string) 비교 시 === 실패 방지
+                    const nodeIdStr = String(nodeId || '');
                     return employeeData.filter(emp =>
-                        emp.boss_id === nodeId &&
+                        String(emp.boss_id || '') === nodeIdStr &&
                         emp.position &&
                         emp.position.toUpperCase().includes('ASSEMBLY INSPECTOR')
                     );
