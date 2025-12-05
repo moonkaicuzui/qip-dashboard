@@ -2317,6 +2317,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 ${isMet ? getTranslation('validationTab.modals.minimumDaysNotMet.statusLabels.met', lang) : getTranslation('validationTab.modals.minimumDaysNotMet.statusLabels.notMet', lang)}
                             </span>
                         </td>
+                        <td class="text-center" style="padding: 10px 8px;">
+                            ${(() => {
+                                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                const received = incentive > 0;
+                                return received ?
+                                    '<span class="badge bg-success">✅</span>' :
+                                    '<span class="badge bg-secondary">❌</span>';
+                            })()}
+                        </td>
+                        <td class="text-center" style="padding: 10px 8px;">
+                            ${(() => {
+                                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                return incentive > 0 ?
+                                    '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' :
+                                    '<span class="text-muted">0 ₫</span>';
+                            })()}
+                        </td>
                     </tr>
                 `;
             }).join('') || (() => {
@@ -2324,7 +2341,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const isInterim = reportType === 'interim';
                 const messageKey = isInterim ? 'interimMessage' : 'emptyMessage';
                 const iconClass = isInterim ? 'fa-info-circle text-info' : 'fa-check-circle text-success';
-                return `<tr><td colspan="7" class="text-center py-4"><i class="fas ${iconClass} fa-2x mb-2 d-block"></i><div data-i18n="validationTab.modals.minimumDaysNotMet.${messageKey}">${getTranslation('validationTab.modals.minimumDaysNotMet.' + messageKey, lang)}</div></td></tr>`;
+                return `<tr><td colspan="10" class="text-center py-4"><i class="fas ${iconClass} fa-2x mb-2 d-block"></i><div data-i18n="validationTab.modals.minimumDaysNotMet.${messageKey}">${getTranslation('validationTab.modals.minimumDaysNotMet.' + messageKey, lang)}</div></td></tr>`;
             })();
 
             return tableRows;
@@ -2388,6 +2405,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <th class="text-center" style="min-width: 80px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.minimumRequired">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.minimumRequired', lang)}</th>
                                 <th class="text-center sortable-header" data-sort="shortage" onclick="window.minDaysSort('shortage')" style="min-width: 70px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.shortage">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.shortage', lang)}</th>
                                 <th class="text-center sortable-header" data-sort="status" onclick="window.minDaysSort('status')" style="min-width: 80px;" data-i18n="validationTab.modals.minimumDaysNotMet.headers.status">${getTranslation('validationTab.modals.minimumDaysNotMet.headers.status', lang)}</th>
+                                <th class="text-center sortable-header" data-sort="received" onclick="window.minDaysSort('received')" style="min-width: 80px;" data-i18n="validationTab.modals.common.headers.received">${getTranslation('validationTab.modals.common.headers.received', lang) || (lang === 'ko' ? '수령' : lang === 'en' ? 'Received' : 'Nhận')}</th>
+                                <th class="text-center sortable-header" data-sort="incentive" onclick="window.minDaysSort('incentive')" style="min-width: 120px;" data-i18n="validationTab.modals.common.headers.incentiveAmount">${getTranslation('validationTab.modals.common.headers.incentiveAmount', lang) || (lang === 'ko' ? '인센티브' : lang === 'en' ? 'Incentive' : 'Thưởng')}</th>
                             </tr>
                         </thead>
                         <tbody>${renderTable()}</tbody>
@@ -3294,6 +3313,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <td class="unified-table-cell text-center">
                             <span class="badge ${failBadgeClass}">${failBadgeText}</span>
                         </td>
+                        <td class="unified-table-cell text-center">
+                            ${(() => {
+                                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                return incentive > 0 ?
+                                    '<span class="badge bg-success">✅</span>' :
+                                    '<span class="badge bg-secondary">❌</span>';
+                            })()}
+                        </td>
+                        <td class="unified-table-cell text-center">
+                            ${(() => {
+                                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                return incentive > 0 ?
+                                    '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' :
+                                    '<span class="text-muted">0 ₫</span>';
+                            })()}
+                        </td>
                     </tr>
                 `;
             }).join('');
@@ -3389,10 +3424,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <th class="text-center" style="cursor: pointer;" data-sort="failPercent" onclick="window.sortAqlData('failPercent')">
                                             <span data-i18n="failPercent">${getTranslation('validationTab.modals.aqlFail.headers.failPercent', lang)}</span><span class="sort-icon">${getSortIcon('failPercent')}</span>
                                         </th>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="received" onclick="window.sortAqlData('received')">
+                                            <span data-i18n="received">${lang === 'ko' ? '수령' : lang === 'en' ? 'Received' : 'Nhận'}</span><span class="sort-icon">${getSortIcon('received')}</span>
+                                        </th>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="incentive" onclick="window.sortAqlData('incentive')">
+                                            <span data-i18n="incentiveAmount">${lang === 'ko' ? '인센티브' : lang === 'en' ? 'Incentive' : 'Thưởng'}</span><span class="sort-icon">${getSortIcon('incentive')}</span>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${tableRows || '<tr><td colspan="7" class="text-center text-muted">AQL FAIL이 not found</td></tr>'}
+                                    ${tableRows || '<tr><td colspan="9" class="text-center text-muted">AQL FAIL이 not found</td></tr>'}
                                 </tbody>
                             </table>
 
@@ -4173,6 +4214,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (passRate >= 90) badgeClass = 'bg-warning';
                 else if (passRate >= 80) badgeClass = 'bg-orange';
 
+                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                const received = incentive > 0;
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${empNo}</td>
@@ -4183,6 +4227,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passRate.toFixed(1)}%</span></td>
                     <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
+                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -4254,6 +4300,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (passRate >= 90) badgeClass = 'bg-warning';
                 else if (passRate >= 80) badgeClass = 'bg-orange';
 
+                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                const received = incentive > 0;
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${index + 1}</strong></td>
@@ -4265,6 +4314,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passRate.toFixed(1)}%</span></td>
                     <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
+                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -4340,6 +4391,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header" data-sort="passQty">${t.passQuantity} ${getSortIcon('passQty')}</th>
                                             <th class="sortable-header" data-sort="passRate">${t.passRate} ${getSortIcon('passRate')}</th>
                                             <th>${t.conditionStatus.split('/')[2]}</th>
+                                            <th class="sortable-header" data-sort="received">${currentLang === 'ko' ? '수령' : currentLang === 'en' ? 'Received' : 'Nhận'}</th>
+                                            <th class="sortable-header" data-sort="incentive">${currentLang === 'ko' ? '인센티브' : currentLang === 'en' ? 'Incentive' : 'Thưởng'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -4361,6 +4414,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header-2" data-sort="passQty">${t.passQuantity} ${getSortIcon2('passQty')}</th>
                                             <th class="sortable-header-2" data-sort="passRate">${t.passRate} ${getSortIcon2('passRate')}</th>
                                             <th>${t.conditionStatus.split('/')[2]}</th>
+                                            <th class="sortable-header-2" data-sort="received">${currentLang === 'ko' ? '수령' : currentLang === 'en' ? 'Received' : 'Nhận'}</th>
+                                            <th class="sortable-header-2" data-sort="incentive">${currentLang === 'ko' ? '인센티브' : currentLang === 'en' ? 'Incentive' : 'Thưởng'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -4546,6 +4601,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     e.stopPropagation();
                     showInlineDetail(emp, this);
                 };
+                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                const received = incentive > 0;
+
                 row.innerHTML = `
                     <td>${empNo}</td>
                     <td>${name}</td>
@@ -4553,6 +4611,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>TYPE-1</td>
                     <td><span class="badge ${badgeClass}">${inspectionQty}${qtyUnit}</span></td>
                     <td>${statusText}</td>
+                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -4741,6 +4801,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th data-i18n="validationTab.modals.lowInspectionQty.headers.type">${t('validationTab.modals.lowInspectionQty.headers.type')}</th>
                                             <th class="sortable-header" data-sort="inspectionQty" data-i18n="validationTab.modals.lowInspectionQty.headers.inspectionQty">${t('validationTab.modals.lowInspectionQty.headers.inspectionQty')} ${getSortIcon('inspectionQty')}</th>
                                             <th data-i18n="validationTab.modals.lowInspectionQty.headers.conditionMet">${t('validationTab.modals.lowInspectionQty.headers.conditionMet')}</th>
+                                            <th class="sortable-header" data-sort="received">${currentLanguage === 'ko' ? '수령' : currentLanguage === 'en' ? 'Received' : 'Nhận'}</th>
+                                            <th class="sortable-header" data-sort="incentive">${currentLanguage === 'ko' ? '인센티브' : currentLanguage === 'en' ? 'Incentive' : 'Thưởng'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
