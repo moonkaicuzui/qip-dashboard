@@ -779,7 +779,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             # Buildingby 검사 casescount 및 inspectors 통계 calculation
             aql_file_stats = {}  # 검사 casescount 기준 통계 (Table 1용)
 
-            for building in ['A', 'B', 'C', 'D']:
+            for building in ['A', 'B', 'B3', 'C', 'D']:
                 building_df = all_po_df[all_po_df['BUILDING'] == building]
                 if len(building_df) == 0:
                     continue
@@ -3470,6 +3470,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const aqlFileStats = window.aqlFileStats || {
             // Fallback: window.aqlFileStats가 없는 경우 빈 객체 use
             'Building B': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
+            'Building B3': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
             'Building D': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
             'Building A': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
             'Building C': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 },
@@ -3808,7 +3809,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building D', 'Building A', 'Building C', 'All Buildings', t.total].map(building => {
+                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'All Buildings', t.total].map(building => {
                                     const stats = aqlFileStats[building];
                                     if (!stats) return '';
 
@@ -3869,7 +3870,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building D', 'Building A', 'Building C', t.total].map(building => {
+                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', t.total].map(building => {
                                     const stats = inspectorStats[building];
                                     if (!stats) return '';
 
