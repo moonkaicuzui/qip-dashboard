@@ -7585,12 +7585,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </ul>
                         </div>
 
-                        <!-- TYPE-2 QA TEAM 특별 calculation 규칙 (2025-12-04 추가) -->
+                        <!-- TYPE-2 QA TEAM 특별 calculation 규칙 (2025-12-05 수정: QA3A = TYPE-1 LINE LEADER × 2) -->
                         <div class="alert" style="background-color: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460;" class="mb-4">
                             <h6 style="color: #0c5460;" id="type2QATeamSpecialTitle">📋 TYPE-2 QA TEAM 특별 calculation 규칙</h6>
                             <ul class="mb-0">
                                 <li id="type2QATeamQA3B"><strong>QA3B 코드:</strong> TYPE-1 ASSEMBLY INSPECTOR <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 = <strong>359,210 VND</strong></li>
-                                <li id="type2QATeamQA3A"><strong>QA3A 코드:</strong> TYPE-1 GROUP LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 = <strong>662,400 VND</strong></li>
+                                <li id="type2QATeamQA3A"><strong>QA3A 코드:</strong> TYPE-1 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 × 2 = <strong>679,866 VND</strong> (GROUP LEADER와 동일)</li>
                                 <li id="type2QATeamNote"><strong>구분 기준:</strong> 직원의 FINAL QIP POSITION NAME CODE 값으로 QA3A/QA3B 구분</li>
                             </ul>
                         </div>
