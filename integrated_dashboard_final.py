@@ -2575,6 +2575,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const typeColor = empType === 'TYPE-3' ? 'bg-secondary' : (empType === 'TYPE-1' ? 'bg-primary' : 'bg-success');
                 const position = emp['QIP POSITION 1ST NAME'] || '-';
 
+                // 인센티브 정보 가져오기
+                const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                const receivedCell = incentiveAmount > 0
+                    ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                    : `<span style="color: #e74c3c;">❌</span>`;
+                const amountCell = incentiveAmount > 0
+                    ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
+                    : `<span style="color: #95a5a6;">0 ₫</span>`;
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td style="padding: 10px; font-weight: 500;">${empNo}</td>
@@ -2586,6 +2595,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td style="padding: 10px;">${totalDays}${dayText}</td>
                     <td style="padding: 10px; font-size: 13px;">${resignDateDisplay}</td>
                     <td style="padding: 10px;"><span class="badge ${statusBadge}" style="font-size: 13px; padding: 4px 8px;" data-i18n="validationTab.modals.attendanceBelow88.statusLabels.${conditionMet ? 'met' : 'notMet'}">${statusText}</span></td>
+                    <td style="padding: 10px; text-align: center;">${receivedCell}</td>
+                    <td style="padding: 10px;">${amountCell}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -2639,6 +2650,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header" data-sort="totalDays" style="min-width: 100px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.headers.totalDays">${getTranslation('validationTab.modals.attendanceBelow88.headers.totalDays', lang)} ${getSortIcon('totalDays')}</th>
                                             <th class="sortable-header" data-sort="resignDate" style="min-width: 100px; padding: 12px; cursor: pointer;" data-i18n="validationTab.modals.attendanceBelow88.resignationDate">${getTranslation('validationTab.modals.attendanceBelow88.resignationDate', lang)} ${getSortIcon('resignDate')}</th>
                                             <th style="min-width: 90px; padding: 12px;" data-i18n="validationTab.modals.attendanceBelow88.headers.conditionMet">${getTranslation('validationTab.modals.attendanceBelow88.headers.conditionMet', lang)}</th>
+                                            <th style="min-width: 80px; padding: 12px;" data-i18n="validationTab.tableHeaders.incentiveReceived">${getTranslation('validationTab.tableHeaders.incentiveReceived', lang)}</th>
+                                            <th style="min-width: 120px; padding: 12px;" data-i18n="validationTab.tableHeaders.incentiveAmount">${getTranslation('validationTab.tableHeaders.incentiveAmount', lang)}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -12157,18 +12170,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.position', currentLanguage),
                         getTranslation('validationTab.tableHeaders.totalDays', currentLanguage),
                         getTranslation('validationTab.tableHeaders.actualDays', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveReceived', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
                     tableData = employeeData
                         .filter(emp => parseFloat(emp['Actual Working Days'] || 0) === 0)
-                        .map(emp => [
-                            emp['Employee No'],
-                            emp['Full Name'],
-                            emp['FINAL QIP POSITION NAME CODE'],
-                            emp['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18),
-                            emp['Actual Working Days'],
-                            emp['attendancy condition 1 - acctual working days is zero'] || 'FAIL'
-                        ]);
+                        .map(emp => {{
+                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const receivedCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                                : `<span style="color: #e74c3c;">❌</span>`;
+                            const amountCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">${'${incentiveAmount.toLocaleString()}'} ₫</span>`
+                                : `<span style="color: #95a5a6;">0 ₫</span>`;
+                            return [
+                                emp['Employee No'],
+                                emp['Full Name'],
+                                emp['FINAL QIP POSITION NAME CODE'],
+                                emp['Total Working Days'] || (window.excelDashboardData?.attendance?.total_working_days || 18),
+                                emp['Actual Working Days'],
+                                emp['attendancy condition 1 - acctual working days is zero'] || 'FAIL',
+                                receivedCell,
+                                amountCell
+                            ];
+                        }});
                     break;
 
                 case 'minimumDaysNotMet':
@@ -12180,7 +12206,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.position', currentLanguage),
                         getTranslation('validationTab.tableHeaders.actualDays', currentLanguage),
                         getTranslation('validationTab.tableHeaders.minimumRequired', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveReceived', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
 
                     // 중간보고 시에는 조건 4를 apply하지 않음
@@ -12191,14 +12219,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         const minDays = Math.ceil(totalWorkingDays / 2);
                         tableData = employeeData
                             .filter(emp => parseFloat(emp['Actual Working Days'] || 0) < minDays)
-                            .map(emp => [
-                                emp['Employee No'],
-                                emp['Full Name'],
-                                emp['FINAL QIP POSITION NAME CODE'],
-                                emp['Actual Working Days'],
-                                minDays,
-                                emp['attendancy condition 4 - minimum working days'] || 'FAIL'
-                            ]);
+                            .map(emp => {{
+                                const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                                const receivedCell = incentiveAmount > 0
+                                    ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                                    : `<span style="color: #e74c3c;">❌</span>`;
+                                const amountCell = incentiveAmount > 0
+                                    ? `<span style="color: #27ae60; font-weight: bold;">${'${incentiveAmount.toLocaleString()}'} ₫</span>`
+                                    : `<span style="color: #95a5a6;">0 ₫</span>`;
+                                return [
+                                    emp['Employee No'],
+                                    emp['Full Name'],
+                                    emp['FINAL QIP POSITION NAME CODE'],
+                                    emp['Actual Working Days'],
+                                    minDays,
+                                    emp['attendancy condition 4 - minimum working days'] || 'FAIL',
+                                    receivedCell,
+                                    amountCell
+                                ];
+                            }});
                     }}
                     break;
 
@@ -12210,7 +12249,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.position', currentLanguage),
                         getTranslation('validationTab.tableHeaders.type', currentLanguage),
                         getTranslation('validationTab.tableHeaders.aqlFailures', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveReceived', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
 
                     // TYPE-1에서 조건 5가 apply되는 포지션만 필터링
@@ -12223,14 +12264,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const hasAqlFail = parseFloat(emp[window.aqlFailuresColumn] || 0) > 0;
                             return isType1 && hasAqlCondition && hasAqlFail;
                         }})
-                        .map(emp => [
-                            emp['Employee No'],
-                            emp['Full Name'],
-                            emp['FINAL QIP POSITION NAME CODE'],
-                            emp['ROLE TYPE STD'] || 'TYPE-1',
-                            emp[window.aqlFailuresColumn],
-                            emp['cond_5_aql_personal_failure'] || 'FAIL'
-                        ]);
+                        .map(emp => {{
+                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const receivedCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                                : `<span style="color: #e74c3c;">❌</span>`;
+                            const amountCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">${'${incentiveAmount.toLocaleString()}'} ₫</span>`
+                                : `<span style="color: #95a5a6;">0 ₫</span>`;
+                            return [
+                                emp['Employee No'],
+                                emp['Full Name'],
+                                emp['FINAL QIP POSITION NAME CODE'],
+                                emp['ROLE TYPE STD'] || 'TYPE-1',
+                                emp[window.aqlFailuresColumn],
+                                emp['cond_5_aql_personal_failure'] || 'FAIL',
+                                receivedCell,
+                                amountCell
+                            ];
+                        }});
                     break;
 
                 case 'consecutiveAqlFail':
@@ -12278,7 +12330,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.position', currentLanguage),
                         getTranslation('validationTab.tableHeaders.type', currentLanguage),
                         getTranslation('validationTab.tableHeaders.passRate', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveReceived', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
 
                     // TYPE-1 ASSEMBLY INSPECTOR만 필터링
@@ -12290,14 +12344,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const lowPassRate = parseFloat(emp['pass_rate'] || 100) < 95;
                             return isType1 && isAssemblyInspector && lowPassRate;
                         }})
-                        .map(emp => [
-                            emp['emp_no'],
-                            emp['name'],
-                            emp['position'],
-                            emp['type'] || 'TYPE-1',
-                            (parseFloat(emp['pass_rate'] || 0).toFixed(1)) + '%',
-                            emp['cond_9_5prs_pass_rate'] || 'FAIL'
-                        ]);
+                        .map(emp => {{
+                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const receivedCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                                : `<span style="color: #e74c3c;">❌</span>`;
+                            const amountCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">${'${incentiveAmount.toLocaleString()}'} ₫</span>`
+                                : `<span style="color: #95a5a6;">0 ₫</span>`;
+                            return [
+                                emp['emp_no'],
+                                emp['name'],
+                                emp['position'],
+                                emp['type'] || 'TYPE-1',
+                                (parseFloat(emp['pass_rate'] || 0).toFixed(1)) + '%',
+                                emp['cond_9_5prs_pass_rate'] || 'FAIL',
+                                receivedCell,
+                                amountCell
+                            ];
+                        }});
                     break;
 
                 case 'lowInspectionQty':
@@ -12308,7 +12373,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.position', currentLanguage),
                         getTranslation('validationTab.tableHeaders.type', currentLanguage),
                         getTranslation('validationTab.tableHeaders.inspectionQty', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveReceived', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
 
                     // TYPE-1 ASSEMBLY INSPECTOR만 필터링
@@ -12320,14 +12387,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const lowQty = parseFloat(emp['validation_qty'] || 0) < 100;
                             return isType1 && isAssemblyInspector && lowQty;
                         }})
-                        .map(emp => [
-                            emp['emp_no'],
-                            emp['name'],
-                            emp['position'],
-                            emp['type'] || 'TYPE-1',
-                            emp['validation_qty'] || '0',
-                            emp['cond_10_5prs_inspection_qty'] || 'FAIL'
-                        ]);
+                        .map(emp => {{
+                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const receivedCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                                : `<span style="color: #e74c3c;">❌</span>`;
+                            const amountCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">${'${incentiveAmount.toLocaleString()}'} ₫</span>`
+                                : `<span style="color: #95a5a6;">0 ₫</span>`;
+                            return [
+                                emp['emp_no'],
+                                emp['name'],
+                                emp['position'],
+                                emp['type'] || 'TYPE-1',
+                                emp['validation_qty'] || '0',
+                                emp['cond_10_5prs_inspection_qty'] || 'FAIL',
+                                receivedCell,
+                                amountCell
+                            ];
+                        }});
                     break;
 
                 default:
