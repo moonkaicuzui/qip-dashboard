@@ -16224,7 +16224,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
                 groupedByType[data.type].push(data);
             }});
-            
+
+            // CRITICAL FIX (2025-12-05): TYPE-1 평균을 먼저 계산하고 저장
+            // TYPE-2가 TYPE-1 평균을 참조할 때 반올림 차이(1 VND)가 발생하지 않도록
+            // TYPE-1 평균을 미리 계산하여 캐싱
+            window.type1Averages = {{}};
+            if (groupedByType['TYPE-1']) {{
+                groupedByType['TYPE-1'].forEach(posData => {{
+                    const avgAmount = posData.paid > 0 ? Math.round(posData.totalAmount / posData.paid) : 0;
+                    window.type1Averages[posData.position] = avgAmount;
+                }});
+            }}
+
             // HTML creation
             const container = document.getElementById('positionTables');
             if (container) {{
@@ -16272,10 +16283,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // 직급별 행 추가
                     positions.sort((a, b) => a.position.localeCompare(b.position)).forEach(posData => {{
                         const paymentRate = posData.total > 0 ? (posData.paid / posData.total * 100).toFixed(1) : '0.0';
-                        const avgAmount = posData.paid > 0 ? Math.round(posData.totalAmount / posData.paid) : 0;
+
+                        // CRITICAL FIX (2025-12-05): TYPE-2는 TYPE-1 평균을 참조하여 일관성 유지
+                        // 문제: TYPE-2 평균과 TYPE-1 평균 사이에 1 VND 차이 발생 (반올림 타이밍)
+                        // 해결: TYPE-2는 해당 TYPE-1 직급의 캐싱된 평균을 사용
+                        let avgAmount;
+                        if (type === 'TYPE-2' && window.type1Averages && window.type1Averages[posData.position]) {{
+                            // TYPE-2: TYPE-1 평균 참조 (반올림 이미 적용됨)
+                            avgAmount = window.type1Averages[posData.position];
+                        }} else {{
+                            // TYPE-1, TYPE-3: 직접 계산
+                            avgAmount = posData.paid > 0 ? Math.round(posData.totalAmount / posData.paid) : 0;
+                        }}
+
                         const peopleUnit = getTranslation('common.people', currentLanguage);
                         const viewBtnText = getTranslation('position.viewButton', currentLanguage);
-                        
+
                         html += '<tr>';
                         html += '<td>' + posData.position + '</td>';
                         html += '<td>' + posData.total + ' ' + peopleUnit + '</td>';
