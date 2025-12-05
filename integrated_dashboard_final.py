@@ -13926,7 +13926,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
 
                 // 모달 HTML creation
-                const monthNumber = '{month.lower()}' === 'september' ? '9' : '{month.lower()}' === 'august' ? '8' : '{month.lower()}' === 'july' ? '7' : '?';
+                // 모든 월에 대한 동적 매핑 (CRITICAL FIX: 2025-12-05 - undefined 방지)
+                const monthMapping = {{
+                    'january': '1', 'february': '2', 'march': '3', 'april': '4',
+                    'may': '5', 'june': '6', 'july': '7', 'august': '8',
+                    'september': '9', 'october': '10', 'november': '11', 'december': '12'
+                }};
+                const monthNumber = monthMapping['{month.lower()}'] || '11';
                 const modalHtml = `
                 <div class="modal fade" id="incentiveModal" tabindex="-1" style="z-index: 1055;">
                     <div class="modal-dialog modal-xl" style="z-index: 1056;">
