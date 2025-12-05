@@ -1929,7 +1929,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="july" data-month-name="7월">2025년 7월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="02" data-minute="54">보고서 생성일: 2025년 12월 05일 02:54</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="02" data-minute="59">보고서 생성일: 2025년 12월 05일 02:59</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -19181,7 +19181,13 @@
                 }
 
                 // 모달 HTML creation
-                const monthNumber = 'july' === 'september' ? '9' : 'july' === 'august' ? '8' : 'july' === 'july' ? '7' : '?';
+                // 모든 월에 대한 동적 매핑 (CRITICAL FIX: 2025-12-05 - undefined 방지)
+                const monthMapping = {
+                    'january': '1', 'february': '2', 'march': '3', 'april': '4',
+                    'may': '5', 'june': '6', 'july': '7', 'august': '8',
+                    'september': '9', 'october': '10', 'november': '11', 'december': '12'
+                };
+                const monthNumber = monthMapping['july'] || '11';
                 const modalHtml = `
                 <div class="modal fade" id="incentiveModal" tabindex="-1" style="z-index: 1055;">
                     <div class="modal-dialog modal-xl" style="z-index: 1056;">
