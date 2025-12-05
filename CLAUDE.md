@@ -1386,15 +1386,36 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Note**: GROUP LEADER, SUPERVISOR, A.MANAGER, MANAGER는 `findTeamLineLeaders(nodeId)` 호출 시
      해당 함수 내부에서 이미 `managerId = String(managerId || '')` 변환 처리됨 (Line 13212)
 
-   - **Implementation**:
-     - `integrated_dashboard_final.py:13340-13349` (LINE LEADER findSubordinates)
+   - **Phase 3 Fix** (2025-12-05 - Ultrathink 전수 검사): 4개 추가 타입 불일치 수정
+     - **Line 12901**: `renderOrgNode` LINE LEADER 부하직원 카운트
+     - **Line 13465**: `generateSubordinateTable` 그룹 리더 찾기 (SUPERVISOR, A.MANAGER, MANAGER 영향)
+     - **Line 15188**: `addBossChain` 상사 체인 확인 (조직도 연결)
+     - **Line 15437**: `nodeClick` D3 클릭 이벤트
+     - 커밋: `09f362cf`
+
+   - **Implementation** (총 6개 위치):
+     - `integrated_dashboard_final.py:12901-12903` (renderOrgNode LINE LEADER)
+     - `integrated_dashboard_final.py:13340-13349` (POSITION_CONFIG LINE LEADER findSubordinates)
+     - `integrated_dashboard_final.py:13464-13465` (generateSubordinateTable 그룹화)
      - `integrated_dashboard_final.py:13675-13689` (showIncentiveModal)
+     - `integrated_dashboard_final.py:15187-15188` (addBossChain)
+     - `integrated_dashboard_final.py:15436-15437` (nodeClick D3)
      - `integrated_dashboard_final.py:13204-13212` (findTeamLineLeaders - 기존 정상)
+
+   - **직급별 모달 동작 검증**:
+     | 직급 | findSubordinates 방식 | 타입 변환 | 상태 |
+     |------|----------------------|----------|------|
+     | LINE LEADER | 직접 구현 | String() 적용 | ✅ |
+     | GROUP LEADER | findTeamLineLeaders | String() 적용 | ✅ |
+     | SUPERVISOR | findTeamLineLeaders | String() 적용 | ✅ |
+     | A.MANAGER | findTeamLineLeaders | String() 적용 | ✅ |
+     | MANAGER | findTeamLineLeaders | String() 적용 | ✅ |
 
    - **Prevention**:
      - JavaScript에서 ID 비교 시 항상 `String()` 변환 사용
      - `===` 연산자는 타입까지 비교하므로 주의 필요
      - employeeData의 숫자형 필드 (boss_id, emp_no)와 문자열 nodeId 비교 시 항상 변환 필수
+     - 새로운 비교 코드 작성 시 `String(value || '')` 패턴 사용
 
 ### Debugging Dashboard Issues
 ```bash
