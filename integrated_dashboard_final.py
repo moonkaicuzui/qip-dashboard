@@ -4132,6 +4132,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     // 5PRS 통과율 < 95% 상세 모달
     function showLowPassRateDetails() {
+        // 전역 언어와 동기화
+        let currentLang = (typeof window.currentLanguage !== 'undefined' ? window.currentLanguage : null) ||
+                         (typeof currentLanguage !== 'undefined' ? currentLanguage : null) ||
+                         'ko';
+
         // Load translations
         const t = {
             title: getTranslation('fivePrsModal.title'),
@@ -7570,12 +7575,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </table>
 
                         <!-- TYPE-2 GROUP LEADER 특별 calculation 규칙 설직원 -->
-                        <!-- 2025-12-05 수정: TYPE-2 LINE LEADER 평균 우선 적용 -->
                         <div class="alert alert-warning mb-4">
                             <h6 style="color: #856404;" id="type2GroupLeaderSpecialTitle">⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙</h6>
                             <ul class="mb-0">
-                                <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-2 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 incentive × 2</li>
-                                <li id="type2IndependentCalc"><strong>Fallback (TYPE-2 평균 0 VND):</strong> TYPE-1 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 × 2로 calculation</li>
+                                <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-1 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 incentive × 2</li>
+                                <li id="type2IndependentCalc"><strong>Fallback (TYPE-1 평균 0 VND):</strong> TYPE-2 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 × 2로 calculation</li>
                                 <li id="type2Important"><strong>중요:</strong> 모든 평균은 인센티브 수령자만 대상 (0 VND 제외)</li>
                                 <li id="type2Conditions"><strong>apply 조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 incentive 지급</li>
                             </ul>
@@ -8142,8 +8146,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <span id="faqAnswer3Main">TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
                                     <span id="faqAnswer3Example">예를 들어:</span>
                                     <ul>
-                                        <!-- 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 사용 -->
-                                        <li id="faqAnswer3Example1">TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 incentive × 2</li>
+                                        <li id="faqAnswer3Example1">TYPE-2 GROUP LEADER는 TYPE-1 LINE LEADER 평균 incentive × 2</li>
                                         <li id="faqAnswer3Example2">TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 incentive</li>
                                     </ul>
                                 </div>
@@ -9846,8 +9849,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             document.getElementById('faqAnswer3Main').textContent = translations.incentiveCalculation?.faq?.answer3Main?.[lang] || 'TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.';
             document.getElementById('faqAnswer3Example').textContent = translations.incentiveCalculation?.faq?.answer3Example?.[lang] || '예를 들어:';
-            // 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 사용
-            document.getElementById('faqAnswer3Example1').textContent = translations.incentiveCalculation?.faq?.answer3Example1?.[lang] || 'TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 incentive × 2';
+            document.getElementById('faqAnswer3Example1').textContent = translations.incentiveCalculation?.faq?.answer3Example1?.[lang] || 'TYPE-2 GROUP LEADER는 TYPE-1 LINE LEADER 평균 incentive × 2';
             document.getElementById('faqAnswer3Example2').textContent = translations.incentiveCalculation?.faq?.answer3Example2?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 incentive';
             
             // Q4
@@ -9976,20 +9978,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (answer11Main) {{
                 answer11Main.textContent = translations.incentiveCalculation?.faq?.answer11Main?.[lang] || 'TYPE-2 GROUP LEADER는 특별한 calculation 규칙이 apply됩니다:';
             }}
-            // 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 우선 사용
             const answer11Detail1 = document.getElementById('faqAnswer11Detail1');
             if (answer11Detail1) {{
-                const baseCalc = translations.incentiveCalculation?.faq?.answer11Detail1?.[lang] || '기본 calculation: TYPE-2 LINE LEADER 평균 incentive × 2를 받습니다';
+                const baseCalc = translations.incentiveCalculation?.faq?.answer11Detail1?.[lang] || '기본 calculation: TYPE-1 LINE LEADER 평균 incentive × 2를 받습니다';
                 answer11Detail1.innerHTML = `<strong>${{baseCalc.split(':')[0]}}:</strong> ${{baseCalc.split(':')[1] || ''}}`;
             }}
             const answer11Detail2 = document.getElementById('faqAnswer11Detail2');
             if (answer11Detail2) {{
-                const indepCalc = translations.incentiveCalculation?.faq?.answer11Detail2?.[lang] || 'Fallback calculation: TYPE-2 LINE LEADER 평균이 0 VND인 경우, TYPE-1 LINE LEADER 평균 × 2로 calculation됩니다';
+                const indepCalc = translations.incentiveCalculation?.faq?.answer11Detail2?.[lang] || 'Fallback calculation: TYPE-1 LINE LEADER 평균이 0 VND인 경우, TYPE-2 LINE LEADER 평균 × 2로 calculation됩니다';
                 answer11Detail2.innerHTML = `<strong>${{indepCalc.split(':')[0]}}:</strong> ${{indepCalc.split(':')[1] || ''}}`;
             }}
             const answer11Detail3 = document.getElementById('faqAnswer11Detail3');
             if (answer11Detail3) {{
-                const improvement = translations.incentiveCalculation?.faq?.answer11Detail3?.[lang] || '중요: TYPE-2 LINE LEADER 평균 기준으로 계산하여 동일 TYPE 직원들과의 일관성 유지';
+                const improvement = translations.incentiveCalculation?.faq?.answer11Detail3?.[lang] || '중요: 모든 평균은 인센티브 수령자만 대상 (0 VND 제외)';
                 answer11Detail3.innerHTML = `<strong>${{improvement.split(':')[0]}}:</strong> ${{improvement.split(':')[1] || ''}}`;
             }}
             const answer11Detail4 = document.getElementById('faqAnswer11Detail4');
@@ -10003,19 +10004,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
 
             // TYPE-2 GROUP LEADER Special Calculation Box translations
-            // 2025-12-05 수정: TYPE-2 LINE LEADER 평균 우선 사용
             const type2SpecialTitle = document.getElementById('type2GroupLeaderSpecialTitle');
             if (type2SpecialTitle) {{
                 type2SpecialTitle.textContent = translations.type2GroupLeaderSpecial?.title?.[lang] || '⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙';
             }}
             const type2BaseCalc = document.getElementById('type2BaseCalc');
             if (type2BaseCalc) {{
-                const baseText = translations.type2GroupLeaderSpecial?.baseCalculation?.[lang] || '기본 calculation: TYPE-2 LINE LEADER 평균 incentive × 2 use';
+                const baseText = translations.type2GroupLeaderSpecial?.baseCalculation?.[lang] || '기본 calculation: TYPE-1 LINE LEADER 평균 incentive × 2 use';
                 type2BaseCalc.innerHTML = `<strong>${{baseText.split(':')[0]}}:</strong> ${{baseText.split(':')[1] || ''}}`;
             }}
             const type2IndependentCalc = document.getElementById('type2IndependentCalc');
             if (type2IndependentCalc) {{
-                const indepText = translations.type2GroupLeaderSpecial?.independentCalculation?.[lang] || 'Fallback (TYPE-2 평균 0 VND): TYPE-1 LINE LEADER 평균 × 2로 calculation';
+                const indepText = translations.type2GroupLeaderSpecial?.independentCalculation?.[lang] || 'Fallback (TYPE-1 평균 0 VND): TYPE-2 LINE LEADER 평균 × 2로 calculation';
                 type2IndependentCalc.innerHTML = `<strong>${{indepText.split(':')[0]}}:</strong> ${{indepText.split(':')[1] || ''}}`;
             }}
             const type2Important = document.getElementById('type2Important');
