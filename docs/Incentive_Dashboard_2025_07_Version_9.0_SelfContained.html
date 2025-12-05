@@ -1929,7 +1929,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="july" data-month-name="7월">2025년 7월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="02" data-minute="04">보고서 생성일: 2025년 12월 05일 02:04</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="02" data-minute="23">보고서 생성일: 2025년 12월 05일 02:23</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -2776,11 +2776,12 @@
                         </table>
 
                         <!-- TYPE-2 GROUP LEADER 특별 calculation 규칙 설직원 -->
+                        <!-- 2025-12-05 수정: TYPE-2 LINE LEADER 평균 우선 적용 -->
                         <div class="alert alert-warning mb-4">
                             <h6 style="color: #856404;" id="type2GroupLeaderSpecialTitle">⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙</h6>
                             <ul class="mb-0">
-                                <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-1 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 incentive × 2 = 339,933 × 2 = <strong>679,866 VND</strong></li>
-                                <li id="type2IndependentCalc"><strong>Fallback (TYPE-1 평균 0 VND):</strong> TYPE-2 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 × 2로 독립 calculation</li>
+                                <li id="type2BaseCalc"><strong>기본 calculation:</strong> TYPE-2 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 incentive × 2</li>
+                                <li id="type2IndependentCalc"><strong>Fallback (TYPE-2 평균 0 VND):</strong> TYPE-1 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균 × 2로 calculation</li>
                                 <li id="type2Important"><strong>중요:</strong> 모든 평균은 인센티브 수령자만 대상 (0 VND 제외)</li>
                                 <li id="type2Conditions"><strong>apply 조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 incentive 지급</li>
                             </ul>
@@ -3347,7 +3348,8 @@
                                     <span id="faqAnswer3Main">TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
                                     <span id="faqAnswer3Example">예를 들어:</span>
                                     <ul>
-                                        <li id="faqAnswer3Example1">TYPE-2 GROUP LEADER는 TYPE-1 LINE LEADER 평균 incentive × 2</li>
+                                        <!-- 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 사용 -->
+                                        <li id="faqAnswer3Example1">TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 incentive × 2</li>
                                         <li id="faqAnswer3Example2">TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 incentive</li>
                                     </ul>
                                 </div>
@@ -3458,11 +3460,12 @@
                                     Q11. TYPE-2 GROUP LEADER가 incentive를 못 받는 경우가 있나요?
                                 </div>
                                 <div class="faq-answer">
+                                    <!-- 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 우선 사용 -->
                                     <span id="faqAnswer11Main">TYPE-2 GROUP LEADER는 특별한 calculation 규칙이 apply됩니다:</span>
                                     <ul>
-                                        <li id="faqAnswer11Detail1"><strong>기본 calculation:</strong> TYPE-1 LINE LEADER 평균 incentive × 2를 받습니다</li>
-                                        <li id="faqAnswer11Detail2"><strong>Fallback calculation:</strong> TYPE-1 LINE LEADER 평균이 0 VND인 경우, TYPE-2 LINE LEADER 평균 × 2로 calculation됩니다</li>
-                                        <li id="faqAnswer11Detail3"><strong>중요:</strong> TYPE-1과 TYPE-2 LINE LEADER 평균은 거의 동일하므로 (차이 0.2%) 결과에 큰 영향 없습니다</li>
+                                        <li id="faqAnswer11Detail1"><strong>기본 calculation:</strong> TYPE-2 LINE LEADER 평균 incentive × 2를 받습니다</li>
+                                        <li id="faqAnswer11Detail2"><strong>Fallback calculation:</strong> TYPE-2 LINE LEADER 평균이 0 VND인 경우, TYPE-1 LINE LEADER 평균 × 2로 calculation됩니다</li>
+                                        <li id="faqAnswer11Detail3"><strong>중요:</strong> TYPE-2 LINE LEADER 평균 기준으로 계산하여 동일 TYPE 직원들과의 일관성 유지</li>
                                         <li id="faqAnswer11Detail4"><strong>조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 incentive를 받을 count 있습니다</li>
                                     </ul>
                                     <span id="faqAnswer11Conclusion">따라서 출근 조건을 충족한 TYPE-2 GROUP LEADER는 항상 incentive를 받을 count 있도록 보장됩니다.</span>
@@ -11566,7 +11569,8 @@
             }
             document.getElementById('faqAnswer3Main').textContent = translations.incentiveCalculation?.faq?.answer3Main?.[lang] || 'TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.';
             document.getElementById('faqAnswer3Example').textContent = translations.incentiveCalculation?.faq?.answer3Example?.[lang] || '예를 들어:';
-            document.getElementById('faqAnswer3Example1').textContent = translations.incentiveCalculation?.faq?.answer3Example1?.[lang] || 'TYPE-2 GROUP LEADER는 TYPE-1 GROUP LEADER들의 평균 incentive';
+            // 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 사용
+            document.getElementById('faqAnswer3Example1').textContent = translations.incentiveCalculation?.faq?.answer3Example1?.[lang] || 'TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 incentive × 2';
             document.getElementById('faqAnswer3Example2').textContent = translations.incentiveCalculation?.faq?.answer3Example2?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 incentive';
             
             // Q4
@@ -11695,19 +11699,20 @@
             if (answer11Main) {
                 answer11Main.textContent = translations.incentiveCalculation?.faq?.answer11Main?.[lang] || 'TYPE-2 GROUP LEADER는 특별한 calculation 규칙이 apply됩니다:';
             }
+            // 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 우선 사용
             const answer11Detail1 = document.getElementById('faqAnswer11Detail1');
             if (answer11Detail1) {
-                const baseCalc = translations.incentiveCalculation?.faq?.answer11Detail1?.[lang] || '기본 calculation: TYPE-1 GROUP LEADER 평균 incentive를 받습니다';
+                const baseCalc = translations.incentiveCalculation?.faq?.answer11Detail1?.[lang] || '기본 calculation: TYPE-2 LINE LEADER 평균 incentive × 2를 받습니다';
                 answer11Detail1.innerHTML = `<strong>${baseCalc.split(':')[0]}:</strong> ${baseCalc.split(':')[1] || ''}`;
             }
             const answer11Detail2 = document.getElementById('faqAnswer11Detail2');
             if (answer11Detail2) {
-                const indepCalc = translations.incentiveCalculation?.faq?.answer11Detail2?.[lang] || '독립 calculation: TYPE-1 GROUP LEADER 평균이 0 VNDth 경우, 자동으로 total TYPE-2 LINE LEADER 평균 × 2로 calculation됩니다';
+                const indepCalc = translations.incentiveCalculation?.faq?.answer11Detail2?.[lang] || 'Fallback calculation: TYPE-2 LINE LEADER 평균이 0 VND인 경우, TYPE-1 LINE LEADER 평균 × 2로 calculation됩니다';
                 answer11Detail2.innerHTML = `<strong>${indepCalc.split(':')[0]}:</strong> ${indepCalc.split(':')[1] || ''}`;
             }
             const answer11Detail3 = document.getElementById('faqAnswer11Detail3');
             if (answer11Detail3) {
-                const improvement = translations.incentiveCalculation?.faq?.answer11Detail3?.[lang] || '개선 사항: 부하직원 관계와 상관without total TYPE-2 LINE LEADER 평균을 use하여 더 공정한 calculation이 이루어집니다';
+                const improvement = translations.incentiveCalculation?.faq?.answer11Detail3?.[lang] || '중요: TYPE-2 LINE LEADER 평균 기준으로 계산하여 동일 TYPE 직원들과의 일관성 유지';
                 answer11Detail3.innerHTML = `<strong>${improvement.split(':')[0]}:</strong> ${improvement.split(':')[1] || ''}`;
             }
             const answer11Detail4 = document.getElementById('faqAnswer11Detail4');
@@ -11721,23 +11726,24 @@
             }
 
             // TYPE-2 GROUP LEADER Special Calculation Box translations
+            // 2025-12-05 수정: TYPE-2 LINE LEADER 평균 우선 사용
             const type2SpecialTitle = document.getElementById('type2GroupLeaderSpecialTitle');
             if (type2SpecialTitle) {
                 type2SpecialTitle.textContent = translations.type2GroupLeaderSpecial?.title?.[lang] || '⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙';
             }
             const type2BaseCalc = document.getElementById('type2BaseCalc');
             if (type2BaseCalc) {
-                const baseText = translations.type2GroupLeaderSpecial?.baseCalculation?.[lang] || '기본 calculation: TYPE-1 GROUP LEADER 평균 incentive use';
+                const baseText = translations.type2GroupLeaderSpecial?.baseCalculation?.[lang] || '기본 calculation: TYPE-2 LINE LEADER 평균 incentive × 2 use';
                 type2BaseCalc.innerHTML = `<strong>${baseText.split(':')[0]}:</strong> ${baseText.split(':')[1] || ''}`;
             }
             const type2IndependentCalc = document.getElementById('type2IndependentCalc');
             if (type2IndependentCalc) {
-                const indepText = translations.type2GroupLeaderSpecial?.independentCalculation?.[lang] || 'TYPE-1 평균이 0 VND인 경우: 모든 TYPE-2 LINE LEADER 평균 × 2로 독립 calculation';
+                const indepText = translations.type2GroupLeaderSpecial?.independentCalculation?.[lang] || 'Fallback (TYPE-2 평균 0 VND): TYPE-1 LINE LEADER 평균 × 2로 calculation';
                 type2IndependentCalc.innerHTML = `<strong>${indepText.split(':')[0]}:</strong> ${indepText.split(':')[1] || ''}`;
             }
             const type2Important = document.getElementById('type2Important');
             if (type2Important) {
-                const importantText = translations.type2GroupLeaderSpecial?.important?.[lang] || '중요: 부하직원 관계 without total TYPE-2 LINE LEADER 평균 use';
+                const importantText = translations.type2GroupLeaderSpecial?.important?.[lang] || '중요: 모든 평균은 인센티브 수령자만 대상 (0 VND 제외)';
                 type2Important.innerHTML = `<strong>${importantText.split(':')[0]}:</strong> ${importantText.split(':')[1] || ''}`;
             }
             const type2Conditions = document.getElementById('type2Conditions');
@@ -14585,8 +14591,8 @@
                                     <th class="text-center sortable-header ${sortColumn === 'stopDate' ? sortOrder : ''}" onclick="window.absentModalSort('stopDate')" data-i18n="zeroWorkingDaysModal.headers.stopDate">${getTranslation('zeroWorkingDaysModal.headers.stopDate', lang)}</th>
                                     <th class="text-center sortable-header ${sortColumn === 'pregnant' ? sortOrder : ''}" onclick="window.absentModalSort('pregnant')" data-i18n="zeroWorkingDaysModal.headers.pregnantVacation">${getTranslation('zeroWorkingDaysModal.headers.pregnantVacation', lang)}</th>
                                     <th class="sortable-header ${sortColumn === 'remark' ? sortOrder : ''}" onclick="window.absentModalSort('remark')" data-i18n="zeroWorkingDaysModal.headers.remark">${getTranslation('zeroWorkingDaysModal.headers.remark', lang)}</th>
-                                    <th class="text-center sortable-header" data-i18n="validationTab.tableHeaders.received">${getTranslation('validationTab.tableHeaders.received', lang)}</th>
-                                    <th class="text-center sortable-header" data-i18n="validationTab.tableHeaders.incentiveAmount">${getTranslation('validationTab.tableHeaders.incentiveAmount', lang)}</th>
+                                    <th class="text-center sortable-header" data-i18n="validationTab.incentiveReceived">${getTranslation('validationTab.incentiveReceived', lang) || (lang === 'ko' ? '수령' : lang === 'en' ? 'Received' : 'Nhận')}</th>
+                                    <th class="text-center sortable-header" data-i18n="validationTab.incentiveAmount">${getTranslation('validationTab.incentiveAmount', lang) || (lang === 'ko' ? '인센티브 금액' : lang === 'en' ? 'Incentive Amount' : 'Số tiền')}</th>
                                 </tr>
                             </thead>
                             <tbody>${tableRows}</tbody>
@@ -16795,20 +16801,16 @@
                 // CRITICAL FIX: Use position_code field (FINAL QIP POSITION NAME CODE)
                 const positionCode = (emp['position_code'] || '').toUpperCase().trim();
                 const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
-                console.log(`[5PRS Modal Filter] Employee ${emp['emp_no']}: type=${emp['type']}, position_code=${emp['position_code']}, isType1=${isType1}, isAssembly=${isAssemblyInspector}`);
+                // Debug log removed for performance (was causing browser freeze with 400+ employees)
                 return isType1 && isAssemblyInspector;
             });
-
-            console.log('[5PRS Modal] TYPE-1 ASSEMBLY INSPECTORS found:', allType1Inspectors.length);
 
             // TYPE-1 ASSEMBLY INSPECTOR with pass rate < 95% 필터링 (첫 번째 테이블용)
             lowPassEmployees = allType1Inspectors.filter(emp => {
                 const passRate = parseFloat(emp['pass_rate'] || emp['5PRS_Pass_Rate'] || emp['5PRS Pass Rate'] || 100);
-                console.log(`[5PRS Pass Rate Filter] Employee ${emp['emp_no']}: pass_rate=${emp['pass_rate']}, 5PRS_Pass_Rate=${emp['5PRS_Pass_Rate']}, parsed=${passRate}, below95=${passRate < 95}`);
+                // Debug log removed for performance
                 return passRate < 95;
             });
-
-            console.log('[5PRS Modal] Employees with pass rate < 95%:', lowPassEmployees.length);
 
             // 백드롭 creation
             backdrop = document.createElement('div');
