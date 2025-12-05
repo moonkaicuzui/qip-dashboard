@@ -1929,7 +1929,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="october" data-month-name="10월">2025년 10월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="02" data-minute="59">보고서 생성일: 2025년 12월 05일 02:59</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="03" data-minute="06">보고서 생성일: 2025년 12월 05일 03:06</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -21479,7 +21479,18 @@
                 }
                 groupedByType[data.type].push(data);
             });
-            
+
+            // CRITICAL FIX (2025-12-05): TYPE-1 평균을 먼저 계산하고 저장
+            // TYPE-2가 TYPE-1 평균을 참조할 때 반올림 차이(1 VND)가 발생하지 않도록
+            // TYPE-1 평균을 미리 계산하여 캐싱
+            window.type1Averages = {};
+            if (groupedByType['TYPE-1']) {
+                groupedByType['TYPE-1'].forEach(posData => {
+                    const avgAmount = posData.paid > 0 ? Math.round(posData.totalAmount / posData.paid) : 0;
+                    window.type1Averages[posData.position] = avgAmount;
+                });
+            }
+
             // HTML creation
             const container = document.getElementById('positionTables');
             if (container) {
@@ -21527,10 +21538,22 @@
                     // 직급별 행 추가
                     positions.sort((a, b) => a.position.localeCompare(b.position)).forEach(posData => {
                         const paymentRate = posData.total > 0 ? (posData.paid / posData.total * 100).toFixed(1) : '0.0';
-                        const avgAmount = posData.paid > 0 ? Math.round(posData.totalAmount / posData.paid) : 0;
+
+                        // CRITICAL FIX (2025-12-05): TYPE-2는 TYPE-1 평균을 참조하여 일관성 유지
+                        // 문제: TYPE-2 평균과 TYPE-1 평균 사이에 1 VND 차이 발생 (반올림 타이밍)
+                        // 해결: TYPE-2는 해당 TYPE-1 직급의 캐싱된 평균을 사용
+                        let avgAmount;
+                        if (type === 'TYPE-2' && window.type1Averages && window.type1Averages[posData.position]) {
+                            // TYPE-2: TYPE-1 평균 참조 (반올림 이미 적용됨)
+                            avgAmount = window.type1Averages[posData.position];
+                        } else {
+                            // TYPE-1, TYPE-3: 직접 계산
+                            avgAmount = posData.paid > 0 ? Math.round(posData.totalAmount / posData.paid) : 0;
+                        }
+
                         const peopleUnit = getTranslation('common.people', currentLanguage);
                         const viewBtnText = getTranslation('position.viewButton', currentLanguage);
-                        
+
                         html += '<tr>';
                         html += '<td>' + posData.position + '</td>';
                         html += '<td>' + posData.total + ' ' + peopleUnit + '</td>';
