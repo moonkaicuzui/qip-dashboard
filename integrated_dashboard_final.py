@@ -12897,8 +12897,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // LINE LEADER의 경우 부하직원 표시
                 if (node.position && node.position.toUpperCase().includes('LINE LEADER')) {{
                     // 부하직원 찾기 (incentive calculation에 영향을 미치는 TYPE-1 부하만)
+                    // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
                     const subordinates = employeeData.filter(emp =>
-                        emp.boss_id === node.id &&
+                        String(emp.boss_id || '') === String(node.id || '') &&
                         emp.type === 'TYPE-1'
                     );
 
@@ -13460,7 +13461,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // Grouped table (SUPERVISOR, A.MANAGER, MANAGER)
                 const subordinatesByGroup = {{}};
                 subordinates.forEach(sub => {{
-                    const groupLeader = employeeData.find(emp => emp.emp_no === sub.boss_id);
+                    // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
+                    const groupLeader = employeeData.find(emp => String(emp.emp_no || '') === String(sub.boss_id || ''));
                     const groupName = groupLeader ? groupLeader.name : 'Unknown';
                     if (!subordinatesByGroup[groupName]) {{
                         subordinatesByGroup[groupName] = [];
@@ -15182,7 +15184,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     if (emp.boss_id && emp.boss_id !== '' && emp.boss_id !== 'nan' && emp.boss_id !== '0') {{
                         // 상사가 actual로 employeeData에 존재하는지 확인
-                        const bossExists = employeeData.some(e => e.emp_no === emp.boss_id);
+                        // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
+                        const bossExists = employeeData.some(e => String(e.emp_no || '') === String(emp.boss_id || ''));
 
                         if (bossExists && !requiredIds.has(emp.boss_id)) {{
                             requiredIds.add(emp.boss_id);
@@ -15430,7 +15433,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         function nodeClick(event, d) {{
             // 노드 클릭시 corresponding 직원 상세 정보 표시
-            const emp = employeeData.find(e => e.emp_no === d.data.id);
+            // CRITICAL FIX (2025-12-05): String() 변환으로 타입 불일치 방지
+            const emp = employeeData.find(e => String(e.emp_no || '') === String(d.data.id || ''));
             if (emp) {{
                 showEmployeeDetail(emp);
             }}
