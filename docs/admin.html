@@ -417,12 +417,7 @@
         const SESSION_KEY = 'qip_admin_session';
         const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
 
-        // API settings
-        // Vercel Serverless Function endpoint
-        const API_ENDPOINT = window.location.hostname === 'localhost'
-            ? 'http://localhost:3000/api/trigger-workflow'
-            : 'https://qip-dashboard-a6u6.vercel.app/api/trigger-workflow'; // Vercel production URL
-
+        // GitHub settings
         const GITHUB_OWNER = 'moonkaicuzui';
         const GITHUB_REPO = 'qip-dashboard';
         const WORKFLOW_ID = 'auto-update-enhanced.yml';
@@ -536,61 +531,28 @@
             document.getElementById('nextRun').textContent = `in ${minutes} min`;
         }
 
-        // Trigger workflow via Vercel Serverless Function
+        // Trigger workflow - Direct GitHub Actions page open
         async function triggerWorkflow() {
-            addLog('Requesting recalculation...', 'info');
+            addLog('🚀 Opening GitHub Actions page...', 'info');
+            addLog('📌 Click the green "Run workflow" button on the page', 'info');
+            addLog('📌 Then click "Run workflow" in the dropdown', 'info');
 
-            try {
-                // Call Vercel Serverless Function with password hash
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        passwordHash: ADMIN_PASSWORD_HASH
-                    })
-                });
+            // Open GitHub Actions workflow page directly
+            const workflowUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`;
+            window.open(workflowUrl, '_blank');
 
-                const data = await response.json();
+            addLog('✅ GitHub Actions page opened!', 'success');
+            addLog('⏱️ Workflow takes about 5-10 minutes to complete', 'info');
 
-                if (response.ok && data.success) {
-                    addLog('✅ Recalculation started! GitHub Actions running...', 'success');
-                    addLog(`Triggered at: ${data.timestamp}`, 'info');
-                    document.getElementById('workflowStatus').style.display = 'block';
-                    simulateProgress();
-                } else if (response.status === 401) {
-                    addLog('❌ Authentication failed', 'error');
-                    addLog('Please check admin credentials', 'error');
-                } else if (response.status === 500) {
-                    addLog('⚠️ Server error: ' + (data.message || 'Unknown error'), 'error');
-                    addLog('Fallback: Opening GitHub Actions page...', 'info');
-                    setTimeout(() => {
-                        window.open(
-                            `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
-                            '_blank'
-                        );
-                    }, 2000);
-                } else {
-                    addLog('⚠️ Unexpected error: ' + (data.message || response.statusText), 'error');
-                    addLog('Fallback: Opening GitHub Actions page...', 'info');
-                    setTimeout(() => {
-                        window.open(
-                            `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
-                            '_blank'
-                        );
-                    }, 2000);
-                }
-            } catch (error) {
-                addLog('⚠️ Network error: ' + error.message, 'error');
-                addLog('Fallback: Opening GitHub Actions page...', 'info');
-                setTimeout(() => {
-                    window.open(
-                        `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_ID}`,
-                        '_blank'
-                    );
-                }, 2000);
-            }
+            // Show status section with instructions
+            document.getElementById('workflowStatus').style.display = 'block';
+            document.getElementById('statusText').innerHTML = `
+                <strong>📋 Instructions:</strong><br>
+                1. Click the green "Run workflow" button<br>
+                2. Select "main" branch<br>
+                3. Click "Run workflow" to start<br>
+                4. Wait 5-10 minutes for completion
+            `;
         }
 
         // Check workflow status
