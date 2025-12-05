@@ -12117,18 +12117,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.name', currentLanguage),
                         getTranslation('validationTab.tableHeaders.position', currentLanguage),
                         getTranslation('validationTab.tableHeaders.ar1Days', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveReceived', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
                     tableData = absenceData
                         .map(emp => {{
                             const days = parseFloat(emp['Unapproved Absences']);
                             const daysCell = days >= 3 ? `<span style="color: #e74c3c; font-weight: bold;">${'${days}'}</span>` : days;
+                            // 인센티브 금액 가져오기 (November_Incentive 또는 Incentive 필드)
+                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const isReceived = incentiveAmount > 0;
+                            const receivedCell = isReceived
+                                ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                                : `<span style="color: #e74c3c;">❌</span>`;
+                            const amountCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">${'${incentiveAmount.toLocaleString()}'} ₫</span>`
+                                : `<span style="color: #95a5a6;">0 ₫</span>`;
                             return [
                                 emp['Employee No'],
                                 emp['Full Name'],
                                 emp['FINAL QIP POSITION NAME CODE'],
                                 daysCell,
-                                emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || (days > 2 ? 'FAIL' : 'PASS')
+                                emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || (days > 2 ? 'FAIL' : 'PASS'),
+                                receivedCell,
+                                amountCell
                             ];
                         }});
 

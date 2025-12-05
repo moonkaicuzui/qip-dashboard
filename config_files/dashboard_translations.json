@@ -4844,6 +4844,16 @@
         "ko": "상태",
         "en": "Status",
         "vi": "Trạng thái"
+      },
+      "incentiveReceived": {
+        "ko": "수령 여부",
+        "en": "Received",
+        "vi": "Nhận"
+      },
+      "incentiveAmount": {
+        "ko": "인센티브 금액",
+        "en": "Incentive Amount",
+        "vi": "Số tiền khuyến khích"
       }
     },
     "modalTitles": {
