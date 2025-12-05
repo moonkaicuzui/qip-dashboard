@@ -1929,7 +1929,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="september" data-month-name="9월">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="00" data-minute="40">보고서 생성일: 2025년 12월 05일 00:40</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="05" data-hour="01" data-minute="02">보고서 생성일: 2025년 12월 05일 01:02</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -8715,6 +8715,16 @@
         "ko": "상태",
         "en": "Status",
         "vi": "Trạng thái"
+      },
+      "incentiveReceived": {
+        "ko": "수령 여부",
+        "en": "Received",
+        "vi": "Nhận"
+      },
+      "incentiveAmount": {
+        "ko": "인센티브 금액",
+        "en": "Incentive Amount",
+        "vi": "Số tiền khuyến khích"
       }
     },
     "modalTitles": {
@@ -17348,18 +17358,31 @@
                         getTranslation('validationTab.tableHeaders.name', currentLanguage),
                         getTranslation('validationTab.tableHeaders.position', currentLanguage),
                         getTranslation('validationTab.tableHeaders.ar1Days', currentLanguage),
-                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
+                        getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveReceived', currentLanguage),
+                        getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
                     tableData = absenceData
                         .map(emp => {
                             const days = parseFloat(emp['Unapproved Absences']);
                             const daysCell = days >= 3 ? `<span style="color: #e74c3c; font-weight: bold;">$${days}</span>` : days;
+                            // 인센티브 금액 가져오기 (November_Incentive 또는 Incentive 필드)
+                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const isReceived = incentiveAmount > 0;
+                            const receivedCell = isReceived
+                                ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                                : `<span style="color: #e74c3c;">❌</span>`;
+                            const amountCell = incentiveAmount > 0
+                                ? `<span style="color: #27ae60; font-weight: bold;">$${incentiveAmount.toLocaleString()} ₫</span>`
+                                : `<span style="color: #95a5a6;">0 ₫</span>`;
                             return [
                                 emp['Employee No'],
                                 emp['Full Name'],
                                 emp['FINAL QIP POSITION NAME CODE'],
                                 daysCell,
-                                emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || (days > 2 ? 'FAIL' : 'PASS')
+                                emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || (days > 2 ? 'FAIL' : 'PASS'),
+                                receivedCell,
+                                amountCell
                             ];
                         });
 
