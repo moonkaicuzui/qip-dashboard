@@ -1717,7 +1717,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const legitimateReasons = maternity + resigned;
 
             if (zeroWorkingEmployees.length === 0) {
-                tableRows = `<tr><td colspan="9" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>${getTranslation('zeroWorkingDaysModal.description', lang)}</td></tr>`;
+                tableRows = `<tr><td colspan="11" class="text-center py-4"><i class="fas fa-check-circle text-success fa-2x mb-2 d-block"></i>${getTranslation('zeroWorkingDaysModal.description', lang)}</td></tr>`;
             } else {
                 tableRows = zeroWorkingEmployees.map(emp => {
                     // Excel에서 가져온 필드 use (Single Source of Truth)
@@ -1750,6 +1750,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         ? getTranslation('zeroWorkingDaysModal.statusLabels.no', lang)
                         : '-';
 
+                    // 인센티브 정보 가져오기 (수령 여부 및 금액)
+                    const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                    const isReceived = incentiveAmount > 0;
+                    const receivedCell = isReceived
+                        ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
+                        : `<span style="color: #e74c3c;">❌</span>`;
+                    const amountCell = incentiveAmount > 0
+                        ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
+                        : `<span style="color: #95a5a6;">0 ₫</span>`;
+
                     return `
                         <tr class="unified-table-row">
                             <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
@@ -1765,6 +1775,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <td class="unified-table-cell text-center">${stopDate}</td>
                             <td class="unified-table-cell text-center">${pregnantLabel}</td>
                             <td class="unified-table-cell">${remark}</td>
+                            <td class="unified-table-cell text-center">${receivedCell}</td>
+                            <td class="unified-table-cell text-end">${amountCell}</td>
                         </tr>
                     `;
                 }).join('');
@@ -1841,6 +1853,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th class="text-center sortable-header ${sortColumn === 'stopDate' ? sortOrder : ''}" onclick="window.zeroModalSort('stopDate')" data-i18n="zeroWorkingDaysModal.headers.stopDate">${getTranslation('zeroWorkingDaysModal.headers.stopDate', lang)}</th>
                                     <th class="text-center sortable-header ${sortColumn === 'pregnant' ? sortOrder : ''}" onclick="window.zeroModalSort('pregnant')" data-i18n="zeroWorkingDaysModal.headers.pregnantVacation">${getTranslation('zeroWorkingDaysModal.headers.pregnantVacation', lang)}</th>
                                     <th class="sortable-header ${sortColumn === 'remark' ? sortOrder : ''}" onclick="window.zeroModalSort('remark')" data-i18n="zeroWorkingDaysModal.headers.remark">${getTranslation('zeroWorkingDaysModal.headers.remark', lang)}</th>
+                                    <th class="text-center sortable-header ${sortColumn === 'received' ? sortOrder : ''}" onclick="window.zeroModalSort('received')" data-i18n="validationTab.tableHeaders.incentiveReceived">${getTranslation('validationTab.tableHeaders.incentiveReceived', lang)}</th>
+                                    <th class="text-end sortable-header ${sortColumn === 'amount' ? sortOrder : ''}" onclick="window.zeroModalSort('amount')" data-i18n="validationTab.tableHeaders.incentiveAmount">${getTranslation('validationTab.tableHeaders.incentiveAmount', lang)}</th>
                                 </tr>
                             </thead>
                             <tbody>${tableRows}</tbody>
