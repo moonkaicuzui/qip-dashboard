@@ -4092,7 +4092,9 @@ class CompleteQIPCalculator:
             emp_id = row.get('Employee No', '')
 
             # GROUP LEADER STEP 2from processing하므with 여기서 스킵
-            if position_upper == 'GROUP LEADER' or (position_upper == 'QA3A'):
+            # FIX 2025-12-05: QA3A는 포지션 이름이 아닌 코드이므로 FINAL QIP POSITION NAME CODE 사용
+            qip_code = row.get('FINAL QIP POSITION NAME CODE', '')
+            if position_upper == 'GROUP LEADER' or qip_code == 'QA3A':
                 continue
 
             # Stop Working Date 체크 추
@@ -4180,10 +4182,12 @@ class CompleteQIPCalculator:
 
     def calculate_type2_group_leaders_final(self):
         """TYPE-2 GROUP LEADER 최종 calculation (STEP 2)"""
+        # TYPE-2 GROUP LEADER + QA TEAM (QA3A 코드) 마스크
+        # FIX 2025-12-05: QA3A는 포지션 이름이 아닌 코드이므로 FINAL QIP POSITION NAME CODE 사용
         type2_group_mask = (
             (self.month_data['ROLE TYPE STD'] == 'TYPE-2') &
             ((self.month_data['QIP POSITION 1ST  NAME'] == 'GROUP LEADER') |
-             (self.month_data['QIP POSITION 1ST  NAME'] == 'QA3A'))
+             (self.month_data['FINAL QIP POSITION NAME CODE'] == 'QA3A'))
         )
 
         incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
