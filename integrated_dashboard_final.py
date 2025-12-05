@@ -2034,6 +2034,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     ? getTranslation('zeroWorkingDaysModal.statusLabels.no', lang)
                     : '-';
 
+                // 인센티브 수령 여부 및 금액
+                const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                const isReceived = incentiveAmount > 0;
+                const receivedCell = isReceived
+                    ? '<span class="badge bg-success">✅</span>'
+                    : '<span class="badge bg-secondary">❌</span>';
+                const amountCell = incentiveAmount > 0
+                    ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
+                    : '<span style="color: #95a5a6;">0 ₫</span>';
+
                 return `
                     <tr class="unified-table-row">
                         <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
@@ -2048,6 +2058,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <td class="unified-table-cell text-center">${stopDate}</td>
                         <td class="unified-table-cell text-center">${pregnantLabel}</td>
                         <td class="unified-table-cell">${remark}</td>
+                        <td class="unified-table-cell text-center">${receivedCell}</td>
+                        <td class="unified-table-cell text-center">${amountCell}</td>
                     </tr>
                 `;
             }).join('');
@@ -2065,13 +2077,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <span class="badge bg-warning text-dark me-1">${warning}</span>
                             <span class="badge bg-info">${caution}</span>
                         </td>
-                        <td colspan="3" class="unified-table-cell"></td>
+                        <td colspan="5" class="unified-table-cell"></td>
                     </tr>
                 `;
             } else {
                 tableRows = `
                     <tr>
-                        <td colspan="8" class="text-center py-5">
+                        <td colspan="10" class="text-center py-5">
                             <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
                             <div class="text-muted">무단결근자가 not found</div>
                         </td>
@@ -2136,6 +2148,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <th class="text-center sortable-header ${sortColumn === 'stopDate' ? sortOrder : ''}" onclick="window.absentModalSort('stopDate')" data-i18n="zeroWorkingDaysModal.headers.stopDate">${getTranslation('zeroWorkingDaysModal.headers.stopDate', lang)}</th>
                                     <th class="text-center sortable-header ${sortColumn === 'pregnant' ? sortOrder : ''}" onclick="window.absentModalSort('pregnant')" data-i18n="zeroWorkingDaysModal.headers.pregnantVacation">${getTranslation('zeroWorkingDaysModal.headers.pregnantVacation', lang)}</th>
                                     <th class="sortable-header ${sortColumn === 'remark' ? sortOrder : ''}" onclick="window.absentModalSort('remark')" data-i18n="zeroWorkingDaysModal.headers.remark">${getTranslation('zeroWorkingDaysModal.headers.remark', lang)}</th>
+                                    <th class="text-center sortable-header" data-i18n="validationTab.tableHeaders.received">${getTranslation('validationTab.tableHeaders.received', lang)}</th>
+                                    <th class="text-center sortable-header" data-i18n="validationTab.tableHeaders.incentiveAmount">${getTranslation('validationTab.tableHeaders.incentiveAmount', lang)}</th>
                                 </tr>
                             </thead>
                             <tbody>${tableRows}</tbody>
@@ -3156,6 +3170,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     failBadgeText = `${failPercent}%`;
                 }
 
+                // 인센티브 수령 여부 및 금액 (updateTableBody에서도 표시)
+                const incentiveAmount = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                const isReceived = incentiveAmount > 0;
+                const receivedCell = isReceived
+                    ? '<span class="badge bg-success">✅</span>'
+                    : '<span class="badge bg-secondary">❌</span>';
+                const amountCell = incentiveAmount > 0
+                    ? '<span class="badge bg-info text-dark">' + incentiveAmount.toLocaleString() + ' ₫</span>'
+                    : '<span class="text-muted">0 ₫</span>';
+
                 return `
                     <tr class="unified-table-row">
                         <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
@@ -3171,12 +3195,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <td class="unified-table-cell text-center">
                             <span class="badge ${failBadgeClass}">${failBadgeText}</span>
                         </td>
+                        <td class="unified-table-cell text-center">${receivedCell}</td>
+                        <td class="unified-table-cell text-center">${amountCell}</td>
                     </tr>
                 `;
             }).join('');
 
             const emptyMessage = currentLang === 'ko' ? 'AQL FAIL이 not found' : currentLang === 'en' ? 'No AQL FAIL records' : 'Không có bản ghi AQL FAIL';
-            tbody.innerHTML = tableRows || `<tr><td colspan="7" class="text-center text-muted">${emptyMessage}</td></tr>`;
+            tbody.innerHTML = tableRows || `<tr><td colspan="9" class="text-center text-muted">${emptyMessage}</td></tr>`;
 
             // 정렬 아이콘 업데이트
             document.querySelectorAll('#aqlFailModal th[data-sort]').forEach(th => {
