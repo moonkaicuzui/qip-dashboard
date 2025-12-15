@@ -1929,7 +1929,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="15" data-hour="08" data-minute="05">보고서 생성일: 2025년 12월 15일 08:05</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="15" data-hour="08" data-minute="27">보고서 생성일: 2025년 12월 15일 08:27</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -16356,11 +16356,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'All Buildings', t.total].map(building => {
+                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'All Buildings', 'total'].map(building => {
                                     const stats = aqlFileStats[building];
                                     if (!stats) return '';
 
-                                    const isTotal = building === t.total;
+                                    const isTotal = building === 'total';
+                                    const displayName = isTotal ? t.total : building;
                                     const rejectRate = stats.rejectRate;
                                     let badgeClass = 'bg-success';
                                     let statusText = t.performanceExcellent;
@@ -16378,7 +16379,7 @@
 
                                     return `
                                         <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
-                                            <td style="padding: 8px;">${building}</td>
+                                            <td style="padding: 8px;">${displayName}</td>
                                             <td style="padding: 8px; text-align: center;"><strong>${stats.total}${t.unitTests}</strong></td>
                                             <td style="padding: 8px; text-align: center;">${stats.pass}${t.unitTests}</td>
                                             <td style="padding: 8px; text-align: center;">${stats.fail}${t.unitTests}</td>
@@ -16417,11 +16418,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', t.total].map(building => {
+                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'total'].map(building => {
                                     const stats = inspectorStats[building];
                                     if (!stats) return '';
 
-                                    const isTotal = building === t.total;
+                                    const isTotal = building === 'total';
+                                    const displayName = isTotal ? t.total : building;
                                     const rejectRate = parseFloat(stats.rejectRate);
                                     let badgeClass = 'bg-success';
                                     let statusText = t.performanceExcellent;
@@ -16439,7 +16441,7 @@
 
                                     return `
                                         <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
-                                            <td style="padding: 8px;">${building}</td>
+                                            <td style="padding: 8px;">${displayName}</td>
                                             <td style="padding: 8px; text-align: center;"><strong>${stats.totalInspectors}${t.unitPeople}</strong></td>
                                             <td style="padding: 8px; text-align: center;">${stats.rejectInspectors}${t.unitPeople}</td>
                                             <td style="padding: 8px; text-align: center;">${stats.passOnlyInspectors}${t.unitPeople}</td>
@@ -16508,6 +16510,26 @@
                                         </tr>
                                     `;
                                 }).join('')}
+                                ${(() => {
+                                    // 테이블 3 Total 행 계산
+                                    const totalCount = auditorStats.length;
+                                    const paidCount = auditorStats.filter(s => s.incentiveStatus === t.paid || s.incentiveStatus === '지급').length;
+                                    const notPaidCount = totalCount - paidCount;
+                                    return `
+                                        <tr class="table-primary fw-bold">
+                                            <td style="padding: 8px;" colspan="2"><strong>${t.total}</strong></td>
+                                            <td style="padding: 8px;"><strong>${totalCount}${t.unitPeople}</strong></td>
+                                            <td style="padding: 8px; text-align: center;">-</td>
+                                            <td style="padding: 8px; text-align: center;">-</td>
+                                            <td style="padding: 8px; text-align: center;">-</td>
+                                            <td style="padding: 8px; text-align: center;">-</td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span class="badge bg-success" style="font-size: 11px;">🟢${paidCount}</span>
+                                                <span class="badge bg-danger" style="font-size: 11px;">🔴${notPaidCount}</span>
+                                            </td>
+                                        </tr>
+                                    `;
+                                })()}
                             </tbody>
                         </table>
                     </div>
