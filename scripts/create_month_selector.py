@@ -483,7 +483,12 @@ def create_month_selector_page():
                 'admin-link': '⚙️ 관리자 로그인',
                 'year-suffix': '년',
                 'month-suffix': '월',
+                'month-7': '7월',
+                'month-8': '8월',
+                'month-9': '9월',
+                'month-10': '10월',
                 'month-11': '11월',
+                'month-12': '12월',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -501,7 +506,12 @@ def create_month_selector_page():
                 'admin-link': '⚙️ Admin Login',
                 'year-suffix': '',
                 'month-suffix': '',
+                'month-7': 'July 2025',
+                'month-8': 'August 2025',
+                'month-9': 'September 2025',
+                'month-10': 'October 2025',
                 'month-11': 'November 2025',
+                'month-12': 'December 2025',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -519,7 +529,12 @@ def create_month_selector_page():
                 'admin-link': '⚙️ Đăng nhập Quản trị',
                 'year-suffix': '',
                 'month-suffix': '',
+                'month-7': 'Tháng 7 năm 2025',
+                'month-8': 'Tháng 8 năm 2025',
+                'month-9': 'Tháng 9 năm 2025',
+                'month-10': 'Tháng 10 năm 2025',
                 'month-11': 'Tháng 11 năm 2025',
+                'month-12': 'Tháng 12 năm 2025',
                 'months': ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
                           'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
             }

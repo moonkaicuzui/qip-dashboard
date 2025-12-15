@@ -3903,11 +3903,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'All Buildings', t.total].map(building => {
+                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'All Buildings', 'total'].map(building => {
                                     const stats = aqlFileStats[building];
                                     if (!stats) return '';
 
-                                    const isTotal = building === t.total;
+                                    const isTotal = building === 'total';
+                                    const displayName = isTotal ? t.total : building;
                                     const rejectRate = stats.rejectRate;
                                     let badgeClass = 'bg-success';
                                     let statusText = t.performanceExcellent;
@@ -3925,7 +3926,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                                     return `
                                         <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
-                                            <td style="padding: 8px;">${building}</td>
+                                            <td style="padding: 8px;">${displayName}</td>
                                             <td style="padding: 8px; text-align: center;"><strong>${stats.total}${t.unitTests}</strong></td>
                                             <td style="padding: 8px; text-align: center;">${stats.pass}${t.unitTests}</td>
                                             <td style="padding: 8px; text-align: center;">${stats.fail}${t.unitTests}</td>
@@ -3964,11 +3965,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', t.total].map(building => {
+                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'total'].map(building => {
                                     const stats = inspectorStats[building];
                                     if (!stats) return '';
 
-                                    const isTotal = building === t.total;
+                                    const isTotal = building === 'total';
+                                    const displayName = isTotal ? t.total : building;
                                     const rejectRate = parseFloat(stats.rejectRate);
                                     let badgeClass = 'bg-success';
                                     let statusText = t.performanceExcellent;
@@ -3986,7 +3988,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                                     return `
                                         <tr class="${isTotal ? 'table-primary fw-bold' : ''}">
-                                            <td style="padding: 8px;">${building}</td>
+                                            <td style="padding: 8px;">${displayName}</td>
                                             <td style="padding: 8px; text-align: center;"><strong>${stats.totalInspectors}${t.unitPeople}</strong></td>
                                             <td style="padding: 8px; text-align: center;">${stats.rejectInspectors}${t.unitPeople}</td>
                                             <td style="padding: 8px; text-align: center;">${stats.passOnlyInspectors}${t.unitPeople}</td>
@@ -4055,6 +4057,26 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         </tr>
                                     `;
                                 }).join('')}
+                                ${(() => {
+                                    // 테이블 3 Total 행 계산
+                                    const totalCount = auditorStats.length;
+                                    const paidCount = auditorStats.filter(s => s.incentiveStatus === t.paid || s.incentiveStatus === '지급').length;
+                                    const notPaidCount = totalCount - paidCount;
+                                    return `
+                                        <tr class="table-primary fw-bold">
+                                            <td style="padding: 8px;" colspan="2"><strong>${t.total}</strong></td>
+                                            <td style="padding: 8px;"><strong>${totalCount}${t.unitPeople}</strong></td>
+                                            <td style="padding: 8px; text-align: center;">-</td>
+                                            <td style="padding: 8px; text-align: center;">-</td>
+                                            <td style="padding: 8px; text-align: center;">-</td>
+                                            <td style="padding: 8px; text-align: center;">-</td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span class="badge bg-success" style="font-size: 11px;">🟢${paidCount}</span>
+                                                <span class="badge bg-danger" style="font-size: 11px;">🔴${notPaidCount}</span>
+                                            </td>
+                                        </tr>
+                                    `;
+                                })()}
                             </tbody>
                         </table>
                     </div>
