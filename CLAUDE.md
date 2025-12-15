@@ -1417,6 +1417,32 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - employeeData의 숫자형 필드 (boss_id, emp_no)와 문자열 nodeId 비교 시 항상 변환 필수
      - 새로운 비교 코드 작성 시 `String(value || '')` 패턴 사용
 
+29. **AQL 모달 테이블 Total 행 및 Selector 월/년 표기** (FIXED: 2025-12-15):
+   - **Problem 1**: Building별 AQL 검사 성과 분석 모달의 테이블 1, 2에서 Total 행이 표시되지 않음
+     - 테이블 3에는 Total 행 자체가 없음
+   - **Root Cause 1**: 데이터 접근 키와 번역 문자열 혼동
+     - 배열에서 `t.total` (번역된 "합계" 문자열) 사용 → `aqlFileStats["합계"]` 접근 시도
+     - 실제 데이터 키는 `'total'` (영문 소문자)
+   - **Solution 1**:
+     - Table 1, 2: 배열에서 `'total'` 키 사용, `displayName` 변수로 표시명 분리
+     - Table 3: IIFE 패턴으로 Total 행 추가 (지급 🟢/미지급 🔴 집계)
+   - **Implementation 1**:
+     - `integrated_dashboard_final.py:3906-3911` (Table 1 fix)
+     - `integrated_dashboard_final.py:3968-3973` (Table 2 fix)
+     - `integrated_dashboard_final.py:4060-4079` (Table 3 Total row)
+
+   - **Problem 2**: Selector 페이지에서 December에 2025가 없고, November에만 2025 표기
+   - **Root Cause 2**: 번역 데이터에 month-12 등 개별 월 키가 없음
+   - **Solution 2**: 한국어/영어/베트남어 번역에 month-7 ~ month-12 추가
+     - Korean: '7월', '8월', ... '12월'
+     - English: 'July 2025', 'August 2025', ... 'December 2025'
+     - Vietnamese: 'Tháng 7 năm 2025', ... 'Tháng 12 năm 2025'
+   - **Implementation 2**: `scripts/create_month_selector.py:486-491, 509-514, 532-537`
+   - **Commit**: `44c747b5` (2025-12-15)
+   - **Prevention**:
+     - JavaScript에서 데이터 키와 번역 문자열을 명확히 구분
+     - `displayName` 패턴 사용: 데이터 접근용 키와 사용자 표시용 문자열 분리
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
