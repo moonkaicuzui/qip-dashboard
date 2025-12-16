@@ -8339,9 +8339,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <span id="orgBreadcrumbText" style="color: #666;">total 조직</span>
                         </div>
 
+                        <!-- Building별 QC 요약 카드 (SUPERVISOR, A.MANAGER 요청 - 2025-12-16) -->
+                        <div id="buildingSummaryCards" class="row mb-4">
+                            <!-- JavaScript에서 동적으로 생성 -->
+                        </div>
+
                         <!-- 필터 옵션 -->
                         <div class="row mb-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <select id="orgIncentiveFilter" class="form-select" onchange="updateOrgChart()">
                                     <option value="" id="filterAll">total 보기</option>
                                     <option value="paid" id="filterPaid">incentive 수령자</option>
@@ -8349,21 +8354,30 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </select>
                             </div>
                             <div class="col-md-3">
+                                <select id="orgBuildingFilter" class="form-select" onchange="filterOrgChartByBuilding()">
+                                    <option value="all" id="buildingFilterAll">전체 Building</option>
+                                    <option value="A">Building A</option>
+                                    <option value="B">Building B</option>
+                                    <option value="B3">Building B3</option>
+                                    <option value="C">Building C</option>
+                                    <option value="D">Building D</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
                                 <button class="btn btn-primary w-100" onclick="expandAll()">
-                                    <i class="fas fa-expand"></i> <span id="expandAllBtn">total 펼치기</span>
+                                    <i class="fas fa-expand"></i> <span id="expandAllBtn">전체 펼치기</span>
                                 </button>
                             </div>
                             <div class="col-md-2">
                                 <button class="btn btn-secondary w-100" onclick="collapseAll()">
-                                    <i class="fas fa-compress"></i> <span id="collapseAllBtn">total 접기</span>
+                                    <i class="fas fa-compress"></i> <span id="collapseAllBtn">전체 접기</span>
                                 </button>
                             </div>
                             <div class="col-md-2">
-                                <button class="btn btn-primary" onclick="resetOrgChart()">
+                                <button class="btn btn-primary w-100" onclick="resetOrgChart()">
                                     <i class="fas fa-redo"></i> <span id="resetViewBtn">초기화</span>
                                 </button>
                             </div>
-                            <!-- 저장 버튼 제거 -->
                         </div>
 
                         <!-- 범례 -->
@@ -10194,6 +10208,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             const filterUnpaid = document.getElementById('filterUnpaid');
             if (filterUnpaid) filterUnpaid.textContent = getTranslation('orgChart.filters.unpaidOnly', currentLanguage);
+
+            // Building 필터 옵션 업데이트 (SUPERVISOR, A.MANAGER 요청 - 2025-12-16)
+            const buildingFilterAll = document.getElementById('buildingFilterAll');
+            if (buildingFilterAll) buildingFilterAll.textContent = getTranslation('orgChart.filters.allBuildings', currentLanguage);
 
             // 조직도 범례 업데이트
             const legendReceived = document.getElementById('legendReceived');
@@ -12907,9 +12925,64 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return '#8c564b'; // Others (brown)
         }}
 
+        // Building별 QC 요약 카드 생성 (SUPERVISOR, A.MANAGER 요청 - 2025-12-16)
+        function buildBuildingSummaryCards() {{
+            const container = document.getElementById('buildingSummaryCards');
+            if (!container || !employeeData) return;
+
+            // Building별 통계 계산
+            const buildingStats = {{}};
+            const buildings = ['A', 'B', 'B3', 'C', 'D'];
+
+            buildings.forEach(b => {{
+                buildingStats[b] = {{ total: 0, paid: 0, totalAmount: 0 }};
+            }});
+
+            employeeData.forEach(emp => {{
+                const building = (emp.BUILDING || emp.building || '').toUpperCase();
+                if (buildingStats[building]) {{
+                    buildingStats[building].total++;
+                    const amount = parseInt(emp['{month.lower()}_incentive'] || 0);
+                    if (amount > 0) {{
+                        buildingStats[building].paid++;
+                        buildingStats[building].totalAmount += amount;
+                    }}
+                }}
+            }});
+
+            // 카드 HTML 생성
+            let cardsHTML = '';
+            const colors = {{ 'A': '#ef4444', 'B': '#3b82f6', 'B3': '#8b5cf6', 'C': '#10b981', 'D': '#f59e0b' }};
+
+            buildings.forEach(b => {{
+                const stats = buildingStats[b];
+                if (stats.total > 0) {{
+                    const rate = ((stats.paid / stats.total) * 100).toFixed(1);
+                    cardsHTML += `
+                        <div class="col-md-2 col-sm-4 col-6 mb-2">
+                            <div class="card h-100" style="border-left: 4px solid ${{colors[b]}}; cursor: pointer;"
+                                 onclick="document.getElementById('orgBuildingFilter').value='${{b}}'; filterOrgChartByBuilding();">
+                                <div class="card-body py-2 px-3">
+                                    <h6 class="card-title mb-1" style="color: ${{colors[b]}};">Building ${{b}}</h6>
+                                    <div class="small">
+                                        <div><strong>${{stats.total}}</strong> <span id="bldgCardTotal_${{b}}">${{getTranslation('buildingSummary.employees')}}</span></div>
+                                        <div><strong>${{stats.paid}}</strong> <span id="bldgCardPaid_${{b}}">${{getTranslation('buildingSummary.recipients')}}</span> (${{rate}}%)</div>
+                                        <div style="color: ${{colors[b]}}; font-weight: 600;">₫${{stats.totalAmount.toLocaleString()}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }}
+            }});
+
+            container.innerHTML = cardsHTML;
+        }}
+
         // 새로운 접이식 조직도 그리기 함count
         function drawOrgChart() {{
             console.log('Drawing new collapsible org chart...');
+            buildBuildingSummaryCards();  // Building 요약 카드 업데이트
             drawCollapsibleOrgChart();
         }}
 
@@ -12956,6 +13029,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return null;
             }}
 
+            // Building 필터 값 가져오기 (SUPERVISOR, A.MANAGER 요청 기능 - 2025-12-16)
+            const buildingFilterElement = document.getElementById('orgBuildingFilter');
+            const selectedBuilding = buildingFilterElement ? buildingFilterElement.value : 'all';
+            console.log('Building filter selected:', selectedBuilding);
+
             // Special calculation positions 확인 함count
             function hasSpecialCalculation(position) {{
                 if (!position || !positionMatrix) return false;
@@ -12986,6 +13064,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // TYPE-1 직원 중 LINE LEADER 이상만 포함 (관리자 계층 구조)
             const type1Employees = employeeData.filter(emp => {{
+                // Building 필터 적용 (SUPERVISOR, A.MANAGER 요청 - 2025-12-16)
+                if (selectedBuilding !== 'all') {{
+                    const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase();
+                    if (empBuilding !== selectedBuilding.toUpperCase()) {{
+                        return false;
+                    }}
+                }}
+
                 // TYPE-1이 아닌 경우 제외
                 if (emp.type !== 'TYPE-1') {{
                     return false;
@@ -15674,12 +15760,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             drawOrgChart();
         }}
 
+        // Building 필터 함수 (SUPERVISOR, A.MANAGER 요청 - 2025-12-16)
+        function filterOrgChartByBuilding() {{
+            console.log('Building filter changed, redrawing org chart...');
+            drawOrgChart();
+        }}
+
         function resetOrgChart() {{
             const typeFilterElement = document.getElementById('orgTypeFilter');
             const incentiveFilterElement = document.getElementById('orgIncentiveFilter');
+            const buildingFilterElement = document.getElementById('orgBuildingFilter');
 
             if (typeFilterElement) typeFilterElement.value = '';
             if (incentiveFilterElement) incentiveFilterElement.value = '';
+            if (buildingFilterElement) buildingFilterElement.value = 'all';
             drawOrgChart();
         }}
 

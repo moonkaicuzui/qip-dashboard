@@ -108,6 +108,18 @@
       "vi": "Chi tiết"
     }
   },
+  "buildingSummary": {
+    "employees": {
+      "ko": "명",
+      "en": "employees",
+      "vi": "nhân viên"
+    },
+    "recipients": {
+      "ko": "수령자",
+      "en": "recipients",
+      "vi": "người nhận"
+    }
+  },
   "orgChart": {
     "title": {
       "ko": "TYPE-1 관리자 인센티브 구조",
@@ -221,6 +233,11 @@
         "ko": "인센티브 미수령자",
         "en": "Non-Recipients",
         "vi": "Người không nhận"
+      },
+      "allBuildings": {
+        "ko": "전체 Building",
+        "en": "All Buildings",
+        "vi": "Tất cả tòa nhà"
       }
     },
     "usageGuide": {

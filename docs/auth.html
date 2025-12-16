@@ -15,14 +15,22 @@
             box-sizing: border-box;
         }
 
+        /* iOS Safari viewport height fix */
+        :root {
+            --vh: 1vh;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            min-height: 100dvh; /* iOS 15+ Dynamic viewport */
+            min-height: -webkit-fill-available; /* iOS Safari fallback */
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            padding-bottom: env(safe-area-inset-bottom, 20px); /* iPhone X+ notch */
         }
 
         .auth-container {
@@ -241,6 +249,19 @@
                 gap: 12px;
             }
         }
+
+        /* iOS/Touch device: disable hover states that stick */
+        @media (hover: none) {
+            .btn-login:hover:not(:disabled) {
+                transform: none;
+                box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            }
+        }
+
+        /* Touch device: use active state instead */
+        .btn-login:active:not(:disabled) {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body>
@@ -300,8 +321,65 @@
     </div>
 
     <script>
+        // ============================================
+        // iOS Safari Compatibility Layer (v3.0)
+        // - Private Browsing storage fallback
+        // - crypto.subtle error handling
+        // - Canvas fingerprint fallback
+        // ============================================
+
+        // iOS Viewport Height Fix
+        function setMobileViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        window.addEventListener('resize', setMobileViewportHeight);
+        window.addEventListener('orientationchange', setMobileViewportHeight);
+        setMobileViewportHeight();
+
+        // Storage Availability Test (iOS Private Browsing fails)
+        function isStorageAvailable(type) {
+            try {
+                const storage = window[type];
+                const test = '__storage_test__';
+                storage.setItem(test, test);
+                storage.removeItem(test);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Memory fallback for Private Browsing mode
+        const memorySessionStorage = {};
+        const memoryLocalStorage = {};
+
+        // Storage wrapper with fallback
+        const safeSessionStorage = {
+            getItem: (key) => isStorageAvailable('sessionStorage')
+                ? sessionStorage.getItem(key)
+                : (memorySessionStorage[key] || null),
+            setItem: (key, value) => isStorageAvailable('sessionStorage')
+                ? sessionStorage.setItem(key, value)
+                : (memorySessionStorage[key] = value),
+            removeItem: (key) => isStorageAvailable('sessionStorage')
+                ? sessionStorage.removeItem(key)
+                : delete memorySessionStorage[key]
+        };
+
+        const safeLocalStorage = {
+            getItem: (key) => isStorageAvailable('localStorage')
+                ? localStorage.getItem(key)
+                : (memoryLocalStorage[key] || null),
+            setItem: (key, value) => isStorageAvailable('localStorage')
+                ? localStorage.setItem(key, value)
+                : (memoryLocalStorage[key] = value),
+            removeItem: (key) => isStorageAvailable('localStorage')
+                ? localStorage.removeItem(key)
+                : delete memoryLocalStorage[key]
+        };
+
         // Security Configuration (Enhanced v2.0)
-        // Hash generated with PBKDF2-like iteration for additional security
         const _0x4a7b = ['19e49d5a0a97333a704097653034a76eaddb6cff5aeff18e4efec4c871d4caae'];
         const SECURITY_CONFIG = {
             _h: _0x4a7b[0],
@@ -314,30 +392,78 @@
             NONCE_KEY: 'qip_session_nonce'
         };
 
-        // Generate secure random nonce
+        // Generate secure random nonce (with fallback)
         function generateNonce() {
-            const array = new Uint8Array(32);
-            crypto.getRandomValues(array);
-            return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+            try {
+                const array = new Uint8Array(32);
+                crypto.getRandomValues(array);
+                return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+            } catch (e) {
+                // Fallback for environments without crypto.getRandomValues
+                let nonce = '';
+                for (let i = 0; i < 64; i++) {
+                    nonce += Math.floor(Math.random() * 16).toString(16);
+                }
+                return nonce;
+            }
         }
 
-        // Generate browser fingerprint for session binding
+        // Generate browser fingerprint for session binding (iOS-safe)
         function getBrowserFingerprint() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.textBaseline = 'top';
-            ctx.font = '14px Arial';
-            ctx.fillText('fp', 2, 2);
-            const fp = canvas.toDataURL().slice(-50);
-            return btoa(navigator.userAgent + screen.width + screen.height + fp + navigator.language);
+            // Basic fingerprint (always works)
+            const basicFP = btoa(
+                navigator.userAgent +
+                screen.width + 'x' + screen.height +
+                navigator.language +
+                new Date().getTimezoneOffset()
+            );
+
+            // Canvas fingerprint (may fail on some iOS versions)
+            try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.textBaseline = 'top';
+                    ctx.font = '14px Arial';
+                    ctx.fillText('fp', 2, 2);
+                    return basicFP + canvas.toDataURL().slice(-30);
+                }
+            } catch (e) {
+                console.warn('Canvas fingerprint unavailable');
+            }
+
+            return basicFP;
         }
 
-        // SHA-256 Hash Function with salt
+        // Simple hash fallback (for environments without crypto.subtle)
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            // Convert to hex and pad to 64 chars to match SHA-256 format
+            const hexHash = Math.abs(hash).toString(16);
+            return hexHash.padStart(64, '0');
+        }
+
+        // SHA-256 Hash Function with iOS fallback
         async function sha256(message) {
-            const msgBuffer = new TextEncoder().encode(message);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            try {
+                // Check if crypto.subtle is available (requires HTTPS or localhost)
+                if (window.crypto && window.crypto.subtle) {
+                    const msgBuffer = new TextEncoder().encode(message);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                } else {
+                    throw new Error('crypto.subtle not available');
+                }
+            } catch (e) {
+                console.warn('crypto.subtle unavailable, using fallback hash');
+                return simpleHash(message);
+            }
         }
 
         // Timing-safe comparison to prevent timing attacks
@@ -365,9 +491,9 @@
             return true;
         }
 
-        // Check Existing Session
+        // Check Existing Session (uses safe storage wrapper)
         function checkExistingSession() {
-            const session = sessionStorage.getItem(SECURITY_CONFIG.SESSION_KEY);
+            const session = safeSessionStorage.getItem(SECURITY_CONFIG.SESSION_KEY);
             if (session) {
                 try {
                     const sessionData = JSON.parse(session);
@@ -375,18 +501,18 @@
                         window.location.href = 'selector.html';
                         return true;
                     } else {
-                        sessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
+                        safeSessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
                     }
                 } catch (e) {
-                    sessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
+                    safeSessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
                 }
             }
             return false;
         }
 
-        // Check Lockout Status
+        // Check Lockout Status (uses safe storage wrapper)
         function checkLockout() {
-            const lockoutUntil = localStorage.getItem(SECURITY_CONFIG.LOCKOUT_KEY);
+            const lockoutUntil = safeLocalStorage.getItem(SECURITY_CONFIG.LOCKOUT_KEY);
             if (lockoutUntil) {
                 const now = Date.now();
                 const lockoutTime = parseInt(lockoutUntil);
@@ -398,21 +524,21 @@
                     document.getElementById('password').disabled = true;
                     return true;
                 } else {
-                    localStorage.removeItem(SECURITY_CONFIG.LOCKOUT_KEY);
-                    localStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
+                    safeLocalStorage.removeItem(SECURITY_CONFIG.LOCKOUT_KEY);
+                    safeLocalStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
                 }
             }
             return false;
         }
 
-        // Record Failed Attempt
+        // Record Failed Attempt (uses safe storage wrapper)
         function recordAttempt() {
-            const attempts = parseInt(localStorage.getItem(SECURITY_CONFIG.ATTEMPTS_KEY) || '0') + 1;
-            localStorage.setItem(SECURITY_CONFIG.ATTEMPTS_KEY, attempts.toString());
+            const attempts = parseInt(safeLocalStorage.getItem(SECURITY_CONFIG.ATTEMPTS_KEY) || '0') + 1;
+            safeLocalStorage.setItem(SECURITY_CONFIG.ATTEMPTS_KEY, attempts.toString());
 
             if (attempts >= SECURITY_CONFIG.MAX_ATTEMPTS) {
                 const lockoutUntil = Date.now() + SECURITY_CONFIG.LOCKOUT_TIME;
-                localStorage.setItem(SECURITY_CONFIG.LOCKOUT_KEY, lockoutUntil.toString());
+                safeLocalStorage.setItem(SECURITY_CONFIG.LOCKOUT_KEY, lockoutUntil.toString());
                 checkLockout();
                 return true;
             }
@@ -461,8 +587,8 @@
                     ua: navigator.userAgent.substring(0, 50)
                 };
 
-                sessionStorage.setItem(SECURITY_CONFIG.SESSION_KEY, JSON.stringify(sessionData));
-                localStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
+                safeSessionStorage.setItem(SECURITY_CONFIG.SESSION_KEY, JSON.stringify(sessionData));
+                safeLocalStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
 
                 // Redirect to dashboard
                 window.location.href = 'selector.html';
