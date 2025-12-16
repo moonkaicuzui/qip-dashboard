@@ -412,15 +412,41 @@
     </div>
 
     <script>
-        // Security settings
-        const ADMIN_PASSWORD_HASH = '85a84e034c5b9248758c500f6c1f2b8bb99c9818ce7902ee5bc702c07ecda5a0'; // "hwk"
-        const SESSION_KEY = 'qip_admin_session';
-        const SESSION_TIMEOUT = 60 * 60 * 1000; // 1 hour
+        // Security Configuration (Enhanced v2.0)
+        const _0x5c9a = ['f5e041e92060f4437ca92331f8eab7a89f285567cfee739046a9a8e571300f3b'];
+        const SECURITY_CONFIG = {
+            _h: _0x5c9a[0],
+            SESSION_KEY: 'qip_admin_session_v2',
+            SESSION_KEY_LEGACY: 'qip_admin_session',
+            SESSION_TIMEOUT: 60 * 60 * 1000, // 1 hour
+            MAX_ATTEMPTS: 3,
+            LOCKOUT_TIME: 30 * 60 * 1000, // 30 minutes
+            ATTEMPTS_KEY: 'qip_admin_attempts',
+            LOCKOUT_KEY: 'qip_admin_lockout'
+        };
 
         // GitHub settings
         const GITHUB_OWNER = 'moonkaicuzui';
         const GITHUB_REPO = 'qip-dashboard';
         const WORKFLOW_ID = 'auto-update-enhanced.yml';
+
+        // Generate browser fingerprint
+        function getBrowserFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fp', 2, 2);
+            const fp = canvas.toDataURL().slice(-50);
+            return btoa(navigator.userAgent + screen.width + screen.height + fp + navigator.language);
+        }
+
+        // Generate secure random nonce
+        function generateNonce() {
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+        }
 
         // SHA-256 hash function
         async function sha256(message) {
@@ -431,20 +457,86 @@
             return hashHex;
         }
 
+        // Timing-safe comparison
+        function timingSafeEqual(a, b) {
+            if (a.length !== b.length) return false;
+            let result = 0;
+            for (let i = 0; i < a.length; i++) {
+                result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+            }
+            return result === 0;
+        }
+
+        // Check lockout status
+        function checkLockout() {
+            const lockoutUntil = localStorage.getItem(SECURITY_CONFIG.LOCKOUT_KEY);
+            if (lockoutUntil) {
+                const now = Date.now();
+                const lockoutTime = parseInt(lockoutUntil);
+                if (now < lockoutTime) {
+                    const remainingMinutes = Math.ceil((lockoutTime - now) / 60000);
+                    showError(`🚫 Account locked. Try again in ${remainingMinutes} min`);
+                    document.querySelector('.btn-primary').disabled = true;
+                    document.getElementById('adminPassword').disabled = true;
+                    return true;
+                } else {
+                    localStorage.removeItem(SECURITY_CONFIG.LOCKOUT_KEY);
+                    localStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
+                }
+            }
+            return false;
+        }
+
+        // Record failed attempt
+        function recordAttempt() {
+            const attempts = parseInt(localStorage.getItem(SECURITY_CONFIG.ATTEMPTS_KEY) || '0') + 1;
+            localStorage.setItem(SECURITY_CONFIG.ATTEMPTS_KEY, attempts.toString());
+
+            if (attempts >= SECURITY_CONFIG.MAX_ATTEMPTS) {
+                const lockoutUntil = Date.now() + SECURITY_CONFIG.LOCKOUT_TIME;
+                localStorage.setItem(SECURITY_CONFIG.LOCKOUT_KEY, lockoutUntil.toString());
+                checkLockout();
+                return true;
+            }
+
+            const remainingAttempts = SECURITY_CONFIG.MAX_ATTEMPTS - attempts;
+            showError(`❌ Incorrect password (${remainingAttempts} attempts left)`);
+            return false;
+        }
+
+        // Show error
+        function showError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => { errorDiv.style.display = 'none'; }, 4000);
+        }
+
         // Login handler
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            if (checkLockout()) return;
+
+            const btn = document.querySelector('.btn-primary');
+            btn.disabled = true;
+
+            // Add artificial delay
+            await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 500));
+
             const password = document.getElementById('adminPassword').value;
             const passwordHash = await sha256(password);
 
-            if (passwordHash === ADMIN_PASSWORD_HASH) {
-                // Save session
+            if (timingSafeEqual(passwordHash, SECURITY_CONFIG._h)) {
+                // Save session with fingerprint
                 const sessionData = {
                     authenticated: true,
-                    loginTime: Date.now()
+                    loginTime: Date.now(),
+                    fingerprint: getBrowserFingerprint(),
+                    nonce: generateNonce()
                 };
-                sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+                sessionStorage.setItem(SECURITY_CONFIG.SESSION_KEY, JSON.stringify(sessionData));
+                localStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
 
                 // Show dashboard
                 document.getElementById('loginScreen').style.display = 'none';
@@ -453,46 +545,84 @@
                 initDashboard();
                 addLog('Login successful', 'success');
             } else {
-                const errorDiv = document.getElementById('loginError');
-                errorDiv.textContent = '❌ Incorrect password';
-                errorDiv.style.display = 'block';
+                recordAttempt();
                 document.getElementById('adminPassword').value = '';
-
-                setTimeout(() => {
-                    errorDiv.style.display = 'none';
-                }, 3000);
+                btn.disabled = false;
             }
         });
 
         // Logout
         function logout() {
-            sessionStorage.removeItem(SESSION_KEY);
-            // Redirect to dashboard login page
+            sessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
+            sessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY_LEGACY);
             window.location.href = 'auth.html';
         }
 
         // Check session
         function checkSession() {
-            const session = sessionStorage.getItem(SESSION_KEY);
+            // Check v2 session first
+            let session = sessionStorage.getItem(SECURITY_CONFIG.SESSION_KEY);
+
+            // Legacy session migration
+            if (!session) {
+                session = sessionStorage.getItem(SECURITY_CONFIG.SESSION_KEY_LEGACY);
+                if (session) {
+                    try {
+                        const legacyData = JSON.parse(session);
+                        if (legacyData.authenticated && Date.now() - legacyData.loginTime < SECURITY_CONFIG.SESSION_TIMEOUT) {
+                            legacyData.fingerprint = getBrowserFingerprint();
+                            legacyData.nonce = generateNonce();
+                            sessionStorage.setItem(SECURITY_CONFIG.SESSION_KEY, JSON.stringify(legacyData));
+                            sessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY_LEGACY);
+                            session = JSON.stringify(legacyData);
+                        }
+                    } catch (e) {}
+                }
+            }
+
             if (session) {
                 try {
                     const sessionData = JSON.parse(session);
                     const now = Date.now();
 
-                    if (now - sessionData.loginTime < SESSION_TIMEOUT) {
+                    if (!sessionData.authenticated || !sessionData.loginTime) {
+                        throw new Error('Invalid session');
+                    }
+
+                    if (now - sessionData.loginTime < SECURITY_CONFIG.SESSION_TIMEOUT) {
+                        // Verify fingerprint
+                        if (sessionData.fingerprint && sessionData.fingerprint !== getBrowserFingerprint()) {
+                            throw new Error('Fingerprint mismatch');
+                        }
+
                         document.getElementById('loginScreen').style.display = 'none';
                         document.getElementById('adminDashboard').style.display = 'block';
                         initDashboard();
                         return true;
                     } else {
-                        sessionStorage.removeItem(SESSION_KEY);
+                        sessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
                     }
                 } catch (e) {
-                    sessionStorage.removeItem(SESSION_KEY);
+                    sessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
                 }
             }
             return false;
         }
+
+        // Block keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && ['s', 'p', 'u'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+            if (e.key === 'F12') {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
 
         // Initialize dashboard
         function initDashboard() {
@@ -616,8 +746,9 @@
             logContainer.scrollTop = logContainer.scrollHeight;
         }
 
-        // Check session on page load
+        // Check session and lockout on page load
         checkSession();
+        checkLockout();
     </script>
 </body>
 </html>

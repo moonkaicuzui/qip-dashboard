@@ -1,10 +1,11 @@
 # QIP Incentive Dashboard - Private Access Only
 # 검색엔진 크롤링 완전 차단
+# Security Enhanced: 2025-12-16
 
 User-agent: *
 Disallow: /
 
-# 특정 크롤러도 명시적 차단
+# 주요 검색엔진 명시적 차단
 User-agent: Googlebot
 Disallow: /
 
@@ -23,4 +24,43 @@ Disallow: /
 User-agent: YandexBot
 Disallow: /
 
-# Sitemap 제공 안 함
+# 소셜 미디어 크롤러 차단
+User-agent: facebookexternalhit
+Disallow: /
+
+User-agent: Twitterbot
+Disallow: /
+
+User-agent: LinkedInBot
+Disallow: /
+
+# AI 크롤러 차단
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+# 보안 크롤러/스캐너 차단
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+# Sitemap 제공 안 함 (보안상 의도적 생략)
