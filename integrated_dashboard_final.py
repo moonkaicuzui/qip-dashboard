@@ -6340,6 +6340,307 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             overflow-y: auto !important;
         }}
 
+        /* ================================================== */
+        /* Mobile Mode Styles (User-Selected View)            */
+        /* Activated by body.mobile-mode class                */
+        /* ================================================== */
+
+        /* Tab Navigation: Vertical stacked */
+        body.mobile-mode .tabs {{
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+        }}
+
+        body.mobile-mode .tab {{
+            width: 100% !important;
+            text-align: center !important;
+            padding: 16px !important;
+            font-size: 1.1rem !important;
+            border-radius: 12px !important;
+            justify-content: center !important;
+        }}
+
+        /* Summary Cards: Single column */
+        body.mobile-mode .row.mb-4 > [class*="col-md-3"] {{
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            margin-bottom: 15px !important;
+        }}
+
+        body.mobile-mode .summary-card {{
+            padding: 20px !important;
+        }}
+
+        /* Filter Controls: Stack vertically */
+        body.mobile-mode .filter-container .row {{
+            flex-direction: column !important;
+        }}
+
+        body.mobile-mode .filter-container [class*="col-md-"] {{
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            margin-bottom: 10px !important;
+        }}
+
+        /* Tables: Hide table, show card view */
+        body.mobile-mode .table-wrapper,
+        body.mobile-mode .table-responsive {{
+            display: none !important;
+        }}
+
+        body.mobile-mode .card-view-wrapper {{
+            display: block !important;
+        }}
+
+        /* Default: Show table, hide card view */
+        .card-view-wrapper {{
+            display: none;
+        }}
+
+        /* Employee Card Styles */
+        .employee-card {{
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #28a745;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }}
+
+        .employee-card:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }}
+
+        .employee-card:active {{
+            transform: scale(0.98);
+        }}
+
+        .employee-card.unpaid {{
+            border-left-color: #dc3545;
+        }}
+
+        .employee-card .emp-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }}
+
+        .employee-card .emp-name {{
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #212529;
+            flex: 1;
+        }}
+
+        .employee-card .emp-info-row {{
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.95rem;
+        }}
+
+        .employee-card .emp-info-row:last-child {{
+            border-bottom: none;
+        }}
+
+        .employee-card .emp-label {{
+            color: #6c757d;
+        }}
+
+        .employee-card .emp-value {{
+            font-weight: 600;
+            color: #212529;
+        }}
+
+        .employee-card .incentive-amount {{
+            font-size: 1.15rem;
+            font-weight: 700;
+        }}
+
+        .employee-card .incentive-amount.paid {{
+            color: #28a745;
+        }}
+
+        .employee-card .incentive-amount.unpaid {{
+            color: #dc3545;
+        }}
+
+        /* Chart containers: Reduced height in mobile mode */
+        body.mobile-mode .chart-container {{
+            height: 220px !important;
+        }}
+
+        /* Organization Chart Mobile: Card-based list */
+        body.mobile-mode #orgChartSvg {{
+            display: none !important;
+        }}
+
+        body.mobile-mode .mobile-org-list {{
+            display: flex !important;
+            flex-direction: column;
+            gap: 12px;
+        }}
+
+        .mobile-org-list {{
+            display: none;
+        }}
+
+        .org-manager-card {{
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #6c757d;
+        }}
+
+        .org-manager-card.paid {{
+            border-left-color: #28a745;
+        }}
+
+        .org-manager-card.unpaid {{
+            border-left-color: #dc3545;
+        }}
+
+        .org-card-header {{
+            padding: 16px;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+
+        .org-card-header:active {{
+            background: #e9ecef;
+        }}
+
+        .org-card-info {{
+            flex: 1;
+        }}
+
+        .org-card-name {{
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #212529;
+        }}
+
+        .org-card-position {{
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 4px;
+        }}
+
+        .org-card-incentive {{
+            font-weight: 700;
+            font-size: 1rem;
+            text-align: right;
+        }}
+
+        .org-card-incentive.paid {{
+            color: #28a745;
+        }}
+
+        .org-card-incentive.unpaid {{
+            color: #dc3545;
+        }}
+
+        .org-card-toggle {{
+            font-size: 1.2rem;
+            color: #6c757d;
+            transition: transform 0.3s ease;
+        }}
+
+        .org-manager-card.expanded .org-card-toggle {{
+            transform: rotate(180deg);
+        }}
+
+        .org-subordinates {{
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            background: white;
+        }}
+
+        .org-manager-card.expanded .org-subordinates {{
+            max-height: 2000px;
+            padding: 12px;
+        }}
+
+        .org-subordinate-item {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }}
+
+        .org-subordinate-item:last-child {{
+            border-bottom: none;
+        }}
+
+        .org-subordinate-item:active {{
+            background: #f8f9fa;
+        }}
+
+        .org-subordinate-name {{
+            flex: 1;
+            font-weight: 500;
+        }}
+
+        .org-subordinate-amount {{
+            font-weight: 600;
+        }}
+
+        .org-subordinate-amount.paid {{
+            color: #28a745;
+        }}
+
+        .org-subordinate-amount.unpaid {{
+            color: #dc3545;
+        }}
+
+        /* View Mode Toggle Button in Dashboard Header */
+        .view-mode-toggle {{
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px;
+            border-radius: 20px;
+            margin-left: 10px;
+        }}
+
+        .view-mode-btn {{
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }}
+
+        .view-mode-btn:hover {{
+            opacity: 1;
+        }}
+
+        .view-mode-btn.active {{
+            background: white;
+            color: #ef4444;
+            opacity: 1;
+        }}
+
         /* 모바일 반응형 최적화 */
         @media (max-width: 768px) {{
             /* 컨테이너 여백 조정 */
@@ -6771,6 +7072,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="management">📊 Management Dashboard</option>
                     <option value="statistics">📈 Statistics Dashboard</option>
                 </select>
+                <button id="viewModeToggle" onclick="toggleViewMode()" class="btn btn-sm view-mode-toggle" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
+                    <span id="viewModeToggleText">📱 모바일 뷰</span>
+                </button>
                 <button id="downloadHtmlBtn" onclick="downloadDashboard()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="downloadHtmlBtnText">📦 Offline 버전</span>
                 </button>
@@ -6985,8 +7289,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </tbody>
                     </table>
                 </div>
+
+                <!-- 모바일 카드 뷰 컨테이너 (모바일 모드에서만 표시) -->
+                <div id="employeeCardView" class="card-view-wrapper">
+                    <!-- JavaScript에서 동적으로 생성됨 -->
+                </div>
             </div>
-            
+
             <!-- incentive 기준 탭 -->
             <div id="criteria" class="tab-content">
                 <h1 class="section-title" style="text-align: center; font-size: 28px; margin-bottom: 30px;" id="criteriaMainTitle">
@@ -8468,6 +8777,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div id="orgTreeContent">
                                 <!-- JavaScript로 동적 creation됨 -->
                             </div>
+                        </div>
+
+                        <!-- 모바일 조직도 리스트 컨테이너 (모바일 모드에서만 표시) -->
+                        <div id="mobileOrgList" class="mobile-org-wrapper">
+                            <!-- JavaScript에서 동적으로 생성됨 -->
                         </div>
 
 
@@ -12680,10 +12994,237 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
 
+        // ============================================
+        // View Mode Selector (Mobile vs PC/Tablet)
+        // ============================================
+        function initViewMode() {{
+            // Read preference from localStorage
+            let viewMode = 'desktop';
+            try {{
+                viewMode = localStorage.getItem('viewMode') || 'desktop';
+            }} catch (e) {{
+                console.warn('localStorage unavailable, using default view mode');
+            }}
+
+            if (viewMode === 'mobile') {{
+                document.body.classList.add('mobile-mode');
+            }} else {{
+                document.body.classList.remove('mobile-mode');
+            }}
+
+            window.currentViewMode = viewMode;
+            console.log('[ViewMode] Dashboard initialized with:', viewMode);
+
+            // Update view mode toggle buttons if they exist
+            updateViewModeButtons(viewMode);
+        }}
+
+        function switchViewMode(mode) {{
+            try {{
+                localStorage.setItem('viewMode', mode);
+            }} catch (e) {{
+                console.warn('localStorage unavailable');
+            }}
+
+            if (mode === 'mobile') {{
+                document.body.classList.add('mobile-mode');
+            }} else {{
+                document.body.classList.remove('mobile-mode');
+            }}
+
+            window.currentViewMode = mode;
+            updateViewModeButtons(mode);
+
+            // Regenerate card views when switching to mobile mode
+            if (mode === 'mobile') {{
+                generateEmployeeCardView();
+                generateMobileOrgChart();
+            }}
+
+            console.log('[ViewMode] Switched to:', mode);
+        }}
+
+        function updateViewModeButtons(mode) {{
+            document.querySelectorAll('.view-mode-btn').forEach(btn => {{
+                btn.classList.remove('active');
+            }});
+            const activeBtn = document.querySelector(`.view-mode-btn[data-mode="${{mode}}"]`);
+            if (activeBtn) {{
+                activeBtn.classList.add('active');
+            }}
+
+            // Update header toggle button text
+            const toggleText = document.getElementById('viewModeToggleText');
+            if (toggleText) {{
+                const lang = window.currentLanguage || 'ko';
+                const toggleTexts = {{
+                    ko: {{ mobile: '📱 모바일 뷰', desktop: '💻 데스크톱 뷰' }},
+                    en: {{ mobile: '📱 Mobile View', desktop: '💻 Desktop View' }},
+                    vi: {{ mobile: '📱 Xem di động', desktop: '💻 Xem máy tính' }}
+                }};
+                // Show the opposite mode as button text (what you can switch TO)
+                const oppositeMode = mode === 'mobile' ? 'desktop' : 'mobile';
+                toggleText.textContent = toggleTexts[lang]?.[oppositeMode] || toggleTexts.ko[oppositeMode];
+            }}
+        }}
+
+        // Toggle between mobile and desktop view modes
+        function toggleViewMode() {{
+            const currentMode = window.currentViewMode || 'desktop';
+            const newMode = currentMode === 'mobile' ? 'desktop' : 'mobile';
+            switchViewMode(newMode);
+
+            // Haptic feedback for mobile devices
+            if ('vibrate' in navigator) {{
+                navigator.vibrate(30);
+            }}
+        }}
+
+        // Generate employee card view for mobile mode
+        function generateEmployeeCardView() {{
+            const cardContainer = document.getElementById('employeeCardView');
+            if (!cardContainer || !window.employeeData) {{
+                console.log('Card container or employee data not available');
+                return;
+            }}
+
+            const currentLang = window.currentLanguage || 'ko';
+            const translations = {{
+                ko: {{ empNo: '사번', position: '직급', incentive: '인센티브', status: '상태', paid: '수령', unpaid: '미수령' }},
+                en: {{ empNo: 'Emp No', position: 'Position', incentive: 'Incentive', status: 'Status', paid: 'Paid', unpaid: 'Unpaid' }},
+                vi: {{ empNo: 'Mã NV', position: 'Chức vụ', incentive: 'Thưởng', status: 'Trạng thái', paid: 'Đã nhận', unpaid: 'Chưa nhận' }}
+            }};
+            const t = translations[currentLang] || translations.ko;
+
+            let cardHTML = '';
+            const month = '{month}'.toLowerCase();
+            const incentiveCol = month + '_incentive';
+
+            window.employeeData.forEach(emp => {{
+                const empNo = emp.emp_no || emp['Employee No'] || '';
+                const empName = emp.name || emp['Full Name'] || '';
+                const empPosition = emp.position || emp['QIP POSITION 1ST NAME'] || '';
+                const empType = emp.type || emp['ROLE TYPE STD'] || 'TYPE-2';
+                const amount = parseInt(emp[incentiveCol] || emp['November_Incentive'] || 0);
+                const isPaid = amount > 0;
+                const talentPool = emp.Talent_Pool_Member === 'Y' || emp.Talent_Pool_Member === 'YES';
+
+                cardHTML += `
+                    <div class="employee-card ${{isPaid ? '' : 'unpaid'}}" onclick="showEmployeeDetail('${{empNo}}')">
+                        <div class="emp-header">
+                            <span class="emp-name">
+                                ${{empName}}
+                                ${{talentPool ? '<span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem;">TALENT</span>' : ''}}
+                            </span>
+                            <span class="type-badge type-${{empType.toLowerCase().replace('type-', '')}}">${{empType}}</span>
+                        </div>
+                        <div class="emp-info-row">
+                            <span class="emp-label">${{t.empNo}}</span>
+                            <span class="emp-value">${{empNo}}</span>
+                        </div>
+                        <div class="emp-info-row">
+                            <span class="emp-label">${{t.position}}</span>
+                            <span class="emp-value">${{empPosition}}</span>
+                        </div>
+                        <div class="emp-info-row">
+                            <span class="emp-label">${{t.incentive}}</span>
+                            <span class="emp-value incentive-amount ${{isPaid ? 'paid' : 'unpaid'}}">${{amount.toLocaleString()}} VND</span>
+                        </div>
+                        <div class="emp-info-row">
+                            <span class="emp-label">${{t.status}}</span>
+                            <span class="emp-value">${{isPaid ? '✅ ' + t.paid : '❌ ' + t.unpaid}}</span>
+                        </div>
+                    </div>
+                `;
+            }});
+
+            cardContainer.innerHTML = cardHTML;
+            console.log('[CardView] Generated', window.employeeData.length, 'employee cards');
+        }}
+
+        // Generate mobile-friendly organization chart
+        function generateMobileOrgChart() {{
+            const container = document.getElementById('mobileOrgList');
+            if (!container || !window.employeeData) {{
+                console.log('Mobile org container or employee data not available');
+                return;
+            }}
+
+            const month = '{month}'.toLowerCase();
+            const incentiveCol = month + '_incentive';
+
+            // Get managers (LINE LEADER and above)
+            const managers = window.employeeData.filter(emp => {{
+                const position = (emp.position || emp['QIP POSITION 1ST NAME'] || '').toUpperCase();
+                return position.includes('LINE LEADER') ||
+                       position.includes('GROUP LEADER') ||
+                       position.includes('SUPERVISOR') ||
+                       position.includes('MANAGER');
+            }});
+
+            let html = '';
+            managers.forEach(manager => {{
+                const mgrNo = manager.emp_no || manager['Employee No'] || '';
+                const mgrName = manager.name || manager['Full Name'] || '';
+                const mgrPosition = manager.position || manager['QIP POSITION 1ST NAME'] || '';
+                const mgrAmount = parseInt(manager[incentiveCol] || manager['November_Incentive'] || 0);
+                const isPaid = mgrAmount > 0;
+
+                // Find subordinates
+                const subordinates = window.employeeData.filter(emp => {{
+                    const bossId = String(emp.boss_id || emp['BOSS ID'] || '');
+                    return bossId === String(mgrNo);
+                }});
+
+                html += `
+                    <div class="org-manager-card ${{isPaid ? 'paid' : 'unpaid'}}" data-manager-id="${{mgrNo}}">
+                        <div class="org-card-header" onclick="toggleOrgCard(this.parentElement)">
+                            <div class="org-card-info">
+                                <div class="org-card-name">${{mgrName}}</div>
+                                <div class="org-card-position">${{mgrPosition}}</div>
+                            </div>
+                            <div class="org-card-incentive ${{isPaid ? 'paid' : 'unpaid'}}">${{mgrAmount.toLocaleString()}} VND</div>
+                            <span class="org-card-toggle">▼</span>
+                        </div>
+                        <div class="org-subordinates">
+                `;
+
+                subordinates.forEach(sub => {{
+                    const subNo = sub.emp_no || sub['Employee No'] || '';
+                    const subName = sub.name || sub['Full Name'] || '';
+                    const subAmount = parseInt(sub[incentiveCol] || sub['November_Incentive'] || 0);
+                    const subPaid = subAmount > 0;
+
+                    html += `
+                            <div class="org-subordinate-item" onclick="showEmployeeDetail('${{subNo}}')">
+                                <span class="org-subordinate-name">${{subName}}</span>
+                                <span class="org-subordinate-amount ${{subPaid ? 'paid' : 'unpaid'}}">${{subAmount.toLocaleString()}} VND</span>
+                            </div>
+                    `;
+                }});
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            }});
+
+            container.innerHTML = html;
+            console.log('[MobileOrg] Generated', managers.length, 'manager cards');
+        }}
+
+        // Toggle organization card expand/collapse
+        function toggleOrgCard(card) {{
+            card.classList.toggle('expanded');
+        }}
+
         // 페이지 load 시 초기화
         document.addEventListener('DOMContentLoaded', function() {{
             console.log('=== DOMContentLoaded Event Fired ===');
             console.log('Total 직원 in data:', employeeData ? employeeData.length : 'No data');
+
+            // View mode initialization (must be early)
+            initViewMode();
 
             // Bootstrap 툴팁 초기화
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

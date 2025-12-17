@@ -46,6 +46,33 @@
       "vi": "Tóm tắt & Xác thực hệ thống"
     }
   },
+  "viewMode": {
+    "title": {
+      "ko": "화면 모드",
+      "en": "View Mode",
+      "vi": "Chế độ xem"
+    },
+    "desktop": {
+      "ko": "PC/태블릿",
+      "en": "PC/Tablet",
+      "vi": "PC/Máy tính bảng"
+    },
+    "mobile": {
+      "ko": "모바일",
+      "en": "Mobile",
+      "vi": "Di động"
+    },
+    "switchToMobile": {
+      "ko": "📱 모바일 뷰",
+      "en": "📱 Mobile View",
+      "vi": "📱 Xem di động"
+    },
+    "switchToDesktop": {
+      "ko": "💻 데스크톱 뷰",
+      "en": "💻 Desktop View",
+      "vi": "💻 Xem máy tính"
+    }
+  },
   "table": {
     "position": {
       "ko": "직급",
