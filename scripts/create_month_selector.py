@@ -132,6 +132,59 @@ def create_month_selector_page():
             opacity: 1;
         }
 
+        /* 디바이스/뷰 모드 셀렉터 */
+        .device-selector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin: 25px auto;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            max-width: 350px;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .selector-label {
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .device-buttons {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            border-radius: 25px;
+        }
+
+        .device-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+        }
+
+        .device-btn:hover {
+            opacity: 1;
+        }
+
+        .device-btn.active {
+            background: white;
+            color: #ef4444;
+            opacity: 1;
+        }
+
         .container {
             max-width: 1200px;
             padding: 20px;
@@ -353,6 +406,19 @@ def create_month_selector_page():
             </button>
         </div>
 
+        <!-- 디바이스/뷰 모드 셀렉터 -->
+        <div class="device-selector">
+            <span class="selector-label" data-i18n="viewMode-title">화면 모드</span>
+            <div class="device-buttons">
+                <button class="device-btn active" data-device="desktop" onclick="switchViewMode('desktop')">
+                    💻 <span data-i18n="viewMode-desktop">PC/태블릿</span>
+                </button>
+                <button class="device-btn" data-device="mobile" onclick="switchViewMode('mobile')">
+                    📱 <span data-i18n="viewMode-mobile">모바일</span>
+                </button>
+            </div>
+        </div>
+
         <!-- 월 선택 그리드 -->
         <div class="month-grid">
 """
@@ -481,6 +547,9 @@ def create_month_selector_page():
                 'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
                 'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다',
                 'admin-link': '⚙️ 관리자 로그인',
+                'viewMode-title': '화면 모드',
+                'viewMode-desktop': 'PC/태블릿',
+                'viewMode-mobile': '모바일',
                 'year-suffix': '년',
                 'month-suffix': '월',
                 'month-7': '7월',
@@ -504,6 +573,9 @@ def create_month_selector_page():
                 'footer-mobile': '💡 Works perfectly on mobile devices',
                 'footer-security': '🔒 All data is securely protected',
                 'admin-link': '⚙️ Admin Login',
+                'viewMode-title': 'View Mode',
+                'viewMode-desktop': 'PC/Tablet',
+                'viewMode-mobile': 'Mobile',
                 'year-suffix': '',
                 'month-suffix': '',
                 'month-7': 'July 2025',
@@ -527,6 +599,9 @@ def create_month_selector_page():
                 'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
                 'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn',
                 'admin-link': '⚙️ Đăng nhập Quản trị',
+                'viewMode-title': 'Chế độ xem',
+                'viewMode-desktop': 'PC/Máy tính bảng',
+                'viewMode-mobile': 'Di động',
                 'year-suffix': '',
                 'month-suffix': '',
                 'month-7': 'Tháng 7 năm 2025',
@@ -596,10 +671,40 @@ def create_month_selector_page():
             }
         }
 
-        // 페이지 로드 시 저장된 언어 적용
+        // 뷰 모드 전환 함수
+        function switchViewMode(mode) {
+            try {
+                localStorage.setItem('viewMode', mode);
+            } catch (e) {
+                console.warn('localStorage unavailable');
+            }
+
+            // 버튼 상태 업데이트
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.querySelector(`.device-btn[data-device="${mode}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+
+            // 진동 피드백
+            if ('vibrate' in navigator) {
+                navigator.vibrate(30);
+            }
+
+            console.log('[ViewMode] Set to:', mode);
+        }
+
+        // 페이지 로드 시 저장된 언어 및 뷰 모드 적용
         document.addEventListener('DOMContentLoaded', function() {
+            // 언어 설정 로드
             const savedLang = localStorage.getItem('preferredLanguage') || 'ko';
             switchLanguage(savedLang);
+
+            // 뷰 모드 설정 로드
+            const savedViewMode = localStorage.getItem('viewMode') || 'desktop';
+            switchViewMode(savedViewMode);
         });
 
         // 카드 클릭 애니메이션
