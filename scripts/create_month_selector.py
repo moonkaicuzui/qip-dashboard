@@ -400,7 +400,7 @@ def create_month_selector_page():
     <script>
         // ==================== 보안: 세션 검증 ====================
         (function() {
-            const SESSION_KEY = 'qip_auth_session';
+            const SESSION_KEY = 'qip_auth_session_v2';
             const SESSION_TIMEOUT = 30 * 60 * 1000; // 30분
 
             function validateSession() {
