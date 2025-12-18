@@ -9049,7 +9049,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     <script>
         // ==================== 보안: 세션 검증 ====================
         (function() {{
-            const SESSION_KEY = 'qip_auth_session';
+            const SESSION_KEY = 'qip_auth_session_v2';
             const SESSION_TIMEOUT = 30 * 60 * 1000; // 30분
 
             function validateSession() {{
