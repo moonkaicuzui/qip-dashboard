@@ -1526,14 +1526,21 @@
             font-weight: 700;
             color: #212529;
             flex: 1;
+            min-width: 0;  /* 텍스트 겹침 방지 - flex item overflow 허용 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 8px;  /* badge와 간격 */
         }
 
         .employee-card .emp-info-row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 8px 0;
             border-bottom: 1px solid #f0f0f0;
             font-size: 0.95rem;
+            gap: 8px;  /* 라벨과 값 사이 최소 간격 */
         }
 
         .employee-card .emp-info-row:last-child {
@@ -1542,11 +1549,18 @@
 
         .employee-card .emp-label {
             color: #6c757d;
+            flex-shrink: 0;  /* 라벨은 줄어들지 않음 */
+            margin-right: 12px;
         }
 
         .employee-card .emp-value {
             font-weight: 600;
             color: #212529;
+            min-width: 0;  /* 텍스트 겹침 방지 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: right;
         }
 
         .employee-card .incentive-amount {
@@ -2175,7 +2189,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="july" data-month-name="7월">2025년 7월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="19" data-hour="05" data-minute="06">보고서 생성일: 2025년 12월 19일 05:06</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="19" data-hour="05" data-minute="20">보고서 생성일: 2025년 12월 19일 05:20</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
