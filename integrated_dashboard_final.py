@@ -6437,14 +6437,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             font-weight: 700;
             color: #212529;
             flex: 1;
+            min-width: 0;  /* 텍스트 겹침 방지 - flex item overflow 허용 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 8px;  /* badge와 간격 */
         }}
 
         .employee-card .emp-info-row {{
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: 8px 0;
             border-bottom: 1px solid #f0f0f0;
             font-size: 0.95rem;
+            gap: 8px;  /* 라벨과 값 사이 최소 간격 */
         }}
 
         .employee-card .emp-info-row:last-child {{
@@ -6453,11 +6460,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         .employee-card .emp-label {{
             color: #6c757d;
+            flex-shrink: 0;  /* 라벨은 줄어들지 않음 */
+            margin-right: 12px;
         }}
 
         .employee-card .emp-value {{
             font-weight: 600;
             color: #212529;
+            min-width: 0;  /* 텍스트 겹침 방지 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: right;
         }}
 
         .employee-card .incentive-amount {{
