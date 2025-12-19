@@ -106,14 +106,16 @@
         
         .tab-content {
             display: none;
+            visibility: hidden;  /* 접근성 트리에서 숨김 - Bug 2 fix */
             background: white;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.07);
         }
-        
+
         .tab-content.active {
             display: block;
+            visibility: visible;  /* 활성 탭은 접근성 트리에 표시 */
         }
         
         .table {
@@ -2173,7 +2175,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="october" data-month-name="10월">2025년 10월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="19" data-hour="04" data-minute="15">보고서 생성일: 2025년 12월 19일 04:15</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="19" data-hour="04" data-minute="29">보고서 생성일: 2025년 12월 19일 04:29</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -3542,12 +3544,12 @@
                             .faq-question:hover {
                                 background-color: #e9ecef;
                             }
-                            .faq-question::before {
-                                content: "▶ ";
+                            .faq-icon {
                                 display: inline-block;
+                                margin-right: 5px;
                                 transition: transform 0.3s;
                             }
-                            .faq-question.active::before {
+                            .faq-question.active .faq-icon {
                                 transform: rotate(90deg);
                             }
                             .faq-answer {
@@ -3564,7 +3566,7 @@
                         <div class="faq-container">
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion1">
-                                    Q1. 왜 나는 incentive를 못 받았나요? 조건을 확인하는 방법은?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q1. 왜 나는 incentive를 못 받았나요? 조건을 확인하는 방법은?
                                 </div>
                                 <div class="faq-answer">
                                     <strong id="faqAnswer1Main">incentive를 받지 못한 주요 이유:</strong>
@@ -3581,7 +3583,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion2">
-                                    Q2. 무단결근이 며칠까지 허용되나요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q2. 무단결근이 며칠까지 허용되나요?
                                 </div>
                                 <div class="faq-answer">
                                     <strong id="faqAnswer2Main">무단결근은 최대 2일까지 허용됩니다.</strong> <span id="faqAnswer2Detail">3일 이상 무단결근시 corresponding month incentive를 받을 count not found. 사전 승인된 휴가나 병가는 무단결근에 포함되지 not.</span>
@@ -3590,7 +3592,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion3">
-                                    Q3. TYPE-2 직급의 incentive는 어떻게 calculation되나요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q3. TYPE-2 직급의 incentive는 어떻게 calculation되나요?
                                 </div>
                                 <div class="faq-answer">
                                     <span id="faqAnswer3Main">TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
@@ -3604,7 +3606,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion4">
-                                    Q4. ASSEMBLY INSPECTOR의 연속 work 개월은 어떻게 calculation되나요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q4. ASSEMBLY INSPECTOR의 연속 work 개월은 어떻게 calculation되나요?
                                 </div>
                                 <div class="faq-answer">
                                     <span id="faqAnswer4Main">TYPE-1 ASSEMBLY INSPECTOR만 corresponding되며, 조건을 충족하며 incentive를 받은 개월count가 누적됩니다.</span>
@@ -3617,7 +3619,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion5">
-                                    Q5. AQL failed가 무엇이고 어떤 영향을 미치나요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q5. AQL failed가 무엇이고 어떤 영향을 미치나요?
                                 </div>
                                 <div class="faq-answer">
                                     <span id="faqAnswer5Main">AQL(Acceptable Quality Limit)은 품질 검사 기준입니다.</span>
@@ -3631,7 +3633,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion6">
-                                    Q6. 5PRS 검사량이 부족하면 어떻게 되나요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q6. 5PRS 검사량이 부족하면 어떻게 되나요?
                                 </div>
                                 <div class="faq-answer">
                                     <span id="faqAnswer6Main">5PRS 관련 직급은 다음 조건을 충족해야 합니다:</span>
@@ -3645,7 +3647,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion7">
-                                    Q7. 출산휴가나 병가 중에도 incentive를 받을 count 있나요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q7. 출산휴가나 병가 중에도 incentive를 받을 count 있나요?
                                 </div>
                                 <div class="faq-answer">
                                     <strong id="faqAnswer7Main">출산휴가나 장기 병가 중에는 incentive가 지급되지 not.</strong>
@@ -3659,7 +3661,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion8">
-                                    Q8. 전month incentive와 차이가 나는 이유는 무엇인가요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q8. 전month incentive와 차이가 나는 이유는 무엇인가요?
                                 </div>
                                 <div class="faq-answer">
                                     <span id="faqAnswer8Main">incentive 금액이 변동하는 주요 이유:</span>
@@ -3674,7 +3676,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion9">
-                                    Q9. TYPE-3에서 TYPE-2로 승진하면 incentive가 어떻게 변하나요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q9. TYPE-3에서 TYPE-2로 승진하면 incentive가 어떻게 변하나요?
                                 </div>
                                 <div class="faq-answer">
                                     <ul>
@@ -3688,7 +3690,7 @@
                             
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion10">
-                                    Q10. 조건을 모두 충족했는데도 incentive가 0인 이유는 무엇인가요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q10. 조건을 모두 충족했는데도 incentive가 0인 이유는 무엇인가요?
                                 </div>
                                 <div class="faq-answer">
                                     <span id="faqAnswer10Main">다음 사항을 재확인해 보세요:</span>
@@ -3704,7 +3706,7 @@
 
                             <div class="faq-item">
                                 <div class="faq-question" onclick="toggleFAQ(this)" id="faqQuestion11">
-                                    Q11. TYPE-2 GROUP LEADER가 incentive를 못 받는 경우가 있나요?
+                                    <span aria-hidden="true" class="faq-icon">▶</span> Q11. TYPE-2 GROUP LEADER가 incentive를 못 받는 경우가 있나요?
                                 </div>
                                 <div class="faq-answer">
                                     <!-- 2025-12-05 수정: TYPE-2 GROUP LEADER는 TYPE-2 LINE LEADER 평균 우선 사용 -->
@@ -19012,7 +19014,7 @@
                 // 자식이 있으면 접기/펼치기 버튼과 자식 count 표시
                 if (hasChildren) {
                     html += `<span class="child-count">${node.children.length}</span>`;
-                    html += `<span class="toggle-btn"></span>`;
+                    html += `<span class="toggle-btn" aria-hidden="true"></span>`;
                 }
 
                 html += '</div>';
@@ -22043,6 +22045,12 @@
             const tbody = document.getElementById('employeeTableBody');
             tbody.innerHTML = '';
 
+            // 🔧 모바일 카드 뷰 컨테이너도 동시에 업데이트
+            const cardContainer = document.getElementById('employeeCardView');
+            if (cardContainer) {
+                cardContainer.innerHTML = '';
+            }
+
             employeeData.forEach(emp => {
                 // CRITICAL FIX: 필드직원 통th - Employee No와 emp_no 모두 지원
                 const empNo = emp.emp_no || emp['Employee No'] || emp['emp_no'];
@@ -22091,9 +22099,49 @@
                     <td><button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); showEmployeeDetail('${empNo}')">${getTranslation('individual.table.detailButton')}</button></td>
                 `;
                 tbody.appendChild(tr);
+
+                // 🔧 모바일 카드 뷰 생성 (2025-12-19 추가)
+                if (cardContainer) {
+                    const prevMonthAmount = parseInt(emp['september_incentive'] || emp.previous_incentive || emp.august_incentive || 0);
+                    const statusText = isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid');
+                    const prevMonthLabel = getTranslation('individual.table.columns.prevMonth', currentLanguage) || '지난달';
+                    const currentMonthLabel = getTranslation('individual.table.columns.currentMonth', currentLanguage) || '이번달';
+                    const positionLabel = getTranslation('individual.table.columns.position', currentLanguage) || '직급';
+                    const empIdLabel = getTranslation('individual.table.columns.id', currentLanguage) || '사번';
+
+                    const cardHTML = `
+                        <div class="employee-card ${isPaid ? '' : 'unpaid'}" onclick="showEmployeeDetail('${empNo}')">
+                            <div class="emp-header">
+                                <span class="emp-name">${empName}${emp.Talent_Pool_Member === 'Y' ? ' <span class="talent-pool-badge">🌟 TALENT</span>' : ''}</span>
+                                <span class="type-badge type-${empType.toLowerCase().replace('type-', '')}">${empType}</span>
+                            </div>
+                            <div class="emp-info-row">
+                                <span class="emp-label">${empIdLabel}</span>
+                                <span class="emp-value">${empNo}</span>
+                            </div>
+                            <div class="emp-info-row">
+                                <span class="emp-label">${positionLabel}</span>
+                                <span class="emp-value">${empPosition}</span>
+                            </div>
+                            <div class="emp-info-row">
+                                <span class="emp-label">${prevMonthLabel}</span>
+                                <span class="emp-value">${prevMonthAmount.toLocaleString()} VND</span>
+                            </div>
+                            <div class="emp-info-row">
+                                <span class="emp-label">${currentMonthLabel}</span>
+                                <span class="emp-value incentive-amount ${isPaid ? 'paid' : 'unpaid'}">${amount.toLocaleString()} VND</span>
+                            </div>
+                            <div class="emp-info-row">
+                                <span class="emp-label">상태</span>
+                                <span class="emp-value">${statusText}</span>
+                            </div>
+                        </div>
+                    `;
+                    cardContainer.insertAdjacentHTML('beforeend', cardHTML);
+                }
             });
         }
-        
+
         // 직급별 테이블 creation (dashboard_version4.html과 동th한 UI)
         function generatePositionTables() {
             window.positionData = {}; // 전역 변count를 window 객체로 직원시적 접근
