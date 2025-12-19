@@ -73,6 +73,33 @@
       "vi": "💻 Xem máy tính"
     }
   },
+  "mobileCard": {
+    "employeeId": {
+      "ko": "사번",
+      "en": "ID",
+      "vi": "Mã NV"
+    },
+    "position": {
+      "ko": "직급",
+      "en": "Position",
+      "vi": "Chức vụ"
+    },
+    "prevMonth": {
+      "ko": "지난달",
+      "en": "Prev Month",
+      "vi": "Tháng trước"
+    },
+    "currentMonth": {
+      "ko": "이번달",
+      "en": "This Month",
+      "vi": "Tháng này"
+    },
+    "status": {
+      "ko": "상태",
+      "en": "Status",
+      "vi": "Trạng thái"
+    }
+  },
   "table": {
     "position": {
       "ko": "직급",
