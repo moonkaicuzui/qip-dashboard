@@ -1475,22 +1475,123 @@
         /* ================================================== */
         /* Mobile Mode Styles (User-Selected View)            */
         /* Activated by body.mobile-mode class                */
+        /* Complete redesign for mobile UX - 2025-12-19       */
         /* ================================================== */
 
-        /* Tab Navigation: Vertical stacked */
+        /* ====== HEADER MOBILE REDESIGN ====== */
+        body.mobile-mode .header {
+            padding: 15px 15px 20px 15px !important;
+            text-align: center !important;
+        }
+
+        /* Control bar: Reposition from absolute to flex row */
+        body.mobile-mode .header > div[style*="position: absolute"] {
+            position: relative !important;
+            top: auto !important;
+            right: auto !important;
+            max-width: 100% !important;
+            margin-bottom: 15px !important;
+            justify-content: center !important;
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+        }
+
+        /* Shrink select dropdowns on mobile */
+        body.mobile-mode .header select.form-select {
+            width: 100px !important;
+            font-size: 0.8rem !important;
+            padding: 6px 8px !important;
+        }
+
+        /* Shrink buttons on mobile - icon only */
+        body.mobile-mode .header .btn {
+            padding: 6px 10px !important;
+            font-size: 0.85rem !important;
+        }
+
+        /* Hide button text, show only icon on mobile */
+        body.mobile-mode #viewModeToggleText,
+        body.mobile-mode #downloadHtmlBtnText,
+        body.mobile-mode #downloadExcelBtnText {
+            font-size: 0 !important;
+        }
+        body.mobile-mode #viewModeToggleText::before {
+            content: '📱';
+            font-size: 1rem;
+        }
+        body.mobile-mode #downloadHtmlBtnText::before {
+            content: '📦';
+            font-size: 1rem;
+        }
+        body.mobile-mode #downloadExcelBtnText::before {
+            content: '📗';
+            font-size: 1rem;
+        }
+
+        /* Title and subtitle adjustments */
+        body.mobile-mode .header h1 {
+            font-size: 1.3rem !important;
+            margin-top: 10px !important;
+        }
+
+        body.mobile-mode .header p {
+            font-size: 0.85rem !important;
+        }
+
+        /* Data freshness badge compact */
+        body.mobile-mode #dataFreshnessBadge {
+            padding: 8px 12px !important;
+            font-size: 0.8rem !important;
+            flex-direction: column !important;
+            gap: 5px !important;
+        }
+
+        /* Data period section compact */
+        body.mobile-mode #dataPeriodSection {
+            font-size: 0.75rem !important;
+            margin-top: 10px !important;
+        }
+        body.mobile-mode #dataPeriodSection p {
+            margin: 2px 0 !important;
+            padding-left: 10px !important;
+        }
+
+        /* Report type banner compact */
+        body.mobile-mode .report-type-banner {
+            padding: 10px !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+        }
+        body.mobile-mode .report-type-banner .message .title {
+            font-size: 0.95rem !important;
+        }
+        body.mobile-mode .report-type-banner .message .description {
+            font-size: 0.8rem !important;
+        }
+
+        /* ====== TAB NAVIGATION MOBILE ====== */
         body.mobile-mode .tabs {
             display: flex !important;
             flex-direction: column !important;
             gap: 8px !important;
+            padding: 10px !important;
         }
 
         body.mobile-mode .tab {
             width: 100% !important;
             text-align: center !important;
-            padding: 16px !important;
-            font-size: 1.1rem !important;
+            padding: 14px 16px !important;
+            font-size: 1rem !important;
             border-radius: 12px !important;
             justify-content: center !important;
+            background: #f8f9fa !important;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        body.mobile-mode .tab.active {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: white !important;
+            border-color: #ef4444 !important;
         }
 
         /* Summary Cards: Single column */
@@ -1752,6 +1853,198 @@
 
         .org-subordinate-amount.unpaid {
             color: #dc3545;
+        }
+
+        /* ====== MOBILE ORG WRAPPER VISIBILITY ====== */
+        .mobile-org-wrapper {
+            display: none;
+        }
+
+        body.mobile-mode .mobile-org-wrapper {
+            display: block !important;
+            padding: 15px;
+        }
+
+        /* ====== MOBILE TABLE SCROLL HINTS ====== */
+        body.mobile-mode .table-scroll-wrapper {
+            position: relative;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body.mobile-mode .table-scroll-wrapper::after {
+            content: '→ 스크롤';
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            pointer-events: none;
+            animation: fadeInOut 3s ease-in-out;
+            opacity: 0;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 80% { opacity: 1; }
+        }
+
+        /* ====== MOBILE MODAL TABLES - CARD STYLE ====== */
+        body.mobile-mode .modal-body .table {
+            min-width: auto !important;
+        }
+
+        /* Convert modal tables to card-like rows on mobile */
+        body.mobile-mode .modal-table-mobile {
+            display: block;
+        }
+
+        body.mobile-mode .modal-table-mobile thead {
+            display: none;
+        }
+
+        body.mobile-mode .modal-table-mobile tbody tr {
+            display: block;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #6c757d;
+        }
+
+        body.mobile-mode .modal-table-mobile tbody tr:nth-child(odd) {
+            border-left-color: #28a745;
+        }
+
+        body.mobile-mode .modal-table-mobile tbody td {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0 !important;
+            border: none !important;
+        }
+
+        body.mobile-mode .modal-table-mobile tbody td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #6c757d;
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+
+        /* ====== MOBILE POSITION/INCENTIVE CRITERIA TABLE ====== */
+        body.mobile-mode .incentive-criteria-table,
+        body.mobile-mode .position-table {
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body.mobile-mode .incentive-criteria-table table,
+        body.mobile-mode .position-table table {
+            min-width: 600px;
+            font-size: 0.85rem !important;
+        }
+
+        body.mobile-mode .incentive-criteria-table th,
+        body.mobile-mode .incentive-criteria-table td,
+        body.mobile-mode .position-table th,
+        body.mobile-mode .position-table td {
+            padding: 8px 6px !important;
+            white-space: nowrap;
+        }
+
+        /* ====== 5PRS/AQL MODAL MOBILE OPTIMIZATION ====== */
+        body.mobile-mode #aqlModal .modal-body,
+        body.mobile-mode #fivePrsModal .modal-body {
+            padding: 10px !important;
+        }
+
+        body.mobile-mode #aqlModal .table,
+        body.mobile-mode #fivePrsModal .table {
+            font-size: 0.85rem !important;
+        }
+
+        body.mobile-mode #aqlModal .table th,
+        body.mobile-mode #aqlModal .table td,
+        body.mobile-mode #fivePrsModal .table th,
+        body.mobile-mode #fivePrsModal .table td {
+            padding: 6px 4px !important;
+        }
+
+        /* ====== MOBILE INSTRUCTIONS COLLAPSE ====== */
+        body.mobile-mode .org-instructions {
+            font-size: 0.85rem !important;
+            padding: 10px !important;
+        }
+
+        body.mobile-mode .org-instructions ul {
+            margin-bottom: 5px !important;
+        }
+
+        body.mobile-mode .org-instructions li {
+            margin-bottom: 3px !important;
+        }
+
+        /* Collapsible instructions on mobile */
+        body.mobile-mode .instructions-collapsible {
+            max-height: 80px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body.mobile-mode .instructions-collapsible.expanded {
+            max-height: none;
+        }
+
+        body.mobile-mode .instructions-collapsible::after {
+            content: '더보기 ▼';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, white 50%);
+            padding: 20px 0 5px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #007bff;
+            cursor: pointer;
+        }
+
+        body.mobile-mode .instructions-collapsible.expanded::after {
+            display: none;
+        }
+
+        /* ====== MOBILE FILTER CONTROLS COMPACT ====== */
+        body.mobile-mode .filter-row {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        body.mobile-mode .filter-row select,
+        body.mobile-mode .filter-row input {
+            width: 100% !important;
+            font-size: 0.9rem !important;
+            padding: 10px !important;
+        }
+
+        body.mobile-mode .filter-row .btn {
+            width: 100% !important;
+        }
+
+        /* ====== MOBILE LEGEND COMPACT ====== */
+        body.mobile-mode .org-legend {
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            padding: 10px !important;
+            font-size: 0.8rem !important;
+        }
+
+        body.mobile-mode .legend-item {
+            flex: 0 0 calc(50% - 4px);
         }
 
         /* View Mode Toggle Button in Dashboard Header */
@@ -2249,7 +2542,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="september" data-month-name="9월">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="19" data-hour="05" data-minute="50">보고서 생성일: 2025년 12월 19일 05:50</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="19" data-hour="06" data-minute="03">보고서 생성일: 2025년 12월 19일 06:03</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -3931,8 +4224,8 @@
                                 </div>
                             </div>
 
-                            <!-- 사용 안내 -->
-                            <div class="alert alert-info mb-3" role="alert" style="background: linear-gradient(135deg, #ef444415 0%, #dc262615 100%); border-left: 4px solid #6366f1;">
+                            <!-- 사용 안내 (모바일에서 접이식) -->
+                            <div class="alert alert-info mb-3 org-instructions instructions-collapsible" role="alert" style="background: linear-gradient(135deg, #ef444415 0%, #dc262615 100%); border-left: 4px solid #6366f1;" onclick="this.classList.toggle('expanded')">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <strong>💡 <span id="usageGuideTitle"></span></strong> <span id="usageGuideText"></span>
                                 <span class="float-end text-muted small" id="usageGuideHelpText"></span>
@@ -4287,6 +4580,33 @@
       "ko": "💻 데스크톱 뷰",
       "en": "💻 Desktop View",
       "vi": "💻 Xem máy tính"
+    }
+  },
+  "mobileCard": {
+    "employeeId": {
+      "ko": "사번",
+      "en": "ID",
+      "vi": "Mã NV"
+    },
+    "position": {
+      "ko": "직급",
+      "en": "Position",
+      "vi": "Chức vụ"
+    },
+    "prevMonth": {
+      "ko": "지난달",
+      "en": "Prev Month",
+      "vi": "Tháng trước"
+    },
+    "currentMonth": {
+      "ko": "이번달",
+      "en": "This Month",
+      "vi": "Tháng này"
+    },
+    "status": {
+      "ko": "상태",
+      "en": "Status",
+      "vi": "Trạng thái"
     }
   },
   "table": {
@@ -18435,7 +18755,9 @@
                 const empName = emp.name || emp['Full Name'] || '';
                 const empPosition = emp.position || emp['QIP POSITION 1ST NAME'] || '';
                 const empType = emp.type || emp['ROLE TYPE STD'] || 'TYPE-2';
-                const amount = parseInt(emp[incentiveCol] || emp['November_Incentive'] || 0);
+                // 🔧 NaN 값 안전성 검사 추가
+                let rawAmount = emp[incentiveCol] || emp['November_Incentive'] || emp['september_incentive'] || 0;
+                const amount = isNaN(parseInt(rawAmount)) ? 0 : parseInt(rawAmount);
                 const isPaid = amount > 0;
                 const talentPool = emp.Talent_Pool_Member === 'Y' || emp.Talent_Pool_Member === 'YES';
 
@@ -18492,12 +18814,30 @@
                        position.includes('MANAGER');
             });
 
+            // 직급 순서 정의 (MANAGER가 먼저, LINE LEADER가 마지막)
+            const positionOrder = { 'MANAGER': 1, 'A.MANAGER': 2, 'SUPERVISOR': 3, 'GROUP LEADER': 4, 'LINE LEADER': 5 };
+
+            // 정렬: 직급 순서 > 인센티브 금액 순
+            managers.sort((a, b) => {
+                const posA = (a.position || a['QIP POSITION 1ST NAME'] || '').toUpperCase();
+                const posB = (b.position || b['QIP POSITION 1ST NAME'] || '').toUpperCase();
+                const orderA = positionOrder[Object.keys(positionOrder).find(k => posA.includes(k))] || 99;
+                const orderB = positionOrder[Object.keys(positionOrder).find(k => posB.includes(k))] || 99;
+                if (orderA !== orderB) return orderA - orderB;
+
+                const amtA = parseInt(a[incentiveCol] || a['November_Incentive'] || 0) || 0;
+                const amtB = parseInt(b[incentiveCol] || b['November_Incentive'] || 0) || 0;
+                return amtB - amtA;
+            });
+
             let html = '';
             managers.forEach(manager => {
                 const mgrNo = manager.emp_no || manager['Employee No'] || '';
                 const mgrName = manager.name || manager['Full Name'] || '';
                 const mgrPosition = manager.position || manager['QIP POSITION 1ST NAME'] || '';
-                const mgrAmount = parseInt(manager[incentiveCol] || manager['November_Incentive'] || 0);
+                // 🔧 NaN 안전성 검사 추가
+                const rawMgrAmount = manager[incentiveCol] || manager['November_Incentive'] || 0;
+                const mgrAmount = isNaN(parseInt(rawMgrAmount)) ? 0 : parseInt(rawMgrAmount);
                 const isPaid = mgrAmount > 0;
 
                 // Find subordinates
@@ -18506,27 +18846,35 @@
                     return bossId === String(mgrNo);
                 });
 
+                const subCount = subordinates.length;
+                const paidSubCount = subordinates.filter(s => {
+                    const amt = parseInt(s[incentiveCol] || s['November_Incentive'] || 0) || 0;
+                    return amt > 0;
+                }).length;
+
                 html += `
                     <div class="org-manager-card ${isPaid ? 'paid' : 'unpaid'}" data-manager-id="${mgrNo}">
                         <div class="org-card-header" onclick="toggleOrgCard(this.parentElement)">
                             <div class="org-card-info">
                                 <div class="org-card-name">${mgrName}</div>
-                                <div class="org-card-position">${mgrPosition}</div>
+                                <div class="org-card-position">${mgrPosition} ${subCount > 0 ? '(👥 ' + paidSubCount + '/' + subCount + ')' : ''}</div>
                             </div>
                             <div class="org-card-incentive ${isPaid ? 'paid' : 'unpaid'}">${mgrAmount.toLocaleString()} VND</div>
-                            <span class="org-card-toggle">▼</span>
+                            <span class="org-card-toggle">${subCount > 0 ? '▼' : ''}</span>
                         </div>
-                        <div class="org-subordinates">
+                        ${subCount > 0 ? '<div class="org-subordinates">' : ''}
                 `;
 
                 subordinates.forEach(sub => {
                     const subNo = sub.emp_no || sub['Employee No'] || '';
                     const subName = sub.name || sub['Full Name'] || '';
-                    const subAmount = parseInt(sub[incentiveCol] || sub['November_Incentive'] || 0);
+                    // 🔧 NaN 안전성 검사 추가
+                    const rawSubAmount = sub[incentiveCol] || sub['November_Incentive'] || 0;
+                    const subAmount = isNaN(parseInt(rawSubAmount)) ? 0 : parseInt(rawSubAmount);
                     const subPaid = subAmount > 0;
 
                     html += `
-                            <div class="org-subordinate-item" onclick="showEmployeeDetail('${subNo}')">
+                            <div class="org-subordinate-item" onclick="event.stopPropagation(); showEmployeeDetail('${subNo}')">
                                 <span class="org-subordinate-name">${subName}</span>
                                 <span class="org-subordinate-amount ${subPaid ? 'paid' : 'unpaid'}">${subAmount.toLocaleString()} VND</span>
                             </div>
@@ -18534,7 +18882,7 @@
                 });
 
                 html += `
-                        </div>
+                        ${subCount > 0 ? '</div>' : ''}
                     </div>
                 `;
             });
@@ -22180,14 +22528,16 @@
                 `;
                 tbody.appendChild(tr);
 
-                // 🔧 모바일 카드 뷰 생성 (2025-12-19 추가)
+                // 🔧 모바일 카드 뷰 생성 (2025-12-19 추가, 2025-12-19 번역 키 수정)
                 if (cardContainer) {
                     const prevMonthAmount = parseInt(emp['august_incentive'] || emp.previous_incentive || emp.august_incentive || 0);
                     const statusText = isPaid ? '✅ ' + getTranslation('status.paid') : '❌ ' + getTranslation('status.unpaid');
-                    const prevMonthLabel = getTranslation('individual.table.columns.prevMonth', currentLanguage) || '지난달';
-                    const currentMonthLabel = getTranslation('individual.table.columns.currentMonth', currentLanguage) || '이번달';
-                    const positionLabel = getTranslation('individual.table.columns.position', currentLanguage) || '직급';
-                    const empIdLabel = getTranslation('individual.table.columns.id', currentLanguage) || '사번';
+                    // 🔧 수정된 번역 키 (mobileCard.* 사용)
+                    const prevMonthLabel = getTranslation('mobileCard.prevMonth') || '지난달';
+                    const currentMonthLabel = getTranslation('mobileCard.currentMonth') || '이번달';
+                    const positionLabel = getTranslation('mobileCard.position') || '직급';
+                    const empIdLabel = getTranslation('mobileCard.employeeId') || '사번';
+                    const statusLabel = getTranslation('mobileCard.status') || '상태';
 
                     const cardHTML = `
                         <div class="employee-card ${isPaid ? '' : 'unpaid'}" onclick="showEmployeeDetail('${empNo}')">
@@ -22212,7 +22562,7 @@
                                 <span class="emp-value incentive-amount ${isPaid ? 'paid' : 'unpaid'}">${amount.toLocaleString()} VND</span>
                             </div>
                             <div class="emp-info-row">
-                                <span class="emp-label">상태</span>
+                                <span class="emp-label">${statusLabel}</span>
                                 <span class="emp-value">${statusText}</span>
                             </div>
                         </div>

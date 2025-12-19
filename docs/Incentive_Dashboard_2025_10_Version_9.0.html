@@ -2454,6 +2454,428 @@
                 font-size: 2rem !important;
             }
         }
+
+        /* ============================================== */
+        /* 🎨 모바일 UI/UX 포괄적 최적화 (2025-12-19)     */
+        /* ============================================== */
+
+        /* 📌 1. 기본 반응형 설정 및 한글/베트남어 지원 */
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        /* 한글 단어 중간 줄바꿈 방지 */
+        body[lang="ko"] *,
+        :lang(ko) {
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+
+        /* 베트남어 diacritic 문자 지원 */
+        body[lang="vi"] *,
+        :lang(vi) {
+            line-height: 1.7;
+            overflow-wrap: break-word;
+        }
+
+        /* 📌 2. 모바일 세로 모드 (576px 이하) */
+        @media (max-width: 576px) {
+            html {
+                font-size: 14px;
+            }
+
+            body {
+                font-size: 1rem;
+                line-height: 1.6;
+            }
+
+            h1, .h1 { font-size: 1.5rem !important; }
+            h2, .h2 { font-size: 1.25rem !important; }
+            h3, .h3 { font-size: 1.15rem !important; }
+            h4, .h4 { font-size: 1.1rem !important; }
+            h5, .h5 { font-size: 1rem !important; }
+            h6, .h6 { font-size: 0.95rem !important; }
+
+            /* 컨테이너 오버플로우 방지 */
+            .container,
+            .container-fluid,
+            .row,
+            [class*="col-"] {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            /* 테이블 카드 변환 - 모바일 세로 */
+            .mobile-card-table,
+            body.mobile-mode .table-as-cards {
+                border: 0;
+            }
+
+            .mobile-card-table thead,
+            body.mobile-mode .table-as-cards thead {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            .mobile-card-table tr,
+            body.mobile-mode .table-as-cards tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #ddd;
+                border-radius: 12px;
+                padding: 0.75rem;
+                background: white;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            }
+
+            .mobile-card-table td,
+            body.mobile-mode .table-as-cards td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                border-bottom: 1px solid #f0f0f0;
+                padding: 10px 5px !important;
+                font-size: 0.95rem;
+            }
+
+            .mobile-card-table td:last-child,
+            body.mobile-mode .table-as-cards td:last-child {
+                border-bottom: none;
+            }
+
+            .mobile-card-table td::before,
+            body.mobile-mode .table-as-cards td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #495057;
+                flex-shrink: 0;
+                margin-right: 10px;
+                max-width: 45%;
+            }
+        }
+
+        /* 📌 3. 태블릿 모드 (992px 이하) */
+        @media (max-width: 992px) {
+            /* 2열 그리드로 변경 */
+            .row > [class*="col-md-3"] {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+
+            /* 필터 영역 2열 */
+            .filter-container .row > [class*="col-"] {
+                flex: 0 0 50%;
+                max-width: 50%;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* 📌 4. 터치 인터페이스 최적화 (44px 최소 타겟) */
+        @media (max-width: 768px) {
+            /* Apple HIG 권장 44x44px 터치 타겟 */
+            .btn,
+            button:not(.btn-close),
+            select,
+            input[type="text"],
+            input[type="search"],
+            input[type="number"],
+            a.nav-link,
+            .clickable,
+            .tab,
+            .tab-button {
+                min-height: 44px !important;
+                min-width: 44px !important;
+            }
+
+            /* 버튼 간격 및 풀 너비 */
+            .btn-mobile-full,
+            .modal-footer .btn {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .btn + .btn {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            /* 터치 피드백 개선 */
+            .btn:active,
+            .tab:active,
+            .clickable:active {
+                transform: scale(0.97);
+                transition: transform 0.1s ease;
+            }
+        }
+
+        /* 📌 5. 하단 탭 네비게이션 */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1050;
+            padding: 0;
+            margin: 0;
+        }
+
+        body.mobile-mode .mobile-bottom-nav {
+            display: flex !important;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .mobile-bottom-nav .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #6c757d;
+            font-size: 0.7rem;
+            padding: 8px 4px;
+            transition: all 0.2s ease;
+        }
+
+        .mobile-bottom-nav .nav-item.active {
+            color: #ef4444;
+        }
+
+        .mobile-bottom-nav .nav-item .nav-icon {
+            font-size: 1.3rem;
+            margin-bottom: 2px;
+        }
+
+        .mobile-bottom-nav .nav-item .nav-text {
+            font-size: 0.65rem;
+            white-space: nowrap;
+        }
+
+        /* 하단 네비게이션 공간 확보 */
+        body.mobile-mode {
+            padding-bottom: 70px !important;
+        }
+
+        body.mobile-mode .container {
+            padding-bottom: 80px !important;
+        }
+
+        /* 📌 6. 필터 접기/펼치기 */
+        .mobile-filter-toggle {
+            display: none;
+        }
+
+        body.mobile-mode .mobile-filter-toggle {
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        body.mobile-mode .filter-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        body.mobile-mode .filter-panel.show {
+            max-height: 500px;
+        }
+
+        .filter-toggle-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #495057;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-toggle-btn .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .filter-toggle-btn.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* 📌 7. 모달 모바일 개선 */
+        @media (max-width: 576px) {
+            .modal-dialog {
+                margin: 0 !important;
+                max-width: 100% !important;
+                height: 100% !important;
+                width: 100% !important;
+            }
+
+            .modal-content {
+                height: 100% !important;
+                border-radius: 0 !important;
+                border: none !important;
+            }
+
+            .modal-header {
+                padding: 16px !important;
+                border-bottom: 1px solid #e9ecef;
+                position: sticky;
+                top: 0;
+                background: white;
+                z-index: 10;
+            }
+
+            .modal-title {
+                font-size: 1.2rem !important;
+                font-weight: 600;
+            }
+
+            .modal-body {
+                padding: 16px !important;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .modal-footer {
+                padding: 12px 16px !important;
+                position: sticky;
+                bottom: 0;
+                background: white;
+                border-top: 1px solid #e9ecef;
+            }
+
+            /* 닫기 버튼 크기 */
+            .btn-close {
+                padding: 12px !important;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* 📌 8. 차트 모바일 최적화 */
+        @media (max-width: 576px) {
+            .chart-container {
+                height: 220px !important;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+
+            .chart-wrapper {
+                min-width: 300px;
+            }
+        }
+
+        /* 📌 9. 스와이프 힌트 애니메이션 */
+        .swipe-hint {
+            display: none;
+        }
+
+        body.mobile-mode .swipe-hint {
+            display: block;
+            text-align: center;
+            padding: 8px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.85rem;
+            color: #6c757d;
+            animation: swipeHintPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes swipeHintPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* 📌 10. 안전 영역 (노치/홈바 대응) */
+        @supports (padding: max(0px)) {
+            body.mobile-mode .mobile-bottom-nav {
+                padding-bottom: max(10px, env(safe-area-inset-bottom));
+                height: calc(60px + max(0px, env(safe-area-inset-bottom)));
+            }
+
+            body.mobile-mode {
+                padding-bottom: calc(70px + max(0px, env(safe-area-inset-bottom))) !important;
+            }
+        }
+
+        /* 📌 11. 가로 스크롤 인디케이터 */
+        .scroll-indicator {
+            position: relative;
+        }
+
+        .scroll-indicator::after {
+            content: '← 스크롤 →';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #6c757d;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        body.mobile-mode .scroll-indicator:hover::after,
+        body.mobile-mode .scroll-indicator:focus-within::after {
+            opacity: 1;
+        }
+
+        /* 📌 12. 언어 선택기 모바일 최적화 */
+        @media (max-width: 576px) {
+            #languageSelector {
+                width: 100% !important;
+                min-height: 44px !important;
+                font-size: 1rem !important;
+                margin-bottom: 8px;
+            }
+
+            #dashboardSelector {
+                width: 100% !important;
+                min-height: 44px !important;
+                font-size: 1rem !important;
+            }
+        }
+
+        /* 📌 13. 로딩 스피너 모바일 */
+        body.mobile-mode .loading-overlay {
+            backdrop-filter: blur(5px);
+        }
+
+        /* 📌 14. 검색 입력 모바일 */
+        @media (max-width: 576px) {
+            #searchInput,
+            .search-input {
+                width: 100% !important;
+                min-height: 48px !important;
+                font-size: 1rem !important;
+                padding: 12px 16px !important;
+                border-radius: 10px !important;
+            }
+        }
+
+        /* 📌 15. 배지 모바일 */
+        @media (max-width: 576px) {
+            .badge {
+                font-size: 0.75rem !important;
+                padding: 4px 8px !important;
+            }
+
+            .type-badge {
+                font-size: 0.7rem !important;
+                padding: 3px 8px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2482,7 +2904,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="october" data-month-name="10월">2025년 10월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="19" data-hour="06" data-minute="03">보고서 생성일: 2025년 12월 19일 06:03</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="19" data-hour="06" data-minute="18">보고서 생성일: 2025년 12월 19일 06:18</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -23854,6 +24276,147 @@
                 positionSelect.appendChild(option);
             });
         }
+
+        // ====== 모바일 하단 탭 네비게이션 ======
+        function initMobileBottomNav() {
+            const bottomNav = document.getElementById('mobileBottomNav');
+            if (!bottomNav) return;
+
+            const navItems = bottomNav.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetTab = this.dataset.tab;
+                    if (targetTab) {
+                        showTab(targetTab);
+                        updateBottomNavActive(targetTab);
+                    }
+                });
+            });
+        }
+
+        function updateBottomNavActive(activeTab) {
+            const navItems = document.querySelectorAll('#mobileBottomNav .nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.tab === activeTab) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // 탭 변경 시 하단 네비게이션도 업데이트
+        const originalShowTab = typeof showTab === 'function' ? showTab : null;
+        if (originalShowTab) {
+            window.showTab = function(tabId) {
+                originalShowTab(tabId);
+                updateBottomNavActive(tabId);
+            };
+        }
+
+        // ====== 스와이프 제스처 지원 ======
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        function initSwipeGestures() {
+            const tabContents = document.querySelectorAll('.tab-content');
+            const tabOrder = ['summary', 'individual', 'incentive', 'orgchart', 'validation', 'faq'];
+
+            tabContents.forEach(content => {
+                content.addEventListener('touchstart', function(e) {
+                    touchStartX = e.changedTouches[0].screenX;
+                    touchStartY = e.changedTouches[0].screenY;
+                }, { passive: true });
+
+                content.addEventListener('touchend', function(e) {
+                    touchEndX = e.changedTouches[0].screenX;
+                    touchEndY = e.changedTouches[0].screenY;
+                    handleSwipe();
+                }, { passive: true });
+            });
+
+            function handleSwipe() {
+                const diffX = touchStartX - touchEndX;
+                const diffY = touchStartY - touchEndY;
+
+                // 가로 스와이프가 세로보다 큰 경우만 처리
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    const currentTab = document.querySelector('.tab-content.active')?.id || 'summary';
+                    const currentIndex = tabOrder.indexOf(currentTab);
+
+                    if (diffX > 0) {
+                        // 왼쪽 스와이프 - 다음 탭
+                        const nextIndex = (currentIndex + 1) % tabOrder.length;
+                        showTab(tabOrder[nextIndex]);
+                    } else {
+                        // 오른쪽 스와이프 - 이전 탭
+                        const prevIndex = (currentIndex - 1 + tabOrder.length) % tabOrder.length;
+                        showTab(tabOrder[prevIndex]);
+                    }
+                }
+            }
+        }
+
+        // 언어 변경 시 body lang 속성 설정
+        const originalChangeLanguage = typeof changeLanguage === 'function' ? changeLanguage : null;
+        if (originalChangeLanguage) {
+            window.changeLanguage = function(lang) {
+                document.body.setAttribute('lang', lang);
+                document.documentElement.setAttribute('lang', lang);
+                if (originalChangeLanguage) {
+                    originalChangeLanguage(lang);
+                }
+            };
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            initMobileBottomNav();
+            if (document.body.classList.contains('mobile-mode')) {
+                initSwipeGestures();
+            }
+            // 현재 언어로 body lang 설정
+            const currentLang = document.getElementById('languageSelector')?.value || 'ko';
+            document.body.setAttribute('lang', currentLang);
+            document.documentElement.setAttribute('lang', currentLang);
+        });
+
+        // 모바일 모드 변경 시 스와이프 초기화
+        const originalSwitchViewMode = typeof switchViewMode === 'function' ? switchViewMode : null;
+        if (originalSwitchViewMode) {
+            window.switchViewMode = function(mode) {
+                originalSwitchViewMode(mode);
+                if (mode === 'mobile') {
+                    initSwipeGestures();
+                }
+            };
+        }
     </script>
+
+    <!-- 모바일 하단 탭 네비게이션 -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav">
+        <a href="#" class="nav-item active" data-tab="summary">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text" data-i18n="nav.summary">요약</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="individual">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text" data-i18n="nav.individual">개인별</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="incentive">
+            <span class="nav-icon">💰</span>
+            <span class="nav-text" data-i18n="nav.incentive">기준</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="orgchart">
+            <span class="nav-icon">🏢</span>
+            <span class="nav-text" data-i18n="nav.orgchart">조직도</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="faq">
+            <span class="nav-icon">❓</span>
+            <span class="nav-text" data-i18n="nav.faq">FAQ</span>
+        </a>
+    </nav>
 </body>
 </html>
