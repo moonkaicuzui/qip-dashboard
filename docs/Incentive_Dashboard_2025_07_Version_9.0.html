@@ -1441,6 +1441,99 @@
         body.mobile-mode .header {
             padding: 10px 10px 12px 10px !important;
             text-align: center !important;
+            /* 스크롤 시 헤더 자동 숨기기 - 2025-12-20 */
+            transition: transform 0.3s ease, opacity 0.3s ease !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+        }
+        body.mobile-mode .header.header-hidden {
+            transform: translateY(-100%) !important;
+            opacity: 0 !important;
+        }
+
+        /* ====== FLOATING ACTION BUTTON (FAB) - 2025-12-20 ====== */
+        body.mobile-mode .fab-container {
+            position: fixed !important;
+            bottom: 80px !important;
+            right: 15px !important;
+            z-index: 1001 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+        }
+        body.mobile-mode .fab-btn {
+            width: 50px !important;
+            height: 50px !important;
+            border-radius: 50% !important;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: white !important;
+            border: none !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+            font-size: 1.3rem !important;
+            cursor: pointer !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        body.mobile-mode .fab-btn:active {
+            transform: scale(0.95) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+        }
+        body.mobile-mode .fab-btn.fab-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+            width: 44px !important;
+            height: 44px !important;
+            font-size: 1.1rem !important;
+        }
+        body.mobile-mode .fab-btn.hidden {
+            transform: scale(0) !important;
+            opacity: 0 !important;
+        }
+
+        /* ====== PULL-TO-REFRESH - 2025-12-20 ====== */
+        body.mobile-mode .ptr-container {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 60px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: white !important;
+            font-size: 0.9rem !important;
+            transform: translateY(-100%) !important;
+            transition: transform 0.3s ease !important;
+            z-index: 1002 !important;
+        }
+        body.mobile-mode .ptr-container.pulling {
+            transform: translateY(0) !important;
+        }
+        body.mobile-mode .ptr-container.refreshing {
+            transform: translateY(0) !important;
+        }
+        body.mobile-mode .ptr-spinner {
+            width: 24px !important;
+            height: 24px !important;
+            border: 3px solid rgba(255,255,255,0.3) !important;
+            border-top-color: white !important;
+            border-radius: 50% !important;
+            animation: ptr-spin 0.8s linear infinite !important;
+            margin-right: 10px !important;
+        }
+        @keyframes ptr-spin {
+            to { transform: rotate(360deg); }
+        }
+        body.mobile-mode .ptr-arrow {
+            font-size: 1.2rem !important;
+            margin-right: 10px !important;
+            transition: transform 0.2s ease !important;
+        }
+        body.mobile-mode .ptr-arrow.flipped {
+            transform: rotate(180deg) !important;
         }
 
         /* Control bar: Reposition from absolute to flex row */
@@ -3044,7 +3137,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="july" data-month-name="7월">2025년 7월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="20" data-hour="15" data-minute="25">보고서 생성일: 2025년 12월 20일 15:25</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="20" data-hour="15" data-minute="31">보고서 생성일: 2025년 12월 20일 15:31</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -25138,6 +25231,178 @@
             });
         }
 
+        // ====== 스크롤 시 헤더 자동 숨기기 (2025-12-20) ======
+        let lastScrollY = 0;
+        let headerHidden = false;
+
+        function initAutoHideHeader() {
+            const header = document.querySelector('.header');
+            if (!header) return;
+
+            let ticking = false;
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        handleHeaderScroll(header);
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+        }
+
+        function handleHeaderScroll(header) {
+            const currentScrollY = window.scrollY;
+            const scrollDiff = currentScrollY - lastScrollY;
+
+            // 스크롤 방향 감지 (50px 이상 스크롤 시만 반응)
+            if (currentScrollY > 100 && scrollDiff > 10 && !headerHidden) {
+                // 아래로 스크롤 - 헤더 숨기기
+                header.classList.add('header-hidden');
+                headerHidden = true;
+            } else if (scrollDiff < -10 && headerHidden) {
+                // 위로 스크롤 - 헤더 표시
+                header.classList.remove('header-hidden');
+                headerHidden = false;
+            }
+
+            // 맨 위에서는 항상 헤더 표시
+            if (currentScrollY < 50) {
+                header.classList.remove('header-hidden');
+                headerHidden = false;
+            }
+
+            lastScrollY = currentScrollY;
+        }
+
+        // ====== 플로팅 액션 버튼 (FAB) (2025-12-20) ======
+        function initFAB() {
+            // 기존 FAB 제거
+            document.querySelectorAll('.fab-container').forEach(el => el.remove());
+
+            // FAB 컨테이너 생성
+            const fabContainer = document.createElement('div');
+            fabContainer.className = 'fab-container';
+            fabContainer.innerHTML = `
+                <button class="fab-btn fab-secondary hidden" id="fabSearch" title="검색">🔍</button>
+                <button class="fab-btn" id="fabMain" title="메뉴">⬆️</button>
+            `;
+            document.body.appendChild(fabContainer);
+
+            const fabMain = document.getElementById('fabMain');
+            const fabSearch = document.getElementById('fabSearch');
+            let fabExpanded = false;
+
+            // 메인 FAB 클릭 - 상단 이동 또는 메뉴 토글
+            fabMain.addEventListener('click', function() {
+                if (window.scrollY > 300) {
+                    // 스크롤이 많이 된 경우 - 상단으로 이동
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    // 맨 위에서는 검색 버튼 토글
+                    fabExpanded = !fabExpanded;
+                    fabSearch.classList.toggle('hidden', !fabExpanded);
+                    fabMain.innerHTML = fabExpanded ? '✖️' : '⬆️';
+                }
+            });
+
+            // 검색 FAB 클릭 - 검색창 포커스
+            fabSearch.addEventListener('click', function() {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                fabExpanded = false;
+                fabSearch.classList.add('hidden');
+                fabMain.innerHTML = '⬆️';
+            });
+
+            // 스크롤에 따라 FAB 아이콘 변경
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    fabMain.innerHTML = '⬆️';
+                    fabExpanded = false;
+                    fabSearch.classList.add('hidden');
+                }
+            }, { passive: true });
+        }
+
+        // ====== Pull-to-Refresh (2025-12-20) ======
+        let ptrStartY = 0;
+        let ptrCurrentY = 0;
+        let isPulling = false;
+
+        function initPullToRefresh() {
+            // 기존 PTR 제거
+            document.querySelectorAll('.ptr-container').forEach(el => el.remove());
+
+            // PTR 컨테이너 생성
+            const ptrContainer = document.createElement('div');
+            ptrContainer.className = 'ptr-container';
+            ptrContainer.innerHTML = `
+                <span class="ptr-arrow">↓</span>
+                <span class="ptr-text">당겨서 새로고침</span>
+            `;
+            document.body.appendChild(ptrContainer);
+
+            const ptrArrow = ptrContainer.querySelector('.ptr-arrow');
+            const ptrText = ptrContainer.querySelector('.ptr-text');
+
+            document.addEventListener('touchstart', function(e) {
+                if (window.scrollY === 0) {
+                    ptrStartY = e.touches[0].clientY;
+                    isPulling = true;
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function(e) {
+                if (!isPulling || window.scrollY > 0) return;
+
+                ptrCurrentY = e.touches[0].clientY;
+                const pullDistance = ptrCurrentY - ptrStartY;
+
+                if (pullDistance > 30 && pullDistance < 150) {
+                    ptrContainer.classList.add('pulling');
+                    ptrContainer.style.transform = `translateY(${Math.min(pullDistance - 30, 60)}px)`;
+
+                    if (pullDistance > 80) {
+                        ptrArrow.classList.add('flipped');
+                        ptrText.textContent = '놓으면 새로고침';
+                    } else {
+                        ptrArrow.classList.remove('flipped');
+                        ptrText.textContent = '당겨서 새로고침';
+                    }
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', function(e) {
+                if (!isPulling) return;
+
+                const pullDistance = ptrCurrentY - ptrStartY;
+
+                if (pullDistance > 80) {
+                    // 새로고침 실행
+                    ptrContainer.innerHTML = `<div class="ptr-spinner"></div><span>새로고침 중...</span>`;
+                    ptrContainer.classList.add('refreshing');
+                    ptrContainer.style.transform = 'translateY(0)';
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 800);
+                } else {
+                    // 취소
+                    ptrContainer.classList.remove('pulling');
+                    ptrContainer.style.transform = 'translateY(-100%)';
+                }
+
+                isPulling = false;
+                ptrStartY = 0;
+                ptrCurrentY = 0;
+            }, { passive: true });
+        }
+
         // 언어 변경 시 body lang 속성 설정
         const originalChangeLanguage = typeof changeLanguage === 'function' ? changeLanguage : null;
         if (originalChangeLanguage) {
@@ -25155,6 +25420,9 @@
             initMobileBottomNav();
             if (document.body.classList.contains('mobile-mode')) {
                 initSwipeGestures();
+                initAutoHideHeader();  // 2025-12-20: 헤더 자동 숨기기
+                initFAB();             // 2025-12-20: 플로팅 액션 버튼
+                initPullToRefresh();   // 2025-12-20: Pull-to-Refresh
             }
             // 현재 언어로 body lang 설정
             const currentLang = document.getElementById('languageSelector')?.value || 'ko';
@@ -25162,13 +25430,19 @@
             document.documentElement.setAttribute('lang', currentLang);
         });
 
-        // 모바일 모드 변경 시 스와이프 초기화
+        // 모바일 모드 변경 시 기능 초기화
         const originalSwitchViewMode = typeof switchViewMode === 'function' ? switchViewMode : null;
         if (originalSwitchViewMode) {
             window.switchViewMode = function(mode) {
                 originalSwitchViewMode(mode);
                 if (mode === 'mobile') {
                     initSwipeGestures();
+                    initAutoHideHeader();  // 2025-12-20: 헤더 자동 숨기기
+                    initFAB();             // 2025-12-20: 플로팅 액션 버튼
+                    initPullToRefresh();   // 2025-12-20: Pull-to-Refresh
+                } else {
+                    // PC 모드에서는 FAB, PTR 제거
+                    document.querySelectorAll('.fab-container, .ptr-container').forEach(el => el.remove());
                 }
             };
         }
