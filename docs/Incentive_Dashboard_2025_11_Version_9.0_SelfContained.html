@@ -2964,7 +2964,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="november" data-month-name="11월">2025년 11월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="20" data-hour="06" data-minute="06">보고서 생성일: 2025년 12월 20일 06:06</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="20" data-hour="06" data-minute="28">보고서 생성일: 2025년 12월 20일 06:28</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -12357,6 +12357,11 @@
                     }
                 }
             });
+
+            // 팀 관리 탭 초기화 (excelDashboardData 로드 후)
+            if (typeof initTeamTab === 'function') {
+                initTeamTab();
+            }
 
         }); // End of DOMContentLoaded event listener
 
@@ -23120,8 +23125,12 @@
 
             // 전체 직원 데이터 로드 (퇴사자 포함)
             if (!window.allEmployeesForTeam) {
-                // CSV에서 전체 데이터 로드
-                window.allEmployeesForTeam = window.originalEmployeeData || window.employeeData || [];
+                // excelDashboardData.employee_data에 퇴사자 포함 전체 데이터 있음
+                if (window.excelDashboardData && window.excelDashboardData.employee_data) {
+                    window.allEmployeesForTeam = window.excelDashboardData.employee_data;
+                } else {
+                    window.allEmployeesForTeam = window.employeeData || [];
+                }
             }
 
             const allEmployees = window.allEmployeesForTeam;
@@ -23284,8 +23293,9 @@
         // 팀 관리 탭 초기화
         function initTeamTab() {
             // 전체 직원 데이터 로드 (퇴사자 포함)
-            if (window.originalEmployeeData) {
-                window.allEmployeesForTeam = window.originalEmployeeData;
+            if (window.excelDashboardData && window.excelDashboardData.employee_data) {
+                window.allEmployeesForTeam = window.excelDashboardData.employee_data;
+                console.log('Team tab initialized with', window.allEmployeesForTeam.length, 'employees (including resigned)');
             }
         }
 
