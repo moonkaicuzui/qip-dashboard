@@ -7889,6 +7889,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual" data-translate-tab="individual">개인별 상세</div>
                 <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria" data-translate-tab="criteria">인센티브 기준</div>
                 <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart">조직도</div>
+                <div class="tab" data-tab="team" onclick="showTab('team')" id="tabTeam" data-i18n="nav.team">팀 관리</div>
                 <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation">요약 및 시스템 검증</div>
             </div>
             
@@ -9521,6 +9522,108 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- 팀 관리 탭 -->
+        <div id="team" class="tab-content">
+            <h3 id="teamTabTitle" data-i18n="teamTab.title">팀 관리</h3>
+
+            <div class="row mb-4">
+                <!-- 직급 선택 -->
+                <div class="col-md-4 mb-3">
+                    <label for="teamPositionSelect" class="form-label" data-i18n="teamTab.selectPosition">직급 선택</label>
+                    <select id="teamPositionSelect" class="form-select" onchange="updateTeamManagerList()">
+                        <option value="" data-i18n="teamTab.selectPositionPlaceholder">-- 직급을 선택하세요 --</option>
+                        <option value="LINE LEADER">LINE LEADER</option>
+                        <option value="GROUP LEADER">GROUP LEADER</option>
+                        <option value="SUPERVISOR">SUPERVISOR</option>
+                        <option value="(V) SUPERVISOR">(V) SUPERVISOR</option>
+                        <option value="A.MANAGER">A.MANAGER</option>
+                        <option value="MANAGER">MANAGER</option>
+                    </select>
+                </div>
+
+                <!-- 관리자 선택 -->
+                <div class="col-md-4 mb-3">
+                    <label for="teamManagerSelect" class="form-label" data-i18n="teamTab.selectManager">관리자 선택</label>
+                    <select id="teamManagerSelect" class="form-select" onchange="showTeamMembers()" disabled>
+                        <option value="" data-i18n="teamTab.selectManagerPlaceholder">-- 먼저 직급을 선택하세요 --</option>
+                    </select>
+                </div>
+
+                <!-- 팀원 수 표시 -->
+                <div class="col-md-4 mb-3 d-flex align-items-end">
+                    <div id="teamMemberCount" class="badge bg-primary fs-6 p-2" style="display: none;">
+                        <i class="fas fa-users me-2"></i><span id="teamMemberCountText">0명</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 팀원 요약 카드 -->
+            <div id="teamSummaryCards" class="row mb-4" style="display: none;">
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title" data-i18n="teamTab.summary.active">재직자</h5>
+                            <h3 id="teamActiveCount">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title" data-i18n="teamTab.summary.resigned">퇴사자</h5>
+                            <h3 id="teamResignedCount">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title" data-i18n="teamTab.summary.receiving">인센티브 수령</h5>
+                            <h3 id="teamReceivingCount">0</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body text-center">
+                            <h5 class="card-title" data-i18n="teamTab.summary.totalIncentive">총 인센티브</h5>
+                            <h3 id="teamTotalIncentive">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 팀원 테이블 -->
+            <div id="teamMemberTableContainer" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped" id="teamMemberTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th data-i18n="teamTab.table.empNo">사번</th>
+                                <th data-i18n="teamTab.table.name">이름</th>
+                                <th data-i18n="teamTab.table.position">직급</th>
+                                <th data-i18n="teamTab.table.status">상태</th>
+                                <th data-i18n="teamTab.table.incentive">인센티브</th>
+                                <th data-i18n="teamTab.table.absenceDays">무단결근</th>
+                                <th data-i18n="teamTab.table.attendanceRate">출근율</th>
+                                <th data-i18n="teamTab.table.aqlResult">AQL</th>
+                                <th data-i18n="teamTab.table.fivePrsResult">5PRS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teamMemberTableBody">
+                            <!-- 동적으로 채워짐 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 초기 안내 메시지 -->
+            <div id="teamInitialMessage" class="text-center text-muted py-5">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h5 data-i18n="teamTab.initialMessage">직급과 관리자를 선택하면 팀원 정보가 표시됩니다</h5>
             </div>
         </div>
 
@@ -17473,7 +17576,203 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }}
         }}
-        
+
+        // ========================================
+        // 팀 관리 탭 함수
+        // ========================================
+
+        // 전체 직원 데이터 (퇴사자 포함) - 팀 관리용
+        window.allEmployeesForTeam = null;
+
+        // 직급별 관리자 목록 업데이트
+        function updateTeamManagerList() {{
+            const positionSelect = document.getElementById('teamPositionSelect');
+            const managerSelect = document.getElementById('teamManagerSelect');
+            const selectedPosition = positionSelect.value;
+
+            // 초기화
+            managerSelect.innerHTML = '<option value="">' + getTranslation('teamTab.selectManagerPlaceholder', currentLanguage) + '</option>';
+            managerSelect.disabled = true;
+
+            // 팀원 정보 숨기기
+            document.getElementById('teamMemberTableContainer').style.display = 'none';
+            document.getElementById('teamSummaryCards').style.display = 'none';
+            document.getElementById('teamMemberCount').style.display = 'none';
+            document.getElementById('teamInitialMessage').style.display = 'block';
+
+            if (!selectedPosition) return;
+
+            // 전체 직원 데이터 로드 (퇴사자 포함)
+            if (!window.allEmployeesForTeam) {{
+                // CSV에서 전체 데이터 로드
+                window.allEmployeesForTeam = window.originalEmployeeData || window.employeeData || [];
+            }}
+
+            const allEmployees = window.allEmployeesForTeam;
+
+            // 해당 직급의 관리자 목록 추출
+            const managers = allEmployees.filter(emp => {{
+                const position = (emp.position || emp['QIP POSITION 1ST  NAME'] || '').toUpperCase();
+                return position.includes(selectedPosition.toUpperCase());
+            }});
+
+            if (managers.length === 0) {{
+                managerSelect.innerHTML = '<option value="">' + getTranslation('teamTab.noManager', currentLanguage) + '</option>';
+                return;
+            }}
+
+            // 관리자 드롭다운 채우기
+            managerSelect.disabled = false;
+            managers.forEach(manager => {{
+                const empNo = manager.emp_no || manager['Employee No'] || '';
+                const name = manager.name || manager['Full Name'] || '';
+                const option = document.createElement('option');
+                option.value = empNo;
+                option.textContent = name + ' (' + empNo + ')';
+                managerSelect.appendChild(option);
+            }});
+        }}
+
+        // 팀원 목록 표시
+        function showTeamMembers() {{
+            const managerSelect = document.getElementById('teamManagerSelect');
+            const selectedManagerId = managerSelect.value;
+
+            if (!selectedManagerId) {{
+                document.getElementById('teamMemberTableContainer').style.display = 'none';
+                document.getElementById('teamSummaryCards').style.display = 'none';
+                document.getElementById('teamMemberCount').style.display = 'none';
+                document.getElementById('teamInitialMessage').style.display = 'block';
+                return;
+            }}
+
+            const allEmployees = window.allEmployeesForTeam || window.employeeData || [];
+
+            // 해당 관리자의 부하직원 찾기
+            const teamMembers = allEmployees.filter(emp => {{
+                const bossId = String(emp.boss_id || emp['MST direct boss name'] || emp['direct boss name'] || '');
+                return bossId === String(selectedManagerId);
+            }});
+
+            // 현재 월의 시작일 (퇴사자 판별용)
+            const currentYear = {year};
+            const currentMonth = {month};
+            const monthStart = new Date(currentYear, currentMonth - 1, 1);
+
+            // 재직자/퇴사자 분류
+            let activeCount = 0;
+            let resignedCount = 0;
+            let receivingCount = 0;
+            let totalIncentive = 0;
+
+            const lang = currentLanguage || 'ko';
+            const incentiveCol = '{month}_Incentive';
+
+            // 테이블 생성
+            const tbody = document.getElementById('teamMemberTableBody');
+            tbody.innerHTML = '';
+
+            teamMembers.forEach(emp => {{
+                const empNo = emp.emp_no || emp['Employee No'] || '';
+                const name = emp.name || emp['Full Name'] || '';
+                const position = emp.position || emp['QIP POSITION 1ST  NAME'] || '';
+                const stopDate = emp.stop_date || emp['Stop working Date'] || '';
+
+                // 퇴사 여부 확인
+                let isResigned = false;
+                let resignedDate = '';
+                if (stopDate && stopDate !== '' && stopDate !== 'NaN' && stopDate !== 'nan') {{
+                    const parsedDate = new Date(stopDate);
+                    if (!isNaN(parsedDate.getTime())) {{
+                        isResigned = parsedDate < monthStart;
+                        resignedDate = stopDate;
+                    }}
+                }}
+
+                if (isResigned) {{
+                    resignedCount++;
+                }} else {{
+                    activeCount++;
+                }}
+
+                // 인센티브
+                const incentive = parseFloat(emp[incentiveCol] || emp['Final Incentive amount'] || 0) || 0;
+                if (incentive > 0) {{
+                    receivingCount++;
+                    totalIncentive += incentive;
+                }}
+
+                // 무단 결근
+                const absenceDays = parseFloat(emp['cond_2_value'] || emp['Unapproved Absences'] || 0) || 0;
+
+                // 출근율
+                const attendanceRate = parseFloat(emp['출근율_Attendance_Rate_Percent'] || emp['cond_1_value'] || 0) || 0;
+
+                // AQL 결과
+                const aqlFail = parseInt(emp['{month.capitalize()} AQL Failures'] || emp['AQL_Fail_Count'] || 0) || 0;
+                const aqlStatus = aqlFail === 0 ?
+                    '<span class="badge bg-success">PASS</span>' :
+                    '<span class="badge bg-danger">FAIL (' + aqlFail + ')</span>';
+
+                // 5PRS 결과
+                const fivePrsQty = parseInt(emp['5PRS_Inspection_Qty'] || emp['Total Valiation Qty'] || 0) || 0;
+                const fivePrsRate = parseFloat(emp['5PRS_Pass_Rate'] || emp['Pass %'] || 0) || 0;
+                let fivePrsStatus = '';
+                if (fivePrsQty === 0) {{
+                    fivePrsStatus = '<span class="badge bg-secondary">N/A</span>';
+                }} else if (fivePrsRate >= 95) {{
+                    fivePrsStatus = '<span class="badge bg-success">' + fivePrsRate.toFixed(1) + '% (' + fivePrsQty + ')</span>';
+                }} else {{
+                    fivePrsStatus = '<span class="badge bg-warning text-dark">' + fivePrsRate.toFixed(1) + '% (' + fivePrsQty + ')</span>';
+                }}
+
+                // 상태 표시
+                const statusBadge = isResigned ?
+                    '<span class="badge bg-secondary">' + getTranslation('teamTab.status.resigned', lang) + '</span><br><small class="text-muted">' + resignedDate + '</small>' :
+                    '<span class="badge bg-success">' + getTranslation('teamTab.status.active', lang) + '</span>';
+
+                // 출근율 색상
+                const attendanceClass = attendanceRate >= 88 ? 'text-success' : 'text-danger';
+
+                const row = document.createElement('tr');
+                if (isResigned) row.classList.add('table-secondary');
+
+                row.innerHTML = `
+                    <td>${{empNo}}</td>
+                    <td>${{name}}</td>
+                    <td>${{position}}</td>
+                    <td>${{statusBadge}}</td>
+                    <td class="text-end">${{incentive > 0 ? incentive.toLocaleString() + ' VND' : '-'}}</td>
+                    <td class="text-center">${{absenceDays > 0 ? '<span class="text-danger">' + absenceDays + '</span>' : '0'}}</td>
+                    <td class="text-center ${{attendanceClass}}">${{attendanceRate.toFixed(1)}}%</td>
+                    <td class="text-center">${{aqlStatus}}</td>
+                    <td class="text-center">${{fivePrsStatus}}</td>
+                `;
+                tbody.appendChild(row);
+            }});
+
+            // 요약 카드 업데이트
+            document.getElementById('teamActiveCount').textContent = activeCount;
+            document.getElementById('teamResignedCount').textContent = resignedCount;
+            document.getElementById('teamReceivingCount').textContent = receivingCount;
+            document.getElementById('teamTotalIncentive').textContent = totalIncentive.toLocaleString() + ' VND';
+            document.getElementById('teamMemberCountText').textContent = teamMembers.length + getTranslation('common.people', lang);
+
+            // UI 표시
+            document.getElementById('teamMemberTableContainer').style.display = 'block';
+            document.getElementById('teamSummaryCards').style.display = 'flex';
+            document.getElementById('teamMemberCount').style.display = 'block';
+            document.getElementById('teamInitialMessage').style.display = 'none';
+        }}
+
+        // 팀 관리 탭 초기화
+        function initTeamTab() {{
+            // 전체 직원 데이터 로드 (퇴사자 포함)
+            if (window.originalEmployeeData) {{
+                window.allEmployeesForTeam = window.originalEmployeeData;
+            }}
+        }}
+
         // 탭 전환
         function showTab(tabName) {{
             // 모든 탭과 컨텐츠 숨기기
@@ -19047,7 +19346,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         function initSwipeGestures() {{
             const tabContents = document.querySelectorAll('.tab-content');
-            const tabOrder = ['summary', 'individual', 'incentive', 'orgchart', 'validation', 'faq'];
+            const tabOrder = ['summary', 'individual', 'incentive', 'orgchart', 'team', 'validation', 'faq'];
 
             tabContents.forEach(content => {{
                 content.addEventListener('touchstart', function(e) {{
@@ -19137,6 +19436,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         <a href="#" class="nav-item" data-tab="orgchart">
             <span class="nav-icon">🏢</span>
             <span class="nav-text" data-i18n="nav.orgchart">조직도</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="team">
+            <span class="nav-icon">👥</span>
+            <span class="nav-text" data-i18n="nav.team">팀</span>
         </a>
         <a href="#" class="nav-item" data-tab="faq">
             <span class="nav-icon">❓</span>

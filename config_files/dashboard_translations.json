@@ -98,6 +98,129 @@
       "ko": "FAQ",
       "en": "FAQ",
       "vi": "FAQ"
+    },
+    "team": {
+      "ko": "팀",
+      "en": "Team",
+      "vi": "Nhóm"
+    }
+  },
+  "teamTab": {
+    "title": {
+      "ko": "팀 관리",
+      "en": "Team Management",
+      "vi": "Quản lý nhóm"
+    },
+    "selectPosition": {
+      "ko": "직급 선택",
+      "en": "Select Position",
+      "vi": "Chọn chức vụ"
+    },
+    "selectPositionPlaceholder": {
+      "ko": "-- 직급을 선택하세요 --",
+      "en": "-- Select a position --",
+      "vi": "-- Chọn chức vụ --"
+    },
+    "selectManager": {
+      "ko": "관리자 선택",
+      "en": "Select Manager",
+      "vi": "Chọn quản lý"
+    },
+    "selectManagerPlaceholder": {
+      "ko": "-- 먼저 직급을 선택하세요 --",
+      "en": "-- Select a position first --",
+      "vi": "-- Chọn chức vụ trước --"
+    },
+    "noManager": {
+      "ko": "해당 직급의 관리자가 없습니다",
+      "en": "No manager found for this position",
+      "vi": "Không tìm thấy quản lý cho chức vụ này"
+    },
+    "initialMessage": {
+      "ko": "직급과 관리자를 선택하면 팀원 정보가 표시됩니다",
+      "en": "Select a position and manager to view team members",
+      "vi": "Chọn chức vụ và quản lý để xem thành viên nhóm"
+    },
+    "summary": {
+      "active": {
+        "ko": "재직자",
+        "en": "Active",
+        "vi": "Đang làm việc"
+      },
+      "resigned": {
+        "ko": "퇴사자",
+        "en": "Resigned",
+        "vi": "Đã nghỉ việc"
+      },
+      "receiving": {
+        "ko": "인센티브 수령",
+        "en": "Receiving Incentive",
+        "vi": "Nhận thưởng"
+      },
+      "totalIncentive": {
+        "ko": "총 인센티브",
+        "en": "Total Incentive",
+        "vi": "Tổng thưởng"
+      }
+    },
+    "table": {
+      "empNo": {
+        "ko": "사번",
+        "en": "Emp No",
+        "vi": "Mã NV"
+      },
+      "name": {
+        "ko": "이름",
+        "en": "Name",
+        "vi": "Tên"
+      },
+      "position": {
+        "ko": "직급",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "status": {
+        "ko": "상태",
+        "en": "Status",
+        "vi": "Trạng thái"
+      },
+      "incentive": {
+        "ko": "인센티브",
+        "en": "Incentive",
+        "vi": "Thưởng"
+      },
+      "absenceDays": {
+        "ko": "무단결근",
+        "en": "Absence Days",
+        "vi": "Ngày vắng"
+      },
+      "attendanceRate": {
+        "ko": "출근율",
+        "en": "Attendance Rate",
+        "vi": "Tỷ lệ đi làm"
+      },
+      "aqlResult": {
+        "ko": "AQL",
+        "en": "AQL",
+        "vi": "AQL"
+      },
+      "fivePrsResult": {
+        "ko": "5PRS",
+        "en": "5PRS",
+        "vi": "5PRS"
+      }
+    },
+    "status": {
+      "active": {
+        "ko": "재직",
+        "en": "Active",
+        "vi": "Đang làm"
+      },
+      "resigned": {
+        "ko": "퇴사",
+        "en": "Resigned",
+        "vi": "Đã nghỉ"
+      }
     }
   },
   "mobileCard": {
