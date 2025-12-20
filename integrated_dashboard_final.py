@@ -17665,7 +17665,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 현재 월의 시작일 (퇴사자 판별용)
             const currentYear = {year};
-            const currentMonth = {month};
+            const currentMonth = {month_num};  // 월 번호 (1-12)
             const monthStart = new Date(currentYear, currentMonth - 1, 1);
 
             // 재직자/퇴사자 분류
@@ -17675,11 +17675,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let totalIncentive = 0;
 
             const lang = currentLanguage || 'ko';
-            const incentiveCol = '{month}_Incentive';
+            const incentiveCol = '{month.capitalize()}_Incentive';  // December_Incentive 형식
 
             // 테이블 생성
             const tbody = document.getElementById('teamMemberTableBody');
             tbody.innerHTML = '';
+
+            // 부하직원이 없는 경우
+            if (teamMembers.length === 0) {{
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><i class="fas fa-user-slash me-2"></i>' +
+                    getTranslation('teamTab.noTeamMembers', lang) + '</td></tr>';
+                document.getElementById('teamActiveCount').textContent = '0';
+                document.getElementById('teamResignedCount').textContent = '0';
+                document.getElementById('teamReceivingCount').textContent = '0';
+                document.getElementById('teamTotalIncentive').textContent = '0 VND';
+                document.getElementById('teamMemberCountText').textContent = '0' + getTranslation('common.people', lang);
+                document.getElementById('teamMemberTableContainer').style.display = 'block';
+                document.getElementById('teamSummaryCards').style.display = 'flex';
+                document.getElementById('teamMemberCount').style.display = 'block';
+                document.getElementById('teamInitialMessage').style.display = 'none';
+                return;
+            }}
 
             teamMembers.forEach(emp => {{
                 const empNo = emp.emp_no || emp['Employee No'] || '';

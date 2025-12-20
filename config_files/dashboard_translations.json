@@ -141,6 +141,11 @@
       "en": "Select a position and manager to view team members",
       "vi": "Chọn chức vụ và quản lý để xem thành viên nhóm"
     },
+    "noTeamMembers": {
+      "ko": "등록된 부하직원이 없습니다",
+      "en": "No team members found",
+      "vi": "Không tìm thấy thành viên nhóm"
+    },
     "summary": {
       "active": {
         "ko": "재직자",
