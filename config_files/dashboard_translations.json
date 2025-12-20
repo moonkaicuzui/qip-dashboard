@@ -73,6 +73,33 @@
       "vi": "💻 Xem máy tính"
     }
   },
+  "nav": {
+    "summary": {
+      "ko": "요약",
+      "en": "Summary",
+      "vi": "Tóm tắt"
+    },
+    "individual": {
+      "ko": "개인별",
+      "en": "Individual",
+      "vi": "Cá nhân"
+    },
+    "incentive": {
+      "ko": "기준",
+      "en": "Criteria",
+      "vi": "Tiêu chí"
+    },
+    "orgchart": {
+      "ko": "조직도",
+      "en": "Org Chart",
+      "vi": "Sơ đồ"
+    },
+    "faq": {
+      "ko": "FAQ",
+      "en": "FAQ",
+      "vi": "FAQ"
+    }
+  },
   "mobileCard": {
     "employeeId": {
       "ko": "사번",
@@ -204,6 +231,11 @@
       "ko": "이름 또는 사번으로 검색...",
       "en": "Search by name or employee ID...",
       "vi": "Tìm kiếm theo tên hoặc mã nhân viên..."
+    },
+    "loadingMessage": {
+      "ko": "조직도를 불러오는 중...",
+      "en": "Loading organization chart...",
+      "vi": "Đang tải sơ đồ tổ chức..."
     },
     "filterLabel": {
       "ko": "직급 필터",
@@ -4505,6 +4537,16 @@
         "en": "Continuous improvement activity participation",
         "vi": "Tham gia hoạt động cải tiến liên tục"
       }
+    },
+    "special": {
+      "ko": "특별",
+      "en": "Special",
+      "vi": "Đặc biệt"
+    },
+    "period": {
+      "ko": "기간",
+      "en": "Period",
+      "vi": "Thời gian"
     },
     "benefits": {
       "title": {
