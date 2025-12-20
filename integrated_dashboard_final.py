@@ -6416,7 +6416,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             gap: 5px !important;
         }}
 
-        /* Data period section compact */
+        /* Data period section - 접기/펼치기 (2025-12-20 개선) */
         body.mobile-mode #dataPeriodSection {{
             font-size: 0.75rem !important;
             margin-top: 10px !important;
@@ -6424,6 +6424,26 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         body.mobile-mode #dataPeriodSection p {{
             margin: 2px 0 !important;
             padding-left: 10px !important;
+        }}
+        body.mobile-mode .data-period-toggle {{
+            background: rgba(255,255,255,0.15) !important;
+            padding: 8px 12px !important;
+            border-radius: 8px !important;
+            margin-bottom: 5px !important;
+        }}
+        body.mobile-mode .data-period-toggle:active {{
+            background: rgba(255,255,255,0.25) !important;
+        }}
+        body.mobile-mode .data-period-content {{
+            max-height: 0 !important;
+            opacity: 0 !important;
+        }}
+        body.mobile-mode .data-period-content.expanded {{
+            max-height: 200px !important;
+            opacity: 1 !important;
+        }}
+        body.mobile-mode #dataPeriodArrow.collapsed {{
+            transform: rotate(-90deg) !important;
         }}
 
         /* Report type banner compact */
@@ -6439,29 +6459,47 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             font-size: 0.8rem !important;
         }}
 
-        /* ====== TAB NAVIGATION MOBILE ====== */
+        /* ====== TAB NAVIGATION MOBILE - 가로 스크롤 (2025-12-20 개선) ====== */
         body.mobile-mode .tabs {{
             display: flex !important;
-            flex-direction: column !important;
+            flex-direction: row !important;
             gap: 8px !important;
             padding: 10px !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            scroll-snap-type: x mandatory !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            background: #f8f9fa !important;
+            border-radius: 12px !important;
+            margin: 0 10px 15px 10px !important;
+        }}
+        body.mobile-mode .tabs::-webkit-scrollbar {{
+            display: none !important;
         }}
 
         body.mobile-mode .tab {{
-            width: 100% !important;
+            flex-shrink: 0 !important;
+            min-width: auto !important;
+            width: auto !important;
             text-align: center !important;
-            padding: 14px 16px !important;
-            font-size: 1rem !important;
-            border-radius: 12px !important;
+            padding: 10px 16px !important;
+            font-size: 0.8rem !important;
+            border-radius: 20px !important;
             justify-content: center !important;
-            background: #f8f9fa !important;
+            background: white !important;
             border: 1px solid #dee2e6 !important;
+            white-space: nowrap !important;
+            scroll-snap-align: start !important;
+            transition: all 0.2s ease !important;
         }}
 
         body.mobile-mode .tab.active {{
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
             color: white !important;
             border-color: #ef4444 !important;
+            font-weight: 600 !important;
         }}
 
         /* Summary Cards: Single column */
@@ -7763,7 +7801,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             backdrop-filter: blur(5px);
         }}
 
-        /* 📌 14. 검색 입력 모바일 */
+        /* 📌 14. 검색 입력 모바일 - 상단 고정 (2025-12-20 개선) */
         @media (max-width: 576px) {{
             #searchInput,
             .search-input {{
@@ -7773,6 +7811,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 padding: 12px 16px !important;
                 border-radius: 10px !important;
             }}
+        }}
+
+        /* 모바일 플로팅 검색바 */
+        body.mobile-mode .mobile-search-sticky {{
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+            padding: 10px 15px !important;
+            margin: -15px -15px 15px -15px !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+        }}
+        body.mobile-mode .mobile-search-sticky input {{
+            background: white !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        }}
+        body.mobile-mode .mobile-search-sticky input:focus {{
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
         }}
 
         /* 📌 15. 배지 모바일 */
@@ -7827,12 +7884,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             </div>
 
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
-                <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
-                <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{incentive_start_str}" data-endday="{incentive_end_str}">• 인센티브 데이터: {year}년 {month_num:02d}월 {incentive_start_str}일 ~ {incentive_end_str}일</p>
-                <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{attendance_start_str}" data-endday="{attendance_end_str}">• 출근 데이터: {year}년 {month_num:02d}월 {attendance_start_str}일 ~ {attendance_end_str}일</p>
-                <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{aql_start_str}" data-endday="{aql_end_str}">• AQL 데이터: {year}년 {month_num:02d}월 {aql_start_str}일 ~ {aql_end_str}일</p>
-                <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{prs_start_str}" data-endday="{prs_end_str}">• 5PRS 데이터: {year}년 {month_num:02d}월 {prs_start_str}일 ~ {prs_end_str}일</p>
-                <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}">• 기본 인력 데이터: {year}년 {month_num:02d}월 기준</p>
+                <p id="dataPeriodTitle" class="data-period-toggle" style="margin: 5px 0; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    📊 <span data-i18n="dataPeriodTitle">사용 데이터 기간</span>
+                    <span id="dataPeriodArrow" style="transition: transform 0.3s ease;">▼</span>
+                </p>
+                <div id="dataPeriodContent" class="data-period-content" style="overflow: hidden; transition: max-height 0.3s ease;">
+                    <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{incentive_start_str}" data-endday="{incentive_end_str}">• 인센티브 데이터: {year}년 {month_num:02d}월 {incentive_start_str}일 ~ {incentive_end_str}일</p>
+                    <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{attendance_start_str}" data-endday="{attendance_end_str}">• 출근 데이터: {year}년 {month_num:02d}월 {attendance_start_str}일 ~ {attendance_end_str}일</p>
+                    <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{aql_start_str}" data-endday="{aql_end_str}">• AQL 데이터: {year}년 {month_num:02d}월 {aql_start_str}일 ~ {aql_end_str}일</p>
+                    <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}" data-startday="{prs_start_str}" data-endday="{prs_end_str}">• 5PRS 데이터: {year}년 {month_num:02d}월 {prs_start_str}일 ~ {prs_end_str}일</p>
+                    <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="{year}" data-month="{month_num:02d}">• 기본 인력 데이터: {year}년 {month_num:02d}월 기준</p>
+                </div>
             </div>
         </div>
 
@@ -13856,6 +13918,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // Update view mode toggle buttons if they exist
             updateViewModeButtons(viewMode);
+
+            // 모바일 모드일 때 데이터 기간 토글 초기화
+            if (viewMode === 'mobile') {{
+                setTimeout(() => initDataPeriodToggle(), 100);
+            }}
         }}
 
         function switchViewMode(mode) {{
@@ -13878,9 +13945,40 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (mode === 'mobile') {{
                 generateEmployeeCardView();
                 generateMobileOrgChart();
+                initDataPeriodToggle();
             }}
 
             console.log('[ViewMode] Switched to:', mode);
+        }}
+
+        // 데이터 기간 섹션 접기/펼치기 초기화 (2025-12-20 추가)
+        function initDataPeriodToggle() {{
+            const toggle = document.querySelector('.data-period-toggle');
+            const content = document.getElementById('dataPeriodContent');
+            const arrow = document.getElementById('dataPeriodArrow');
+
+            if (!toggle || !content || !arrow) return;
+
+            // 모바일에서 기본값: 접힌 상태
+            arrow.classList.add('collapsed');
+            content.classList.remove('expanded');
+
+            // 기존 이벤트 리스너 제거 후 새로 추가
+            const newToggle = toggle.cloneNode(true);
+            toggle.parentNode.replaceChild(newToggle, toggle);
+
+            newToggle.addEventListener('click', function() {{
+                const newArrow = document.getElementById('dataPeriodArrow');
+                const newContent = document.getElementById('dataPeriodContent');
+
+                if (newContent.classList.contains('expanded')) {{
+                    newContent.classList.remove('expanded');
+                    newArrow.classList.add('collapsed');
+                }} else {{
+                    newContent.classList.add('expanded');
+                    newArrow.classList.remove('collapsed');
+                }}
+            }});
         }}
 
         function updateViewModeButtons(mode) {{

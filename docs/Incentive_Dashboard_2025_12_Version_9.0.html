@@ -1505,7 +1505,7 @@
             gap: 5px !important;
         }
 
-        /* Data period section compact */
+        /* Data period section - 접기/펼치기 (2025-12-20 개선) */
         body.mobile-mode #dataPeriodSection {
             font-size: 0.75rem !important;
             margin-top: 10px !important;
@@ -1513,6 +1513,26 @@
         body.mobile-mode #dataPeriodSection p {
             margin: 2px 0 !important;
             padding-left: 10px !important;
+        }
+        body.mobile-mode .data-period-toggle {
+            background: rgba(255,255,255,0.15) !important;
+            padding: 8px 12px !important;
+            border-radius: 8px !important;
+            margin-bottom: 5px !important;
+        }
+        body.mobile-mode .data-period-toggle:active {
+            background: rgba(255,255,255,0.25) !important;
+        }
+        body.mobile-mode .data-period-content {
+            max-height: 0 !important;
+            opacity: 0 !important;
+        }
+        body.mobile-mode .data-period-content.expanded {
+            max-height: 200px !important;
+            opacity: 1 !important;
+        }
+        body.mobile-mode #dataPeriodArrow.collapsed {
+            transform: rotate(-90deg) !important;
         }
 
         /* Report type banner compact */
@@ -1528,29 +1548,47 @@
             font-size: 0.8rem !important;
         }
 
-        /* ====== TAB NAVIGATION MOBILE ====== */
+        /* ====== TAB NAVIGATION MOBILE - 가로 스크롤 (2025-12-20 개선) ====== */
         body.mobile-mode .tabs {
             display: flex !important;
-            flex-direction: column !important;
+            flex-direction: row !important;
             gap: 8px !important;
             padding: 10px !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            scroll-snap-type: x mandatory !important;
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            background: #f8f9fa !important;
+            border-radius: 12px !important;
+            margin: 0 10px 15px 10px !important;
+        }
+        body.mobile-mode .tabs::-webkit-scrollbar {
+            display: none !important;
         }
 
         body.mobile-mode .tab {
-            width: 100% !important;
+            flex-shrink: 0 !important;
+            min-width: auto !important;
+            width: auto !important;
             text-align: center !important;
-            padding: 14px 16px !important;
-            font-size: 1rem !important;
-            border-radius: 12px !important;
+            padding: 10px 16px !important;
+            font-size: 0.8rem !important;
+            border-radius: 20px !important;
             justify-content: center !important;
-            background: #f8f9fa !important;
+            background: white !important;
             border: 1px solid #dee2e6 !important;
+            white-space: nowrap !important;
+            scroll-snap-align: start !important;
+            transition: all 0.2s ease !important;
         }
 
         body.mobile-mode .tab.active {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
             color: white !important;
             border-color: #ef4444 !important;
+            font-weight: 600 !important;
         }
 
         /* Summary Cards: Single column */
@@ -2852,7 +2890,7 @@
             backdrop-filter: blur(5px);
         }
 
-        /* 📌 14. 검색 입력 모바일 */
+        /* 📌 14. 검색 입력 모바일 - 상단 고정 (2025-12-20 개선) */
         @media (max-width: 576px) {
             #searchInput,
             .search-input {
@@ -2862,6 +2900,25 @@
                 padding: 12px 16px !important;
                 border-radius: 10px !important;
             }
+        }
+
+        /* 모바일 플로팅 검색바 */
+        body.mobile-mode .mobile-search-sticky {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+            padding: 10px 15px !important;
+            margin: -15px -15px 15px -15px !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2) !important;
+        }
+        body.mobile-mode .mobile-search-sticky input {
+            background: white !important;
+            border: none !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        }
+        body.mobile-mode .mobile-search-sticky input:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
         }
 
         /* 📌 15. 배지 모바일 */
@@ -2904,7 +2961,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="20" data-hour="08" data-minute="32">보고서 생성일: 2025년 12월 20일 08:32</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="20" data-hour="15" data-minute="41">보고서 생성일: 2025년 12월 20일 15:41</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -2916,12 +2973,17 @@
             </div>
 
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
-                <p id="dataPeriodTitle" style="margin: 5px 0; font-weight: bold;">📊 사용 데이터 기간:</p>
-                <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• 인센티브 데이터: 2025년 12월 01일 ~ 31일</p>
-                <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• 출근 데이터: 2025년 12월 01일 ~ 31일</p>
-                <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• AQL 데이터: 2025년 12월 01일 ~ 31일</p>
-                <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="18">• 5PRS 데이터: 2025년 12월 01일 ~ 18일</p>
-                <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12">• 기본 인력 데이터: 2025년 12월 기준</p>
+                <p id="dataPeriodTitle" class="data-period-toggle" style="margin: 5px 0; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    📊 <span data-i18n="dataPeriodTitle">사용 데이터 기간</span>
+                    <span id="dataPeriodArrow" style="transition: transform 0.3s ease;">▼</span>
+                </p>
+                <div id="dataPeriodContent" class="data-period-content" style="overflow: hidden; transition: max-height 0.3s ease;">
+                    <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• 인센티브 데이터: 2025년 12월 01일 ~ 31일</p>
+                    <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• 출근 데이터: 2025년 12월 01일 ~ 31일</p>
+                    <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• AQL 데이터: 2025년 12월 01일 ~ 31일</p>
+                    <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="18">• 5PRS 데이터: 2025년 12월 01일 ~ 18일</p>
+                    <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12">• 기본 인력 데이터: 2025년 12월 기준</p>
+                </div>
             </div>
         </div>
 
@@ -19311,6 +19373,11 @@
 
             // Update view mode toggle buttons if they exist
             updateViewModeButtons(viewMode);
+
+            // 모바일 모드일 때 데이터 기간 토글 초기화
+            if (viewMode === 'mobile') {
+                setTimeout(() => initDataPeriodToggle(), 100);
+            }
         }
 
         function switchViewMode(mode) {
@@ -19333,9 +19400,40 @@
             if (mode === 'mobile') {
                 generateEmployeeCardView();
                 generateMobileOrgChart();
+                initDataPeriodToggle();
             }
 
             console.log('[ViewMode] Switched to:', mode);
+        }
+
+        // 데이터 기간 섹션 접기/펼치기 초기화 (2025-12-20 추가)
+        function initDataPeriodToggle() {
+            const toggle = document.querySelector('.data-period-toggle');
+            const content = document.getElementById('dataPeriodContent');
+            const arrow = document.getElementById('dataPeriodArrow');
+
+            if (!toggle || !content || !arrow) return;
+
+            // 모바일에서 기본값: 접힌 상태
+            arrow.classList.add('collapsed');
+            content.classList.remove('expanded');
+
+            // 기존 이벤트 리스너 제거 후 새로 추가
+            const newToggle = toggle.cloneNode(true);
+            toggle.parentNode.replaceChild(newToggle, toggle);
+
+            newToggle.addEventListener('click', function() {
+                const newArrow = document.getElementById('dataPeriodArrow');
+                const newContent = document.getElementById('dataPeriodContent');
+
+                if (newContent.classList.contains('expanded')) {
+                    newContent.classList.remove('expanded');
+                    newArrow.classList.add('collapsed');
+                } else {
+                    newContent.classList.add('expanded');
+                    newArrow.classList.remove('collapsed');
+                }
+            });
         }
 
         function updateViewModeButtons(mode) {
