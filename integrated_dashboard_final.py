@@ -3116,12 +3116,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             });
 
             // 라인리더 집계 섹션 헤더 업데이트
-            const lineLeaderTitleEl = document.querySelector('#aqlFailModal h6[data-i18n="lineLeaderTitle"]');
+            const lineLeaderTitleEl = document.querySelector('#aqlFailModal h6[data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.title"]');
             if (lineLeaderTitleEl) {
-                lineLeaderTitleEl.innerHTML = `<i class="fas fa-users me-2"></i><span data-i18n="lineLeaderTitle">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.title', currentLang)}</span>`;
+                lineLeaderTitleEl.innerHTML = `<i class="fas fa-users me-2"></i><span data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.title">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.title', currentLang)}</span>`;
             }
 
-            const lineLeaderDescEl = document.querySelector('#aqlFailModal p[data-i18n="lineLeaderDesc"]');
+            const lineLeaderDescEl = document.querySelector('#aqlFailModal p[data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.description"]');
             if (lineLeaderDescEl) {
                 lineLeaderDescEl.textContent = getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.description', currentLang);
             }
@@ -3430,31 +3430,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <thead class="unified-table-header">
                                     <tr>
                                         <th style="cursor: pointer;" data-sort="empNo" onclick="window.sortAqlData('empNo')">
-                                            <span data-i18n="empNo">${getTranslation('validationTab.modals.aqlFail.headers.empNo', lang)}</span><span class="sort-icon">${getSortIcon('empNo')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.empNo">${getTranslation('validationTab.modals.aqlFail.headers.empNo', lang)}</span><span class="sort-icon">${getSortIcon('empNo')}</span>
                                         </th>
                                         <th style="cursor: pointer;" data-sort="name" onclick="window.sortAqlData('name')">
-                                            <span data-i18n="name">${getTranslation('validationTab.modals.aqlFail.headers.name', lang)}</span><span class="sort-icon">${getSortIcon('name')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.name">${getTranslation('validationTab.modals.aqlFail.headers.name', lang)}</span><span class="sort-icon">${getSortIcon('name')}</span>
                                         </th>
                                         <th style="cursor: pointer;" data-sort="supervisor" onclick="window.sortAqlData('supervisor')">
-                                            <span data-i18n="supervisor">${getTranslation('validationTab.modals.aqlFail.headers.supervisor', lang)}</span><span class="sort-icon">${getSortIcon('supervisor')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.supervisor">${getTranslation('validationTab.modals.aqlFail.headers.supervisor', lang)}</span><span class="sort-icon">${getSortIcon('supervisor')}</span>
                                         </th>
                                         <th class="text-center" style="cursor: pointer;" data-sort="inspectorId" onclick="window.sortAqlData('inspectorId')">
-                                            <span data-i18n="inspectorId">${getTranslation('validationTab.modals.aqlFail.headers.inspectorId', lang)}</span><span class="sort-icon">${getSortIcon('inspectorId')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.inspectorId">${getTranslation('validationTab.modals.aqlFail.headers.inspectorId', lang)}</span><span class="sort-icon">${getSortIcon('inspectorId')}</span>
                                         </th>
                                         <th class="text-center" style="cursor: pointer;" data-sort="passCount" onclick="window.sortAqlData('passCount')">
-                                            <span data-i18n="aqlPass">${getTranslation('validationTab.modals.aqlFail.headers.aqlPass', lang)}</span><span class="sort-icon">${getSortIcon('passCount')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.aqlPass">${getTranslation('validationTab.modals.aqlFail.headers.aqlPass', lang)}</span><span class="sort-icon">${getSortIcon('passCount')}</span>
                                         </th>
                                         <th class="text-center" style="cursor: pointer;" data-sort="failures" onclick="window.sortAqlData('failures')">
-                                            <span data-i18n="aqlFail">${getTranslation('validationTab.modals.aqlFail.headers.aqlFail', lang)}</span><span class="sort-icon">${getSortIcon('failures')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.aqlFail">${getTranslation('validationTab.modals.aqlFail.headers.aqlFail', lang)}</span><span class="sort-icon">${getSortIcon('failures')}</span>
                                         </th>
                                         <th class="text-center" style="cursor: pointer;" data-sort="failPercent" onclick="window.sortAqlData('failPercent')">
-                                            <span data-i18n="failPercent">${getTranslation('validationTab.modals.aqlFail.headers.failPercent', lang)}</span><span class="sort-icon">${getSortIcon('failPercent')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.failPercent">${getTranslation('validationTab.modals.aqlFail.headers.failPercent', lang)}</span><span class="sort-icon">${getSortIcon('failPercent')}</span>
                                         </th>
                                         <th class="text-center" style="cursor: pointer;" data-sort="received" onclick="window.sortAqlData('received')">
-                                            <span data-i18n="received">${lang === 'ko' ? '수령' : lang === 'en' ? 'Received' : 'Nhận'}</span><span class="sort-icon">${getSortIcon('received')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.received">${getTranslation('validationTab.modals.aqlFail.headers.received', lang)}</span><span class="sort-icon">${getSortIcon('received')}</span>
                                         </th>
                                         <th class="text-center" style="cursor: pointer;" data-sort="incentive" onclick="window.sortAqlData('incentive')">
-                                            <span data-i18n="incentiveAmount">${lang === 'ko' ? '인센티브' : lang === 'en' ? 'Incentive' : 'Thưởng'}</span><span class="sort-icon">${getSortIcon('incentive')}</span>
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.incentiveAmount">${getTranslation('validationTab.modals.aqlFail.headers.incentiveAmount', lang)}</span><span class="sort-icon">${getSortIcon('incentive')}</span>
                                         </th>
                                     </tr>
                                 </thead>
@@ -3465,17 +3465,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                             <hr class="my-4">
 
-                            <h6 class="mb-3" data-i18n="lineLeaderTitle"><i class="fas fa-users me-2"></i>${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.title', lang)}</h6>
-                            <p class="text-muted small" data-i18n="lineLeaderDesc">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.description', lang)}</p>
+                            <h6 class="mb-3" data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.title"><i class="fas fa-users me-2"></i>${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.title', lang)}</h6>
+                            <p class="text-muted small" data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.description">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.description', lang)}</p>
 
                             <table class="table table-hover" id="lineLeaderTable">
                                 <thead class="unified-table-header">
                                     <tr>
-                                        <th data-i18n="leaderName">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderName', lang)}</th>
-                                        <th data-i18n="leaderSupervisor">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderSupervisor', lang)}</th>
-                                        <th class="text-center" data-i18n="subordinatePass">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinatePass', lang)}</th>
-                                        <th class="text-center" data-i18n="subordinateFail">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinateFail', lang)}</th>
-                                        <th class="text-center" data-i18n="failPercent">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.failPercent', lang)}</th>
+                                        <th data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderName">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderName', lang)}</th>
+                                        <th data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderSupervisor">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.leaderSupervisor', lang)}</th>
+                                        <th class="text-center" data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinatePass">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinatePass', lang)}</th>
+                                        <th class="text-center" data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinateFail">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.subordinateFail', lang)}</th>
+                                        <th class="text-center" data-i18n="validationTab.modals.aqlFail.lineLeaderSummary.headers.failPercent">${getTranslation('validationTab.modals.aqlFail.lineLeaderSummary.headers.failPercent', lang)}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
