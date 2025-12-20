@@ -1,7 +1,7 @@
 {
   "year": 2025,
   "month": "december",
-  "working_days": 16,
+  "working_days": 17,
   "previous_months": [
     "october",
     "november"
@@ -17,12 +17,12 @@
   "created_at": "2025-11-18T13:30:00.000000",
   "data_source": "google_drive",
   "working_days_source": "attendance_data",
-  "working_days_updated_at": "2025-12-20T08:46:24.848854",
+  "working_days_updated_at": "2025-12-20T09:04:01.232775",
   "files_modified_times": {
-    "5prs": "2025-12-19T08:53:48.000Z",
-    "attendance": "2025-12-19T08:51:29.000Z",
-    "basic_manpower": "2025-12-19T08:43:48.000Z",
-    "aql_current": "2025-12-19T08:55:09.000Z"
+    "5prs": "2025-12-20T08:54:50.000Z",
+    "attendance": "2025-12-20T08:52:55.000Z",
+    "basic_manpower": "2025-12-20T08:51:57.000Z",
+    "aql_current": "2025-12-20T08:55:34.000Z"
   },
-  "last_updated": "2025-12-19T08:55:09.000Z"
+  "last_updated": "2025-12-20T08:55:34.000Z"
 }
