@@ -10401,6 +10401,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
+            // 팀 관리 탭 초기화 (excelDashboardData 로드 후)
+            if (typeof initTeamTab === 'function') {{
+                initTeamTab();
+            }}
+
         }}); // End of DOMContentLoaded event listener
 
         // Global variables that need to be accessible outside DOMContentLoaded
@@ -17604,8 +17609,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 전체 직원 데이터 로드 (퇴사자 포함)
             if (!window.allEmployeesForTeam) {{
-                // CSV에서 전체 데이터 로드
-                window.allEmployeesForTeam = window.originalEmployeeData || window.employeeData || [];
+                // excelDashboardData.employee_data에 퇴사자 포함 전체 데이터 있음
+                if (window.excelDashboardData && window.excelDashboardData.employee_data) {{
+                    window.allEmployeesForTeam = window.excelDashboardData.employee_data;
+                }} else {{
+                    window.allEmployeesForTeam = window.employeeData || [];
+                }}
             }}
 
             const allEmployees = window.allEmployeesForTeam;
@@ -17768,8 +17777,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 팀 관리 탭 초기화
         function initTeamTab() {{
             // 전체 직원 데이터 로드 (퇴사자 포함)
-            if (window.originalEmployeeData) {{
-                window.allEmployeesForTeam = window.originalEmployeeData;
+            if (window.excelDashboardData && window.excelDashboardData.employee_data) {{
+                window.allEmployeesForTeam = window.excelDashboardData.employee_data;
+                console.log('Team tab initialized with', window.allEmployeesForTeam.length, 'employees (including resigned)');
             }}
         }}
 
