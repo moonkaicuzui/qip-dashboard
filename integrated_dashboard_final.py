@@ -17642,6 +17642,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
 
+        // 재귀적으로 모든 부하직원 찾기 (직속 + 간접 부하)
+        function findAllSubordinates(managerId, allEmployees, visited = new Set()) {{
+            // 무한 루프 방지
+            if (visited.has(String(managerId))) return [];
+            visited.add(String(managerId));
+
+            const directReports = [];
+            const indirectReports = [];
+
+            // 직속 부하 찾기
+            allEmployees.forEach(emp => {{
+                const empNo = String(emp.emp_no || emp['Employee No'] || '');
+                const bossId = String(emp.boss_id || emp['MST direct boss name'] || emp['direct boss name'] || '');
+
+                if (bossId === String(managerId) && empNo !== String(managerId)) {{
+                    directReports.push(emp);
+                    // 이 직속 부하의 부하직원도 재귀적으로 찾기
+                    const subordinates = findAllSubordinates(empNo, allEmployees, visited);
+                    indirectReports.push(...subordinates);
+                }}
+            }});
+
+            return [...directReports, ...indirectReports];
+        }}
+
         // 팀원 목록 표시
         function showTeamMembers() {{
             const managerSelect = document.getElementById('teamManagerSelect');
@@ -17657,11 +17682,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             const allEmployees = window.allEmployeesForTeam || window.employeeData || [];
 
-            // 해당 관리자의 부하직원 찾기
-            const teamMembers = allEmployees.filter(emp => {{
-                const bossId = String(emp.boss_id || emp['MST direct boss name'] || emp['direct boss name'] || '');
-                return bossId === String(selectedManagerId);
-            }});
+            // 해당 관리자의 모든 부하직원 찾기 (직속 + 간접 부하 포함)
+            const teamMembers = findAllSubordinates(selectedManagerId, allEmployees);
+
+            console.log('Manager ID:', selectedManagerId, '- Total subordinates found:', teamMembers.length);
 
             // 현재 월의 시작일 (퇴사자 판별용)
             const currentYear = {year};
