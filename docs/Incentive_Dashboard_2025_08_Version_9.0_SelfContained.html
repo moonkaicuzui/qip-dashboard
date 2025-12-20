@@ -2964,7 +2964,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="august" data-month-name="8월">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="20" data-hour="06" data-minute="28">보고서 생성일: 2025년 12월 20일 06:28</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="20" data-hour="06" data-minute="39">보고서 생성일: 2025년 12월 20일 06:39</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -5174,6 +5174,11 @@
       "ko": "직급과 관리자를 선택하면 팀원 정보가 표시됩니다",
       "en": "Select a position and manager to view team members",
       "vi": "Chọn chức vụ và quản lý để xem thành viên nhóm"
+    },
+    "noTeamMembers": {
+      "ko": "등록된 부하직원이 없습니다",
+      "en": "No team members found",
+      "vi": "Không tìm thấy thành viên nhóm"
     },
     "summary": {
       "active": {
@@ -23181,7 +23186,7 @@
 
             // 현재 월의 시작일 (퇴사자 판별용)
             const currentYear = 2025;
-            const currentMonth = august;
+            const currentMonth = 8;  // 월 번호 (1-12)
             const monthStart = new Date(currentYear, currentMonth - 1, 1);
 
             // 재직자/퇴사자 분류
@@ -23191,11 +23196,27 @@
             let totalIncentive = 0;
 
             const lang = currentLanguage || 'ko';
-            const incentiveCol = 'august_Incentive';
+            const incentiveCol = 'August_Incentive';  // December_Incentive 형식
 
             // 테이블 생성
             const tbody = document.getElementById('teamMemberTableBody');
             tbody.innerHTML = '';
+
+            // 부하직원이 없는 경우
+            if (teamMembers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><i class="fas fa-user-slash me-2"></i>' +
+                    getTranslation('teamTab.noTeamMembers', lang) + '</td></tr>';
+                document.getElementById('teamActiveCount').textContent = '0';
+                document.getElementById('teamResignedCount').textContent = '0';
+                document.getElementById('teamReceivingCount').textContent = '0';
+                document.getElementById('teamTotalIncentive').textContent = '0 VND';
+                document.getElementById('teamMemberCountText').textContent = '0' + getTranslation('common.people', lang);
+                document.getElementById('teamMemberTableContainer').style.display = 'block';
+                document.getElementById('teamSummaryCards').style.display = 'flex';
+                document.getElementById('teamMemberCount').style.display = 'block';
+                document.getElementById('teamInitialMessage').style.display = 'none';
+                return;
+            }
 
             teamMembers.forEach(emp => {
                 const empNo = emp.emp_no || emp['Employee No'] || '';
