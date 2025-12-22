@@ -16106,12 +16106,65 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return false;
             }}
 
+            // 2025-12-22: 상사 체인 수집 함수 - 빌딩 필터 시 상위 관리자도 표시
+            function collectBossChain(employeeData, buildingEmployeeIds) {{
+                const bossChainIds = new Set();
+                const empMap = {{}};
+
+                // 모든 직원을 ID로 매핑
+                employeeData.forEach(emp => {{
+                    const empId = String(emp.emp_no || emp['Employee No'] || '');
+                    if (empId && empId !== '' && empId !== 'nan') empMap[empId] = emp;
+                }});
+
+                // 빌딩 직원들의 상사 체인을 재귀적으로 수집
+                function addBossChain(empId, depth = 0) {{
+                    if (depth > 10) return; // 무한 루프 방지
+                    const emp = empMap[empId];
+                    if (!emp) return;
+
+                    const bossId = String(emp.boss_id || emp['MST direct boss name'] || '');
+                    if (bossId && bossId !== '' && bossId !== 'nan' && bossId !== '0' && !bossChainIds.has(bossId)) {{
+                        bossChainIds.add(bossId);
+                        addBossChain(bossId, depth + 1); // 재귀적으로 상위 상사도 추가
+                    }}
+                }}
+
+                buildingEmployeeIds.forEach(empId => addBossChain(empId));
+                return bossChainIds;
+            }}
+
+            // 2025-12-22: 빌딩 직원 ID 및 상사 체인 수집
+            let buildingEmployeeIds = new Set();
+            let bossChainIds = new Set();
+
+            if (selectedBuilding !== 'all') {{
+                // 해당 빌딩의 모든 직원 ID 수집
+                employeeData.forEach(emp => {{
+                    const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase();
+                    if (empBuilding === selectedBuilding.toUpperCase()) {{
+                        const empId = String(emp.emp_no || emp['Employee No'] || '');
+                        if (empId && empId !== '' && empId !== 'nan') buildingEmployeeIds.add(empId);
+                    }}
+                }});
+
+                // 상사 체인 수집 (SUPERVISOR, MANAGER 등 상위 관리자 포함)
+                bossChainIds = collectBossChain(employeeData, buildingEmployeeIds);
+                console.log(`🏢 Building ${{selectedBuilding}}: ${{buildingEmployeeIds.size}}명, 상사 체인: ${{bossChainIds.size}}명`);
+            }}
+
             // TYPE-1 직원 중 LINE LEADER 이상만 포함 (관리자 계층 구조)
             const type1Employees = employeeData.filter(emp => {{
-                // Building 필터 적용 (SUPERVISOR, A.MANAGER 요청 - 2025-12-16)
+                const empId = String(emp.emp_no || emp['Employee No'] || '');
+
+                // Building 필터 적용 (2025-12-22: 상사 체인 포함으로 개선)
                 if (selectedBuilding !== 'all') {{
                     const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase();
-                    if (empBuilding !== selectedBuilding.toUpperCase()) {{
+                    const isInBuilding = empBuilding === selectedBuilding.toUpperCase();
+                    const isInBossChain = bossChainIds.has(empId);
+
+                    // 해당 빌딩이거나 상사 체인에 포함된 경우만 표시
+                    if (!isInBuilding && !isInBossChain) {{
                         return false;
                     }}
                 }}
