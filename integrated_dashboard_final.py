@@ -2046,15 +2046,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     ? getTranslation('zeroWorkingDaysModal.statusLabels.no', lang)
                     : '-';
 
-                // 인센티브 수령 여부 및 금액
+                // 인센티브 수령 여부 및 금액 (2025-12-22: 배경 제거, 텍스트 색상으로 구별)
                 const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
-                    ? '<span class="badge bg-success">✅</span>'
-                    : '<span style="color: #e74c3c; font-size: 1.2em;">❌</span>';
+                    ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
+                    : '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
                 const amountCell = incentiveAmount > 0
-                    ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
-                    : '<span style="color: #95a5a6;">0 ₫</span>';
+                    ? `<span style="color: #28a745; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
+                    : '<span style="color: #dc3545;">0 ₫</span>';
 
                 return `
                     <tr class="unified-table-row">
@@ -2347,17 +2347,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             ${(() => {
                                 const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
                                 const received = incentive > 0;
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return received ?
-                                    '<span class="badge bg-success">✅</span>' :
-                                    '<span class="badge bg-secondary">❌</span>';
+                                    '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' :
+                                    '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
                             })()}
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
                             ${(() => {
                                 const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return incentive > 0 ?
-                                    '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' :
-                                    '<span class="text-muted">0 ₫</span>';
+                                    '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' :
+                                    '<span style="color: #dc3545;">0 ₫</span>';
                             })()}
                         </td>
                     </tr>
@@ -3182,15 +3184,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     failBadgeText = `${failPercent}%`;
                 }
 
-                // 인센티브 수령 여부 및 금액 (updateTableBody에서도 표시)
+                // 인센티브 수령 여부 및 금액 (2025-12-22: 배경 제거, 텍스트 색상으로 구별)
                 const incentiveAmount = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
-                    ? '<span class="badge bg-success">✅</span>'
-                    : '<span class="badge bg-secondary">❌</span>';
+                    ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
+                    : '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
                 const amountCell = incentiveAmount > 0
-                    ? '<span class="badge bg-info text-dark">' + incentiveAmount.toLocaleString() + ' ₫</span>'
-                    : '<span class="text-muted">0 ₫</span>';
+                    ? '<span style="color: #0d6efd; font-weight: 600;">' + incentiveAmount.toLocaleString() + ' ₫</span>'
+                    : '<span style="color: #dc3545;">0 ₫</span>';
 
                 return `
                     <tr class="unified-table-row">
@@ -3354,17 +3356,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <td class="unified-table-cell text-center">
                             ${(() => {
                                 const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return incentive > 0 ?
-                                    '<span class="badge bg-success">✅</span>' :
-                                    '<span class="badge bg-secondary">❌</span>';
+                                    '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' :
+                                    '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
                             })()}
                         </td>
                         <td class="unified-table-cell text-center">
                             ${(() => {
                                 const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return incentive > 0 ?
-                                    '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' :
-                                    '<span class="text-muted">0 ₫</span>';
+                                    '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' :
+                                    '<span style="color: #dc3545;">0 ₫</span>';
                             })()}
                         </td>
                     </tr>
@@ -4294,8 +4298,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passIcon} ${passRate.toFixed(1)}%</span></td>
                     <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
-                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
-                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -4383,8 +4387,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passIcon} ${passRate.toFixed(1)}%</span></td>
                     <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
-                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
-                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -4682,8 +4686,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>TYPE-1</td>
                     <td><span class="badge ${badgeClass}">${qtyIcon} ${inspectionQty}${qtyUnit}</span></td>
                     <td>${statusText}</td>
-                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
-                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -17040,11 +17044,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 ${{flattenedSubs.map((sub, idx) => {{
                                     const subIncentive = Number(sub['{month.lower()}_incentive'] || 0);
                                     const included = subIncentive > 0;
-                                    const rowClass = included ? '' : 'text-muted table-light';
+                                    // 2025-12-22: 미수령자 빨간색 폰트로 시각적 구별 (배경 제거)
+                                    const rowStyle = included ? '' : 'color: #dc3545;';
                                     const subName = sub.name || sub.employee_name || 'Unknown';
                                     const subEmpNo = sub.emp_no || sub.employee_id || '';
                                     return `
-                                        <tr class="${{rowClass}}" data-subordinate-row="true"
+                                        <tr style="${{rowStyle}}" data-subordinate-row="true"
                                             data-receiving="${{included}}"
                                             data-name="${{subName}}"
                                             data-emp-no="${{subEmpNo}}"
@@ -17054,7 +17059,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <td>${{subName}}</td>
                                             <td>${{subEmpNo}}</td>
                                             <td class="text-end">${{included ? '₫' + subIncentive.toLocaleString('ko-KR') : '-'}}</td>
-                                            <td class="text-center">${{included ? '✅' : '❌'}}</td>
+                                            <td class="text-center">${{included ? '<span style="color: #28a745;">✅ 수령</span>' : '<span style="color: #dc3545;">미수령</span>'}}</td>
                                         </tr>
                                     `;
                                 }}).join('')}}
@@ -17123,8 +17128,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     const isReceiving = subIncentive > 0;
                                     const subName = sub.name || sub.employee_name || 'Unknown';
                                     const subEmpNo = sub.emp_no || sub.employee_id || '';
+                                    // 2025-12-22: 미수령자 빨간색 폰트로 시각적 구별 (배경 제거)
+                                    const rowStyle = isReceiving ? '' : 'color: #dc3545;';
                                     return `
-                                        <tr class="${{isReceiving ? '' : 'text-muted table-light'}}"
+                                        <tr style="${{rowStyle}}"
                                             data-subordinate-row="true"
                                             data-receiving="${{isReceiving}}"
                                             data-name="${{subName}}"
@@ -17133,7 +17140,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <td>${{subName}}</td>
                                             <td>${{subEmpNo}}</td>
                                             <td class="text-end">${{isReceiving ? '₫' + subIncentive.toLocaleString('ko-KR') : '-'}}</td>
-                                            <td class="text-center">${{isReceiving ? '✅' : '❌'}}</td>
+                                            <td class="text-center">${{isReceiving ? '<span style="color: #28a745;">✅ 수령</span>' : '<span style="color: #dc3545;">미수령</span>'}}</td>
                                         </tr>
                                     `;
                                 }}).join('')}}
