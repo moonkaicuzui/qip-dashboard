@@ -73,6 +73,23 @@
       "vi": "💻 Xem máy tính"
     }
   },
+  "summary": {
+    "vsLastMonth": {
+      "ko": "vs 전월",
+      "en": "vs Last Month",
+      "vi": "vs Tháng trước"
+    },
+    "compactMode": {
+      "ko": "축소 보기",
+      "en": "Compact",
+      "vi": "Thu gọn"
+    },
+    "expandMode": {
+      "ko": "확대 보기",
+      "en": "Expand",
+      "vi": "Mở rộng"
+    }
+  },
   "nav": {
     "summary": {
       "ko": "요약",
@@ -486,6 +503,11 @@
         "ko": "초기화",
         "en": "Reset",
         "vi": "Đặt lại"
+      },
+      "findMe": {
+        "ko": "내 위치 찾기",
+        "en": "Find Me",
+        "vi": "Tìm tôi"
       },
       "export": {
         "ko": "이미지 저장",
@@ -3162,6 +3184,103 @@
         "ko": "TYPE을 변경하며, 인센티브 지급 조건 부여됨",
         "en": "TYPE will be changed and incentive conditions applied",
         "vi": "Loại sẽ được thay đổi và áp dụng điều kiện thưởng"
+      },
+      "timeline": {
+        "title": {
+          "ko": "📅 신입 직원 인센티브 타임라인",
+          "en": "📅 New Employee Incentive Timeline",
+          "vi": "📅 Dòng thời gian thưởng nhân viên mới"
+        },
+        "step1": {
+          "title": {
+            "ko": "1단계: 입사",
+            "en": "Step 1: Join",
+            "vi": "Bước 1: Gia nhập"
+          },
+          "desc": {
+            "ko": "TYPE-3으로 분류됨",
+            "en": "Classified as TYPE-3",
+            "vi": "Được phân loại là TYPE-3"
+          }
+        },
+        "step2": {
+          "title": {
+            "ko": "2단계: 교육 기간 (1개월)",
+            "en": "Step 2: Training Period (1 month)",
+            "vi": "Bước 2: Thời gian đào tạo (1 tháng)"
+          },
+          "desc": {
+            "ko": "인센티브 0원 (교육에 집중)",
+            "en": "No incentive (focus on training)",
+            "vi": "Không có thưởng (tập trung đào tạo)"
+          }
+        },
+        "step3": {
+          "title": {
+            "ko": "3단계: 현장 배치",
+            "en": "Step 3: Field Assignment",
+            "vi": "Bước 3: Phân công hiện trường"
+          },
+          "desc": {
+            "ko": "TYPE-1 또는 TYPE-2로 재분류",
+            "en": "Reclassified as TYPE-1 or TYPE-2",
+            "vi": "Được phân loại lại thành TYPE-1 hoặc TYPE-2"
+          }
+        },
+        "step4": {
+          "title": {
+            "ko": "4단계: 인센티브 시작!",
+            "en": "Step 4: Incentive Starts!",
+            "vi": "Bước 4: Bắt đầu thưởng!"
+          },
+          "desc": {
+            "ko": "조건 충족 시 150,000 VND부터",
+            "en": "Starting from 150,000 VND if conditions met",
+            "vi": "Bắt đầu từ 150.000 VND nếu đáp ứng điều kiện"
+          }
+        }
+      },
+      "faq": {
+        "title": {
+          "ko": "❓ 자주 묻는 질문",
+          "en": "❓ Frequently Asked Questions",
+          "vi": "❓ Câu hỏi thường gặp"
+        },
+        "q1": {
+          "ko": "왜 신입 직원은 인센티브를 못 받나요?",
+          "en": "Why don't new employees receive incentives?",
+          "vi": "Tại sao nhân viên mới không nhận được thưởng?"
+        },
+        "a1": {
+          "ko": "교육 및 적응 기간 동안 업무 숙련도를 높이는 데 집중할 수 있도록 첫 달은 인센티브 대상에서 제외됩니다.",
+          "en": "The first month is excluded from incentives to allow focus on skill development during training and adaptation period.",
+          "vi": "Tháng đầu tiên được loại trừ khỏi thưởng để tập trung phát triển kỹ năng trong thời gian đào tạo và thích nghi."
+        },
+        "q2": {
+          "ko": "언제부터 인센티브를 받을 수 있나요?",
+          "en": "When can I start receiving incentives?",
+          "vi": "Khi nào tôi có thể bắt đầu nhận thưởng?"
+        },
+        "a2": {
+          "ko": "입사 1개월 후 현장에 배치되고, 해당 월의 모든 조건(출근율 88% 이상, AQL 실패 0건 등)을 충족하면 다음 달부터 인센티브를 받습니다.",
+          "en": "After 1 month of training and field assignment, if you meet all conditions (88%+ attendance, 0 AQL failures, etc.), you will receive incentives from the following month.",
+          "vi": "Sau 1 tháng đào tạo và phân công thực địa, nếu bạn đáp ứng tất cả các điều kiện (tỷ lệ đi làm 88%+, 0 lỗi AQL, v.v.), bạn sẽ nhận được thưởng từ tháng tiếp theo."
+        },
+        "q3": {
+          "ko": "첫 인센티브는 얼마인가요?",
+          "en": "How much is the first incentive?",
+          "vi": "Tiền thưởng đầu tiên là bao nhiêu?"
+        },
+        "a3": {
+          "ko": "TYPE-1 ASSEMBLY INSPECTOR의 경우 첫 달 150,000 VND부터 시작하며, 연속 근무 시 매월 상승합니다 (최대 1,000,000 VND).",
+          "en": "For TYPE-1 ASSEMBLY INSPECTOR, starting from 150,000 VND in the first month, increasing monthly with consecutive work (up to 1,000,000 VND).",
+          "vi": "Đối với TYPE-1 ASSEMBLY INSPECTOR, bắt đầu từ 150.000 VND trong tháng đầu tiên, tăng hàng tháng khi làm việc liên tục (lên đến 1.000.000 VND)."
+        }
+      },
+      "importantNote": {
+        "ko": "⚠️ 중요: TYPE-3 기간에도 출근율과 품질 기준을 지키면 TYPE 전환 후 바로 인센티브를 받을 수 있습니다!",
+        "en": "⚠️ Important: Even during TYPE-3 period, maintaining attendance and quality standards allows you to receive incentives immediately after TYPE transition!",
+        "vi": "⚠️ Quan trọng: Ngay cả trong giai đoạn TYPE-3, việc duy trì tiêu chuẩn đi làm và chất lượng cho phép bạn nhận thưởng ngay sau khi chuyển TYPE!"
       }
     },
     "goodToKnow": {
