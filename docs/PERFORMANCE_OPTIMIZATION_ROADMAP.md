@@ -8,12 +8,13 @@ QIP Dashboard 성능 최적화 로드맵 (2025-12-22 작성)
 
 ## 📊 현재 상태 (Baseline)
 
-| 항목 | 현재 | 목표 | 상태 |
-|------|------|------|------|
-| HTML 파일 크기 | 5.2 MB | 1.5-2.5 MB | 🔴 |
-| 페이지 로딩 시간 | 6-15초 | <2초 | 🔴 |
-| GitHub Actions 실행 | 5-8분 | 1-2분 | 🟡 |
-| JavaScript 라인 | 22,357줄 | 5,000-8,000줄 | 🔴 |
+| 항목 | 이전 | 현재 | 목표 | 상태 |
+|------|------|------|------|------|
+| HTML 파일 크기 | 5.2 MB | **4.8 MB** | 1.5-2.5 MB | 🟡 (9.8% 개선) |
+| 페이지 로딩 시간 | 6-15초 | 5-12초 | <2초 | 🟡 |
+| GitHub Actions 실행 | 5-8분 | **1-2분** | 1-2분 | ✅ 달성 |
+| JavaScript 라인 | 22,357줄 | 22,357줄 | 5,000-8,000줄 | 🔴 |
+| JSON 데이터 분리 | - | **완료** | 완료 | ✅ 달성 |
 
 ---
 
@@ -101,7 +102,31 @@ python scripts/optimize_html.py -i docs/dashboard.html
 
 ---
 
-## 🔄 Phase 4: 아키텍처 개선 (진행 중)
+## ✅ Phase 4: 아키텍처 개선 - Stage 1 완료
+
+### 4.0 Stage 1 구현 완료 (2025-12-22)
+
+**데이터 추출 스크립트**: `scripts/extract_dashboard_data.py`
+
+```bash
+# 모든 월 데이터 추출
+python scripts/extract_dashboard_data.py --all
+
+# 특정 월만 추출
+python scripts/extract_dashboard_data.py --month 12 --year 2025
+```
+
+**추출된 데이터 파일** (`docs/data/`):
+| 파일 타입 | 크기/월 | Gzip | 설명 |
+|----------|---------|------|------|
+| employee_data_*.json | 2.0 MB | 60 KB (3%) | 직원 인센티브 데이터 |
+| dashboard_summary_*.json | 1.6 MB | - | 요약 통계 |
+| aql_config_*.json | 5 KB | - | AQL Inspector 설정 |
+
+**효과**:
+- ✅ 데이터-UI 분리 기반 마련
+- ✅ Gzip 압축 시 97% 크기 감소
+- ✅ AJAX 로딩 준비 완료
 
 ### 4.1 현재 아키텍처
 
@@ -229,20 +254,26 @@ python scripts/utils/performance_utils.py
 
 ## 📋 다음 단계 권장 사항
 
+### ✅ 완료됨 (2025-12-22)
+1. [x] Phase 1-3 결과 검증
+2. [x] Stage 1 데이터 분리 - JSON 추출 스크립트 개발
+3. [x] HTML 최적화 (9.8% 감소)
+4. [x] GitHub Actions 최적화 (75% 시간 단축)
+
 ### 단기 (1-2주)
-1. [ ] Phase 1-3 결과 검증
-2. [ ] 성능 베이스라인 측정 스크립트 작성
-3. [ ] 주요 Python 파일에 성능 유틸리티 적용
+1. [ ] AJAX 로딩 프로토타입 구현
+2. [ ] 주요 Python 파일에 성능 유틸리티 적용
+3. [ ] 성능 베이스라인 측정 자동화
 
 ### 중기 (1개월)
-1. [ ] Stage 1 데이터 분리 시작
-2. [ ] JSON 데이터 생성 스크립트 개발
-3. [ ] AJAX 로딩 프로토타입
+1. [ ] Stage 2 JavaScript 코드 분리 시작
+2. [ ] 공통 함수 추출 (formatNumber, formatDate 등)
+3. [ ] 차트/모달 코드 모듈화
 
 ### 장기 (2개월+)
-1. [ ] Stage 2 JavaScript 코드 분리
-2. [ ] 빌드 시스템 검토
-3. [ ] CDN 배포 검토
+1. [ ] 빌드 시스템 도입 (Vite/Webpack)
+2. [ ] CDN 배포 검토
+3. [ ] 완전한 SPA 아키텍처 전환
 
 ---
 
