@@ -333,5 +333,75 @@ reviews: [download_from_gdrive.py, API 호출, 외부 서비스 연동]
 
 ---
 
+## 🚀 Performance Improvement Action Plan (2025-12-22 리뷰)
+
+### 현재 시스템 상태 (에이전트 팀 분석)
+
+| 항목 | 현재 | 목표 | 담당 에이전트 |
+|------|------|------|--------------|
+| HTML 파일 크기 | 5.2MB | 1.5-2.5MB | @FrontendArchitect, @PerformanceEngineer |
+| 페이지 로딩 | 6-15초 | <2초 | @PerformanceEngineer, @MobileSpecialist |
+| GitHub Actions | 5-8분 | 1-2분 | @DevOpsEngineer |
+| JavaScript 라인 | 22,357줄 | 5,000-8,000줄 | @FrontendArchitect |
+
+### 🎯 우선순위별 개선 계획
+
+#### Phase 1: 즉시 (1-2시간) - @DevOpsEngineer 담당
+```yaml
+문제: 매 30분마다 7-12월 전체 대시보드 재생성 (75-85% 낭비)
+해결: 현재 월만 처리하도록 워크플로우 수정
+예상 효과: 5-8분 → 2-3분 (60% 개선)
+일일 절감: 20 CPU 시간
+```
+
+#### Phase 2: 단기 (1-2일) - @BackendEngineer 담당
+```yaml
+문제: 비효율적 Python 패턴 (.iterrows(), 문자열 +=)
+해결:
+  - .iterrows() → .itertuples() (10배 빠름)
+  - 문자열 += → list.append() + join() (3-5배 빠름)
+예상 효과: 20-40% 생성 시간 단축
+```
+
+#### Phase 3: 중기 (1주) - @FrontendArchitect 담당
+```yaml
+문제: 22,357줄 인라인 JavaScript (243개 함수)
+해결:
+  - 코드 분리 (core.js, charts.js, modals.js)
+  - 공통 함수 추출 (30-40개)
+  - CDN 라이브러리 지연 로딩
+예상 효과: 페이지 로딩 3-8초 단축
+```
+
+#### Phase 4: 장기 (2주+) - @IntegrationSpecialist 담당
+```yaml
+문제: 데이터와 HTML이 결합된 구조
+해결:
+  - 정적 HTML 프레임워크 분리
+  - JSON 데이터만 동적 업데이트
+  - AJAX 데이터 로딩
+예상 효과: 90% 워크플로우 시간 단축
+```
+
+### 📊 개선 효과 예측표
+
+| 단계 | 소요 시간 | 워크플로우 | 페이지 로딩 | 일일 CPU |
+|------|----------|-----------|------------|----------|
+| 현재 | - | 5-8분 | 6-15초 | 24-48시간 |
+| Phase 1 | 1-2시간 | 2-3분 | 6-15초 | 12-24시간 |
+| Phase 2 | +1-2일 | 1-2분 | 6-15초 | 4-8시간 |
+| Phase 3 | +1주 | 1-2분 | 2-3초 | 4-8시간 |
+| Phase 4 | +2주 | 30-60초 | 3-5초 | 1-2시간 |
+
+### 🔄 다음 에이전트 액션
+
+- [ ] **@DevOpsEngineer**: Phase 1 워크플로우 수정 PR 생성
+- [ ] **@BackendEngineer**: Phase 2 Python 최적화 시작
+- [ ] **@QAEngineer**: 성능 베이스라인 측정 스크립트 작성
+- [ ] **@TechnicalWriter**: 개선 진행 상황 문서화
+
+---
+
 *Last Updated: 2025-12-22*
-*Agent Team Version: 1.0*
+*Agent Team Version: 1.1*
+*Performance Review: 2025-12-22 (Initial)*
