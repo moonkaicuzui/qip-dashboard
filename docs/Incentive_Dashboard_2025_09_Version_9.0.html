@@ -3568,7 +3568,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="september" data-month-name="9월">2025년 9월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="22" data-hour="02" data-minute="06">보고서 생성일: 2025년 12월 22일 02:06</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="22" data-hour="02" data-minute="14">보고서 생성일: 2025년 12월 22일 02:14</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -21651,12 +21651,65 @@
                 return false;
             }
 
+            // 2025-12-22: 상사 체인 수집 함수 - 빌딩 필터 시 상위 관리자도 표시
+            function collectBossChain(employeeData, buildingEmployeeIds) {
+                const bossChainIds = new Set();
+                const empMap = {};
+
+                // 모든 직원을 ID로 매핑
+                employeeData.forEach(emp => {
+                    const empId = String(emp.emp_no || emp['Employee No'] || '');
+                    if (empId && empId !== '' && empId !== 'nan') empMap[empId] = emp;
+                });
+
+                // 빌딩 직원들의 상사 체인을 재귀적으로 수집
+                function addBossChain(empId, depth = 0) {
+                    if (depth > 10) return; // 무한 루프 방지
+                    const emp = empMap[empId];
+                    if (!emp) return;
+
+                    const bossId = String(emp.boss_id || emp['MST direct boss name'] || '');
+                    if (bossId && bossId !== '' && bossId !== 'nan' && bossId !== '0' && !bossChainIds.has(bossId)) {
+                        bossChainIds.add(bossId);
+                        addBossChain(bossId, depth + 1); // 재귀적으로 상위 상사도 추가
+                    }
+                }
+
+                buildingEmployeeIds.forEach(empId => addBossChain(empId));
+                return bossChainIds;
+            }
+
+            // 2025-12-22: 빌딩 직원 ID 및 상사 체인 수집
+            let buildingEmployeeIds = new Set();
+            let bossChainIds = new Set();
+
+            if (selectedBuilding !== 'all') {
+                // 해당 빌딩의 모든 직원 ID 수집
+                employeeData.forEach(emp => {
+                    const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase();
+                    if (empBuilding === selectedBuilding.toUpperCase()) {
+                        const empId = String(emp.emp_no || emp['Employee No'] || '');
+                        if (empId && empId !== '' && empId !== 'nan') buildingEmployeeIds.add(empId);
+                    }
+                });
+
+                // 상사 체인 수집 (SUPERVISOR, MANAGER 등 상위 관리자 포함)
+                bossChainIds = collectBossChain(employeeData, buildingEmployeeIds);
+                console.log(`🏢 Building ${selectedBuilding}: ${buildingEmployeeIds.size}명, 상사 체인: ${bossChainIds.size}명`);
+            }
+
             // TYPE-1 직원 중 LINE LEADER 이상만 포함 (관리자 계층 구조)
             const type1Employees = employeeData.filter(emp => {
-                // Building 필터 적용 (SUPERVISOR, A.MANAGER 요청 - 2025-12-16)
+                const empId = String(emp.emp_no || emp['Employee No'] || '');
+
+                // Building 필터 적용 (2025-12-22: 상사 체인 포함으로 개선)
                 if (selectedBuilding !== 'all') {
                     const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase();
-                    if (empBuilding !== selectedBuilding.toUpperCase()) {
+                    const isInBuilding = empBuilding === selectedBuilding.toUpperCase();
+                    const isInBossChain = bossChainIds.has(empId);
+
+                    // 해당 빌딩이거나 상사 체인에 포함된 경우만 표시
+                    if (!isInBuilding && !isInBossChain) {
                         return false;
                     }
                 }
