@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Generate Self-Contained HTML for All Available Dashboards
+Generate Self-Contained HTML for Dashboards (최적화 버전)
 ==========================================================
-This script finds all dashboard HTML files and generates
-self-contained versions for each one.
+- 기본: 현재 월만 생성 (성능 최적화)
+- --all: 모든 월 생성 (필요시)
+
+@PerformanceEngineer 최적화: 모든 월 → 현재 월만 처리
 
 Used by GitHub Actions to keep SelfContained HTML in sync
 with web dashboards on every 30-minute update.
@@ -11,7 +13,9 @@ with web dashboards on every 30-minute update.
 
 import re
 import sys
+import argparse
 from pathlib import Path
+from datetime import datetime
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -19,9 +23,22 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from create_self_contained_html import create_self_contained_html
 
 
-def find_dashboard_files(docs_dir: Path) -> list:
-    """Find all web dashboard HTML files (excluding SelfContained versions)."""
+def get_current_month_year():
+    """현재 월과 연도 반환"""
+    now = datetime.now()
+    return now.month, now.year
+
+
+def find_dashboard_files(docs_dir: Path, current_only: bool = True) -> list:
+    """Find dashboard HTML files (excluding SelfContained versions).
+
+    Args:
+        docs_dir: 문서 디렉토리
+        current_only: True면 현재 월만, False면 모든 월
+    """
     pattern = re.compile(r'Incentive_Dashboard_(\d{4})_(\d{2})_Version_[\d.]+\.html$')
+
+    current_month, current_year = get_current_month_year()
 
     dashboard_files = []
     for html_file in docs_dir.glob('*.html'):
@@ -33,12 +50,23 @@ def find_dashboard_files(docs_dir: Path) -> list:
         if match:
             year = int(match.group(1))
             month = int(match.group(2))
-            dashboard_files.append({
-                'path': html_file,
-                'year': year,
-                'month': month,
-                'name': html_file.name
-            })
+
+            # 현재 월만 처리 모드
+            if current_only:
+                if month == current_month and year == current_year:
+                    dashboard_files.append({
+                        'path': html_file,
+                        'year': year,
+                        'month': month,
+                        'name': html_file.name
+                    })
+            else:
+                dashboard_files.append({
+                    'path': html_file,
+                    'year': year,
+                    'month': month,
+                    'name': html_file.name
+                })
 
     return sorted(dashboard_files, key=lambda x: (x['year'], x['month']))
 
@@ -62,9 +90,19 @@ def generate_selfcontained(dashboard_info: dict) -> bool:
 
 
 def main():
-    """Main function to generate all SelfContained HTML files."""
+    """Main function to generate SelfContained HTML files."""
+    # 명령줄 인자 파싱
+    parser = argparse.ArgumentParser(description='SelfContained HTML 생성')
+    parser.add_argument('--all', action='store_true',
+                        help='모든 월 SelfContained 생성 (기본: 현재 월만)')
+    args = parser.parse_args()
+
     print("="*60)
-    print("🔄 Generate All SelfContained HTML Files")
+    if args.all:
+        print("🔄 Generate All SelfContained HTML Files (전체 월 모드)")
+    else:
+        print("🔄 Generate SelfContained HTML (현재 월만 - 최적화 모드)")
+        print("   💡 모든 월 생성: --all 옵션 사용")
     print("="*60)
 
     # Find docs directory
@@ -95,14 +133,26 @@ def main():
 
     print(f"✅ CDN libraries found: {len(required_libs)} files")
 
-    # Find all dashboard files
-    dashboards = find_dashboard_files(docs_dir)
+    # Find dashboard files
+    dashboards = find_dashboard_files(docs_dir, current_only=not args.all)
 
     if not dashboards:
-        print(f"⚠️ No dashboard HTML files found in {docs_dir}")
-        return 0
+        if args.all:
+            print(f"⚠️ No dashboard HTML files found in {docs_dir}")
+            return 0
+        else:
+            # 현재 월 파일이 없으면 최신 월 처리
+            print(f"⚠️ 현재 월 대시보드가 없습니다. 최신 월을 찾습니다...")
+            dashboards = find_dashboard_files(docs_dir, current_only=False)
+            if dashboards:
+                # 가장 최신 1개만 처리
+                dashboards = [dashboards[-1]]
+                print(f"📌 최신 파일 처리: {dashboards[0]['year']}/{dashboards[0]['month']:02d}")
+            else:
+                print(f"⚠️ No dashboard HTML files found in {docs_dir}")
+                return 0
 
-    print(f"\n📋 Found {len(dashboards)} dashboard(s) to process:")
+    print(f"\n📋 처리할 대시보드: {len(dashboards)}개")
     for d in dashboards:
         print(f"   - {d['year']}/{d['month']:02d}: {d['name']}")
 
@@ -128,7 +178,7 @@ def main():
         print(f"\n⚠️ Some SelfContained files failed to generate!")
         return 1
 
-    print(f"\n✅ All SelfContained HTML files generated successfully!")
+    print(f"\n✅ SelfContained HTML 생성 완료!")
     return 0
 
 
