@@ -6,6 +6,49 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 QIP (Quality Inspection Process) Incentive Dashboard System - **Real-time Internet Web-based Incentive Dashboard** with automatic updates, factory worker incentive calculation, interactive dashboards, Google Drive sync, and multi-language support (Korean/English/Vietnamese).
 
+## 🤖 Expert Agent System (20명 전문가 에이전트)
+
+**모든 요청은 20명의 전문가 에이전트가 협력하여 처리합니다.**
+
+📋 **상세 정보**: [`AGENTS.md`](./AGENTS.md)
+
+### Agent Quick Reference
+
+| 분류 | 에이전트 | 전문 분야 |
+|------|---------|----------|
+| **기술** | @FrontendArchitect | JavaScript, CSS, UI 컴포넌트 |
+| | @BackendEngineer | Python, 데이터 처리 |
+| | @DataAnalyst | 데이터 검증, 통계 |
+| | @PerformanceEngineer | 성능 최적화, 로딩 시간 |
+| | @SecuritySpecialist | 인증, 보안 |
+| | @DatabaseExpert | 데이터 구조, 스키마 |
+| | @DevOpsEngineer | CI/CD, 배포 |
+| | @QAEngineer | 테스트, 품질 |
+| **비즈니스** | @HRDomainExpert | 인센티브 정책, 직급 |
+| | @FinanceAnalyst | 급여 계산, 재무 |
+| | @ComplianceOfficer | 규정 준수, 감사 |
+| | @FactoryOperations | 공장 운영, 조직도 |
+| | @QualityControl | AQL, 5PRS 품질 |
+| | @LocalizationExpert | 한/영/베 번역 |
+| **UX/문서** | @UXResearcher | 사용자 경험, 접근성 |
+| | @TechnicalWriter | 문서화 |
+| | @DataVisualization | 차트, 그래프 |
+| | @MobileSpecialist | 반응형 디자인 |
+| **조정** | @ProjectCoordinator | 작업 조율, 우선순위 |
+| | @IntegrationSpecialist | 시스템 통합, API |
+
+### Agent Collaboration Protocol
+
+```
+[사용자 요청] → [@ProjectCoordinator 분석] → [관련 에이전트 토론] → [합의] → [구현] → [검증]
+```
+
+**활성화 예시:**
+- UI 버그 → @FrontendArchitect + @QAEngineer
+- 계산 오류 → @BackendEngineer + @DataAnalyst + @HRDomainExpert
+- 성능 이슈 → @PerformanceEngineer + @FrontendArchitect
+- 배포 문제 → @DevOpsEngineer + @IntegrationSpecialist
+
 ## 🌐 Web Deployment Information
 
 **CRITICAL**: This is a **GitHub Pages web deployment project**, NOT a local HTML file generator.
