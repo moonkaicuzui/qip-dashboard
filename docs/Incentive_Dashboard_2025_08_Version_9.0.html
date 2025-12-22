@@ -10,10 +10,11 @@
     <title>QIP 인센티브 계산 결과 - 2025년 8월</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts for better Unicode support -->
+    <!-- Google Fonts for better Unicode support (Korean + Vietnamese + Latin) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- 2025-12-22: 베트남어 지원을 위해 Noto Sans에 vietnamese 서브셋 명시적 추가 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&subset=latin,latin-ext,vietnamese&display=swap" rel="stylesheet">
     <!-- Bootstrap JavaScript Bundle with Popper (필count!) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -59,14 +60,15 @@
             --modal-bg: #1e1e3f;
         }
 
-        /* Universal font for better Unicode support */
+        /* Universal font for better Unicode support (2025-12-22: 베트남어 지원 개선) */
+        /* 'Noto Sans'를 먼저 배치하여 베트남어 발음 기호(ă, â, đ, ê, ô, ơ, ư)가 올바르게 표시됨 */
         * {
-            font-family: 'Noto Sans KR', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
+            font-family: 'Noto Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
         }
 
         body {
             background: var(--bg-primary);
-            font-family: 'Noto Sans KR', 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Noto Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         
@@ -408,9 +410,9 @@
             overflow: hidden; /* 모달 배경 스크롤 방지 */
         }
 
-        /* 최소 근무일 모달 가독성 개선 스타th */
+        /* 최소 근무일 모달 가독성 개선 스타th (2025-12-22: 베트남어 지원) */
         #minimumDaysTable {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            font-family: 'Noto Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         }
 
         #minimumDaysTable thead th {
@@ -3566,7 +3568,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="august" data-month-name="8월">2025년 8월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="22" data-hour="01" data-minute="06">보고서 생성일: 2025년 12월 22일 01:06</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="22" data-hour="01" data-minute="46">보고서 생성일: 2025년 12월 22일 01:46</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -5355,18 +5357,9 @@
                                     <option value="D">Building D</option>
                                 </select>
                             </div>
+                            <!-- 2025-12-22: 중복 버튼 제거 - 검색 영역에 펼치기/접기 버튼 있음 -->
                             <div class="col-md-2">
-                                <button class="btn btn-primary w-100" onclick="expandAll()">
-                                    <i class="fas fa-expand"></i> <span id="expandAllBtn">전체 펼치기</span>
-                                </button>
-                            </div>
-                            <div class="col-md-2">
-                                <button class="btn btn-secondary w-100" onclick="collapseAll()">
-                                    <i class="fas fa-compress"></i> <span id="collapseAllBtn">전체 접기</span>
-                                </button>
-                            </div>
-                            <div class="col-md-2">
-                                <button class="btn btn-primary w-100" onclick="resetOrgChart()">
+                                <button class="btn btn-outline-secondary w-100" onclick="resetOrgChart()">
                                     <i class="fas fa-redo"></i> <span id="resetViewBtn">초기화</span>
                                 </button>
                             </div>
@@ -17439,15 +17432,15 @@
                     ? getTranslation('zeroWorkingDaysModal.statusLabels.no', lang)
                     : '-';
 
-                // 인센티브 수령 여부 및 금액
+                // 인센티브 수령 여부 및 금액 (2025-12-22: 배경 제거, 텍스트 색상으로 구별)
                 const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
-                    ? '<span class="badge bg-success">✅</span>'
-                    : '<span style="color: #e74c3c; font-size: 1.2em;">❌</span>';
+                    ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
+                    : '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
                 const amountCell = incentiveAmount > 0
-                    ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
-                    : '<span style="color: #95a5a6;">0 ₫</span>';
+                    ? `<span style="color: #28a745; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
+                    : '<span style="color: #dc3545;">0 ₫</span>';
 
                 return `
                     <tr class="unified-table-row">
@@ -17740,17 +17733,19 @@
                             ${(() => {
                                 const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
                                 const received = incentive > 0;
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return received ?
-                                    '<span class="badge bg-success">✅</span>' :
-                                    '<span class="badge bg-secondary">❌</span>';
+                                    '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' :
+                                    '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
                             })()}
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
                             ${(() => {
                                 const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return incentive > 0 ?
-                                    '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' :
-                                    '<span class="text-muted">0 ₫</span>';
+                                    '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' :
+                                    '<span style="color: #dc3545;">0 ₫</span>';
                             })()}
                         </td>
                     </tr>
@@ -18575,15 +18570,15 @@
                     failBadgeText = `${failPercent}%`;
                 }
 
-                // 인센티브 수령 여부 및 금액 (updateTableBody에서도 표시)
+                // 인센티브 수령 여부 및 금액 (2025-12-22: 배경 제거, 텍스트 색상으로 구별)
                 const incentiveAmount = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
-                    ? '<span class="badge bg-success">✅</span>'
-                    : '<span class="badge bg-secondary">❌</span>';
+                    ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
+                    : '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
                 const amountCell = incentiveAmount > 0
-                    ? '<span class="badge bg-info text-dark">' + incentiveAmount.toLocaleString() + ' ₫</span>'
-                    : '<span class="text-muted">0 ₫</span>';
+                    ? '<span style="color: #0d6efd; font-weight: 600;">' + incentiveAmount.toLocaleString() + ' ₫</span>'
+                    : '<span style="color: #dc3545;">0 ₫</span>';
 
                 return `
                     <tr class="unified-table-row">
@@ -18747,17 +18742,19 @@
                         <td class="unified-table-cell text-center">
                             ${(() => {
                                 const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return incentive > 0 ?
-                                    '<span class="badge bg-success">✅</span>' :
-                                    '<span class="badge bg-secondary">❌</span>';
+                                    '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' :
+                                    '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
                             })()}
                         </td>
                         <td class="unified-table-cell text-center">
                             ${(() => {
                                 const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return incentive > 0 ?
-                                    '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' :
-                                    '<span class="text-muted">0 ₫</span>';
+                                    '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' :
+                                    '<span style="color: #dc3545;">0 ₫</span>';
                             })()}
                         </td>
                     </tr>
@@ -19687,8 +19684,8 @@
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passIcon} ${passRate.toFixed(1)}%</span></td>
                     <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
-                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
-                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -19776,8 +19773,8 @@
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passIcon} ${passRate.toFixed(1)}%</span></td>
                     <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
-                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
-                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -20075,8 +20072,8 @@
                     <td>TYPE-1</td>
                     <td><span class="badge ${badgeClass}">${qtyIcon} ${inspectionQty}${qtyUnit}</span></td>
                     <td>${statusText}</td>
-                    <td class="text-center">${received ? '<span class="badge bg-success">✅</span>' : '<span class="badge bg-secondary">❌</span>'}</td>
-                    <td class="text-center">${incentive > 0 ? '<span class="badge bg-info text-dark">' + incentive.toLocaleString() + ' ₫</span>' : '<span class="text-muted">0 ₫</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -22585,11 +22582,12 @@
                                 ${flattenedSubs.map((sub, idx) => {
                                     const subIncentive = Number(sub['august_incentive'] || 0);
                                     const included = subIncentive > 0;
-                                    const rowClass = included ? '' : 'text-muted table-light';
+                                    // 2025-12-22: 미수령자 빨간색 폰트로 시각적 구별 (배경 제거)
+                                    const rowStyle = included ? '' : 'color: #dc3545;';
                                     const subName = sub.name || sub.employee_name || 'Unknown';
                                     const subEmpNo = sub.emp_no || sub.employee_id || '';
                                     return `
-                                        <tr class="${rowClass}" data-subordinate-row="true"
+                                        <tr style="${rowStyle}" data-subordinate-row="true"
                                             data-receiving="${included}"
                                             data-name="${subName}"
                                             data-emp-no="${subEmpNo}"
@@ -22599,7 +22597,7 @@
                                             <td>${subName}</td>
                                             <td>${subEmpNo}</td>
                                             <td class="text-end">${included ? '₫' + subIncentive.toLocaleString('ko-KR') : '-'}</td>
-                                            <td class="text-center">${included ? '✅' : '❌'}</td>
+                                            <td class="text-center">${included ? '<span style="color: #28a745;">✅ 수령</span>' : '<span style="color: #dc3545;">미수령</span>'}</td>
                                         </tr>
                                     `;
                                 }).join('')}
@@ -22668,8 +22666,10 @@
                                     const isReceiving = subIncentive > 0;
                                     const subName = sub.name || sub.employee_name || 'Unknown';
                                     const subEmpNo = sub.emp_no || sub.employee_id || '';
+                                    // 2025-12-22: 미수령자 빨간색 폰트로 시각적 구별 (배경 제거)
+                                    const rowStyle = isReceiving ? '' : 'color: #dc3545;';
                                     return `
-                                        <tr class="${isReceiving ? '' : 'text-muted table-light'}"
+                                        <tr style="${rowStyle}"
                                             data-subordinate-row="true"
                                             data-receiving="${isReceiving}"
                                             data-name="${subName}"
@@ -22678,7 +22678,7 @@
                                             <td>${subName}</td>
                                             <td>${subEmpNo}</td>
                                             <td class="text-end">${isReceiving ? '₫' + subIncentive.toLocaleString('ko-KR') : '-'}</td>
-                                            <td class="text-center">${isReceiving ? '✅' : '❌'}</td>
+                                            <td class="text-center">${isReceiving ? '<span style="color: #28a745;">✅ 수령</span>' : '<span style="color: #dc3545;">미수령</span>'}</td>
                                         </tr>
                                     `;
                                 }).join('')}
