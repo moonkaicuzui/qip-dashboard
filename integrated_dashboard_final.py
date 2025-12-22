@@ -1365,10 +1365,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     <title>QIP 인센티브 계산 결과 - {year}년 {get_korean_month(month)}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts for better Unicode support -->
+    <!-- Google Fonts for better Unicode support (Korean + Vietnamese + Latin) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- 2025-12-22: 베트남어 지원을 위해 Noto Sans에 vietnamese 서브셋 명시적 추가 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&subset=latin,latin-ext,vietnamese&display=swap" rel="stylesheet">
     <!-- Bootstrap JavaScript Bundle with Popper (필count!) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     '''
@@ -5333,14 +5334,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             --modal-bg: #1e1e3f;
         }}
 
-        /* Universal font for better Unicode support */
+        /* Universal font for better Unicode support (2025-12-22: 베트남어 지원 개선) */
+        /* 'Noto Sans'를 먼저 배치하여 베트남어 발음 기호(ă, â, đ, ê, ô, ơ, ư)가 올바르게 표시됨 */
         * {{
-            font-family: 'Noto Sans KR', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
+            font-family: 'Noto Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji' !important;
         }}
 
         body {{
             background: var(--bg-primary);
-            font-family: 'Noto Sans KR', 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Noto Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
             transition: background-color 0.3s ease, color 0.3s ease;
         }}
         
@@ -5682,9 +5684,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             overflow: hidden; /* 모달 배경 스크롤 방지 */
         }}
 
-        /* 최소 근무일 모달 가독성 개선 스타th */
+        /* 최소 근무일 모달 가독성 개선 스타th (2025-12-22: 베트남어 지원) */
         #minimumDaysTable {{
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            font-family: 'Noto Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
         }}
 
         #minimumDaysTable thead th {{
@@ -10262,18 +10264,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <option value="D">Building D</option>
                                 </select>
                             </div>
+                            <!-- 2025-12-22: 중복 버튼 제거 - 검색 영역에 펼치기/접기 버튼 있음 -->
                             <div class="col-md-2">
-                                <button class="btn btn-primary w-100" onclick="expandAll()">
-                                    <i class="fas fa-expand"></i> <span id="expandAllBtn">전체 펼치기</span>
-                                </button>
-                            </div>
-                            <div class="col-md-2">
-                                <button class="btn btn-secondary w-100" onclick="collapseAll()">
-                                    <i class="fas fa-compress"></i> <span id="collapseAllBtn">전체 접기</span>
-                                </button>
-                            </div>
-                            <div class="col-md-2">
-                                <button class="btn btn-primary w-100" onclick="resetOrgChart()">
+                                <button class="btn btn-outline-secondary w-100" onclick="resetOrgChart()">
                                     <i class="fas fa-redo"></i> <span id="resetViewBtn">초기화</span>
                                 </button>
                             </div>
