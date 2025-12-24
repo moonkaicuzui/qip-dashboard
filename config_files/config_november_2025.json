@@ -7,7 +7,6 @@
     "october"
   ],
   "file_paths": {
-    "basic_manpower": "input_files/basic manpower data november.csv",
     "5prs": "input_files/5prs data november.csv",
     "attendance": "input_files/attendance/original/attendance data november.csv",
     "aql_current": "input_files/AQL history/1.HSRG AQL REPORT-NOVEMBER.2025.csv",
@@ -17,10 +16,9 @@
   "created_at": "2025-11-10T07:24:39.438633",
   "data_source": "google_drive",
   "working_days_source": "attendance_data",
-  "working_days_updated_at": "2025-12-24T01:04:27.010207",
-  "last_updated": "2025-12-05T01:06:56.000Z",
+  "working_days_updated_at": "2025-12-24T01:35:12.967074",
+  "last_updated": "2025-12-02T08:00:05.000Z",
   "files_modified_times": {
-    "basic_manpower": "2025-12-05T01:06:56.000Z",
     "5prs": "2025-12-02T08:00:05.000Z",
     "attendance": "2025-12-02T07:58:50.000Z",
     "aql_current": "2025-12-02T07:59:02.000Z"
