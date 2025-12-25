@@ -20053,97 +20053,85 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const month = {month_num};
             const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
 
-            // 근무일 계산 (일요일만 제외 - 공장은 월~토 근무) (2025-12-25 버그 수정)
-            let workingDaysList = [];
-            for (let day = 1; day <= 31; day++) {{
-                const date = new Date(year, month - 1, day);
-                if (date.getMonth() !== month - 1) break; // 해당 월이 아니면 종료
-                const dayOfWeek = date.getDay();
-                if (dayOfWeek !== 0) {{ // 일요일만 제외 (토요일도 근무)
-                    workingDaysList.push({{ date: date, day: day, dayOfWeek: dayOfWeek }});
-                }}
-            }}
+            // 직원 사번 가져오기
+            const empNo = String(employee.emp_no || employee['Employee No'] || '');
 
-            // 출근/결근 배분 - totalDays 수만큼만 표시 (미래 날짜 표시 방지)
-            // 2025-12-25 버그 수정: 데이터가 있는 날짜까지만 표시
-            let attendanceStatus = [];
-            const actualWorked = actualDays;
-            const approved = approvedLeave;
-            const unapproved = unapprovedAbsence;
+            // 실제 출결 데이터 확인 (시뮬레이션 제거 - 2025-12-25)
+            const attendanceRawData = window.excelDashboardData?.attendance_raw_data || {{}};
+            const empAttendance = attendanceRawData[empNo];
 
-            // 총 근무일 수만큼만 workingDaysList를 자름 (미래 날짜 무단결근 표시 방지)
-            const displayDays = Math.min(workingDaysList.length, totalDays);
-            workingDaysList = workingDaysList.slice(0, displayDays);
-
-            // 상태 배분: 출근 → 승인휴가 → 무단결근 순서
-            for (let i = 0; i < displayDays; i++) {{
-                if (i < actualWorked) {{
-                    attendanceStatus.push('출근');
-                }} else if (i < actualWorked + approved) {{
-                    attendanceStatus.push('승인휴가');
-                }} else {{
-                    attendanceStatus.push('무단결근');
-                }}
-            }}
-
-            // 결근 사유 목록
-            const absenceReasons = [
-                '개인 사유',
-                '가족 행사',
-                '병가 (미신고)',
-                '교통 문제',
-                '개인 용무',
-                '기타'
-            ];
-
-            const approvedReasons = [
-                '연차휴가',
-                '병가 (승인)',
-                '경조사',
-                '공가',
-                '교육/훈련'
-            ];
-
-            let unapprovedIdx = 0;
-            let approvedIdx = 0;
-
-            // 시뮬레이션 안내 메시지 (2025-12-25 추가)
-            tbody.innerHTML = `
-                <tr class="table-info">
-                    <td colspan="4" style="text-align: center; font-style: italic;">
-                        ⚠️ 아래 데이터는 요약 정보를 기반으로 시뮬레이션된 것입니다. 실제 일별 출결 기록과 다를 수 있습니다.
-                    </td>
-                </tr>
-            `;
-
-            workingDaysList.forEach((item, idx) => {{
-                const status = attendanceStatus[idx] || '출근';
-                let reason = '-';
-                let statusBadge = '';
-
-                if (status === '출근') {{
-                    statusBadge = '<span class="badge bg-success">✅ 출근</span>';
-                    reason = '정상 출근';
-                }} else if (status === '승인휴가') {{
-                    statusBadge = '<span class="badge bg-warning text-dark">📋 승인휴가</span>';
-                    reason = approvedReasons[approvedIdx % approvedReasons.length];
-                    approvedIdx++;
-                }} else {{
-                    statusBadge = '<span class="badge bg-danger">❌ 무단결근</span>';
-                    reason = absenceReasons[unapprovedIdx % absenceReasons.length];
-                    unapprovedIdx++;
-                }}
-
-                const row = `
-                    <tr class="${{status === '무단결근' ? 'table-danger' : status === '승인휴가' ? 'table-warning' : ''}}">
-                        <td>${{year}}-${{String(month).padStart(2, '0')}}-${{String(item.day).padStart(2, '0')}}</td>
-                        <td>${{weekdays[item.dayOfWeek]}}</td>
-                        <td>${{statusBadge}}</td>
-                        <td>${{reason}}</td>
+            if (empAttendance && empAttendance.dates && Object.keys(empAttendance.dates).length > 0) {{
+                // ✅ 실제 데이터 사용
+                tbody.innerHTML = `
+                    <tr class="table-success">
+                        <td colspan="4" style="text-align: center; font-weight: bold;">
+                            ✅ Google Drive 실제 출결 데이터 (${{Object.keys(empAttendance.dates).length}}일)
+                        </td>
                     </tr>
                 `;
-                tbody.innerHTML += row;
-            }});
+
+                // 날짜순 정렬
+                const sortedDates = Object.keys(empAttendance.dates).sort();
+
+                sortedDates.forEach(dateStr => {{
+                    const record = empAttendance.dates[dateStr];
+                    const date = new Date(dateStr);
+                    const dayOfWeek = date.getDay();
+
+                    let statusBadge = '';
+                    let reason = '-';
+                    let rowClass = '';
+
+                    if (record.status === 'present') {{
+                        statusBadge = '<span class="badge bg-success">✅ 출근</span>';
+                        reason = '정상 출근';
+                        if (record.come_late > 0) {{
+                            reason += ` (지각 ${{record.come_late}}회)`;
+                        }}
+                        if (record.leave_early > 0) {{
+                            reason += ` (조퇴 ${{record.leave_early}}회)`;
+                        }}
+                    }} else if (record.status === 'approved_leave') {{
+                        statusBadge = '<span class="badge bg-warning text-dark">📋 승인휴가</span>';
+                        reason = record.reason || '승인휴가';
+                        rowClass = 'table-warning';
+                    }} else if (record.status === 'unapproved') {{
+                        statusBadge = '<span class="badge bg-danger">❌ 무단결근</span>';
+                        reason = record.reason || '무단결근';
+                        rowClass = 'table-danger';
+                    }}
+
+                    const row = `
+                        <tr class="${{rowClass}}">
+                            <td>${{dateStr}}</td>
+                            <td>${{weekdays[dayOfWeek]}}</td>
+                            <td>${{statusBadge}}</td>
+                            <td>${{reason}}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                }});
+            }} else {{
+                // ⚠️ 실제 데이터 없음 - 요약 통계 기반 표시 (시뮬레이션 아님)
+                tbody.innerHTML = `
+                    <tr class="table-warning">
+                        <td colspan="4" style="text-align: center; font-style: italic;">
+                            ⚠️ 일별 상세 출결 데이터가 없습니다. 요약 통계만 사용할 수 있습니다.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <div class="alert alert-info mb-0">
+                                <strong>📊 요약 통계:</strong><br>
+                                • 총 근무일: ${{totalDays}}일<br>
+                                • 실제 출근: ${{actualDays}}일<br>
+                                • 승인휴가: ${{approvedLeave}}일<br>
+                                • 무단결근: ${{unapprovedAbsence}}일
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }}
         }}
 
         function analyzeAttendancePatterns(employee, totalDays, actualDays, approvedLeave, unapprovedAbsence) {{
@@ -23313,12 +23301,18 @@ def main():
                         df_attendance['Work Date'] = pd.to_datetime(df_attendance['Work Date'], format='%Y.%m.%d', errors='coerce')
                         df_attendance = df_attendance.dropna(subset=['Work Date'])
 
-                        # ID No column 찾기
+                        # ID No column 찾기 (Personnel Number 추가 - 2025-12-25)
                         id_col = None
-                        for col in ['ID No', 'ID', 'Employee No', 'Emp No']:
+                        for col in ['Personnel Number', 'ID No', 'ID', 'Employee No', 'Emp No']:
                             if col in df_attendance.columns:
                                 id_col = col
                                 break
+
+                        # Attendance Name, Reason Description 컬럼 확인
+                        attendance_name_col = 'Attendance Name' if 'Attendance Name' in df_attendance.columns else None
+                        reason_col = 'Reason Description' if 'Reason Description' in df_attendance.columns else None
+                        come_late_col = 'Come late' if 'Come late' in df_attendance.columns else None
+                        leave_early_col = 'Leave early' if 'Leave early' in df_attendance.columns else None
 
                         # th자by 직원 count calculation
                         for _, row in df_attendance.iterrows():
@@ -23327,17 +23321,41 @@ def main():
                                 daily_data[day] = {'is_working_day': True, 'count': 0}
                             daily_data[day]['count'] += 1
 
-                            # 직원by unique 날짜 count calculation
+                            # 직원by 일별 출결 상세 데이터 저장 (시뮬레이션 제거 - 2025-12-25)
                             if id_col and pd.notna(row[id_col]):
-                                emp_no = str(row[id_col]).strip().lstrip('0').zfill(9)
+                                emp_no = str(int(float(row[id_col]))) if str(row[id_col]).replace('.', '').isdigit() else str(row[id_col]).strip()
                                 if emp_no not in attendance_raw_data:
-                                    attendance_raw_data[emp_no] = {'dates': set()}
-                                attendance_raw_data[emp_no]['dates'].add(row['Work Date'].strftime('%Y-%m-%d'))
+                                    attendance_raw_data[emp_no] = {'dates': {}, 'uniqueDates': 0}
 
-                        # set을 길이로 conversion (unique 날짜 count)
+                                date_str = row['Work Date'].strftime('%Y-%m-%d')
+
+                                # 출결 상태 판단
+                                attendance_name = str(row[attendance_name_col]) if attendance_name_col and pd.notna(row[attendance_name_col]) else ''
+                                reason = str(row[reason_col]) if reason_col and pd.notna(row[reason_col]) else ''
+                                come_late = int(row[come_late_col]) if come_late_col and pd.notna(row[come_late_col]) else 0
+                                leave_early = int(row[leave_early_col]) if leave_early_col and pd.notna(row[leave_early_col]) else 0
+
+                                # 상태 판단: Đi làm=출근, Vắng mặt+Vắng có phép=승인휴가, Vắng mặt+기타=무단결근
+                                if 'Đi làm' in attendance_name or attendance_name == '':
+                                    status = 'present'  # 출근
+                                elif 'Vắng mặt' in attendance_name:
+                                    if 'Vắng có phép' in reason or 'có phép' in reason.lower():
+                                        status = 'approved_leave'  # 승인휴가
+                                    else:
+                                        status = 'unapproved'  # 무단결근
+                                else:
+                                    status = 'present'  # 기본값: 출근
+
+                                attendance_raw_data[emp_no]['dates'][date_str] = {
+                                    'status': status,
+                                    'reason': reason,
+                                    'come_late': come_late,
+                                    'leave_early': leave_early
+                                }
+
+                        # unique 날짜 count 계산
                         for emp_no in attendance_raw_data:
                             attendance_raw_data[emp_no]['uniqueDates'] = len(attendance_raw_data[emp_no]['dates'])
-                            del attendance_raw_data[emp_no]['dates']  # set 제거 (JSON 직렬화 불가)
 
                         print(f"✅ Daily attendance data creation completed: {len(daily_data)}th")
                         print(f"✅ 직원by attendance raw data creation completed: {len(attendance_raw_data)}직원")
