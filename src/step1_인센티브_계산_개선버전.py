@@ -4744,8 +4744,10 @@ class CompleteQIPCalculator:
             emp_no_str = str(emp_no).lstrip('0')
 
             # 해당 employeeof attendance record 필터링
-            # 원본 출결 파일은 'Personnel Number' 컬럼 사용 (2025-12-25 버그 수정)
-            emp_col = 'Personnel Number' if 'Personnel Number' in att_df.columns else 'ID No'
+            # detect_column_names 패턴 사용으로 구조적 호환성 확보 (2025-12-25)
+            emp_col = self.detect_column_names(att_df, ['Personnel Number', 'ID No', 'Employee No', 'EMPLOYEE NO'])
+            if not emp_col:
+                return 0
             emp_attendance = att_df[att_df[emp_col].astype(str).str.lstrip('0') == emp_no_str]
 
             # AR1 아닌 사유only 승인휴with 집계
