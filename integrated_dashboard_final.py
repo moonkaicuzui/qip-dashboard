@@ -2893,9 +2893,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         modalHTML += '<div class="section-container">';
         modalHTML += '<h3 style="color: #e67e22; margin-bottom: 15px;">⚠️ ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.twoMonthSection') + '</h3>';
 
-        // 동적 월 패턴으로 필터링
-        const augSepFailsList = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternHigh));
-        const julAugFailsList = twoMonthFails.filter(emp => emp['Continuous_FAIL'].includes(filterPatternMedium));
+        // 2개월 연속 실패자 분류 (2025-12-25 수정)
+        // Continuous_FAIL_2Month='YES'는 현재 월 포함 2개월 연속 실패 의미 → 전부 🔴 높음
+        // 🟡 보통 (전월 회복)은 이미 Continuous_FAIL_2Month='YES'에서 제외됨 → 0명
+        const augSepFailsList = twoMonthFails;  // 전부 🔴 높음 (11-12월 연속)
+        const julAugFailsList = [];  // 🟡 보통은 0명 (회복자는 twoMonthFails에 없음)
 
         if (twoMonthFails.length === 0) {
             modalHTML += '<div class="alert alert-info" style="padding: 15px; background: #d1ecf1; color: #0c5460; border-radius: 5px;">';
@@ -11475,7 +11477,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     console.error('[ERROR] excelDashboardDataBase64 element not found in DOM!');
                 }} else if (excelDataElement.textContent.trim()) {{
                     const base64Data = excelDataElement.textContent.trim();
-                    const jsonStr = atob(base64Data);
+                    const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 (베트남어 이름 정상 표시)
                     excelDashboardData = JSON.parse(jsonStr);
                     window.excelDashboardData = excelDashboardData; // Also store in window for backward compatibility
 
@@ -20135,80 +20137,122 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         function analyzeAttendancePatterns(employee, totalDays, actualDays, approvedLeave, unapprovedAbsence) {{
-            // 요일별 결근 분석 (시뮬레이션)
+            // 2025-12-25: 시뮬레이션 제거 - 실제 데이터 사용
             const weekdayBody = document.getElementById('weekdayAbsenceBody');
-            weekdayBody.innerHTML = '';
-
-            const weekdays = ['월', '화', '수', '목', '금'];
-            const totalAbsences = unapprovedAbsence + approvedLeave;
-
-            // 시뮬레이션 데이터 (실제로는 일별 데이터 필요)
-            let weekdayAbsences = [0, 0, 0, 0, 0];
-            for (let i = 0; i < totalAbsences; i++) {{
-                // 월요일과 금요일에 결근이 많은 경향 시뮬레이션
-                const weights = [0.3, 0.15, 0.1, 0.15, 0.3];
-                let rand = Math.random();
-                let cumulative = 0;
-                for (let j = 0; j < 5; j++) {{
-                    cumulative += weights[j];
-                    if (rand < cumulative) {{
-                        weekdayAbsences[j]++;
-                        break;
-                    }}
-                }}
-            }}
-
-            weekdays.forEach((day, idx) => {{
-                const count = weekdayAbsences[idx];
-                const percent = totalAbsences > 0 ? (count / totalAbsences * 100).toFixed(1) : 0;
-                const barWidth = totalAbsences > 0 ? (count / Math.max(...weekdayAbsences) * 100) : 0;
-
-                weekdayBody.innerHTML += `
-                    <tr>
-                        <td>${{day}}요일</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="progress flex-grow-1" style="height: 20px;">
-                                    <div class="progress-bar bg-danger" style="width: ${{barWidth}}%"></div>
-                                </div>
-                                <span>${{count}}회</span>
-                            </div>
-                        </td>
-                        <td>${{percent}}%</td>
-                    </tr>
-                `;
-            }});
-
-            // 결근 사유별 분석
             const reasonBody = document.getElementById('absenceReasonBody');
+            weekdayBody.innerHTML = '';
             reasonBody.innerHTML = '';
 
-            const reasons = {{
-                '개인 사유': Math.floor(unapprovedAbsence * 0.3),
-                '병가': Math.floor(unapprovedAbsence * 0.2) + Math.floor(approvedLeave * 0.4),
-                '가족 행사/경조사': Math.floor(approvedLeave * 0.3),
-                '연차휴가': Math.floor(approvedLeave * 0.3),
-                '교통 문제': Math.floor(unapprovedAbsence * 0.2),
-                '기타': unapprovedAbsence - Math.floor(unapprovedAbsence * 0.7)
-            }};
+            const weekdays = ['월', '화', '수', '목', '금'];
+            const empNo = String(employee.emp_no || employee['Employee No'] || '');
 
-            Object.entries(reasons).filter(([k, v]) => v > 0).forEach(([reason, count]) => {{
-                const percent = totalAbsences > 0 ? (count / totalAbsences * 100).toFixed(1) : 0;
-                const isUnapproved = ['개인 사유', '교통 문제', '기타'].includes(reason);
+            // 실제 출결 데이터 가져오기
+            const attendanceRawData = window.excelDashboardData?.attendance_raw_data || {{}};
+            const empAttendance = attendanceRawData[empNo];
 
-                reasonBody.innerHTML += `
-                    <tr>
-                        <td>
-                            <span class="badge ${{isUnapproved ? 'bg-danger' : 'bg-warning text-dark'}} me-1">
-                                ${{isUnapproved ? '무단' : '승인'}}
-                            </span>
-                            ${{reason}}
-                        </td>
-                        <td>${{count}}회</td>
-                        <td>${{percent}}%</td>
-                    </tr>
+            // 요일별 결근 집계 및 사유별 집계
+            let weekdayAbsences = [0, 0, 0, 0, 0];  // 월~금
+            const reasonCounts = {{}};
+            let totalAbsences = 0;
+
+            if (empAttendance && empAttendance.dates && Object.keys(empAttendance.dates).length > 0) {{
+                // ✅ 실제 데이터 기반 분석
+                Object.entries(empAttendance.dates).forEach(([dateStr, record]) => {{
+                    // 결근/휴가만 카운트 (present가 아닌 경우)
+                    if (record.status !== 'present') {{
+                        totalAbsences++;
+
+                        // 요일 계산 (0=일요일, 1=월요일, ..., 6=토요일)
+                        const date = new Date(dateStr);
+                        const dayOfWeek = date.getDay();
+                        if (dayOfWeek >= 1 && dayOfWeek <= 5) {{  // 월~금만
+                            weekdayAbsences[dayOfWeek - 1]++;
+                        }}
+
+                        // 사유별 집계
+                        const reason = record.reason || (record.status === 'approved_leave' ? '승인휴가' : '무단결근');
+                        reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
+                    }}
+                }});
+
+                // 요일별 테이블 생성
+                weekdays.forEach((day, idx) => {{
+                    const count = weekdayAbsences[idx];
+                    const percent = totalAbsences > 0 ? (count / totalAbsences * 100).toFixed(1) : 0;
+                    const maxCount = Math.max(...weekdayAbsences, 1);
+                    const barWidth = (count / maxCount * 100);
+
+                    weekdayBody.innerHTML += `
+                        <tr>
+                            <td>${{day}}요일</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 20px;">
+                                        <div class="progress-bar bg-danger" style="width: ${{barWidth}}%"></div>
+                                    </div>
+                                    <span>${{count}}회</span>
+                                </div>
+                            </td>
+                            <td>${{percent}}%</td>
+                        </tr>
+                    `;
+                }});
+
+                // 사유별 테이블 생성
+                if (Object.keys(reasonCounts).length > 0) {{
+                    Object.entries(reasonCounts).forEach(([reason, count]) => {{
+                        const percent = totalAbsences > 0 ? (count / totalAbsences * 100).toFixed(1) : 0;
+                        const isUnapproved = reason.includes('무단') || reason === 'unapproved';
+
+                        reasonBody.innerHTML += `
+                            <tr>
+                                <td>
+                                    <span class="badge ${{isUnapproved ? 'bg-danger' : 'bg-warning text-dark'}} me-1">
+                                        ${{isUnapproved ? '무단' : '승인'}}
+                                    </span>
+                                    ${{reason}}
+                                </td>
+                                <td>${{count}}회</td>
+                                <td>${{percent}}%</td>
+                            </tr>
+                        `;
+                    }});
+                }} else {{
+                    reasonBody.innerHTML = '<tr><td colspan="3" class="text-center text-success">✅ 결근 사유 없음 (전원 출근)</td></tr>';
+                }}
+
+            }} else {{
+                // ⚠️ 실제 데이터 없음 - 요약 통계만 표시
+                weekdayBody.innerHTML = `
+                    <tr><td colspan="3" class="text-center text-muted">
+                        ⚠️ 일별 상세 출결 데이터가 없어 요일별 분석을 표시할 수 없습니다.
+                    </td></tr>
                 `;
-            }});
+
+                // 요약 통계로 간단히 표시
+                if (approvedLeave > 0 || unapprovedAbsence > 0) {{
+                    if (approvedLeave > 0) {{
+                        reasonBody.innerHTML += `
+                            <tr>
+                                <td><span class="badge bg-warning text-dark me-1">승인</span> 승인휴가</td>
+                                <td>${{approvedLeave}}회</td>
+                                <td>-</td>
+                            </tr>
+                        `;
+                    }}
+                    if (unapprovedAbsence > 0) {{
+                        reasonBody.innerHTML += `
+                            <tr>
+                                <td><span class="badge bg-danger me-1">무단</span> 무단결근</td>
+                                <td>${{unapprovedAbsence}}회</td>
+                                <td>-</td>
+                            </tr>
+                        `;
+                    }}
+                }} else {{
+                    reasonBody.innerHTML = '<tr><td colspan="3" class="text-center text-success">✅ 결근 사유 없음</td></tr>';
+                }}
+            }}
 
             // 패턴 분석 요약
             const patternContent = document.getElementById('patternAnalysisContent');
