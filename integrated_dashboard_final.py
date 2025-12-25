@@ -11334,9 +11334,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const auditorMappingBase64 = auditorMappingElement.textContent.trim();
                 const auditorMappingJson = base64DecodeUnicode(auditorMappingBase64);
                 window.auditorAreaMapping = JSON.parse(auditorMappingJson);
-                // console.log('Auditor Area Mapping loaded:',
+                /* console.log('Auditor Area Mapping loaded:',
                     Object.keys(window.auditorAreaMapping.auditor_trainer_areas || {{}}).length, 'auditors,',
-                    Object.keys(window.auditorAreaMapping.model_master?.employees || {{}}).length, 'model masters');
+                    Object.keys(window.auditorAreaMapping.model_master?.employees || {{}}).length, 'model masters'); */
             }} else {{
                 console.warn('Auditor Area Mapping element not found, using empty object');
                 window.auditorAreaMapping = {{}};
@@ -11348,8 +11348,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const aqlIncentiveConfigBase64 = aqlIncentiveConfigElement.textContent.trim();
                 const aqlIncentiveConfigJson = base64DecodeUnicode(aqlIncentiveConfigBase64);
                 window.aqlIncentiveConfig = JSON.parse(aqlIncentiveConfigJson);
-                // console.log('AQL Inspector Incentive Config loaded:',
-                    Object.keys(window.aqlIncentiveConfig.aql_inspectors || {{}}).length, 'inspectors');
+                /* console.log('AQL Inspector Incentive Config loaded:',
+                    Object.keys(window.aqlIncentiveConfig.aql_inspectors || {{}}).length, 'inspectors'); */
             }} else {{
                 console.warn('AQL Incentive Config element not found, using empty object');
                 window.aqlIncentiveConfig = {{ aql_inspectors: {{}}, parts: {{}} }};
@@ -18911,12 +18911,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 디버깅: 첫 5개 직원 data 확인
             if (employeeData.length > 0) {{
-                // console.log('Sample employee data:', employeeData.slice(0, 5).map(e => ({{
+                /* console.log('Sample employee data:', employeeData.slice(0, 5).map(e => ({{
                     name: e.name,
                     position: e.position,
                     boss_id: e.boss_id,
                     boss_name: e.boss_name
-                }})));
+                }})));  */
             }}
 
             const data = [];
