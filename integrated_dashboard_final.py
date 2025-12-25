@@ -23374,6 +23374,31 @@ def main():
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
 
+    # JavaScript 구문 검증 (혼선 방지)
+    import subprocess
+    import tempfile
+    try:
+        # HTML에서 JavaScript 추출
+        js_start = html_content.find('<script>') + len('<script>')
+        js_end = html_content.rfind('</script>')
+        if js_start > 0 and js_end > js_start:
+            js_content = html_content[js_start:js_end]
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False, encoding='utf-8') as tmp:
+                tmp.write(js_content)
+                tmp_path = tmp.name
+            result = subprocess.run(['node', '--check', tmp_path], capture_output=True, text=True)
+            os.unlink(tmp_path)
+            if result.returncode != 0:
+                print(f"⚠️ JavaScript 구문 오류 발견!")
+                print(f"   {result.stderr.strip()}")
+                print(f"   → 멀티라인 console.log 주석 처리 확인 필요 (// → /* */)")
+            else:
+                print(f"✅ JavaScript 구문 검증 통과")
+    except FileNotFoundError:
+        print(f"ℹ️ Node.js 미설치 - JavaScript 구문 검증 생략")
+    except Exception as e:
+        print(f"ℹ️ JavaScript 검증 실패: {e}")
+
     print(f"✅ dashboard creation completed: {output_file}")
 
     # 통계 출력 - dashboard_df 사용

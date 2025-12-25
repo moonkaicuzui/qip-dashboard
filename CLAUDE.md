@@ -1486,6 +1486,28 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - JavaScript에서 데이터 키와 번역 문자열을 명확히 구분
      - `displayName` 패턴 사용: 데이터 접근용 키와 사용자 표시용 문자열 분리
 
+30. **JavaScript 멀티라인 주석 구문 오류** (FIXED: 2025-12-25):
+   - **Problem**: 대시보드 로드 시 "Unexpected token ')'" 오류로 모든 JavaScript 함수 미정의
+   - **Root Cause**: 멀티라인 console.log를 `//`로 주석 처리 시 첫 줄만 주석됨
+     ```javascript
+     // console.log('message',     // ← 주석 처리됨
+         value1, value2);          // ← 실행됨! → 구문 오류
+     ```
+   - **Solution**: 멀티라인 코드는 `/* */` 블록 주석 사용
+     ```javascript
+     /* console.log('message',
+         value1, value2); */
+     ```
+   - **Affected Locations** (integrated_dashboard_final.py):
+     - Line 11337-11339: Auditor Area Mapping 로그
+     - Line 11351-11352: AQL Inspector Config 로그
+     - Line 18914-18919: Sample employee data 로그
+   - **Prevention (자동화됨)**:
+     - 대시보드 생성 시 Node.js로 JavaScript 구문 자동 검증 추가 (Line 23377-23400)
+     - 구문 오류 발견 시 경고 메시지와 함께 수정 가이드 출력
+   - **Commit**: `9e29c451` (2025-12-25)
+   - **Git Rebase 주의**: 리베이스에서 `--ours`는 원격 브랜치, `--theirs`는 로컬 커밋
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
