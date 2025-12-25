@@ -1401,9 +1401,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     holidays.push(day);
                 }
             }
-            console.log('actual 근무일:', workDays);
-            console.log('휴th/data없음:', holidays);
-            console.log('total 근무일count:', totalWorkingDays);
         } else {
             /* Fallback: 기본 근무일 data use */
             console.warn('Excel dashboard data가 not found. default value use.');
@@ -3590,7 +3587,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             'total': { total: 0, pass: 0, fail: 0, rejectRate: 0.0 }
         };
 
-        console.log('[AQL Modal] Using AQL File Stats:', aqlFileStats);
 
         // Total AQL tests count 계산 (window.aqlFileStats의 total에서)
         const totalAqlTests = aqlFileStats['total'] ? aqlFileStats['total'].total : 0;
@@ -4399,7 +4395,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         function create5PrsModal() {
             // CRITICAL FIX: Filter data when modal is created, not when function is defined
-            console.log('[5PRS Modal] window.employeeData length:', window.employeeData ? window.employeeData.length : 0);
 
             // TYPE-1 ASSEMBLY INSPECTOR total (position code based)
             // A1A, A1B, A1C = ASSEMBLY INSPECTOR
@@ -11193,7 +11188,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // Actual function will be replaced after DOMContentLoaded
             // This is just a placeholder to prevent errors
-            console.log('showEmployeeDetail called for:', empNo);
         }};
 
         document.addEventListener('DOMContentLoaded', function() {{
@@ -11212,11 +11206,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 use
             const employeeData = JSON.parse(jsonStr);
             window.employeeData = employeeData;
-            console.log('Employee data loaded successfully:', employeeData.length, '직원');
 
             // TYPE 테이블 생성 함수 정의 (데이터 로드 직후, 호출 전에)
             function generateTypeTable() {{
-                console.log('Generating TYPE table...');
 
                 const typeSummaryBody = document.getElementById('typeSummaryBody');
                 if (!typeSummaryBody) {{
@@ -11226,7 +11218,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 데이터가 없으면 employeeData를 사용
                 if (!window.employeeData || window.employeeData.length === 0) {{
-                    console.log('No employee data available for TYPE table');
                     typeSummaryBody.innerHTML = '<tr><td colspan="7" class="text-center">데이터 없음</td></tr>';
                     return;
                 }}
@@ -11308,14 +11299,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 `;
 
                 typeSummaryBody.innerHTML = tableHTML;
-                console.log('TYPE table generated successfully');
             }}
 
             // 전역 스코프에 함수 노출
             window.generateTypeTable = generateTypeTable;
 
             // TYPE 테이블 즉시 생성 (함수 정의 및 노출 완료 직후)
-            console.log('Calling generateTypeTable immediately after definition...');
             generateTypeTable();
 
             // AQL Inspector Stats load (inspectors 인원 기준)
@@ -11324,7 +11313,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const aqlStatsBase64 = aqlStatsElement.textContent.trim();
                 const aqlStatsJson = base64DecodeUnicode(aqlStatsBase64);
                 window.aqlInspectorStats = JSON.parse(aqlStatsJson);
-                console.log('AQL Inspector Stats loaded successfully:', Object.keys(window.aqlInspectorStats).length, 'areas');
+                // console.log('AQL Inspector Stats loaded successfully:', Object.keys(window.aqlInspectorStats).length, 'areas');
             }}
 
             // AQL File Stats load (검사 casescount 기준 - Table 1용)
@@ -11333,7 +11322,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const aqlFileStatsBase64 = aqlFileStatsElement.textContent.trim();
                 const aqlFileStatsJson = base64DecodeUnicode(aqlFileStatsBase64);
                 window.aqlFileStats = JSON.parse(aqlFileStatsJson);
-                console.log('AQL File Stats loaded successfully:', Object.keys(window.aqlFileStats).length, 'areas');
+                // console.log('AQL File Stats loaded successfully:', Object.keys(window.aqlFileStats).length, 'areas');
             }} else {{
                 console.warn('AQL File Stats element not found, using empty object');
                 window.aqlFileStats = {{}};
@@ -11345,7 +11334,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const auditorMappingBase64 = auditorMappingElement.textContent.trim();
                 const auditorMappingJson = base64DecodeUnicode(auditorMappingBase64);
                 window.auditorAreaMapping = JSON.parse(auditorMappingJson);
-                console.log('Auditor Area Mapping loaded:',
+                // console.log('Auditor Area Mapping loaded:',
                     Object.keys(window.auditorAreaMapping.auditor_trainer_areas || {{}}).length, 'auditors,',
                     Object.keys(window.auditorAreaMapping.model_master?.employees || {{}}).length, 'model masters');
             }} else {{
@@ -11359,7 +11348,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const aqlIncentiveConfigBase64 = aqlIncentiveConfigElement.textContent.trim();
                 const aqlIncentiveConfigJson = base64DecodeUnicode(aqlIncentiveConfigBase64);
                 window.aqlIncentiveConfig = JSON.parse(aqlIncentiveConfigJson);
-                console.log('AQL Inspector Incentive Config loaded:',
+                // console.log('AQL Inspector Incentive Config loaded:',
                     Object.keys(window.aqlIncentiveConfig.aql_inspectors || {{}}).length, 'inspectors');
             }} else {{
                 console.warn('AQL Incentive Config element not found, using empty object');
@@ -11449,9 +11438,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         }}
                     }}
 
-                    console.log(`Employee ${{emp['Employee No'] || emp.employee_no}} - JavaScript generated ${{emp.condition_results.length}} conditions`);
                 }} else {{
-                    console.log(`Employee ${{emp['Employee No'] || emp.employee_no}} - Using Python's ${{emp.condition_results.length}} conditions`);
                 }}
             }});
 
@@ -11481,7 +11468,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 rate: totalCount > 0 ? (paidCount / totalCount * 100).toFixed(1) : '0.0'
             }};
 
-            console.log('초기 통계: total ' + totalCount + '직원, 지급 ' + paidCount + '직원, total액 ' + totalAmount + ' VND');
 
             }} catch (e) {{
                 console.error("Failed to parse employee data:", e);
@@ -11496,7 +11482,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     console.error('[ERROR] translationsData element not found in DOM!');
                 }} else {{
                     translations = JSON.parse(translationsElement.textContent.trim());
-                    console.log('Translations loaded successfully');
                 }}
             }} catch (e) {{
                 console.error("Failed to parse translations data:", e);
@@ -11509,7 +11494,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     console.error('[ERROR] positionMatrixData element not found in DOM!');
                 }} else {{
                     positionMatrix = JSON.parse(positionMatrixElement.textContent.trim());
-                    console.log('Position matrix loaded successfully');
                 }}
             }} catch (e) {{
                 console.error("Failed to parse position matrix data:", e);
@@ -11532,10 +11516,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // attendance raw data를 전역 변count로 설정
                     if (excelDashboardData.attendance_raw_data) {{
                         window.attendanceRawData = excelDashboardData.attendance_raw_data;
-                        console.log('Attendance raw data loaded:', Object.keys(window.attendanceRawData).length, '직원');
+                        // console.log('Attendance raw data loaded:', Object.keys(window.attendanceRawData).length, '직원');
                     }}
 
-                    console.log('Excel dashboard data loaded successfully');
                 }}
             }} catch (e) {{
                 console.error("Failed to parse excel dashboard data:", e);
@@ -11649,7 +11632,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // FAQ 예시 섹션 업데이트 함count
         function updateFAQExamples() {{
             const lang = currentLanguage;
-            console.log('Updating FAQ examples for language:', lang);
             
             // FAQ calculation 예시 타이틀
             const calcTitle = document.getElementById('faqCalculationExampleTitle');
@@ -11950,7 +11932,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 출근율 calculation 방식 섹션 업데이트 함count
         function updateAttendanceSection() {{
             const lang = currentLanguage;
-            console.log('Updating attendance section for language:', lang);
             
             // 제목
             const title = document.getElementById('attendanceCalcTitle');
@@ -12181,9 +12162,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // FAQ Q&A 섹션 업데이트 함count
         function updateFAQQASection() {{
             const lang = currentLanguage;
-            console.log('Updating FAQ Q&A section for language:', lang);
-            console.log('FAQ translations available:', translations.incentive?.faq);
-            console.log('Question1 translations:', translations.incentiveCalculation?.faq?.question1);
             
             // FAQ 섹션 제목
             const faqTitle = document.getElementById('faqSectionTitle');
@@ -12194,9 +12172,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // Q1
             const q1 = document.getElementById('faqQuestion1');
             if (q1) {{
-                console.log('Updating Q1, current text:', q1.textContent);
                 const newText = translations.incentiveCalculation?.faq?.question1?.[lang] || 'Q1. 왜 나는 incentive를 못 받았나요? 조건을 확인하는 방법은?';
-                console.log('New text for Q1:', newText);
                 q1.textContent = newText;
             }}
             document.getElementById('faqAnswer1Main').textContent = translations.incentiveCalculation?.faq?.answer1Main?.[lang] || 'incentive를 받지 못한 주요 이유:';
@@ -12580,7 +12556,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         
         // 언어 변경 함수 - 모든 UI 요소 업데이트
         function changeLanguage(lang) {{
-            console.log('Language changed to:', lang);
 
             // 전역 언어 변수 모두 업데이트
             currentLanguage = lang;
@@ -12624,7 +12599,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 updateOrgChartUIText();
             }}
 
-            console.log('All UI elements updated for language:', lang);
         }}
         
         // dashboard 변경 함count
@@ -14240,7 +14214,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         0
                     );
 
-                    console.log('Type 확인:', type, '직원:', emp.name || emp['Full Name'], '금액:', amount);
                     if (amount > 0) {{
                         typeData[type].paid++;
                         typeData[type].totalAmount += amount;
@@ -14291,13 +14264,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 html += '</tr>';
 
                 tbody.innerHTML = html;
-                console.log('Type별 요약 테이블 업데이트 완료');
             }}
             }} catch (e) {{
                 console.error('updateTypeSummaryTable 오류:', e);
                 // 오류 발생 시에도 기본 동작 시도
                 if (window.employeeData && window.employeeData.length > 0) {{
-                    console.log('오류 복구 시도 중...');
                 }}
             }}
         }}
@@ -14309,7 +14280,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 검증 탭 관련 함count들
         function initValidationTab() {{
-            console.log('Initializing validation tab...');
 
             // interim report 여부 확인 (data 기간의 last 날 기준)
             const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
@@ -14723,7 +14693,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 검증 모달 표시 함count
         function showValidationModal(conditionType) {{
-            console.log('Showing validation modal for:', conditionType);
 
             // 새로운 개선된 모달 함count 호출
             if (conditionType === 'totalWorkingDays') {{
@@ -15299,7 +15268,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
 
             window.currentViewMode = viewMode;
-            console.log('[ViewMode] Dashboard initialized with:', viewMode);
 
             // Update view mode toggle buttons if they exist
             updateViewModeButtons(viewMode);
@@ -15333,7 +15301,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 initDataPeriodToggle();
             }}
 
-            console.log('[ViewMode] Switched to:', mode);
         }}
 
         // 데이터 기간 섹션 접기/펼치기 초기화 (2025-12-20 추가)
@@ -15424,7 +15391,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 navigator.vibrate(30);
             }}
 
-            console.log('Dark mode:', isDarkMode ? 'enabled' : 'disabled');
         }}
 
         // 다크모드 상태에 따른 차트 업데이트
@@ -15490,7 +15456,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function generateEmployeeCardView() {{
             const cardContainer = document.getElementById('employeeCardView');
             if (!cardContainer || !window.employeeData) {{
-                console.log('Card container or employee data not available');
                 return;
             }}
 
@@ -15547,14 +15512,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
 
             cardContainer.innerHTML = cardHTML;
-            console.log('[CardView] Generated', window.employeeData.length, 'employee cards');
         }}
 
         // Generate mobile-friendly organization chart
         function generateMobileOrgChart() {{
             const container = document.getElementById('mobileOrgList');
             if (!container || !window.employeeData) {{
-                console.log('Mobile org container or employee data not available');
                 return;
             }}
 
@@ -15644,7 +15607,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
 
             container.innerHTML = html;
-            console.log('[MobileOrg] Generated', managers.length, 'manager cards');
         }}
 
         // Toggle organization card expand/collapse
@@ -15654,8 +15616,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 페이지 load 시 초기화
         document.addEventListener('DOMContentLoaded', function() {{
-            console.log('=== DOMContentLoaded Event Fired ===');
-            console.log('Total 직원 in data:', employeeData ? employeeData.length : 'No data');
 
             // View mode initialization (must be early)
             initViewMode();
@@ -15668,7 +15628,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {{
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             }});
-            console.log('Bootstrap tooltips initialized:', tooltipList.length);
 
             // D3.js 라이브러리 확인
             if (typeof d3 === 'undefined') {{
@@ -15676,21 +15635,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 alert('D3.js 라이브러리가 load되지 않았습니다. 페이지를 새로고침해주세요.');
                 return;
             }}
-            console.log('D3.js version:', d3.version);
 
             // Validation 탭 초기화 - 항상 호출하여 KPI 카드가 비어있지 않도록 함
             setTimeout(() => {{
-                console.log('Initializing validation tab KPIs on page load...');
                 initValidationTab();
             }}, 100);
 
             // TYPE 테이블 초기 생성
             setTimeout(() => {{
-                console.log('Generating TYPE table on page load...');
                 if (typeof generateTypeTable === 'function') {{
                     generateTypeTable();
                 }} else {{
-                    console.log('generateTypeTable function not available yet');
                 }}
             }}, 200);
 
@@ -15708,13 +15663,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const allTabButtons = document.querySelectorAll('.nav-link');
                 if (allTabButtons.length > 3) {{
                     orgChartTabButton = allTabButtons[3];
-                    console.log('네 번째 탭 버튼 use');
                 }}
             }}
             if (orgChartTabButton) {{
-                console.log('조직도 탭 버튼 발견, 이벤트 리스너 등록');
                 orgChartTabButton.addEventListener('shown.bs.tab', function(event) {{
-                    console.log('🎯 조직도 탭 활성화됨');
                     drawOrgChart();
                 }});
 
@@ -15723,7 +15675,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     setTimeout(() => {{
                         const orgTab = document.getElementById('orgchart');
                         if (orgTab && orgTab.classList.contains('active')) {{
-                            console.log('🎯 조직도 탭 클릭 - 차트 그리기');
                             drawOrgChart();
                         }}
                     }}, 100);
@@ -15733,14 +15684,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 조직도 탭이 초기에 활성화되어 있는지 확인
             setTimeout(() => {{
                 const orgTab = document.getElementById('orgchart');
-                console.log('Organization chart tab element:', orgTab);
 
                 if (orgTab) {{
                     if (orgTab.classList.contains('active') && orgTab.classList.contains('show')) {{
-                        console.log('Org chart tab is active, drawing initial chart...');
                         drawOrgChart();
                     }} else {{
-                        console.log('Org chart tab is not active initially');
                     }}
                 }} else {{
                     console.error('Org chart tab element not found!');
@@ -15752,7 +15700,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const orgSearchClear = document.getElementById('orgSearchClear');
 
             if (orgSearchInput) {{
-                console.log('Org chart search input found, attaching event listener');
                 orgSearchInput.addEventListener('input', function(e) {{
                     const searchTerm = e.target.value.trim();
                     searchInTree(searchTerm);
@@ -15768,7 +15715,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
 
             if (orgSearchClear) {{
-                console.log('Org chart search clear button found, attaching event listener');
                 orgSearchClear.addEventListener('click', function() {{
                     if (orgSearchInput) {{
                         orgSearchInput.value = '';
@@ -15782,7 +15728,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const collapseAllBtns = document.querySelectorAll('button[id="collapseAllBtn"]');
 
             if (expandAllBtns.length > 0) {{
-                console.log(`Found ${{expandAllBtns.length}} Expand All buttons, attaching event listeners`);
                 expandAllBtns.forEach(btn => {{
                     btn.addEventListener('click', function() {{
                         expandAll();
@@ -15791,7 +15736,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
 
             if (collapseAllBtns.length > 0) {{
-                console.log(`Found ${{collapseAllBtns.length}} Collapse All buttons, attaching event listeners`);
                 collapseAllBtns.forEach(btn => {{
                     btn.addEventListener('click', function() {{
                         collapseAll();
@@ -15959,15 +15903,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 새로운 접이식 조직도 그리기 함count
         function drawOrgChart() {{
-            console.log('Drawing new collapsible org chart...');
             buildBuildingSummaryCards();  // Building 요약 카드 업데이트
             drawCollapsibleOrgChart();
         }}
 
         function drawCollapsibleOrgChart() {{
-            console.log('🏗️ === 조직도 그리기 start ===');
-            console.log('   Employee Data count:', employeeData ? employeeData.length : 0);
-            console.log('   Dashboard Month:', dashboardMonth);
 
             const container = document.getElementById('orgTreeContent');
             if (!container) {{
@@ -16000,7 +15940,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 계층 구조 data 빌드
         function buildHierarchyData() {{
-            console.log('Building TYPE-1 manager hierarchy data...');
 
             if (!employeeData || employeeData.length === 0) {{
                 console.error('No employee data available');
@@ -16010,7 +15949,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // Building 필터 값 가져오기 (SUPERVISOR, A.MANAGER 요청 기능 - 2025-12-16)
             const buildingFilterElement = document.getElementById('orgBuildingFilter');
             const selectedBuilding = buildingFilterElement ? buildingFilterElement.value : 'all';
-            console.log('Building filter selected:', selectedBuilding);
 
             // Special calculation positions 확인 함count
             function hasSpecialCalculation(position) {{
@@ -16084,7 +16022,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 상사 체인 수집 (SUPERVISOR, MANAGER 등 상위 관리자 포함)
                 bossChainIds = collectBossChain(employeeData, buildingEmployeeIds);
-                console.log(`🏢 Building ${{selectedBuilding}}: ${{buildingEmployeeIds.size}}명, 상사 체인: ${{bossChainIds.size}}명`);
             }}
 
             // TYPE-1 직원 중 LINE LEADER 이상만 포함 (관리자 계층 구조)
@@ -16110,7 +16047,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // Special calculation positions 제외 (AQL INSPECTOR, AUDIT & TRAINING, MODEL MASTER)
                 if (hasSpecialCalculation(emp.position)) {{
-                    console.log(`Excluding special calculation position: ${{emp.position}} - ${{emp.name}}`);
                     return false;
                 }}
 
@@ -16122,14 +16058,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                       position.includes('LINE LEADER');
 
                 if (!isManagerLevel) {{
-                    console.log(`Excluding non-manager position: ${{emp.position}} - ${{emp.name}}`);
                     return false;
                 }}
 
                 return true;
             }});
 
-            console.log(`TYPE-1 직원 for hierarchy: ${{type1Employees.length}} (excluded ${{employeeData.length - type1Employees.length}})`);
+            // console.log(`TYPE-1 직원 for hierarchy: ${{type1Employees.length}} (excluded ${{employeeData.length - type1Employees.length}})`);
 
             // 직원 ID로 매핑 - 모든 TYPE-1 직원 포함
             const employeeMap = {{}};
@@ -16181,7 +16116,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
-            console.log(`Hierarchy built: ${{rootNodes.length}} root nodes`);
             return rootNodes;
         }}
 
@@ -16286,7 +16220,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 트리 이벤트 리스너
         function attachTreeEventListeners() {{
-            console.log('📎 attachTreeEventListeners 호출됨');
 
             // 정보 버튼 클릭 이벤트 - 이벤트 위임 방식으로 변경
             const treeContent = document.getElementById('orgTreeContent');
@@ -16298,25 +16231,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 핸들러 함count를 전역에 저장하여 나중에 제거 가능
                 window.incentiveButtonHandler = function(e) {{
-                    console.log('🖱️ 클릭 이벤트 발생:', e.target.className);
 
                     // 정보 버튼이 클릭된 경우
                     if (e.target && e.target.classList && e.target.classList.contains('incentive-detail-btn')) {{
-                        console.log('ℹ️ 정보 버튼 클릭됨 (이벤트 위임)');
+                        // console.log('ℹ️ 정보 버튼 클릭됨 (이벤트 위임)');
                         e.preventDefault();
                         e.stopPropagation();
                         e.stopImmediatePropagation();
 
                         const nodeId = e.target.getAttribute('data-node-id');
-                        console.log('📌 노드 ID:', nodeId);
-                        console.log('📌 showIncentiveModal 함수 존재:', typeof window.showIncentiveModal);
 
                         if (window.showIncentiveModal && nodeId) {{
-                            console.log('🎯 관리자 계산 모달 호출 시도:', nodeId);
                             try {{
                                 // 조직도 탭에서는 관리자 계산 모달 표시 (부하직원 계산 상세)
                                 window.showIncentiveModal(String(nodeId));
-                                console.log('✅ 관리자 계산 모달 호출 성공');
                             }} catch(error) {{
                                 console.error('❌ 관리자 계산 모달 호출 중 오류:', error);
                             }}
@@ -16331,7 +16259,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 이벤트 위임으로 처리 (동적으로 creation되는 버튼도 처리 가능)
                 treeContent.addEventListener('click', window.incentiveButtonHandler, true); // capture 단계에서 처리
-                console.log('✅ incentive 버튼 이벤트 리스너 등록 completed');
             }} else {{
                 console.error('❌ orgTreeContent 요소를 find count 없음');
             }}
@@ -16352,14 +16279,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
 
             // incentive 정보 클릭 이벤트 (이벤트 위임 방식)
-            console.log('📌 incentive 클릭 이벤트 리스너 등록 중...');
             const orgContainer = document.getElementById('orgTreeContent');
             if (orgContainer) {{
                 // existing 리스너 제거 (중복 방지)
                 orgContainer.removeEventListener('click', handleIncentiveClick);
                 // 새 리스너 추가
                 orgContainer.addEventListener('click', handleIncentiveClick);
-                console.log('✅ 이벤트 위임 리스너 등록 completed');
             }}
 
             // incentive 클릭 핸들러 함수
@@ -16369,7 +16294,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     e.preventDefault();
                     e.stopPropagation();
                     const nodeId = incentiveInfo.getAttribute('data-node-id');
-                    console.log('💰 incentive 클릭 감지 - Node ID:', nodeId);
 
                     if (window.showIncentiveModal) {{
                         // 조직도 탭에서는 관리자 계산 모달 표시 (부하직원 계산 상세)
@@ -16386,7 +16310,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 tooltipTriggerList.forEach(function (tooltipTriggerEl) {{
                     new bootstrap.Tooltip(tooltipTriggerEl);
                 }});
-                console.log('✅ 조직도 툴팁 초기화 completed:', tooltipTriggerList.length, '개');
             }}, 500);
 
             // 검색 기능
@@ -16438,12 +16361,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 node.addEventListener('click', function(e) {{
                     // incentive 정보를 클릭한 경우는 제외
                     if (e.target.closest('.node-incentive-info')) {{
-                        console.log('🚫 incentive 클릭이므로 expand/collapse 무시');
                         return;
                     }}
                     const toggleBtn = this.querySelector('.toggle-btn');
                     if (toggleBtn) {{
-                        console.log('📂 노드 expand/collapse 토글');
                         toggleBtn.click();
                     }}
                 }});
@@ -16519,7 +16440,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 모달 테스트 함count (전역 스코프)
         // 모달 강제 닫기 함count (전역 스코프)
         window.forceCloseModal = function() {{
-            console.log('🚨 모달 강제 닫기 실행');
             const modal = document.getElementById('incentiveModal');
             if (modal) {{
                 const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -17379,7 +17299,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // incentive 상세 모달 (전역 스코프)
         window.showIncentiveModal = function(nodeId) {{
-            console.log('🔍 모달 함count 호출됨 - Node ID:', nodeId);
 
             try {{
                 // existing 모달이 있으면 강제 닫기
@@ -17393,7 +17312,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     alert('직원 data를 find count not found. ID: ' + nodeId);
                     return;
                 }}
-                console.log('✅ 직원 발견:', employee.name, employee.position);
 
                 const position = (employee.position || '').toUpperCase();
                 const employeeIncentive = Number(employee['{month.lower()}_incentive'] || 0);
@@ -17561,7 +17479,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         backdrop.style.cursor = 'pointer';
                         backdrop.style.zIndex = '1050';  // 모달보다 낮은 z-index
                         backdrop.addEventListener('click', function() {{
-                            console.log('백드롭 클릭 감지');
                             modal.hide();
                         }});
                     }}
@@ -17578,7 +17495,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     // ESC 키 이벤트도 count동 추가
                     document.addEventListener('keydown', function escHandler(e) {{
                         if (e.key === 'Escape') {{
-                            console.log('ESC 키 감지');
                             modal.hide();
                             document.removeEventListener('keydown', escHandler);
                         }}
@@ -17587,7 +17503,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 모달이 완전히 닫힌 후 정리
                     modalElement.addEventListener('hidden.bs.modal', function onHidden() {{
-                    console.log('모달 완전히 닫힘 - 정리 작업 실행');
 
                     // 이벤트 리스너 제거
                     modalElement.removeEventListener('hidden.bs.modal', onHidden);
@@ -17622,7 +17537,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // 모달이 표시된 후 포커스 설정
                     modalElement.addEventListener('shown.bs.modal', function() {{
-                    console.log('모달 표시 completed');
                     // 닫기 버튼에 포커스 설정
                     const closeBtn = modalElement.querySelector('[data-bs-dismiss="modal"]');
                     if (closeBtn) {{
@@ -17830,7 +17744,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 이전 drawCollapsibleTree 함count는 제거
         function drawCollapsibleTree() {{
-            console.log('This function is deprecated. Using drawCollapsibleOrgChart instead.');
             drawCollapsibleOrgChart();
             const containerWidth = container.node().getBoundingClientRect().width;
             const width = Math.max(1200, containerWidth);
@@ -17852,7 +17765,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             const hierarchyData = prepareHierarchyData();
             if (!hierarchyData || hierarchyData.length === 0) {{
-                console.log('No hierarchy data available');
                 svg.append("text")
                     .attr("x", width / 2)
                     .attr("y", height / 2)
@@ -18063,7 +17975,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             const hierarchyData = prepareHierarchyData();
             if (!hierarchyData || hierarchyData.length === 0) {{
-                console.log('No hierarchy data available');
                 return;
             }}
 
@@ -18205,7 +18116,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // Old D3.js visualization functions - replaced with collapsible tree
         function drawHorizontalTree() {{
-            console.log('Horizontal tree deprecated - using collapsible tree');
             return;
 
             const container = d3.select("#orgChartContainer");
@@ -18242,7 +18152,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             const hierarchyData = prepareHierarchyData();
             if (!hierarchyData || hierarchyData.length === 0) {{
-                console.log('No hierarchy data available');
                 return;
             }}
 
@@ -18502,7 +18411,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         function drawTreemap() {{
-            console.log('Treemap deprecated - using collapsible tree');
             return;
             const containerWidth = container.node().getBoundingClientRect().width;
             const width = Math.max(1200, containerWidth);
@@ -18531,7 +18439,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             const hierarchyData = prepareHierarchyData();
             if (!hierarchyData || hierarchyData.length === 0) {{
-                console.log('No hierarchy data available for treemap');
                 return;
             }}
 
@@ -18687,7 +18594,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         function drawVerticalTree() {{
-            console.log('Vertical tree deprecated - using collapsible tree');
             return;
 
             const container = d3.select("#orgChartContainer");
@@ -18696,7 +18602,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return;
             }}
             const containerWidth = container.node().getBoundingClientRect().width;
-            console.log('Container width in drawVerticalTree:', containerWidth);
             const width = Math.max(6000, containerWidth); // 더 넓게 설정하여 오버랩 방지
             const height = 3000; // 더 높게 설정하여 충분한 공간 확보
             const margin = {{ top: 120, right: 200, bottom: 200, left: 200 }};
@@ -18716,7 +18621,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let hierarchyData;
             try {{
                 hierarchyData = prepareHierarchyData();
-                console.log('Hierarchy data prepared:', hierarchyData ? hierarchyData.length : 0, 'nodes');
             }} catch (error) {{
                 console.error('Error preparing hierarchy data:', error);
                 console.error('Stack trace:', error.stack);
@@ -18744,10 +18648,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // D3 계층 구조 creation
             try {{
-                console.log('Creating D3 hierarchy...');
-                console.log('Hierarchy data length:', hierarchyData.length);
                 if (hierarchyData.length > 0) {{
-                    console.log('Sample nodes:', hierarchyData.slice(0, 3));
+                    // console.log('Sample nodes:', hierarchyData.slice(0, 3));
                 }}
 
                 const stratify = d3.stratify()
@@ -18755,7 +18657,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     .parentId(d => d.parentId);
 
                 orgChartRoot = stratify(hierarchyData);
-                console.log('Root created with', orgChartRoot.descendants().length, 'descendants');
+                // console.log('Root created with', orgChartRoot.descendants().length, 'descendants');
 
                 // count직 트리 레이아웃 creation - nodeSize use으로 더 유연한 간격
                 const treeLayout = d3.tree()
@@ -18942,8 +18844,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         function prepareHierarchyData() {{
-            console.log('Preparing organization hierarchy data...');
-            console.log('Total 직원:', employeeData.length);
 
             // 먼저 data가 비어있는지 확인
             if (!employeeData || employeeData.length === 0) {{
@@ -18952,7 +18852,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
 
             // 첫 몇 직원의 직원 data 확인
-            console.log('First employee sample:', employeeData[0]);
 
             // 제외할 포지션 정의
             const excludedPositions = ['MODEL MASTER', 'AUDIT & TRAINING TEAM', 'AQL INSPECTOR'];
@@ -18962,14 +18861,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 e.type === 'TYPE-1' &&
                 !excludedPositions.includes(e.position)
             );
-            console.log('TYPE-1 직원 (excluding excluded positions):', type1Employees.length);
+            // console.log('TYPE-1 직원 (excluding excluded positions):', type1Employees.length);
 
             // 전략 determination: TYPE-1이 너무 적으면 total 조직도 표시
             let useAllEmployees = false;
             let requiredIds = new Set();
 
             if (type1Employees.length < 5) {{
-                console.log('Too few TYPE-1 직원, showing full organization chart');
                 useAllEmployees = true;
 
                 // 모든 직원 추가 (제외 포지션 제외)
@@ -18998,7 +18896,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             requiredIds.add(emp.boss_id);
                             addBossChain(emp.boss_id); // 재귀적으로 상사의 상사 추가
                         }} else if (!bossExists) {{
-                            console.log(`Boss ID ${{emp.boss_id}} not found in data for employee ${{emp.name}} (${{emp.emp_no}})`);
+                            // console.log(`Boss ID ${{emp.boss_id}} not found in data for employee ${{emp.name}} (${{emp.emp_no}})`);
                         }}
                     }}
                 }};
@@ -19009,11 +18907,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }});
             }}
 
-            console.log('Total required nodes:', requiredIds.size, useAllEmployees ? '(showing all 직원)' : '(TYPE-1 + bosses)');
+            // console.log('Total required nodes:', requiredIds.size, useAllEmployees ? '(showing all 직원)' : '(TYPE-1 + bosses)');
 
             // 디버깅: 첫 5개 직원 data 확인
             if (employeeData.length > 0) {{
-                console.log('Sample employee data:', employeeData.slice(0, 5).map(e => ({{
+                // console.log('Sample employee data:', employeeData.slice(0, 5).map(e => ({{
                     name: e.name,
                     position: e.position,
                     boss_id: e.boss_id,
@@ -19044,7 +18942,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 제외할 포지션이면 cases너뛰기
                 if (excludedPositions.includes(emp.position)) {{
-                    console.log(`Excluding ${{emp.name}} (${{emp.position}}) from org chart`);
+                    // console.log(`Excluding ${{emp.name}} (${{emp.position}}) from org chart`);
                     return;
                 }}
 
@@ -19062,9 +18960,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         parentId = emp.boss_id;
                     }} else if (employeeById[emp.boss_id]) {{
                         // 상사가 does not exist만 TYPE-1 체인에 포함되지 않음
-                        console.log(`Boss ${{emp.boss_id}} exists but not in TYPE-1 chain for ${{emp.name}}`);
                     }} else {{
-                        console.log(`Warning: Boss ${{emp.boss_id}} not found in data for ${{emp.name}}`);
                         // 상사가 목록에 없으면 parent 없음으로 처리
                     }}
                 }}
@@ -19093,11 +18989,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }});
             }});
 
-            console.log(`Created ${{data.length}} nodes: ${{hasParentCount}} with parent, ${{noParentCount}} without parent`);
 
             // 루트 노드 확인
             const rootNodes = data.filter(d => !d.parentId);
-            console.log('Root nodes found:', rootNodes.length);
 
             // 항상 가상 루트 creation (조직도의 start점)
             const rootTitle = requiredIds.size > 100 ? "Hwaseung Organization" : "Hwaseung TYPE-1 Organization";
@@ -19112,7 +19006,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
 
             if (rootNodes.length === 0) {{
-                console.log('No natural root found, connecting managers to virtual root...');
                 // Manager 레벨 직원들을 루트에 연결
                 const managers = data.filter(d => {{
                     if (d.id === "root") return false;
@@ -19143,7 +19036,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }});
                 }}
             }} else {{
-                console.log(`${{rootNodes.length}} natural root nodes found, connecting to virtual root...`);
 
                 // 루트 노드들을 가상 루트에 연결
                 rootNodes.forEach(node => {{
@@ -19202,7 +19094,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 filteredData = filteredData.filter(d => parseIncentive(d.incentive) === 0 || d.id === "root");
             }}
 
-            console.log('Hierarchy data prepared:', filteredData.length, 'nodes');
             return filteredData;
         }}
 
@@ -19253,7 +19144,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // Building 필터 함수 (SUPERVISOR, A.MANAGER 요청 - 2025-12-16)
         function filterOrgChartByBuilding() {{
-            console.log('Building filter changed, redrawing org chart...');
             drawOrgChart();
         }}
 
@@ -19306,7 +19196,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     if (rateElem) rateElem.textContent = window.dashboardStats.rate + '%';
                     if (amountElem) amountElem.textContent = window.dashboardStats.amount.toLocaleString() + ' VND';
 
-                    console.log('상단 카드 초기화 completed:', window.dashboardStats);
                 }}
 
                 generateEmployeeTable();
@@ -19322,7 +19211,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }} else {{
                     console.error('updateTypeSummaryTable 함count가 정의되지 않았습니다.');
                     // 함count가 없으면 directly 실행
-                    console.log('Type 테이블 directly 업데이트 start...');
                     if (window.employeeData && window.employeeData.length > 0) {{
                         const typeData = {{
                             'TYPE-1': {{ total: 0, paid: 0, totalAmount: 0 }},
@@ -19398,7 +19286,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             }}
 
                             tbody.innerHTML = html;
-                            console.log('Type 테이블 directly 업데이트 completed');
                         }}
                     }}
                 }}
@@ -19408,13 +19295,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // Typeby 테이블 강제 업데이트 함count
             window.forceUpdateTypeSummary = function() {{
-                console.log('=== Typeby 요약 테이블 강제 업데이트 실행 ===');
                 updateTypeSummaryTable();
             }};
 
             // 페이지 load 후 1초 뒤 자동 실행
             setTimeout(function() {{
-                console.log('Typeby 테이블 자동 업데이트 시도...');
                 if (typeof updateTypeSummaryTable === 'function') {{
                     updateTypeSummaryTable();
                 }}
@@ -19768,7 +19653,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 해당 관리자의 모든 부하직원 찾기 (직속 + 간접 부하 포함)
             const teamMembers = findAllSubordinates(selectedManagerId, allEmployees);
 
-            console.log('Manager ID:', selectedManagerId, '- Total subordinates found:', teamMembers.length);
 
             // 현재 월의 시작일 (퇴사자 판별용)
             const currentYear = {year};
@@ -19903,7 +19787,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 전체 직원 데이터 로드 (퇴사자 포함)
             if (window.excelDashboardData && window.excelDashboardData.employee_data) {{
                 window.allEmployeesForTeam = window.excelDashboardData.employee_data;
-                console.log('Team tab initialized with', window.allEmployeesForTeam.length, 'employees (including resigned)');
+                // console.log('Team tab initialized with', window.allEmployeesForTeam.length, 'employees (including resigned)');
             }}
         }}
 
@@ -19923,7 +19807,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // CRITICAL FIX: 언어 전환 상태 유지 - 탭 전환 후 언어 재적용
             if (window.currentLanguage) {{
-                console.log('[Language] Preserving language state on tab change:', window.currentLanguage);
                 // 탭 전환 후 언어 업데이트를 다시 적용
                 setTimeout(() => {{
                     if (typeof updateAllTexts === 'function') {{
@@ -19938,26 +19821,21 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 요약 탭이면 TYPE 테이블 생성
             if (tabName === 'summary') {{
-                console.log('Summary tab selected');
                 if (typeof generateTypeTable === 'function') {{
                     generateTypeTable();
                 }} else {{
-                    console.log('generateTypeTable function not found');
                 }}
             }}
 
             // 조직도 탭이면 조직도 그리기
             if (tabName === 'orgchart') {{
-                console.log('Organization chart tab selected');
                 setTimeout(() => {{
-                    console.log('Calling drawOrgChart from showTab...');
                     drawOrgChart();
                 }}, 100);
             }}
 
             // 검증 탭이면 KPI 카드 초기화
             if (tabName === 'validation') {{
-                console.log('Validation tab selected');
                 setTimeout(() => {{
                     initValidationTab();
                 }}, 100);
@@ -19965,25 +19843,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // Position Details 탭이면 테이블 creation
             if (tabName === 'position') {{
-                console.log('Position tab selected');
                 setTimeout(() => {{
-                    console.log('Calling generatePositionTables...');
                     generatePositionTables();
                 }}, 100);
             }}
 
             // Individual Details 탭이면 테이블 creation
             if (tabName === 'detail') {{
-                console.log('Individual Details tab selected');
                 setTimeout(() => {{
-                    console.log('Calling generateEmployeeTable...');
                     generateEmployeeTable();
                 }}, 100);
             }}
 
             // FAQ 탭이면 FAQ 초기화
             if (tabName === 'faq') {{
-                console.log('FAQ tab selected');
                 setTimeout(() => {{
                     initFaqTab();
                 }}, 100);
@@ -19994,7 +19867,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // FAQ 탭 초기화
         function initFaqTab() {{
-            console.log('Initializing FAQ tab');
             // 검색창 placeholder 언어별 설정
             const searchInput = document.getElementById('faqSearchInput');
             if (searchInput) {{
@@ -20730,7 +20602,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // Position Details 탭이 활성화되어 있을 때만 업데이트
             const positionTab = document.getElementById('position');
             if (positionTab && positionTab.classList.contains('active')) {{
-                console.log('Updating position table...');
                 generatePositionTables();
             }}
         }}
@@ -21126,7 +20997,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     
                     // data-emp-no 속성에서 직원번호 fetch
                     const empNo = row.getAttribute('data-emp-no');
-                    console.log('Employee row clicked, empNo:', empNo);
                     
                     if (empNo) {{
                         showEmployeeDetailFromPosition(empNo);
@@ -21135,7 +21005,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 // 테이블에 이벤트 리스너 추가
                 table.addEventListener('click', window.positionTableClickHandler);
-                console.log('Event delegation set up for employee table');
             }}, 100);
             
             // 차트 그리기
@@ -21194,16 +21063,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         
         // 직급별 상세 팝업에서 호출하는 개인별 상세 팝업 함count
         function showEmployeeDetailFromPosition(empNo) {{
-            console.log('showEmployeeDetailFromPosition called with empNo:', empNo);
             
             try {{
                 // 먼저 직급별 상세 팝업을 닫기
                 const positionModal = document.getElementById('positionModal');
-                console.log('Position modal element:', positionModal);
                 
                 if (positionModal) {{
                     const bsPositionModal = bootstrap.Modal.getInstance(positionModal);
-                    console.log('Position modal instance:', bsPositionModal);
                     
                     if (bsPositionModal) {{
                         bsPositionModal.hide();
@@ -21212,7 +21078,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 // 잠시 후에 개인별 상세 팝업 열기 (애니메이션 충돌 방지)
                 setTimeout(() => {{
-                    console.log('Opening employee detail modal for:', empNo);
                     showEmployeeDetail(empNo);
                 }}, 300);
             }} catch (error) {{
@@ -21237,7 +21102,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             if (!emp) {{
                 console.error('Employee not found:', empNo);
-                console.log('Available employee IDs:', employeeData.map(e => e['Employee No'] || e.emp_no).slice(0, 5));
+                // console.log('Available employee IDs:', employeeData.map(e => e['Employee No'] || e.emp_no).slice(0, 5));
                 return;
             }}
 
