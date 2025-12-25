@@ -3629,7 +3629,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="25" data-hour="07" data-minute="21">보고서 생성일: 2025년 12월 25일 07:21</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="25" data-hour="14" data-minute="29">보고서 생성일: 2025년 12월 25일 14:29</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -5910,68 +5910,116 @@
 
         <!-- 조회 결과 영역 -->
         <div id="attendanceLookupResult" style="display: none;">
-            <!-- 요약 카드 -->
+            <!-- 요약 카드 (V10: 검증 탭 스타일 통일) -->
+            <style>
+                .attendance-kpi-card {
+                    padding: 20px;
+                    border-radius: 12px;
+                    cursor: default;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;
+                    background: white;
+                    border: 1px solid #e0e0e0;
+                    text-align: center;
+                    margin-bottom: 15px;
+                }
+                .attendance-kpi-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+                }
+                .attendance-kpi-card::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 4px;
+                    background: linear-gradient(90deg, var(--card-color-1), var(--card-color-2));
+                }
+                .attendance-kpi-icon {
+                    font-size: 1.8em;
+                    margin-bottom: 8px;
+                    display: inline-block;
+                    background: linear-gradient(135deg, var(--card-color-1), var(--card-color-2));
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }
+                .attendance-kpi-value {
+                    font-size: 2.2em;
+                    font-weight: 700;
+                    color: #2c3e50;
+                    margin: 5px 0;
+                }
+                .attendance-kpi-label {
+                    color: #7f8c8d;
+                    font-size: 0.85em;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.3px;
+                }
+                .attendance-kpi-subtitle {
+                    color: #95a5a6;
+                    font-size: 0.75em;
+                    margin-top: 3px;
+                }
+            </style>
             <div class="row mb-4" id="attendanceSummaryCards">
-                <div class="col-md-3">
-                    <div class="card text-center" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
-                        <div class="card-body">
-                            <h6>총 근무일</h6>
-                            <h2 id="summaryTotalDays">-</h2>
-                        </div>
+                <div class="col-md-3 col-6">
+                    <div class="attendance-kpi-card" style="--card-color-1: #10b981; --card-color-2: #059669;">
+                        <div class="attendance-kpi-icon">📅</div>
+                        <div class="attendance-kpi-value" id="summaryTotalDays">-</div>
+                        <div class="attendance-kpi-label">총 근무일</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;">
-                        <div class="card-body">
-                            <h6>실제 출근일</h6>
-                            <h2 id="summaryActualDays">-</h2>
-                        </div>
+                <div class="col-md-3 col-6">
+                    <div class="attendance-kpi-card" style="--card-color-1: #3b82f6; --card-color-2: #2563eb;">
+                        <div class="attendance-kpi-icon">✅</div>
+                        <div class="attendance-kpi-value" id="summaryActualDays">-</div>
+                        <div class="attendance-kpi-label">실제 출근일</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
-                        <div class="card-body">
-                            <h6>승인휴가</h6>
-                            <h2 id="summaryApprovedLeave">-</h2>
-                        </div>
+                <div class="col-md-3 col-6">
+                    <div class="attendance-kpi-card" style="--card-color-1: #f59e0b; --card-color-2: #d97706;">
+                        <div class="attendance-kpi-icon">🏖️</div>
+                        <div class="attendance-kpi-value" id="summaryApprovedLeave">-</div>
+                        <div class="attendance-kpi-label">승인휴가</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
-                        <div class="card-body">
-                            <h6>무단결근</h6>
-                            <h2 id="summaryUnapproved">-</h2>
-                        </div>
+                <div class="col-md-3 col-6">
+                    <div class="attendance-kpi-card" style="--card-color-1: #ef4444; --card-color-2: #dc2626;">
+                        <div class="attendance-kpi-icon">⛔</div>
+                        <div class="attendance-kpi-value" id="summaryUnapproved">-</div>
+                        <div class="attendance-kpi-label">무단결근</div>
                     </div>
                 </div>
             </div>
 
-            <!-- 지각/조퇴 카드 (새로 추가) -->
+            <!-- 지각/조퇴 카드 (V10: 스타일 통일) -->
             <div class="row mb-4 justify-content-center">
-                <div class="col-md-3">
-                    <div class="card text-center" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white;">
-                        <div class="card-body">
-                            <h6>⏰ 지각 일수</h6>
-                            <h2 id="summaryComeLate">-</h2>
-                            <small>늦게 출근한 날</small>
-                        </div>
+                <div class="col-md-3 col-6">
+                    <div class="attendance-kpi-card" style="--card-color-1: #f97316; --card-color-2: #ea580c;">
+                        <div class="attendance-kpi-icon">⏰</div>
+                        <div class="attendance-kpi-value" id="summaryComeLate">-</div>
+                        <div class="attendance-kpi-label">지각 일수</div>
+                        <div class="attendance-kpi-subtitle">늦게 출근한 날</div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card text-center" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">
-                        <div class="card-body">
-                            <h6>🚪 조퇴 일수</h6>
-                            <h2 id="summaryLeaveEarly">-</h2>
-                            <small>일찍 퇴근한 날</small>
-                        </div>
+                <div class="col-md-3 col-6">
+                    <div class="attendance-kpi-card" style="--card-color-1: #8b5cf6; --card-color-2: #7c3aed;">
+                        <div class="attendance-kpi-icon">🚪</div>
+                        <div class="attendance-kpi-value" id="summaryLeaveEarly">-</div>
+                        <div class="attendance-kpi-label">조퇴 일수</div>
+                        <div class="attendance-kpi-subtitle">일찍 퇴근한 날</div>
                     </div>
                 </div>
             </div>
 
-            <!-- 출근율 게이지 -->
-            <div class="card mb-4">
-                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <h5 class="mb-0"><i class="fas fa-chart-pie"></i> 출근율 분석</h5>
+            <!-- 출근율 게이지 (V10: 스타일 통일) -->
+            <div class="card mb-4" style="border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+                <div class="card-header" style="background: white; border-bottom: 4px solid #3b82f6; padding: 15px 20px;">
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-chart-pie" style="color: #3b82f6;"></i> 출근율 분석</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -5998,10 +6046,10 @@
                 </div>
             </div>
 
-            <!-- 일별 출결 현황 테이블 -->
-            <div class="card mb-4">
-                <div class="card-header" style="background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%); color: white;">
-                    <h5 class="mb-0"><i class="fas fa-calendar-alt"></i> 일별 출결 현황</h5>
+            <!-- 일별 출결 현황 테이블 (V10: 스타일 통일) -->
+            <div class="card mb-4" style="border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+                <div class="card-header" style="background: white; border-bottom: 4px solid #6366f1; padding: 15px 20px;">
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-calendar-alt" style="color: #6366f1;"></i> 일별 출결 현황</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -6022,10 +6070,10 @@
                 </div>
             </div>
 
-            <!-- 결근 사유 분석 -->
-            <div class="card mb-4">
-                <div class="card-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
-                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> 결근 사유 분석</h5>
+            <!-- 결근 사유 분석 (V10: 스타일 통일) -->
+            <div class="card mb-4" style="border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+                <div class="card-header" style="background: white; border-bottom: 4px solid #ef4444; padding: 15px 20px;">
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> 결근 사유 분석</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -6067,10 +6115,10 @@
                 </div>
             </div>
 
-            <!-- AI 분석 요약 -->
-            <div class="card">
-                <div class="card-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white;">
-                    <h5 class="mb-0"><i class="fas fa-robot"></i> 출결 분석 요약</h5>
+            <!-- AI 분석 요약 (V10: 스타일 통일) -->
+            <div class="card" style="border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+                <div class="card-header" style="background: white; border-bottom: 4px solid #10b981; padding: 15px 20px;">
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-robot" style="color: #10b981;"></i> 출결 분석 요약</h5>
                 </div>
                 <div class="card-body">
                     <div id="attendanceAnalysisSummary">
