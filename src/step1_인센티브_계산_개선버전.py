@@ -4744,7 +4744,9 @@ class CompleteQIPCalculator:
             emp_no_str = str(emp_no).lstrip('0')
 
             # 해당 employeeof attendance record 필터링
-            emp_attendance = att_df[att_df['ID No'].astype(str).str.lstrip('0') == emp_no_str]
+            # 원본 출결 파일은 'Personnel Number' 컬럼 사용 (2025-12-25 버그 수정)
+            emp_col = 'Personnel Number' if 'Personnel Number' in att_df.columns else 'ID No'
+            emp_attendance = att_df[att_df[emp_col].astype(str).str.lstrip('0') == emp_no_str]
 
             # AR1 아닌 사유only 승인휴with 집계
             # AR1 = 무단결근, 나머지 = 승인휴 (출산휴, 연차, 병, 출장 etc.)
