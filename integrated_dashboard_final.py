@@ -10717,9 +10717,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 </div>
             </div>
+        </div>
 
-    <!-- ===== FAQ/도움말 탭 (Phase 3 UX 개선) ===== -->
-    <div id="faq" class="tab-content">
+        <!-- ===== FAQ/도움말 탭 (Phase 3 UX 개선) ===== -->
+        <div id="faq" class="tab-content">
         <h3 id="faqTabTitle" class="mb-4">
             <i class="fas fa-question-circle"></i>
             <span data-i18n="faq.title">자주 묻는 질문 (FAQ)</span>
@@ -11311,14 +11312,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
             </div>
         </div>
-    </div>
+        </div>
 
-    <!-- ===== 개인 출결 조회 탭 ===== -->
-    <div id="attendance-lookup" class="tab-content">
-        <h3 class="mb-4">
-            <i class="fas fa-calendar-check"></i>
-            🔍 개인 출결 조회
-        </h3>
+        <!-- ===== 개인 출결 조회 탭 ===== -->
+        <div id="attendance-lookup" class="tab-content">
+            <h3 class="mb-4">
+                <i class="fas fa-calendar-check"></i>
+                🔍 개인 출결 조회
+            </h3>
 
         <!-- 사원번호 입력 -->
         <div class="card mb-4">
@@ -11533,7 +11534,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                      alt="검색 안내" style="max-width: 200px; opacity: 0.7;">
             </div>
         </div>
-    </div>
         </div>
     </div>
 
