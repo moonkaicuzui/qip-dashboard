@@ -20647,12 +20647,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
             `;
 
-            // 출결 데이터 추출
-            const totalDays = parseInt(employee['Total Working Days'] || employee.total_working_days || 0);
-            const actualDays = parseInt(employee['Actual Working Days'] || employee.actual_working_days || 0);
-            const approvedLeave = parseInt(employee['Approved Leave'] || employee.approved_leave || 0);
+            // 출결 데이터 추출 (2025-12-25 필드명 호환성 강화)
+            const totalDays = parseInt(employee['Total Working Days'] || employee['TOTAL WORK DAY'] || employee.total_working_days || 0);
+            const actualDays = parseInt(employee['Actual Working Days'] || employee['ACTUAL WORK DAY'] || employee.actual_working_days || 0);
+            // 승인휴가 - CSV 필드명: 'Approved Leave Days' (2025-12-25 버그 수정)
+            const approvedLeave = parseInt(employee['Approved Leave Days'] || employee['Approved Leave'] || employee.approved_leave || 0);
             const unapprovedAbsence = parseInt(employee['Unapproved Absences'] || employee.unapproved_absences || 0);
-            const attendanceRate = parseFloat(employee['Attendance Rate'] || employee['출근율_Attendance_Rate_Percent'] || 0);
+            // 출근율 - CSV 필드명: 'Attendance Rate (%)' 또는 '출근율_Attendance_Rate_Percent'
+            const attendanceRate = parseFloat(employee['Attendance Rate (%)'] || employee['출근율_Attendance_Rate_Percent'] || employee['Attendance Rate'] || 0);
 
             // 지각/조퇴 데이터 추출 (새로 추가)
             const comeLateDays = parseInt(employee['Come Late Days'] || employee['Come_Late_Days'] || 0);
@@ -20703,26 +20705,30 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const month = {month_num};
             const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
 
-            // 근무일 (주말 제외) 계산
+            // 근무일 계산 (일요일만 제외 - 공장은 월~토 근무) (2025-12-25 버그 수정)
             let workingDaysList = [];
             for (let day = 1; day <= 31; day++) {{
                 const date = new Date(year, month - 1, day);
                 if (date.getMonth() !== month - 1) break; // 해당 월이 아니면 종료
                 const dayOfWeek = date.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6) {{ // 주말 제외
+                if (dayOfWeek !== 0) {{ // 일요일만 제외 (토요일도 근무)
                     workingDaysList.push({{ date: date, day: day, dayOfWeek: dayOfWeek }});
                 }}
             }}
 
-            // 출근/결근 배분 (실제 데이터 없을 경우 시뮬레이션)
+            // 출근/결근 배분 - totalDays 수만큼만 표시 (미래 날짜 표시 방지)
+            // 2025-12-25 버그 수정: 데이터가 있는 날짜까지만 표시
             let attendanceStatus = [];
             const actualWorked = actualDays;
             const approved = approvedLeave;
             const unapproved = unapprovedAbsence;
-            const absent = totalDays - actualWorked - approved;
 
-            // 무작위로 상태 배분 (실제로는 일별 데이터가 있어야 함)
-            for (let i = 0; i < workingDaysList.length && i < totalDays; i++) {{
+            // 총 근무일 수만큼만 workingDaysList를 자름 (미래 날짜 무단결근 표시 방지)
+            const displayDays = Math.min(workingDaysList.length, totalDays);
+            workingDaysList = workingDaysList.slice(0, displayDays);
+
+            // 상태 배분: 출근 → 승인휴가 → 무단결근 순서
+            for (let i = 0; i < displayDays; i++) {{
                 if (i < actualWorked) {{
                     attendanceStatus.push('출근');
                 }} else if (i < actualWorked + approved) {{
@@ -20753,7 +20759,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let unapprovedIdx = 0;
             let approvedIdx = 0;
 
-            workingDaysList.slice(0, totalDays).forEach((item, idx) => {{
+            // 시뮬레이션 안내 메시지 (2025-12-25 추가)
+            tbody.innerHTML = `
+                <tr class="table-info">
+                    <td colspan="4" style="text-align: center; font-style: italic;">
+                        ⚠️ 아래 데이터는 요약 정보를 기반으로 시뮬레이션된 것입니다. 실제 일별 출결 기록과 다를 수 있습니다.
+                    </td>
+                </tr>
+            `;
+
+            workingDaysList.forEach((item, idx) => {{
                 const status = attendanceStatus[idx] || '출근';
                 let reason = '-';
                 let statusBadge = '';
