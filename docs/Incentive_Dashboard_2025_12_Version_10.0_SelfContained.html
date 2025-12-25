@@ -3629,7 +3629,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="25" data-hour="19" data-minute="51">보고서 생성일: 2025년 12월 25일 19:51</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2025" data-month="12" data-day="25" data-hour="20" data-minute="01">보고서 생성일: 2025년 12월 25일 20:01</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -13375,9 +13375,9 @@
                 const auditorMappingBase64 = auditorMappingElement.textContent.trim();
                 const auditorMappingJson = base64DecodeUnicode(auditorMappingBase64);
                 window.auditorAreaMapping = JSON.parse(auditorMappingJson);
-                // console.log('Auditor Area Mapping loaded:',
+                /* console.log('Auditor Area Mapping loaded:',
                     Object.keys(window.auditorAreaMapping.auditor_trainer_areas || {}).length, 'auditors,',
-                    Object.keys(window.auditorAreaMapping.model_master?.employees || {}).length, 'model masters');
+                    Object.keys(window.auditorAreaMapping.model_master?.employees || {}).length, 'model masters'); */
             } else {
                 console.warn('Auditor Area Mapping element not found, using empty object');
                 window.auditorAreaMapping = {};
@@ -13389,8 +13389,8 @@
                 const aqlIncentiveConfigBase64 = aqlIncentiveConfigElement.textContent.trim();
                 const aqlIncentiveConfigJson = base64DecodeUnicode(aqlIncentiveConfigBase64);
                 window.aqlIncentiveConfig = JSON.parse(aqlIncentiveConfigJson);
-                // console.log('AQL Inspector Incentive Config loaded:',
-                    Object.keys(window.aqlIncentiveConfig.aql_inspectors || {}).length, 'inspectors');
+                /* console.log('AQL Inspector Incentive Config loaded:',
+                    Object.keys(window.aqlIncentiveConfig.aql_inspectors || {}).length, 'inspectors'); */
             } else {
                 console.warn('AQL Incentive Config element not found, using empty object');
                 window.aqlIncentiveConfig = { aql_inspectors: {}, parts: {} };
@@ -24524,12 +24524,12 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
 
             // 디버깅: 첫 5개 직원 data 확인
             if (employeeData.length > 0) {
-                // console.log('Sample employee data:', employeeData.slice(0, 5).map(e => ({
+                /* console.log('Sample employee data:', employeeData.slice(0, 5).map(e => ({
                     name: e.name,
                     position: e.position,
                     boss_id: e.boss_id,
                     boss_name: e.boss_name
-                })));
+                })));  */
             }
 
             const data = [];
