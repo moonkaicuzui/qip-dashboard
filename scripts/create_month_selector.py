@@ -218,91 +218,155 @@ def create_month_selector_page():
             width: 100%;
         }
 
+        /* 넓은 가로 카드 레이아웃 */
         .month-card {
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            padding: 20px 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             transition: all 0.3s ease;
             cursor: pointer;
             text-decoration: none;
             color: inherit;
-            position: relative;
-            overflow: hidden;
             width: 100%;
-            max-width: 400px;
+            max-width: 900px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
         }
 
         .month-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
             text-decoration: none;
             color: inherit;
         }
 
-        .month-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, #ef4444, #dc2626);
+        /* 왼쪽 영역 - 월 정보 */
+        .card-left {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        /* 월 배지 (그라디언트 빨간색 박스) */
+        .month-badge {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* 카드 정보 영역 */
+        .card-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .month-year {
-            font-size: 1.8rem;
+            font-size: 22px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .month-name {
-            font-size: 1.2rem;
-            color: #ef4444;
-            margin-bottom: 15px;
+            font-size: 14px;
+            color: #6b7280;
         }
 
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .view-btn {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .view-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
+        /* NEW 배지 */
         .status-badge {
             display: inline-block;
-            padding: 5px 12px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         .status-new {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #10b981;
+            color: white;
         }
 
         .status-updated {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        /* 오른쪽 영역 - 버튼 */
+        .card-right {
+            flex-shrink: 0;
+        }
+
+        .view-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .view-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        /* 카드 푸터 (기존 스타일 유지 - 사용 안함) */
+        .card-footer {
+            display: none;
+        }
+
+        /* 반응형 디자인 - 모바일 */
+        @media (max-width: 768px) {
+            .month-card {
+                flex-direction: column;
+                padding: 20px;
+                text-align: center;
+            }
+
+            .card-left {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .month-badge {
+                padding: 12px 20px;
+                font-size: 1.3rem;
+            }
+
+            .card-info {
+                align-items: center;
+            }
+
+            .month-year {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .card-right {
+                width: 100%;
+            }
+
+            .view-btn {
+                width: 100%;
+                padding: 14px;
+            }
         }
 
         .last-update {
@@ -436,12 +500,22 @@ def create_month_selector_page():
 
         html_content += f"""
             <a href="{dashboard['filename']}" class="month-card" style="animation-delay: {animation_delay}s;" data-year="{dashboard['year']}" data-month="{dashboard['month']}">
-                <div class="month-year" data-lang-show="ko">
-                    <span class="year-text">{dashboard['year']}</span><span data-i18n="year-suffix">년</span> <span class="month-text">{dashboard['month']}</span><span data-i18n="month-suffix">월</span>
+                <!-- 왼쪽 영역: 월 정보 -->
+                <div class="card-left">
+                    <div class="month-badge">
+                        <span class="month-text">{dashboard['month']}</span><span data-i18n="month-suffix">월</span>
+                    </div>
+                    <div class="card-info">
+                        <div class="month-year">
+                            <span data-lang-show="ko"><span class="year-text">{dashboard['year']}</span><span data-i18n="year-suffix">년</span> <span class="month-text">{dashboard['month']}</span><span data-i18n="month-suffix">월</span></span>
+                            <span class="month-name" data-i18n="{month_i18n_key}" data-lang-hide="ko">{dashboard['month_name']}</span>
+                            {badge_html}
+                        </div>
+                        <div class="month-subtitle" style="color: #6b7280; font-size: 13px;" data-i18n="month-subtitle">최신 평가 데이터 • 업데이트됨</div>
+                    </div>
                 </div>
-                <div class="month-name" data-i18n="{month_i18n_key}">{dashboard['month_name']}</div>
-                <div class="card-footer">
-                    {badge_html}
+                <!-- 오른쪽 영역: 버튼 -->
+                <div class="card-right">
                     <span class="view-btn" data-i18n="view-btn">보기 →</span>
                 </div>
             </a>
@@ -550,6 +624,7 @@ def create_month_selector_page():
                 'viewMode-title': '화면 모드',
                 'viewMode-desktop': 'PC/태블릿',
                 'viewMode-mobile': '모바일',
+                'month-subtitle': '최신 평가 데이터 • 업데이트됨',
                 'year-suffix': '년',
                 'month-suffix': '월',
                 'month-7': '7월',
@@ -576,6 +651,7 @@ def create_month_selector_page():
                 'viewMode-title': 'View Mode',
                 'viewMode-desktop': 'PC/Tablet',
                 'viewMode-mobile': 'Mobile',
+                'month-subtitle': 'Latest evaluation data • Updated',
                 'year-suffix': '',
                 'month-suffix': '',
                 'month-7': 'July 2025',
@@ -602,6 +678,7 @@ def create_month_selector_page():
                 'viewMode-title': 'Chế độ xem',
                 'viewMode-desktop': 'PC/Máy tính bảng',
                 'viewMode-mobile': 'Di động',
+                'month-subtitle': 'Dữ liệu đánh giá mới nhất • Đã cập nhật',
                 'year-suffix': '',
                 'month-suffix': '',
                 'month-7': 'Tháng 7 năm 2025',
@@ -656,6 +733,16 @@ def create_month_selector_page():
                     element.style.display = ''; // 표시
                 } else {
                     element.style.display = 'none'; // 숨김
+                }
+            });
+
+            // 언어별 요소 숨김 (data-lang-hide 속성)
+            document.querySelectorAll('[data-lang-hide]').forEach(element => {
+                const hideLang = element.getAttribute('data-lang-hide');
+                if (hideLang === lang) {
+                    element.style.display = 'none'; // 숨김
+                } else {
+                    element.style.display = ''; // 표시
                 }
             });
 
