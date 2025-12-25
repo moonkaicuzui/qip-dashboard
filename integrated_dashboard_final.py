@@ -8501,7 +8501,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <span id="darkModeIcon">🌙</span>
                 </button>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V9.0</span></h1>
+            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="{year}" data-month="{month}" data-month-name="{get_korean_month(month)}">{year}년 {get_korean_month(month)} 인센티브 지급 현황</p>
             <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="{current_year}" data-month="{current_month:02d}" data-day="{current_day:02d}" data-hour="{current_hour:02d}" data-minute="{current_minute:02d}">보고서 생성일: {current_year}년 {current_month:02d}월 {current_day:02d}일 {current_hour:02d}:{current_minute:02d}</p>
 
@@ -12619,7 +12619,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function downloadDashboard() {{
             const currentYear = '{year}';
             const currentMonth = '{str(month_num).zfill(2)}';
-            const filename = `Incentive_Dashboard_${{currentYear}}_${{currentMonth}}_Version_9.0_SelfContained.html`;
+            const filename = `Incentive_Dashboard_${{currentYear}}_${{currentMonth}}_Version_10.0_SelfContained.html`;
 
             // 안내 메시지
             const infoMessages = {{
@@ -12667,7 +12667,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const currentYear = '{year}';
             const currentMonth = '{str(month_num).zfill(2)}';
             const monthName = '{month}';
-            const filename = `output_QIP_incentive_${{monthName}}_${{currentYear}}_Complete_V9.0_Complete.xlsx`;
+            const filename = `output_QIP_incentive_${{monthName}}_${{currentYear}}_Complete_V10.0_Complete.xlsx`;
 
             // Excel 파일 경로 (GitHub Pages 호스팅)
             const excelPath = filename;
@@ -12814,7 +12814,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 메인 헤더 업데이트
             const mainTitleElement = document.getElementById('mainTitle');
             if (mainTitleElement) {{
-                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">V9.0</span>';
+                mainTitleElement.innerHTML = getTranslation('headers.mainTitle', currentLanguage) + ' <span class="version-badge">V10.0</span>';
             }}
             
             // 날짜 관련 업데이트
@@ -23368,8 +23368,8 @@ def main():
     html_content = generate_dashboard_html(dashboard_df, month_name, args.year, args.month, working_days, excel_dashboard_data, config_last_updated)
 
     # file 저장
-    # file직원 형식 변경: Incentive_Dashboard_YYYY_MM_Version_9.0.html
-    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_9.0.html'
+    # file직원 형식 변경: Incentive_Dashboard_YYYY_MM_Version_10.0.html (V10.0 업데이트 2025-12-25)
+    output_file = f'output_files/Incentive_Dashboard_{args.year}_{args.month:02d}_Version_10.0.html'
     os.makedirs('output_files', exist_ok=True)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_content)
