@@ -2973,7 +2973,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // Add click outside to close functionality
         const modal = document.getElementById('consecutiveAqlFailModal');
         modal.onclick = function(event) {
-            if (event.대상 === modal) {
+            if (event.target === modal) {
                 modal.remove();
                 delete window.switchConsecutiveLang;
             }
@@ -15129,7 +15129,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 모달 HTML creation
             return `
-                <div id="validationModal" class="modal" onclick="if(event.대상 === this) closeValidationModal();" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+                <div id="validationModal" class="modal" onclick="if(event.target === this) closeValidationModal();" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
                     <div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">
                         <div class="modal-header" style="padding: 20px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 10px 10px 0 0;">
                             <span class="close" onclick="closeValidationModal()" style="color: white; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
@@ -22136,7 +22136,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 모달 외부 클릭 시 닫기
         window.onclick = function(event) {{
             const modal = document.getElementById('employeeModal');
-            if (event.대상 === modal) {{
+            if (event.target === modal) {{
                 modal.style.display = 'none';
             }}
         }}
