@@ -82,6 +82,19 @@ def aggregate_attendance(df: pd.DataFrame, total_working_days: int = None) -> pd
         # Approved leave (all other absences)
         approved_leave = len(absences) - ar1_absences
 
+        # Count Come Late and Leave Early days
+        # Values > 0 indicate late arrival or early departure (in minutes)
+        come_late_days = 0
+        leave_early_days = 0
+
+        if 'Come late' in emp_data.columns:
+            # Count days where Come late > 0
+            come_late_days = len(emp_data[pd.to_numeric(emp_data['Come late'], errors='coerce').fillna(0) > 0])
+
+        if 'Leave early' in emp_data.columns:
+            # Count days where Leave early > 0
+            leave_early_days = len(emp_data[pd.to_numeric(emp_data['Leave early'], errors='coerce').fillna(0) > 0])
+
         # Calculate rates
         # 출근율 = 100 - (무단결근일 / 총근무일 × 100)
         # 승인휴가는 출근으로 인정
@@ -101,7 +114,9 @@ def aggregate_attendance(df: pd.DataFrame, total_working_days: int = None) -> pd
             'Unapproved Absences': ar1_absences,  # Same as AR1 for compatibility
             'Approved Leave Days': approved_leave,
             'Absence Rate (%)': round(absence_rate, 2),
-            'Attendance Rate (%)': round(attendance_rate, 2)
+            'Attendance Rate (%)': round(attendance_rate, 2),
+            'Come Late Days': come_late_days,        # 지각 일수
+            'Leave Early Days': leave_early_days     # 조퇴 일수
         })
 
     result_df = pd.DataFrame(results)
@@ -185,6 +200,10 @@ def convert_attendance(month: str, year: int = 2025) -> bool:
         print(f"     - Avg actual days: {aggregated_df['ACTUAL WORK DAY'].mean():.1f}")
         print(f"     - Avg attendance rate: {aggregated_df['Attendance Rate (%)'].mean():.1f}%")
         print(f"     - Employees with AR1 absences: {(aggregated_df['AR1 Absences'] > 0).sum()}")
+        if 'Come Late Days' in aggregated_df.columns:
+            print(f"     - Employees with late arrivals: {(aggregated_df['Come Late Days'] > 0).sum()}")
+        if 'Leave Early Days' in aggregated_df.columns:
+            print(f"     - Employees with early departures: {(aggregated_df['Leave Early Days'] > 0).sum()}")
 
         return True
 

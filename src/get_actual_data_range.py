@@ -9,22 +9,41 @@ import os
 from datetime import datetime
 
 def get_attendance_date_range(month, year):
-    """출근 데이터의 실제 날짜 범위 반환"""
+    """출근 데이터의 실제 날짜 범위 반환 - 원본 파일에서 읽기"""
     try:
-        file_path = f"input_files/attendance/converted/attendance data {month}_converted.csv"
-        if not os.path.exists(file_path):
+        # 원본 파일에서 날짜 범위 추출 (converted 파일에는 Work Date 없음)
+        original_path = f"input_files/attendance/original/attendance data {month}.csv"
+
+        if not os.path.exists(original_path):
+            # 대안 경로 시도
+            original_path = f"input_files/attendance/attendance data {month}.csv"
+
+        if not os.path.exists(original_path):
+            print(f"  ⚠️ 출근 원본 파일 없음: {original_path}")
             return None, None
 
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(original_path)
 
-        # Work Date 컬럼 파싱
+        # Work Date 컬럼 파싱 (형식: 2025.12.01)
         if 'Work Date' in df.columns:
+            # 다양한 날짜 형식 처리
+            df['Work Date'] = df['Work Date'].astype(str)
+            # 2025.12.01 형식을 2025-12-01로 변환
+            df['Work Date'] = df['Work Date'].str.replace('.', '-', regex=False)
             df['Work Date'] = pd.to_datetime(df['Work Date'], errors='coerce')
-            min_date = df['Work Date'].min()
-            max_date = df['Work Date'].max()
-            return min_date, max_date
-    except:
-        pass
+
+            valid_dates = df['Work Date'].dropna()
+            if len(valid_dates) > 0:
+                min_date = valid_dates.min()
+                max_date = valid_dates.max()
+                print(f"  ✅ 출근 데이터 날짜 범위: {min_date.strftime('%Y-%m-%d')} ~ {max_date.strftime('%Y-%m-%d')}")
+                return min_date, max_date
+            else:
+                print("  ⚠️ Work Date 컬럼에 유효한 날짜 없음")
+        else:
+            print(f"  ⚠️ Work Date 컬럼 없음. 사용 가능한 컬럼: {list(df.columns)[:5]}...")
+    except Exception as e:
+        print(f"  ⚠️ 출근 날짜 범위 추출 오류: {e}")
     return None, None
 
 def get_incentive_date_range(month, year):

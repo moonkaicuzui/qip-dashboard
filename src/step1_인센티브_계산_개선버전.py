@@ -748,13 +748,19 @@ class DataProcessor:
                 else:
                     cond4_fail = False  # 20 days previousto condition 미apply
 
+                # 지각/조퇴 일수 추출 (새로 추가)
+                come_late_days = int(row.get('Come Late Days', 0))
+                leave_early_days = int(row.get('Leave Early Days', 0))
+
                 attendance_results.append({
                     'Employee No': emp_id,
                     'Total Working Days': total_days,
                     'Actual Working Days': actual_days,
                     'AR1 Absences': ar1_absences,
                     'Unapproved Absences': unapproved_absences,
-                    '결근율_Absence_Rate_Percent': absence_rate
+                    '결근율_Absence_Rate_Percent': absence_rate,
+                    'Come Late Days': come_late_days,      # 지각 일수
+                    'Leave Early Days': leave_early_days   # 조퇴 일수
                     # 레거시 컬럼 삭제: cond_1~10 표준 컬럼으로 통합
                 })
             

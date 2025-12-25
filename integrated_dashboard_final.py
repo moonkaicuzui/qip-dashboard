@@ -10717,8 +10717,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
     <!-- ===== FAQ/도움말 탭 (Phase 3 UX 개선) ===== -->
     <div id="faq" class="tab-content">
@@ -10726,6 +10724,273 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <i class="fas fa-question-circle"></i>
             <span data-i18n="faq.title">자주 묻는 질문 (FAQ)</span>
         </h3>
+
+        <!-- ===== 상세 도움말 섹션 (기존 FAQ 위에 추가) ===== -->
+        <div class="card mb-4" style="border: 2px solid #667eea;">
+            <div class="card-header" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white;">
+                <h5 class="mb-0">
+                    <i class="fas fa-book me-2"></i>
+                    <span data-i18n="help.detailedGuide.title">📖 인센티브 시스템 상세 가이드</span>
+                    <button class="btn btn-sm btn-outline-light float-end" onclick="toggleDetailedHelp()">
+                        <i class="fas fa-chevron-down" id="detailedHelpChevron"></i>
+                    </button>
+                </h5>
+            </div>
+            <div class="card-body" id="detailedHelpBody">
+                <!-- 1. 인센티브 시스템 개요 -->
+                <div class="mb-4">
+                    <h5 style="color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 5px;">
+                        <i class="fas fa-info-circle me-2"></i>1. 인센티브 시스템 개요
+                    </h5>
+                    <p>QIP (Quality Inspection Process) 인센티브는 품질 검사 직원들의 성과를 인정하고 동기 부여하기 위한 보상 시스템입니다.</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white mb-2">
+                                <div class="card-body py-2">
+                                    <h6><i class="fas fa-chart-line"></i> TYPE-1 (Progressive)</h6>
+                                    <small>연속 근무 개월수에 따라 150,000 ~ 1,000,000 VND</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white mb-2">
+                                <div class="card-body py-2">
+                                    <h6><i class="fas fa-users"></i> TYPE-2 (Standard)</h6>
+                                    <small>관리자 직급 - TYPE-1 평균 기준 또는 부하직원 기준</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-secondary text-white mb-2">
+                                <div class="card-body py-2">
+                                    <h6><i class="fas fa-user-plus"></i> TYPE-3 (정책 제외)</h6>
+                                    <small>신입직원 - 인센티브 대상에서 제외</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 10가지 조건 상세 설명 -->
+                <div class="mb-4">
+                    <h5 style="color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 5px;">
+                        <i class="fas fa-clipboard-check me-2"></i>2. 10가지 조건 상세 설명
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>조건</th>
+                                    <th>분류</th>
+                                    <th>기준</th>
+                                    <th>설명</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge bg-info">1</span></td>
+                                    <td rowspan="4">출근</td>
+                                    <td>출근율 ≥ 88%</td>
+                                    <td>승인휴가는 출근으로 인정, 무단결근만 결근으로 계산</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-info">2</span></td>
+                                    <td>무단결근 ≤ 2일</td>
+                                    <td>AR1 코드로 분류된 결근만 해당</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-info">3</span></td>
+                                    <td>실제 근무일 > 0</td>
+                                    <td>해당 월에 최소 1일 이상 근무 필요</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-info">4</span></td>
+                                    <td>최소 근무일 ≥ 12일</td>
+                                    <td>20일 이후에만 적용 (중간보고서에서는 미적용)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">5</span></td>
+                                    <td rowspan="4">AQL 품질</td>
+                                    <td>당월 개인 AQL Fail = 0</td>
+                                    <td>해당 월에 개인 AQL 불합격이 없어야 함</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">6</span></td>
+                                    <td>개인 3개월 연속 AQL Fail 없음</td>
+                                    <td>최근 3개월간 연속 AQL 불합격이 없어야 함</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">7</span></td>
+                                    <td>팀/구역 3개월 연속 AQL Fail 없음</td>
+                                    <td>소속 팀/구역의 3개월 연속 불합격이 없어야 함</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-warning text-dark">8</span></td>
+                                    <td>구역 Reject Rate < 3%</td>
+                                    <td>소속 구역의 불합격률이 3% 미만이어야 함</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-success">9</span></td>
+                                    <td rowspan="2">5PRS 검사</td>
+                                    <td>5PRS Pass Rate ≥ 95%</td>
+                                    <td>5PRS 검사 통과율이 95% 이상이어야 함</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-success">10</span></td>
+                                    <td>5PRS 검사 수량 ≥ 100</td>
+                                    <td>최소 100 pairs 이상 검사해야 함</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>중요:</strong> 모든 적용 조건을 100% 충족해야만 인센티브가 지급됩니다. 99%도 안 됩니다!
+                    </div>
+                </div>
+
+                <!-- 3. 연속 개월수 계산 방식 -->
+                <div class="mb-4">
+                    <h5 style="color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 5px;">
+                        <i class="fas fa-calendar-alt me-2"></i>3. 연속 개월수 및 금액 계산
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>TYPE-1 Progressive 테이블</h6>
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-success">
+                                    <tr><th>연속 개월</th><th>인센티브 금액</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>1개월</td><td>150,000 VND</td></tr>
+                                    <tr><td>2개월</td><td>200,000 VND</td></tr>
+                                    <tr><td>3개월</td><td>300,000 VND</td></tr>
+                                    <tr><td>4개월</td><td>350,000 VND</td></tr>
+                                    <tr><td>5개월</td><td>400,000 VND</td></tr>
+                                    <tr><td>6개월</td><td>500,000 VND</td></tr>
+                                    <tr><td>7개월</td><td>600,000 VND</td></tr>
+                                    <tr><td>8개월</td><td>650,000 VND</td></tr>
+                                    <tr><td>9개월</td><td>700,000 VND</td></tr>
+                                    <tr><td>10개월</td><td>800,000 VND</td></tr>
+                                    <tr><td>11개월</td><td>900,000 VND</td></tr>
+                                    <tr><td>12개월 이상</td><td><strong>1,000,000 VND</strong></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>계산 규칙</h6>
+                            <ul class="list-group">
+                                <li class="list-group-item list-group-item-success">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    조건 100% 충족 → 연속 개월수 +1
+                                </li>
+                                <li class="list-group-item list-group-item-danger">
+                                    <i class="fas fa-times text-danger me-2"></i>
+                                    조건 미충족 → 연속 개월수 0으로 리셋
+                                </li>
+                                <li class="list-group-item list-group-item-info">
+                                    <i class="fas fa-info-circle text-info me-2"></i>
+                                    12개월 이상은 모두 1,000,000 VND
+                                </li>
+                                <li class="list-group-item list-group-item-warning">
+                                    <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                                    신입직원(TYPE-3)은 대상에서 제외
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 관리자 인센티브 계산 -->
+                <div class="mb-4">
+                    <h5 style="color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 5px;">
+                        <i class="fas fa-sitemap me-2"></i>4. 관리자(TYPE-2) 인센티브 계산
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-primary mb-2">
+                                <div class="card-header bg-primary text-white">LINE LEADER (TYPE-2)</div>
+                                <div class="card-body">
+                                    <p><strong>계산 공식:</strong></p>
+                                    <code>부하직원 인센티브 합계 × 12% × 수령 비율</code>
+                                    <hr>
+                                    <p><small><strong>수령 비율</strong> = 인센티브 수령 부하직원 수 / 전체 활성 부하직원 수</small></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-success mb-2">
+                                <div class="card-header bg-success text-white">GROUP LEADER 이상</div>
+                                <div class="card-body">
+                                    <p><strong>계산 공식:</strong></p>
+                                    <code>TYPE-1 LINE LEADER 평균 × 배수</code>
+                                    <hr>
+                                    <p><small>GROUP LEADER: ×2, SUPERVISOR: ×2.5, A.MANAGER: ×3, MANAGER: ×3.5</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. 대시보드 탭 안내 -->
+                <div class="mb-0">
+                    <h5 style="color: #1e40af; border-bottom: 2px solid #1e40af; padding-bottom: 5px;">
+                        <i class="fas fa-desktop me-2"></i>5. 대시보드 탭별 기능 안내
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="text-primary"><i class="fas fa-th-large me-2"></i>요약</h6>
+                                    <small>전체 현황 KPI, 빌딩별 통계, AQL/5PRS 분석 차트</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="text-success"><i class="fas fa-user me-2"></i>개인별 상세</h6>
+                                    <small>직원 검색, 상세 정보 모달, 조건 충족 현황</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="text-info"><i class="fas fa-chart-bar me-2"></i>인센티브 기준</h6>
+                                    <small>TYPE별 계산 방식, 조건 설명, 직급별 정책</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="text-warning"><i class="fas fa-users me-2"></i>팀 관리</h6>
+                                    <small>조직도, 관리자 인센티브 구조, 부하직원 현황</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="text-danger"><i class="fas fa-check-square me-2"></i>요약 및 검증</h6>
+                                    <small>데이터 정확성 검증, KPI 카드, 시스템 상태</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="text-secondary"><i class="fas fa-calendar-check me-2"></i>개인 출결 조회</h6>
+                                    <small>사원번호로 출결 현황 조회, 일별 출근 기록</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ===== 상세 도움말 섹션 끝 ===== -->
 
         <!-- FAQ 검색 -->
         <div class="mb-4">
@@ -11119,6 +11384,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
             </div>
 
+            <!-- 지각/조퇴 카드 (새로 추가) -->
+            <div class="row mb-4 justify-content-center">
+                <div class="col-md-3">
+                    <div class="card text-center" style="background: linear-gradient(135deg, #f97316, #ea580c); color: white;">
+                        <div class="card-body">
+                            <h6>⏰ 지각 일수</h6>
+                            <h2 id="summaryComeLate">-</h2>
+                            <small>늦게 출근한 날</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">
+                        <div class="card-body">
+                            <h6>🚪 조퇴 일수</h6>
+                            <h2 id="summaryLeaveEarly">-</h2>
+                            <small>일찍 퇴근한 날</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 출근율 게이지 -->
             <div class="card mb-4">
                 <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
@@ -11245,6 +11532,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='80' fill='%23667eea' opacity='0.2'/><text x='100' y='90' text-anchor='middle' font-size='40'>🔍</text><text x='100' y='130' text-anchor='middle' font-size='16' fill='%23666'>사원번호 입력</text></svg>"
                      alt="검색 안내" style="max-width: 200px; opacity: 0.7;">
             </div>
+        </div>
+    </div>
         </div>
     </div>
 
@@ -20293,6 +20582,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
 
+        // 상세 도움말 토글 (도움말 탭)
+        function toggleDetailedHelp() {{
+            const body = document.getElementById('detailedHelpBody');
+            const chevron = document.getElementById('detailedHelpChevron');
+            if (body && chevron) {{
+                const isHidden = body.style.display === 'none';
+                body.style.display = isHidden ? 'block' : 'none';
+                chevron.classList.toggle('fa-chevron-down', isHidden);
+                chevron.classList.toggle('fa-chevron-right', !isHidden);
+            }}
+        }}
+
         // FAQ 카테고리 토글
         function toggleFaqCategory(category) {{
             const body = document.getElementById('faqBody' + category.charAt(0).toUpperCase() + category.slice(1));
@@ -20351,11 +20652,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const unapprovedAbsence = parseInt(employee['Unapproved Absences'] || employee.unapproved_absences || 0);
             const attendanceRate = parseFloat(employee['Attendance Rate'] || employee['출근율_Attendance_Rate_Percent'] || 0);
 
+            // 지각/조퇴 데이터 추출 (새로 추가)
+            const comeLateDays = parseInt(employee['Come Late Days'] || employee['Come_Late_Days'] || 0);
+            const leaveEarlyDays = parseInt(employee['Leave Early Days'] || employee['Leave_Early_Days'] || 0);
+
             // 요약 카드 업데이트
             document.getElementById('summaryTotalDays').textContent = totalDays + '일';
             document.getElementById('summaryActualDays').textContent = actualDays + '일';
             document.getElementById('summaryApprovedLeave').textContent = approvedLeave + '일';
             document.getElementById('summaryUnapproved').textContent = unapprovedAbsence + '일';
+
+            // 지각/조퇴 카드 업데이트 (새로 추가)
+            document.getElementById('summaryComeLate').textContent = comeLateDays + '일';
+            document.getElementById('summaryLeaveEarly').textContent = leaveEarlyDays + '일';
 
             // 출근율 표시
             const rateDisplay = document.getElementById('attendanceRateDisplay');
