@@ -5499,6 +5499,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            width: 100%;  /* 탭별 폭 표준화 */
+            box-sizing: border-box;  /* padding 포함 폭 계산 */
         }}
 
         .tab-content.active {{
