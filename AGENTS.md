@@ -52,6 +52,7 @@ known_issues_to_watch:  # CLAUDE.md 참조
   - "Issue #6: Modal isInterimReport 변수 스코프"
   - "Issue #28: 타입 불일치 (=== vs ==)"
   - "Issue #9: 언어 전환 시 data-lang-show 처리"
+  - "Issue #30: 멀티라인 console.log는 /* */ 블록 주석 사용 (// 금지)"
 
 validation_checklist:
   - "[ ] Console 에러 없음"
@@ -1211,10 +1212,81 @@ high_issues:
   - issue: "#27 - 2개월 연속 AQL 표시"
     agents: [@QualityControl, @FrontendArchitect]
     prevention: "Continuous_FAIL_2Month 컬럼 사용"
+
+  - issue: "#30 - JavaScript 멀티라인 주석 구문 오류"
+    agents: [@FrontendArchitect, @QAEngineer]
+    prevention: "멀티라인 코드는 /* */ 블록 주석 사용, // 사용 금지"
 ```
 
 ---
 
-*Agent Team Version: 2.0 (고도화)*
-*Last Updated: 2025-12-22*
-*Quality Director @QualityControl: 품질 부서장 수준 전문성 강화*
+## 📊 Collaboration Experience Log (협업 경험 로그)
+
+### 2025-12-25 V10.0 품질 검증 협업
+
+**참여 에이전트:** @FrontendArchitect, @BackendEngineer, @QAEngineer, @DataAnalyst
+
+**협업 방식:** 4개 에이전트 병렬 검증 (Task tool 동시 실행)
+
+**검증 결과:**
+| 에이전트 | 담당 영역 | 결과 | 발견 사항 |
+|---------|----------|------|----------|
+| @FrontendArchitect | JS/CSS 검증 | ✅ PASS | 281개 함수 정상, 오타 1건 (비크리티컬) |
+| @BackendEngineer | 계산 로직 | ⚠️ 조사필요 | 100% Rule 위반 1건 (623060116) |
+| @QAEngineer | 기능 테스트 | ✅ PASS | 8/8 테스트 통과, 28,685라인 검증 |
+| @DataAnalyst | 데이터 일관성 | ✅ PASS | 핵심 메트릭 100% 일치 (돈 계산 정확) |
+
+**학습된 개선점:**
+1. **@FrontendArchitect**: `known_issues_to_watch`에 Issue #30 추가 (멀티라인 주석)
+2. **@BackendEngineer**: 100% Rule 위반 케이스 조사 프로세스 명확화 필요
+3. **@QAEngineer**: JavaScript 구문 자동 검증 (Node.js --check) 테스트 항목 추가
+4. **@DataAnalyst**: 퇴사자 필터링 불일치 5명 원인 분석 (표시 레이어 vs 계산 레이어)
+
+**협업 효율성 평가:**
+- 병렬 실행으로 4개 영역 동시 검증 → 시간 75% 절감
+- 각 에이전트 전문성으로 서로 다른 관점에서 문제 발견
+- Cross-validation: 수령 직원 321명, 총 지급액 111,563,006 VND 4중 검증
+
+---
+
+## 🔧 Agent Skill Improvements (실력 개선 반영)
+
+### @FrontendArchitect 개선사항 (2025-12-25)
+```yaml
+new_red_flags:
+  - "// console.log() 멀티라인 사용 (/* */ 블록 주석으로 변경 필요)"
+  - "Git rebase 시 --ours 사용 주의 (원격 브랜치 선택됨)"
+
+enhanced_validation:
+  - "[ ] Node.js --check로 JavaScript 구문 검증 (자동화됨)"
+  - "[ ] 멀티라인 주석이 /* */로 처리되었는지 확인"
+```
+
+### @QAEngineer 개선사항 (2025-12-25)
+```yaml
+new_test_items:
+  - "JavaScript 구문 검증 (Node.js v22+)"
+  - "블록 주석 완전성 검사 (/* 시작 → */ 종료)"
+  - "함수 정의 존재 확인 (switchLanguage, showEmployeeDetail 등)"
+
+automation_added:
+  - "대시보드 생성 시 자동 JS 구문 검증 (integrated_dashboard_final.py:23377-23400)"
+```
+
+### @DataAnalyst 개선사항 (2025-12-25)
+```yaml
+new_validation_rules:
+  - "CSV 전체 직원 수 vs Dashboard 표시 직원 수 비교"
+  - "퇴사자 필터링 정확성 검증 (Stop working Date 기준)"
+  - "지급률 계산 기준 명시 (전체 vs 재직자)"
+
+consistency_checks:
+  - "핵심 메트릭 (수령자, 지급액) 100% 일치 필수"
+  - "표시 메트릭 (전체 직원, 지급률) 차이 원인 문서화"
+```
+
+---
+
+*Agent Team Version: 2.1 (협업 경험 반영)*
+*Last Updated: 2025-12-25*
+*Collaboration Log Added: V10.0 품질 검증 (4개 에이전트 병렬 협업)*
