@@ -81,6 +81,33 @@ jobs:
         echo "Converting attendance data to processed format..."
         python src/convert_attendance_data.py
 
+    # 6.5 Attendance Schema Validation (Issue #31 Prevention)
+    - name: 🔍 Validate Attendance Schema (Issue #31 Prevention)
+      run: |
+        echo "====================================="
+        echo "🔍 Attendance Schema Validation"
+        echo "====================================="
+        echo ""
+        echo "📋 Converted 출근 파일과 계산 엔진 간 스키마 일치 검증"
+        echo "   (Issue #31: Approved Leave Days 미반영 버그 예방)"
+        echo ""
+
+        # 스키마 검증 실행
+        if [ -f "scripts/validate_attendance_schema.py" ]; then
+          python scripts/validate_attendance_schema.py
+          RESULT=$?
+          if [ $RESULT -eq 0 ]; then
+            echo ""
+            echo "✅ Schema validation PASSED!"
+          else
+            echo ""
+            echo "⚠️ Schema validation WARNING - check logs above"
+            echo "   참조: CLAUDE.md Issue #31"
+          fi
+        else
+          echo "⚠️ Schema validation script not found - skipping"
+        fi
+
     # 7. 인센티브 자동 계산
     - name: 💰 Calculate Incentives
       run: |
