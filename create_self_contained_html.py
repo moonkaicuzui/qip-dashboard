@@ -198,8 +198,8 @@ def main():
 
     # Construct file paths
     month_str = str(args.month).zfill(2)
-    input_html = f"docs/Incentive_Dashboard_{args.year}_{month_str}_Version_9.0.html"
-    output_html = f"docs/Incentive_Dashboard_{args.year}_{month_str}_Version_9.0_SelfContained.html"
+    input_html = f"docs/Incentive_Dashboard_{args.year}_{month_str}_Version_10.0.html"
+    output_html = f"docs/Incentive_Dashboard_{args.year}_{month_str}_Version_10.0_SelfContained.html"
 
     # Check if input exists
     if not Path(input_html).exists():

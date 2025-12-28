@@ -245,7 +245,7 @@ def load_incentive_data(month='august', year=2025, generate_prev=True):
                 type_counts = df['type'].value_counts()
                 print(f"✅ Type information loaded: TYPE-1 {type_counts.get('TYPE-1', 0)}직원, TYPE-2 {type_counts.get('TYPE-2', 0)}직원, TYPE-3 {type_counts.get('TYPE-3', 0)}직원")
             
-            # 필count column 확인 및 default value 설정
+            # 필수 column 확인 및 default value 설정
             required_columns = ['emp_no', 'name', 'position', 'type', f'{month.lower()}_incentive']
             for col in required_columns:
                 if col not in df.columns:
@@ -1370,7 +1370,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- 2025-12-22: 베트남어 지원을 위해 Noto Sans에 vietnamese 서브셋 명시적 추가 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&subset=latin,latin-ext,vietnamese&display=swap" rel="stylesheet">
-    <!-- Bootstrap JavaScript Bundle with Popper (필count!) -->
+    <!-- Bootstrap JavaScript Bundle with Popper (필수!) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     '''
 
@@ -9561,7 +9561,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <strong>⚡ <span class="special-calculation-label">특별 calculation 직급:</span></strong> <span class="special-calculation-text">AQL INSPECTOR(3단계 합산: Part1 + Part2 + Part3)</span>
                             </li>
                             <li class="list-group-item">
-                                <strong>🎯 <span class="condition-failure-label">조건 미충족시:</span></strong> <span class="condition-failure-text">하나라도 필count 조건을 충족하지 못하면 incentive가 0이 됩니다.</span>
+                                <strong>🎯 <span class="condition-failure-label">조건 미충족시:</span></strong> <span class="condition-failure-text">하나라도 필수 조건을 충족하지 못하면 incentive가 0이 됩니다.</span>
                             </li>
                         </ul>
                         
