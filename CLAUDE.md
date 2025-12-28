@@ -1508,6 +1508,40 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commit**: `9e29c451` (2025-12-25)
    - **Git Rebase 주의**: 리베이스에서 `--ours`는 원격 브랜치, `--theirs`는 로컬 커밋
 
+31. **계산 엔진 Approved Leave Days 미반영 버그** (FIXED: 2025-12-28):
+   - **Problem**: Converted 출근 파일에 Approved Leave Days가 있지만 계산 엔진이 0으로 처리
+     - V10.0 결과: 348명에게 Approved Leave Days 반영 (정상)
+     - V9.0 NEW 결과: 0명에게 Approved Leave Days 반영 (버그)
+   - **Root Cause**: **스키마 불일치 (Schema Mismatch)**
+     - `convert_attendance_data.py`: "Approved Leave Days", "Attendance Rate (%)" 컬럼 생성 ✅
+     - `step1_인센티브_계산_개선버전.py` Lines 705-708: 해당 컬럼 읽지 않음 ❌
+     - 데이터 생산자(converter)와 소비자(calculator) 간 동기화 없음
+   - **Solution**: 계산 엔진에 Approved Leave Days 읽기 추가
+     - Line 710-712: Approved Leave Days, Attendance Rate 읽기 추가
+       ```python
+       approved_leave_days = float(row.get('Approved Leave Days', 0))
+       converted_attendance_rate = float(row.get('Attendance Rate (%)', 0))
+       ```
+     - Line 768-770: attendance_results에 해당 필드 포함
+       ```python
+       'Approved Leave Days': approved_leave_days,
+       '출근율_Attendance_Rate_Percent': converted_attendance_rate
+       ```
+   - **Impact**:
+     | 지표 | 버그 수정 전 | 버그 수정 후 |
+     |------|-------------|-------------|
+     | Approved Leave 반영 | 0명 | **346명** |
+     | 수령자 수 | 313명 | **366명** |
+     | 총 인센티브 | ₫109M | **₫134M** |
+   - **Prevention** (아래 "스키마 계약 검증" 섹션 참조):
+     - `scripts/validate_attendance_schema.py` 자동 실행
+     - Converted 파일 컬럼이 계산 엔진에서 모두 사용되는지 검증
+   - **Implementation**: `src/step1_인센티브_계산_개선버전.py:710-712, 768-770`
+   - **Commit**: `8edc129c` (2025-12-28)
+   - **Lesson Learned**:
+     - 데이터 파이프라인에서 컬럼 추가 시 다운스트림 모든 소비자 검토 필수
+     - 스키마 변경은 단위 테스트로 검증해야 함
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code

@@ -242,6 +242,23 @@ else
     fi
 fi
 
+# Step 0.7.6: Attendance Schema Validation (Issue #31 Prevention)
+echo ""
+echo -e "${YELLOW}🔍 Validating attendance schema (Issue #31 prevention)...${NC}"
+if [ -f "scripts/validate_attendance_schema.py" ]; then
+    python3 scripts/validate_attendance_schema.py $MONTH $YEAR
+    SCHEMA_RESULT=$?
+    if [ $SCHEMA_RESULT -eq 0 ]; then
+        echo -e "${GREEN}✅ Attendance schema validation passed${NC}"
+    else
+        echo -e "${RED}❌ Attendance schema validation FAILED!${NC}"
+        echo -e "${YELLOW}⚠️ Check CLAUDE.md Issue #31 for details${NC}"
+        echo -e "${YELLOW}   Approved Leave Days may not be reflected correctly${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️ Schema validation script not found - skipping${NC}"
+fi
+
 # Step 0.8: HR data validation
 echo ""
 echo -e "${YELLOW}🔍 Validating HR data integrity...${NC}"

@@ -1,0 +1,215 @@
+#!/usr/bin/env python3
+"""
+Attendance Schema Validation Script
+====================================
+Validates that all columns in converted attendance file are used by the calculation engine.
+
+This script prevents the "Schema Mismatch" bug (Issue #31 in CLAUDE.md):
+- Converter creates columns but calculator doesn't read them
+- Results in silent data loss (e.g., Approved Leave Days = 0 for all employees)
+
+Usage:
+    python scripts/validate_attendance_schema.py [month] [year]
+
+Example:
+    python scripts/validate_attendance_schema.py december 2025
+"""
+
+import sys
+import os
+import json
+from pathlib import Path
+
+# 프로젝트 루트로 이동
+project_root = Path(__file__).parent.parent
+os.chdir(project_root)
+
+# Converted 출근 파일에서 생성되는 컬럼들 (convert_attendance_data.py 기준)
+CONVERTED_COLUMNS = [
+    'ID No',                 # 직원 번호
+    'Last name',             # 이름
+    'ACTUAL WORK DAY',       # 실제 근무일
+    'TOTAL WORK DAY',        # 총 근무일
+    'AR1 Absences',          # 무단결근 (AR1)
+    'Unapproved Absences',   # 미승인 결근 합계
+    'Approved Leave Days',   # 승인휴가 일수 (Issue #31 핵심)
+    'Absence Rate (%)',      # 결근율
+    'Attendance Rate (%)',   # 출근율 (승인휴가 반영)
+    'Come Late Days',        # 지각 일수
+    'Leave Early Days',      # 조퇴 일수
+]
+
+# 계산 엔진에서 읽어야 하는 필수 컬럼들 (step1_인센티브_계산_개선버전.py 기준)
+REQUIRED_BY_CALCULATOR = [
+    'ID No',                    # Employee ID
+    'ACTUAL WORK DAY',
+    'TOTAL WORK DAY',
+    'AR1 Absences',
+    'Unapproved Absences',
+    'Absence Rate (%)',
+    'Approved Leave Days',      # Issue #31: 이전에 누락됨
+    'Attendance Rate (%)',      # Issue #31: 이전에 누락됨
+]
+
+# 계산 엔진 출력에 포함되어야 하는 필드들
+EXPECTED_IN_OUTPUT = [
+    'Approved Leave Days',                    # Approved Leave Days 매핑
+]
+
+
+def validate_converted_file(month: str, year: int) -> dict:
+    """
+    Converted 출근 파일의 컬럼 존재 여부 검증
+    """
+    import pandas as pd
+
+    converted_path = f"input_files/attendance/converted/attendance data {month}_converted.csv"
+
+    if not Path(converted_path).exists():
+        return {
+            'status': 'ERROR',
+            'message': f'Converted 파일 없음: {converted_path}',
+            'missing_columns': [],
+            'extra_columns': []
+        }
+
+    df = pd.read_csv(converted_path, nrows=5)  # 헤더만 확인
+    actual_columns = list(df.columns)
+
+    missing = [col for col in REQUIRED_BY_CALCULATOR if col not in actual_columns]
+    extra = [col for col in actual_columns if col not in CONVERTED_COLUMNS]
+
+    if missing:
+        return {
+            'status': 'ERROR',
+            'message': f'필수 컬럼 누락: {missing}',
+            'missing_columns': missing,
+            'extra_columns': extra
+        }
+
+    return {
+        'status': 'OK',
+        'message': '모든 필수 컬럼 존재',
+        'missing_columns': [],
+        'extra_columns': extra,
+        'columns_found': len(actual_columns)
+    }
+
+
+def validate_output_file(month: str, year: int) -> dict:
+    """
+    계산 엔진 출력 파일에 Approved Leave Days가 반영되었는지 검증
+    """
+    import pandas as pd
+
+    output_path = f"output_files/output_QIP_incentive_{month}_{year}_Complete_V9.0_Complete.csv"
+
+    if not Path(output_path).exists():
+        return {
+            'status': 'WARNING',
+            'message': f'출력 파일 없음 (계산 전): {output_path}',
+            'approved_leave_count': 0,
+            'approved_leave_total': 0
+        }
+
+    df = pd.read_csv(output_path)
+
+    # Approved Leave Days 컬럼 확인
+    if 'Approved Leave Days' not in df.columns:
+        return {
+            'status': 'ERROR',
+            'message': 'Approved Leave Days 컬럼이 출력에 없음 - 버그 가능성!',
+            'approved_leave_count': 0,
+            'approved_leave_total': 0
+        }
+
+    # Approved Leave Days 데이터 통계
+    approved_leave = df['Approved Leave Days'].fillna(0)
+    count_with_leave = (approved_leave > 0).sum()
+    total_leave_days = approved_leave.sum()
+
+    if count_with_leave == 0:
+        return {
+            'status': 'WARNING',
+            'message': 'Approved_Leave_Days가 모두 0 - 데이터 확인 필요',
+            'approved_leave_count': 0,
+            'approved_leave_total': 0
+        }
+
+    return {
+        'status': 'OK',
+        'message': f'{count_with_leave}명에게 총 {int(total_leave_days)}일 승인휴가 반영',
+        'approved_leave_count': int(count_with_leave),
+        'approved_leave_total': int(total_leave_days)
+    }
+
+
+def main():
+    print("=" * 60)
+    print("📋 Attendance Schema Validation")
+    print("=" * 60)
+
+    # 인자 처리
+    if len(sys.argv) >= 3:
+        month = sys.argv[1].lower()
+        year = int(sys.argv[2])
+    else:
+        # 최신 config에서 월/년 자동 감지
+        config_files = list(Path("config_files").glob("config_*_2025.json"))
+        if config_files:
+            latest = sorted(config_files)[-1]
+            with open(latest) as f:
+                config = json.load(f)
+            month = config.get('month', 'december')
+            year = config.get('year', 2025)
+            print(f"ℹ️  자동 감지: {month} {year}")
+        else:
+            month = 'december'
+            year = 2025
+
+    print(f"\n🔍 검증 대상: {month.capitalize()} {year}")
+    print("-" * 60)
+
+    # 1. Converted 파일 검증
+    print("\n[1/2] Converted 출근 파일 검증...")
+    converted_result = validate_converted_file(month, year)
+
+    if converted_result['status'] == 'OK':
+        print(f"   ✅ {converted_result['message']}")
+        print(f"   📊 총 {converted_result['columns_found']}개 컬럼")
+    elif converted_result['status'] == 'ERROR':
+        print(f"   ❌ {converted_result['message']}")
+        print(f"   🔧 필수 컬럼: {REQUIRED_BY_CALCULATOR}")
+    else:
+        print(f"   ⚠️  {converted_result['message']}")
+
+    # 2. 출력 파일 검증
+    print("\n[2/2] 계산 엔진 출력 검증...")
+    output_result = validate_output_file(month, year)
+
+    if output_result['status'] == 'OK':
+        print(f"   ✅ {output_result['message']}")
+    elif output_result['status'] == 'ERROR':
+        print(f"   ❌ {output_result['message']}")
+        print("   🚨 Issue #31 버그 가능성! 계산 엔진 확인 필요")
+    else:
+        print(f"   ⚠️  {output_result['message']}")
+
+    # 결과 요약
+    print("\n" + "=" * 60)
+    all_ok = (converted_result['status'] == 'OK' and
+              output_result['status'] in ['OK', 'WARNING'])
+
+    if all_ok:
+        print("✅ 스키마 검증 통과!")
+        print(f"   - Approved Leave Days: {output_result['approved_leave_count']}명")
+        print(f"   - 총 승인휴가: {output_result['approved_leave_total']}일")
+        return 0
+    else:
+        print("❌ 스키마 검증 실패!")
+        print("\n📖 참조: CLAUDE.md Issue #31 (계산 엔진 Approved Leave Days 미반영 버그)")
+        return 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())
