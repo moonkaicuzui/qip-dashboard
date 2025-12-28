@@ -103,6 +103,46 @@ See `PROJECT_IDENTITY_WEB_DASHBOARD.md` for comprehensive web deployment archite
 - **ADMIT mistakes immediately** - 실수는 즉시 인정하고 수정하라
 - **ASK for help when stuck** - 막히면 포기하지 말고 사용자에게 물어봐라
 
+### 0.5 AUTOMATION-FIRST DEVELOPMENT (자동화 우선 개발 - 핵심 원칙, 2025-12-28)
+**로컬에서만 작동하고 자동화에 반영되지 않는 개선은 실패(FAILURE)이다.**
+
+이 프로젝트는 **실시간 웹 기반 대시보드**이며, 모든 개선사항은 반드시 GitHub Actions 자동화 파이프라인에 적용되어야 한다.
+
+**필수 적용 대상 (2개 시스템 모두 적용해야 완료)**:
+| 시스템 | 파일 | 실행 주기 |
+|--------|------|----------|
+| **로컬** | `action.sh` | 수동 실행 |
+| **자동화** | `.github/workflows/auto-update-enhanced.yml` | 30분마다 |
+
+**개선 작업 완료 체크리스트**:
+- [ ] 1. 코드 수정 완료 (`src/`, `scripts/`, `integrated_dashboard_final.py`)
+- [ ] 2. `action.sh`에 새 단계 추가 (해당 시)
+- [ ] 3. **`auto-update-enhanced.yml`에 새 단계 추가** ← 이것 없으면 실패!
+- [ ] 4. Git push 후 GitHub Actions 실행 확인
+- [ ] 5. 웹 대시보드에서 개선사항 반영 확인
+
+**자동화 미적용 = 개선 실패 사례** (Issue #31, 2025-12-28):
+```
+❌ 잘못된 예: action.sh에만 스키마 검증 추가
+   → 로컬에서는 검증되지만 자동화에서는 검증 안됨
+   → 30분마다 버그 있는 상태로 배포될 수 있음
+
+✅ 올바른 예: action.sh + auto-update-enhanced.yml 모두 추가
+   → 로컬과 자동화 모두 동일한 검증 수행
+   → 버그 예방이 24/7 자동으로 작동
+```
+
+**검증 명령어**:
+```bash
+# GitHub Actions 워크플로우에 변경사항이 반영되었는지 확인
+grep -n "새로운_스크립트_이름" .github/workflows/auto-update-enhanced.yml
+
+# 최근 GitHub Actions 실행 상태 확인
+# https://github.com/moonkaicuzui/qip-dashboard/actions
+```
+
+**Historical Bug** (2025-12-28): 스키마 검증을 `action.sh`에만 추가하고 GitHub Actions에 추가하지 않아, 자동화 시스템에서 버그 예방이 작동하지 않는 상태로 1시간 경과. 이후 수정하여 양쪽 모두 적용.
+
 ### Google Drive Data-First Principle (Google Drive 데이터 우선 원칙)
 - **ALWAYS use Google Drive as single source of truth** - 항상 Google Drive를 유일한 데이터 소스로 사용
 - **NEVER rely on outdated local data** - 오래된 로컬 데이터에 의존하지 마라
