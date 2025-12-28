@@ -706,6 +706,10 @@ class DataProcessor:
                 ar1_absences = float(row.get('AR1 Absences', 0))
                 unapproved_absences = float(row.get('Unapproved Absences', 0))
                 absence_rate = float(row.get('Absence Rate (%)', 0))
+
+                # ✅ BUG FIX (2025-12-28): Converted 파일에서 Approved Leave Days와 Attendance Rate 읽기
+                approved_leave_days = float(row.get('Approved Leave Days', 0))
+                converted_attendance_rate = float(row.get('Attendance Rate (%)', 0))  # 승인휴가 반영된 출근율
                 
                 # previous 형식andof 호환성 위해
                 if 'Absence (without permission) time' in row:
@@ -760,7 +764,10 @@ class DataProcessor:
                     'Unapproved Absences': unapproved_absences,
                     '결근율_Absence_Rate_Percent': absence_rate,
                     'Come Late Days': come_late_days,      # 지각 일수
-                    'Leave Early Days': leave_early_days   # 조퇴 일수
+                    'Leave Early Days': leave_early_days,  # 조퇴 일수
+                    # ✅ BUG FIX (2025-12-28): Converted 파일의 승인휴가 및 출근율 포함
+                    'Approved Leave Days': approved_leave_days,
+                    '출근율_Attendance_Rate_Percent': converted_attendance_rate  # 승인휴가 반영된 출근율
                     # 레거시 컬럼 삭제: cond_1~10 표준 컬럼으로 통합
                 })
             
