@@ -23204,25 +23204,31 @@ def main():
     working_days = 13  # default value
 
     # CSV를 directly 읽어서 dashboard data 구조 creation
-    # V10.0 → V9.1 → V9.0 → V8.02 순서로 확인 - 통일된 fallback 패턴 (2025-12-28)
+    # 2026년부터는 V10.0 강제 (Approved Leave Days 버그 수정 버전) - 2026-01-02
     csv_file_v10 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V10.0_Complete.csv'
-    csv_file_v91 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V9.1_Complete.csv'
-    csv_file_v9 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V9.0_Complete.csv'
-    csv_file_v8 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V8.02_Complete.csv'
-    csv_file_enhanced = f'output_files/output_QIP_incentive_{month_name}_{args.year}_final완성version_v6.0_Complete_enhanced.csv'
-    csv_file = f'output_files/output_QIP_incentive_{month_name}_{args.year}_final완성version_v6.0_Complete.csv'
 
-    # Try V10.0 version first, then V9.1, then V9.0, then V8.02, then enhanced, then normal
-    if os.path.exists(csv_file_v10):
+    if args.year >= 2026:
+        # 2026년부터는 V10.0만 사용 (fallback 없음)
         csv_file = csv_file_v10
-    elif os.path.exists(csv_file_v91):
-        csv_file = csv_file_v91
-    elif os.path.exists(csv_file_v9):
-        csv_file = csv_file_v9
-    elif os.path.exists(csv_file_v8):
-        csv_file = csv_file_v8
-    elif os.path.exists(csv_file_enhanced):
-        csv_file = csv_file_enhanced
+    else:
+        # 2025년 이하: V10.0 → V9.1 → V9.0 → V8.02 순서로 확인 - 통일된 fallback 패턴
+        csv_file_v91 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V9.1_Complete.csv'
+        csv_file_v9 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V9.0_Complete.csv'
+        csv_file_v8 = f'output_files/output_QIP_incentive_{month_name}_{args.year}_Complete_V8.02_Complete.csv'
+        csv_file_enhanced = f'output_files/output_QIP_incentive_{month_name}_{args.year}_final완성version_v6.0_Complete_enhanced.csv'
+        csv_file = f'output_files/output_QIP_incentive_{month_name}_{args.year}_final완성version_v6.0_Complete.csv'
+
+        # Try V10.0 version first, then V9.1, then V9.0, then V8.02, then enhanced, then normal
+        if os.path.exists(csv_file_v10):
+            csv_file = csv_file_v10
+        elif os.path.exists(csv_file_v91):
+            csv_file = csv_file_v91
+        elif os.path.exists(csv_file_v9):
+            csv_file = csv_file_v9
+        elif os.path.exists(csv_file_v8):
+            csv_file = csv_file_v8
+        elif os.path.exists(csv_file_enhanced):
+            csv_file = csv_file_enhanced
 
     if os.path.exists(csv_file):
         try:

@@ -35,8 +35,9 @@ def create_month_selector_page():
                           'July', 'August', 'September', 'October', 'November', 'December']
             month_name = month_names[month] if 1 <= month <= 12 else str(month)
 
-            # 2025년 11월 이후만 표시 (10월 확정 지급 완료)
-            if year == 2025 and month < 11:
+            # V10.0 데이터만 표시: 2025년 12월부터 (Approved Leave Days 버그 수정 버전) - 2026-01-02
+            # 2025년 11월 이하 숨김 (V9.0 데이터)
+            if year == 2025 and month < 12:
                 continue
             # 8월(August) 제외 (다른 해도 적용)
             if month == 8:

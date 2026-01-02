@@ -5263,7 +5263,9 @@ class CompleteQIPCalculator:
             self.add_aql_statistics_to_excel()
 
             # CSV saved (condition 평 후)
-            csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V10.0_Complete.csv")
+            # 2026년부터는 V10.0 강제 (Approved Leave Days 버그 수정 버전) - 2026-01-02
+            version = "V10.0"  # 2026+ 강제, 2025도 V10.0 사용
+            csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_{version}_Complete.csv")
             self.month_data.to_csv(csv_file, index=False, encoding='utf-8-sig')
 
             # CSV file created validation
@@ -5273,7 +5275,7 @@ class CompleteQIPCalculator:
                 print(f"⚠️ CSV file created failure: {csv_file}")
 
             # Excel saved
-            excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_V10.0_Complete.xlsx")
+            excel_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_{version}_Complete.xlsx")
             self.month_data.to_excel(excel_file, index=False)
             
             # Excel file created validation
