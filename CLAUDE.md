@@ -141,7 +141,9 @@ grep -n "새로운_스크립트_이름" .github/workflows/auto-update-enhanced.y
 # https://github.com/moonkaicuzui/qip-dashboard/actions
 ```
 
-**Historical Bug** (2025-12-28): 스키마 검증을 `action.sh`에만 추가하고 GitHub Actions에 추가하지 않아, 자동화 시스템에서 버그 예방이 작동하지 않는 상태로 1시간 경과. 이후 수정하여 양쪽 모두 적용.
+**Historical Bug Examples**:
+- (2025-12-28, Issue #31): 스키마 검증을 `action.sh`에만 추가하고 GitHub Actions에 추가하지 않아, 자동화 시스템에서 버그 예방이 작동하지 않는 상태로 1시간 경과. 이후 수정하여 양쪽 모두 적용.
+- (2026-01-02, Issue #32): GitHub Actions Step 6에 month/year 파라미터 전달 누락으로, Google Drive 업데이트 시 attendance 재변환이 자동 실행되지 않음. 결과적으로 working_days 불일치 발생 (22일 vs 27일). 이후 Step 6 개선 + Step 6.5 추가로 완전 자동화.
 
 ### Google Drive Data-First Principle (Google Drive 데이터 우선 원칙)
 - **ALWAYS use Google Drive as single source of truth** - 항상 Google Drive를 유일한 데이터 소스로 사용
@@ -1581,6 +1583,87 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Lesson Learned**:
      - 데이터 파이프라인에서 컬럼 추가 시 다운스트림 모든 소비자 검토 필수
      - 스키마 변경은 단위 테스트로 검증해야 함
+
+32. **Working Days 불일치 자동 해결 시스템** (FIXED: 2026-01-02):
+   - **Problem**: Google Drive 최신 데이터 다운로드 시 working_days 불일치 발생
+     - December 2025: Config 27일 업데이트 → Converted 파일 22일 유지
+     - 결과: 6명 인센티브 누락, ₫1,989,696 손실
+   - **Root Cause**: **자동화 파이프라인 gap**
+     ```
+     Google Drive 다운로드 → config working_days 업데이트 (27일) ✅
+     ↓
+     Attendance 변환 실행 → 파라미터 없이 실행 ❌
+     ↓
+     기존 22일 converted 파일 재사용 ❌
+     ↓
+     계산 엔진 → 오래된 22일 데이터 사용 ❌
+     ```
+   - **Solution**: 3-Layer 예방 시스템 구현
+     - **Layer 1 - Automatic Reconversion** (`src/convert_attendance_data.py:155-186`):
+       ```python
+       # Config 조기 로드하여 working_days 불일치 감지
+       config = load_config(month, year)
+       total_working_days = config.get('working_days', None)
+
+       if converted_file.exists():
+           existing = pd.read_csv(converted_file, nrows=5)
+           if total_working_days and 'TOTAL WORK DAY' in existing.columns:
+               existing_total_days = existing['TOTAL WORK DAY'].iloc[0]
+               if existing_total_days != total_working_days:
+                   print(f"🔄 Working days changed: {existing_total_days} → {total_working_days}")
+                   # Force reconversion
+       ```
+     - **Layer 2 - GitHub Actions Integration** (`.github/workflows/auto-update-enhanced.yml:78-106`):
+       ```bash
+       # Step 6: Attendance 변환 시 month/year 자동 전달
+       LATEST_CONFIG=$(ls -t config_files/config_*.json | head -1)
+       MONTH=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('month'))")
+       YEAR=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('year'))")
+       python src/convert_attendance_data.py $MONTH $YEAR
+       ```
+     - **Layer 3 - Validation Gate** (`scripts/validate_attendance_schema.py:92-110`):
+       ```python
+       # Step 6.5: 계산 전 스키마 검증
+       config_working_days = config.get('working_days')
+       actual_total_days = df['TOTAL WORK DAY'].iloc[0]
+
+       if actual_total_days != config_working_days:
+           print(f"❌ Issue #32: Working Days 불일치!")
+           print(f"Config: {config_working_days}일 vs Converted: {actual_total_days}일")
+           return False
+       ```
+   - **Impact**:
+     | 지표 | 수정 전 (22일) | 수정 후 (27일) |
+     |------|---------------|---------------|
+     | Working Days | 22일 | **27일** |
+     | 수령자 수 | 366명 | **372명** (+6명) |
+     | 총 인센티브 | ₫134,580,888 | **₫136,570,584** (+₫1,989,696) |
+   - **Automation Workflow**:
+     1. Enhanced download updates config with 27 days
+     2. Step 6 extracts month/year from latest config
+     3. Attendance conversion runs with correct parameters → 27일 변환
+     4. Step 6.5 validates config vs converted match
+     5. Calculation proceeds with accurate 27-day data
+   - **Verification**:
+     ```bash
+     # 로컬 테스트
+     python src/convert_attendance_data.py december 2025
+     python scripts/validate_attendance_schema.py december 2025
+
+     # GitHub Actions 자동 실행 (30분마다)
+     # Step 5 → Step 6 → Step 6.5 → Step 7
+     ```
+   - **Implementation**:
+     - `src/convert_attendance_data.py:155-186` (working_days mismatch detection)
+     - `.github/workflows/auto-update-enhanced.yml:78-106` (month/year parameter passing)
+     - `.github/workflows/auto-update-enhanced.yml:135-160` (Step 6.5 validation gate)
+     - `scripts/validate_attendance_schema.py:92-110` (Issue #32 validation)
+   - **Commit**: `6eb87658` (2026-01-02)
+   - **Prevention**:
+     - ✅ Google Drive 데이터 변경 시 자동 재변환
+     - ✅ Working days 불일치 즉시 감지 및 수정
+     - ✅ 향후 Issue #32 재발 방지 (100% 자동화)
+   - **Related**: Issue #31 (Approved Leave Days 미반영) - 모두 스키마 불일치 문제
 
 ### Debugging Dashboard Issues
 ```bash
