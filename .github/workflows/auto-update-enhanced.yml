@@ -75,11 +75,62 @@ jobs:
         echo "📋 Config 파일 변경사항:"
         git diff config_files/*.json || true
 
-    # 6. Attendance 데이터 변환 (CRITICAL!)
-    - name: 🔄 Convert Attendance Data
+    # 6. Attendance 데이터 변환 (CRITICAL!) - 최신 config 기반 자동 변환
+    - name: 🔄 Convert Attendance Data (Latest Config Based)
       run: |
-        echo "Converting attendance data to processed format..."
-        python src/convert_attendance_data.py
+        echo "====================================="
+        echo "🔄 Attendance 데이터 자동 변환"
+        echo "====================================="
+        echo ""
+        echo "📋 최신 config 파일에서 month/year 읽어서 변환합니다..."
+        echo "   (Issue #32 Prevention: Working Days 불일치 자동 해결)"
+        echo ""
+
+        # 최신 config 파일 찾기
+        LATEST_CONFIG=$(ls -t config_files/config_*.json | head -1)
+        echo "📂 Using config: $LATEST_CONFIG"
+
+        # JSON에서 month와 year 추출
+        MONTH=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('month', 'december'))")
+        YEAR=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('year', 2025))")
+
+        echo "📅 Month: $MONTH"
+        echo "📅 Year: $YEAR"
+        echo ""
+
+        # 해당 월의 attendance 데이터 변환
+        python src/convert_attendance_data.py $MONTH $YEAR
+
+        echo ""
+        echo "✅ Attendance 데이터 변환 완료!"
+        echo ""
+
+    # 6.5 Attendance Schema Validation (Issue #31 Prevention)
+    - name: 🔍 Validate Attendance Schema (Issue #31 Prevention)
+      run: |
+        echo "====================================="
+        echo "🔍 Attendance Schema Validation"
+        echo "====================================="
+        echo ""
+        echo "📋 Converted 출근 파일과 계산 엔진 간 스키마 일치 검증"
+        echo "   (Issue #31: Approved Leave Days 미반영 버그 예방)"
+        echo ""
+
+        # 스키마 검증 실행
+        if [ -f "scripts/validate_attendance_schema.py" ]; then
+          python scripts/validate_attendance_schema.py
+          RESULT=$?
+          if [ $RESULT -eq 0 ]; then
+            echo ""
+            echo "✅ Schema validation PASSED!"
+          else
+            echo ""
+            echo "⚠️ Schema validation WARNING - check logs above"
+            echo "   참조: CLAUDE.md Issue #31"
+          fi
+        else
+          echo "⚠️ Schema validation script not found - skipping"
+        fi
 
     # 6.5 Attendance Schema Validation (Issue #31 Prevention)
     - name: 🔍 Validate Attendance Schema (Issue #31 Prevention)

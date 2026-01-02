@@ -152,6 +152,10 @@ def convert_attendance(month: str, year: int = 2025) -> bool:
             print(f"  ⚠️ Original file not found: {original_file}")
             return False
 
+        # Load config to get working days (do this early to check for mismatches)
+        config = load_config(month, year)
+        total_working_days = config.get('working_days', None)
+
         # Check if reconversion needed
         if converted_file.exists():
             original_mtime = original_file.stat().st_mtime
@@ -160,18 +164,26 @@ def convert_attendance(month: str, year: int = 2025) -> bool:
             if converted_mtime >= original_mtime:
                 # Check if already aggregated (has ACTUAL WORK DAY column)
                 try:
-                    existing = pd.read_csv(converted_file, nrows=1, encoding='utf-8-sig')
+                    existing = pd.read_csv(converted_file, nrows=5, encoding='utf-8-sig')
                     if 'ACTUAL WORK DAY' in existing.columns:
-                        print(f"  ℹ️ Already aggregated and up to date: {converted_file.name}")
-                        return True
-                except:
+                        # CRITICAL: Check if working_days in config differs from converted file
+                        # This prevents Issue #32 (Working Days 불일치)
+                        if total_working_days and 'TOTAL WORK DAY' in existing.columns:
+                            existing_total_days = existing['TOTAL WORK DAY'].iloc[0]
+                            if existing_total_days != total_working_days:
+                                print(f"  🔄 Working days changed: {existing_total_days} → {total_working_days}")
+                                print(f"     Config updated, forcing reconversion...")
+                            else:
+                                print(f"  ℹ️ Already aggregated and up to date: {converted_file.name}")
+                                return True
+                        else:
+                            print(f"  ℹ️ Already aggregated and up to date: {converted_file.name}")
+                            return True
+                except Exception as e:
+                    print(f"  ⚠️ Could not validate existing file: {e}")
                     pass
 
             print(f"  🔄 Reconverting: {original_file.name}")
-
-        # Load config to get working days
-        config = load_config(month, year)
-        total_working_days = config.get('working_days', None)
 
         # Read raw CSV file
         df = pd.read_csv(original_file, encoding='utf-8-sig')

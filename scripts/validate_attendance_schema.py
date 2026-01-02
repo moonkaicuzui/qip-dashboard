@@ -59,7 +59,7 @@ EXPECTED_IN_OUTPUT = [
 
 def validate_converted_file(month: str, year: int) -> dict:
     """
-    Converted 출근 파일의 컬럼 존재 여부 검증
+    Converted 출근 파일의 컬럼 존재 여부 및 Working Days 일치 검증
     """
     import pandas as pd
 
@@ -70,7 +70,8 @@ def validate_converted_file(month: str, year: int) -> dict:
             'status': 'ERROR',
             'message': f'Converted 파일 없음: {converted_path}',
             'missing_columns': [],
-            'extra_columns': []
+            'extra_columns': [],
+            'working_days_match': False
         }
 
     df = pd.read_csv(converted_path, nrows=5)  # 헤더만 확인
@@ -84,15 +85,46 @@ def validate_converted_file(month: str, year: int) -> dict:
             'status': 'ERROR',
             'message': f'필수 컬럼 누락: {missing}',
             'missing_columns': missing,
-            'extra_columns': extra
+            'extra_columns': extra,
+            'working_days_match': False
+        }
+
+    # Issue #32: Working Days 불일치 검증
+    config_path = Path(f"config_files/config_{month}_{year}.json")
+    working_days_match = True
+    working_days_msg = ""
+
+    if config_path.exists():
+        with open(config_path) as f:
+            config = json.load(f)
+        config_working_days = config.get('working_days')
+
+        if config_working_days and 'TOTAL WORK DAY' in actual_columns:
+            actual_total_days = df['TOTAL WORK DAY'].iloc[0]
+
+            if actual_total_days != config_working_days:
+                working_days_match = False
+                working_days_msg = f"\n   ⚠️ Issue #32: Working Days 불일치 감지!"
+                working_days_msg += f"\n      Config: {config_working_days}일 vs Converted: {actual_total_days}일"
+                working_days_msg += f"\n      → python src/convert_attendance_data.py {month} {year}"
+
+    if not working_days_match:
+        return {
+            'status': 'ERROR',
+            'message': f'모든 필수 컬럼 존재하지만 Working Days 불일치{working_days_msg}',
+            'missing_columns': [],
+            'extra_columns': extra,
+            'columns_found': len(actual_columns),
+            'working_days_match': False
         }
 
     return {
         'status': 'OK',
-        'message': '모든 필수 컬럼 존재',
+        'message': '모든 필수 컬럼 존재 및 Working Days 일치',
         'missing_columns': [],
         'extra_columns': extra,
-        'columns_found': len(actual_columns)
+        'columns_found': len(actual_columns),
+        'working_days_match': True
     }
 
 
