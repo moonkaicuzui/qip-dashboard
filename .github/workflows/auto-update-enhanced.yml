@@ -105,15 +105,16 @@ jobs:
         echo "✅ Attendance 데이터 변환 완료!"
         echo ""
 
-    # 6.5 Attendance Schema Validation (Issue #31 Prevention)
-    - name: 🔍 Validate Attendance Schema (Issue #31 Prevention)
+    # 6.5 Attendance Schema Validation (Issue #31 & #32 Prevention)
+    - name: 🔍 Validate Attendance Schema (Issue #31 & #32 Prevention)
       run: |
         echo "====================================="
         echo "🔍 Attendance Schema Validation"
         echo "====================================="
         echo ""
         echo "📋 Converted 출근 파일과 계산 엔진 간 스키마 일치 검증"
-        echo "   (Issue #31: Approved Leave Days 미반영 버그 예방)"
+        echo "   - Issue #31: Approved Leave Days 미반영 버그 예방"
+        echo "   - Issue #32: Working Days 불일치 자동 감지"
         echo ""
 
         # 스키마 검증 실행
@@ -126,34 +127,7 @@ jobs:
           else
             echo ""
             echo "⚠️ Schema validation WARNING - check logs above"
-            echo "   참조: CLAUDE.md Issue #31"
-          fi
-        else
-          echo "⚠️ Schema validation script not found - skipping"
-        fi
-
-    # 6.5 Attendance Schema Validation (Issue #31 Prevention)
-    - name: 🔍 Validate Attendance Schema (Issue #31 Prevention)
-      run: |
-        echo "====================================="
-        echo "🔍 Attendance Schema Validation"
-        echo "====================================="
-        echo ""
-        echo "📋 Converted 출근 파일과 계산 엔진 간 스키마 일치 검증"
-        echo "   (Issue #31: Approved Leave Days 미반영 버그 예방)"
-        echo ""
-
-        # 스키마 검증 실행
-        if [ -f "scripts/validate_attendance_schema.py" ]; then
-          python scripts/validate_attendance_schema.py
-          RESULT=$?
-          if [ $RESULT -eq 0 ]; then
-            echo ""
-            echo "✅ Schema validation PASSED!"
-          else
-            echo ""
-            echo "⚠️ Schema validation WARNING - check logs above"
-            echo "   참조: CLAUDE.md Issue #31"
+            echo "   참조: CLAUDE.md Issue #31, Issue #32"
           fi
         else
           echo "⚠️ Schema validation script not found - skipping"
