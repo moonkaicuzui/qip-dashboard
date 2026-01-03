@@ -1937,6 +1937,11 @@
         }
 
         /* ====== 모바일 카드 축소 모드 (2025-12-21) ====== */
+        /* 데스크톱 모드에서는 카드 축소 버튼 숨김 */
+        .cards-compact-toggle {
+            display: none !important;
+        }
+        /* 모바일 모드에서만 카드 축소 버튼 표시 */
         body.mobile-mode .cards-compact-toggle {
             display: flex !important;
             justify-content: flex-end !important;
@@ -3569,7 +3574,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="07" data-minute="05">보고서 생성일: 2026년 01월 03일 07:05</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="07" data-minute="16">보고서 생성일: 2026년 01월 03일 07:16</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -3625,7 +3630,12 @@
                     <div class="summary-card">
                         <h6 class="text-muted" id="totalEmployeesLabel">전체 직원</h6>
                         <h2><span id="totalEmployeesValue">421</span> <span class="unit" id="totalEmployeesUnit"></span></h2>
-                        <!-- 전체 직원은 변동이 없으므로 트렌드 미표시 -->
+                        <!-- 전체 직원은 변동이 없으므로 트렌드 미표시 (카드 높이 통일을 위해 placeholder 유지) -->
+                        <div class="trend same" style="visibility: hidden; pointer-events: none;">
+                            <span class="arrow">→</span>
+                            <span class="value">0</span>
+                            <span class="label" data-i18n="summary.vsLastMonth">vs 전월</span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-3">

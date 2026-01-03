@@ -6872,6 +6872,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         /* ====== 모바일 카드 축소 모드 (2025-12-21) ====== */
+        /* 데스크톱 모드에서는 카드 축소 버튼 숨김 */
+        .cards-compact-toggle {{
+            display: none !important;
+        }}
+        /* 모바일 모드에서만 카드 축소 버튼 표시 */
         body.mobile-mode .cards-compact-toggle {{
             display: flex !important;
             justify-content: flex-end !important;
@@ -8560,7 +8565,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="summary-card">
                         <h6 class="text-muted" id="totalEmployeesLabel">전체 직원</h6>
                         <h2><span id="totalEmployeesValue">{total_직원}</span> <span class="unit" id="totalEmployeesUnit"></span></h2>
-                        <!-- 전체 직원은 변동이 없으므로 트렌드 미표시 -->
+                        <!-- 전체 직원은 변동이 없으므로 트렌드 미표시 (카드 높이 통일을 위해 placeholder 유지) -->
+                        <div class="trend same" style="visibility: hidden; pointer-events: none;">
+                            <span class="arrow">→</span>
+                            <span class="value">0</span>
+                            <span class="label" data-i18n="summary.vsLastMonth">vs 전월</span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-3">
