@@ -1723,6 +1723,92 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
    - **Commit**: [to be committed]
    - **Prevention**: When adding new columns to modals, always add translation keys for all 3 languages (KO/EN/VN)
 
+34. **Cross-Building Relationship Review List** (IMPLEMENTED: 2026-01-03):
+   - **User Request**: org chart탭에서 특수한 케이스(cross-building relationships)를 별도 review list로 표시
+   - **Purpose**: Building 간 보고 관계 특이 케이스 36건 시각화 및 검토
+   - **Problem**: CAO THỊ MIỀN이 Building A 필터 시 표시되는 이유 추적
+     - Root Cause: PHẠM THỊ THU THẢO (A) → NGUYỄN THỊ KIM CHI (B3) → CAO THỊ MIỀN (NaN) → TRẦN THỊ BÍCH LY (NaN)
+     - Boss chain collection이 상위 관리자까지 재귀적으로 수집하여 cross-building 관계 발생
+   - **Solution**: Interactive KPI Card + Full-screen Modal 구현
+     - **KPI Card** (`integrated_dashboard_final.py:15969-15997`):
+       - Orange gradient design with warning icon (#ff9800)
+       - Total cases: 36건 (Case 1: 12건, Case 2: 24건)
+       - Click to open detailed modal
+     - **Full-screen Modal** (`integrated_dashboard_final.py:10395-10451`):
+       - 9-column table: Employee info, Building, Boss info, Boss Building
+       - Building color badges (A=Red, B=Blue, B3=Purple, C=Green, D=Orange)
+       - Type badges (Case 1: 불일치/Mismatch, Case 2: 정보없음/No Info)
+     - **Data Loading** (`integrated_dashboard_final.py:1204-1214, 11396-11406`):
+       - JSON file: `output_files/cross_building_analysis.json`
+       - Base64 encoding: `{cross_building_data_b64}`
+       - JavaScript global: `window.crossBuildingData`
+     - **Modal Function** (`integrated_dashboard_final.py:15975-16029`):
+       - `showCrossBuildingModal()`: Populate table with 36 cases
+       - `getBuildingColor()`: Helper for building color mapping
+   - **Cross-Building Cases Analysis**:
+     - **Case 1** (Building Mismatch): 12 employees - 직원과 상사가 서로 다른 Building
+     - **Case 2** (Boss No Building): 24 employees - 직원은 Building 있지만 상사는 없음
+     - **Building Distribution**: A(17), C(12), D(3), B(2), B3(2)
+   - **Multi-Language Support** (`config_files/dashboard_translations.json:354-447`):
+     - Added `crossBuilding` section with 93 lines of translations
+     - Korean: "교차 Building", "Building 불일치", "상사 정보없음"
+     - English: "Cross-Building", "Bldg Mismatch", "Boss No Info"
+     - Vietnamese: "Liên tòa nhà", "Khác tòa", "Sếp k/có TT"
+   - **Strategic Review: Adding Building to HR File**:
+     - **Current State**: Building data from AQL History only (21.3% coverage, 119/560)
+     - **Option 1 (Status Quo)**: Keep AQL-only, no manual maintenance
+     - **Option 2 (Full HR File)**: 100% coverage but high maintenance burden
+     - **✅ Recommended (Hybrid)**: AQL primary + HR secondary for non-inspectors
+       - **Phase 1** (1 month): Add Building for management positions (~50명)
+       - **Phase 2** (3 months): Extend to permanent employees (~400명)
+       - **Phase 3** (6 months): 100% coverage + AQL vs HR validation system
+     - **Priority Logic**: `AQL History → Basic Manpower → None`
+   - **Implementation**:
+     - `integrated_dashboard_final.py:1204-1214` (JSON loading)
+     - `integrated_dashboard_final.py:10395-10451` (Modal HTML)
+     - `integrated_dashboard_final.py:11084-11086, 11396-11406` (Data initialization)
+     - `integrated_dashboard_final.py:15969-16029` (KPI card + Modal function)
+     - `config_files/dashboard_translations.json:354-447` (Translations)
+     - `output_files/cross_building_analysis.json` (Analysis data - 36 cases)
+   - **Verification**:
+     - Dashboard size: 6.7MB (December 2025)
+     - Cross-building data loaded: "Cross-building analysis loaded: 36 cases"
+     - Modal verification: 4 occurrences of `crossBuildingModal` in HTML
+   - **Commit**: `0c0966b0` (2026-01-03)
+   - **Prevention**: When implementing org chart features, always consider cross-building relationships and data source limitations
+
+35. **Org Tab Translation & December KPI Fixes** (FIXED: 2026-01-03):
+   - **Problem 1**: Org 탭 언어 전환 안되는 부분 (SVG 이미지 내 하드코딩)
+     - Line 11020: SVG 안의 "사원번호 입력" 텍스트가 한국어로 고정
+     - `data-i18n` 속성이 있는 텍스트들은 정상 작동 (usageStep1/2/3)
+   - **Solution 1**: SVG 이미지 텍스트 제거, 아이콘만 표시
+     - Before: `<text>사원번호 입력</text>` (하드코딩)
+     - After: `<text>🔍</text>` (언어 독립적 아이콘)
+     - Line 11020: SVG 간소화하여 언어 전환 문제 해결
+
+   - **Problem 2**: vs 전월 표기를 12월 2025 대시보드에서 제거
+     - 2026년 1월부터만 전월 비교 표시 요청
+     - Lines 8588, 8599, 8610, 8621: "vs 전월" 표시됨
+   - **Solution 2**: 조건부 display 로직 추가
+     - `style="{'display: none;' if month_num == 12 and year == 2025 else ''}"`
+     - December 2025일 때만 trend div 숨김
+     - Lines 8596, 8607, 8618: 3개 KPI 카드 (수령 직원, 지급률, 총 지급액)
+
+   - **Future Task** (후속 과제 - Issue #36):
+     - Building 정보를 Boss Name 기준으로 따르도록 변경
+     - 현재: 직원 본인의 Building 정보 사용
+     - 계획: 상사의 Building 정보를 직원에게 적용
+     - 목적: Cross-building 관계 Case 2 (24건) 해결
+     - Prerequisites: Basic Manpower 파일에 Building 칼럼 추가 필요
+
+   - **Implementation**:
+     - `integrated_dashboard_final.py:11020` (SVG 텍스트 제거)
+     - `integrated_dashboard_final.py:8596, 8607, 8618` (조건부 display)
+   - **Commit**: [to be committed - 2026-01-03]
+   - **Prevention**:
+     - SVG 내부 텍스트는 번역 시스템 적용 불가 → 아이콘 또는 제거
+     - 월별 조건부 표시는 Python 템플릿에서 직접 처리
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code

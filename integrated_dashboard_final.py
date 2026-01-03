@@ -8593,7 +8593,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="summary-card">
                         <h6 class="text-muted" id="paidEmployeesLabel">수령 직원</h6>
                         <h2><span id="paidEmployeesValue">{paid_직원}</span> <span class="unit" id="paidEmployeesUnit"></span></h2>
-                        <div class="trend {'up' if diff_paid > 0 else 'down' if diff_paid < 0 else 'same'}" id="paidTrend">
+                        <div class="trend {'up' if diff_paid > 0 else 'down' if diff_paid < 0 else 'same'}" id="paidTrend" style="{'display: none;' if month_num == 12 and year == 2025 else ''}">
                             <span class="arrow">{'▲' if diff_paid > 0 else '▼' if diff_paid < 0 else '→'}</span>
                             <span class="value">{abs(diff_paid)}</span>
                             <span class="label" data-i18n="summary.vsLastMonth">vs 전월</span>
@@ -8604,7 +8604,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="summary-card {'kpi-good' if 지급_rate >= 70 else 'kpi-warning' if 지급_rate >= 50 else 'kpi-critical'}">
                         <h6 class="text-muted" id="paymentRateLabel">지급률</h6>
                         <h2 id="paymentRateValue">{지급_rate:.1f}%</h2>
-                        <div class="trend {'up' if diff_rate > 0 else 'down' if diff_rate < 0 else 'same'}" id="rateTrend">
+                        <div class="trend {'up' if diff_rate > 0 else 'down' if diff_rate < 0 else 'same'}" id="rateTrend" style="{'display: none;' if month_num == 12 and year == 2025 else ''}">
                             <span class="arrow">{'▲' if diff_rate > 0 else '▼' if diff_rate < 0 else '→'}</span>
                             <span class="value">{abs(diff_rate):.1f}%p</span>
                             <span class="label" data-i18n="summary.vsLastMonth">vs 전월</span>
@@ -8615,7 +8615,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="summary-card {'kpi-good' if diff_amount >= 0 else 'kpi-warning'}">
                         <h6 class="text-muted" id="totalAmountLabel">총 지급액</h6>
                         <h2 id="totalAmountValue">{total_amount:,} VND</h2>
-                        <div class="trend {'up' if diff_amount > 0 else 'down' if diff_amount < 0 else 'same'}" id="amountTrend">
+                        <div class="trend {'up' if diff_amount > 0 else 'down' if diff_amount < 0 else 'same'}" id="amountTrend" style="{'display: none;' if month_num == 12 and year == 2025 else ''}">
                             <span class="arrow">{'▲' if diff_amount > 0 else '▼' if diff_amount < 0 else '→'}</span>
                             <span class="value">{abs(diff_amount):,}</span>
                             <span class="label" data-i18n="summary.vsLastMonth">vs 전월</span>
@@ -11017,8 +11017,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </ol>
             </div>
             <div class="text-center mt-4">
-                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='80' fill='%23667eea' opacity='0.2'/><text x='100' y='90' text-anchor='middle' font-size='40'>🔍</text><text x='100' y='130' text-anchor='middle' font-size='16' fill='%23666'>사원번호 입력</text></svg>"
-                     alt="검색 안내" style="max-width: 200px; opacity: 0.7;">
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='80' fill='%23667eea' opacity='0.2'/><text x='100' y='110' text-anchor='middle' font-size='60'>🔍</text></svg>"
+                     alt="Search guide" style="max-width: 200px; opacity: 0.7;">
             </div>
         </div>
         </div>
