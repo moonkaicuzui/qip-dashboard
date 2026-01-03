@@ -1794,20 +1794,50 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - December 2025일 때만 trend div 숨김
      - Lines 8596, 8607, 8618: 3개 KPI 카드 (수령 직원, 지급률, 총 지급액)
 
-   - **Future Task** (후속 과제 - Issue #36):
-     - Building 정보를 Boss Name 기준으로 따르도록 변경
-     - 현재: 직원 본인의 Building 정보 사용
-     - 계획: 상사의 Building 정보를 직원에게 적용
-     - 목적: Cross-building 관계 Case 2 (24건) 해결
-     - Prerequisites: Basic Manpower 파일에 Building 칼럼 추가 필요
-
    - **Implementation**:
      - `integrated_dashboard_final.py:11020` (SVG 텍스트 제거)
      - `integrated_dashboard_final.py:8596, 8607, 8618` (조건부 display)
-   - **Commit**: [to be committed - 2026-01-03]
+   - **Commit**: `2018cfa8` (2026-01-03)
    - **Prevention**:
      - SVG 내부 텍스트는 번역 시스템 적용 불가 → 아이콘 또는 제거
      - 월별 조건부 표시는 Python 템플릿에서 직접 처리
+
+36. **Boss-Based Building Information** (IMPLEMENTED: 2026-01-03):
+   - **User Request**: Building 정보를 Boss Name 기준으로 따르도록 변경
+   - **Purpose**: 조직도 Building 필터링 시 일관성 확보 및 Cross-building Case 1 해결
+   - **Problem**: 직원 본인의 Building 사용 시 상사와 불일치 발생
+     - Case 1 (12건): 직원과 상사가 서로 다른 Building
+     - Case 2 (24건): 직원은 Building 있지만 상사는 없음
+   - **Solution**: 각 직원의 Building을 상사의 Building으로 업데이트
+     - Line 979-996: 직원 데이터 로드 후 Boss 기준 Building 업데이트
+     - employee_map으로 상사 정보 조회
+     - 상사의 Building이 있으면 직원의 Building을 상사의 것으로 대체
+
+   - **Before/After 비교**:
+     | 지표 | BEFORE | AFTER | 개선 |
+     |------|---------|--------|------|
+     | **Building 업데이트** | - | **59명** | ✅ |
+     | **총 Cross-Building** | 36건 | **24건** | **-12건** ✅ |
+     | **Case 1 (불일치)** | 12건 | **0건** | **-12건 (100% 해결!)** ✅ |
+     | **Case 2 (상사 정보없음)** | 24건 | 24건 | 변화 없음 ⚠️ |
+
+   - **업데이트 예시**:
+     - PHẠM THỊ THU THẢO: Building A → B3 (상사 NGUYỄN THỊ KIM CHI와 일치)
+     - DANH THỊ KIỀU PHƯƠNG: Building C → B3 (상사 PHẠM MINH HUY와 일치)
+     - NGUYỄN THỊ BÍCH NGỌC: NaN → D (상사 ĐỖ THỊ HỒNG THÚY로부터 할당)
+
+   - **Impact**:
+     - ✅ **Case 1 완전 해결**: 직원-상사 Building 불일치 12건 모두 해결
+     - ✅ **조직도 일관성**: Building 필터 시 상사 기준으로 일관된 조직도 표시
+     - ⚠️ **Case 2 유지**: 상사가 Building 정보 없는 24건은 여전히 존재
+       - 해결 방법: Basic Manpower 파일에 BUILDING 칼럼 추가 (후속 과제)
+
+   - **Implementation**:
+     - `integrated_dashboard_final.py:979-996` (Boss-based Building update)
+   - **Commit**: [to be committed - 2026-01-03]
+   - **Prevention**:
+     - Building 정보는 항상 상사 기준을 따라야 조직도 일관성 유지
+     - 상사가 Building 없는 경우 해결을 위해 Basic Manpower에 BUILDING 칼럼 추가 고려
 
 ### Debugging Dashboard Issues
 ```bash

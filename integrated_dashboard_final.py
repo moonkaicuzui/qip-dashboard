@@ -975,6 +975,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             직원.append(emp)
         print(f"✅ Single Source of Truth: from excel_dashboard_data {len(excel_dashboard_data['employee_data'])}out of active 직원 {len(직원)}직원 loaded (resigned {len(excel_dashboard_data['employee_data']) - len(직원)}직원 excluded)")
+
+        # Building 정보를 Boss 기준으로 변경 (Issue #36 - 2026-01-03)
+        # 각 직원의 Building을 상사의 Building으로 업데이트
+        employee_map = {str(emp.get('Employee No', '')): emp for emp in 직원}
+        building_updated_count = 0
+
+        for emp in 직원:
+            boss_id = str(emp.get('MST direct boss name', '')).strip()
+            if boss_id and boss_id not in ['', 'nan', '0', '0.0']:
+                # 상사 찾기
+                boss = employee_map.get(boss_id)
+                if boss and boss.get('BUILDING'):
+                    # 상사의 Building이 있으면 자신의 Building을 상사의 것으로 업데이트
+                    original_building = emp.get('BUILDING', '')
+                    emp['BUILDING'] = boss['BUILDING']
+                    if original_building != boss['BUILDING']:
+                        building_updated_count += 1
+
+        print(f"✅ Building 정보 업데이트 완료: {building_updated_count}명이 상사의 Building으로 변경됨 (Issue #36)")
     else:
         # Fallback: existing 방식 (df use)
         직원 = []

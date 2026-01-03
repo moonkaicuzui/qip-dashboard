@@ -1,0 +1,418 @@
+{
+  "total_cases": 36,
+  "cases": [
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "619020468",
+      "emp_name": "THỊ MY",
+      "emp_building": "B",
+      "emp_position": "LINE LEADER",
+      "boss_id": "619030390",
+      "boss_name": "NGUYỄN THỊ BÍCH CHƯƠNG",
+      "boss_building": "nan",
+      "boss_position": "GROUP LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "619080327",
+      "emp_name": "NGUYỄN THỊ MỸ TRÂM",
+      "emp_building": "D",
+      "emp_position": "LINE LEADER",
+      "boss_id": "620060128",
+      "boss_name": "LÊ HUỲNH GIAO",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "619100392",
+      "emp_name": "PHẠM MINH HUY",
+      "emp_building": "B3",
+      "emp_position": "LINE LEADER",
+      "boss_id": "618030049",
+      "boss_name": "LƯƠNG THỊ CẨM TIÊN",
+      "boss_building": "nan",
+      "boss_position": "A.MANAGER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "620090386",
+      "emp_name": "TRƯƠNG THỊ ÁNH TIÊN",
+      "emp_building": "C",
+      "emp_position": "LINE LEADER",
+      "boss_id": "618030049",
+      "boss_name": "LƯƠNG THỊ CẨM TIÊN",
+      "boss_building": "nan",
+      "boss_position": "A.MANAGER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "620110408",
+      "emp_name": "NGUYỄN VĂN LUÂN",
+      "emp_building": "A",
+      "emp_position": "LINE LEADER",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "623090194",
+      "emp_name": "DANH THỊ KIỀU PHƯƠNG",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "621030759",
+      "emp_name": "VŨ HỒNG TIÊN",
+      "emp_building": "D",
+      "emp_position": "LINE LEADER",
+      "boss_id": "620060128",
+      "boss_name": "LÊ HUỲNH GIAO",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "623100210",
+      "emp_name": "LÊ THỊ KIM ANH",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "624020086",
+      "emp_name": "NGUYỄN THỊ KIM THOA",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "624030105",
+      "emp_name": "DANH THỊ NƯƠNG",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "624030271",
+      "emp_name": "ĐẶNG HOÀNG DUY",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "624040282",
+      "emp_name": "ĐOÀN CÔNG HÀO",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "624040283",
+      "emp_name": "TRẦN VĂN HÀ",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "624050151",
+      "emp_name": "PHẠM THỊ THU THẢO",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "621020445",
+      "boss_name": "NGUYỄN THỊ KIM CHI",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "624060316",
+      "emp_name": "NGUYỄN THỊ CẨM NHUNG",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "624060331",
+      "emp_name": "HUỲNH LÊ THANH TÚ",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "624070020",
+      "emp_name": "NGUYỄN NGỌC TẤN",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "624070060",
+      "emp_name": "TRẦN THANH THANH",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "624070252",
+      "emp_name": "PHẠM THỊ KIỀU TRANG",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "624080083",
+      "emp_name": "CHƯƠNG THỊ YẾN NHI",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "624080127",
+      "emp_name": "TRẦN KIM Y",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "624110228",
+      "emp_name": "THỊ KIỀU XUÂN",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "625020551",
+      "emp_name": "TRẦN VĂN SÁNG",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "625060019",
+      "emp_name": "DƯƠNG THỊ HẬU",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "625080009",
+      "emp_name": "NGUYỄN THỊ NHƯ Ý",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "619060201",
+      "emp_name": "BÙI THỊ KIỀU LY",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "620060084",
+      "emp_name": "ĐỖ THỊ HỒNG THÚY",
+      "emp_building": "D",
+      "emp_position": "LINE LEADER",
+      "boss_id": "621110093",
+      "boss_name": "LÊ VĂN NAM",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "620080362",
+      "emp_name": "DƯƠNG THỊ MỸ XUYÊN",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "621030280",
+      "emp_name": "NGUYỄN THỊ THỦY QUỲNH",
+      "emp_building": "B",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619030390",
+      "boss_name": "NGUYỄN THỊ BÍCH CHƯƠNG",
+      "boss_building": "nan",
+      "boss_position": "GROUP LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "621110258",
+      "emp_name": "PHAN TRUNG HẢO",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "621110412",
+      "emp_name": "NGUYỄN THỊ KIM LOAN",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "621120120",
+      "emp_name": "LÊ HỒNG ĐÀO",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "621020445",
+      "emp_name": "NGUYỄN THỊ KIM CHI",
+      "emp_building": "B3",
+      "emp_position": "LINE LEADER",
+      "boss_id": "618040412",
+      "boss_name": "CAO THỊ MIỀN",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "620110399",
+      "emp_name": "VÕ THỊ HỒNG TƯƠI",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    },
+    {
+      "type": "Case 1: 직원과 상사 Building 불일치",
+      "emp_no": "625100152",
+      "emp_name": "TRẦN THỊ CẨM THƠM",
+      "emp_building": "C",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619100392",
+      "boss_name": "PHẠM MINH HUY",
+      "boss_building": "B3",
+      "boss_position": "LINE LEADER"
+    },
+    {
+      "type": "Case 2: 직원은 Building 있음, 상사는 없음",
+      "emp_no": "625110020",
+      "emp_name": "THÁI THỊ HỒNG NHUNG",
+      "emp_building": "A",
+      "emp_position": "ASSEMBLY INSPECTOR",
+      "boss_id": "619070072",
+      "boss_name": "THÁI UYỂN NHI",
+      "boss_building": "nan",
+      "boss_position": "(V) SUPERVISOR"
+    }
+  ],
+  "statistics": {
+    "by_type": {
+      "Case 2": 24,
+      "Case 1": 12
+    },
+    "by_emp_building": {
+      "B": 2,
+      "D": 3,
+      "B3": 2,
+      "C": 12,
+      "A": 17
+    },
+    "by_boss_building": {
+      "nan": 24,
+      "B3": 12
+    }
+  }
+}
