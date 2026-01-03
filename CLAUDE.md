@@ -1665,6 +1665,41 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - ✅ 향후 Issue #32 재발 방지 (100% 자동화)
    - **Related**: Issue #31 (Approved Leave Days 미반영) - 모두 스키마 불일치 문제
 
+33. **전월 비교 섹션 연도별 조건부 렌더링** (IMPLEMENTED: 2026-01-03):
+   - **User Request**: 전월과 비교하는 내용은 2025년 대시보드에는 적용하지 말고, 2026년부터 적용
+   - **Problem**: "Monthly Incentive Trend Analysis" 섹션이 모든 연도 대시보드에 표시됨
+   - **Solution**: Year-based conditional rendering 구현
+     - **HTML Section** (`integrated_dashboard_final.py:10676-10729`):
+       ```python
+       {'<div class="card mt-4 mb-4" id="trendChartSection">' if year >= 2026 else ''}
+       {'''
+       <!-- 전월 비교 HTML 전체 -->
+       </div>''' if year >= 2026 else '<!-- 월별 트렌드 차트 섹션: 2026년부터 적용 -->'}
+       ```
+     - **JavaScript Function Call** (`integrated_dashboard_final.py:14475-14477`):
+       ```javascript
+       // 트렌드 차트 초기화 (Phase 3 UX 개선) - 2026년부터 적용
+       if (2025 >= 2026) {  // year 값이 템플릿에 주입됨
+           initTrendChart();
+       }
+       ```
+   - **Result**:
+     - **2025년 대시보드**: 전월 비교 섹션 완전히 숨김 (HTML 주석 처리)
+     - **2026년 이후**: 전월 비교 섹션 정상 표시 및 initTrendChart() 정상 실행
+   - **Verification**:
+     ```bash
+     # 2025년 대시보드 생성
+     python integrated_dashboard_final.py --month 12 --year 2025
+     grep "월별 트렌드 차트 섹션" output_files/Incentive_Dashboard_2025_12_*.html
+     # Output: <!-- 월별 트렌드 차트 섹션: 2026년부터 적용 -->
+
+     # 2026년 대시보드 생성 시 정상 렌더링 예상
+     ```
+   - **Implementation**:
+     - `integrated_dashboard_final.py:10676-10729` (HTML 조건부 렌더링)
+     - `integrated_dashboard_final.py:14475-14477` (JavaScript 조건부 실행)
+   - **Prevention**: 향후 연도별 기능 적용 시 동일한 조건부 렌더링 패턴 사용 가능
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code

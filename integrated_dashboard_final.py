@@ -10672,8 +10672,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </div>
             </div>
 
-            <!-- ===== 월별 트렌드 차트 섹션 (Phase 3 UX 개선) ===== -->
-            <div class="card mt-4 mb-4" id="trendChartSection">
+            <!-- ===== 월별 트렌드 차트 섹션 (Phase 3 UX 개선) - 2026년부터 적용 ===== -->
+            {'<div class="card mt-4 mb-4" id="trendChartSection">' if year >= 2026 else ''}
+            {'''
                 <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <h5 class="mb-0" id="trendChartTitle">
                         <i class="fas fa-chart-line"></i> 📈 월별 인센티브 트렌드 분석
@@ -10725,7 +10726,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </table>
                     </div>
                 </div>
-            </div>
+            </div>''' if year >= 2026 else '<!-- 월별 트렌드 차트 섹션: 2026년부터 적용 -->'}
         </div>
 
         <!-- FAQ/도움말 탭 완전 제거됨 (2025-12-25) -->
@@ -14470,8 +14471,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}).length;
             document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + peopleUnit;
 
-            // 트렌드 차트 초기화 (Phase 3 UX 개선)
-            initTrendChart();
+            // 트렌드 차트 초기화 (Phase 3 UX 개선) - 2026년부터 적용
+            if ({year} >= 2026) {{
+                initTrendChart();
+            }}
         }}
 
         // ===== 월별 트렌드 차트 초기화 (Phase 3 UX 개선) =====

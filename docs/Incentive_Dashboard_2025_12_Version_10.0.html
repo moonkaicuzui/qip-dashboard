@@ -3574,7 +3574,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="07" data-minute="32">보고서 생성일: 2026년 01월 03일 07:32</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="07" data-minute="50">보고서 생성일: 2026년 01월 03일 07:50</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -5767,60 +5767,9 @@
                 </div>
             </div>
 
-            <!-- ===== 월별 트렌드 차트 섹션 (Phase 3 UX 개선) ===== -->
-            <div class="card mt-4 mb-4" id="trendChartSection">
-                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <h5 class="mb-0" id="trendChartTitle">
-                        <i class="fas fa-chart-line"></i> 📈 월별 인센티브 트렌드 분석
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <!-- 전월 vs 이번 달 비교 차트 -->
-                        <div class="col-md-8">
-                            <div style="position: relative; height: 300px;">
-                                <canvas id="trendBarChart"></canvas>
-                            </div>
-                        </div>
-                        <!-- 증감 요약 카드 -->
-                        <div class="col-md-4">
-                            <div class="h-100 d-flex flex-column justify-content-center">
-                                <!-- 총 인센티브 증감 -->
-                                <div class="p-3 mb-2" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border-radius: 12px; border-left: 4px solid #0ea5e9;">
-                                    <div style="font-size: 0.85rem; color: #0369a1;" id="trendTotalLabel">총 인센티브 변동</div>
-                                    <div style="font-size: 1.5rem; font-weight: 700;" id="trendTotalChange">-</div>
-                                </div>
-                                <!-- 수령자 수 증감 -->
-                                <div class="p-3 mb-2" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 12px; border-left: 4px solid #22c55e;">
-                                    <div style="font-size: 0.85rem; color: #15803d;" id="trendRecipientsLabel">수령자 수 변동</div>
-                                    <div style="font-size: 1.5rem; font-weight: 700;" id="trendRecipientsChange">-</div>
-                                </div>
-                                <!-- 평균 인센티브 증감 -->
-                                <div class="p-3" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border-left: 4px solid #f59e0b;">
-                                    <div style="font-size: 0.85rem; color: #b45309;" id="trendAvgLabel">평균 인센티브 변동</div>
-                                    <div style="font-size: 1.5rem; font-weight: 700;" id="trendAvgChange">-</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 월별 상세 비교 테이블 -->
-                    <div class="table-responsive mt-4">
-                        <table class="table table-bordered table-hover" id="trendComparisonTable">
-                            <thead style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
-                                <tr>
-                                    <th style="width: 25%;" id="trendMetricHeader">지표</th>
-                                    <th style="width: 25%;" id="trendPrevMonthHeader">전월</th>
-                                    <th style="width: 25%;" id="trendCurrMonthHeader">이번 달</th>
-                                    <th style="width: 25%;" id="trendChangeHeader">증감</th>
-                                </tr>
-                            </thead>
-                            <tbody id="trendComparisonBody">
-                                <!-- JavaScript로 채워질 예정 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <!-- ===== 월별 트렌드 차트 섹션 (Phase 3 UX 개선) - 2026년부터 적용 ===== -->
+            
+            <!-- 월별 트렌드 차트 섹션: 2026년부터 적용 -->
         </div>
 
         <!-- FAQ/도움말 탭 완전 제거됨 (2025-12-25) -->
@@ -16619,8 +16568,10 @@
             }).length;
             document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + peopleUnit;
 
-            // 트렌드 차트 초기화 (Phase 3 UX 개선)
-            initTrendChart();
+            // 트렌드 차트 초기화 (Phase 3 UX 개선) - 2026년부터 적용
+            if (2025 >= 2026) {
+                initTrendChart();
+            }
         }
 
         // ===== 월별 트렌드 차트 초기화 (Phase 3 UX 개선) =====
