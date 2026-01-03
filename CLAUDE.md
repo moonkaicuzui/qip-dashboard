@@ -1700,6 +1700,29 @@ Original Data Sources → Python Calculation → Excel Output → Dashboard Disp
      - `integrated_dashboard_final.py:14475-14477` (JavaScript 조건부 실행)
    - **Prevention**: 향후 연도별 기능 적용 시 동일한 조건부 렌더링 패턴 사용 가능
 
+35. **AQL 연속 실패자 모달 - 공장 정보 표시 추가** (IMPLEMENTED: 2026-01-03):
+   - **User Request**: 2-Month/3-Month Consecutive AQL Failures 테이블에 공장(Building) 정보 추가
+   - **Purpose**: AQL 실패자가 어느 제화 공장에서 일하는지 식별
+   - **Changes Made**:
+     - **Translation File** (`config_files/dashboard_translations.json:5697-5701`):
+       - Added `consecutiveAqlFail.headers.building` translation
+       - Korean: "공장", English: "Building", Vietnamese: "Xưởng"
+     - **3-Month Consecutive AQL Failures Table** (`integrated_dashboard_final.py:2872-2882`):
+       - Added Building column header (position: after Position, before Supervisor)
+       - Added Building data row: `emp['BUILDING'] || '-'`
+     - **2-Month Consecutive AQL Failures Table** (`integrated_dashboard_final.py:2916-2929`):
+       - Added Building column header (position: after Position, before Supervisor)
+       - Added Building data row: `emp['BUILDING'] || '-'`
+   - **Table Structure** (Before → After):
+     ```
+     Before: Employee No | Name | Position | Supervisor | Failure Pattern | Risk
+     After:  Employee No | Name | Position | Building | Supervisor | Failure Pattern | Risk
+     ```
+   - **Data Source**: `BUILDING` column from CSV file (e.g., "Building 1", "Building 2", "Building 3")
+   - **Implementation**: `integrated_dashboard_final.py:2872-2882, 2916-2929`, `config_files/dashboard_translations.json:5697-5701`
+   - **Commit**: [to be committed]
+   - **Prevention**: When adding new columns to modals, always add translation keys for all 3 languages (KO/EN/VN)
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code

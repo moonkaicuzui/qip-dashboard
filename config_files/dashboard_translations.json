@@ -5694,6 +5694,11 @@
               "en": "Position",
               "vi": "Chức vụ"
             },
+            "building": {
+              "ko": "공장",
+              "en": "Building",
+              "vi": "Xưởng"
+            },
             "supervisor": {
               "ko": "직속상사",
               "en": "Direct Supervisor",

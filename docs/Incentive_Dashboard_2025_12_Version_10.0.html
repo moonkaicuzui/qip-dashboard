@@ -3574,7 +3574,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="07" data-minute="59">보고서 생성일: 2026년 01월 03일 07:59</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="08" data-minute="07">보고서 생성일: 2026년 01월 03일 08:07</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -11767,6 +11767,11 @@
               "en": "Position",
               "vi": "Chức vụ"
             },
+            "building": {
+              "ko": "공장",
+              "en": "Building",
+              "vi": "Xưởng"
+            },
             "supervisor": {
               "ko": "직속상사",
               "en": "Direct Supervisor",
@@ -18361,6 +18366,7 @@
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.empNo') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.name') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.position') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.building') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.supervisor') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.failPattern') + '</th>';
             modalHTML += '</tr></thead><tbody>';
@@ -18370,6 +18376,7 @@
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['BUILDING'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern3Months) + '</td>';
                 modalHTML += '</tr>';
@@ -18403,6 +18410,7 @@
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.empNo') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.name') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.position') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.building') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.supervisor') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.failPattern') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.risk') + '</th>';
@@ -18415,6 +18423,7 @@
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['BUILDING'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern2MonthsHigh) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">🔴 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + '</span></td>';

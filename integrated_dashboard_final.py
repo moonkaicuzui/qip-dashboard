@@ -2869,6 +2869,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.empNo') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.name') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.position') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.building') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.supervisor') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.failPattern') + '</th>';
             modalHTML += '</tr></thead><tbody>';
@@ -2878,6 +2879,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['BUILDING'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern3Months) + '</td>';
                 modalHTML += '</tr>';
@@ -2911,6 +2913,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.empNo') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.name') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.position') + '</th>';
+            modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.building') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.supervisor') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.failPattern') + '</th>';
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.risk') + '</th>';
@@ -2923,6 +2926,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
+                modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['BUILDING'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['direct boss name'] || emp['MST direct boss name'] || emp['boss_name'] || '-') + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['AQL_Fail_Pattern'] || pattern2MonthsHigh) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">🔴 ' + t('validationTab.modals.aqlFail.consecutiveAqlFail.riskLevels.high') + '</span></td>';
