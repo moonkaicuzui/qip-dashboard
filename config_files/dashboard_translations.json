@@ -44,6 +44,11 @@
       "ko": "요약 및 시스템 검증",
       "en": "Summary & System Validation",
       "vi": "Tóm tắt & Xác thực hệ thống"
+    },
+    "attendanceLookup": {
+      "ko": "🔍 개인 출결 조회",
+      "en": "🔍 Personal Attendance Lookup",
+      "vi": "🔍 Tra cứu chấm công cá nhân"
     }
   },
   "viewMode": {
@@ -6920,5 +6925,148 @@
     "ko": "닫기",
     "en": "Close",
     "vi": "Đóng"
+  },
+  "attendanceLookup": {
+    "title": {
+      "ko": "🔍 개인 출결 조회",
+      "en": "🔍 Personal Attendance Lookup",
+      "vi": "🔍 Tra cứu chấm công cá nhân"
+    },
+    "employeeNumber": {
+      "ko": "사원번호 입력",
+      "en": "Employee Number",
+      "vi": "Số nhân viên"
+    },
+    "placeholder": {
+      "ko": "예: 620060128",
+      "en": "e.g., 620060128",
+      "vi": "Ví dụ: 620060128"
+    },
+    "searchButton": {
+      "ko": "조회",
+      "en": "Search",
+      "vi": "Tìm kiếm"
+    },
+    "helpText": {
+      "ko": "사원번호를 입력하고 Enter 또는 조회 버튼을 클릭하세요",
+      "en": "Enter employee number and press Enter or click Search button",
+      "vi": "Nhập số nhân viên và nhấn Enter hoặc nút Tìm kiếm"
+    },
+    "kpi": {
+      "totalDays": {
+        "ko": "총 근무일",
+        "en": "Total Work Days",
+        "vi": "Tổng số ngày làm việc"
+      },
+      "actualDays": {
+        "ko": "실제 출근일",
+        "en": "Actual Attendance",
+        "vi": "Ngày đi làm thực tế"
+      },
+      "approvedLeave": {
+        "ko": "승인휴가",
+        "en": "Approved Leave",
+        "vi": "Nghỉ phép được duyệt"
+      },
+      "unapproved": {
+        "ko": "무단결근",
+        "en": "Unapproved Absence",
+        "vi": "Nghỉ không phép"
+      },
+      "comeLate": {
+        "ko": "지각 일수",
+        "en": "Late Days",
+        "vi": "Số ngày đến muộn"
+      },
+      "leaveEarly": {
+        "ko": "조퇴 일수",
+        "en": "Early Leave Days",
+        "vi": "Số ngày về sớm"
+      },
+      "comeLateSubtitle": {
+        "ko": "늦게 출근한 날",
+        "en": "Days arrived late",
+        "vi": "Ngày đến muộn"
+      },
+      "leaveEarlySubtitle": {
+        "ko": "일찍 퇴근한 날",
+        "en": "Days left early",
+        "vi": "Ngày về sớm"
+      }
+    },
+    "analysis": {
+      "attendanceRate": {
+        "ko": "출근율 분석",
+        "en": "Attendance Rate Analysis",
+        "vi": "Phân tích tỷ lệ chấm công"
+      },
+      "pattern": {
+        "ko": "출결 패턴 분석",
+        "en": "Attendance Pattern Analysis",
+        "vi": "Phân tích mô hình chấm công"
+      },
+      "daily": {
+        "ko": "일별 출결 현황",
+        "en": "Daily Attendance Status",
+        "vi": "Tình trạng chấm công hàng ngày"
+      },
+      "absence": {
+        "ko": "결근 사유 분석",
+        "en": "Absence Reason Analysis",
+        "vi": "Phân tích lý do vắng mặt"
+      },
+      "weekdayPattern": {
+        "ko": "요일별 결근 패턴",
+        "en": "Absence Pattern by Weekday",
+        "vi": "Mô hình vắng mặt theo ngày trong tuần"
+      },
+      "reasonCategory": {
+        "ko": "결근 사유별 분류",
+        "en": "Classification by Absence Reason",
+        "vi": "Phân loại theo lý do vắng mặt"
+      },
+      "summary": {
+        "ko": "출결 분석 요약",
+        "en": "Attendance Analysis Summary",
+        "vi": "Tóm tắt phân tích chấm công"
+      }
+    },
+    "table": {
+      "date": {
+        "ko": "날짜",
+        "en": "Date",
+        "vi": "Ngày"
+      },
+      "weekday": {
+        "ko": "요일",
+        "en": "Weekday",
+        "vi": "Thứ"
+      },
+      "status": {
+        "ko": "출결 상태",
+        "en": "Attendance Status",
+        "vi": "Trạng thái chấm công"
+      },
+      "reason": {
+        "ko": "상세 사유",
+        "en": "Detailed Reason",
+        "vi": "Lý do chi tiết"
+      },
+      "absenceCount": {
+        "ko": "결근 횟수",
+        "en": "Absence Count",
+        "vi": "Số lần vắng mặt"
+      },
+      "ratio": {
+        "ko": "비율",
+        "en": "Ratio",
+        "vi": "Tỷ lệ"
+      },
+      "count": {
+        "ko": "횟수",
+        "en": "Count",
+        "vi": "Số lần"
+      }
+    }
   }
 }

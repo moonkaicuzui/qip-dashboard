@@ -8618,7 +8618,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart">조직도</div>
                 <div class="tab" data-tab="team" onclick="showTab('team')" id="tabTeam" data-i18n="nav.team">팀 관리</div>
                 <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation">요약 및 시스템 검증</div>
-                <div class="tab" data-tab="attendance-lookup" onclick="showTab('attendance-lookup')" id="tabAttendanceLookup">🔍 개인 출결 조회</div>
+                <div class="tab" data-tab="attendance-lookup" onclick="showTab('attendance-lookup')" id="tabAttendanceLookup" data-i18n="tabs.attendanceLookup">🔍 개인 출결 조회</div>
             </div>
             
             <!-- 요약 탭 -->
@@ -10734,7 +10734,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         <div id="attendance-lookup" class="tab-content">
             <h3 class="mb-4">
                 <i class="fas fa-calendar-check"></i>
-                🔍 개인 출결 조회
+                <span id="attendanceLookupTitle" data-i18n="attendanceLookup.title">🔍 개인 출결 조회</span>
             </h3>
 
         <!-- 사원번호 입력 -->
@@ -10742,17 +10742,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <div class="card-body">
                 <div class="row align-items-end">
                     <div class="col-md-6">
-                        <label for="attendanceLookupInput" class="form-label"><strong>사원번호 입력</strong></label>
+                        <label for="attendanceLookupInput" class="form-label"><strong><span id="attendanceLookupLabel" data-i18n="attendanceLookup.employeeNumber">사원번호 입력</span></strong></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                             <input type="text" class="form-control form-control-lg" id="attendanceLookupInput"
+                                   data-i18n-placeholder="attendanceLookup.placeholder"
                                    placeholder="예: 620060128"
                                    onkeypress="if(event.key==='Enter') lookupEmployeeAttendance()">
                             <button class="btn btn-primary btn-lg" onclick="lookupEmployeeAttendance()">
-                                <i class="fas fa-search"></i> 조회
+                                <i class="fas fa-search"></i> <span id="attendanceLookupSearchBtn" data-i18n="attendanceLookup.searchButton">조회</span>
                             </button>
                         </div>
-                        <small class="text-muted">사원번호를 입력하고 Enter 또는 조회 버튼을 클릭하세요</small>
+                        <small class="text-muted"><span id="attendanceLookupHelpText" data-i18n="attendanceLookup.helpText">사원번호를 입력하고 Enter 또는 조회 버튼을 클릭하세요</span></small>
                     </div>
                     <div class="col-md-6">
                         <div id="attendanceLookupEmployeeInfo" style="display: none;">
@@ -10825,28 +10826,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="attendance-kpi-card" style="--card-color-1: #10b981; --card-color-2: #059669;">
                         <div class="attendance-kpi-icon">📅</div>
                         <div class="attendance-kpi-value" id="summaryTotalDays">-</div>
-                        <div class="attendance-kpi-label">총 근무일</div>
+                        <div class="attendance-kpi-label" data-i18n="attendanceLookup.kpi.totalDays">총 근무일</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="attendance-kpi-card" style="--card-color-1: #3b82f6; --card-color-2: #2563eb;">
                         <div class="attendance-kpi-icon">✅</div>
                         <div class="attendance-kpi-value" id="summaryActualDays">-</div>
-                        <div class="attendance-kpi-label">실제 출근일</div>
+                        <div class="attendance-kpi-label" data-i18n="attendanceLookup.kpi.actualDays">실제 출근일</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="attendance-kpi-card" style="--card-color-1: #f59e0b; --card-color-2: #d97706;">
                         <div class="attendance-kpi-icon">🏖️</div>
                         <div class="attendance-kpi-value" id="summaryApprovedLeave">-</div>
-                        <div class="attendance-kpi-label">승인휴가</div>
+                        <div class="attendance-kpi-label" data-i18n="attendanceLookup.kpi.approvedLeave">승인휴가</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="attendance-kpi-card" style="--card-color-1: #ef4444; --card-color-2: #dc2626;">
                         <div class="attendance-kpi-icon">⛔</div>
                         <div class="attendance-kpi-value" id="summaryUnapproved">-</div>
-                        <div class="attendance-kpi-label">무단결근</div>
+                        <div class="attendance-kpi-label" data-i18n="attendanceLookup.kpi.unapproved">무단결근</div>
                     </div>
                 </div>
             </div>
@@ -10857,16 +10858,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="attendance-kpi-card" style="--card-color-1: #f97316; --card-color-2: #ea580c;">
                         <div class="attendance-kpi-icon">⏰</div>
                         <div class="attendance-kpi-value" id="summaryComeLate">-</div>
-                        <div class="attendance-kpi-label">지각 일수</div>
-                        <div class="attendance-kpi-subtitle">늦게 출근한 날</div>
+                        <div class="attendance-kpi-label" data-i18n="attendanceLookup.kpi.comeLate">지각 일수</div>
+                        <div class="attendance-kpi-subtitle" data-i18n="attendanceLookup.kpi.comeLateSubtitle">늦게 출근한 날</div>
                     </div>
                 </div>
                 <div class="col-md-3 col-6">
                     <div class="attendance-kpi-card" style="--card-color-1: #8b5cf6; --card-color-2: #7c3aed;">
                         <div class="attendance-kpi-icon">🚪</div>
                         <div class="attendance-kpi-value" id="summaryLeaveEarly">-</div>
-                        <div class="attendance-kpi-label">조퇴 일수</div>
-                        <div class="attendance-kpi-subtitle">일찍 퇴근한 날</div>
+                        <div class="attendance-kpi-label" data-i18n="attendanceLookup.kpi.leaveEarly">조퇴 일수</div>
+                        <div class="attendance-kpi-subtitle" data-i18n="attendanceLookup.kpi.leaveEarlySubtitle">일찍 퇴근한 날</div>
                     </div>
                 </div>
             </div>
@@ -10874,7 +10875,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <!-- 출근율 게이지 (V10: 스타일 통일) -->
             <div class="card mb-4" style="border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
                 <div class="card-header" style="background: white; border-bottom: 4px solid #3b82f6; padding: 15px 20px;">
-                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-chart-pie" style="color: #3b82f6;"></i> 출근율 분석</h5>
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-chart-pie" style="color: #3b82f6;"></i> <span data-i18n="attendanceLookup.analysis.attendanceRate">출근율 분석</span></h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -10891,7 +10892,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </div>
                         <div class="col-md-6">
                             <div id="attendancePatternAnalysis">
-                                <h5><i class="fas fa-brain"></i> 출결 패턴 분석</h5>
+                                <h5><i class="fas fa-brain"></i> <span data-i18n="attendanceLookup.analysis.pattern">출결 패턴 분석</span></h5>
                                 <div id="patternAnalysisContent">
                                     <!-- 패턴 분석 결과 -->
                                 </div>
@@ -10904,17 +10905,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <!-- 일별 출결 현황 테이블 (V10: 스타일 통일) -->
             <div class="card mb-4" style="border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
                 <div class="card-header" style="background: white; border-bottom: 4px solid #6366f1; padding: 15px 20px;">
-                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-calendar-alt" style="color: #6366f1;"></i> 일별 출결 현황</h5>
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-calendar-alt" style="color: #6366f1;"></i> <span data-i18n="attendanceLookup.analysis.daily">일별 출결 현황</span></h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover" id="dailyAttendanceTable">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>날짜</th>
-                                    <th>요일</th>
-                                    <th>출결 상태</th>
-                                    <th>상세 사유</th>
+                                    <th data-i18n="attendanceLookup.table.date">날짜</th>
+                                    <th data-i18n="attendanceLookup.table.weekday">요일</th>
+                                    <th data-i18n="attendanceLookup.table.status">출결 상태</th>
+                                    <th data-i18n="attendanceLookup.table.reason">상세 사유</th>
                                 </tr>
                             </thead>
                             <tbody id="dailyAttendanceBody">
@@ -10928,19 +10929,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <!-- 결근 사유 분석 (V10: 스타일 통일) -->
             <div class="card mb-4" style="border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
                 <div class="card-header" style="background: white; border-bottom: 4px solid #ef4444; padding: 15px 20px;">
-                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> 결근 사유 분석</h5>
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> <span data-i18n="attendanceLookup.analysis.absence">결근 사유 분석</span></h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6><i class="fas fa-chart-bar"></i> 요일별 결근 패턴</h6>
+                            <h6><i class="fas fa-chart-bar"></i> <span data-i18n="attendanceLookup.analysis.weekdayPattern">요일별 결근 패턴</span></h6>
                             <div id="weekdayAbsenceChart">
                                 <table class="table table-sm">
                                     <thead>
                                         <tr>
-                                            <th>요일</th>
-                                            <th>결근 횟수</th>
-                                            <th>비율</th>
+                                            <th data-i18n="attendanceLookup.table.weekday">요일</th>
+                                            <th data-i18n="attendanceLookup.table.absenceCount">결근 횟수</th>
+                                            <th data-i18n="attendanceLookup.table.ratio">비율</th>
                                         </tr>
                                     </thead>
                                     <tbody id="weekdayAbsenceBody">
@@ -10950,14 +10951,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h6><i class="fas fa-list"></i> 결근 사유별 분류</h6>
+                            <h6><i class="fas fa-list"></i> <span data-i18n="attendanceLookup.analysis.reasonCategory">결근 사유별 분류</span></h6>
                             <div id="absenceReasonChart">
                                 <table class="table table-sm">
                                     <thead>
                                         <tr>
-                                            <th>사유</th>
-                                            <th>횟수</th>
-                                            <th>비율</th>
+                                            <th data-i18n="attendanceLookup.table.reason">사유</th>
+                                            <th data-i18n="attendanceLookup.table.count">횟수</th>
+                                            <th data-i18n="attendanceLookup.table.ratio">비율</th>
                                         </tr>
                                     </thead>
                                     <tbody id="absenceReasonBody">
@@ -10973,7 +10974,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             <!-- AI 분석 요약 (V10: 스타일 통일) -->
             <div class="card" style="border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
                 <div class="card-header" style="background: white; border-bottom: 4px solid #10b981; padding: 15px 20px;">
-                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-robot" style="color: #10b981;"></i> 출결 분석 요약</h5>
+                    <h5 class="mb-0" style="color: #2c3e50; font-weight: 600;"><i class="fas fa-robot" style="color: #10b981;"></i> <span data-i18n="attendanceLookup.analysis.summary">출결 분석 요약</span></h5>
                 </div>
                 <div class="card-body">
                     <div id="attendanceAnalysisSummary">
@@ -12817,6 +12818,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     const translation = getTranslation(key, currentLanguage);
                     if (translation && translation !== key) {{
                         element.setAttribute('title', translation);
+                    }}
+                }}
+            }});
+
+            // data-i18n-placeholder 속성 (입력 필드 placeholder) 업데이트
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {{
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (key) {{
+                    const translation = getTranslation(key, currentLanguage);
+                    if (translation && translation !== key) {{
+                        element.placeholder = translation;
                     }}
                 }}
             }});
