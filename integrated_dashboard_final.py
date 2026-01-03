@@ -10677,60 +10677,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             </div>
 
             <!-- ===== 월별 트렌드 차트 섹션 (Phase 3 UX 개선) - 2026년부터 적용 ===== -->
-            {'<div class="card mt-4 mb-4" id="trendChartSection">' if year >= 2026 else ''}
-            {'''
-                <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <h5 class="mb-0" id="trendChartTitle">
-                        <i class="fas fa-chart-line"></i> 📈 월별 인센티브 트렌드 분석
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <!-- 전월 vs 이번 달 비교 차트 -->
-                        <div class="col-md-8">
-                            <div style="position: relative; height: 300px;">
-                                <canvas id="trendBarChart"></canvas>
-                            </div>
-                        </div>
-                        <!-- 증감 요약 카드 -->
-                        <div class="col-md-4">
-                            <div class="h-100 d-flex flex-column justify-content-center">
-                                <!-- 총 인센티브 증감 -->
-                                <div class="p-3 mb-2" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border-radius: 12px; border-left: 4px solid #0ea5e9;">
-                                    <div style="font-size: 0.85rem; color: #0369a1;" id="trendTotalLabel">총 인센티브 변동</div>
-                                    <div style="font-size: 1.5rem; font-weight: 700;" id="trendTotalChange">-</div>
-                                </div>
-                                <!-- 수령자 수 증감 -->
-                                <div class="p-3 mb-2" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 12px; border-left: 4px solid #22c55e;">
-                                    <div style="font-size: 0.85rem; color: #15803d;" id="trendRecipientsLabel">수령자 수 변동</div>
-                                    <div style="font-size: 1.5rem; font-weight: 700;" id="trendRecipientsChange">-</div>
-                                </div>
-                                <!-- 평균 인센티브 증감 -->
-                                <div class="p-3" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; border-left: 4px solid #f59e0b;">
-                                    <div style="font-size: 0.85rem; color: #b45309;" id="trendAvgLabel">평균 인센티브 변동</div>
-                                    <div style="font-size: 1.5rem; font-weight: 700;" id="trendAvgChange">-</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 월별 상세 비교 테이블 -->
-                    <div class="table-responsive mt-4">
-                        <table class="table table-bordered table-hover" id="trendComparisonTable">
-                            <thead style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);">
-                                <tr>
-                                    <th style="width: 25%;" id="trendMetricHeader">지표</th>
-                                    <th style="width: 25%;" id="trendPrevMonthHeader">전월</th>
-                                    <th style="width: 25%;" id="trendCurrMonthHeader">이번 달</th>
-                                    <th style="width: 25%;" id="trendChangeHeader">증감</th>
-                                </tr>
-                            </thead>
-                            <tbody id="trendComparisonBody">
-                                <!-- JavaScript로 채워질 예정 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>''' if year >= 2026 else '<!-- 월별 트렌드 차트 섹션: 2026년부터 적용 -->'}
+            <!-- 월별 트렌드 차트 섹션: 2026년부터 적용 -->
         </div>
 
         <!-- FAQ/도움말 탭 완전 제거됨 (2025-12-25) -->
@@ -16130,6 +16077,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     type: emp.type,
                     incentive: emp['{month.lower()}_incentive'] || 0,
                     boss_id: emp.boss_id,
+                    building: emp.BUILDING || emp.building || '',  // 2026-01-03: Building 정보 추가 (Issue #33)
                     calculationMethod: calculationMethod,
                     children: []
                 }};
@@ -16167,8 +16115,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const incentiveClass = node.incentive > 0 ? 'has-incentive' : 'no-incentive';
                 const incentiveDot = node.incentive > 0 ? 'received' : 'not-received';
 
+                // 2026-01-03: Building 필터 시 색상 구분 및 툴팁 추가 (Issue #33)
+                const selectedBuilding = (document.getElementById('orgBuildingFilter')?.value || 'all').toUpperCase();
+                const nodeBuilding = (node.building || '').toUpperCase();
+
+                let buildingStyle = '';
+                let buildingTooltip = '';
+
+                if (selectedBuilding !== 'ALL') {{
+                    if (nodeBuilding === selectedBuilding) {{
+                        // Building 일치: 파란 테두리 + 밝은 파란 배경
+                        buildingStyle = 'border: 3px solid #0d6efd; background-color: #e7f3ff;';
+                    }} else {{
+                        // Building 불일치 (상사 체인): 회색 점선 + 반투명
+                        buildingStyle = 'border: 2px dashed #999; opacity: 0.65; background-color: #f8f9fa;';
+
+                        // 툴팁: 다른 Building 정보 표시
+                        if (nodeBuilding) {{
+                            buildingTooltip = `다른 Building 소속 상위 관리자 (Building ${{nodeBuilding}})`;
+                        }} else {{
+                            buildingTooltip = '다른 Building 소속 상위 관리자';
+                        }}
+                    }}
+                }}
+
                 html += `<li class="${{liClass}}">`;
-                html += `<div class="org-node ${{nodeClass}} ${{incentiveClass}}">`;
+                html += `<div class="org-node ${{nodeClass}} ${{incentiveClass}}" style="${{buildingStyle}}" title="${{buildingTooltip}}">`;
 
                 // incentive 표시 점
                 html += `<div class="node-incentive ${{incentiveDot}}"></div>`;
