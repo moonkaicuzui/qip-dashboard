@@ -1071,6 +1071,30 @@
       "ko": "9월",
       "en": "September",
       "vi": "Tháng 9"
+    },
+    "dashboardSelector": {
+      "incentive": {
+        "ko": "💰 인센티브 대시보드",
+        "en": "💰 Incentive Dashboard",
+        "vi": "💰 Bảng điều khiển khen thưởng"
+      },
+      "attendance": {
+        "ko": "📋 출결 현황 대시보드",
+        "en": "📋 Attendance Dashboard",
+        "vi": "📋 Bảng điều khiển chấm công"
+      }
+    },
+    "downloads": {
+      "offlineVersion": {
+        "ko": "📦 Offline 버전",
+        "en": "📦 Offline Version",
+        "vi": "📦 Phiên bản ngoại tuyến"
+      },
+      "excelDownload": {
+        "ko": "📗 Excel 다운로드",
+        "en": "📗 Excel Download",
+        "vi": "📗 Tải Excel"
+      }
     }
   },
   "reportTypeBanner": {

@@ -3550,8 +3550,8 @@
                     <option value="vi">Tiếng Việt</option>
                 </select>
                 <select id="dashboardSelector" class="form-select" onchange="changeDashboard(this.value)" style="width: 220px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
-                    <option value="incentive">💰 인센티브 대시보드</option>
-                    <option value="attendance">📋 출결 현황 대시보드</option>
+                    <option value="incentive" data-i18n="headers.dashboardSelector.incentive">💰 인센티브 대시보드</option>
+                    <option value="attendance" data-i18n="headers.dashboardSelector.attendance">📋 출결 현황 대시보드</option>
                 </select>
                 <button id="viewModeToggle" onclick="toggleViewMode()" class="btn btn-sm view-mode-toggle" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="viewModeToggleText">📱 모바일 뷰</span>
@@ -3569,7 +3569,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="02" data-hour="21" data-minute="15">보고서 생성일: 2026년 01월 02일 21:15</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="07" data-minute="05">보고서 생성일: 2026년 01월 03일 07:05</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -3607,7 +3607,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 2일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 3일</span>
             </div>
         </div>
 
@@ -7264,6 +7264,30 @@
       "ko": "9월",
       "en": "September",
       "vi": "Tháng 9"
+    },
+    "dashboardSelector": {
+      "incentive": {
+        "ko": "💰 인센티브 대시보드",
+        "en": "💰 Incentive Dashboard",
+        "vi": "💰 Bảng điều khiển khen thưởng"
+      },
+      "attendance": {
+        "ko": "📋 출결 현황 대시보드",
+        "en": "📋 Attendance Dashboard",
+        "vi": "📋 Bảng điều khiển chấm công"
+      }
+    },
+    "downloads": {
+      "offlineVersion": {
+        "ko": "📦 Offline 버전",
+        "en": "📦 Offline Version",
+        "vi": "📦 Phiên bản ngoại tuyến"
+      },
+      "excelDownload": {
+        "ko": "📗 Excel 다운로드",
+        "en": "📗 Excel Download",
+        "vi": "📗 Tải Excel"
+      }
     }
   },
   "reportTypeBanner": {
@@ -15040,9 +15064,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '2th' :
-                               currentLanguage === 'en' ? 'Day 2' :
-                               'Ngày 2';
+                const dayText = currentLanguage === 'ko' ? '3th' :
+                               currentLanguage === 'en' ? 'Day 3' :
+                               'Ngày 3';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
@@ -15089,27 +15113,39 @@
                 updateChartLabels();
             }
 
+            // 대시보드 선택기 옵션 업데이트
+            const dashboardSelector = document.getElementById('dashboardSelector');
+            if (dashboardSelector) {
+                const incentiveOption = dashboardSelector.querySelector('option[value="incentive"]');
+                const attendanceOption = dashboardSelector.querySelector('option[value="attendance"]');
+                if (incentiveOption) {
+                    incentiveOption.textContent = getTranslation('headers.dashboardSelector.incentive', currentLanguage);
+                }
+                if (attendanceOption) {
+                    attendanceOption.textContent = getTranslation('headers.dashboardSelector.attendance', currentLanguage);
+                }
+            }
+
+            // 뷰 모드 토글 버튼 텍스트 업데이트
+            const viewModeToggleText = document.getElementById('viewModeToggleText');
+            if (viewModeToggleText) {
+                // 현재 모드에 따라 텍스트 결정
+                const isMobile = document.body.classList.contains('mobile-mode');
+                const key = isMobile ? 'viewMode.switchToDesktop' : 'viewMode.switchToMobile';
+                viewModeToggleText.textContent = getTranslation(key, currentLanguage);
+            }
+
             // 다운로드 버튼 텍스트 업데이트
             const downloadHtmlBtnText = document.getElementById('downloadHtmlBtnText');
             if (downloadHtmlBtnText) {
-                const htmlTexts = {
-                    'ko': '📦 Offline 버전',
-                    'en': '📦 Offline Version',
-                    'vi': '📦 Phiên bản ngoại tuyến'
-                };
-                downloadHtmlBtnText.textContent = htmlTexts[currentLanguage] || htmlTexts['ko'];
+                downloadHtmlBtnText.textContent = getTranslation('headers.downloads.offlineVersion', currentLanguage);
             }
 
             // CSV download button removed per user request
 
             const downloadExcelBtnText = document.getElementById('downloadExcelBtnText');
             if (downloadExcelBtnText) {
-                const excelTexts = {
-                    'ko': '📗 Excel 다운로드',
-                    'en': '📗 Download Excel',
-                    'vi': '📗 Tải Excel'
-                };
-                downloadExcelBtnText.textContent = excelTexts[currentLanguage] || excelTexts['ko'];
+                downloadExcelBtnText.textContent = getTranslation('headers.downloads.excelDownload', currentLanguage);
             }
 
             // 직급별 테이블 및 개인별 테이블 재creation
@@ -20891,14 +20927,10 @@
             const toggleText = document.getElementById('viewModeToggleText');
             if (toggleText) {
                 const lang = window.currentLanguage || 'ko';
-                const toggleTexts = {
-                    ko: { mobile: '📱 모바일 뷰', desktop: '💻 데스크톱 뷰' },
-                    en: { mobile: '📱 Mobile View', desktop: '💻 Desktop View' },
-                    vi: { mobile: '📱 Xem di động', desktop: '💻 Xem máy tính' }
-                };
                 // Show the opposite mode as button text (what you can switch TO)
                 const oppositeMode = mode === 'mobile' ? 'desktop' : 'mobile';
-                toggleText.textContent = toggleTexts[lang]?.[oppositeMode] || toggleTexts.ko[oppositeMode];
+                const key = oppositeMode === 'desktop' ? 'viewMode.switchToDesktop' : 'viewMode.switchToMobile';
+                toggleText.textContent = getTranslation(key, lang);
             }
         }
 

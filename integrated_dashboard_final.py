@@ -8485,8 +8485,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <option value="vi">Tiếng Việt</option>
                 </select>
                 <select id="dashboardSelector" class="form-select" onchange="changeDashboard(this.value)" style="width: 220px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">
-                    <option value="incentive">💰 인센티브 대시보드</option>
-                    <option value="attendance">📋 출결 현황 대시보드</option>
+                    <option value="incentive" data-i18n="headers.dashboardSelector.incentive">💰 인센티브 대시보드</option>
+                    <option value="attendance" data-i18n="headers.dashboardSelector.attendance">📋 출결 현황 대시보드</option>
                 </select>
                 <button id="viewModeToggle" onclick="toggleViewMode()" class="btn btn-sm view-mode-toggle" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="viewModeToggleText">📱 모바일 뷰</span>
@@ -13112,27 +13112,39 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 updateChartLabels();
             }}
 
+            // 대시보드 선택기 옵션 업데이트
+            const dashboardSelector = document.getElementById('dashboardSelector');
+            if (dashboardSelector) {{
+                const incentiveOption = dashboardSelector.querySelector('option[value="incentive"]');
+                const attendanceOption = dashboardSelector.querySelector('option[value="attendance"]');
+                if (incentiveOption) {{
+                    incentiveOption.textContent = getTranslation('headers.dashboardSelector.incentive', currentLanguage);
+                }}
+                if (attendanceOption) {{
+                    attendanceOption.textContent = getTranslation('headers.dashboardSelector.attendance', currentLanguage);
+                }}
+            }}
+
+            // 뷰 모드 토글 버튼 텍스트 업데이트
+            const viewModeToggleText = document.getElementById('viewModeToggleText');
+            if (viewModeToggleText) {{
+                // 현재 모드에 따라 텍스트 결정
+                const isMobile = document.body.classList.contains('mobile-mode');
+                const key = isMobile ? 'viewMode.switchToDesktop' : 'viewMode.switchToMobile';
+                viewModeToggleText.textContent = getTranslation(key, currentLanguage);
+            }}
+
             // 다운로드 버튼 텍스트 업데이트
             const downloadHtmlBtnText = document.getElementById('downloadHtmlBtnText');
             if (downloadHtmlBtnText) {{
-                const htmlTexts = {{
-                    'ko': '📦 Offline 버전',
-                    'en': '📦 Offline Version',
-                    'vi': '📦 Phiên bản ngoại tuyến'
-                }};
-                downloadHtmlBtnText.textContent = htmlTexts[currentLanguage] || htmlTexts['ko'];
+                downloadHtmlBtnText.textContent = getTranslation('headers.downloads.offlineVersion', currentLanguage);
             }}
 
             // CSV download button removed per user request
 
             const downloadExcelBtnText = document.getElementById('downloadExcelBtnText');
             if (downloadExcelBtnText) {{
-                const excelTexts = {{
-                    'ko': '📗 Excel 다운로드',
-                    'en': '📗 Download Excel',
-                    'vi': '📗 Tải Excel'
-                }};
-                downloadExcelBtnText.textContent = excelTexts[currentLanguage] || excelTexts['ko'];
+                downloadExcelBtnText.textContent = getTranslation('headers.downloads.excelDownload', currentLanguage);
             }}
 
             // 직급별 테이블 및 개인별 테이블 재creation
@@ -15347,14 +15359,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const toggleText = document.getElementById('viewModeToggleText');
             if (toggleText) {{
                 const lang = window.currentLanguage || 'ko';
-                const toggleTexts = {{
-                    ko: {{ mobile: '📱 모바일 뷰', desktop: '💻 데스크톱 뷰' }},
-                    en: {{ mobile: '📱 Mobile View', desktop: '💻 Desktop View' }},
-                    vi: {{ mobile: '📱 Xem di động', desktop: '💻 Xem máy tính' }}
-                }};
                 // Show the opposite mode as button text (what you can switch TO)
                 const oppositeMode = mode === 'mobile' ? 'desktop' : 'mobile';
-                toggleText.textContent = toggleTexts[lang]?.[oppositeMode] || toggleTexts.ko[oppositeMode];
+                const key = oppositeMode === 'desktop' ? 'viewMode.switchToDesktop' : 'viewMode.switchToMobile';
+                toggleText.textContent = getTranslation(key, lang);
             }}
         }}
 
