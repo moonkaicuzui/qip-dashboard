@@ -351,6 +351,100 @@
       "vi": "người nhận"
     }
   },
+  "crossBuilding": {
+    "cardTitle": {
+      "ko": "교차 Building",
+      "en": "Cross-Building",
+      "vi": "Liên tòa nhà"
+    },
+    "totalCases": {
+      "ko": "건",
+      "en": "cases",
+      "vi": "trường hợp"
+    },
+    "case1Short": {
+      "ko": "Building 불일치",
+      "en": "Bldg Mismatch",
+      "vi": "Khác tòa"
+    },
+    "case2Short": {
+      "ko": "상사 정보없음",
+      "en": "Boss No Info",
+      "vi": "Sếp k/có TT"
+    },
+    "case1Badge": {
+      "ko": "불일치",
+      "en": "Mismatch",
+      "vi": "Khác nhau"
+    },
+    "case2Badge": {
+      "ko": "정보없음",
+      "en": "No Info",
+      "vi": "Không có TT"
+    },
+    "modalTitle": {
+      "ko": "Cross-Building 관계 검토 목록",
+      "en": "Cross-Building Relationship Review List",
+      "vi": "Danh sách xem xét quan hệ liên tòa nhà"
+    },
+    "alertMessage": {
+      "ko": "이 목록은 다른 Building의 관리자에게 보고하거나, 관리자의 Building 정보가 없는 직원들을 보여줍니다.",
+      "en": "This list shows employees who report to managers in different buildings or whose managers have no building information.",
+      "vi": "Danh sách này hiển thị nhân viên báo cáo cho quản lý ở tòa nhà khác hoặc quản lý không có thông tin tòa nhà."
+    },
+    "excludeNote": {
+      "ko": "Building 정보는 AQL 검사 기록에서만 제공됩니다.",
+      "en": "Building information comes from AQL inspection records only.",
+      "vi": "Thông tin tòa nhà chỉ từ hồ sơ kiểm tra AQL."
+    },
+    "headers": {
+      "caseType": {
+        "ko": "유형",
+        "en": "Type",
+        "vi": "Loại"
+      },
+      "empNo": {
+        "ko": "직원번호",
+        "en": "Employee No",
+        "vi": "Mã NV"
+      },
+      "empName": {
+        "ko": "직원명",
+        "en": "Employee Name",
+        "vi": "Tên NV"
+      },
+      "empBuilding": {
+        "ko": "Building",
+        "en": "Building",
+        "vi": "Tòa nhà"
+      },
+      "empPosition": {
+        "ko": "직급",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "bossNo": {
+        "ko": "상사번호",
+        "en": "Boss No",
+        "vi": "Mã sếp"
+      },
+      "bossName": {
+        "ko": "상사명",
+        "en": "Boss Name",
+        "vi": "Tên sếp"
+      },
+      "bossBuilding": {
+        "ko": "상사 Building",
+        "en": "Boss Building",
+        "vi": "Tòa nhà sếp"
+      },
+      "bossPosition": {
+        "ko": "상사 직급",
+        "en": "Boss Position",
+        "vi": "Chức vụ sếp"
+      }
+    }
+  },
   "orgChart": {
     "title": {
       "ko": "TYPE-1 관리자 인센티브 구조",

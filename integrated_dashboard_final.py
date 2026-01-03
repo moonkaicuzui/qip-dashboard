@@ -1201,6 +1201,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         print(f"⚠️ Failed to load aql_inspector_incentive_config.json: {e}")
         aql_incentive_config_b64 = base64.b64encode('{"aql_inspectors":{}}'.encode('utf-8')).decode('ascii')
 
+    # Cross-Building Analysis JSON load and encode to Base64 (2026-01-03 - Issue #34)
+    try:
+        cross_building_path = os.path.join('output_files', 'cross_building_analysis.json')
+        with open(cross_building_path, 'r', encoding='utf-8') as f:
+            cross_building_data = json.load(f)
+        cross_building_str = json.dumps(cross_building_data, ensure_ascii=False, separators=(',', ':'))
+        cross_building_data_b64 = base64.b64encode(cross_building_str.encode('utf-8')).decode('ascii')
+        print(f"✅ Cross-building analysis loaded: {cross_building_data.get('total_cases', 0)} cases")
+    except Exception as e:
+        print(f"⚠️ Failed to load cross_building_analysis.json: {e}")
+        cross_building_data_b64 = base64.b64encode('{"total_cases":0,"cases":[],"statistics":{}}'.encode('utf-8')).decode('ascii')
+
     # Auditor/Trainer Area Mapping JSON load and encode to Base64
     try:
         auditor_mapping_path = os.path.join('config_files', 'auditor_trainer_area_mapping.json')
@@ -10392,6 +10404,64 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             </div>
         </div>
 
+        <!-- Cross-Building Review Modal (2026-01-03 - Issue #34) -->
+        <div class="modal fade" id="crossBuildingModal" tabindex="-1" role="dialog" aria-labelledby="crossBuildingModalLabel" aria-hidden="true" style="z-index: 1055;">
+            <div class="modal-dialog modal-fullscreen" role="document" style="margin: 0; width: 100vw; height: 100vh;">
+                <div class="modal-content" style="height: 100%; border: none; border-radius: 0;">
+                    <div class="modal-header unified-modal-header" style="flex-shrink: 0;">
+                        <h5 class="modal-title unified-modal-title" id="crossBuildingModalLabel">
+                            <i class="fas fa-building me-2"></i>
+                            <span id="crossBuildingModalTitle" data-i18n="crossBuilding.modalTitle">Cross-Building Relationship Review List</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="flex: 1; overflow-y: auto; overflow-x: hidden;">
+                        <div class="mb-3">
+                            <div class="alert alert-light border-start border-4 border-warning">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-info-circle text-warning me-2"></i>
+                                    <div>
+                                        <div>
+                                            <span id="crossBuildingAlertMsg" data-i18n="crossBuilding.alertMessage">This list shows employees who report to managers in different buildings or whose managers have no building information.</span>
+                                        </div>
+                                        <div class="text-muted small mt-1">
+                                            <span id="crossBuildingExcludeNote" data-i18n="crossBuilding.excludeNote">Building information comes from AQL inspection records only.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-muted">
+                                <i class="fas fa-users me-2"></i>
+                                <span id="crossBuildingTotal" data-i18n="common.total">Total</span>
+                                <span id="crossBuildingCount">0</span>
+                                <span id="crossBuildingPeople" data-i18n="common.people">people</span>
+                            </p>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover" style="font-size: 14px;">
+                                <thead class="unified-table-header">
+                                    <tr>
+                                        <th style="min-width: 80px; padding: 12px;" data-i18n="crossBuilding.headers.caseType">Type</th>
+                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.empNo">Employee No</th>
+                                        <th style="min-width: 130px; padding: 12px;" data-i18n="crossBuilding.headers.empName">Employee Name</th>
+                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.empBuilding">Building</th>
+                                        <th style="min-width: 150px; padding: 12px;" data-i18n="crossBuilding.headers.empPosition">Position</th>
+                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.bossNo">Boss No</th>
+                                        <th style="min-width: 130px; padding: 12px;" data-i18n="crossBuilding.headers.bossName">Boss Name</th>
+                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.bossBuilding">Boss Building</th>
+                                        <th style="min-width: 150px; padding: 12px;" data-i18n="crossBuilding.headers.bossPosition">Boss Position</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="crossBuildingTableBody">
+                                    <!-- JavaScript로 동적으로 채워짐 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 팀 관리 탭 -->
         <div id="team" class="tab-content">
             <h3 id="teamTabTitle" data-i18n="teamTab.title">팀 관리</h3>
@@ -11023,6 +11093,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         {aql_incentive_config_b64}
     </script>
 
+    <script type="application/json" id="crossBuildingDataBase64">
+        {cross_building_data_b64}
+    </script>
+
     <script>
         // ==================== 보안: 세션 검증 ====================
         (function() {{
@@ -11317,6 +11391,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }} else {{
                 console.warn('AQL Incentive Config element not found, using empty object');
                 window.aqlIncentiveConfig = {{ aql_inspectors: {{}}, parts: {{}} }};
+            }}
+
+            // Cross-Building Analysis 데이터 로드 (2026-01-03 - Issue #34)
+            const crossBuildingElement = document.getElementById('crossBuildingDataBase64');
+            if (crossBuildingElement) {{
+                const crossBuildingBase64 = crossBuildingElement.textContent.trim();
+                const crossBuildingJson = base64DecodeUnicode(crossBuildingBase64);
+                window.crossBuildingData = JSON.parse(crossBuildingJson);
+                console.log('Cross-Building Analysis loaded:', window.crossBuildingData.total_cases || 0, 'cases');
+            }} else {{
+                console.warn('Cross-Building Data element not found, using empty object');
+                window.crossBuildingData = {{ total_cases: 0, cases: [], statistics: {{}} }};
             }}
 
             // Build condition_results array from individual condition fields
@@ -15880,7 +15966,94 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
+            // Cross-Building Review KPI Card (2026-01-03 - Issue #34)
+            const crossBuildingData = window.crossBuildingData || {{ total_cases: 0, statistics: {{ by_type: {{ "Case 1": 0, "Case 2": 0 }} }} }};
+            const totalCases = crossBuildingData.total_cases || 0;
+            const case1Count = crossBuildingData.statistics?.by_type?.["Case 1"] || 0;
+            const case2Count = crossBuildingData.statistics?.by_type?.["Case 2"] || 0;
+
+            if (totalCases > 0) {{
+                cardsHTML += `
+                    <div class="col-md-2 col-sm-4 col-6 mb-2">
+                        <div class="card h-100" style="border-left: 4px solid #ff9800; cursor: pointer; background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);"
+                             onclick="showCrossBuildingModal();">
+                            <div class="card-body py-2 px-3">
+                                <h6 class="card-title mb-1" style="color: #ff9800;">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    <span id="crossBuildingCardTitle">${{getTranslation('crossBuilding.cardTitle')}}</span>
+                                </h6>
+                                <div class="small">
+                                    <div><strong>${{totalCases}}</strong> <span id="crossBuildingCardTotal">${{getTranslation('crossBuilding.totalCases')}}</span></div>
+                                    <div class="text-muted">
+                                        <span id="crossBuildingCardCase1">${{getTranslation('crossBuilding.case1Short')}}</span>: ${{case1Count}}
+                                    </div>
+                                    <div class="text-muted">
+                                        <span id="crossBuildingCardCase2">${{getTranslation('crossBuilding.case2Short')}}</span>: ${{case2Count}}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }}
+
             container.innerHTML = cardsHTML;
+        }}
+
+        // Cross-Building Review Modal function (2026-01-03 - Issue #34)
+        function showCrossBuildingModal() {{
+            const crossBuildingData = window.crossBuildingData;
+            if (!crossBuildingData || !crossBuildingData.cases) {{
+                alert('Cross-building data not loaded');
+                return;
+            }}
+
+            // Update modal count
+            document.getElementById('crossBuildingCount').textContent = crossBuildingData.total_cases || 0;
+
+            // Populate table
+            const tbody = document.getElementById('crossBuildingTableBody');
+            if (!tbody) {{
+                console.error('crossBuildingTableBody not found!');
+                return;
+            }}
+
+            let tableHTML = '';
+            const cases = crossBuildingData.cases || [];
+
+            cases.forEach((c, index) => {{
+                const rowClass = index % 2 === 0 ? 'table-light' : '';
+                const typeClass = c.type.includes('Case 1') ? 'badge bg-warning' : 'badge bg-info';
+                const typeBadge = c.type.includes('Case 1')
+                    ? getTranslation('crossBuilding.case1Badge')
+                    : getTranslation('crossBuilding.case2Badge');
+
+                tableHTML += `
+                    <tr class="${{rowClass}}">
+                        <td><span class="${{typeClass}}">${{typeBadge}}</span></td>
+                        <td>${{c.emp_no || '-'}}</td>
+                        <td>${{c.emp_name || '-'}}</td>
+                        <td><span class="badge" style="background-color: ${{getBuildingColor(c.emp_building)}};">${{c.emp_building || 'N/A'}}</span></td>
+                        <td>${{c.emp_position || '-'}}</td>
+                        <td>${{c.boss_id || '-'}}</td>
+                        <td>${{c.boss_name || '-'}}</td>
+                        <td><span class="badge" style="background-color: ${{getBuildingColor(c.boss_building)}};">${{c.boss_building || 'N/A'}}</span></td>
+                        <td>${{c.boss_position || '-'}}</td>
+                    </tr>
+                `;
+            }});
+
+            tbody.innerHTML = tableHTML;
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('crossBuildingModal'));
+            modal.show();
+        }}
+
+        // Helper function to get building color
+        function getBuildingColor(building) {{
+            const colors = {{ 'A': '#ef4444', 'B': '#3b82f6', 'B3': '#8b5cf6', 'C': '#10b981', 'D': '#f59e0b' }};
+            return colors[building] || '#6c757d';
         }}
 
         // 새로운 접이식 조직도 그리기 함count

@@ -3574,7 +3574,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="08" data-minute="39">보고서 생성일: 2026년 01월 03일 08:39</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="09" data-minute="00">보고서 생성일: 2026년 01월 03일 09:00</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -5483,6 +5483,64 @@
             </div>
         </div>
 
+        <!-- Cross-Building Review Modal (2026-01-03 - Issue #34) -->
+        <div class="modal fade" id="crossBuildingModal" tabindex="-1" role="dialog" aria-labelledby="crossBuildingModalLabel" aria-hidden="true" style="z-index: 1055;">
+            <div class="modal-dialog modal-fullscreen" role="document" style="margin: 0; width: 100vw; height: 100vh;">
+                <div class="modal-content" style="height: 100%; border: none; border-radius: 0;">
+                    <div class="modal-header unified-modal-header" style="flex-shrink: 0;">
+                        <h5 class="modal-title unified-modal-title" id="crossBuildingModalLabel">
+                            <i class="fas fa-building me-2"></i>
+                            <span id="crossBuildingModalTitle" data-i18n="crossBuilding.modalTitle">Cross-Building Relationship Review List</span>
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="flex: 1; overflow-y: auto; overflow-x: hidden;">
+                        <div class="mb-3">
+                            <div class="alert alert-light border-start border-4 border-warning">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-info-circle text-warning me-2"></i>
+                                    <div>
+                                        <div>
+                                            <span id="crossBuildingAlertMsg" data-i18n="crossBuilding.alertMessage">This list shows employees who report to managers in different buildings or whose managers have no building information.</span>
+                                        </div>
+                                        <div class="text-muted small mt-1">
+                                            <span id="crossBuildingExcludeNote" data-i18n="crossBuilding.excludeNote">Building information comes from AQL inspection records only.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-muted">
+                                <i class="fas fa-users me-2"></i>
+                                <span id="crossBuildingTotal" data-i18n="common.total">Total</span>
+                                <span id="crossBuildingCount">0</span>
+                                <span id="crossBuildingPeople" data-i18n="common.people">people</span>
+                            </p>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover" style="font-size: 14px;">
+                                <thead class="unified-table-header">
+                                    <tr>
+                                        <th style="min-width: 80px; padding: 12px;" data-i18n="crossBuilding.headers.caseType">Type</th>
+                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.empNo">Employee No</th>
+                                        <th style="min-width: 130px; padding: 12px;" data-i18n="crossBuilding.headers.empName">Employee Name</th>
+                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.empBuilding">Building</th>
+                                        <th style="min-width: 150px; padding: 12px;" data-i18n="crossBuilding.headers.empPosition">Position</th>
+                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.bossNo">Boss No</th>
+                                        <th style="min-width: 130px; padding: 12px;" data-i18n="crossBuilding.headers.bossName">Boss Name</th>
+                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.bossBuilding">Boss Building</th>
+                                        <th style="min-width: 150px; padding: 12px;" data-i18n="crossBuilding.headers.bossPosition">Boss Position</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="crossBuildingTableBody">
+                                    <!-- JavaScript로 동적으로 채워짐 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 팀 관리 탭 -->
         <div id="team" class="tab-content">
             <h3 id="teamTabTitle" data-i18n="teamTab.title">팀 관리</h3>
@@ -6501,6 +6559,100 @@
       "ko": "수령자",
       "en": "recipients",
       "vi": "người nhận"
+    }
+  },
+  "crossBuilding": {
+    "cardTitle": {
+      "ko": "교차 Building",
+      "en": "Cross-Building",
+      "vi": "Liên tòa nhà"
+    },
+    "totalCases": {
+      "ko": "건",
+      "en": "cases",
+      "vi": "trường hợp"
+    },
+    "case1Short": {
+      "ko": "Building 불일치",
+      "en": "Bldg Mismatch",
+      "vi": "Khác tòa"
+    },
+    "case2Short": {
+      "ko": "상사 정보없음",
+      "en": "Boss No Info",
+      "vi": "Sếp k/có TT"
+    },
+    "case1Badge": {
+      "ko": "불일치",
+      "en": "Mismatch",
+      "vi": "Khác nhau"
+    },
+    "case2Badge": {
+      "ko": "정보없음",
+      "en": "No Info",
+      "vi": "Không có TT"
+    },
+    "modalTitle": {
+      "ko": "Cross-Building 관계 검토 목록",
+      "en": "Cross-Building Relationship Review List",
+      "vi": "Danh sách xem xét quan hệ liên tòa nhà"
+    },
+    "alertMessage": {
+      "ko": "이 목록은 다른 Building의 관리자에게 보고하거나, 관리자의 Building 정보가 없는 직원들을 보여줍니다.",
+      "en": "This list shows employees who report to managers in different buildings or whose managers have no building information.",
+      "vi": "Danh sách này hiển thị nhân viên báo cáo cho quản lý ở tòa nhà khác hoặc quản lý không có thông tin tòa nhà."
+    },
+    "excludeNote": {
+      "ko": "Building 정보는 AQL 검사 기록에서만 제공됩니다.",
+      "en": "Building information comes from AQL inspection records only.",
+      "vi": "Thông tin tòa nhà chỉ từ hồ sơ kiểm tra AQL."
+    },
+    "headers": {
+      "caseType": {
+        "ko": "유형",
+        "en": "Type",
+        "vi": "Loại"
+      },
+      "empNo": {
+        "ko": "직원번호",
+        "en": "Employee No",
+        "vi": "Mã NV"
+      },
+      "empName": {
+        "ko": "직원명",
+        "en": "Employee Name",
+        "vi": "Tên NV"
+      },
+      "empBuilding": {
+        "ko": "Building",
+        "en": "Building",
+        "vi": "Tòa nhà"
+      },
+      "empPosition": {
+        "ko": "직급",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "bossNo": {
+        "ko": "상사번호",
+        "en": "Boss No",
+        "vi": "Mã sếp"
+      },
+      "bossName": {
+        "ko": "상사명",
+        "en": "Boss Name",
+        "vi": "Tên sếp"
+      },
+      "bossBuilding": {
+        "ko": "상사 Building",
+        "en": "Boss Building",
+        "vi": "Tòa nhà sếp"
+      },
+      "bossPosition": {
+        "ko": "상사 직급",
+        "en": "Boss Position",
+        "vi": "Chức vụ sếp"
+      }
     }
   },
   "orgChart": {
@@ -13220,6 +13372,10 @@
         eyJkZXNjcmlwdGlvbiI6IlRZUEUtMSBBUUwgSW5zcGVjdG9yIOyduOyEvO2LsOu4jCDqs4TsgrAg7ISk7KCVIiwicGFydHMiOnsicGFydDEiOnsibmFtZSI6IkFRTCBJbnNwZWN0aW9uIEV2YWx1YXRpb24gUmVzdWx0IiwiZGVzY3JpcHRpb24iOiJBUUwg6rKA7IKsIO2PieqwgCDqsrDqs7zsl5Ag65Sw66W4IOyduOyEvO2LsOu4jCIsImNvbmRpdGlvbiI6IlJlamVjdGlvbiByYXRlIGJ5IGFkaWRhcy9UMVFNLzNyZCBQYXJ0eSA8IDMlIiwiaW5jZW50aXZlX3RhYmxlIjp7InN1c3RhaW5lZF9wZXJmb3JtYW5jZSI6eyJkZXNjcmlwdGlvbiI6IkxldmVsLUEgZXZhbHVhdGlvbiByZXN1bHQgbW9yZSB0aGFuIDIgbW9udGhzIiwiYW1vdW50cyI6eyIxIjoxNTAwMDAsIjIiOjI1MDAwMCwiMyI6MzAwMDAwLCI0IjozNTAwMDAsIjUiOjQwMDAwMCwiNiI6NDUwMDAwLCI3Ijo1MDAwMDAsIjgiOjY1MDAwMCwiOSI6NzUwMDAwLCIxMCI6ODUwMDAwLCIxMSI6OTUwMDAwLCIxMiI6MTAwMDAwMCwiMTMiOjEwMDAwMDAsIjE0IjoxMDAwMDAwLCIxNSI6MTAwMDAwMH19LCJub3Rfc3VzdGFpbmVkX3BlcmZvcm1hbmNlIjp7ImRlc2NyaXB0aW9uIjoiTGV2ZWwtQSBldmFsdWF0aW9uIHJlc3VsdCBmb3IgMSBtb250aCBvbmx5IiwiYW1vdW50IjoxNTAwMDB9fX0sInBhcnQyIjp7Im5hbWUiOiJDRkEgQ2VydGlmaWNhdGUgSW5jZW50aXZlIiwiZGVzY3JpcHRpb24iOiJDRkEg7J6Q6rKp7KadIOuztOycoOyXkCDrjIDtlZwg7J247IS87Yuw67iMIiwiY29uZGl0aW9uIjoiVmFsaWQgYWRpZGFzLWFwcHJvdmVkIEFRTCBjZXJ0aWZpY2F0ZSIsImFtb3VudCI6NzAwMDAwfSwicGFydDMiOnsibmFtZSI6IkhXSyBDbGFpbSBQcmV2ZW50aW9uIEluY2VudGl2ZSIsImRlc2NyaXB0aW9uIjoiSFdLIO2BtOugiOyehCDrsKnsp4Ag7J247IS87Yuw67iMIiwiY29uZGl0aW9uIjoiTm8gSFdLIGNvbXBsYWludHMiLCJpbmNlbnRpdmVfdGFibGUiOnsiMCI6MCwiMSI6MCwiMiI6MCwiMyI6MCwiNCI6MzAwMDAwLCI1IjozMDAwMDAsIjYiOjMwMDAwMCwiNyI6NTAwMDAwLCI4Ijo1MDAwMDAsIjkiOjUwMDAwMCwiMTAiOjcwMDAwMCwiMTEiOjcwMDAwMCwiMTIiOjcwMDAwMCwiMTMiOjkwMDAwMCwiMTQiOjkwMDAwMCwiMTUiOjkwMDAwMH19fSwiYXFsX2luc3BlY3RvcnMiOnsiNjIwMDIwOTIzIjp7Im5hbWUiOiJCw5lJIFRSxq/GoE5HIE5H4buMQyBOSOG7qFQiLCJjZmFfY2VydGlmaWVkIjp0cnVlLCJub3ZlbWJlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjEzLCJwYXJ0M19tb250aHMiOjEzLCJ0b3RhbCI6MjYwMDAwMH0sIm9jdG9iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoyLCJwYXJ0M19tb250aHMiOjIsInRvdGFsIjo5NTAwMDB9LCJzZXB0ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxLCJwYXJ0M19tb250aHMiOjEsInRvdGFsIjo4NTAwMDB9fSwiNjE4MTEwMDc3Ijp7Im5hbWUiOiJMw4ogTkfhu4xDIEzDgk0gTeG7uCBIVeG7sk5IIiwiY2ZhX2NlcnRpZmllZCI6dHJ1ZSwibm92ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxMywicGFydDNfbW9udGhzIjoxMywidG90YWwiOjI2MDAwMDB9LCJvY3RvYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MiwicGFydDNfbW9udGhzIjoyLCJ0b3RhbCI6OTUwMDAwfSwic2VwdGVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MSwicGFydDNfbW9udGhzIjoxLCJ0b3RhbCI6ODUwMDAwfX0sIjYxOTEwMDMwNyI6eyJuYW1lIjoiREFOSCBUSMOBSSIsImNmYV9jZXJ0aWZpZWQiOnRydWUsIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTMsInBhcnQzX21vbnRocyI6MTMsInRvdGFsIjoyNjAwMDAwfSwib2N0b2Jlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjIsInBhcnQzX21vbnRocyI6MiwidG90YWwiOjk1MDAwMH0sInNlcHRlbWJlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjEsInBhcnQzX21vbnRocyI6MSwidG90YWwiOjg1MDAwMH19LCI2MjExMTAzNzYiOnsibmFtZSI6IsSQT8OATiBQSEFOIE5ISSIsImNmYV9jZXJ0aWZpZWQiOnRydWUsIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MCwicGFydDNfbW9udGhzIjowLCJ0b3RhbCI6MH0sIm9jdG9iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjowLCJwYXJ0M19tb250aHMiOjAsInRvdGFsIjowfSwic2VwdGVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MCwicGFydDNfbW9udGhzIjowLCJ0b3RhbCI6MH19LCI2MjAxMjAzMDYiOnsibmFtZSI6Ik5HVVnhu4ROIE5Hw5QgVFVZ4bq+VCBOR8OCTiIsImNmYV9jZXJ0aWZpZWQiOnRydWUsIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6OCwicGFydDNfbW9udGhzIjo4LCJ0b3RhbCI6MTg1MDAwMH0sIm9jdG9iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoyLCJwYXJ0M19tb250aHMiOjIsInRvdGFsIjo5NTAwMDB9LCJzZXB0ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxLCJwYXJ0M19tb250aHMiOjEsInRvdGFsIjo4NTAwMDB9fSwiNjIyMDMwMjI1Ijp7Im5hbWUiOiJOR1VZ4buETiBUSOG7iiBUxq/hu5xORyBWWSIsImNmYV9jZXJ0aWZpZWQiOnRydWUsIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6OCwicGFydDNfbW9udGhzIjo4LCJ0b3RhbCI6MTg1MDAwMH0sIm9jdG9iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoyLCJwYXJ0M19tb250aHMiOjIsInRvdGFsIjo5NTAwMDB9LCJzZXB0ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxLCJwYXJ0M19tb250aHMiOjEsInRvdGFsIjo4NTAwMDB9fX0sIm5vdGVzIjp7ImNhbGN1bGF0aW9uX21ldGhvZCI6Iuy0nSDsnbjshLzti7DruIwgPSBQYXJ0MSArIFBhcnQyICsgUGFydDMiLCJwYXJ0MV9ub3RlIjoiQVFMIOqygOyCrCDtj4nqsIAg6rKw6rO8IOq4sOuwmCwg7Jew7IaNIOuLrOyEsSDqsJzsm5Tsl5Ag65Sw6528IOywqOuTsSIsInBhcnQyX25vdGUiOiJDRkEg7J6Q6rKp7KadIOuztOycoCDsi5wg66ek7JuUIDcwMCwwMDAgVk5EIiwicGFydDNfbm90ZSI6IkhXSyDtgbTroIjsnoQg7JeG7J2EIOyLnCwgNOqwnOyblOu2gO2EsCDsp4DquIkg7Iuc7J6RIn19
     </script>
 
+    <script type="application/json" id="crossBuildingDataBase64">
+        eyJ0b3RhbF9jYXNlcyI6MzYsImNhc2VzIjpbeyJ0eXBlIjoiQ2FzZSAyOiDsp4Hsm5DsnYAgQnVpbGRpbmcg7J6I7J2MLCDsg4HsgqzripQg7JeG7J2MIiwiZW1wX25vIjo2MTkwMjA0NjgsImVtcF9uYW1lIjoiVEjhu4ogTVkiLCJlbXBfYnVpbGRpbmciOiJCIiwiZW1wX3Bvc2l0aW9uIjoiTElORSBMRUFERVIiLCJib3NzX2lkIjo2MTkwMzAzOTAsImJvc3NfbmFtZSI6Ik5HVVnhu4ROIFRI4buKIELDjUNIIENIxq/GoE5HIiwiYm9zc19idWlsZGluZyI6Ik5hTiIsImJvc3NfcG9zaXRpb24iOiJHUk9VUCBMRUFERVIifSx7InR5cGUiOiJDYXNlIDI6IOyngeybkOydgCBCdWlsZGluZyDsnojsnYwsIOyDgeyCrOuKlCDsl4bsnYwiLCJlbXBfbm8iOjYxOTA4MDMyNywiZW1wX25hbWUiOiJOR1VZ4buETiBUSOG7iiBN4bu4IFRSw4JNIiwiZW1wX2J1aWxkaW5nIjoiRCIsImVtcF9wb3NpdGlvbiI6IkxJTkUgTEVBREVSIiwiYm9zc19pZCI6NjIwMDYwMTI4LCJib3NzX25hbWUiOiJMw4ogSFXhu7JOSCBHSUFPIiwiYm9zc19idWlsZGluZyI6Ik5hTiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjE5MTAwMzkyLCJlbXBfbmFtZSI6IlBI4bqgTSBNSU5IIEhVWSIsImVtcF9idWlsZGluZyI6IkIzIiwiZW1wX3Bvc2l0aW9uIjoiTElORSBMRUFERVIiLCJib3NzX2lkIjo2MTgwMzAwNDksImJvc3NfbmFtZSI6IkzGr8agTkcgVEjhu4ogQ+G6qE0gVEnDik4iLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IkEuTUFOQUdFUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjIwMDkwMzg2LCJlbXBfbmFtZSI6IlRSxq/GoE5HIFRI4buKIMOBTkggVEnDik4iLCJlbXBfYnVpbGRpbmciOiJDIiwiZW1wX3Bvc2l0aW9uIjoiTElORSBMRUFERVIiLCJib3NzX2lkIjo2MTgwMzAwNDksImJvc3NfbmFtZSI6IkzGr8agTkcgVEjhu4ogQ+G6qE0gVEnDik4iLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IkEuTUFOQUdFUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjIwMTEwNDA4LCJlbXBfbmFtZSI6Ik5HVVnhu4ROIFbEgk4gTFXDgk4iLCJlbXBfYnVpbGRpbmciOiJBIiwiZW1wX3Bvc2l0aW9uIjoiTElORSBMRUFERVIiLCJib3NzX2lkIjo2MTkwNzAwNzIsImJvc3NfbmFtZSI6IlRIw4FJIFVZ4buCTiBOSEkiLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJ0eXBlIjoiQ2FzZSAxOiDsp4Hsm5Av7IOB7IKsIOuqqOuRkCBCdWlsZGluZyDsnojsnYwgKOu2iOydvOy5mCkiLCJlbXBfbm8iOjYyMzA5MDE5NCwiZW1wX25hbWUiOiJEQU5IIFRI4buKIEtJ4buAVSBQSMavxqBORyIsImVtcF9idWlsZGluZyI6IkMiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkxMDAzOTIsImJvc3NfbmFtZSI6IlBI4bqgTSBNSU5IIEhVWSIsImJvc3NfYnVpbGRpbmciOiJCMyIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjIxMDMwNzU5LCJlbXBfbmFtZSI6IlbFqCBI4buSTkcgVEnDik4iLCJlbXBfYnVpbGRpbmciOiJEIiwiZW1wX3Bvc2l0aW9uIjoiTElORSBMRUFERVIiLCJib3NzX2lkIjo2MjAwNjAxMjgsImJvc3NfbmFtZSI6IkzDiiBIVeG7sk5IIEdJQU8iLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJ0eXBlIjoiQ2FzZSAyOiDsp4Hsm5DsnYAgQnVpbGRpbmcg7J6I7J2MLCDsg4HsgqzripQg7JeG7J2MIiwiZW1wX25vIjo2MjMxMDAyMTAsImVtcF9uYW1lIjoiTMOKIFRI4buKIEtJTSBBTkgiLCJlbXBfYnVpbGRpbmciOiJBIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiYm9zc19pZCI6NjE5MDcwMDcyLCJib3NzX25hbWUiOiJUSMOBSSBVWeG7gk4gTkhJIiwiYm9zc19idWlsZGluZyI6Ik5hTiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjI0MDIwMDg2LCJlbXBfbmFtZSI6Ik5HVVnhu4ROIFRI4buKIEtJTSBUSE9BIiwiZW1wX2J1aWxkaW5nIjoiQSIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTA3MDA3MiwiYm9zc19uYW1lIjoiVEjDgUkgVVnhu4JOIE5ISSIsImJvc3NfYnVpbGRpbmciOiJOYU4iLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7InR5cGUiOiJDYXNlIDI6IOyngeybkOydgCBCdWlsZGluZyDsnojsnYwsIOyDgeyCrOuKlCDsl4bsnYwiLCJlbXBfbm8iOjYyNDAzMDEwNSwiZW1wX25hbWUiOiJEQU5IIFRI4buKIE7Gr8agTkciLCJlbXBfYnVpbGRpbmciOiJBIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiYm9zc19pZCI6NjE5MDcwMDcyLCJib3NzX25hbWUiOiJUSMOBSSBVWeG7gk4gTkhJIiwiYm9zc19idWlsZGluZyI6Ik5hTiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjI0MDMwMjcxLCJlbXBfbmFtZSI6IsSQ4bq2TkcgSE/DgE5HIERVWSIsImVtcF9idWlsZGluZyI6IkEiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkwNzAwNzIsImJvc3NfbmFtZSI6IlRIw4FJIFVZ4buCTiBOSEkiLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJ0eXBlIjoiQ2FzZSAxOiDsp4Hsm5Av7IOB7IKsIOuqqOuRkCBCdWlsZGluZyDsnojsnYwgKOu2iOydvOy5mCkiLCJlbXBfbm8iOjYyNDA0MDI4MiwiZW1wX25hbWUiOiLEkE/DgE4gQ8OUTkcgSMOATyIsImVtcF9idWlsZGluZyI6IkMiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkxMDAzOTIsImJvc3NfbmFtZSI6IlBI4bqgTSBNSU5IIEhVWSIsImJvc3NfYnVpbGRpbmciOiJCMyIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsidHlwZSI6IkNhc2UgMTog7KeB7JuQL+yDgeyCrCDrqqjrkZAgQnVpbGRpbmcg7J6I7J2MICjrtojsnbzsuZgpIiwiZW1wX25vIjo2MjQwNDAyODMsImVtcF9uYW1lIjoiVFLhuqZOIFbEgk4gSMOAIiwiZW1wX2J1aWxkaW5nIjoiQyIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTEwMDM5MiwiYm9zc19uYW1lIjoiUEjhuqBNIE1JTkggSFVZIiwiYm9zc19idWlsZGluZyI6IkIzIiwiYm9zc19wb3NpdGlvbiI6IkxJTkUgTEVBREVSIn0seyJ0eXBlIjoiQ2FzZSAxOiDsp4Hsm5Av7IOB7IKsIOuqqOuRkCBCdWlsZGluZyDsnojsnYwgKOu2iOydvOy5mCkiLCJlbXBfbm8iOjYyNDA1MDE1MSwiZW1wX25hbWUiOiJQSOG6oE0gVEjhu4ogVEhVIFRI4bqiTyIsImVtcF9idWlsZGluZyI6IkEiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MjEwMjA0NDUsImJvc3NfbmFtZSI6Ik5HVVnhu4ROIFRI4buKIEtJTSBDSEkiLCJib3NzX2J1aWxkaW5nIjoiQjMiLCJib3NzX3Bvc2l0aW9uIjoiTElORSBMRUFERVIifSx7InR5cGUiOiJDYXNlIDI6IOyngeybkOydgCBCdWlsZGluZyDsnojsnYwsIOyDgeyCrOuKlCDsl4bsnYwiLCJlbXBfbm8iOjYyNDA2MDMxNiwiZW1wX25hbWUiOiJOR1VZ4buETiBUSOG7iiBD4bqoTSBOSFVORyIsImVtcF9idWlsZGluZyI6IkEiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkwNzAwNzIsImJvc3NfbmFtZSI6IlRIw4FJIFVZ4buCTiBOSEkiLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJ0eXBlIjoiQ2FzZSAyOiDsp4Hsm5DsnYAgQnVpbGRpbmcg7J6I7J2MLCDsg4HsgqzripQg7JeG7J2MIiwiZW1wX25vIjo2MjQwNjAzMzEsImVtcF9uYW1lIjoiSFXhu7JOSCBMw4ogVEhBTkggVMOaIiwiZW1wX2J1aWxkaW5nIjoiQSIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTA3MDA3MiwiYm9zc19uYW1lIjoiVEjDgUkgVVnhu4JOIE5ISSIsImJvc3NfYnVpbGRpbmciOiJOYU4iLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7InR5cGUiOiJDYXNlIDE6IOyngeybkC/sg4Hsgqwg66qo65GQIEJ1aWxkaW5nIOyeiOydjCAo67aI7J287LmYKSIsImVtcF9ubyI6NjI0MDcwMDIwLCJlbXBfbmFtZSI6Ik5HVVnhu4ROIE5H4buMQyBU4bqkTiIsImVtcF9idWlsZGluZyI6IkMiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkxMDAzOTIsImJvc3NfbmFtZSI6IlBI4bqgTSBNSU5IIEhVWSIsImJvc3NfYnVpbGRpbmciOiJCMyIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjI0MDcwMDYwLCJlbXBfbmFtZSI6IlRS4bqmTiBUSEFOSCBUSEFOSCIsImVtcF9idWlsZGluZyI6IkEiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkwNzAwNzIsImJvc3NfbmFtZSI6IlRIw4FJIFVZ4buCTiBOSEkiLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJ0eXBlIjoiQ2FzZSAxOiDsp4Hsm5Av7IOB7IKsIOuqqOuRkCBCdWlsZGluZyDsnojsnYwgKOu2iOydvOy5mCkiLCJlbXBfbm8iOjYyNDA3MDI1MiwiZW1wX25hbWUiOiJQSOG6oE0gVEjhu4ogS0nhu4BVIFRSQU5HIiwiZW1wX2J1aWxkaW5nIjoiQyIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTEwMDM5MiwiYm9zc19uYW1lIjoiUEjhuqBNIE1JTkggSFVZIiwiYm9zc19idWlsZGluZyI6IkIzIiwiYm9zc19wb3NpdGlvbiI6IkxJTkUgTEVBREVSIn0seyJ0eXBlIjoiQ2FzZSAxOiDsp4Hsm5Av7IOB7IKsIOuqqOuRkCBCdWlsZGluZyDsnojsnYwgKOu2iOydvOy5mCkiLCJlbXBfbm8iOjYyNDA4MDA4MywiZW1wX25hbWUiOiJDSMavxqBORyBUSOG7iiBZ4bq+TiBOSEkiLCJlbXBfYnVpbGRpbmciOiJDIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiYm9zc19pZCI6NjE5MTAwMzkyLCJib3NzX25hbWUiOiJQSOG6oE0gTUlOSCBIVVkiLCJib3NzX2J1aWxkaW5nIjoiQjMiLCJib3NzX3Bvc2l0aW9uIjoiTElORSBMRUFERVIifSx7InR5cGUiOiJDYXNlIDE6IOyngeybkC/sg4Hsgqwg66qo65GQIEJ1aWxkaW5nIOyeiOydjCAo67aI7J287LmYKSIsImVtcF9ubyI6NjI0MDgwMTI3LCJlbXBfbmFtZSI6IlRS4bqmTiBLSU0gWSIsImVtcF9idWlsZGluZyI6IkMiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkxMDAzOTIsImJvc3NfbmFtZSI6IlBI4bqgTSBNSU5IIEhVWSIsImJvc3NfYnVpbGRpbmciOiJCMyIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjI0MTEwMjI4LCJlbXBfbmFtZSI6IlRI4buKIEtJ4buAVSBYVcOCTiIsImVtcF9idWlsZGluZyI6IkEiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkwNzAwNzIsImJvc3NfbmFtZSI6IlRIw4FJIFVZ4buCTiBOSEkiLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJ0eXBlIjoiQ2FzZSAyOiDsp4Hsm5DsnYAgQnVpbGRpbmcg7J6I7J2MLCDsg4HsgqzripQg7JeG7J2MIiwiZW1wX25vIjo2MjUwMjA1NTEsImVtcF9uYW1lIjoiVFLhuqZOIFbEgk4gU8OBTkciLCJlbXBfYnVpbGRpbmciOiJBIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiYm9zc19pZCI6NjE5MDcwMDcyLCJib3NzX25hbWUiOiJUSMOBSSBVWeG7gk4gTkhJIiwiYm9zc19idWlsZGluZyI6Ik5hTiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjI1MDYwMDE5LCJlbXBfbmFtZSI6IkTGr8agTkcgVEjhu4ogSOG6rFUiLCJlbXBfYnVpbGRpbmciOiJBIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiYm9zc19pZCI6NjE5MDcwMDcyLCJib3NzX25hbWUiOiJUSMOBSSBVWeG7gk4gTkhJIiwiYm9zc19idWlsZGluZyI6Ik5hTiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsidHlwZSI6IkNhc2UgMTog7KeB7JuQL+yDgeyCrCDrqqjrkZAgQnVpbGRpbmcg7J6I7J2MICjrtojsnbzsuZgpIiwiZW1wX25vIjo2MjUwODAwMDksImVtcF9uYW1lIjoiTkdVWeG7hE4gVEjhu4ogTkjGryDDnSIsImVtcF9idWlsZGluZyI6IkMiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkxMDAzOTIsImJvc3NfbmFtZSI6IlBI4bqgTSBNSU5IIEhVWSIsImJvc3NfYnVpbGRpbmciOiJCMyIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsidHlwZSI6IkNhc2UgMjog7KeB7JuQ7J2AIEJ1aWxkaW5nIOyeiOydjCwg7IOB7IKs64qUIOyXhuydjCIsImVtcF9ubyI6NjE5MDYwMjAxLCJlbXBfbmFtZSI6IkLDmUkgVEjhu4ogS0nhu4BVIExZIiwiZW1wX2J1aWxkaW5nIjoiQSIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTA3MDA3MiwiYm9zc19uYW1lIjoiVEjDgUkgVVnhu4JOIE5ISSIsImJvc3NfYnVpbGRpbmciOiJOYU4iLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7InR5cGUiOiJDYXNlIDI6IOyngeybkOydgCBCdWlsZGluZyDsnojsnYwsIOyDgeyCrOuKlCDsl4bsnYwiLCJlbXBfbm8iOjYyMDA2MDA4NCwiZW1wX25hbWUiOiLEkOG7liBUSOG7iiBI4buSTkcgVEjDmlkiLCJlbXBfYnVpbGRpbmciOiJEIiwiZW1wX3Bvc2l0aW9uIjoiTElORSBMRUFERVIiLCJib3NzX2lkIjo2MjExMTAwOTMsImJvc3NfbmFtZSI6IkzDiiBWxIJOIE5BTSIsImJvc3NfYnVpbGRpbmciOiJOYU4iLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7InR5cGUiOiJDYXNlIDI6IOyngeybkOydgCBCdWlsZGluZyDsnojsnYwsIOyDgeyCrOuKlCDsl4bsnYwiLCJlbXBfbm8iOjYyMDA4MDM2MiwiZW1wX25hbWUiOiJExq/GoE5HIFRI4buKIE3hu7ggWFVZw4pOIiwiZW1wX2J1aWxkaW5nIjoiQSIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTA3MDA3MiwiYm9zc19uYW1lIjoiVEjDgUkgVVnhu4JOIE5ISSIsImJvc3NfYnVpbGRpbmciOiJOYU4iLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7InR5cGUiOiJDYXNlIDI6IOyngeybkOydgCBCdWlsZGluZyDsnojsnYwsIOyDgeyCrOuKlCDsl4bsnYwiLCJlbXBfbm8iOjYyMTAzMDI4MCwiZW1wX25hbWUiOiJOR1VZ4buETiBUSOG7iiBUSOG7plkgUVXhu7JOSCIsImVtcF9idWlsZGluZyI6IkIiLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJib3NzX2lkIjo2MTkwMzAzOTAsImJvc3NfbmFtZSI6Ik5HVVnhu4ROIFRI4buKIELDjUNIIENIxq/GoE5HIiwiYm9zc19idWlsZGluZyI6Ik5hTiIsImJvc3NfcG9zaXRpb24iOiJHUk9VUCBMRUFERVIifSx7InR5cGUiOiJDYXNlIDI6IOyngeybkOydgCBCdWlsZGluZyDsnojsnYwsIOyDgeyCrOuKlCDsl4bsnYwiLCJlbXBfbm8iOjYyMTExMDI1OCwiZW1wX25hbWUiOiJQSEFOIFRSVU5HIEjhuqJPIiwiZW1wX2J1aWxkaW5nIjoiQSIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTA3MDA3MiwiYm9zc19uYW1lIjoiVEjDgUkgVVnhu4JOIE5ISSIsImJvc3NfYnVpbGRpbmciOiJOYU4iLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7InR5cGUiOiJDYXNlIDE6IOyngeybkC/sg4Hsgqwg66qo65GQIEJ1aWxkaW5nIOyeiOydjCAo67aI7J287LmYKSIsImVtcF9ubyI6NjIxMTEwNDEyLCJlbXBfbmFtZSI6Ik5HVVnhu4ROIFRI4buKIEtJTSBMT0FOIiwiZW1wX2J1aWxkaW5nIjoiQyIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTEwMDM5MiwiYm9zc19uYW1lIjoiUEjhuqBNIE1JTkggSFVZIiwiYm9zc19idWlsZGluZyI6IkIzIiwiYm9zc19wb3NpdGlvbiI6IkxJTkUgTEVBREVSIn0seyJ0eXBlIjoiQ2FzZSAxOiDsp4Hsm5Av7IOB7IKsIOuqqOuRkCBCdWlsZGluZyDsnojsnYwgKOu2iOydvOy5mCkiLCJlbXBfbm8iOjYyMTEyMDEyMCwiZW1wX25hbWUiOiJMw4ogSOG7kk5HIMSQw4BPIiwiZW1wX2J1aWxkaW5nIjoiQyIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTEwMDM5MiwiYm9zc19uYW1lIjoiUEjhuqBNIE1JTkggSFVZIiwiYm9zc19idWlsZGluZyI6IkIzIiwiYm9zc19wb3NpdGlvbiI6IkxJTkUgTEVBREVSIn0seyJ0eXBlIjoiQ2FzZSAyOiDsp4Hsm5DsnYAgQnVpbGRpbmcg7J6I7J2MLCDsg4HsgqzripQg7JeG7J2MIiwiZW1wX25vIjo2MjEwMjA0NDUsImVtcF9uYW1lIjoiTkdVWeG7hE4gVEjhu4ogS0lNIENISSIsImVtcF9idWlsZGluZyI6IkIzIiwiZW1wX3Bvc2l0aW9uIjoiTElORSBMRUFERVIiLCJib3NzX2lkIjo2MTgwNDA0MTIsImJvc3NfbmFtZSI6IkNBTyBUSOG7iiBNSeG7gE4iLCJib3NzX2J1aWxkaW5nIjoiTmFOIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJ0eXBlIjoiQ2FzZSAyOiDsp4Hsm5DsnYAgQnVpbGRpbmcg7J6I7J2MLCDsg4HsgqzripQg7JeG7J2MIiwiZW1wX25vIjo2MjAxMTAzOTksImVtcF9uYW1lIjoiVsOVIFRI4buKIEjhu5JORyBUxq/GoEkiLCJlbXBfYnVpbGRpbmciOiJBIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiYm9zc19pZCI6NjE5MDcwMDcyLCJib3NzX25hbWUiOiJUSMOBSSBVWeG7gk4gTkhJIiwiYm9zc19idWlsZGluZyI6Ik5hTiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsidHlwZSI6IkNhc2UgMTog7KeB7JuQL+yDgeyCrCDrqqjrkZAgQnVpbGRpbmcg7J6I7J2MICjrtojsnbzsuZgpIiwiZW1wX25vIjo2MjUxMDAxNTIsImVtcF9uYW1lIjoiVFLhuqZOIFRI4buKIEPhuqhNIFRIxqBNIiwiZW1wX2J1aWxkaW5nIjoiQyIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTEwMDM5MiwiYm9zc19uYW1lIjoiUEjhuqBNIE1JTkggSFVZIiwiYm9zc19idWlsZGluZyI6IkIzIiwiYm9zc19wb3NpdGlvbiI6IkxJTkUgTEVBREVSIn0seyJ0eXBlIjoiQ2FzZSAyOiDsp4Hsm5DsnYAgQnVpbGRpbmcg7J6I7J2MLCDsg4HsgqzripQg7JeG7J2MIiwiZW1wX25vIjo2MjUxMTAwMjAsImVtcF9uYW1lIjoiVEjDgUkgVEjhu4ogSOG7kk5HIE5IVU5HIiwiZW1wX2J1aWxkaW5nIjoiQSIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImJvc3NfaWQiOjYxOTA3MDA3MiwiYm9zc19uYW1lIjoiVEjDgUkgVVnhu4JOIE5ISSIsImJvc3NfYnVpbGRpbmciOiJOYU4iLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifV0sInN0YXRpc3RpY3MiOnsiYnlfdHlwZSI6eyJDYXNlIDI6IOyngeybkOydgCBCdWlsZGluZyDsnojsnYwsIOyDgeyCrOuKlCDsl4bsnYwiOjI0LCJDYXNlIDE6IOyngeybkC/sg4Hsgqwg66qo65GQIEJ1aWxkaW5nIOyeiOydjCAo67aI7J287LmYKSI6MTJ9LCJieV9lbXBfYnVpbGRpbmciOnsiQiI6MiwiRCI6MywiQjMiOjIsIkMiOjEyLCJBIjoxN30sImJ5X2Jvc3NfYnVpbGRpbmciOnsiTmFOIjoyNCwiQjMiOjEyfX19
+    </script>
+
     <script>
         // ==================== 보안: 세션 검증 ====================
         (function() {
@@ -13514,6 +13670,18 @@
             } else {
                 console.warn('AQL Incentive Config element not found, using empty object');
                 window.aqlIncentiveConfig = { aql_inspectors: {}, parts: {} };
+            }
+
+            // Cross-Building Analysis 데이터 로드 (2026-01-03 - Issue #34)
+            const crossBuildingElement = document.getElementById('crossBuildingDataBase64');
+            if (crossBuildingElement) {
+                const crossBuildingBase64 = crossBuildingElement.textContent.trim();
+                const crossBuildingJson = base64DecodeUnicode(crossBuildingBase64);
+                window.crossBuildingData = JSON.parse(crossBuildingJson);
+                console.log('Cross-Building Analysis loaded:', window.crossBuildingData.total_cases || 0, 'cases');
+            } else {
+                console.warn('Cross-Building Data element not found, using empty object');
+                window.crossBuildingData = { total_cases: 0, cases: [], statistics: {} };
             }
 
             // Build condition_results array from individual condition fields
@@ -21648,7 +21816,94 @@
                 }
             });
 
+            // Cross-Building Review KPI Card (2026-01-03 - Issue #34)
+            const crossBuildingData = window.crossBuildingData || { total_cases: 0, statistics: { by_type: { "Case 1": 0, "Case 2": 0 } } };
+            const totalCases = crossBuildingData.total_cases || 0;
+            const case1Count = crossBuildingData.statistics?.by_type?.["Case 1"] || 0;
+            const case2Count = crossBuildingData.statistics?.by_type?.["Case 2"] || 0;
+
+            if (totalCases > 0) {
+                cardsHTML += `
+                    <div class="col-md-2 col-sm-4 col-6 mb-2">
+                        <div class="card h-100" style="border-left: 4px solid #ff9800; cursor: pointer; background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);"
+                             onclick="showCrossBuildingModal();">
+                            <div class="card-body py-2 px-3">
+                                <h6 class="card-title mb-1" style="color: #ff9800;">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    <span id="crossBuildingCardTitle">${getTranslation('crossBuilding.cardTitle')}</span>
+                                </h6>
+                                <div class="small">
+                                    <div><strong>${totalCases}</strong> <span id="crossBuildingCardTotal">${getTranslation('crossBuilding.totalCases')}</span></div>
+                                    <div class="text-muted">
+                                        <span id="crossBuildingCardCase1">${getTranslation('crossBuilding.case1Short')}</span>: ${case1Count}
+                                    </div>
+                                    <div class="text-muted">
+                                        <span id="crossBuildingCardCase2">${getTranslation('crossBuilding.case2Short')}</span>: ${case2Count}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             container.innerHTML = cardsHTML;
+        }
+
+        // Cross-Building Review Modal function (2026-01-03 - Issue #34)
+        function showCrossBuildingModal() {
+            const crossBuildingData = window.crossBuildingData;
+            if (!crossBuildingData || !crossBuildingData.cases) {
+                alert('Cross-building data not loaded');
+                return;
+            }
+
+            // Update modal count
+            document.getElementById('crossBuildingCount').textContent = crossBuildingData.total_cases || 0;
+
+            // Populate table
+            const tbody = document.getElementById('crossBuildingTableBody');
+            if (!tbody) {
+                console.error('crossBuildingTableBody not found!');
+                return;
+            }
+
+            let tableHTML = '';
+            const cases = crossBuildingData.cases || [];
+
+            cases.forEach((c, index) => {
+                const rowClass = index % 2 === 0 ? 'table-light' : '';
+                const typeClass = c.type.includes('Case 1') ? 'badge bg-warning' : 'badge bg-info';
+                const typeBadge = c.type.includes('Case 1')
+                    ? getTranslation('crossBuilding.case1Badge')
+                    : getTranslation('crossBuilding.case2Badge');
+
+                tableHTML += `
+                    <tr class="${rowClass}">
+                        <td><span class="${typeClass}">${typeBadge}</span></td>
+                        <td>${c.emp_no || '-'}</td>
+                        <td>${c.emp_name || '-'}</td>
+                        <td><span class="badge" style="background-color: ${getBuildingColor(c.emp_building)};">${c.emp_building || 'N/A'}</span></td>
+                        <td>${c.emp_position || '-'}</td>
+                        <td>${c.boss_id || '-'}</td>
+                        <td>${c.boss_name || '-'}</td>
+                        <td><span class="badge" style="background-color: ${getBuildingColor(c.boss_building)};">${c.boss_building || 'N/A'}</span></td>
+                        <td>${c.boss_position || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = tableHTML;
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('crossBuildingModal'));
+            modal.show();
+        }
+
+        // Helper function to get building color
+        function getBuildingColor(building) {
+            const colors = { 'A': '#ef4444', 'B': '#3b82f6', 'B3': '#8b5cf6', 'C': '#10b981', 'D': '#f59e0b' };
+            return colors[building] || '#6c757d';
         }
 
         // 새로운 접이식 조직도 그리기 함count
