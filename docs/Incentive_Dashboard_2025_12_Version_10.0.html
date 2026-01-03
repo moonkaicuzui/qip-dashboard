@@ -3574,7 +3574,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="07" data-minute="50">보고서 생성일: 2026년 01월 03일 07:50</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="07" data-minute="59">보고서 생성일: 2026년 01월 03일 07:59</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -6031,11 +6031,11 @@
         <!-- 조회 전 안내 -->
         <div id="attendanceLookupGuide">
             <div class="alert alert-info">
-                <h5><i class="fas fa-info-circle"></i> 사용 방법</h5>
+                <h5><i class="fas fa-info-circle"></i> <span data-i18n="attendanceLookup.usageGuideTitle">사용 방법</span></h5>
                 <ol>
-                    <li>위 입력란에 사원번호를 입력하세요 (예: 620060128)</li>
-                    <li>Enter 키를 누르거나 "조회" 버튼을 클릭하세요</li>
-                    <li>해당 직원의 일별 출결 현황과 분석 결과가 표시됩니다</li>
+                    <li><span data-i18n="attendanceLookup.usageStep1">위 입력란에 사원번호를 입력하세요 (예: 620060128)</span></li>
+                    <li><span data-i18n="attendanceLookup.usageStep2">Enter 키를 누르거나 "조회" 버튼을 클릭하세요</span></li>
+                    <li><span data-i18n="attendanceLookup.usageStep3">해당 직원의 일별 출결 현황과 분석 결과가 표시됩니다</span></li>
                 </ol>
             </div>
             <div class="text-center mt-4">
@@ -13140,6 +13140,53 @@
         "en": "Count",
         "vi": "Số lần"
       }
+    },
+    "attendanceLookup": {
+      "title": {
+        "ko": "🔍 개인 출결 조회",
+        "en": "🔍 Personal Attendance Lookup",
+        "vi": "🔍 Tra cứu chấm công cá nhân"
+      },
+      "employeeNumber": {
+        "ko": "사원번호 입력",
+        "en": "Employee Number",
+        "vi": "Nhập mã nhân viên"
+      },
+      "placeholder": {
+        "ko": "예: 620060128",
+        "en": "e.g., 620060128",
+        "vi": "ví dụ: 620060128"
+      },
+      "searchButton": {
+        "ko": "조회",
+        "en": "Search",
+        "vi": "Tìm kiếm"
+      },
+      "helpText": {
+        "ko": "사원번호를 입력하고 Enter 또는 조회 버튼을 클릭하세요",
+        "en": "Enter employee number and press Enter or click Search button",
+        "vi": "Nhập mã nhân viên và nhấn Enter hoặc nút Tìm kiếm"
+      },
+      "usageGuideTitle": {
+        "ko": "사용 방법",
+        "en": "How to Use",
+        "vi": "Hướng dẫn sử dụng"
+      },
+      "usageStep1": {
+        "ko": "위 입력란에 사원번호를 입력하세요 (예: 620060128)",
+        "en": "Enter employee number in the input field above (e.g., 620060128)",
+        "vi": "Nhập mã nhân viên vào ô nhập liệu phía trên (ví dụ: 620060128)"
+      },
+      "usageStep2": {
+        "ko": "Enter 키를 누르거나 \"조회\" 버튼을 클릭하세요",
+        "en": "Press Enter key or click \"Search\" button",
+        "vi": "Nhấn phím Enter hoặc nút \"Tìm kiếm\""
+      },
+      "usageStep3": {
+        "ko": "해당 직원의 일별 출결 현황과 분석 결과가 표시됩니다",
+        "en": "Daily attendance status and analysis results for the employee will be displayed",
+        "vi": "Trạng thái chấm công hàng ngày và kết quả phân tích của nhân viên sẽ được hiển thị"
+      }
     }
   }
 }
@@ -14552,20 +14599,17 @@
             }
 
             // 버튼 텍스트 - span 요소 내부의 텍스트만 업데이트
-            const expandAllBtnSpan = document.querySelector('#expandAllBtn');
-            if (expandAllBtnSpan) {
-                const iconElement = expandAllBtnSpan.parentElement.querySelector('i');
-                expandAllBtnSpan.textContent = getTranslation('orgChart.buttons.expandAll', currentLanguage);
+            const expandAllTextSpan = document.querySelector('#expandAllText');
+            if (expandAllTextSpan) {
+                expandAllTextSpan.textContent = getTranslation('orgChart.buttons.expandAll', currentLanguage);
             }
-            const collapseAllBtnSpan = document.querySelector('#collapseAllBtn');
-            if (collapseAllBtnSpan) {
-                const iconElement = collapseAllBtnSpan.parentElement.querySelector('i');
-                collapseAllBtnSpan.textContent = getTranslation('orgChart.buttons.collapseAll', currentLanguage);
+            const collapseAllTextSpan = document.querySelector('#collapseAllText');
+            if (collapseAllTextSpan) {
+                collapseAllTextSpan.textContent = getTranslation('orgChart.buttons.collapseAll', currentLanguage);
             }
-            const resetViewBtnSpan = document.querySelector('#resetViewBtn');
-            if (resetViewBtnSpan) {
-                const iconElement = resetViewBtnSpan.parentElement.querySelector('i');
-                resetViewBtnSpan.textContent = getTranslation('orgChart.buttons.reset', currentLanguage);
+            const resetViewTextSpan = document.querySelector('#resetViewBtn');
+            if (resetViewTextSpan) {
+                resetViewTextSpan.textContent = getTranslation('orgChart.buttons.reset', currentLanguage);
             }
             // 🔧 "내 위치 찾기" 버튼 번역 (2025-12-21 추가)
             const findMeText = document.querySelector('#findMeText');
@@ -22028,31 +22072,7 @@
                 });
             }
 
-            // 모두 펼치기/접기 버튼
-            const expandAllBtn = document.getElementById('expandAllBtn');
-            const collapseAllBtn = document.getElementById('collapseAllBtn');
-
-            if (expandAllBtn) {
-                expandAllBtn.addEventListener('click', function() {
-                    document.querySelectorAll('.collapsible-tree li').forEach(li => {
-                        if (li.querySelector('.toggle-btn')) {
-                            li.classList.remove('collapsed');
-                            li.classList.add('expanded');
-                        }
-                    });
-                });
-            }
-
-            if (collapseAllBtn) {
-                collapseAllBtn.addEventListener('click', function() {
-                    document.querySelectorAll('.collapsible-tree li').forEach(li => {
-                        if (li.querySelector('.toggle-btn')) {
-                            li.classList.remove('expanded');
-                            li.classList.add('collapsed');
-                        }
-                    });
-                });
-            }
+            // 모두 펼치기/접기 버튼 (이벤트 리스너는 Lines 15761-15778에서 이미 추가됨 - 중복 제거)
 
             // 노드 클릭 이벤트 (incentive 정보 클릭 제외)
             document.querySelectorAll('.org-node').forEach(node => {

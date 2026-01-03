@@ -10988,11 +10988,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         <!-- 조회 전 안내 -->
         <div id="attendanceLookupGuide">
             <div class="alert alert-info">
-                <h5><i class="fas fa-info-circle"></i> 사용 방법</h5>
+                <h5><i class="fas fa-info-circle"></i> <span data-i18n="attendanceLookup.usageGuideTitle">사용 방법</span></h5>
                 <ol>
-                    <li>위 입력란에 사원번호를 입력하세요 (예: 620060128)</li>
-                    <li>Enter 키를 누르거나 "조회" 버튼을 클릭하세요</li>
-                    <li>해당 직원의 일별 출결 현황과 분석 결과가 표시됩니다</li>
+                    <li><span data-i18n="attendanceLookup.usageStep1">위 입력란에 사원번호를 입력하세요 (예: 620060128)</span></li>
+                    <li><span data-i18n="attendanceLookup.usageStep2">Enter 키를 누르거나 "조회" 버튼을 클릭하세요</span></li>
+                    <li><span data-i18n="attendanceLookup.usageStep3">해당 직원의 일별 출결 현황과 분석 결과가 표시됩니다</span></li>
                 </ol>
             </div>
             <div class="text-center mt-4">
@@ -12455,20 +12455,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
 
             // 버튼 텍스트 - span 요소 내부의 텍스트만 업데이트
-            const expandAllBtnSpan = document.querySelector('#expandAllBtn');
-            if (expandAllBtnSpan) {{
-                const iconElement = expandAllBtnSpan.parentElement.querySelector('i');
-                expandAllBtnSpan.textContent = getTranslation('orgChart.buttons.expandAll', currentLanguage);
+            const expandAllTextSpan = document.querySelector('#expandAllText');
+            if (expandAllTextSpan) {{
+                expandAllTextSpan.textContent = getTranslation('orgChart.buttons.expandAll', currentLanguage);
             }}
-            const collapseAllBtnSpan = document.querySelector('#collapseAllBtn');
-            if (collapseAllBtnSpan) {{
-                const iconElement = collapseAllBtnSpan.parentElement.querySelector('i');
-                collapseAllBtnSpan.textContent = getTranslation('orgChart.buttons.collapseAll', currentLanguage);
+            const collapseAllTextSpan = document.querySelector('#collapseAllText');
+            if (collapseAllTextSpan) {{
+                collapseAllTextSpan.textContent = getTranslation('orgChart.buttons.collapseAll', currentLanguage);
             }}
-            const resetViewBtnSpan = document.querySelector('#resetViewBtn');
-            if (resetViewBtnSpan) {{
-                const iconElement = resetViewBtnSpan.parentElement.querySelector('i');
-                resetViewBtnSpan.textContent = getTranslation('orgChart.buttons.reset', currentLanguage);
+            const resetViewTextSpan = document.querySelector('#resetViewBtn');
+            if (resetViewTextSpan) {{
+                resetViewTextSpan.textContent = getTranslation('orgChart.buttons.reset', currentLanguage);
             }}
             // 🔧 "내 위치 찾기" 버튼 번역 (2025-12-21 추가)
             const findMeText = document.querySelector('#findMeText');
@@ -16364,31 +16361,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }});
             }}
 
-            // 모두 펼치기/접기 버튼
-            const expandAllBtn = document.getElementById('expandAllBtn');
-            const collapseAllBtn = document.getElementById('collapseAllBtn');
-
-            if (expandAllBtn) {{
-                expandAllBtn.addEventListener('click', function() {{
-                    document.querySelectorAll('.collapsible-tree li').forEach(li => {{
-                        if (li.querySelector('.toggle-btn')) {{
-                            li.classList.remove('collapsed');
-                            li.classList.add('expanded');
-                        }}
-                    }});
-                }});
-            }}
-
-            if (collapseAllBtn) {{
-                collapseAllBtn.addEventListener('click', function() {{
-                    document.querySelectorAll('.collapsible-tree li').forEach(li => {{
-                        if (li.querySelector('.toggle-btn')) {{
-                            li.classList.remove('expanded');
-                            li.classList.add('collapsed');
-                        }}
-                    }});
-                }});
-            }}
+            // 모두 펼치기/접기 버튼 (이벤트 리스너는 Lines 15761-15778에서 이미 추가됨 - 중복 제거)
 
             // 노드 클릭 이벤트 (incentive 정보 클릭 제외)
             document.querySelectorAll('.org-node').forEach(node => {{

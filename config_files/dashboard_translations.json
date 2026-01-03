@@ -7067,6 +7067,53 @@
         "en": "Count",
         "vi": "Số lần"
       }
+    },
+    "attendanceLookup": {
+      "title": {
+        "ko": "🔍 개인 출결 조회",
+        "en": "🔍 Personal Attendance Lookup",
+        "vi": "🔍 Tra cứu chấm công cá nhân"
+      },
+      "employeeNumber": {
+        "ko": "사원번호 입력",
+        "en": "Employee Number",
+        "vi": "Nhập mã nhân viên"
+      },
+      "placeholder": {
+        "ko": "예: 620060128",
+        "en": "e.g., 620060128",
+        "vi": "ví dụ: 620060128"
+      },
+      "searchButton": {
+        "ko": "조회",
+        "en": "Search",
+        "vi": "Tìm kiếm"
+      },
+      "helpText": {
+        "ko": "사원번호를 입력하고 Enter 또는 조회 버튼을 클릭하세요",
+        "en": "Enter employee number and press Enter or click Search button",
+        "vi": "Nhập mã nhân viên và nhấn Enter hoặc nút Tìm kiếm"
+      },
+      "usageGuideTitle": {
+        "ko": "사용 방법",
+        "en": "How to Use",
+        "vi": "Hướng dẫn sử dụng"
+      },
+      "usageStep1": {
+        "ko": "위 입력란에 사원번호를 입력하세요 (예: 620060128)",
+        "en": "Enter employee number in the input field above (e.g., 620060128)",
+        "vi": "Nhập mã nhân viên vào ô nhập liệu phía trên (ví dụ: 620060128)"
+      },
+      "usageStep2": {
+        "ko": "Enter 키를 누르거나 \"조회\" 버튼을 클릭하세요",
+        "en": "Press Enter key or click \"Search\" button",
+        "vi": "Nhấn phím Enter hoặc nút \"Tìm kiếm\""
+      },
+      "usageStep3": {
+        "ko": "해당 직원의 일별 출결 현황과 분석 결과가 표시됩니다",
+        "en": "Daily attendance status and analysis results for the employee will be displayed",
+        "vi": "Trạng thái chấm công hàng ngày và kết quả phân tích của nhân viên sẽ được hiển thị"
+      }
     }
   }
 }
