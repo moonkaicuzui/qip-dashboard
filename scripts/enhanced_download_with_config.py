@@ -199,14 +199,15 @@ def update_config_for_month(year, month_name, downloaded_files):
     prev_month = prev_month_names.get(month_name.lower())
     prev_year = year if month_name.lower() != 'january' else year - 1
 
-    # 여러 버전 체크 (V9.1 → V9.0 → V8.02) - 통일된 fallback 패턴 (2025-12-01)
-    for version in ['V9.1', 'V9.0', 'V8.02']:
+    # 여러 버전 체크 (V10.0 → V9.0 → V8.02) - 최신 버전 우선 (2026-01-03)
+    # V10.0: Approved Leave Days 버그 수정 + Final Nov incentive.xlsx 기준
+    for version in ['V10.0', 'V9.0', 'V8.02']:
         prev_path = f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_{version}_Complete.csv"
         if os.path.exists(prev_path):
             file_paths['previous_incentive'] = prev_path
             break
     else:
-        file_paths['previous_incentive'] = f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_V9.0_Complete.csv"
+        file_paths['previous_incentive'] = f"output_files/output_QIP_incentive_{prev_month}_{prev_year}_Complete_V10.0_Complete.csv"
 
     config['file_paths'] = file_paths
     config['files_modified_times'] = files_modified_times
