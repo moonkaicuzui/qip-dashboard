@@ -195,8 +195,8 @@ jobs:
         echo "Web Dashboard와 동기화된 Offline 버전을 생성합니다..."
         echo ""
 
-        # 모든 대시보드에 대해 SelfContained 버전 생성
-        python scripts/generate_all_selfcontained.py
+        # 모든 대시보드에 대해 SelfContained 버전 생성 (Issue #40: 모든 월 포함)
+        python scripts/generate_all_selfcontained.py --all
 
         echo ""
         echo "✅ SelfContained HTML 생성 완료!"

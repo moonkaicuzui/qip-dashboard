@@ -23793,6 +23793,40 @@ def main():
 
     print(f"✅ dashboard creation completed: {output_file}")
 
+    # 📦 Issue #40 Prevention: Auto-Generate SelfContained HTML
+    print("\n" + "=" * 80)
+    print("📦 Step 9.5: SelfContained HTML 자동 생성")
+    print("=" * 80)
+    selfcontained_file = output_file.replace('.html', '_SelfContained.html')
+
+    try:
+        # Import create_self_contained_html function
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).parent))
+        from create_self_contained_html import create_self_contained_html
+
+        # Generate SelfContained version
+        create_self_contained_html(output_file, selfcontained_file)
+
+        # Verify file was created
+        if os.path.exists(selfcontained_file):
+            file_size = os.path.getsize(selfcontained_file) / (1024 * 1024)
+            print(f"✅ SelfContained HTML 생성 완료: {selfcontained_file}")
+            print(f"   파일 크기: {file_size:.2f} MB")
+        else:
+            print(f"⚠️  SelfContained 파일이 생성되지 않음")
+
+    except ImportError as e:
+        print(f"⚠️  create_self_contained_html.py를 찾을 수 없습니다")
+        print(f"   수동 실행: python scripts/generate_all_selfcontained.py --all")
+        print(f"   오류: {e}")
+    except Exception as e:
+        print(f"⚠️  SelfContained HTML 생성 실패: {e}")
+        print(f"   수동 실행: python scripts/generate_all_selfcontained.py --all")
+
+    print("=" * 80)
+
     # 통계 출력 - dashboard_df 사용
     total_직원 = len(dashboard_df)
     # 동적 incentive column 찾기 - Excel 컬럼명 사용 (October_Incentive)

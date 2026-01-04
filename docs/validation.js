@@ -1232,18 +1232,22 @@ const ValidationEngine = {
                     ? methodsArray.map(m => `<div class="small">${m}</div>`).join('')
                     : '-';
 
+                // Calculate Match % for this position
+                const matchPercent = s.total > 0 ? ((s.amountMatched / s.total) * 100).toFixed(1) : 0;
+                const matchPercentClass = matchPercent == 100 ? 'table-success fw-bold' : (matchPercent >= 90 ? 'table-warning' : 'table-danger');
+
                 row.innerHTML = `
-                    <td>
+                    <td style="white-space: nowrap; font-size: 0.7rem;">
                         ${position}
                         ${hasDiscrepancy ? `
-                            <button class="btn btn-sm btn-warning ms-2"
+                            <button class="btn btn-sm btn-warning ms-1 py-0 px-1" style="font-size: 0.6rem;"
                                     onclick="displayPositionAnalysis('${position}', ${JSON.stringify(analysis[position]).replace(/"/g, '&quot;')})"
                                     title="차이 원인 분석">
-                                <i class="fas fa-search"></i> 분석
+                                <i class="fas fa-search"></i>
                             </button>
                         ` : ''}
                     </td>
-                    <td style="font-size: 0.85em; max-width: 300px;">${methodsDisplay}</td>
+                    <td style="font-size: 0.65rem; max-width: 120px; overflow: hidden; text-overflow: ellipsis;">${methodsDisplay}</td>
                     <td>${s.total}</td>
                     <td${s.receivingDashboard !== s.receivingValidation ? ' class="table-danger fw-bold"' : ''}>${s.receivingDashboard}</td>
                     <td${s.receivingDashboard !== s.receivingValidation ? ' class="table-warning fw-bold"' : ''}>${s.receivingValidation}</td>
@@ -1252,6 +1256,7 @@ const ValidationEngine = {
                     <td${s.mismatched > 0 ? ' class="table-danger fw-bold"' : ''}>${s.mismatched}</td>
                     <td${s.amountMatched === s.total ? ' class="table-success"' : ''}>${s.amountMatched}</td>
                     <td${s.amountMismatched > 0 ? ' class="table-warning fw-bold"' : ''}>${s.amountMismatched}</td>
+                    <td class="${matchPercentClass}">${matchPercent}%</td>
                 `;
 
                 tbody.appendChild(row);
@@ -1267,7 +1272,10 @@ const ValidationEngine = {
                 typeTotal.amountMismatched += s.amountMismatched;
             });
 
-            // Add total row
+            // Add total row with Match %
+            const totalMatchPercent = typeTotal.total > 0 ? ((typeTotal.amountMatched / typeTotal.total) * 100).toFixed(1) : 0;
+            const totalMatchClass = totalMatchPercent == 100 ? 'table-success' : (totalMatchPercent >= 90 ? 'table-warning' : 'table-danger');
+
             const totalRow = document.createElement('tr');
             totalRow.classList.add('table-secondary', 'fw-bold');
             totalRow.innerHTML = `
@@ -1281,6 +1289,7 @@ const ValidationEngine = {
                 <td${typeTotal.mismatched > 0 ? ' class="table-danger"' : ''}>${typeTotal.mismatched}</td>
                 <td${typeTotal.amountMatched === typeTotal.total ? ' class="table-success"' : ''}>${typeTotal.amountMatched}</td>
                 <td${typeTotal.amountMismatched > 0 ? ' class="table-warning"' : ''}>${typeTotal.amountMismatched}</td>
+                <td class="${totalMatchClass}">${totalMatchPercent}%</td>
             `;
             tbody.appendChild(totalRow);
         },
@@ -1332,12 +1341,29 @@ const ValidationEngine = {
          * Display mismatch table
          * TYPE-1/2/3별로 그룹화 + 10개 조건을 각각 컬럼으로 표시
          */
-        displayMismatchTable(mismatches) {
+        displayMismatchTable(mismatches, allEmployees = []) {
             const tbody = document.getElementById('mismatchBody');
             tbody.innerHTML = '';
 
-            if (mismatches.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="17" class="text-center">No mismatches found ✅</td></tr>';
+            // Store allEmployees for filtering (preserve existing filter/search if set)
+            this._allEmployeesData = allEmployees;
+            if (this._currentFilter === undefined) {
+                this._currentFilter = 'mismatched';
+            }
+            if (this._searchTerm === undefined) {
+                this._searchTerm = '';
+            }
+
+            if (mismatches.length === 0 && allEmployees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="18" class="text-center">No data found</td></tr>';
+                return;
+            }
+
+            // Determine which employees to show based on filter
+            const employeesToShow = this._getFilteredEmployees(mismatches, allEmployees);
+
+            if (employeesToShow.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="18" class="text-center">No mismatches found ✅</td></tr>';
                 return;
             }
 
@@ -1348,10 +1374,10 @@ const ValidationEngine = {
                 'TYPE-3': []
             };
 
-            mismatches.forEach(mismatch => {
-                const type = mismatch.employeeType || 'TYPE-3';
+            employeesToShow.forEach(emp => {
+                const type = emp.employeeType || 'TYPE-3';
                 if (!groupedByType[type]) groupedByType[type] = [];
-                groupedByType[type].push(mismatch);
+                groupedByType[type].push(emp);
             });
 
             // TYPE-1, TYPE-2, TYPE-3 순서로 표시
@@ -1363,42 +1389,88 @@ const ValidationEngine = {
                 const headerRow = document.createElement('tr');
                 headerRow.classList.add('table-secondary', 'fw-bold');
                 headerRow.innerHTML = `
-                    <td colspan="17" class="text-center">
+                    <td colspan="18" class="text-center">
                         ${typeKey} (${typeGroup.length}명)
                     </td>
                 `;
                 tbody.appendChild(headerRow);
 
                 // 각 직원 행 추가 - 10개 조건을 각각 컬럼으로 표시
-                typeGroup.forEach(mismatch => {
+                typeGroup.forEach(emp => {
                     const row = document.createElement('tr');
-                    row.classList.add('mismatch-row');
+
+                    // Determine if this is a match or mismatch
+                    const isMatch = emp.validatedIncentive === emp.dashboardIncentive;
+                    row.classList.add(isMatch ? 'table-success-light' : 'mismatch-row');
 
                     // Generate condition columns (1-10)
                     const conditionCells = [];
                     for (let i = 1; i <= 10; i++) {
                         const display = this.getConditionDisplay(
-                            mismatch.conditionResults,
+                            emp.conditionResults || emp.validatedConditions,
                             i,
-                            mismatch.applicableConditions
+                            emp.applicableConditions || []
                         );
-                        conditionCells.push(`<td class="text-center">${display}</td>`);
+                        conditionCells.push(`<td class="text-center" style="padding: 2px 4px;">${display}</td>`);
                     }
 
+                    // Match Status column
+                    const matchStatus = isMatch
+                        ? '<span class="badge bg-success" style="font-size: 0.6rem;">Matching</span>'
+                        : '<span class="badge bg-danger" style="font-size: 0.6rem;">No Match</span>';
+
                     row.innerHTML = `
-                        <td>${mismatch.emp_no}</td>
-                        <td>${mismatch.name}</td>
-                        <td>${typeKey}</td>
-                        <td><strong>${mismatch.position}</strong></td>
+                        <td style="padding: 2px 4px; font-size: 0.7rem;">${emp.emp_no}</td>
+                        <td style="padding: 2px 4px; font-size: 0.7rem; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${emp.name}</td>
+                        <td style="padding: 2px 4px; font-size: 0.7rem;">${typeKey}</td>
+                        <td style="padding: 2px 4px; font-size: 0.65rem; max-width: 70px; overflow: hidden; text-overflow: ellipsis;"><strong>${emp.position}</strong></td>
                         ${conditionCells.join('')}
-                        <td class="text-center">${mismatch.continuousMonths !== null && mismatch.continuousMonths !== undefined ? mismatch.continuousMonths : '-'}</td>
-                        <td class="text-success fw-bold">₫${mismatch.validatedIncentive.toLocaleString()}</td>
-                        <td class="text-danger fw-bold">₫${mismatch.dashboardIncentive.toLocaleString()}</td>
+                        <td class="text-center" style="padding: 2px 4px;">${emp.continuousMonths !== null && emp.continuousMonths !== undefined ? emp.continuousMonths : '-'}</td>
+                        <td class="text-success fw-bold" style="padding: 2px 4px; font-size: 0.65rem;">₫${(emp.validatedIncentive || 0).toLocaleString()}</td>
+                        <td class="text-danger fw-bold" style="padding: 2px 4px; font-size: 0.65rem;">₫${(emp.dashboardIncentive || 0).toLocaleString()}</td>
+                        <td class="text-center" style="padding: 2px 4px;">${matchStatus}</td>
                     `;
+
+                    // Store data attributes for filtering
+                    row.dataset.empNo = emp.emp_no;
+                    row.dataset.name = emp.name;
+                    row.dataset.isMatch = isMatch;
 
                     tbody.appendChild(row);
                 });
             });
+        },
+
+        /**
+         * Get filtered employees based on current filter and search term
+         */
+        _getFilteredEmployees(mismatches, allEmployees) {
+            let result = [];
+
+            // Apply filter
+            switch (this._currentFilter) {
+                case 'mismatched':
+                    result = mismatches;
+                    break;
+                case 'matched':
+                    result = allEmployees.filter(emp => emp.validatedIncentive === emp.dashboardIncentive);
+                    break;
+                case 'all':
+                default:
+                    result = allEmployees;
+                    break;
+            }
+
+            // Apply search term
+            if (this._searchTerm) {
+                const term = this._searchTerm.toLowerCase();
+                result = result.filter(emp =>
+                    String(emp.emp_no || '').toLowerCase().includes(term) ||
+                    String(emp.name || '').toLowerCase().includes(term)
+                );
+            }
+
+            return result;
         },
 
         /**
@@ -1664,7 +1736,12 @@ const ValidationEngine = {
 
             // Display results
             this.UIController.displaySummary(validationReport);
-            this.UIController.displayMismatchTable(validationReport.mismatches);
+
+            // Store mismatches for search/filter functionality
+            this.state.mismatches = validationReport.mismatches;
+            this.state.allEmployees = validationReport.allEmployees;
+
+            this.UIController.displayMismatchTable(validationReport.mismatches, validationReport.allEmployees);
 
             // Display working days information (NEW - User Request)
             displayWorkingDaysInfo(
@@ -1970,6 +2047,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize with default language (Korean)
     switchLanguage('ko');
+
+    // ============================================
+    // Search and Filter Event Handlers
+    // ============================================
+
+    // Search box - filter by employee ID or name
+    const searchBox = document.getElementById('searchBox');
+    if (searchBox) {
+        searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.trim();
+            ValidationEngine.UIController._searchTerm = searchTerm;
+
+            // Re-render the table with current filter and new search term
+            if (ValidationEngine.state.mismatches && ValidationEngine.state.allEmployees) {
+                ValidationEngine.UIController.displayMismatchTable(
+                    ValidationEngine.state.mismatches,
+                    ValidationEngine.state.allEmployees
+                );
+            }
+        });
+    }
+
+    // Filter type dropdown - filter by All/Matched/Mismatched
+    const filterType = document.getElementById('filterType');
+    if (filterType) {
+        filterType.addEventListener('change', (e) => {
+            const filterValue = e.target.value;
+            ValidationEngine.UIController._currentFilter = filterValue;
+
+            // Re-render the table with new filter
+            if (ValidationEngine.state.mismatches && ValidationEngine.state.allEmployees) {
+                ValidationEngine.UIController.displayMismatchTable(
+                    ValidationEngine.state.mismatches,
+                    ValidationEngine.state.allEmployees
+                );
+            }
+        });
+    }
 });
 
 // Helper function to get previous month name
