@@ -712,8 +712,31 @@ const ValidationEngine = {
         },
 
         /**
+         * Get human-readable condition name from condition number
+         * Maps "Condition 1" to "Attendance Rate >= 88%", etc.
+         */
+        getConditionName(fieldName) {
+            const conditionNames = {
+                'Condition 1': 'Attendance Rate >= 88%',
+                'Condition 2': 'Unapproved Absence <= 2 days',
+                'Condition 3': 'Actual Working Days > 0',
+                'Condition 4': 'Minimum Working Days >= 12',
+                'Condition 5': 'Personal AQL: Current Month Failures = 0',
+                'Condition 6': 'Personal AQL: No 3-month Consecutive Failures',
+                'Condition 7': 'Team/Area AQL: No 3-month Consecutive Failures',
+                'Condition 8': 'Area Reject Rate < 3%',
+                'Condition 9': '5PRS Pass Rate >= 95%',
+                'Condition 10': '5PRS Inspection Quantity >= 100',
+                'Continuous Months': 'Continuous Months',
+                'Incentive': 'Incentive Amount'
+            };
+
+            return conditionNames[fieldName] || fieldName;
+        },
+
+        /**
          * Display mismatch table
-         * TYPE-1/2/3별로 그룹화 + 직급별 구별하여 표시
+         * TYPE-1/2/3별로 그룹화 + 1 row per employee with consolidated mismatch info
          */
         displayMismatchTable(mismatches) {
             const tbody = document.getElementById('mismatchBody');
@@ -752,24 +775,39 @@ const ValidationEngine = {
                 `;
                 tbody.appendChild(headerRow);
 
-                // 각 직원 행 추가
+                // 각 직원 행 추가 - 1 row per employee with consolidated info
                 typeGroup.forEach(mismatch => {
-                    mismatch.mismatches.forEach(detail => {
-                        const row = document.createElement('tr');
-                        row.classList.add('mismatch-row');
+                    const row = document.createElement('tr');
+                    row.classList.add('mismatch-row');
 
-                        row.innerHTML = `
-                            <td>${mismatch.emp_no}</td>
-                            <td>${mismatch.name}</td>
-                            <td>${typeKey}</td>
-                            <td><strong>${mismatch.position}</strong></td>
-                            <td>${detail.field}</td>
-                            <td class="text-success fw-bold">₫${detail.validatedIncentive !== null && detail.validatedIncentive !== undefined ? (typeof detail.validatedIncentive === 'number' ? detail.validatedIncentive.toLocaleString() : detail.validatedIncentive) : '-'}</td>
-                            <td class="text-danger fw-bold">₫${detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined ? (typeof detail.dashboardIncentive === 'number' ? detail.dashboardIncentive.toLocaleString() : detail.dashboardIncentive) : '-'}</td>
-                        `;
+                    // Consolidate all mismatch fields into a single list
+                    const mismatchDetails = mismatch.mismatches.map(detail => {
+                        const fieldName = this.getConditionName(detail.field);
+                        const validated = detail.validatedIncentive !== null && detail.validatedIncentive !== undefined
+                            ? (typeof detail.validatedIncentive === 'number' ? detail.validatedIncentive.toLocaleString() : detail.validatedIncentive)
+                            : '-';
+                        const dashboard = detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined
+                            ? (typeof detail.dashboardIncentive === 'number' ? detail.dashboardIncentive.toLocaleString() : detail.dashboardIncentive)
+                            : '-';
 
-                        tbody.appendChild(row);
-                    });
+                        return `<div class="mb-1"><strong>${fieldName}</strong>: Validated=₫${validated}, Dashboard=₫${dashboard}</div>`;
+                    }).join('');
+
+                    // Get overall validated and dashboard incentives
+                    const overallValidated = mismatch.mismatches.find(d => d.field === 'Incentive')?.validatedIncentive;
+                    const overallDashboard = mismatch.mismatches.find(d => d.field === 'Incentive')?.dashboardIncentive;
+
+                    row.innerHTML = `
+                        <td>${mismatch.emp_no}</td>
+                        <td>${mismatch.name}</td>
+                        <td>${typeKey}</td>
+                        <td><strong>${mismatch.position}</strong></td>
+                        <td style="max-width: 400px;">${mismatchDetails}</td>
+                        <td class="text-success fw-bold">₫${overallValidated !== null && overallValidated !== undefined ? (typeof overallValidated === 'number' ? overallValidated.toLocaleString() : overallValidated) : '-'}</td>
+                        <td class="text-danger fw-bold">₫${overallDashboard !== null && overallDashboard !== undefined ? (typeof overallDashboard === 'number' ? overallDashboard.toLocaleString() : overallDashboard) : '-'}</td>
+                    `;
+
+                    tbody.appendChild(row);
                 });
             });
         },
