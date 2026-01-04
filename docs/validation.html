@@ -149,6 +149,78 @@
             </div>
         </section>
 
+        <!-- Working Days Information Section -->
+        <section id="workingDaysInfo" class="hidden mb-4">
+            <h3><i class="fas fa-calendar-alt"></i> 근무일 정보 및 검증</h3>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h5 class="text-primary"><i class="fas fa-calendar"></i> 총 근무일</h5>
+                            <p class="display-6" id="totalWorkingDays">-</p>
+                            <small class="text-muted">Total Working Days</small>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="text-primary"><i class="fas fa-calendar-week"></i> 근무 기간</h5>
+                            <p class="h6" id="workingDateRange">-</p>
+                            <small class="text-muted">Working Period</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 class="text-primary"><i class="fas fa-check-circle"></i> Dashboard 일치 여부</h5>
+                            <p class="h6" id="dashboardWorkingDaysMatch">-</p>
+                            <small class="text-muted">Dashboard Consistency</small>
+                        </div>
+                        <div class="col-md-2">
+                            <h5 class="text-primary"><i class="fas fa-file-alt"></i> Config</h5>
+                            <p class="h6" id="configWorkingDays">-</p>
+                            <small class="text-muted">Config Value</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Condition Validation Details Section -->
+        <section id="conditionValidation" class="hidden mb-4">
+            <h3><i class="fas fa-clipboard-check"></i> 조건별 검증 상세 (Condition-by-Condition Validation)</h3>
+
+            <!-- Attendance Conditions (1-4) -->
+            <div class="card mb-3">
+                <div class="card-header" style="background-color: #0d6efd; color: white;">
+                    <strong><i class="fas fa-user-check"></i> 출근 조건 (Conditions 1-4: Attendance)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="attendanceConditions">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AQL Conditions (5-8) -->
+            <div class="card mb-3">
+                <div class="card-header" style="background-color: #198754; color: white;">
+                    <strong><i class="fas fa-clipboard-list"></i> AQL 품질 조건 (Conditions 5-8: Quality)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="aqlConditions">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5PRS Conditions (9-10) -->
+            <div class="card mb-3">
+                <div class="card-header" style="background-color: #fd7e14; color: white;">
+                    <strong><i class="fas fa-search"></i> 5PRS 검사 조건 (Conditions 9-10: Inspection)</strong>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="prsConditions">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- TYPE별 Position별 통계 Section -->
         <section id="positionStats" class="hidden mb-4">
             <h3><i class="fas fa-table"></i> TYPE별 Position별 통계</h3>

@@ -1119,6 +1119,21 @@ const ValidationEngine = {
             this.UIController.displaySummary(validationReport);
             this.UIController.displayMismatchTable(validationReport.mismatches);
 
+            // Display working days information (NEW - User Request)
+            displayWorkingDaysInfo(
+                allData.config,
+                allData.attendance,
+                allData.dashboardOutput
+            );
+
+            // Display condition-by-condition validation (NEW - User Request)
+            validateConditions(
+                allData.attendance,
+                allData.aql,
+                allData.prs,
+                allData.dashboardOutput
+            );
+
             progressBar.style.width = '100%';
             progressBar.textContent = 'Complete ✅';
 
@@ -1411,4 +1426,271 @@ function getPreviousMonthName(monthName) {
     const prevIndex = monthIndex === 0 ? 11 : monthIndex - 1;
 
     return months[prevIndex].charAt(0).toUpperCase() + months[prevIndex].slice(1);
+}
+
+// ============================================================================
+// Working Days Information Display
+// ============================================================================
+
+function displayWorkingDaysInfo(config, attendanceData, dashboardData) {
+    const section = document.getElementById('workingDaysInfo');
+    section.classList.remove('hidden');
+
+    // Config working days
+    const configDays = config.working_days;
+    document.getElementById('configWorkingDays').textContent = `${configDays}일`;
+
+    // Attendance file working days
+    const attendanceDays = attendanceData.length > 0 ? attendanceData[0]['TOTAL WORK DAY'] : null;
+    document.getElementById('totalWorkingDays').textContent = attendanceDays ? `${attendanceDays}일` : 'N/A';
+
+    // Working date range
+    document.getElementById('workingDateRange').textContent = '2025.12.01 ~ 2025.12.31';
+
+    // Dashboard match check
+    let matchStatus = '';
+    if (attendanceDays === configDays) {
+        matchStatus = `<span class="badge bg-success"><i class="fas fa-check"></i> 일치 (${configDays}일)</span>`;
+    } else {
+        matchStatus = `<span class="badge bg-danger"><i class="fas fa-times"></i> 불일치 (Config: ${configDays}일 vs Attendance: ${attendanceDays}일)</span>`;
+    }
+    document.getElementById('dashboardWorkingDaysMatch').innerHTML = matchStatus;
+}
+
+// ============================================================================
+// Condition Validation Functions
+// ============================================================================
+
+function validateConditions(attendanceData, aqlData, prsData, dashboardData) {
+    const section = document.getElementById('conditionValidation');
+    section.classList.remove('hidden');
+
+    // 조건 정의
+    const conditions = [
+        {
+            id: 1,
+            category: 'attendance',
+            name: 'Cond1: 출근율 ≥ 88%',
+            nameEn: 'Attendance Rate ≥ 88%',
+            checkFn: (emp) => emp['Attendance Rate (%)'] >= 88,
+            getValueFn: (emp) => emp['Attendance Rate (%)'] ? `${emp['Attendance Rate (%)'].toFixed(1)}%` : 'N/A',
+            dashboardCol: 'cond_1_attendance_rate'
+        },
+        {
+            id: 2,
+            category: 'attendance',
+            name: 'Cond2: 무단결근 ≤ 2일',
+            nameEn: 'Unapproved Absence ≤ 2 days',
+            checkFn: (emp) => (emp['Unapproved Absences'] || 0) <= 2,
+            getValueFn: (emp) => `${emp['Unapproved Absences'] || 0}일`,
+            dashboardCol: 'cond_2_unapproved_absence'
+        },
+        {
+            id: 3,
+            category: 'attendance',
+            name: 'Cond3: 실제근무일 > 0',
+            nameEn: 'Actual Working Days > 0',
+            checkFn: (emp) => (emp['ACTUAL WORK DAY'] || 0) > 0,
+            getValueFn: (emp) => `${emp['ACTUAL WORK DAY'] || 0}일`,
+            dashboardCol: 'cond_3_actual_working_days'
+        },
+        {
+            id: 4,
+            category: 'attendance',
+            name: 'Cond4: 최소근무일 ≥ 12',
+            nameEn: 'Minimum Days ≥ 12',
+            checkFn: (emp) => (emp['ACTUAL WORK DAY'] || 0) >= 12,
+            getValueFn: (emp) => `${emp['ACTUAL WORK DAY'] || 0}일`,
+            dashboardCol: 'cond_4_minimum_days'
+        },
+        {
+            id: 5,
+            category: 'aql',
+            name: 'Cond5: 개인 AQL Fail = 0',
+            nameEn: 'Personal AQL Failure = 0',
+            checkFn: (emp) => {
+                // Use dashboard evaluation as source of truth
+                const dashValue = emp.dashboard?.['cond_5_aql_personal_failure'];
+                return dashValue === 'PASS' || dashValue === 'NOT_APPLICABLE';
+            },
+            getValueFn: (emp) => emp.dashboard?.['cond_5_aql_personal_failure'] || 'N/A',
+            dashboardCol: 'cond_5_aql_personal_failure'
+        },
+        {
+            id: 6,
+            category: 'aql',
+            name: 'Cond6: 3개월 연속 AQL FAIL 없음',
+            nameEn: 'No 3-Month Consecutive AQL Failures',
+            checkFn: (emp) => {
+                const dashValue = emp.dashboard?.['cond_6_aql_continuous'];
+                return dashValue === 'PASS' || dashValue === 'NOT_APPLICABLE';
+            },
+            getValueFn: (emp) => emp.dashboard?.['cond_6_aql_continuous'] || 'N/A',
+            dashboardCol: 'cond_6_aql_continuous'
+        },
+        {
+            id: 7,
+            category: 'aql',
+            name: 'Cond7: 팀/구역 AQL 조건',
+            nameEn: 'Team/Area AQL Condition',
+            checkFn: (emp) => {
+                const dashValue = emp.dashboard?.['cond_7_aql_team_area'];
+                return dashValue === 'PASS' || dashValue === 'NOT_APPLICABLE';
+            },
+            getValueFn: (emp) => emp.dashboard?.['cond_7_aql_team_area'] || 'N/A',
+            dashboardCol: 'cond_7_aql_team_area'
+        },
+        {
+            id: 8,
+            category: 'aql',
+            name: 'Cond8: 구역 불량률 < 3%',
+            nameEn: 'Area Reject Rate < 3%',
+            checkFn: (emp) => {
+                const dashValue = emp.dashboard?.['cond_8_area_reject'];
+                return dashValue === 'PASS' || dashValue === 'NOT_APPLICABLE';
+            },
+            getValueFn: (emp) => emp.dashboard?.['cond_8_area_reject'] || 'N/A',
+            dashboardCol: 'cond_8_area_reject'
+        },
+        {
+            id: 9,
+            category: 'prs',
+            name: 'Cond9: 5PRS 통과율 ≥ 95%',
+            nameEn: '5PRS Pass Rate ≥ 95%',
+            checkFn: (emp) => {
+                const dashValue = emp.dashboard?.['cond_9_5prs_pass_rate'];
+                return dashValue === 'PASS' || dashValue === 'NOT_APPLICABLE';
+            },
+            getValueFn: (emp) => emp.dashboard?.['cond_9_5prs_pass_rate'] || 'N/A',
+            dashboardCol: 'cond_9_5prs_pass_rate'
+        },
+        {
+            id: 10,
+            category: 'prs',
+            name: 'Cond10: 5PRS 검사량 ≥ 100',
+            nameEn: '5PRS Inspection Qty ≥ 100',
+            checkFn: (emp) => {
+                const dashValue = emp.dashboard?.['cond_10_5prs_inspection_qty'];
+                return dashValue === 'PASS' || dashValue === 'NOT_APPLICABLE';
+            },
+            getValueFn: (emp) => emp.dashboard?.['cond_10_5prs_inspection_qty'] || 'N/A',
+            dashboardCol: 'cond_10_5prs_inspection_qty'
+        }
+    ];
+
+    // Merge data
+    const mergedData = attendanceData.map(attEmp => {
+        const empNo = attEmp['ID No'];
+        const dashEmp = dashboardData.find(d => String(d['Employee No']) === String(empNo));
+        return {
+            ...attEmp,
+            dashboard: dashEmp || {}
+        };
+    });
+
+    // Validate each condition
+    conditions.forEach(cond => {
+        const results = {
+            total: mergedData.length,
+            failed: 0,
+            failedWithIncentive: 0,
+            dashboardMismatch: 0,
+            failedEmployees: []
+        };
+
+        mergedData.forEach(emp => {
+            const passed = cond.checkFn(emp);
+            const dashboardValue = emp.dashboard[cond.dashboardCol];
+            const hasIncentive = (emp.dashboard['December_Incentive'] || 0) > 0;
+
+            if (!passed) {
+                results.failed++;
+                if (hasIncentive) {
+                    results.failedWithIncentive++;
+                }
+
+                results.failedEmployees.push({
+                    empNo: emp['ID No'],
+                    name: emp['Last name'],
+                    value: cond.getValueFn(emp),
+                    incentive: emp.dashboard['December_Incentive'] || 0,
+                    dashboardCheck: dashboardValue
+                });
+            }
+
+            // Dashboard mismatch check
+            if (dashboardValue && dashboardValue !== 'NOT_APPLICABLE') {
+                const dashboardPassed = dashboardValue === 'PASS';
+                if (passed !== dashboardPassed) {
+                    results.dashboardMismatch++;
+                }
+            }
+        });
+
+        // Display condition card
+        displayConditionCard(cond, results);
+    });
+}
+
+function displayConditionCard(condition, results) {
+    const containerMap = {
+        'attendance': 'attendanceConditions',
+        'aql': 'aqlConditions',
+        'prs': 'prsConditions'
+    };
+
+    const container = document.getElementById(containerMap[condition.category]);
+    if (!container) return;
+
+    const cardHtml = `
+        <div class="col-md-6 mb-3">
+            <div class="card h-100 ${results.failedWithIncentive > 0 ? 'border-danger' : results.dashboardMismatch > 0 ? 'border-warning' : 'border-success'}">
+                <div class="card-header ${results.failedWithIncentive > 0 ? 'bg-danger text-white' : results.dashboardMismatch > 0 ? 'bg-warning' : 'bg-light'}">
+                    <strong>${condition.name}</strong>
+                    <br><small class="text-muted">${condition.nameEn}</small>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4 text-center">
+                            <h6>조건 미달</h6>
+                            <p class="display-6 ${results.failed > 0 ? 'text-danger' : 'text-success'}">${results.failed}</p>
+                            <small>명</small>
+                        </div>
+                        <div class="col-4 text-center border-start">
+                            <h6>인센티브 수령</h6>
+                            <p class="display-6 ${results.failedWithIncentive > 0 ? 'text-danger' : 'text-success'}">${results.failedWithIncentive}</p>
+                            <small>명</small>
+                        </div>
+                        <div class="col-4 text-center border-start">
+                            <h6>Dashboard 불일치</h6>
+                            <p class="display-6 ${results.dashboardMismatch > 0 ? 'text-warning' : 'text-success'}">${results.dashboardMismatch}</p>
+                            <small>명</small>
+                        </div>
+                    </div>
+
+                    ${results.failedWithIncentive > 0 ? `
+                        <div class="alert alert-danger mt-3 mb-0">
+                            <strong><i class="fas fa-exclamation-triangle"></i> 오류 발견!</strong><br>
+                            조건 미달인데 인센티브를 받은 직원 ${results.failedWithIncentive}명
+                        </div>
+                    ` : results.dashboardMismatch > 0 ? `
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <strong><i class="fas fa-exclamation-circle"></i> 검증 필요</strong><br>
+                            Dashboard 조건 판정과 불일치 ${results.dashboardMismatch}명
+                        </div>
+                    ` : results.failed === 0 ? `
+                        <div class="alert alert-success mt-3 mb-0">
+                            <i class="fas fa-check-circle"></i> 모든 직원이 조건 충족
+                        </div>
+                    ` : `
+                        <div class="alert alert-success mt-3 mb-0">
+                            <i class="fas fa-check-circle"></i> 조건 미달자 모두 0 VND
+                        </div>
+                    `}
+                </div>
+            </div>
+        </div>
+    `;
+
+    container.insertAdjacentHTML('beforeend', cardHtml);
 }

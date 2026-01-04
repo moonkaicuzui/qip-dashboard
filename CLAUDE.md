@@ -2080,6 +2080,64 @@ Employee ID | Previous_Incentive
      - 프로젝트 루트 파일 접근 불가능 (CORS)
      - 언어 전환 구현 시 번역 시스템 + 이벤트 리스너 필수
 
+38. **Validation Page - 11 Condition Verification UI Implementation** (IMPLEMENTED: 2026-01-04):
+   - **User Request**: 검증 페이지에 11개 영구 검증 기능 구현 (1회성 스크립트 아님)
+     1. 총 근무일 표시 및 대시보드 일치 확인
+     2-11. 10개 조건별 실패자 파악, 인센티브 수령 여부 확인, 대시보드 비교
+   - **Problem**: 검증 페이지에 조건별 세부 검증 UI가 없음
+   - **Solution**: 2개 새 섹션 + 3개 JavaScript 함수 구현
+     - **Working Days Information Section** (Lines 152-187):
+       - 총 근무일, 근무 기간, Dashboard 일치 여부, Config 값 표시
+       - 4-column Bootstrap card layout
+     - **Condition Validation Details Section** (Lines 189-222):
+       - 3-tier card structure: Attendance (1-4), AQL (5-8), 5PRS (9-10)
+       - Color-coded headers: Attendance(blue), AQL(green), 5PRS(orange)
+     - **JavaScript Functions**:
+       - `displayWorkingDaysInfo()`: 근무일 정보 표시 (Lines 1420-1458)
+       - `validateConditions()`: 10개 조건 검증 로직 (Lines 1464-1633)
+       - `displayConditionCard()`: 조건별 카드 UI 생성 (Lines 1635-1698)
+     - **Integration**: `runValidation()` 함수에 통합 (Lines 1122-1135)
+   - **Bug Fixes**:
+     1. **Dashboard Value Format Mismatch** (Lines 1514-1577, 1622-1627):
+        - Expected: `YES/NO`
+        - Actual: `PASS/FAIL/NOT_APPLICABLE`
+        - Fixed: Changed all condition checkFn to use `PASS/NOT_APPLICABLE`
+     2. **NOT_APPLICABLE Handling** (Lines 1622-1627):
+        - NOT_APPLICABLE 값을 mismatch 체크에서 제외
+        - Dashboard 비교 시 PASS/FAIL만 검증
+   - **Validation Results** (December 2025, 560 employees):
+     | Condition | Failures | Received Incentive | Dashboard Match |
+     |-----------|----------|-------------------|-----------------|
+     | Cond 1: 출근율 ≥88% | 101 | 0 ✅ | 100% ✅ |
+     | Cond 2: 무단결근 ≤2일 | 1 | 0 ✅ | 100% ✅ |
+     | Cond 3: 실제근무일 >0 | 114 | 0 ✅ | 100% ✅ |
+     | Cond 4: 최소근무일 ≥12 | 118 | 0 ✅ | 100% ✅ |
+     | Cond 5: AQL Fail =0 | 11 | 0 ✅ | 100% ✅ |
+     | Cond 6: 3개월 연속 실패 없음 | 0 | 0 ✅ | 100% ✅ |
+     | Cond 7: 팀 AQL 3개월 실패 없음 | 0 | 0 ✅ | 100% ✅ |
+     | Cond 8: Area Reject <3% | 0 | 0 ✅ | 100% ✅ |
+     | Cond 9: 5PRS 통과율 ≥95% | 42 | 0 ✅ | 100% ✅ |
+     | Cond 10: 5PRS 검사량 ≥100 | 35 | 0 ✅ | 100% ✅ |
+   - **Working Days Verification**:
+     - December 2025: 27 working days (2025.12.01 ~ 2025.12.31)
+     - Config value: 27일 ✅
+     - Attendance CSV: 27일 ✅
+     - Dashboard match: 100% ✅
+   - **Files Modified**:
+     - `docs/validation.html:152-222` (2 new sections)
+     - `docs/validation.js:1122-1135, 1420-1698` (3 new functions + integration)
+   - **Browser Testing**:
+     - All HTML elements rendered correctly ✅
+     - All JavaScript functions defined ✅
+     - No console errors ✅
+     - All 10 condition cards display data ✅
+   - **Implementation**: `docs/validation.html:152-222`, `docs/validation.js:1122-1135, 1420-1698`
+   - **Commit**: [to be committed]
+   - **Prevention**:
+     - 사용자 요청 시 "1회성 검증"과 "영구 UI 구현" 구분 필수
+     - Dashboard CSV 컬럼 형식 변경 시 검증 시스템 함께 업데이트
+     - 새 조건 추가 시 `validateConditions()` 함수에 정의 추가
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
