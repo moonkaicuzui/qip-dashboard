@@ -2050,6 +2050,36 @@ Employee ID | Previous_Incentive
      - Building 정보는 항상 상사 기준을 따라야 조직도 일관성 유지
      - 상사가 Building 없는 경우 해결을 위해 Basic Manpower에 BUILDING 칼럼 추가 고려
 
+37. **Validation System File Loading & Language Switching** (FIXED: 2026-01-04):
+   - **Problem 1**: "검증 실패: Failed to load source files" 에러 발생
+     - GitHub Pages는 `/docs` 폴더만 서빙
+     - 검증 시스템이 프로젝트 루트의 `/input_files/`, `/config_files/`에 접근 시도
+     - CORS 정책상 불가능 → 파일 로딩 실패
+   - **Problem 2**: 언어 전환 버튼(한국어/English/Tiếng Việt) 작동하지 않음
+     - HTML에는 버튼이 있지만 JavaScript 이벤트 리스너 미구현
+     - 번역 데이터 및 `switchLanguage()` 함수 없음
+   - **Solution 1 - File Loading**:
+     - December 2025 검증 데이터를 `/docs/validation_data/december_2025/` 폴더에 복사
+     - 7개 파일: attendance, AQL, 5PRS, basic_manpower, config, position_condition_matrix, dashboard output
+     - `validation.js` 파일 경로 수정 (Line 234-244): `./validation_data/${monthName}_${year}/...`
+   - **Solution 2 - Language Switching**:
+     - 번역 시스템 추가 (Line 879-966): 한국어/영어/베트남어 translations 객체
+     - `switchLanguage()` 함수 구현: 헤더 제목/부제 실시간 변경
+     - 언어 선택 버튼 이벤트 리스너 연결
+   - **Files Modified**:
+     - `docs/validation.js`: 파일 경로 수정 + 언어 전환 시스템 추가
+     - `docs/validation_data/december_2025/`: 7개 검증 파일 복사
+   - **Implementation**: `docs/validation.js:234-244, 879-966`
+   - **Commit**: `fdc16255` (2026-01-04)
+   - **Verification**:
+     - December 2025 검증 시스템 파일 로딩 성공 예상
+     - 언어 전환 버튼 클릭 시 헤더 텍스트 변경 확인
+     - 추가 UI 번역은 `switchLanguage()` 함수에 추가 가능
+   - **Prevention**:
+     - GitHub Pages 프로젝트는 모든 데이터를 `/docs` 폴더 내에 배치 필수
+     - 프로젝트 루트 파일 접근 불가능 (CORS)
+     - 언어 전환 구현 시 번역 시스템 + 이벤트 리스너 필수
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
