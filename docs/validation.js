@@ -641,7 +641,8 @@ const ValidationEngine = {
                 mismatched: 0,
                 mismatches: [],
                 expectedTotalIncentive: 0,
-                actualTotalIncentive: 0
+                actualTotalIncentive: 0,
+                allEmployees: []  // NEW: Store all employee data for statistics
             };
 
             expectedResults.forEach(expected => {
@@ -661,12 +662,31 @@ const ValidationEngine = {
 
                 const employeeMismatches = this.compareEmployees(expected, actual);
 
+                // Store all employee data for TYPE/Position statistics
+                report.allEmployees.push({
+                    emp_no: expected.emp_no,
+                    name: expected.name,
+                    position: expected.position,
+                    employeeType: expected.employeeType,
+                    validatedIncentive: expected.incentiveAmount,
+                    dashboardIncentive: actual['December_Incentive'] || actual.incentive_amount || 0,
+                    validatedConditions: expected.conditionResults,  // FIX: was expected.conditions
+                    hasMismatch: employeeMismatches.length > 0,
+                    mismatches: employeeMismatches
+                });
+
                 if (employeeMismatches.length > 0) {
+                    // Enhanced mismatch object with full validation data for 10-condition display
                     report.mismatches.push({
                         emp_no: expected.emp_no,
                         name: expected.name,
                         position: expected.position,
                         employeeType: expected.employeeType,
+                        conditionResults: expected.conditionResults,  // NEW: All 10 condition results
+                        applicableConditions: expected.applicableConditions,  // NEW: Which conditions apply
+                        continuousMonths: expected.continuousMonths,  // NEW: Continuous months
+                        validatedIncentive: expected.incentiveAmount,  // NEW: Validated incentive
+                        dashboardIncentive: actual['December_Incentive'] || actual.incentive_amount || 0,  // NEW: Dashboard incentive
                         mismatches: employeeMismatches
                     });
                     report.mismatched++;
@@ -675,7 +695,7 @@ const ValidationEngine = {
                 }
 
                 report.expectedTotalIncentive += expected.incentiveAmount;
-                report.actualTotalIncentive += actual.incentive_amount || 0;
+                report.actualTotalIncentive += actual['November_Incentive'] || actual.incentive_amount || 0;
             });
 
             return report;
@@ -705,10 +725,146 @@ const ValidationEngine = {
             document.getElementById('actualTotal').textContent =
                 `Actual: ₫${validationReport.actualTotalIncentive.toLocaleString()}`;
 
+            // Generate TYPE별 Position별 통계
+            this.generatePositionStatistics(validationReport.allEmployees);
+
             // Show summary section
             document.getElementById('summary').classList.remove('hidden');
+            document.getElementById('positionStats').classList.remove('hidden');
             document.getElementById('searchFilter').classList.remove('hidden');
             document.getElementById('mismatchTable').classList.remove('hidden');
+        },
+
+        /**
+         * Generate TYPE별 Position별 통계 테이블
+         */
+        generatePositionStatistics(allEmployees) {
+            // Group by TYPE and Position
+            const stats = {
+                'TYPE-1': {},
+                'TYPE-2': {},
+                'TYPE-3': {}
+            };
+
+            allEmployees.forEach(emp => {
+                const type = emp.employeeType || 'TYPE-3';
+                const position = emp.position || 'UNKNOWN';
+
+                if (!stats[type][position]) {
+                    stats[type][position] = {
+                        total: 0,
+                        receivingDashboard: 0,
+                        receivingValidation: 0,
+                        notReceivingDashboard: 0,
+                        notReceivingValidation: 0,
+                        mismatched: 0,
+                        amountMatched: 0,
+                        amountMismatched: 0
+                    };
+                }
+
+                const s = stats[type][position];
+                s.total++;
+
+                // Receiving status
+                const dashboardReceiving = emp.dashboardIncentive > 0;
+                const validationReceiving = emp.validatedIncentive > 0;
+
+                if (dashboardReceiving) s.receivingDashboard++;
+                else s.notReceivingDashboard++;
+
+                if (validationReceiving) s.receivingValidation++;
+                else s.notReceivingValidation++;
+
+                // Receiving mismatch
+                if (dashboardReceiving !== validationReceiving) {
+                    s.mismatched++;
+                }
+
+                // Amount match
+                if (emp.dashboardIncentive === emp.validatedIncentive) {
+                    s.amountMatched++;
+                } else {
+                    s.amountMismatched++;
+                }
+            });
+
+            // Display statistics for each TYPE
+            this.displayTypeStatistics('type1StatsBody', stats['TYPE-1']);
+            this.displayTypeStatistics('type2StatsBody', stats['TYPE-2']);
+            this.displayTypeStatistics('type3StatsBody', stats['TYPE-3']);
+        },
+
+        /**
+         * Display statistics table for one TYPE
+         */
+        displayTypeStatistics(tbodyId, positionStats) {
+            const tbody = document.getElementById(tbodyId);
+            tbody.innerHTML = '';
+
+            // Sort positions alphabetically
+            const positions = Object.keys(positionStats).sort();
+
+            if (positions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No data</td></tr>';
+                return;
+            }
+
+            let typeTotal = {
+                total: 0,
+                receivingDashboard: 0,
+                receivingValidation: 0,
+                notReceivingDashboard: 0,
+                notReceivingValidation: 0,
+                mismatched: 0,
+                amountMatched: 0,
+                amountMismatched: 0
+            };
+
+            positions.forEach(position => {
+                const s = positionStats[position];
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${position}</td>
+                    <td>${s.total}</td>
+                    <td>${s.receivingDashboard}</td>
+                    <td>${s.receivingValidation}</td>
+                    <td>${s.notReceivingDashboard}</td>
+                    <td>${s.notReceivingValidation}</td>
+                    <td${s.mismatched > 0 ? ' class="table-danger fw-bold"' : ''}>${s.mismatched}</td>
+                    <td${s.amountMatched === s.total ? ' class="table-success"' : ''}>${s.amountMatched}</td>
+                    <td${s.amountMismatched > 0 ? ' class="table-warning fw-bold"' : ''}>${s.amountMismatched}</td>
+                `;
+
+                tbody.appendChild(row);
+
+                // Accumulate totals
+                typeTotal.total += s.total;
+                typeTotal.receivingDashboard += s.receivingDashboard;
+                typeTotal.receivingValidation += s.receivingValidation;
+                typeTotal.notReceivingDashboard += s.notReceivingDashboard;
+                typeTotal.notReceivingValidation += s.notReceivingValidation;
+                typeTotal.mismatched += s.mismatched;
+                typeTotal.amountMatched += s.amountMatched;
+                typeTotal.amountMismatched += s.amountMismatched;
+            });
+
+            // Add total row
+            const totalRow = document.createElement('tr');
+            totalRow.classList.add('table-secondary', 'fw-bold');
+            totalRow.innerHTML = `
+                <td>TOTAL</td>
+                <td>${typeTotal.total}</td>
+                <td>${typeTotal.receivingDashboard}</td>
+                <td>${typeTotal.receivingValidation}</td>
+                <td>${typeTotal.notReceivingDashboard}</td>
+                <td>${typeTotal.notReceivingValidation}</td>
+                <td${typeTotal.mismatched > 0 ? ' class="table-danger"' : ''}>${typeTotal.mismatched}</td>
+                <td${typeTotal.amountMatched === typeTotal.total ? ' class="table-success"' : ''}>${typeTotal.amountMatched}</td>
+                <td${typeTotal.amountMismatched > 0 ? ' class="table-warning"' : ''}>${typeTotal.amountMismatched}</td>
+            `;
+            tbody.appendChild(totalRow);
         },
 
         /**
@@ -735,15 +891,35 @@ const ValidationEngine = {
         },
 
         /**
+         * Get condition display value (PASS/FAIL/N/A)
+         */
+        getConditionDisplay(conditionResults, conditionNum, applicableConditions) {
+            // Check if condition applies to this position
+            if (!applicableConditions.includes(conditionNum)) {
+                return '<span class="text-muted">N/A</span>';
+            }
+
+            const result = conditionResults[`condition_${conditionNum}`];
+
+            if (result === 'PASS') {
+                return '<span class="badge bg-success">✓</span>';
+            } else if (result === 'FAIL') {
+                return '<span class="badge bg-danger">✗</span>';
+            } else {
+                return '<span class="text-muted">-</span>';
+            }
+        },
+
+        /**
          * Display mismatch table
-         * TYPE-1/2/3별로 그룹화 + 1 row per employee with consolidated mismatch info
+         * TYPE-1/2/3별로 그룹화 + 10개 조건을 각각 컬럼으로 표시
          */
         displayMismatchTable(mismatches) {
             const tbody = document.getElementById('mismatchBody');
             tbody.innerHTML = '';
 
             if (mismatches.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No mismatches found ✅</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="17" class="text-center">No mismatches found ✅</td></tr>';
                 return;
             }
 
@@ -769,42 +945,37 @@ const ValidationEngine = {
                 const headerRow = document.createElement('tr');
                 headerRow.classList.add('table-secondary', 'fw-bold');
                 headerRow.innerHTML = `
-                    <td colspan="7" class="text-center">
+                    <td colspan="17" class="text-center">
                         ${typeKey} (${typeGroup.length}명)
                     </td>
                 `;
                 tbody.appendChild(headerRow);
 
-                // 각 직원 행 추가 - 1 row per employee with consolidated info
+                // 각 직원 행 추가 - 10개 조건을 각각 컬럼으로 표시
                 typeGroup.forEach(mismatch => {
                     const row = document.createElement('tr');
                     row.classList.add('mismatch-row');
 
-                    // Consolidate all mismatch fields into a single list
-                    const mismatchDetails = mismatch.mismatches.map(detail => {
-                        const fieldName = this.getConditionName(detail.field);
-                        const validated = detail.validatedIncentive !== null && detail.validatedIncentive !== undefined
-                            ? (typeof detail.validatedIncentive === 'number' ? detail.validatedIncentive.toLocaleString() : detail.validatedIncentive)
-                            : '-';
-                        const dashboard = detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined
-                            ? (typeof detail.dashboardIncentive === 'number' ? detail.dashboardIncentive.toLocaleString() : detail.dashboardIncentive)
-                            : '-';
-
-                        return `<div class="mb-1"><strong>${fieldName}</strong>: Validated=₫${validated}, Dashboard=₫${dashboard}</div>`;
-                    }).join('');
-
-                    // Get overall validated and dashboard incentives
-                    const overallValidated = mismatch.mismatches.find(d => d.field === 'Incentive')?.validatedIncentive;
-                    const overallDashboard = mismatch.mismatches.find(d => d.field === 'Incentive')?.dashboardIncentive;
+                    // Generate condition columns (1-10)
+                    const conditionCells = [];
+                    for (let i = 1; i <= 10; i++) {
+                        const display = this.getConditionDisplay(
+                            mismatch.conditionResults,
+                            i,
+                            mismatch.applicableConditions
+                        );
+                        conditionCells.push(`<td class="text-center">${display}</td>`);
+                    }
 
                     row.innerHTML = `
                         <td>${mismatch.emp_no}</td>
                         <td>${mismatch.name}</td>
                         <td>${typeKey}</td>
                         <td><strong>${mismatch.position}</strong></td>
-                        <td style="max-width: 400px;">${mismatchDetails}</td>
-                        <td class="text-success fw-bold">₫${overallValidated !== null && overallValidated !== undefined ? (typeof overallValidated === 'number' ? overallValidated.toLocaleString() : overallValidated) : '-'}</td>
-                        <td class="text-danger fw-bold">₫${overallDashboard !== null && overallDashboard !== undefined ? (typeof overallDashboard === 'number' ? overallDashboard.toLocaleString() : overallDashboard) : '-'}</td>
+                        ${conditionCells.join('')}
+                        <td class="text-center">${mismatch.continuousMonths !== null && mismatch.continuousMonths !== undefined ? mismatch.continuousMonths : '-'}</td>
+                        <td class="text-success fw-bold">₫${mismatch.validatedIncentive.toLocaleString()}</td>
+                        <td class="text-danger fw-bold">₫${mismatch.dashboardIncentive.toLocaleString()}</td>
                     `;
 
                     tbody.appendChild(row);
@@ -813,8 +984,19 @@ const ValidationEngine = {
         },
 
         /**
+         * Get condition result text for Excel export
+         */
+        getConditionResultText(conditionResults, conditionNum, applicableConditions) {
+            if (!applicableConditions.includes(conditionNum)) {
+                return 'N/A';
+            }
+            const result = conditionResults[`condition_${conditionNum}`];
+            return result === 'PASS' ? '✓ PASS' : (result === 'FAIL' ? '✗ FAIL' : '-');
+        },
+
+        /**
          * Export mismatches to Excel
-         * TYPE-1/2/3별로 그룹화하여 내보내기
+         * TYPE-1/2/3별로 그룹화 + 10개 조건을 각각 컬럼으로 내보내기
          */
         exportToExcel(mismatches) {
             const wb = XLSX.utils.book_new();
@@ -839,16 +1021,24 @@ const ValidationEngine = {
 
                 const exportData = [];
                 typeGroup.forEach(mismatch => {
-                    mismatch.mismatches.forEach(detail => {
-                        exportData.push({
-                            'Employee ID': mismatch.emp_no,
-                            'Name': mismatch.name,
-                            'TYPE': typeKey,
-                            'Position': mismatch.position,
-                            'Field': detail.field,
-                            'Validated Incentive': detail.validatedIncentive !== null && detail.validatedIncentive !== undefined ? detail.validatedIncentive : '-',
-                            'Dashboard Incentive': detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined ? detail.dashboardIncentive : '-'
-                        });
+                    exportData.push({
+                        'Employee ID': mismatch.emp_no,
+                        'Name': mismatch.name,
+                        'TYPE': typeKey,
+                        'Position': mismatch.position,
+                        'Cond1 (출근율≥88%)': this.getConditionResultText(mismatch.conditionResults, 1, mismatch.applicableConditions),
+                        'Cond2 (무단≤2일)': this.getConditionResultText(mismatch.conditionResults, 2, mismatch.applicableConditions),
+                        'Cond3 (실제>0일)': this.getConditionResultText(mismatch.conditionResults, 3, mismatch.applicableConditions),
+                        'Cond4 (최소≥12일)': this.getConditionResultText(mismatch.conditionResults, 4, mismatch.applicableConditions),
+                        'Cond5 (개인AQL)': this.getConditionResultText(mismatch.conditionResults, 5, mismatch.applicableConditions),
+                        'Cond6 (AQL 3M)': this.getConditionResultText(mismatch.conditionResults, 6, mismatch.applicableConditions),
+                        'Cond7 (팀AQL)': this.getConditionResultText(mismatch.conditionResults, 7, mismatch.applicableConditions),
+                        'Cond8 (구역불량)': this.getConditionResultText(mismatch.conditionResults, 8, mismatch.applicableConditions),
+                        'Cond9 (5PRS율)': this.getConditionResultText(mismatch.conditionResults, 9, mismatch.applicableConditions),
+                        'Cond10 (5PRS량)': this.getConditionResultText(mismatch.conditionResults, 10, mismatch.applicableConditions),
+                        'Continuous Months': mismatch.continuousMonths !== null && mismatch.continuousMonths !== undefined ? mismatch.continuousMonths : '-',
+                        'Validated Incentive': mismatch.validatedIncentive,
+                        'Dashboard Incentive': mismatch.dashboardIncentive
                     });
                 });
 

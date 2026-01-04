@@ -149,6 +149,98 @@
             </div>
         </section>
 
+        <!-- TYPE별 Position별 통계 Section -->
+        <section id="positionStats" class="hidden mb-4">
+            <h3><i class="fas fa-table"></i> TYPE별 Position별 통계</h3>
+
+            <!-- TYPE-1 통계 -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <strong>TYPE-1 Position Status</strong>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Position</th>
+                                    <th>Total</th>
+                                    <th>Receiving<br/>(Dashboard)</th>
+                                    <th>Receiving<br/>(Validation)</th>
+                                    <th>Not Receiving<br/>(Dashboard)</th>
+                                    <th>Not Receiving<br/>(Validation)</th>
+                                    <th>Mismatched</th>
+                                    <th>Amount<br/>Matched</th>
+                                    <th>Amount<br/>Mismatched</th>
+                                </tr>
+                            </thead>
+                            <tbody id="type1StatsBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TYPE-2 통계 -->
+            <div class="card mb-3">
+                <div class="card-header bg-info text-white">
+                    <strong>TYPE-2 Position Status</strong>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Position</th>
+                                    <th>Total</th>
+                                    <th>Receiving<br/>(Dashboard)</th>
+                                    <th>Receiving<br/>(Validation)</th>
+                                    <th>Not Receiving<br/>(Dashboard)</th>
+                                    <th>Not Receiving<br/>(Validation)</th>
+                                    <th>Mismatched</th>
+                                    <th>Amount<br/>Matched</th>
+                                    <th>Amount<br/>Mismatched</th>
+                                </tr>
+                            </thead>
+                            <tbody id="type2StatsBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TYPE-3 통계 -->
+            <div class="card mb-3">
+                <div class="card-header bg-secondary text-white">
+                    <strong>TYPE-3 Position Status</strong>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Position</th>
+                                    <th>Total</th>
+                                    <th>Receiving<br/>(Dashboard)</th>
+                                    <th>Receiving<br/>(Validation)</th>
+                                    <th>Not Receiving<br/>(Dashboard)</th>
+                                    <th>Not Receiving<br/>(Validation)</th>
+                                    <th>Mismatched</th>
+                                    <th>Amount<br/>Matched</th>
+                                    <th>Amount<br/>Mismatched</th>
+                                </tr>
+                            </thead>
+                            <tbody id="type3StatsBody">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Search & Filter Section -->
         <section id="searchFilter" class="hidden mb-4">
             <div class="row">
@@ -183,10 +275,20 @@
                             <th>Employee ID</th>
                             <th>Name</th>
                             <th>TYPE</th>
-                            <th>Position (직급)</th>
-                            <th>Mismatch Details</th>
-                            <th>Validated Incentive</th>
-                            <th>Dashboard Incentive</th>
+                            <th>Position</th>
+                            <th>Cond1<br/>출근율≥88%</th>
+                            <th>Cond2<br/>무단≤2일</th>
+                            <th>Cond3<br/>실제>0일</th>
+                            <th>Cond4<br/>최소≥12일</th>
+                            <th>Cond5<br/>개인AQL</th>
+                            <th>Cond6<br/>AQL 3M</th>
+                            <th>Cond7<br/>팀AQL</th>
+                            <th>Cond8<br/>구역불량</th>
+                            <th>Cond9<br/>5PRS율</th>
+                            <th>Cond10<br/>5PRS량</th>
+                            <th>Cont.<br/>Months</th>
+                            <th>Validated<br/>Incentive</th>
+                            <th>Dashboard<br/>Incentive</th>
                         </tr>
                     </thead>
                     <tbody id="mismatchBody">
