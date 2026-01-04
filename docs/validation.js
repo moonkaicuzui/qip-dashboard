@@ -274,6 +274,51 @@ const ValidationEngine = {
     // ================================================
     Calculator: {
         /**
+         * Get applicable conditions for a position based on position_condition_matrix.json
+         * @param {string} position - Employee position (e.g., "ASSEMBLY INSPECTOR")
+         * @param {string} employeeType - TYPE-1, TYPE-2, or TYPE-3
+         * @param {object} positionMatrix - position_condition_matrix.json data
+         * @returns {object} { applicable: [1,2,3,...], excluded: [5,6,7,...] }
+         */
+        getApplicableConditions(position, employeeType, positionMatrix) {
+            if (!positionMatrix || !positionMatrix.position_matrix) {
+                // Fallback: 기본 조건 (출근 조건만)
+                return {
+                    applicable: [1, 2, 3, 4],
+                    excluded: [5, 6, 7, 8, 9, 10]
+                };
+            }
+
+            const typeMatrix = positionMatrix.position_matrix[employeeType];
+            if (!typeMatrix) {
+                return {
+                    applicable: [1, 2, 3, 4],
+                    excluded: [5, 6, 7, 8, 9, 10]
+                };
+            }
+
+            // Find matching position config
+            for (const [key, config] of Object.entries(typeMatrix)) {
+                if (key === 'default') continue;
+
+                if (config.patterns && config.patterns.some(pattern =>
+                    position.toUpperCase().includes(pattern.toUpperCase())
+                )) {
+                    return {
+                        applicable: config.applicable_conditions || [],
+                        excluded: config.excluded_conditions || []
+                    };
+                }
+            }
+
+            // No match found → use default
+            return {
+                applicable: typeMatrix.default?.applicable_conditions || [1, 2, 3, 4],
+                excluded: typeMatrix.default?.excluded_conditions || [5, 6, 7, 8, 9, 10]
+            };
+        },
+
+        /**
          * Condition 1: Attendance Rate >= 88%
          * Formula: 100 - ((total - actual - approved_leave) / total × 100)
          */
@@ -467,11 +512,17 @@ const ValidationEngine = {
                 return null;  // Employee not found
             }
 
-            // Get position config
-            const positionCode = employee['FINAL QIP POSITION NAME CODE'] || '';
-            const positionConfig = positionMatrix.position_matrix[positionCode] || {};
-            const applicableConditions = positionConfig.applicable_conditions || [];
-            const employeeType = positionConfig.type || 'TYPE-3';
+            // Determine employee TYPE from CSV column
+            const typeColumn = employee['TYPE'] || '';
+            const employeeType = typeColumn || 'TYPE-3';
+
+            // Get position name (not code!)
+            const position = employee['QIP POSITION 1ST  NAME'] || '';
+
+            // Get applicable conditions based on position + TYPE
+            const conditionsConfig = this.getApplicableConditions(position, employeeType, positionMatrix);
+            const applicableConditions = conditionsConfig.applicable;
+            const excludedConditions = conditionsConfig.excluded;
 
             // Calculate all 10 conditions
             const conditionResults = {
