@@ -401,8 +401,14 @@ const ValidationEngine = {
 
         /**
          * Calculate Continuous_Months based on previous month and condition pass
+         * TYPE-1 ONLY - TYPE-2/3 do not use Continuous Months concept
          */
-        calculateContinuousMonths(employee, previousMonthData, allConditionsPass) {
+        calculateContinuousMonths(employee, previousMonthData, allConditionsPass, employeeType) {
+            // TYPE-2 and TYPE-3 do not use Continuous Months
+            if (employeeType !== 'TYPE-1') {
+                return null;  // Not applicable
+            }
+
             if (!previousMonthData) {
                 // New employee - no previous month data
                 return allConditionsPass ? 1 : 0;
@@ -488,8 +494,8 @@ const ValidationEngine = {
 
             const allConditionsPass = (passedConditions === applicableConditions.length);
 
-            // Calculate Continuous_Months
-            const continuousMonths = this.calculateContinuousMonths(employee, previousMonthData, allConditionsPass);
+            // Calculate Continuous_Months (TYPE-1 only)
+            const continuousMonths = this.calculateContinuousMonths(employee, previousMonthData, allConditionsPass, employeeType);
 
             // Calculate Incentive Amount
             const incentiveAmount = this.calculateIncentiveAmount(
@@ -521,34 +527,38 @@ const ValidationEngine = {
     Comparator: {
         /**
          * Compare expected vs actual for single employee
+         * TYPE별로 다른 검증 로직 적용:
+         * - TYPE-1: Incentive + Continuous Months 검증
+         * - TYPE-2: Incentive만 검증 (Continuous Months 제외)
+         * - TYPE-3: Incentive만 검증 (항상 0)
          */
         compareEmployees(expected, actual) {
             const mismatches = [];
 
             // Dashboard CSV column names
-            const actualIncentive = actual['December_Incentive'] || 0;
-            const actualContinuousMonths = actual['Continuous_Months'] || 0;
+            const dashboardIncentive = actual['December_Incentive'] || 0;
+            const dashboardContinuousMonths = actual['Continuous_Months'] || 0;
 
-            // Compare incentive amount
-            if (expected.incentiveAmount !== actualIncentive) {
+            // Compare incentive amount (모든 TYPE 공통)
+            if (expected.incentiveAmount !== dashboardIncentive) {
                 mismatches.push({
-                    field: 'Incentive Amount',
-                    expected: expected.incentiveAmount,
-                    actual: actualIncentive,
-                    difference: expected.incentiveAmount - actualIncentive,
-                    severity: 'CRITICAL'
+                    field: 'Incentive',
+                    validatedIncentive: expected.incentiveAmount,
+                    dashboardIncentive: dashboardIncentive,
+                    difference: expected.incentiveAmount - dashboardIncentive
                 });
             }
 
-            // Compare continuous months
-            if (expected.continuousMonths !== actualContinuousMonths) {
-                mismatches.push({
-                    field: 'Continuous Months',
-                    expected: expected.continuousMonths,
-                    actual: actualContinuousMonths,
-                    difference: expected.continuousMonths - actualContinuousMonths,
-                    severity: 'HIGH'
-                });
+            // Compare continuous months (TYPE-1 ONLY)
+            if (expected.employeeType === 'TYPE-1') {
+                if (expected.continuousMonths !== dashboardContinuousMonths) {
+                    mismatches.push({
+                        field: 'Continuous Months',
+                        validatedIncentive: expected.continuousMonths,
+                        dashboardIncentive: dashboardContinuousMonths,
+                        difference: expected.continuousMonths - dashboardContinuousMonths
+                    });
+                }
             }
 
             // Compare condition results (CSV uses cond_1, cond_2, etc.)
@@ -559,10 +569,9 @@ const ValidationEngine = {
                 if (expectedCond !== actualCond && expected.applicableConditions.includes(i)) {
                     mismatches.push({
                         field: `Condition ${i}`,
-                        expected: expectedCond,
-                        actual: actualCond,
-                        difference: null,
-                        severity: 'MEDIUM'
+                        validatedIncentive: expectedCond,
+                        dashboardIncentive: actualCond,
+                        difference: null
                     });
                 }
             }
@@ -591,8 +600,8 @@ const ValidationEngine = {
                     report.mismatches.push({
                         emp_no: expected.emp_no,
                         name: expected.name,
-                        issue: 'Employee not found in dashboard output',
-                        severity: 'CRITICAL'
+                        employeeType: expected.employeeType,
+                        issue: 'Employee not found in dashboard output'
                     });
                     report.mismatched++;
                     return;
@@ -605,6 +614,7 @@ const ValidationEngine = {
                         emp_no: expected.emp_no,
                         name: expected.name,
                         position: expected.position,
+                        employeeType: expected.employeeType,
                         mismatches: employeeMismatches
                     });
                     report.mismatched++;
@@ -651,6 +661,7 @@ const ValidationEngine = {
 
         /**
          * Display mismatch table
+         * TYPE별로 구분하여 표시, Severity 제거
          */
         displayMismatchTable(mismatches) {
             const tbody = document.getElementById('mismatchBody');
@@ -666,14 +677,20 @@ const ValidationEngine = {
                     const row = document.createElement('tr');
                     row.classList.add('mismatch-row');
 
+                    // TYPE별 badge 색상
+                    let typeBadgeClass = 'bg-secondary';
+                    if (mismatch.employeeType === 'TYPE-1') typeBadgeClass = 'bg-primary';
+                    else if (mismatch.employeeType === 'TYPE-2') typeBadgeClass = 'bg-success';
+                    else if (mismatch.employeeType === 'TYPE-3') typeBadgeClass = 'bg-warning';
+
                     row.innerHTML = `
                         <td>${mismatch.emp_no}</td>
                         <td>${mismatch.name}</td>
+                        <td><span class="badge ${typeBadgeClass}">${mismatch.employeeType}</span></td>
                         <td>${detail.field}</td>
-                        <td>${detail.expected}</td>
-                        <td>${detail.actual}</td>
+                        <td class="text-success fw-bold">₫${detail.validatedIncentive !== null && detail.validatedIncentive !== undefined ? (typeof detail.validatedIncentive === 'number' ? detail.validatedIncentive.toLocaleString() : detail.validatedIncentive) : '-'}</td>
+                        <td class="text-danger fw-bold">₫${detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined ? (typeof detail.dashboardIncentive === 'number' ? detail.dashboardIncentive.toLocaleString() : detail.dashboardIncentive) : '-'}</td>
                         <td>${detail.difference !== null ? detail.difference : '-'}</td>
-                        <td><span class="severity-badge severity-${detail.severity.toLowerCase()}">${detail.severity}</span></td>
                     `;
 
                     tbody.appendChild(row);
@@ -683,6 +700,7 @@ const ValidationEngine = {
 
         /**
          * Export mismatches to Excel
+         * TYPE별로 구분하여 내보내기, Severity 제거
          */
         exportToExcel(mismatches) {
             const wb = XLSX.utils.book_new();
@@ -694,12 +712,12 @@ const ValidationEngine = {
                     exportData.push({
                         'Employee ID': mismatch.emp_no,
                         'Name': mismatch.name,
+                        'TYPE': mismatch.employeeType || 'Unknown',
                         'Position': mismatch.position,
                         'Field': detail.field,
-                        'Expected': detail.expected,
-                        'Actual': detail.actual,
-                        'Difference': detail.difference !== null ? detail.difference : '-',
-                        'Severity': detail.severity
+                        'Validated Incentive': detail.validatedIncentive !== null && detail.validatedIncentive !== undefined ? detail.validatedIncentive : '-',
+                        'Dashboard Incentive': detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined ? detail.dashboardIncentive : '-',
+                        'Difference': detail.difference !== null ? detail.difference : '-'
                     });
                 });
             });
