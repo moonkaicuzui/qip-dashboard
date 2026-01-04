@@ -790,18 +790,21 @@ const ValidationEngine = {
                 }
             });
 
-            // Display statistics for each TYPE
-            this.displayTypeStatistics('type1StatsBody', stats['TYPE-1']);
-            this.displayTypeStatistics('type2StatsBody', stats['TYPE-2']);
-            this.displayTypeStatistics('type3StatsBody', stats['TYPE-3']);
+            // Display statistics for each TYPE with analysis
+            this.displayTypeStatistics('type1StatsBody', stats['TYPE-1'], allEmployees.filter(e => e.employeeType === 'TYPE-1'));
+            this.displayTypeStatistics('type2StatsBody', stats['TYPE-2'], allEmployees.filter(e => e.employeeType === 'TYPE-2'));
+            this.displayTypeStatistics('type3StatsBody', stats['TYPE-3'], allEmployees.filter(e => e.employeeType === 'TYPE-3'));
         },
 
         /**
          * Display statistics table for one TYPE
          */
-        displayTypeStatistics(tbodyId, positionStats) {
+        displayTypeStatistics(tbodyId, positionStats, typeEmployees) {
             const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
+
+            // Generate position discrepancy analysis
+            const analysis = analyzePositionDiscrepancies(positionStats, typeEmployees);
 
             // Sort positions alphabetically
             const positions = Object.keys(positionStats).sort();
@@ -826,11 +829,23 @@ const ValidationEngine = {
                 const s = positionStats[position];
                 const row = document.createElement('tr');
 
+                // Check if this position has discrepancies
+                const hasDiscrepancy = analysis[position]?.hasDiscrepancy || false;
+
                 row.innerHTML = `
-                    <td>${position}</td>
+                    <td>
+                        ${position}
+                        ${hasDiscrepancy ? `
+                            <button class="btn btn-sm btn-warning ms-2"
+                                    onclick="displayPositionAnalysis('${position}', ${JSON.stringify(analysis[position]).replace(/"/g, '&quot;')})"
+                                    title="차이 원인 분석">
+                                <i class="fas fa-search"></i> 분석
+                            </button>
+                        ` : ''}
+                    </td>
                     <td>${s.total}</td>
-                    <td>${s.receivingDashboard}</td>
-                    <td>${s.receivingValidation}</td>
+                    <td${s.receivingDashboard !== s.receivingValidation ? ' class="table-danger fw-bold"' : ''}>${s.receivingDashboard}</td>
+                    <td${s.receivingDashboard !== s.receivingValidation ? ' class="table-warning fw-bold"' : ''}>${s.receivingValidation}</td>
                     <td>${s.notReceivingDashboard}</td>
                     <td>${s.notReceivingValidation}</td>
                     <td${s.mismatched > 0 ? ' class="table-danger fw-bold"' : ''}>${s.mismatched}</td>
@@ -1132,6 +1147,14 @@ const ValidationEngine = {
                 allData.aql,
                 allData.prs,
                 allData.dashboardOutput
+            );
+
+            // Display additional validations (NEW - User Request)
+            displayAdditionalValidations(
+                validationReport.allEmployees,
+                allData.attendance,
+                allData.dashboardOutput,
+                allData.positionMatrix
             );
 
             progressBar.style.width = '100%';
@@ -1693,4 +1716,287 @@ function displayConditionCard(condition, results) {
     `;
 
     container.insertAdjacentHTML('beforeend', cardHtml);
+}
+
+// ============================================================================
+// 포지션별 차이 분석 함수 (Position-level Discrepancy Analysis)
+// ============================================================================
+function analyzePositionDiscrepancies(positionStats, allEmployees) {
+    const analysis = {};
+
+    Object.keys(positionStats).forEach(position => {
+        const stats = positionStats[position];
+        const positionEmployees = allEmployees.filter(emp => emp.position === position);
+
+        // 차이 분석
+        const receivingMismatch = stats.receivingDashboard !== stats.receivingValidation;
+        const amountMismatch = stats.amountMismatched > 0;
+
+        if (!receivingMismatch && !amountMismatch) {
+            analysis[position] = {hasDiscrepancy: false};
+            return;
+        }
+
+        analysis[position] = {
+            hasDiscrepancy: true,
+            receivingMismatch: receivingMismatch,
+            amountMismatch: amountMismatch,
+            details: {
+                dashboardReceiving: stats.receivingDashboard,
+                validationReceiving: stats.receivingValidation,
+                amountMatched: stats.amountMatched,
+                amountMismatched: stats.amountMismatched
+            },
+            employees: positionEmployees.filter(emp =>
+                emp.dashboardIncentive !== emp.validatedIncentive ||
+                (emp.dashboardIncentive > 0) !== (emp.validatedIncentive > 0)
+            )
+        };
+    });
+
+    return analysis;
+}
+
+function displayPositionAnalysis(position, analysis) {
+    if (!analysis || !analysis.hasDiscrepancy) {
+        alert(`${position}: 차이 없음 (No discrepancies)`);
+        return;
+    }
+
+    let message = `📊 ${position} 차이 분석\n\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+    if (analysis.receivingMismatch) {
+        message += `⚠️ 수령자 수 불일치:\n`;
+        message += `  • Dashboard: ${analysis.details.dashboardReceiving}명\n`;
+        message += `  • Validation: ${analysis.details.validationReceiving}명\n`;
+        message += `  • 차이: ${Math.abs(analysis.details.dashboardReceiving - analysis.details.validationReceiving)}명\n\n`;
+    }
+
+    if (analysis.amountMismatch) {
+        message += `💰 금액 불일치:\n`;
+        message += `  • 일치: ${analysis.details.amountMatched}명\n`;
+        message += `  • 불일치: ${analysis.details.amountMismatched}명\n\n`;
+    }
+
+    message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+    message += `불일치 직원 목록 (${analysis.employees.length}명):\n\n`;
+
+    analysis.employees.slice(0, 10).forEach(emp => {
+        message += `• ${emp.employeeId} - ${emp.employeeName}\n`;
+        message += `  Dashboard: ${emp.dashboardIncentive.toLocaleString()} VND\n`;
+        message += `  Validation: ${emp.validatedIncentive.toLocaleString()} VND\n`;
+        message += `  차이: ${Math.abs(emp.dashboardIncentive - emp.validatedIncentive).toLocaleString()} VND\n\n`;
+    });
+
+    if (analysis.employees.length > 10) {
+        message += `... 외 ${analysis.employees.length - 10}명 더 있음\n`;
+    }
+
+    alert(message);
+}
+
+// ============================================================================
+// 기타 조건 검증 함수 (Additional Validation Conditions)
+// ============================================================================
+
+/**
+ * 퇴사자 인센티브 검증
+ * Check if any resigned employees received incentives
+ */
+function validateResignedEmployees(attendanceData, dashboardData) {
+    const results = {
+        totalResigned: 0,
+        resignedWithIncentive: 0,
+        employees: []
+    };
+
+    const monthStart = new Date(attendanceData[0]?.Date || '2025-12-01').setDate(1);
+
+    attendanceData.forEach(emp => {
+        const stopDate = emp['Stop working Date'];
+        if (!stopDate || stopDate === '') return;
+
+        const stopDateTime = new Date(stopDate).getTime();
+        if (stopDateTime >= monthStart) return; // 해당월 이후 퇴사는 제외
+
+        results.totalResigned++;
+
+        // Dashboard 인센티브 확인
+        const dashboardEmp = dashboardData.find(d => d['Employee No'] === emp['Emp No']);
+        const dashboardIncentive = dashboardEmp ? (parseFloat(dashboardEmp['December_Incentive'] || 0)) : 0;
+
+        if (dashboardIncentive > 0) {
+            results.resignedWithIncentive++;
+            results.employees.push({
+                employeeId: emp['Emp No'],
+                employeeName: emp['Emp Name'],
+                stopDate: stopDate,
+                incentive: dashboardIncentive
+            });
+        }
+    });
+
+    return results;
+}
+
+/**
+ * TYPE-2 평균 검증
+ * Validate TYPE-2 incentives match TYPE-1 average
+ */
+function validateType2Averages(allEmployees, positionMatrix) {
+    const results = {
+        positions: {},
+        totalMismatches: 0
+    };
+
+    // TYPE-2 positions mapping
+    const type2Mapping = positionMatrix?.type_2_incentive_calculation || {};
+
+    // Calculate TYPE-1 averages
+    const type1Averages = {};
+    allEmployees.filter(emp => emp.employeeType === 'TYPE-1').forEach(emp => {
+        const position = emp.position;
+        if (!type1Averages[position]) {
+            type1Averages[position] = {total: 0, count: 0, receiving: 0, receivingSum: 0};
+        }
+        type1Averages[position].total += emp.validatedIncentive;
+        type1Averages[position].count++;
+        if (emp.validatedIncentive > 0) {
+            type1Averages[position].receiving++;
+            type1Averages[position].receivingSum += emp.validatedIncentive;
+        }
+    });
+
+    // Calculate averages (receiving only)
+    Object.keys(type1Averages).forEach(position => {
+        const data = type1Averages[position];
+        type1Averages[position].average = data.receiving > 0 ?
+            Math.round(data.receivingSum / data.receiving) : 0;
+    });
+
+    // Validate TYPE-2 employees
+    allEmployees.filter(emp => emp.employeeType === 'TYPE-2').forEach(emp => {
+        const position = emp.position;
+        const referencePosition = type2Mapping[position];
+
+        if (!referencePosition) return;
+
+        const expectedAvg = type1Averages[referencePosition]?.average || 0;
+        const actualIncentive = emp.validatedIncentive;
+
+        if (!results.positions[position]) {
+            results.positions[position] = {
+                referencePosition: referencePosition,
+                expectedAverage: expectedAvg,
+                matches: 0,
+                mismatches: 0,
+                employees: []
+            };
+        }
+
+        const isMatch = actualIncentive === expectedAvg;
+        if (isMatch) {
+            results.positions[position].matches++;
+        } else {
+            results.positions[position].mismatches++;
+            results.totalMismatches++;
+            results.positions[position].employees.push({
+                employeeId: emp.employeeId,
+                employeeName: emp.employeeName,
+                expected: expectedAvg,
+                actual: actualIncentive,
+                difference: actualIncentive - expectedAvg
+            });
+        }
+    });
+
+    return results;
+}
+
+/**
+ * Display additional validations (퇴사자 인센티브 + TYPE-2 평균)
+ */
+function displayAdditionalValidations(allEmployees, attendanceData, dashboardData, positionMatrix) {
+    // 1. 퇴사자 인센티브 검증
+    const resignedResults = validateResignedEmployees(attendanceData, dashboardData);
+
+    document.getElementById('totalResigned').textContent = resignedResults.totalResigned;
+    document.getElementById('resignedWithIncentive').textContent = resignedResults.resignedWithIncentive;
+
+    const resignedMessage = document.getElementById('resignedValidationMessage');
+    if (resignedResults.resignedWithIncentive > 0) {
+        resignedMessage.innerHTML = `
+            <div class="alert alert-danger mb-0">
+                <strong><i class="fas fa-exclamation-triangle"></i> 오류 발견!</strong><br>
+                ${resignedResults.resignedWithIncentive}명의 퇴사자가 인센티브를 받았습니다
+                <div class="mt-2" style="max-height: 200px; overflow-y: auto;">
+                    ${resignedResults.employees.map(emp => `
+                        <div class="border-bottom py-1">
+                            • ${emp.employeeId} - ${emp.employeeName}<br>
+                            퇴사일: ${emp.stopDate}, 인센티브: ${emp.incentive.toLocaleString()} VND
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        document.getElementById('resignedEmployeesCard').querySelector('.card-header')
+            .classList.add('bg-danger', 'text-white');
+    } else {
+        resignedMessage.innerHTML = `
+            <div class="alert alert-success mb-0">
+                <i class="fas fa-check-circle"></i> 모든 퇴사자가 0 VND
+            </div>
+        `;
+        document.getElementById('resignedEmployeesCard').querySelector('.card-header')
+            .classList.add('bg-success', 'text-white');
+    }
+
+    // 2. TYPE-2 평균 검증
+    const type2Results = validateType2Averages(allEmployees, positionMatrix);
+
+    const type2Total = Object.values(type2Results.positions).reduce((sum, pos) =>
+        sum + pos.matches + pos.mismatches, 0);
+
+    document.getElementById('type2TotalEmployees').textContent = type2Total;
+    document.getElementById('type2Mismatches').textContent = type2Results.totalMismatches;
+
+    const type2Message = document.getElementById('type2ValidationMessage');
+    if (type2Results.totalMismatches > 0) {
+        type2Message.innerHTML = `
+            <div class="alert alert-warning mb-0">
+                <strong><i class="fas fa-exclamation-circle"></i> 불일치 발견</strong><br>
+                ${type2Results.totalMismatches}명의 TYPE-2 직원 금액이 TYPE-1 평균과 다릅니다
+                <div class="mt-2" style="max-height: 200px; overflow-y: auto;">
+                    ${Object.entries(type2Results.positions).map(([position, data]) => {
+                        if (data.mismatches === 0) return '';
+                        return `
+                            <div class="border-bottom py-2">
+                                <strong>${position}</strong> (참조: ${data.referencePosition})<br>
+                                예상 평균: ${data.expectedAverage.toLocaleString()} VND<br>
+                                불일치: ${data.mismatches}명
+                                ${data.employees.slice(0, 3).map(emp => `
+                                    <div class="ms-3 text-muted small">
+                                        • ${emp.employeeId}: ${emp.actual.toLocaleString()} VND
+                                        (차이: ${emp.difference.toLocaleString()} VND)
+                                    </div>
+                                `).join('')}
+                                ${data.employees.length > 3 ? `<div class="ms-3 text-muted small">... 외 ${data.employees.length - 3}명</div>` : ''}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+        document.getElementById('type2AverageCard').querySelector('.card-header')
+            .classList.add('bg-warning');
+    } else {
+        type2Message.innerHTML = `
+            <div class="alert alert-success mb-0">
+                <i class="fas fa-check-circle"></i> 모든 TYPE-2 금액이 TYPE-1 평균과 일치
+            </div>
+        `;
+        document.getElementById('type2AverageCard').querySelector('.card-header')
+            .classList.add('bg-success', 'text-white');
+    }
 }
