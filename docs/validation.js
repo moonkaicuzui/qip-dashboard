@@ -335,7 +335,9 @@ const ValidationEngine = {
          */
         calculateCondition5_PersonalAQLFailure(employee, aqlData) {
             // Filter AQL data for this employee in current month
-            const empAQL = aqlData.filter(row => row.employee_id === employee.emp_no);
+            // Employee No column in basic info vs employee_id in AQL data
+            const empNo = employee['Employee No'];
+            const empAQL = aqlData.filter(row => row.employee_id === empNo);
 
             if (empAQL.length === 0) return 'PASS';  // No AQL tests = pass
 
@@ -373,7 +375,8 @@ const ValidationEngine = {
          * Condition 9: 5PRS Pass Rate >= 95%
          */
         calculateCondition9_5PRSPassRate(employee, prsData) {
-            const empPRS = prsData.filter(row => row.employee_id === employee.emp_no);
+            const empNo = employee['Employee No'];
+            const empPRS = prsData.filter(row => row.employee_id === empNo);
 
             if (empPRS.length === 0) return 'PASS';  // No PRS tests = pass
 
@@ -388,7 +391,8 @@ const ValidationEngine = {
          * Condition 10: 5PRS Inspection Quantity >= 100
          */
         calculateCondition10_5PRSInspectionQty(employee, prsData) {
-            const empPRS = prsData.filter(row => row.employee_id === employee.emp_no);
+            const empNo = employee['Employee No'];
+            const empPRS = prsData.filter(row => row.employee_id === empNo);
 
             const totalQty = empPRS.reduce((sum, row) => sum + (row.inspection_qty || 0), 0);
 
@@ -404,7 +408,8 @@ const ValidationEngine = {
                 return allConditionsPass ? 1 : 0;
             }
 
-            const prevData = previousMonthData.find(row => row['Employee ID'] === employee.emp_no);
+            const empNo = employee['Employee No'];
+            const prevData = previousMonthData.find(row => row['Employee ID'] === empNo);
 
             if (!prevData) {
                 // Employee not in previous month
@@ -450,13 +455,14 @@ const ValidationEngine = {
             const { attendance, aql, prs, basicInfo, config, positionMatrix } = allData;
 
             // Find employee in basicInfo
-            const employee = basicInfo.find(row => row.emp_no === empId);
+            // CSV column is "Employee No" (with space), not "emp_no"
+            const employee = basicInfo.find(row => row['Employee No'] === empId);
             if (!employee) {
                 return null;  // Employee not found
             }
 
             // Get position config
-            const positionCode = employee.position_code || '';
+            const positionCode = employee['FINAL QIP POSITION NAME CODE'] || '';
             const positionConfig = positionMatrix.position_matrix[positionCode] || {};
             const applicableConditions = positionConfig.applicable_conditions || [];
             const employeeType = positionConfig.type || 'TYPE-3';
@@ -496,8 +502,8 @@ const ValidationEngine = {
 
             return {
                 emp_no: empId,
-                name: employee.name || '',
-                position: employee.position || '',
+                name: employee['Full Name'] || '',
+                position: employee['QIP POSITION 1ST  NAME'] || '',
                 employeeType,
                 conditionResults,
                 applicableConditions,
@@ -519,32 +525,36 @@ const ValidationEngine = {
         compareEmployees(expected, actual) {
             const mismatches = [];
 
+            // Dashboard CSV column names
+            const actualIncentive = actual['December_Incentive'] || 0;
+            const actualContinuousMonths = actual['Continuous_Months'] || 0;
+
             // Compare incentive amount
-            if (expected.incentiveAmount !== actual.incentive_amount) {
+            if (expected.incentiveAmount !== actualIncentive) {
                 mismatches.push({
                     field: 'Incentive Amount',
                     expected: expected.incentiveAmount,
-                    actual: actual.incentive_amount,
-                    difference: expected.incentiveAmount - actual.incentive_amount,
+                    actual: actualIncentive,
+                    difference: expected.incentiveAmount - actualIncentive,
                     severity: 'CRITICAL'
                 });
             }
 
             // Compare continuous months
-            if (expected.continuousMonths !== actual.continuous_months) {
+            if (expected.continuousMonths !== actualContinuousMonths) {
                 mismatches.push({
                     field: 'Continuous Months',
                     expected: expected.continuousMonths,
-                    actual: actual.continuous_months,
-                    difference: expected.continuousMonths - actual.continuous_months,
+                    actual: actualContinuousMonths,
+                    difference: expected.continuousMonths - actualContinuousMonths,
                     severity: 'HIGH'
                 });
             }
 
-            // Compare condition results
+            // Compare condition results (CSV uses cond_1, cond_2, etc.)
             for (let i = 1; i <= 10; i++) {
                 const expectedCond = expected.conditionResults[`condition_${i}`];
-                const actualCond = actual[`condition_${i}`];
+                const actualCond = actual[`cond_${i}`];  // CSV column name
 
                 if (expectedCond !== actualCond && expected.applicableConditions.includes(i)) {
                     mismatches.push({
@@ -574,7 +584,8 @@ const ValidationEngine = {
             };
 
             expectedResults.forEach(expected => {
-                const actual = actualData.find(row => row.emp_no === expected.emp_no);
+                // Dashboard CSV uses "Employee No" column
+                const actual = actualData.find(row => row['Employee No'] === expected.emp_no);
 
                 if (!actual) {
                     report.mismatches.push({
@@ -739,7 +750,7 @@ const ValidationEngine = {
 
             allData.basicInfo.forEach(employee => {
                 const result = this.Calculator.validateEmployee(
-                    employee.emp_no,
+                    employee['Employee No'],  // CSV column name with space
                     allData,
                     this.state.previousMonthData,
                     currentDate
