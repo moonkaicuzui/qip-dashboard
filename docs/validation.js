@@ -230,17 +230,17 @@ const ValidationEngine = {
         async loadAllSources(monthKey) {
             const [monthName, year] = monthKey.split('_');
 
-            // File paths (adjust based on actual deployment structure)
-            const basePath = '.';  // Assuming files are in /docs folder
+            // File paths - using validation_data folder (GitHub Pages compatible)
+            const basePath = './validation_data';  // Files copied to /docs/validation_data
 
             const filePaths = {
-                attendance: `${basePath}/input_files/attendance/converted/attendance data ${monthName}_converted.csv`,
-                aql: `${basePath}/input_files/AQL history/1.HSRG AQL REPORT-${monthName.toUpperCase()}.${year}.csv`,
-                prs: `${basePath}/input_files/5prs data ${monthName}.csv`,
-                basicInfo: `${basePath}/input_files/basic manpower data ${monthName}.csv`,
-                config: `${basePath}/config_files/config_${monthName}_${year}.json`,
-                positionMatrix: `${basePath}/config_files/position_condition_matrix.json`,
-                dashboardOutput: `${basePath}/output_files/output_QIP_incentive_${monthName}_${year}_Complete_V10.0_Complete.csv`
+                attendance: `${basePath}/${monthName}_${year}/attendance data ${monthName}_converted.csv`,
+                aql: `${basePath}/${monthName}_${year}/1.HSRG AQL REPORT-${monthName.toUpperCase()}.${year}.csv`,
+                prs: `${basePath}/${monthName}_${year}/5prs data ${monthName}.csv`,
+                basicInfo: `${basePath}/${monthName}_${year}/basic manpower data ${monthName}.csv`,
+                config: `${basePath}/${monthName}_${year}/config_${monthName}_${year}.json`,
+                positionMatrix: `${basePath}/${monthName}_${year}/position_condition_matrix.json`,
+                dashboardOutput: `${basePath}/${monthName}_${year}/output_QIP_incentive_${monthName}_${year}_Complete_V10.0_Complete.csv`
             };
 
             try {
@@ -874,6 +874,95 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ValidationEngine.state.validationResults) {
             ValidationEngine.UIController.exportToExcel(ValidationEngine.state.validationResults.mismatches);
         }
+    });
+
+    // Language switcher
+    const translations = {
+        ko: {
+            title: '인센티브 검증 시스템',
+            subtitle: '독립적인 계산 엔진으로 인센티브 금액을 검증합니다',
+            configSection: '검증 설정',
+            monthSelect: '검증 월 선택',
+            monthPlaceholder: '-- 월 선택 --',
+            step1Title: 'Step 1: 전월 데이터 양식 다운로드',
+            step1Desc: '실제 지급된 전월 인센티브 데이터를 입력할 Excel 양식을 다운로드하세요.',
+            downloadBtn: '양식 다운로드 (Previous Month Template)',
+            templateInfo: '양식 안내:',
+            step2Title: 'Step 2: 작성한 양식 업로드',
+            step2Label: '전월 실제 지급 파일 (Previous Month Actual Payment)',
+            startBtn: '검증 시작 (Start Validation)',
+            summaryTitle: '검증 요약',
+            totalEmployees: '총 직원 수',
+            matched: '일치',
+            mismatched: '불일치',
+            totalIncentive: '총 인센티브',
+            mismatchTitle: 'Validation Mismatches'
+        },
+        en: {
+            title: 'Incentive Validation System',
+            subtitle: 'Independently validates incentive calculations with dedicated calculation engine',
+            configSection: 'Validation Settings',
+            monthSelect: 'Select Validation Month',
+            monthPlaceholder: '-- Select Month --',
+            step1Title: 'Step 1: Download Previous Month Template',
+            step1Desc: 'Download the Excel template to enter actual payment data for previous month.',
+            downloadBtn: 'Download Template (Previous Month)',
+            templateInfo: 'Template Guide:',
+            step2Title: 'Step 2: Upload Completed Template',
+            step2Label: 'Previous Month Actual Payment File',
+            startBtn: 'Start Validation',
+            summaryTitle: 'Validation Summary',
+            totalEmployees: 'Total Employees',
+            matched: 'Matched',
+            mismatched: 'Mismatched',
+            totalIncentive: 'Total Incentive',
+            mismatchTitle: 'Validation Mismatches'
+        },
+        vi: {
+            title: 'Hệ thống Xác thực Thưởng',
+            subtitle: 'Xác thực độc lập việc tính toán thưởng với công cụ tính toán chuyên dụng',
+            configSection: 'Cài đặt Xác thực',
+            monthSelect: 'Chọn Tháng Xác thực',
+            monthPlaceholder: '-- Chọn Tháng --',
+            step1Title: 'Bước 1: Tải Mẫu Tháng Trước',
+            step1Desc: 'Tải mẫu Excel để nhập dữ liệu thanh toán thực tế cho tháng trước.',
+            downloadBtn: 'Tải Mẫu (Tháng Trước)',
+            templateInfo: 'Hướng dẫn Mẫu:',
+            step2Title: 'Bước 2: Tải Mẫu Đã Hoàn Thành',
+            step2Label: 'Tệp Thanh Toán Thực Tế Tháng Trước',
+            startBtn: 'Bắt đầu Xác thực',
+            summaryTitle: 'Tóm tắt Xác thực',
+            totalEmployees: 'Tổng Nhân viên',
+            matched: 'Khớp',
+            mismatched: 'Không khớp',
+            totalIncentive: 'Tổng Thưởng',
+            mismatchTitle: 'Sai lệch Xác thực'
+        }
+    };
+
+    let currentLang = 'ko';
+
+    function switchLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+
+        // Update all text elements
+        document.querySelector('header h1').innerHTML = `<i class="fas fa-search-dollar"></i> ${t.title}`;
+        document.querySelector('header .lead').textContent = t.subtitle;
+
+        // Update buttons
+        document.querySelectorAll('.lang-selector .btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+
+        // Add more translations as needed...
+    }
+
+    // Language selector buttons
+    document.querySelectorAll('.lang-selector .btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchLanguage(btn.dataset.lang);
+        });
     });
 });
 
