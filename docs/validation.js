@@ -241,18 +241,22 @@ const ValidationEngine = {
                 basicInfo: `${basePath}/${monthName}_${year}/basic manpower data ${monthName}.csv`,
                 config: `${basePath}/${monthName}_${year}/config_${monthName}_${year}.json`,
                 positionMatrix: `${basePath}/${monthName}_${year}/position_condition_matrix.json`,
-                dashboardOutput: `${basePath}/${monthName}_${year}/output_QIP_incentive_${monthName}_${year}_Complete_V10.0_Complete.csv`
+                dashboardOutput: `${basePath}/${monthName}_${year}/output_QIP_incentive_${monthName}_${year}_Complete_V10.0_Complete.csv`,
+                // Phase 2.2: Additional data sources for position-specific calculators
+                aqlInspectorConfig: `${basePath}/${monthName}_${year}/aql_inspector_incentive_config.json`
             };
 
             try {
-                const [attendance, aql, prs, basicInfo, config, positionMatrix, dashboardOutput] = await Promise.all([
+                const [attendance, aql, prs, basicInfo, config, positionMatrix, dashboardOutput, aqlInspectorConfig] = await Promise.all([
                     this.loadCSVFromURL(filePaths.attendance),
                     this.loadCSVFromURL(filePaths.aql),
                     this.loadCSVFromURL(filePaths.prs),
                     this.loadCSVFromURL(filePaths.basicInfo),
                     this.loadJSONFromURL(filePaths.config),
                     this.loadJSONFromURL(filePaths.positionMatrix),
-                    this.loadCSVFromURL(filePaths.dashboardOutput)
+                    this.loadCSVFromURL(filePaths.dashboardOutput),
+                    // Phase 2.2: Load AQL Inspector 3-Part configuration (fallback to empty object if not found)
+                    this.loadJSONFromURL(filePaths.aqlInspectorConfig).catch(() => ({}))
                 ]);
 
                 return {
@@ -262,7 +266,9 @@ const ValidationEngine = {
                     basicInfo,
                     config,
                     positionMatrix,
-                    dashboardOutput
+                    dashboardOutput,
+                    // Phase 2.2: Additional data sources
+                    aqlInspectorConfig  // AQL Inspector 3-Part calculation data
                 };
             } catch (error) {
                 throw new Error(`Failed to load source files: ${error.message}`);
@@ -479,31 +485,103 @@ const ValidationEngine = {
         },
 
         /**
-         * Calculate incentive amount based on TYPE and continuous months
+         * Phase 2.5: Calculate incentive amount with position-specific logic
+         * @param {Object} employee - Employee data from CSV
+         * @param {number} continuousMonths - Calculated continuous months
+         * @param {string} employeeType - TYPE-1, TYPE-2, or TYPE-3
+         * @param {boolean} allConditionsPass - Whether all applicable conditions pass
+         * @param {Object} positionMatrix - Position condition matrix JSON
+         * @param {Object} context - Additional context for position-specific calculations
+         * @param {Map} context.subordinateMap - Map of boss_id -> subordinates
+         * @param {Array} context.allValidatedEmployees - All validated employees so far
+         * @param {Object} context.aqlConfig - AQL Inspector config (3-part formula)
+         * @param {Object} context.type1Averages - TYPE-1 position averages (for TYPE-2)
+         * @returns {{amount: number, method: string}} - Incentive amount and calculation method
          */
-        calculateIncentiveAmount(employee, continuousMonths, employeeType, allConditionsPass, positionMatrix) {
+        calculateIncentiveAmount(employee, continuousMonths, employeeType, allConditionsPass, positionMatrix, context = {}) {
+            // 100% Rule: no partial incentives
             if (!allConditionsPass) {
-                return 0;  // 100% Rule: no partial incentives
+                return { amount: 0, method: '조건 미충족 (0 VND)' };
             }
 
             const progressionTable = positionMatrix.progression_table || {};
+            const position = (employee['QIP POSITION 1ST  NAME'] || '').toUpperCase();
 
-            if (employeeType === 'TYPE-1') {
-                return progressionTable[continuousMonths] || 0;
-            } else if (employeeType === 'TYPE-2') {
-                // TYPE-2 uses TYPE-1 average (simplified - would need full TYPE-1 calculation)
-                return progressionTable[continuousMonths] || 0;
-            } else if (employeeType === 'TYPE-3') {
-                return 0;  // TYPE-3 always 0
+            // TYPE-3: Always 0
+            if (employeeType === 'TYPE-3') {
+                return { amount: 0, method: 'TYPE-3 (0 VND)' };
             }
 
-            return 0;
+            // TYPE-1: Position-specific calculation
+            if (employeeType === 'TYPE-1') {
+                // Use PositionCalculators if context is available
+                if (context.subordinateMap && context.allValidatedEmployees) {
+                    const result = ValidationEngine.PositionCalculators.calculatePositionSpecificIncentive(
+                        employee,
+                        position,
+                        continuousMonths,
+                        context.subordinateMap,
+                        context.allValidatedEmployees,
+                        context.aqlConfig
+                    );
+                    return result;
+                }
+                // Fallback: Use progression table
+                const amount = progressionTable[continuousMonths] || 0;
+                return {
+                    amount: amount,
+                    method: `Progression Table (${continuousMonths}개월 → ${amount.toLocaleString()} VND)`
+                };
+            }
+
+            // TYPE-2: Use TYPE-1 reference position average
+            if (employeeType === 'TYPE-2') {
+                const type2Mapping = positionMatrix.type_2_incentive_calculation || {};
+                // Normalize position name for lookup
+                const normalizedPosition = position.trim();
+                const referencePosition = type2Mapping[normalizedPosition];
+
+                if (!referencePosition) {
+                    // No mapping found - use progression table as fallback
+                    const amount = progressionTable[continuousMonths] || 0;
+                    return {
+                        amount: amount,
+                        method: `TYPE-2 매핑 없음 → Progression Table (${continuousMonths}개월)`
+                    };
+                }
+
+                // Get TYPE-1 average from context
+                if (context.type1Averages && context.type1Averages[referencePosition]) {
+                    const avg = context.type1Averages[referencePosition];
+                    return {
+                        amount: avg.average,
+                        method: `TYPE-1 ${referencePosition} 평균 (수령자 ${avg.receivingCount}명, 평균 ${avg.average.toLocaleString()} VND)`
+                    };
+                }
+
+                // Fallback: No TYPE-1 average available
+                return {
+                    amount: 0,
+                    method: `TYPE-1 ${referencePosition} 평균 없음 (0 VND)`
+                };
+            }
+
+            return { amount: 0, method: 'Unknown TYPE' };
         },
 
         /**
-         * Master validation function - validates single employee
+         * Phase 2.5: Master validation function - validates single employee
+         * @param {string} empId - Employee ID
+         * @param {Object} allData - All loaded data sources
+         * @param {Array} previousMonthData - Previous month employee data
+         * @param {Date} currentDate - Current date for calculations
+         * @param {Object} context - Additional context for position-specific calculations
+         * @param {Map} context.subordinateMap - Map of boss_id -> subordinates
+         * @param {Array} context.allValidatedEmployees - All validated employees so far (for manager calcs)
+         * @param {Object} context.aqlConfig - AQL Inspector config (3-part formula)
+         * @param {Object} context.type1Averages - TYPE-1 position averages (for TYPE-2)
          */
-        validateEmployee(empId, allData, previousMonthData, currentDate) {
+        validateEmployee(empId, allData, previousMonthData, currentDate, context = {}) {
             const { attendance, aql, prs, basicInfo, config, positionMatrix } = allData;
 
             // Find employee in basicInfo
@@ -550,14 +628,19 @@ const ValidationEngine = {
             // Calculate Continuous_Months (TYPE-1 only)
             const continuousMonths = this.calculateContinuousMonths(employee, previousMonthData, allConditionsPass, employeeType);
 
-            // Calculate Incentive Amount
-            const incentiveAmount = this.calculateIncentiveAmount(
+            // Phase 2.5: Calculate Incentive Amount with position-specific logic
+            const incentiveResult = this.calculateIncentiveAmount(
                 employee,
                 continuousMonths,
                 employeeType,
                 allConditionsPass,
-                positionMatrix
+                positionMatrix,
+                context  // Pass context for position-specific calculations
             );
+
+            // Extract amount and method from result
+            const incentiveAmount = incentiveResult.amount;
+            const calculationMethod = incentiveResult.method;
 
             return {
                 emp_no: empId,
@@ -569,8 +652,304 @@ const ValidationEngine = {
                 passedConditions,
                 allConditionsPass,
                 continuousMonths,
-                incentiveAmount
+                incentiveAmount,
+                calculationMethod  // Phase 2.5: Include calculation method
             };
+        }
+    },
+
+    // ================================================
+    // Module 2.5: Position-Specific Calculator Helpers (Phase 2.3, 2.4)
+    // ================================================
+    PositionCalculators: {
+        /**
+         * Phase 2.3: Builds a mapping of boss ID to subordinate employees
+         * Uses BOSS ID field from basic manpower data for hierarchy
+         * @param {Array} basicInfoData - Basic manpower data with BOSS ID field
+         * @returns {Map} Map<bossId, Array<employee>>
+         */
+        buildSubordinateMapping(basicInfoData) {
+            const mapping = new Map();
+
+            basicInfoData.forEach(emp => {
+                // Try multiple possible column names for BOSS ID
+                const bossId = String(emp['BOSS ID'] || emp['direct boss id'] || emp['Boss ID'] || '').trim();
+                if (!bossId || bossId === '-' || bossId === '0' || bossId === '') return;
+
+                if (!mapping.has(bossId)) {
+                    mapping.set(bossId, []);
+                }
+                mapping.get(bossId).push(emp);
+            });
+
+            return mapping;  // Map<bossId, [subordinates]>
+        },
+
+        /**
+         * Phase 2.4.1: Calculate AQL INSPECTOR incentive (3-Part Formula)
+         * Part 1: Progression table (AQL 평가)
+         * Part 2: CFA Certification (CFA 자격증) - Fixed 700,000 VND
+         * Part 3: HWK Claim Prevention (HWK 클레임 방지)
+         */
+        calculateAqlInspectorIncentive(emp, continuousMonths, aqlConfig) {
+            const PROGRESSION_TABLE = {
+                0: 0, 1: 150000, 2: 250000, 3: 350000, 4: 450000,
+                5: 550000, 6: 650000, 7: 750000, 8: 850000,
+                9: 900000, 10: 950000, 11: 975000, 12: 1000000,
+                13: 1000000, 14: 1000000, 15: 1000000
+            };
+
+            const empNo = String(emp['Employee No'] || emp.emp_no || '').trim();
+            const monthData = aqlConfig[empNo];
+
+            if (!monthData) {
+                // Fallback to progression table only (Part 1 only)
+                const amount = PROGRESSION_TABLE[Math.min(continuousMonths, 15)] || 0;
+                return {
+                    amount: amount,
+                    method: `Progression Table (${continuousMonths}개월)`
+                };
+            }
+
+            // Part 1: Progression Table (AQL 평가)
+            const part1Months = parseInt(monthData['Part1_Months'] || continuousMonths);
+            const part1Amount = parseInt(monthData['Part1_Amount'] || PROGRESSION_TABLE[Math.min(part1Months, 15)] || 0);
+
+            // Part 2: CFA Certification (CFA 자격증)
+            const part2Amount = parseInt(monthData['Part2_CFA_Amount'] || 0);
+
+            // Part 3: HWK Claim Prevention (HWK 클레임 방지)
+            const part3Months = parseInt(monthData['Part3_Months'] || 0);
+            const part3Amount = parseInt(monthData['Part3_Amount'] || 0);
+
+            const totalAmount = part1Amount + part2Amount + part3Amount;
+
+            return {
+                amount: totalAmount,
+                method: `3-Part: Part1(${part1Months}개월, ${part1Amount.toLocaleString()}) + Part2(CFA, ${part2Amount.toLocaleString()}) + Part3(${part3Months}개월, ${part3Amount.toLocaleString()})`
+            };
+        },
+
+        /**
+         * Phase 2.4.2: Calculate LINE LEADER incentive (Subordinate Formula)
+         * Formula: (Total Subordinate Incentive) × 12% × Receiving Ratio
+         */
+        calculateLineLeaderIncentive(emp, subordinateMap, allValidatedEmployees) {
+            const empNo = String(emp['Employee No'] || emp.emp_no || '').trim();
+            const subordinates = subordinateMap.get(empNo) || [];
+
+            // Filter: Only ASSEMBLY INSPECTOR type subordinates
+            const assemblyInspectors = subordinates.filter(sub => {
+                const pos = (sub['Position'] || sub['QIP POSITION 1ST  NAME'] || '').toUpperCase();
+                return pos.includes('ASSEMBLY INSPECTOR') ||
+                       pos.includes('MODEL MASTER') ||
+                       pos.includes('AUDITOR') ||
+                       pos.includes('TRAINER');
+            });
+
+            if (assemblyInspectors.length === 0) {
+                return {
+                    amount: 0,
+                    method: 'No Subordinates (부하직원 없음)'
+                };
+            }
+
+            // Calculate total incentive and receiving count
+            let totalSubordinateIncentive = 0;
+            let receivingCount = 0;
+
+            assemblyInspectors.forEach(sub => {
+                const subNo = String(sub['Employee No'] || '').trim();
+                const subResult = allValidatedEmployees.find(v =>
+                    String(v.emp_no || '').trim() === subNo
+                );
+                if (!subResult) return;
+
+                const subIncentive = subResult.validatedIncentive || 0;
+                totalSubordinateIncentive += subIncentive;
+                if (subIncentive > 0) receivingCount++;
+            });
+
+            // Formula: Total × 12% × Receiving Ratio
+            const receivingRatio = receivingCount / assemblyInspectors.length;
+            const amount = Math.round(totalSubordinateIncentive * 0.12 * receivingRatio);
+
+            return {
+                amount: amount,
+                method: `부하직원 × 12% × 수령비율 (${receivingCount}/${assemblyInspectors.length}명 수령, 합계 ${totalSubordinateIncentive.toLocaleString()})`
+            };
+        },
+
+        /**
+         * Phase 2.4.3: Calculate GROUP LEADER incentive (BFS + LINE LEADER avg × 2)
+         * Uses BFS to find subordinate LINE LEADERs through hierarchy
+         */
+        calculateGroupLeaderIncentive(emp, subordinateMap, allValidatedEmployees) {
+            const empNo = String(emp['Employee No'] || emp.emp_no || '').trim();
+
+            // BFS to find subordinate LINE LEADERs
+            const lineLeaders = [];
+            const queue = [empNo];
+            const visited = new Set([empNo]);
+
+            while (queue.length > 0) {
+                const currentId = queue.shift();
+                const subordinates = subordinateMap.get(currentId) || [];
+
+                subordinates.forEach(sub => {
+                    const subId = String(sub['Employee No'] || '').trim();
+                    if (visited.has(subId)) return;
+                    visited.add(subId);
+
+                    const subPos = (sub['Position'] || sub['QIP POSITION 1ST  NAME'] || '').toUpperCase();
+                    if (subPos.includes('LINE LEADER')) {
+                        lineLeaders.push(sub);
+                    } else {
+                        queue.push(subId);  // Continue BFS
+                    }
+                });
+            }
+
+            if (lineLeaders.length === 0) {
+                return {
+                    amount: 0,
+                    method: 'No LINE LEADER Subordinates (부하 LINE LEADER 없음)'
+                };
+            }
+
+            // Calculate TYPE-1 LINE LEADER average (receiving only)
+            let totalIncentive = 0;
+            let receivingCount = 0;
+
+            lineLeaders.forEach(ll => {
+                const llNo = String(ll['Employee No'] || '').trim();
+                const llResult = allValidatedEmployees.find(v =>
+                    String(v.emp_no || '').trim() === llNo && v.employeeType === 'TYPE-1'
+                );
+                if (!llResult) return;
+
+                const llIncentive = llResult.validatedIncentive || 0;
+                if (llIncentive > 0) {
+                    totalIncentive += llIncentive;
+                    receivingCount++;
+                }
+            });
+
+            if (receivingCount === 0) {
+                return {
+                    amount: 0,
+                    method: 'TYPE-1 LINE LEADER 평균 × 2 (수령자 없음)'
+                };
+            }
+
+            const avg = Math.round(totalIncentive / receivingCount);
+            const amount = avg * 2;
+
+            return {
+                amount: amount,
+                method: `TYPE-1 LINE LEADER 평균 × 2 (${receivingCount}명 수령, 평균 ${avg.toLocaleString()})`
+            };
+        },
+
+        /**
+         * Phase 2.4.4 & 2.4.5: Calculate SUPERVISOR / A.SUPERVISOR incentive (BFS + Multiplier)
+         * SUPERVISOR: LINE LEADER avg × 2.5
+         * A.SUPERVISOR: LINE LEADER avg × 3.5
+         */
+        calculateSupervisorIncentive(emp, subordinateMap, allValidatedEmployees, position) {
+            const posUpper = (position || '').toUpperCase();
+
+            // Determine multiplier based on position name
+            let multiplier = 2.5;  // Default for SUPERVISOR
+            if (posUpper.includes('A.SUPERVISOR') || posUpper.includes('A. SUPERVISOR')) {
+                multiplier = 3.5;
+            }
+
+            // Use GROUP LEADER logic to find LINE LEADER average
+            const groupLeaderResult = this.calculateGroupLeaderIncentive(emp, subordinateMap, allValidatedEmployees);
+            const lineLeaderAvg = groupLeaderResult.amount / 2;  // Reverse the × 2 to get avg
+
+            if (lineLeaderAvg === 0) {
+                return {
+                    amount: 0,
+                    method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (LINE LEADER 평균 0)`
+                };
+            }
+
+            const amount = Math.round(lineLeaderAvg * multiplier);
+
+            return {
+                amount: amount,
+                method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (평균 ${Math.round(lineLeaderAvg).toLocaleString()})`
+            };
+        },
+
+        /**
+         * Phase 2.4.6 & 2.4.7: Calculate MANAGER / A.MANAGER incentive (BFS + Multiplier)
+         * MANAGER: LINE LEADER avg × 10.0
+         * A.MANAGER: LINE LEADER avg × 5.0
+         */
+        calculateManagerIncentive(emp, subordinateMap, allValidatedEmployees, position) {
+            const posUpper = (position || '').toUpperCase();
+
+            // Determine multiplier based on position name
+            let multiplier = 10.0;  // Default for MANAGER
+            if (posUpper.includes('A.MANAGER') || posUpper.includes('A. MANAGER')) {
+                multiplier = 5.0;
+            }
+
+            // Use GROUP LEADER logic to find LINE LEADER average
+            const groupLeaderResult = this.calculateGroupLeaderIncentive(emp, subordinateMap, allValidatedEmployees);
+            const lineLeaderAvg = groupLeaderResult.amount / 2;  // Reverse the × 2 to get avg
+
+            if (lineLeaderAvg === 0) {
+                return {
+                    amount: 0,
+                    method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (LINE LEADER 평균 0)`
+                };
+            }
+
+            const amount = Math.round(lineLeaderAvg * multiplier);
+
+            return {
+                amount: amount,
+                method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (평균 ${Math.round(lineLeaderAvg).toLocaleString()})`
+            };
+        },
+
+        /**
+         * Phase 2.5: Master function to calculate position-specific incentive
+         * Routes to appropriate calculator based on position name
+         */
+        calculatePositionSpecificIncentive(emp, position, continuousMonths, subordinateMap, allValidatedEmployees, aqlConfig) {
+            const PROGRESSION_TABLE = {
+                0: 0, 1: 150000, 2: 250000, 3: 350000, 4: 450000,
+                5: 550000, 6: 650000, 7: 750000, 8: 850000,
+                9: 900000, 10: 950000, 11: 975000, 12: 1000000,
+                13: 1000000, 14: 1000000, 15: 1000000
+            };
+
+            const posUpper = (position || '').toUpperCase();
+
+            // Route to position-specific calculator
+            if (posUpper.includes('AQL INSPECTOR')) {
+                return this.calculateAqlInspectorIncentive(emp, continuousMonths, aqlConfig);
+            } else if (posUpper.includes('LINE LEADER')) {
+                return this.calculateLineLeaderIncentive(emp, subordinateMap, allValidatedEmployees);
+            } else if (posUpper.includes('GROUP LEADER')) {
+                return this.calculateGroupLeaderIncentive(emp, subordinateMap, allValidatedEmployees);
+            } else if (posUpper.includes('SUPERVISOR')) {
+                return this.calculateSupervisorIncentive(emp, subordinateMap, allValidatedEmployees, position);
+            } else if (posUpper.includes('MANAGER')) {
+                return this.calculateManagerIncentive(emp, subordinateMap, allValidatedEmployees, position);
+            } else {
+                // Default: Progression table for ASSEMBLY INSPECTOR, MODEL MASTER, AUDITOR, TRAINER
+                const amount = PROGRESSION_TABLE[Math.min(continuousMonths, 15)] || 0;
+                return {
+                    amount: amount,
+                    method: `Progression Table (${continuousMonths}개월)`
+                };
+            }
         }
     },
 
@@ -664,6 +1043,7 @@ const ValidationEngine = {
                 const employeeMismatches = this.compareEmployees(expected, actual);
 
                 // Store all employee data for TYPE/Position statistics
+                // Phase 2.1 & 2.5: Enhanced data structure with position-specific calculation info
                 report.allEmployees.push({
                     emp_no: expected.emp_no,
                     name: expected.name,
@@ -671,9 +1051,17 @@ const ValidationEngine = {
                     employeeType: expected.employeeType,
                     validatedIncentive: expected.incentiveAmount,
                     dashboardIncentive: actual['December_Incentive'] || actual.incentive_amount || 0,
-                    validatedConditions: expected.conditionResults,  // FIX: was expected.conditions
+                    validatedConditions: expected.conditionResults,
                     hasMismatch: employeeMismatches.length > 0,
-                    mismatches: employeeMismatches
+                    mismatches: employeeMismatches,
+                    // Phase 2.5: Position-specific calculation display fields
+                    continuousMonths: expected.continuousMonths || 0,
+                    calculationMethod: expected.calculationMethod || '',  // Now populated by position-specific calculators
+                    // Phase 3.1: New fields for TYPE-2 3-layer validation
+                    conditionsPassed: expected.passedConditions || 0,  // FIX: was conditionsPassed, now passedConditions
+                    conditionsApplicable: expected.applicableConditions?.length || 0,
+                    allConditionsPass: expected.allConditionsPass || false,  // Use already-calculated value
+                    stopWorkingDate: actual['Stop working Date'] || null  // For TYPE-2 Layer 1 resignation check
                 });
 
                 if (employeeMismatches.length > 0) {
@@ -760,12 +1148,18 @@ const ValidationEngine = {
                         notReceivingValidation: 0,
                         mismatched: 0,
                         amountMatched: 0,
-                        amountMismatched: 0
+                        amountMismatched: 0,
+                        calculationMethods: new Set()  // Phase 2.7: Collect unique calculation methods
                     };
                 }
 
                 const s = stats[type][position];
                 s.total++;
+
+                // Phase 2.7: Collect calculation method
+                if (emp.calculationMethod) {
+                    s.calculationMethods.add(emp.calculationMethod);
+                }
 
                 // Receiving status
                 const dashboardReceiving = emp.dashboardIncentive > 0;
@@ -810,7 +1204,7 @@ const ValidationEngine = {
             const positions = Object.keys(positionStats).sort();
 
             if (positions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No data</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" class="text-center text-muted">No data</td></tr>';
                 return;
             }
 
@@ -832,6 +1226,12 @@ const ValidationEngine = {
                 // Check if this position has discrepancies
                 const hasDiscrepancy = analysis[position]?.hasDiscrepancy || false;
 
+                // Phase 2.7: Format calculation methods (unique values)
+                const methodsArray = s.calculationMethods ? Array.from(s.calculationMethods) : [];
+                const methodsDisplay = methodsArray.length > 0
+                    ? methodsArray.map(m => `<div class="small">${m}</div>`).join('')
+                    : '-';
+
                 row.innerHTML = `
                     <td>
                         ${position}
@@ -843,6 +1243,7 @@ const ValidationEngine = {
                             </button>
                         ` : ''}
                     </td>
+                    <td style="font-size: 0.85em; max-width: 300px;">${methodsDisplay}</td>
                     <td>${s.total}</td>
                     <td${s.receivingDashboard !== s.receivingValidation ? ' class="table-danger fw-bold"' : ''}>${s.receivingDashboard}</td>
                     <td${s.receivingDashboard !== s.receivingValidation ? ' class="table-warning fw-bold"' : ''}>${s.receivingValidation}</td>
@@ -871,6 +1272,7 @@ const ValidationEngine = {
             totalRow.classList.add('table-secondary', 'fw-bold');
             totalRow.innerHTML = `
                 <td>TOTAL</td>
+                <td class="text-muted">-</td>
                 <td>${typeTotal.total}</td>
                 <td>${typeTotal.receivingDashboard}</td>
                 <td>${typeTotal.receivingValidation}</td>
@@ -1096,27 +1498,157 @@ const ValidationEngine = {
                 this.state.previousMonthData = fileData;
             }
 
-            progressBar.style.width = '50%';
-            progressBar.textContent = 'Calculating...';
+            progressBar.style.width = '40%';
+            progressBar.textContent = 'Building hierarchies...';
 
-            // Calculate expected results for all employees
-            const currentDate = new Date();  // Or get from config
+            // ============================================
+            // Phase 2.6: Two-Pass Validation Strategy
+            // ============================================
+            const currentDate = new Date();
             const expectedResults = [];
 
-            allData.basicInfo.forEach(employee => {
+            // Build subordinate mapping for manager calculations
+            const subordinateMap = this.PositionCalculators.buildSubordinateMapping(allData.basicInfo);
+            console.log(`📊 Subordinate mapping built: ${subordinateMap.size} managers with subordinates`);
+
+            // Separate employees by TYPE
+            const type1Employees = allData.basicInfo.filter(emp =>
+                (emp['ROLE TYPE STD'] || emp['TYPE'] || '') === 'TYPE-1'
+            );
+            const type2Employees = allData.basicInfo.filter(emp =>
+                (emp['ROLE TYPE STD'] || emp['TYPE'] || '') === 'TYPE-2'
+            );
+            const type3Employees = allData.basicInfo.filter(emp => {
+                const empType = emp['ROLE TYPE STD'] || emp['TYPE'] || '';
+                return empType !== 'TYPE-1' && empType !== 'TYPE-2';
+            });
+
+            console.log(`📊 Employee counts: TYPE-1=${type1Employees.length}, TYPE-2=${type2Employees.length}, TYPE-3=${type3Employees.length}`);
+
+            // ==========================================
+            // PASS 1: Validate TYPE-1 employees first
+            // (Progressive: managers reference already-validated employees)
+            // ==========================================
+            progressBar.style.width = '50%';
+            progressBar.textContent = 'Validating TYPE-1 employees...';
+
+            const type1Results = [];
+            type1Employees.forEach(employee => {
+                const context = {
+                    subordinateMap: subordinateMap,
+                    allValidatedEmployees: type1Results,  // Pass already-validated TYPE-1 employees
+                    aqlConfig: allData.aqlInspectorConfig || {}
+                };
+
                 const result = this.Calculator.validateEmployee(
-                    employee['Employee No'],  // CSV column name with space
+                    employee['Employee No'],
                     allData,
                     this.state.previousMonthData,
-                    currentDate
+                    currentDate,
+                    context
                 );
 
                 if (result) {
-                    expectedResults.push(result);
+                    type1Results.push(result);
                 }
             });
 
+            console.log(`✅ TYPE-1 validation complete: ${type1Results.length} employees`);
+
+            // ==========================================
+            // Calculate TYPE-1 Position Averages (for TYPE-2)
+            // Only include receiving employees (incentive > 0)
+            // ==========================================
+            progressBar.style.width = '60%';
+            progressBar.textContent = 'Calculating TYPE-1 averages...';
+
+            const type1Averages = {};
+            type1Results.forEach(emp => {
+                const position = emp.position || '';
+                if (!type1Averages[position]) {
+                    type1Averages[position] = {
+                        total: 0,
+                        count: 0,
+                        receivingSum: 0,
+                        receivingCount: 0,
+                        average: 0
+                    };
+                }
+                type1Averages[position].total += emp.incentiveAmount || 0;
+                type1Averages[position].count++;
+                if (emp.incentiveAmount > 0) {
+                    type1Averages[position].receivingSum += emp.incentiveAmount;
+                    type1Averages[position].receivingCount++;
+                }
+            });
+
+            // Calculate averages (receiving only)
+            Object.keys(type1Averages).forEach(position => {
+                const posData = type1Averages[position];
+                if (posData.receivingCount > 0) {
+                    posData.average = Math.round(posData.receivingSum / posData.receivingCount);
+                }
+            });
+
+            console.log(`📊 TYPE-1 averages calculated for ${Object.keys(type1Averages).length} positions`);
+
+            // ==========================================
+            // PASS 2: Validate TYPE-2 employees
+            // (Using TYPE-1 position averages)
+            // ==========================================
             progressBar.style.width = '70%';
+            progressBar.textContent = 'Validating TYPE-2 employees...';
+
+            const type2Results = [];
+            type2Employees.forEach(employee => {
+                const context = {
+                    subordinateMap: subordinateMap,
+                    allValidatedEmployees: [...type1Results, ...type2Results],
+                    aqlConfig: allData.aqlInspectorConfig || {},
+                    type1Averages: type1Averages  // Pass TYPE-1 averages
+                };
+
+                const result = this.Calculator.validateEmployee(
+                    employee['Employee No'],
+                    allData,
+                    this.state.previousMonthData,
+                    currentDate,
+                    context
+                );
+
+                if (result) {
+                    type2Results.push(result);
+                }
+            });
+
+            console.log(`✅ TYPE-2 validation complete: ${type2Results.length} employees`);
+
+            // ==========================================
+            // PASS 3: Validate TYPE-3 employees
+            // (Always 0 VND)
+            // ==========================================
+            const type3Results = [];
+            type3Employees.forEach(employee => {
+                const result = this.Calculator.validateEmployee(
+                    employee['Employee No'],
+                    allData,
+                    this.state.previousMonthData,
+                    currentDate,
+                    {}  // No special context needed
+                );
+
+                if (result) {
+                    type3Results.push(result);
+                }
+            });
+
+            console.log(`✅ TYPE-3 validation complete: ${type3Results.length} employees`);
+
+            // Combine all results
+            expectedResults.push(...type1Results, ...type2Results, ...type3Results);
+            console.log(`✅ Total validation complete: ${expectedResults.length} employees`);
+
+            progressBar.style.width = '80%';
             progressBar.textContent = 'Comparing results...';
 
             // Compare with dashboard output
@@ -1150,11 +1682,13 @@ const ValidationEngine = {
             );
 
             // Display additional validations (NEW - User Request)
+            // Phase 3.3: Updated to pass config for 3-layer TYPE-2 validation
             displayAdditionalValidations(
                 validationReport.allEmployees,
                 allData.attendance,
                 allData.dashboardOutput,
-                allData.positionMatrix
+                allData.positionMatrix,
+                allData.config  // Phase 3: config for month/year info in 3-layer validation
             );
 
             progressBar.style.width = '100%';
@@ -1719,30 +2253,6 @@ function displayConditionCard(condition, results) {
 }
 
 // ============================================================================
-// 부하직원 매핑 생성 함수 (Subordinate Mapping Builder)
-// ============================================================================
-/**
- * Builds a mapping of boss name to subordinate employees
- * @param {Array} dashboardData - Dashboard CSV data
- * @returns {Map} Map<bossName, Array<employee>>
- */
-function buildSubordinateMapping(dashboardData) {
-    const mapping = new Map();
-
-    dashboardData.forEach(emp => {
-        const bossName = emp['direct boss name'];
-        if (!bossName || bossName === '-' || bossName === '') return;
-
-        if (!mapping.has(bossName)) {
-            mapping.set(bossName, []);
-        }
-        mapping.get(bossName).push(emp);
-    });
-
-    return mapping;  // Map<bossName, [subordinates]>
-}
-
-// ============================================================================
 // 연속월 검증 함수 (Continuous Months Validation)
 // ============================================================================
 /**
@@ -1826,98 +2336,6 @@ function validateContinuousMonths(allEmployees, previousMonthData, positionMatri
                 allConditionsPass: allConditionsPass
             });
         }
-    });
-
-    return results;
-}
-
-// ============================================================================
-// (V) SUPERVISOR 특별 검증 함수 (SUPERVISOR Special Validation)
-// ============================================================================
-/**
- * Validates SUPERVISOR incentive calculations
- * @param {Array} allEmployees - All employees from validation
- * @param {Array} dashboardData - Dashboard CSV data
- * @param {Array} previousMonthData - Previous month data (if available)
- * @param {Object} positionMatrix - Position condition matrix
- * @returns {Object} Validation results for SUPERVISOR employees
- */
-function validateSupervisorIncentives(allEmployees, dashboardData, previousMonthData, positionMatrix) {
-    const results = {
-        total: 0,
-        correct: 0,
-        mismatched: 0,
-        supervisors: []
-    };
-
-    // Build subordinate mapping
-    const subordinateMap = buildSubordinateMapping(dashboardData);
-
-    // Find all (V) SUPERVISOR employees
-    const vSupervisors = allEmployees.filter(emp =>
-        emp.position && emp.position.toUpperCase().includes('SUPERVISOR')
-    );
-
-    vSupervisors.forEach(supervisor => {
-        results.total++;
-
-        const fullName = supervisor.employeeName;
-        const subordinates = subordinateMap.get(fullName) || [];
-
-        let expected = 0;
-        let calculationMethod = '';
-
-        if (supervisor.type === 'TYPE-1') {
-            // TYPE-1: Subordinate formula
-            const receivingSubordinates = subordinates.filter(s =>
-                parseFloat(s['December_Incentive'] || 0) > 0
-            );
-            const totalSubordinateIncentive = receivingSubordinates.reduce(
-                (sum, s) => sum + parseFloat(s['December_Incentive'] || 0), 0
-            );
-            const receivingRatio = subordinates.length > 0
-                ? receivingSubordinates.length / subordinates.length
-                : 0;
-
-            expected = totalSubordinateIncentive * 0.12 * receivingRatio;
-            calculationMethod = `Subordinate × 12% × ${receivingRatio.toFixed(2)}`;
-
-        } else if (supervisor.type === 'TYPE-2') {
-            // TYPE-2: LINE LEADER average × 2.5
-            const type1LineLeaders = allEmployees.filter(emp =>
-                emp.position === 'LINE LEADER' &&
-                emp.type === 'TYPE-1' &&
-                parseFloat(emp.incentive || 0) > 0
-            );
-
-            if (type1LineLeaders.length > 0) {
-                const avgLineLeader = type1LineLeaders.reduce(
-                    (sum, e) => sum + parseFloat(e.incentive), 0
-                ) / type1LineLeaders.length;
-                expected = avgLineLeader * 2.5;
-                calculationMethod = `LINE LEADER avg × 2.5 (${type1LineLeaders.length}명)`;
-            }
-        }
-
-        const actual = parseFloat(supervisor.incentive || 0);
-        const matches = Math.abs(expected - actual) < 1;  // 1 VND tolerance
-
-        if (matches) {
-            results.correct++;
-        } else {
-            results.mismatched++;
-        }
-
-        results.supervisors.push({
-            employeeId: supervisor.employeeId,
-            employeeName: supervisor.employeeName,
-            type: supervisor.type,
-            subordinateCount: subordinates.length,
-            expected: expected,
-            actual: actual,
-            matches: matches,
-            calculationMethod: calculationMethod
-        });
     });
 
     return results;
@@ -2046,28 +2464,48 @@ function validateResignedEmployees(attendanceData, dashboardData) {
 }
 
 /**
- * TYPE-2 평균 검증
- * Validate TYPE-2 incentives match TYPE-1 average
+ * TYPE-2 3-Layer Validation (Phase 3.2)
+ * Layer 1: Resignation Check - Employees resigned before month should have 0 VND
+ * Layer 2: 100% Condition Fulfillment Rule - Must pass ALL applicable conditions
+ * Layer 3: TYPE-1 Average Match - Should match TYPE-1 reference position average
+ *
+ * @param {Array} allEmployees - All validated employees with condition results
+ * @param {Object} positionMatrix - Position configuration with TYPE-2 mapping
+ * @param {Object} config - Monthly config with year, month_num for resignation check
+ * @param {Array} attendanceData - Attendance data with Stop working Date (optional, for Layer 1)
  */
-function validateType2Averages(allEmployees, positionMatrix) {
+function validateType2Averages(allEmployees, positionMatrix, config = {}, attendanceData = []) {
     const results = {
         positions: {},
-        totalMismatches: 0
+        totalMismatches: 0,
+        // Phase 3.2: New validation error categories
+        validationErrors: {
+            resignedWithIncentive: 0,       // Layer 1: Resigned but received incentive
+            failedConditionsWithIncentive: 0, // Layer 2: Failed conditions but received incentive
+            totalValidationFailures: 0       // Total Layer 1 + Layer 2 failures
+        },
+        problematicEmployees: [],  // Employees with Layer 1/2 issues
+        type1Averages: {}          // Expose TYPE-1 averages for UI display
     };
+
+    // Calculate month start date for resignation check (Layer 1)
+    const year = config.year || 2025;
+    const monthNum = config.month_num || 12;
+    const monthStart = new Date(`${year}-${String(monthNum).padStart(2, '0')}-01`).getTime();
 
     // TYPE-2 positions mapping
     const type2Mapping = positionMatrix?.type_2_incentive_calculation || {};
 
-    // Calculate TYPE-1 averages
+    // Calculate TYPE-1 averages (receiving only - for Layer 3)
     const type1Averages = {};
     allEmployees.filter(emp => emp.employeeType === 'TYPE-1').forEach(emp => {
         const position = emp.position;
         if (!type1Averages[position]) {
-            type1Averages[position] = {total: 0, count: 0, receiving: 0, receivingSum: 0};
+            type1Averages[position] = { total: 0, count: 0, receiving: 0, receivingSum: 0, average: 0 };
         }
-        type1Averages[position].total += emp.validatedIncentive;
+        type1Averages[position].total += emp.validatedIncentive || 0;
         type1Averages[position].count++;
-        if (emp.validatedIncentive > 0) {
+        if ((emp.validatedIncentive || 0) > 0) {
             type1Averages[position].receiving++;
             type1Averages[position].receivingSum += emp.validatedIncentive;
         }
@@ -2076,43 +2514,91 @@ function validateType2Averages(allEmployees, positionMatrix) {
     // Calculate averages (receiving only)
     Object.keys(type1Averages).forEach(position => {
         const data = type1Averages[position];
-        type1Averages[position].average = data.receiving > 0 ?
-            Math.round(data.receivingSum / data.receiving) : 0;
+        type1Averages[position].average = data.receiving > 0
+            ? Math.round(data.receivingSum / data.receiving)
+            : 0;
     });
 
-    // Validate TYPE-2 employees
+    results.type1Averages = type1Averages;
+
+    // ===== 3-Layer Validation for TYPE-2 Employees =====
     allEmployees.filter(emp => emp.employeeType === 'TYPE-2').forEach(emp => {
-        const position = emp.position;
-        const referencePosition = type2Mapping[position];
+        const position = emp.position || '';
+        const referencePosition = type2Mapping[position.trim()];
+        const actualIncentive = emp.validatedIncentive || 0;
 
-        if (!referencePosition) return;
+        // ----- Layer 1: Resignation Check -----
+        const stopWorkingDate = emp.stopWorkingDate;
+        const isResigned = stopWorkingDate &&
+            !isNaN(new Date(stopWorkingDate).getTime()) &&
+            new Date(stopWorkingDate).getTime() < monthStart;
 
-        const expectedAvg = type1Averages[referencePosition]?.average || 0;
-        const actualIncentive = emp.validatedIncentive;
-
-        if (!results.positions[position]) {
-            results.positions[position] = {
-                referencePosition: referencePosition,
-                expectedAverage: expectedAvg,
-                matches: 0,
-                mismatches: 0,
-                employees: []
-            };
+        if (isResigned && actualIncentive > 0) {
+            results.validationErrors.resignedWithIncentive++;
+            results.validationErrors.totalValidationFailures++;
+            results.problematicEmployees.push({
+                emp_no: emp.emp_no,
+                name: emp.name,
+                position: position,
+                issue: 'RESIGNED_WITH_INCENTIVE',
+                stopWorkingDate: stopWorkingDate,
+                incentive: actualIncentive,
+                layer: 1
+            });
         }
 
-        const isMatch = actualIncentive === expectedAvg;
-        if (isMatch) {
-            results.positions[position].matches++;
-        } else {
-            results.positions[position].mismatches++;
-            results.totalMismatches++;
-            results.positions[position].employees.push({
-                employeeId: emp.employeeId,
-                employeeName: emp.employeeName,
-                expected: expectedAvg,
-                actual: actualIncentive,
-                difference: actualIncentive - expectedAvg
+        // ----- Layer 2: 100% Condition Fulfillment Rule -----
+        const allConditionsPass = emp.allConditionsPass || false;
+        const conditionsPassed = emp.conditionsPassed || 0;
+        const conditionsApplicable = emp.conditionsApplicable || 0;
+
+        if (!allConditionsPass && actualIncentive > 0) {
+            results.validationErrors.failedConditionsWithIncentive++;
+            results.validationErrors.totalValidationFailures++;
+            results.problematicEmployees.push({
+                emp_no: emp.emp_no,
+                name: emp.name,
+                position: position,
+                issue: '100%_RULE_VIOLATION',
+                conditionsPassed: conditionsPassed,
+                conditionsApplicable: conditionsApplicable,
+                incentive: actualIncentive,
+                layer: 2
             });
+        }
+
+        // ----- Layer 3: TYPE-1 Average Match -----
+        // Only validate if employee SHOULD receive incentive (passed all conditions & not resigned)
+        if (!referencePosition) return;
+
+        if (allConditionsPass && !isResigned) {
+            const expectedAvg = type1Averages[referencePosition]?.average || 0;
+
+            if (!results.positions[position]) {
+                results.positions[position] = {
+                    referencePosition: referencePosition,
+                    expectedAverage: expectedAvg,
+                    type1ReceivingCount: type1Averages[referencePosition]?.receiving || 0,
+                    matches: 0,
+                    mismatches: 0,
+                    employees: []
+                };
+            }
+
+            const isMatch = actualIncentive === expectedAvg;
+            if (isMatch) {
+                results.positions[position].matches++;
+            } else {
+                results.positions[position].mismatches++;
+                results.totalMismatches++;
+                results.positions[position].employees.push({
+                    emp_no: emp.emp_no,
+                    name: emp.name,
+                    expected: expectedAvg,
+                    actual: actualIncentive,
+                    difference: actualIncentive - expectedAvg
+                });
+            }
         }
     });
 
@@ -2120,9 +2606,10 @@ function validateType2Averages(allEmployees, positionMatrix) {
 }
 
 /**
- * Display additional validations (퇴사자 인센티브 + TYPE-2 평균)
+ * Display additional validations (퇴사자 인센티브 + TYPE-2 3-Layer 평균)
+ * Phase 3.3-3.4: Enhanced to show 3-layer validation results
  */
-function displayAdditionalValidations(allEmployees, attendanceData, dashboardData, positionMatrix) {
+function displayAdditionalValidations(allEmployees, attendanceData, dashboardData, positionMatrix, config = {}) {
     // 1. 퇴사자 인센티브 검증
     const resignedResults = validateResignedEmployees(attendanceData, dashboardData);
 
@@ -2157,8 +2644,8 @@ function displayAdditionalValidations(allEmployees, attendanceData, dashboardDat
             .classList.add('bg-success', 'text-white');
     }
 
-    // 2. TYPE-2 평균 검증
-    const type2Results = validateType2Averages(allEmployees, positionMatrix);
+    // 2. TYPE-2 3-Layer 검증 (Phase 3.2-3.4)
+    const type2Results = validateType2Averages(allEmployees, positionMatrix, config, attendanceData);
 
     const type2Total = Object.values(type2Results.positions).reduce((sum, pos) =>
         sum + pos.matches + pos.mismatches, 0);
@@ -2166,24 +2653,88 @@ function displayAdditionalValidations(allEmployees, attendanceData, dashboardDat
     document.getElementById('type2TotalEmployees').textContent = type2Total;
     document.getElementById('type2Mismatches').textContent = type2Results.totalMismatches;
 
+    // Phase 3.4: Display Layer 1 & Layer 2 error counts (if elements exist)
+    const layer1Element = document.getElementById('type2ResignedErrors');
+    const layer2Element = document.getElementById('type2RuleErrors');
+    const totalFailuresElement = document.getElementById('type2TotalFailures');
+
+    if (layer1Element) {
+        layer1Element.textContent = type2Results.validationErrors.resignedWithIncentive;
+    }
+    if (layer2Element) {
+        layer2Element.textContent = type2Results.validationErrors.failedConditionsWithIncentive;
+    }
+    if (totalFailuresElement) {
+        totalFailuresElement.textContent = type2Results.validationErrors.totalValidationFailures;
+    }
+
     const type2Message = document.getElementById('type2ValidationMessage');
-    if (type2Results.totalMismatches > 0) {
-        type2Message.innerHTML = `
+    const hasLayer1Errors = type2Results.validationErrors.resignedWithIncentive > 0;
+    const hasLayer2Errors = type2Results.validationErrors.failedConditionsWithIncentive > 0;
+    const hasLayer3Errors = type2Results.totalMismatches > 0;
+
+    // Build combined message with all 3 layers
+    let messageHTML = '';
+
+    // Layer 1 & 2 Problematic Employees (CRITICAL)
+    if (type2Results.problematicEmployees.length > 0) {
+        messageHTML += `
+            <div class="alert alert-danger mb-2">
+                <strong><i class="fas fa-exclamation-triangle"></i> 3-Layer 검증 오류 발견!</strong>
+                <div class="mt-2">
+                    <span class="badge bg-danger me-2">Layer 1: ${type2Results.validationErrors.resignedWithIncentive}명</span>
+                    <span class="badge bg-warning text-dark">Layer 2: ${type2Results.validationErrors.failedConditionsWithIncentive}명</span>
+                </div>
+                <div class="mt-2" style="max-height: 200px; overflow-y: auto;">
+                    <table class="table table-sm table-bordered mb-0" style="font-size: 0.85rem;">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>사번</th>
+                                <th>이름</th>
+                                <th>직급</th>
+                                <th>Layer</th>
+                                <th>문제</th>
+                                <th>인센티브</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${type2Results.problematicEmployees.map(emp => `
+                                <tr class="${emp.layer === 1 ? 'table-danger' : 'table-warning'}">
+                                    <td>${emp.emp_no}</td>
+                                    <td>${emp.name}</td>
+                                    <td>${emp.position}</td>
+                                    <td><span class="badge ${emp.layer === 1 ? 'bg-danger' : 'bg-warning text-dark'}">Layer ${emp.layer}</span></td>
+                                    <td>${emp.issue === 'RESIGNED_WITH_INCENTIVE' ?
+                                        `퇴사일: ${emp.stopWorkingDate}` :
+                                        `조건 충족: ${emp.conditionsPassed}/${emp.conditionsApplicable}`}</td>
+                                    <td class="text-end">${emp.incentive.toLocaleString()} VND</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    // Layer 3: TYPE-1 Average Mismatches
+    if (hasLayer3Errors) {
+        messageHTML += `
             <div class="alert alert-warning mb-0">
-                <strong><i class="fas fa-exclamation-circle"></i> 불일치 발견</strong><br>
+                <strong><i class="fas fa-exclamation-circle"></i> Layer 3: 평균 불일치</strong><br>
                 ${type2Results.totalMismatches}명의 TYPE-2 직원 금액이 TYPE-1 평균과 다릅니다
                 <div class="mt-2" style="max-height: 200px; overflow-y: auto;">
                     ${Object.entries(type2Results.positions).map(([position, data]) => {
                         if (data.mismatches === 0) return '';
                         return `
                             <div class="border-bottom py-2">
-                                <strong>${position}</strong> (참조: ${data.referencePosition})<br>
+                                <strong>${position}</strong> (참조: ${data.referencePosition}, TYPE-1 수령자 ${data.type1ReceivingCount}명)<br>
                                 예상 평균: ${data.expectedAverage.toLocaleString()} VND<br>
                                 불일치: ${data.mismatches}명
                                 ${data.employees.slice(0, 3).map(emp => `
                                     <div class="ms-3 text-muted small">
-                                        • ${emp.employeeId}: ${emp.actual.toLocaleString()} VND
-                                        (차이: ${emp.difference.toLocaleString()} VND)
+                                        • ${emp.emp_no}: ${emp.actual.toLocaleString()} VND
+                                        (차이: ${emp.difference > 0 ? '+' : ''}${emp.difference.toLocaleString()} VND)
                                     </div>
                                 `).join('')}
                                 ${data.employees.length > 3 ? `<div class="ms-3 text-muted small">... 외 ${data.employees.length - 3}명</div>` : ''}
@@ -2193,16 +2744,35 @@ function displayAdditionalValidations(allEmployees, attendanceData, dashboardDat
                 </div>
             </div>
         `;
-        document.getElementById('type2AverageCard').querySelector('.card-header')
-            .classList.add('bg-warning');
-    } else {
-        type2Message.innerHTML = `
+    }
+
+    // All layers passed
+    if (!hasLayer1Errors && !hasLayer2Errors && !hasLayer3Errors) {
+        messageHTML = `
             <div class="alert alert-success mb-0">
-                <i class="fas fa-check-circle"></i> 모든 TYPE-2 금액이 TYPE-1 평균과 일치
+                <i class="fas fa-check-circle"></i> 3-Layer 검증 통과!<br>
+                <small class="text-muted">
+                    ✅ Layer 1: 퇴사자 인센티브 없음<br>
+                    ✅ Layer 2: 100% 조건 충족 규칙 준수<br>
+                    ✅ Layer 3: TYPE-1 평균과 일치
+                </small>
             </div>
         `;
-        document.getElementById('type2AverageCard').querySelector('.card-header')
-            .classList.add('bg-success', 'text-white');
+    }
+
+    type2Message.innerHTML = messageHTML;
+
+    // Update card header color based on overall status
+    const type2CardHeader = document.getElementById('type2AverageCard')?.querySelector('.card-header');
+    if (type2CardHeader) {
+        type2CardHeader.classList.remove('bg-success', 'bg-warning', 'bg-danger', 'text-white');
+        if (hasLayer1Errors || hasLayer2Errors) {
+            type2CardHeader.classList.add('bg-danger', 'text-white');
+        } else if (hasLayer3Errors) {
+            type2CardHeader.classList.add('bg-warning');
+        } else {
+            type2CardHeader.classList.add('bg-success', 'text-white');
+        }
     }
 
     // 3. 연속월 검증 (Continuous Months Validation)
@@ -2218,28 +2788,4 @@ function displayAdditionalValidations(allEmployees, attendanceData, dashboardDat
     document.getElementById('incrementLogicTotal').textContent = continuousResults.incrementLogic.total;
     document.getElementById('incrementLogicCorrect').textContent = continuousResults.incrementLogic.correct;
     document.getElementById('incrementLogicMismatched').textContent = continuousResults.incrementLogic.mismatched;
-
-    // 4. (V) SUPERVISOR 특별 검증 (SUPERVISOR Special Validation)
-    const supervisorResults = validateSupervisorIncentives(allEmployees, dashboardData, previousMonthData, positionMatrix);
-
-    document.getElementById('supervisorTotal').textContent = supervisorResults.total;
-    document.getElementById('supervisorCorrect').textContent = supervisorResults.correct;
-    document.getElementById('supervisorMismatched').textContent = supervisorResults.mismatched;
-
-    // Display supervisor details table
-    const supervisorTableBody = document.getElementById('supervisorDetailsTable');
-    supervisorTableBody.innerHTML = supervisorResults.supervisors.map(s => `
-        <tr class="${s.matches ? '' : 'table-danger'}">
-            <td>${s.employeeId}</td>
-            <td>${s.employeeName}</td>
-            <td>${s.type}</td>
-            <td>${s.subordinateCount}명</td>
-            <td>${s.calculationMethod}</td>
-            <td class="text-end">${s.expected.toLocaleString()} VND</td>
-            <td class="text-end">${s.actual.toLocaleString()} VND</td>
-            <td class="text-end ${s.matches ? 'text-success' : 'text-danger'}">
-                ${s.matches ? '✓' : '✗'}
-            </td>
-        </tr>
-    `).join('');
 }

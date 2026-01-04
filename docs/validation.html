@@ -282,7 +282,7 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: 연속월 검증 + (V) SUPERVISOR 특별 검증 -->
+                    <!-- Row 2: 연속월 검증 -->
                     <div class="row mt-3">
                         <!-- 연속월 검증 -->
                         <div class="col-md-6 mb-3">
@@ -326,66 +326,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- (V) SUPERVISOR 특별 검증 -->
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100" id="supervisorCard">
-                                <div class="card-header bg-light">
-                                    <strong>(V) SUPERVISOR 특별 검증</strong>
-                                    <br><small class="text-muted">SUPERVISOR Special Validation</small>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-3">
-                                        <div class="col-4 text-center">
-                                            <h6>총 SUPERVISOR</h6>
-                                            <p class="display-6" id="supervisorTotal">-</p>
-                                        </div>
-                                        <div class="col-4 text-center">
-                                            <h6 class="text-success">일치</h6>
-                                            <p class="display-6 text-success" id="supervisorCorrect">-</p>
-                                        </div>
-                                        <div class="col-4 text-center">
-                                            <h6 class="text-danger">불일치</h6>
-                                            <p class="display-6 text-danger" id="supervisorMismatched">-</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="accordion" id="supervisorAccordion">
-                                        <div class="accordion-item">
-                                            <h2 class="accordion-header">
-                                                <button class="accordion-button collapsed" type="button"
-                                                        data-bs-toggle="collapse" data-bs-target="#supervisorDetails">
-                                                    상세 보기 (View Details)
-                                                </button>
-                                            </h2>
-                                            <div id="supervisorDetails" class="accordion-collapse collapse">
-                                                <div class="accordion-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-sm">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>사원번호</th>
-                                                                    <th>이름</th>
-                                                                    <th>TYPE</th>
-                                                                    <th>부하직원</th>
-                                                                    <th>계산방법</th>
-                                                                    <th>예상</th>
-                                                                    <th>실제</th>
-                                                                    <th>일치</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody id="supervisorDetailsTable">
-                                                                <!-- Populated by JavaScript -->
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -406,6 +346,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Position</th>
+                                    <th style="min-width: 200px;">Calculation Method</th>
                                     <th>Total</th>
                                     <th>Receiving<br/>(Dashboard)</th>
                                     <th>Receiving<br/>(Validation)</th>
@@ -435,6 +376,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Position</th>
+                                    <th style="min-width: 200px;">Calculation Method</th>
                                     <th>Total</th>
                                     <th>Receiving<br/>(Dashboard)</th>
                                     <th>Receiving<br/>(Validation)</th>
@@ -464,6 +406,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Position</th>
+                                    <th style="min-width: 200px;">Calculation Method</th>
                                     <th>Total</th>
                                     <th>Receiving<br/>(Dashboard)</th>
                                     <th>Receiving<br/>(Validation)</th>
