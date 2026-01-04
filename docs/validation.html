@@ -24,7 +24,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid px-4">
         <!-- Header -->
         <header class="mt-4 mb-4">
             <h1><i class="fas fa-search-dollar"></i> 인센티브 검증 시스템</h1>
@@ -268,27 +268,36 @@
         <!-- Mismatch Table Section -->
         <section id="mismatchTable" class="hidden mb-4">
             <h3><i class="fas fa-exclamation-triangle"></i> Validation Mismatches</h3>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
+            <div class="table-responsive" style="width: 100%; overflow-x: auto;">
+                <table class="table table-striped table-hover table-bordered" style="width: 100%; min-width: 1800px;">
+                    <thead>
                         <tr>
-                            <th>Employee ID</th>
-                            <th>Name</th>
-                            <th>TYPE</th>
-                            <th>Position</th>
-                            <th>Cond1<br/>출근율≥88%</th>
-                            <th>Cond2<br/>무단≤2일</th>
-                            <th>Cond3<br/>실제>0일</th>
-                            <th>Cond4<br/>최소≥12일</th>
-                            <th>Cond5<br/>개인AQL</th>
-                            <th>Cond6<br/>AQL 3M</th>
-                            <th>Cond7<br/>팀AQL</th>
-                            <th>Cond8<br/>구역불량</th>
-                            <th>Cond9<br/>5PRS율</th>
-                            <th>Cond10<br/>5PRS량</th>
-                            <th>Cont.<br/>Months</th>
-                            <th>Validated<br/>Incentive</th>
-                            <th>Dashboard<br/>Incentive</th>
+                            <!-- Employee Info -->
+                            <th style="background-color: #495057; color: white; border: 2px solid #dee2e6;">Employee ID</th>
+                            <th style="background-color: #495057; color: white; border: 2px solid #dee2e6;">Name</th>
+                            <th style="background-color: #495057; color: white; border: 2px solid #dee2e6;">TYPE</th>
+                            <th style="background-color: #495057; color: white; border: 2px solid #dee2e6;">Position</th>
+
+                            <!-- Attendance Conditions (1-4) -->
+                            <th style="background-color: #0d6efd; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond1<br/>출근율≥88%</th>
+                            <th style="background-color: #0d6efd; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond2<br/>무단≤2일</th>
+                            <th style="background-color: #0d6efd; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond3<br/>실제>0일</th>
+                            <th style="background-color: #0d6efd; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond4<br/>최소≥12일</th>
+
+                            <!-- AQL Conditions (5-8) -->
+                            <th style="background-color: #198754; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond5<br/>개인AQL</th>
+                            <th style="background-color: #198754; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond6<br/>AQL 3M</th>
+                            <th style="background-color: #198754; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond7<br/>팀AQL</th>
+                            <th style="background-color: #198754; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond8<br/>구역불량</th>
+
+                            <!-- 5PRS Conditions (9-10) -->
+                            <th style="background-color: #fd7e14; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond9<br/>5PRS율</th>
+                            <th style="background-color: #fd7e14; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cond10<br/>5PRS량</th>
+
+                            <!-- Results -->
+                            <th style="background-color: #6f42c1; color: white; border: 2px solid #dee2e6; font-weight: bold;">Cont.<br/>Months</th>
+                            <th style="background-color: #6f42c1; color: white; border: 2px solid #dee2e6; font-weight: bold;">Validated<br/>Incentive</th>
+                            <th style="background-color: #6f42c1; color: white; border: 2px solid #dee2e6; font-weight: bold;">Dashboard<br/>Incentive</th>
                         </tr>
                     </thead>
                     <tbody id="mismatchBody">
