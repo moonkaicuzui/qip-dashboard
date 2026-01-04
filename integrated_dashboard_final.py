@@ -1793,7 +1793,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         : '-';
 
                     // 인센티브 정보 가져오기 (수령 여부 및 금액)
-                    const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                    const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                     const isReceived = incentiveAmount > 0;
                     const receivedCell = isReceived
                         ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
@@ -2077,7 +2077,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     : '-';
 
                 // 인센티브 수령 여부 및 금액 (2025-12-22: 배경 제거, 텍스트 색상으로 구별)
-                const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
                     ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
@@ -2375,7 +2375,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
                             ${(() => {
-                                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                                 const received = incentive > 0;
                                 // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return received ?
@@ -2385,7 +2385,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
                             ${(() => {
-                                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                                 // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return incentive > 0 ?
                                     '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' :
@@ -2667,7 +2667,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const position = emp['QIP POSITION 1ST NAME'] || '-';
 
                 // 인센티브 정보 가져오기
-                const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                 const receivedCell = incentiveAmount > 0
                     ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                     : `<span style="color: #e74c3c;">❌</span>`;
@@ -3220,8 +3220,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     failBadgeText = `${failPercent}%`;
                 }
 
-                // 인센티브 수령 여부 및 금액 (2025-12-22: 배경 제거, 텍스트 색상으로 구별)
-                const incentiveAmount = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                // 인센티브 수령 여부 및 금액 (Issue #39: 동적 월별 인센티브 칼럼 사용)
+                const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] || 0);
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
                     ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
@@ -3392,8 +3392,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </td>
                         <td class="unified-table-cell text-center">
                             ${(() => {
-                                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
-                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
+                                // Issue #39: 동적 월별 인센티브 칼럼 사용
+                                const incentive = parseFloat(emp[window.currentIncentiveColumn] || 0);
                                 return incentive > 0 ?
                                     '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' :
                                     '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
@@ -3401,8 +3401,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </td>
                         <td class="unified-table-cell text-center">
                             ${(() => {
-                                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
-                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
+                                // Issue #39: 동적 월별 인센티브 칼럼 사용
+                                const incentive = parseFloat(emp[window.currentIncentiveColumn] || 0);
                                 return incentive > 0 ?
                                     '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' :
                                     '<span style="color: #dc3545;">0 ₫</span>';
@@ -3452,9 +3452,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const countMsg = getTranslation('validationTab.modals.aqlFail.totalCount', lang).replace('{' + '{count}' + '}', aqlFailEmployees.length).replace('{' + '{month}' + '}', localizedMonth);
 
             let modalContent = `
-                <div class="modal-dialog modal-xl" style="max-width: 98%; margin: 10px auto;">
+                <div class="modal-dialog modal-xl aql-modal-draggable" style="max-width: 98%; margin: 10px auto;">
                     <div class="modal-content">
-                        <div class="modal-header unified-modal-header">
+                        <div class="modal-header unified-modal-header" style="cursor: move;">
                             <h5 class="modal-title unified-modal-title">
                                 <i class="fas fa-exclamation-triangle me-2"></i>
                                 <span data-i18n="validationTab.modals.aqlFail.title">${getTranslation('validationTab.modals.aqlFail.title', lang)}</span>
@@ -3468,7 +3468,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <button type="button" class="btn-close" onclick="window.closeAqlModal()"></button>
                             </div>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body" style="overflow-x: auto; max-height: 75vh;">
                             <div class="alert alert-warning d-flex align-items-center mb-3">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <div>
@@ -3578,6 +3578,50 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 초기 언어 버튼 상태 설정
             updateLanguageButtons();
+
+            // Draggable 기능 추가 (Issue #39: 모달 좌우 이동 가능)
+            const modalDialog = modalDiv.querySelector('.aql-modal-draggable');
+            const modalHeader = modalDialog.querySelector('.modal-header');
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            modalHeader.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+                if (e.target === modalHeader || modalHeader.contains(e.target)) {
+                    isDragging = true;
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    setTranslate(currentX, currentY, modalDialog);
+                }
+            }
+
+            function dragEnd(e) {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+            }
         }
 
         // 모달 닫기 함count
@@ -4324,7 +4368,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 else if (passRate >= 90) { badgeClass = 'bg-warning'; passIcon = '⚠️'; }
                 else if (passRate >= 80) { badgeClass = 'bg-orange'; passIcon = '⚠️'; }
 
-                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                 const received = incentive > 0;
 
                 const row = document.createElement('tr');
@@ -4412,7 +4456,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 else if (passRate >= 90) { badgeClass = 'bg-warning'; passIcon = '⚠️'; }
                 else if (passRate >= 80) { badgeClass = 'bg-orange'; passIcon = '⚠️'; }
 
-                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                 const received = incentive > 0;
 
                 const row = document.createElement('tr');
@@ -4714,7 +4758,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     e.stopPropagation();
                     showInlineDetail(emp, this);
                 };
-                const incentive = parseFloat(emp['incentive'] || emp['November_Incentive'] || emp['final_incentive'] || 0);
+                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                 const received = incentive > 0;
 
                 row.innerHTML = `
@@ -13080,6 +13124,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const aqlFailuresColumn = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1) + ' AQL Failures';
             window.aqlFailuresColumn = aqlFailuresColumn; // 전역 변수로 저장
 
+            // 현재 월의 Incentive 컬럼명 동적 생성 (Issue #39: 모달 데이터 정합성)
+            const currentIncentiveColumn = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1) + '_Incentive';
+            window.currentIncentiveColumn = currentIncentiveColumn; // 전역 변수로 저장
+
             if (prevMonthHeader) {{
                 if (currentLanguage === 'ko') {{
                     prevMonthHeader.textContent = '{get_korean_month(prev_month_name)}';
@@ -14947,7 +14995,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const days = parseFloat(emp['Unapproved Absences']);
                             const daysCell = days >= 3 ? `<span style="color: #e74c3c; font-weight: bold;">${'${days}'}</span>` : days;
                             // 인센티브 금액 가져오기 (November_Incentive 또는 Incentive 필드)
-                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                             const isReceived = incentiveAmount > 0;
                             const receivedCell = isReceived
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
@@ -14985,7 +15033,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     tableData = employeeData
                         .filter(emp => parseFloat(emp['Actual Working Days'] || 0) === 0)
                         .map(emp => {{
-                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                             const receivedCell = incentiveAmount > 0
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                 : `<span style="color: #e74c3c;">❌</span>`;
@@ -15028,7 +15076,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         tableData = employeeData
                             .filter(emp => parseFloat(emp['Actual Working Days'] || 0) < minDays)
                             .map(emp => {{
-                                const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                                const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                                 const receivedCell = incentiveAmount > 0
                                     ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                     : `<span style="color: #e74c3c;">❌</span>`;
@@ -15073,7 +15121,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             return isType1 && hasAqlCondition && hasAqlFail;
                         }})
                         .map(emp => {{
-                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                             const receivedCell = incentiveAmount > 0
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                 : `<span style="color: #e74c3c;">❌</span>`;
@@ -15153,7 +15201,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             return isType1 && isAssemblyInspector && lowPassRate;
                         }})
                         .map(emp => {{
-                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                             const receivedCell = incentiveAmount > 0
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                 : `<span style="color: #e74c3c;">❌</span>`;
@@ -15196,7 +15244,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             return isType1 && isAssemblyInspector && lowQty;
                         }})
                         .map(emp => {{
-                            const incentiveAmount = parseFloat(emp['November_Incentive'] || emp['Incentive'] || emp['incentive'] || 0);
+                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
                             const receivedCell = incentiveAmount > 0
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                 : `<span style="color: #e74c3c;">❌</span>`;
