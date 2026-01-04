@@ -3574,7 +3574,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="03" data-hour="15" data-minute="26">보고서 생성일: 2026년 01월 03일 15:26</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="04" data-hour="14" data-minute="09">보고서 생성일: 2026년 01월 04일 14:09</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -3612,7 +3612,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 3일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 4일</span>
             </div>
         </div>
 
@@ -15399,9 +15399,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '3th' :
-                               currentLanguage === 'en' ? 'Day 3' :
-                               'Ngày 3';
+                const dayText = currentLanguage === 'ko' ? '4th' :
+                               currentLanguage === 'en' ? 'Day 4' :
+                               'Ngày 4';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
@@ -18512,7 +18512,7 @@
         }
 
         let modalHTML = '<div id="consecutiveAqlFailModal" class="modal" style="display: block; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">';
-        modalHTML += '<div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">';
+        modalHTML += '<div class="modal-content" style="background-color: #fefefe; margin: 2% auto; padding: 0; border: 1px solid #888; width: 98%; max-width: 1800px; border-radius: 10px;">';
         modalHTML += '<div class="modal-header unified-modal-header">';
         modalHTML += '<h5 class="modal-title unified-modal-title"><i class="fas fa-exclamation-triangle me-2"></i>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.title') + '</h5>';
         modalHTML += '<button type="button" class="btn-close" onclick="document.getElementById(&apos;consecutiveAqlFailModal&apos;).remove()"></button>';
@@ -19084,7 +19084,7 @@
             const countMsg = getTranslation('validationTab.modals.aqlFail.totalCount', lang).replace('{' + '{count}' + '}', aqlFailEmployees.length).replace('{' + '{month}' + '}', localizedMonth);
 
             let modalContent = `
-                <div class="modal-dialog modal-xl" style="max-width: 95%; margin: 20px auto;">
+                <div class="modal-dialog modal-xl" style="max-width: 98%; margin: 10px auto;">
                     <div class="modal-content">
                         <div class="modal-header unified-modal-header">
                             <h5 class="modal-title unified-modal-title">

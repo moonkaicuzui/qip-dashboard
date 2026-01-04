@@ -2879,7 +2879,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }
 
         let modalHTML = '<div id="consecutiveAqlFailModal" class="modal" style="display: block; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">';
-        modalHTML += '<div class="modal-content" style="background-color: #fefefe; margin: 5% auto; padding: 0; border: 1px solid #888; width: 80%; max-width: 1200px; border-radius: 10px;">';
+        modalHTML += '<div class="modal-content" style="background-color: #fefefe; margin: 2% auto; padding: 0; border: 1px solid #888; width: 98%; max-width: 1800px; border-radius: 10px;">';
         modalHTML += '<div class="modal-header unified-modal-header">';
         modalHTML += '<h5 class="modal-title unified-modal-title"><i class="fas fa-exclamation-triangle me-2"></i>' + t('validationTab.modals.aqlFail.consecutiveAqlFail.title') + '</h5>';
         modalHTML += '<button type="button" class="btn-close" onclick="document.getElementById(&apos;consecutiveAqlFailModal&apos;).remove()"></button>';
@@ -3451,7 +3451,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const countMsg = getTranslation('validationTab.modals.aqlFail.totalCount', lang).replace('{' + '{count}' + '}', aqlFailEmployees.length).replace('{' + '{month}' + '}', localizedMonth);
 
             let modalContent = `
-                <div class="modal-dialog modal-xl" style="max-width: 95%; margin: 20px auto;">
+                <div class="modal-dialog modal-xl" style="max-width: 98%; margin: 10px auto;">
                     <div class="modal-content">
                         <div class="modal-header unified-modal-header">
                             <h5 class="modal-title unified-modal-title">
