@@ -1719,6 +1719,211 @@ function displayConditionCard(condition, results) {
 }
 
 // ============================================================================
+// 부하직원 매핑 생성 함수 (Subordinate Mapping Builder)
+// ============================================================================
+/**
+ * Builds a mapping of boss name to subordinate employees
+ * @param {Array} dashboardData - Dashboard CSV data
+ * @returns {Map} Map<bossName, Array<employee>>
+ */
+function buildSubordinateMapping(dashboardData) {
+    const mapping = new Map();
+
+    dashboardData.forEach(emp => {
+        const bossName = emp['direct boss name'];
+        if (!bossName || bossName === '-' || bossName === '') return;
+
+        if (!mapping.has(bossName)) {
+            mapping.set(bossName, []);
+        }
+        mapping.get(bossName).push(emp);
+    });
+
+    return mapping;  // Map<bossName, [subordinates]>
+}
+
+// ============================================================================
+// 연속월 검증 함수 (Continuous Months Validation)
+// ============================================================================
+/**
+ * Validates continuous months calculation
+ * @param {Array} allEmployees - All employees from validation
+ * @param {Array} previousMonthData - Previous month data (if available)
+ * @param {Object} positionMatrix - Position condition matrix
+ * @returns {Object} Validation results with two sub-validations
+ */
+function validateContinuousMonths(allEmployees, previousMonthData, positionMatrix) {
+    const PROGRESSION_TABLE = {
+        0: 0, 1: 150000, 2: 250000, 3: 350000, 4: 450000,
+        5: 550000, 6: 650000, 7: 750000, 8: 850000,
+        9: 900000, 10: 950000, 11: 975000, 12: 1000000  // 12-15 = 1M
+    };
+
+    const results = {
+        amountConsistency: { total: 0, correct: 0, mismatched: 0, employees: [] },
+        incrementLogic: { total: 0, correct: 0, mismatched: 0, employees: [] }
+    };
+
+    // Build previous month lookup
+    const prevMonthMap = new Map();
+    if (previousMonthData) {
+        previousMonthData.forEach(emp => {
+            const empId = String(emp['Employee ID'] || '').trim();
+            const prevMonths = parseInt(emp['Previous_Continuous_Months'] || 0);
+            prevMonthMap.set(empId, prevMonths);
+        });
+    }
+
+    allEmployees.forEach(emp => {
+        const position = emp.position || '';
+        const isType1 = ['ASSEMBLY INSPECTOR', 'MODEL MASTER', 'AUDITOR', 'TRAINER', 'LINE LEADER']
+            .some(p => position.toUpperCase().includes(p));
+
+        if (!isType1) return;  // Skip TYPE-2/3
+
+        const empId = String(emp.employeeId || '').trim();
+        const currentMonths = parseInt(emp.continuousMonths || 0);
+        const actualAmount = parseFloat(emp.incentive || 0);
+
+        // Validation 1: Amount Consistency
+        const monthsKey = Math.min(currentMonths, 12);
+        const expectedAmount = PROGRESSION_TABLE[monthsKey];
+
+        results.amountConsistency.total++;
+        if (actualAmount === expectedAmount) {
+            results.amountConsistency.correct++;
+        } else {
+            results.amountConsistency.mismatched++;
+            results.amountConsistency.employees.push({
+                employeeId: empId,
+                employeeName: emp.employeeName,
+                position: position,
+                continuousMonths: currentMonths,
+                actualAmount: actualAmount,
+                expectedAmount: expectedAmount
+            });
+        }
+
+        // Validation 2: Increment Logic (if previous data available)
+        if (!prevMonthMap.has(empId)) return;  // Skip new employees
+
+        const prevMonths = prevMonthMap.get(empId);
+        const allConditionsPass = (emp.conditionsPassed === emp.conditionsApplicable);
+        const expected = allConditionsPass ? Math.min(prevMonths + 1, 15) : 0;
+
+        results.incrementLogic.total++;
+        if (currentMonths === expected) {
+            results.incrementLogic.correct++;
+        } else {
+            results.incrementLogic.mismatched++;
+            results.incrementLogic.employees.push({
+                employeeId: empId,
+                employeeName: emp.employeeName,
+                position: position,
+                previousMonths: prevMonths,
+                currentMonths: currentMonths,
+                expected: expected,
+                allConditionsPass: allConditionsPass
+            });
+        }
+    });
+
+    return results;
+}
+
+// ============================================================================
+// (V) SUPERVISOR 특별 검증 함수 (SUPERVISOR Special Validation)
+// ============================================================================
+/**
+ * Validates SUPERVISOR incentive calculations
+ * @param {Array} allEmployees - All employees from validation
+ * @param {Array} dashboardData - Dashboard CSV data
+ * @param {Array} previousMonthData - Previous month data (if available)
+ * @param {Object} positionMatrix - Position condition matrix
+ * @returns {Object} Validation results for SUPERVISOR employees
+ */
+function validateSupervisorIncentives(allEmployees, dashboardData, previousMonthData, positionMatrix) {
+    const results = {
+        total: 0,
+        correct: 0,
+        mismatched: 0,
+        supervisors: []
+    };
+
+    // Build subordinate mapping
+    const subordinateMap = buildSubordinateMapping(dashboardData);
+
+    // Find all (V) SUPERVISOR employees
+    const vSupervisors = allEmployees.filter(emp =>
+        emp.position && emp.position.toUpperCase().includes('SUPERVISOR')
+    );
+
+    vSupervisors.forEach(supervisor => {
+        results.total++;
+
+        const fullName = supervisor.employeeName;
+        const subordinates = subordinateMap.get(fullName) || [];
+
+        let expected = 0;
+        let calculationMethod = '';
+
+        if (supervisor.type === 'TYPE-1') {
+            // TYPE-1: Subordinate formula
+            const receivingSubordinates = subordinates.filter(s =>
+                parseFloat(s['December_Incentive'] || 0) > 0
+            );
+            const totalSubordinateIncentive = receivingSubordinates.reduce(
+                (sum, s) => sum + parseFloat(s['December_Incentive'] || 0), 0
+            );
+            const receivingRatio = subordinates.length > 0
+                ? receivingSubordinates.length / subordinates.length
+                : 0;
+
+            expected = totalSubordinateIncentive * 0.12 * receivingRatio;
+            calculationMethod = `Subordinate × 12% × ${receivingRatio.toFixed(2)}`;
+
+        } else if (supervisor.type === 'TYPE-2') {
+            // TYPE-2: LINE LEADER average × 2.5
+            const type1LineLeaders = allEmployees.filter(emp =>
+                emp.position === 'LINE LEADER' &&
+                emp.type === 'TYPE-1' &&
+                parseFloat(emp.incentive || 0) > 0
+            );
+
+            if (type1LineLeaders.length > 0) {
+                const avgLineLeader = type1LineLeaders.reduce(
+                    (sum, e) => sum + parseFloat(e.incentive), 0
+                ) / type1LineLeaders.length;
+                expected = avgLineLeader * 2.5;
+                calculationMethod = `LINE LEADER avg × 2.5 (${type1LineLeaders.length}명)`;
+            }
+        }
+
+        const actual = parseFloat(supervisor.incentive || 0);
+        const matches = Math.abs(expected - actual) < 1;  // 1 VND tolerance
+
+        if (matches) {
+            results.correct++;
+        } else {
+            results.mismatched++;
+        }
+
+        results.supervisors.push({
+            employeeId: supervisor.employeeId,
+            employeeName: supervisor.employeeName,
+            type: supervisor.type,
+            subordinateCount: subordinates.length,
+            expected: expected,
+            actual: actual,
+            matches: matches,
+            calculationMethod: calculationMethod
+        });
+    });
+
+    return results;
+}
+
+// ============================================================================
 // 포지션별 차이 분석 함수 (Position-level Discrepancy Analysis)
 // ============================================================================
 function analyzePositionDiscrepancies(positionStats, allEmployees) {
@@ -1999,4 +2204,42 @@ function displayAdditionalValidations(allEmployees, attendanceData, dashboardDat
         document.getElementById('type2AverageCard').querySelector('.card-header')
             .classList.add('bg-success', 'text-white');
     }
+
+    // 3. 연속월 검증 (Continuous Months Validation)
+    const previousMonthData = ValidationEngine.state.previousMonthData || [];
+    const continuousResults = validateContinuousMonths(allEmployees, previousMonthData, positionMatrix);
+
+    // Display amount consistency
+    document.getElementById('amountConsistencyTotal').textContent = continuousResults.amountConsistency.total;
+    document.getElementById('amountConsistencyCorrect').textContent = continuousResults.amountConsistency.correct;
+    document.getElementById('amountConsistencyMismatched').textContent = continuousResults.amountConsistency.mismatched;
+
+    // Display increment logic
+    document.getElementById('incrementLogicTotal').textContent = continuousResults.incrementLogic.total;
+    document.getElementById('incrementLogicCorrect').textContent = continuousResults.incrementLogic.correct;
+    document.getElementById('incrementLogicMismatched').textContent = continuousResults.incrementLogic.mismatched;
+
+    // 4. (V) SUPERVISOR 특별 검증 (SUPERVISOR Special Validation)
+    const supervisorResults = validateSupervisorIncentives(allEmployees, dashboardData, previousMonthData, positionMatrix);
+
+    document.getElementById('supervisorTotal').textContent = supervisorResults.total;
+    document.getElementById('supervisorCorrect').textContent = supervisorResults.correct;
+    document.getElementById('supervisorMismatched').textContent = supervisorResults.mismatched;
+
+    // Display supervisor details table
+    const supervisorTableBody = document.getElementById('supervisorDetailsTable');
+    supervisorTableBody.innerHTML = supervisorResults.supervisors.map(s => `
+        <tr class="${s.matches ? '' : 'table-danger'}">
+            <td>${s.employeeId}</td>
+            <td>${s.employeeName}</td>
+            <td>${s.type}</td>
+            <td>${s.subordinateCount}명</td>
+            <td>${s.calculationMethod}</td>
+            <td class="text-end">${s.expected.toLocaleString()} VND</td>
+            <td class="text-end">${s.actual.toLocaleString()} VND</td>
+            <td class="text-end ${s.matches ? 'text-success' : 'text-danger'}">
+                ${s.matches ? '✓' : '✗'}
+            </td>
+        </tr>
+    `).join('');
 }
