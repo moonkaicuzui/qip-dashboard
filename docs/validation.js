@@ -831,7 +831,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (validation.valid) {
                 uploadStatus.classList.add('success');
-                uploadStatus.textContent = `✅ 업로드 성공: ${fileData.length}명의 데이터`;
+                const t = translations[currentLang];
+                uploadStatus.textContent = `✅ ${t.uploadSuccess}: ${fileData.length}${t.uploadEmployees}`;
                 document.getElementById('startValidation').disabled = false;
             } else {
                 uploadStatus.classList.add('error');
@@ -853,13 +854,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const monthKey = ValidationEngine.state.selectedMonth;
         const fileInput = document.getElementById('previousMonthFile');
 
+        const t = translations[currentLang];
+
         if (!monthKey) {
-            alert('먼저 검증 월을 선택하세요');
+            alert(t.selectMonth);
             return;
         }
 
         if (!fileInput.files[0]) {
-            alert('먼저 전월 데이터 파일을 업로드하세요');
+            alert(t.uploadFile);
             return;
         }
 
@@ -896,7 +899,11 @@ document.addEventListener('DOMContentLoaded', () => {
             matched: '일치',
             mismatched: '불일치',
             totalIncentive: '총 인센티브',
-            mismatchTitle: 'Validation Mismatches'
+            mismatchTitle: 'Validation Mismatches',
+            uploadSuccess: '업로드 성공',
+            uploadEmployees: '명의 데이터',
+            selectMonth: '먼저 검증 월을 선택하세요',
+            uploadFile: '먼저 전월 데이터 파일을 업로드하세요'
         },
         en: {
             title: 'Incentive Validation System',
@@ -916,7 +923,11 @@ document.addEventListener('DOMContentLoaded', () => {
             matched: 'Matched',
             mismatched: 'Mismatched',
             totalIncentive: 'Total Incentive',
-            mismatchTitle: 'Validation Mismatches'
+            mismatchTitle: 'Validation Mismatches',
+            uploadSuccess: 'Upload Success',
+            uploadEmployees: 'employees',
+            selectMonth: 'Please select validation month first',
+            uploadFile: 'Please upload previous month data file first'
         },
         vi: {
             title: 'Hệ thống Xác thực Thưởng',
@@ -936,7 +947,11 @@ document.addEventListener('DOMContentLoaded', () => {
             matched: 'Khớp',
             mismatched: 'Không khớp',
             totalIncentive: 'Tổng Thưởng',
-            mismatchTitle: 'Sai lệch Xác thực'
+            mismatchTitle: 'Sai lệch Xác thực',
+            uploadSuccess: 'Tải lên Thành công',
+            uploadEmployees: 'nhân viên',
+            selectMonth: 'Vui lòng chọn tháng xác thực trước',
+            uploadFile: 'Vui lòng tải lên tệp dữ liệu tháng trước trước'
         }
     };
 
@@ -1012,6 +1027,9 @@ document.addEventListener('DOMContentLoaded', () => {
             switchLanguage(btn.dataset.lang);
         });
     });
+
+    // Initialize with default language (Korean)
+    switchLanguage('ko');
 });
 
 // Helper function to get previous month name
