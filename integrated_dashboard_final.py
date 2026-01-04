@@ -1793,7 +1793,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         : '-';
 
                     // 인센티브 정보 가져오기 (수령 여부 및 금액)
-                    const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                    const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                     const isReceived = incentiveAmount > 0;
                     const receivedCell = isReceived
                         ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
@@ -2077,7 +2077,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     : '-';
 
                 // 인센티브 수령 여부 및 금액 (2025-12-22: 배경 제거, 텍스트 색상으로 구별)
-                const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
                     ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
@@ -2375,7 +2375,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
                             ${(() => {
-                                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                                const incentive = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                                 const received = incentive > 0;
                                 // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return received ?
@@ -2385,7 +2385,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
                             ${(() => {
-                                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                                const incentive = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                                 // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
                                 return incentive > 0 ?
                                     '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' :
@@ -2667,7 +2667,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const position = emp['QIP POSITION 1ST NAME'] || '-';
 
                 // 인센티브 정보 가져오기
-                const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                 const receivedCell = incentiveAmount > 0
                     ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                     : `<span style="color: #e74c3c;">❌</span>`;
@@ -3220,8 +3220,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     failBadgeText = `${failPercent}%`;
                 }
 
-                // 인센티브 수령 여부 및 금액 (Issue #39: 동적 월별 인센티브 칼럼 사용)
-                const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] || 0);
+                // 인센티브 수령 여부 및 금액 (Phase 3: 타입 안전 헬퍼 사용)
+                const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current');
                 const isReceived = incentiveAmount > 0;
                 const receivedCell = isReceived
                     ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
@@ -3391,18 +3391,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <span class="badge ${failBadgeClass}">${failBadgeText}</span>
                         </td>
                         <td class="unified-table-cell text-center">
-                            ${(() => {
-                                // Issue #39: 동적 월별 인센티브 칼럼 사용
-                                const incentive = parseFloat(emp[window.currentIncentiveColumn] || 0);
-                                return incentive > 0 ?
-                                    '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' :
-                                    '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
-                            })()}
+                            ${window.employeeHelpers.getReceivedStatusHTML(emp)} <!-- Phase 3: 타입 안전 헬퍼 사용 -->
                         </td>
                         <td class="unified-table-cell text-center">
                             ${(() => {
-                                // Issue #39: 동적 월별 인센티브 칼럼 사용
-                                const incentive = parseFloat(emp[window.currentIncentiveColumn] || 0);
+                                // Phase 3: 타입 안전 헬퍼 사용
+                                const incentive = window.employeeHelpers.getIncentive(emp, 'current');
                                 return incentive > 0 ?
                                     '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' :
                                     '<span style="color: #dc3545;">0 ₫</span>';
@@ -4368,7 +4362,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 else if (passRate >= 90) { badgeClass = 'bg-warning'; passIcon = '⚠️'; }
                 else if (passRate >= 80) { badgeClass = 'bg-orange'; passIcon = '⚠️'; }
 
-                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                const incentive = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                 const received = incentive > 0;
 
                 const row = document.createElement('tr');
@@ -4456,7 +4450,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 else if (passRate >= 90) { badgeClass = 'bg-warning'; passIcon = '⚠️'; }
                 else if (passRate >= 80) { badgeClass = 'bg-orange'; passIcon = '⚠️'; }
 
-                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                const incentive = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                 const received = incentive > 0;
 
                 const row = document.createElement('tr');
@@ -4758,7 +4752,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     e.stopPropagation();
                     showInlineDetail(emp, this);
                 };
-                const incentive = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                const incentive = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                 const received = incentive > 0;
 
                 row.innerHTML = `
@@ -11312,6 +11306,168 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const employeeData = JSON.parse(jsonStr);
             window.employeeData = employeeData;
 
+            // Phase 1: 데이터 정규화 레이어 (Issue #39 근본 해결 - Ralph Loop)
+            // 월별 칼럼명을 표준 칼럼명으로 매핑하여 모든 모달에서 안전하게 접근 가능
+            console.log('[Phase 1] 데이터 정규화 시작:', {{
+                totalEmployees: window.employeeData.length,
+                currentIncentiveColumn: window.currentIncentiveColumn,
+                aqlFailuresColumn: window.aqlFailuresColumn
+            }});
+
+            window.employeeData = window.employeeData.map((emp, index) => {{
+                try {{
+                    // 표준 칼럼명으로 매핑 (안전한 접근 보장)
+                    const normalized = {{
+                        ...emp,
+                        // 현재 월 인센티브 (동적 칼럼 → 표준 칼럼)
+                        currentIncentive: parseFloat(emp[window.currentIncentiveColumn] || 0),
+                        // 전월 인센티브 (Previous_Incentive는 고정 칼럼명)
+                        previousIncentive: parseFloat(emp['Previous_Incentive'] || 0),
+                        // 현재 월 AQL 실패 (동적 칼럼 → 표준 칼럼)
+                        currentAqlFailures: emp[window.aqlFailuresColumn] || 'NO',
+                        // 수령 여부 플래그 (자주 사용되는 체크)
+                        hasReceivedIncentive: parseFloat(emp[window.currentIncentiveColumn] || 0) > 0
+                    }};
+
+                    // 디버깅용: 첫 10명의 정규화 결과 로그
+                    if (index < 10) {{
+                        console.log(`[Phase 1] Employee ${{index}}: ${{emp.emp_no}}`, {{
+                            original: {{
+                                [window.currentIncentiveColumn]: emp[window.currentIncentiveColumn],
+                                Previous_Incentive: emp['Previous_Incentive']
+                            }},
+                            normalized: {{
+                                currentIncentive: normalized.currentIncentive,
+                                previousIncentive: normalized.previousIncentive,
+                                hasReceivedIncentive: normalized.hasReceivedIncentive
+                            }}
+                        }});
+                    }}
+
+                    return normalized;
+                }} catch (error) {{
+                    console.error(`[Phase 1 ERROR] Employee ${{index}} normalization failed:`, error, emp);
+                    // 에러 발생 시 원본 데이터 유지 (안전 장치)
+                    return {{
+                        ...emp,
+                        currentIncentive: 0,
+                        previousIncentive: 0,
+                        currentAqlFailures: 'NO',
+                        hasReceivedIncentive: false
+                    }};
+                }}
+            }});
+
+            console.log('[Phase 1] 데이터 정규화 완료:', {{
+                totalNormalized: window.employeeData.length,
+                sampleEmployee: window.employeeData[0] ? {{
+                    emp_no: window.employeeData[0].emp_no,
+                    currentIncentive: window.employeeData[0].currentIncentive,
+                    previousIncentive: window.employeeData[0].previousIncentive,
+                    hasReceivedIncentive: window.employeeData[0].hasReceivedIncentive
+                }} : 'No employees'
+            }});
+
+            // Phase 2: 타입 안전 헬퍼 함수 (Issue #39 근본 해결 - Ralph Loop)
+            // 직원 데이터 안전 접근을 위한 유틸리티 함수들
+            window.employeeHelpers = {{
+                /**
+                 * 직원 인센티브 조회 (안전한 접근)
+                 * @param {{Object}} emp - 직원 객체
+                 * @param {{string}} type - 'current' 또는 'previous'
+                 * @return {{number}} 인센티브 금액 (VND)
+                 */
+                getIncentive: function(emp, type = 'current') {{
+                    if (!emp) {{
+                        console.warn('[employeeHelpers] getIncentive: emp is null/undefined');
+                        return 0;
+                    }}
+
+                    if (type === 'current') {{
+                        return emp.currentIncentive ?? 0;
+                    }} else if (type === 'previous') {{
+                        return emp.previousIncentive ?? 0;
+                    }} else {{
+                        console.error('[employeeHelpers] getIncentive: invalid type:', type);
+                        return 0;
+                    }}
+                }},
+
+                /**
+                 * 인센티브 수령 여부 확인
+                 * @param {{Object}} emp - 직원 객체
+                 * @return {{boolean}} 수령 여부
+                 */
+                hasReceivedIncentive: function(emp) {{
+                    if (!emp) return false;
+                    return emp.hasReceivedIncentive === true || emp.currentIncentive > 0;
+                }},
+
+                /**
+                 * AQL 실패 상태 조회
+                 * @param {{Object}} emp - 직원 객체
+                 * @return {{string}} 'YES_3MONTHS', 'YES', 'NO' 등
+                 */
+                getAqlFailureStatus: function(emp) {{
+                    if (!emp) return 'NO';
+                    return emp.currentAqlFailures || 'NO';
+                }},
+
+                /**
+                 * 인센티브 금액 포맷팅
+                 * @param {{number}} amount - 금액
+                 * @return {{string}} 포맷된 문자열 (예: "₫1,202,142")
+                 */
+                formatIncentive: function(amount) {{
+                    if (amount == null || isNaN(amount)) return '₫0';
+                    return '₫' + Number(amount).toLocaleString('en-US');
+                }},
+
+                /**
+                 * 수령 상태 텍스트 (한국어)
+                 * @param {{Object}} emp - 직원 객체
+                 * @return {{string}} '수령' 또는 '미수령'
+                 */
+                getReceivedStatusKO: function(emp) {{
+                    return this.hasReceivedIncentive(emp) ? '수령' : '미수령';
+                }},
+
+                /**
+                 * 수령 상태 아이콘 HTML
+                 * @param {{Object}} emp - 직원 객체
+                 * @return {{string}} HTML 문자열
+                 */
+                getReceivedStatusHTML: function(emp) {{
+                    const received = this.hasReceivedIncentive(emp);
+                    if (received) {{
+                        return '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>';
+                    }} else {{
+                        return '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
+                    }}
+                }},
+
+                /**
+                 * 인센티브 셀 HTML 생성 (금액 + 수령 상태)
+                 * @param {{Object}} emp - 직원 객체
+                 * @param {{string}} type - 'current' 또는 'previous'
+                 * @return {{string}} HTML 문자열
+                 */
+                getIncentiveCellHTML: function(emp, type = 'current') {{
+                    const amount = this.getIncentive(emp, type);
+                    const formatted = this.formatIncentive(amount);
+                    const statusHTML = type === 'current' ? this.getReceivedStatusHTML(emp) : '';
+
+                    return `
+                        <div class="d-flex flex-column align-items-center">
+                            <div class="fw-bold">${{formatted}}</div>
+                            ${{statusHTML ? `<div class="mt-1">${{statusHTML}}</div>` : ''}}
+                        </div>
+                    `;
+                }}
+            }};
+
+            console.log('[Phase 2] 타입 안전 헬퍼 함수 정의 완료:', Object.keys(window.employeeHelpers));
+
             // TYPE 테이블 생성 함수 정의 (데이터 로드 직후, 호출 전에)
             function generateTypeTable() {{
 
@@ -14995,7 +15151,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const days = parseFloat(emp['Unapproved Absences']);
                             const daysCell = days >= 3 ? `<span style="color: #e74c3c; font-weight: bold;">${'${days}'}</span>` : days;
                             // 인센티브 금액 가져오기 (November_Incentive 또는 Incentive 필드)
-                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                            const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                             const isReceived = incentiveAmount > 0;
                             const receivedCell = isReceived
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
@@ -15033,7 +15189,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     tableData = employeeData
                         .filter(emp => parseFloat(emp['Actual Working Days'] || 0) === 0)
                         .map(emp => {{
-                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                            const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                             const receivedCell = incentiveAmount > 0
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                 : `<span style="color: #e74c3c;">❌</span>`;
@@ -15076,7 +15232,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         tableData = employeeData
                             .filter(emp => parseFloat(emp['Actual Working Days'] || 0) < minDays)
                             .map(emp => {{
-                                const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                                const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                                 const receivedCell = incentiveAmount > 0
                                     ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                     : `<span style="color: #e74c3c;">❌</span>`;
@@ -15121,7 +15277,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             return isType1 && hasAqlCondition && hasAqlFail;
                         }})
                         .map(emp => {{
-                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                            const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                             const receivedCell = incentiveAmount > 0
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                 : `<span style="color: #e74c3c;">❌</span>`;
@@ -15201,7 +15357,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             return isType1 && isAssemblyInspector && lowPassRate;
                         }})
                         .map(emp => {{
-                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                            const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                             const receivedCell = incentiveAmount > 0
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                 : `<span style="color: #e74c3c;">❌</span>`;
@@ -15244,7 +15400,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             return isType1 && isAssemblyInspector && lowQty;
                         }})
                         .map(emp => {{
-                            const incentiveAmount = parseFloat(emp[window.currentIncentiveColumn] // Issue #39: 동적 월별 인센티브 칼럼 || 0);
+                            const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                             const receivedCell = incentiveAmount > 0
                                 ? `<span style="color: #27ae60; font-weight: bold;">✅</span>`
                                 : `<span style="color: #e74c3c;">❌</span>`;
@@ -15616,8 +15772,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const empPosition = emp.position || emp['QIP POSITION 1ST NAME'] || '';
                 const empType = emp.type || emp['ROLE TYPE STD'] || 'TYPE-2';
                 // 🔧 NaN 값 안전성 검사 추가
-                let rawAmount = emp[incentiveCol] || emp['November_Incentive'] || emp['{month}_incentive'] || 0;
-                const amount = isNaN(parseInt(rawAmount)) ? 0 : parseInt(rawAmount);
+                // Phase 3: 타입 안전 헬퍼 사용 (데이터 정규화 레이어 덕분에 간결함)
+                const amount = emp.currentIncentive || 0;
                 const isPaid = amount > 0;
                 const talentPool = emp.Talent_Pool_Member === 'Y' || emp.Talent_Pool_Member === 'YES';
 
