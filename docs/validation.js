@@ -8,6 +8,7 @@ const ValidationEngine = {
     state: {
         selectedMonth: null,
         selectedYear: null,
+        fileUploaded: false,
         previousMonthData: null,
         currentMonthData: {
             attendance: null,
@@ -1148,6 +1149,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const prevMonthName = getPreviousMonthName(monthName);
             document.getElementById('downloadTemplate').textContent =
                 `📄 ${prevMonthName} ${year} 양식 다운로드`;
+
+            // Enable validation button if file is already uploaded
+            const fileInput = document.getElementById('previousMonthFile');
+            if (fileInput.files.length > 0 && ValidationEngine.state.fileUploaded) {
+                document.getElementById('startValidation').disabled = false;
+            }
         }
     });
 
@@ -1183,10 +1190,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 uploadStatus.classList.add('success');
                 const t = translations[currentLang];
                 uploadStatus.textContent = `✅ ${t.uploadSuccess}: ${fileData.length}${t.uploadEmployees}`;
-                document.getElementById('startValidation').disabled = false;
+
+                // Mark file as uploaded
+                ValidationEngine.state.fileUploaded = true;
+
+                // Enable button only if month is also selected
+                const monthKey = ValidationEngine.state.selectedMonth;
+                if (monthKey) {
+                    document.getElementById('startValidation').disabled = false;
+                } else {
+                    uploadStatus.textContent += '\n⚠️ Please select a month first';
+                }
             } else {
                 uploadStatus.classList.add('error');
                 uploadStatus.textContent = '❌ ' + validation.errors.join(', ');
+                ValidationEngine.state.fileUploaded = false;
             }
 
             if (validation.warnings.length > 0) {
