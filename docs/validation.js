@@ -513,7 +513,8 @@ const ValidationEngine = {
             }
 
             // Determine employee TYPE from CSV column
-            const typeColumn = employee['TYPE'] || '';
+            // CSV column name is "ROLE TYPE STD", not "TYPE"
+            const typeColumn = employee['ROLE TYPE STD'] || employee['TYPE'] || '';
             const employeeType = typeColumn || 'TYPE-3';
 
             // Get position name (not code!)
