@@ -712,7 +712,7 @@ const ValidationEngine = {
 
         /**
          * Display mismatch table
-         * TYPE별로 구분하여 표시, Severity 제거
+         * TYPE-1/2/3별로 그룹화 + 직급별 구별하여 표시
          */
         displayMismatchTable(mismatches) {
             const tbody = document.getElementById('mismatchBody');
@@ -723,58 +723,99 @@ const ValidationEngine = {
                 return;
             }
 
+            // TYPE별로 그룹화
+            const groupedByType = {
+                'TYPE-1': [],
+                'TYPE-2': [],
+                'TYPE-3': []
+            };
+
             mismatches.forEach(mismatch => {
-                mismatch.mismatches.forEach(detail => {
-                    const row = document.createElement('tr');
-                    row.classList.add('mismatch-row');
+                const type = mismatch.employeeType || 'TYPE-3';
+                if (!groupedByType[type]) groupedByType[type] = [];
+                groupedByType[type].push(mismatch);
+            });
 
-                    // TYPE별 badge 색상
-                    let typeBadgeClass = 'bg-secondary';
-                    if (mismatch.employeeType === 'TYPE-1') typeBadgeClass = 'bg-primary';
-                    else if (mismatch.employeeType === 'TYPE-2') typeBadgeClass = 'bg-success';
-                    else if (mismatch.employeeType === 'TYPE-3') typeBadgeClass = 'bg-warning';
+            // TYPE-1, TYPE-2, TYPE-3 순서로 표시
+            ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(typeKey => {
+                const typeGroup = groupedByType[typeKey];
+                if (typeGroup.length === 0) return;
 
-                    row.innerHTML = `
-                        <td>${mismatch.emp_no}</td>
-                        <td>${mismatch.name}</td>
-                        <td><span class="badge ${typeBadgeClass}">${mismatch.employeeType}</span></td>
-                        <td>${detail.field}</td>
-                        <td class="text-success fw-bold">₫${detail.validatedIncentive !== null && detail.validatedIncentive !== undefined ? (typeof detail.validatedIncentive === 'number' ? detail.validatedIncentive.toLocaleString() : detail.validatedIncentive) : '-'}</td>
-                        <td class="text-danger fw-bold">₫${detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined ? (typeof detail.dashboardIncentive === 'number' ? detail.dashboardIncentive.toLocaleString() : detail.dashboardIncentive) : '-'}</td>
-                        <td>${detail.difference !== null ? detail.difference : '-'}</td>
-                    `;
+                // TYPE 헤더 행 추가
+                const headerRow = document.createElement('tr');
+                headerRow.classList.add('table-secondary', 'fw-bold');
+                headerRow.innerHTML = `
+                    <td colspan="7" class="text-center">
+                        ${typeKey} (${typeGroup.length}명)
+                    </td>
+                `;
+                tbody.appendChild(headerRow);
 
-                    tbody.appendChild(row);
+                // 각 직원 행 추가
+                typeGroup.forEach(mismatch => {
+                    mismatch.mismatches.forEach(detail => {
+                        const row = document.createElement('tr');
+                        row.classList.add('mismatch-row');
+
+                        row.innerHTML = `
+                            <td>${mismatch.emp_no}</td>
+                            <td>${mismatch.name}</td>
+                            <td>${typeKey}</td>
+                            <td><strong>${mismatch.position}</strong></td>
+                            <td>${detail.field}</td>
+                            <td class="text-success fw-bold">₫${detail.validatedIncentive !== null && detail.validatedIncentive !== undefined ? (typeof detail.validatedIncentive === 'number' ? detail.validatedIncentive.toLocaleString() : detail.validatedIncentive) : '-'}</td>
+                            <td class="text-danger fw-bold">₫${detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined ? (typeof detail.dashboardIncentive === 'number' ? detail.dashboardIncentive.toLocaleString() : detail.dashboardIncentive) : '-'}</td>
+                        `;
+
+                        tbody.appendChild(row);
+                    });
                 });
             });
         },
 
         /**
          * Export mismatches to Excel
-         * TYPE별로 구분하여 내보내기, Severity 제거
+         * TYPE-1/2/3별로 그룹화하여 내보내기
          */
         exportToExcel(mismatches) {
             const wb = XLSX.utils.book_new();
 
-            // Prepare data for export
-            const exportData = [];
+            // TYPE별로 그룹화
+            const groupedByType = {
+                'TYPE-1': [],
+                'TYPE-2': [],
+                'TYPE-3': []
+            };
+
             mismatches.forEach(mismatch => {
-                mismatch.mismatches.forEach(detail => {
-                    exportData.push({
-                        'Employee ID': mismatch.emp_no,
-                        'Name': mismatch.name,
-                        'TYPE': mismatch.employeeType || 'Unknown',
-                        'Position': mismatch.position,
-                        'Field': detail.field,
-                        'Validated Incentive': detail.validatedIncentive !== null && detail.validatedIncentive !== undefined ? detail.validatedIncentive : '-',
-                        'Dashboard Incentive': detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined ? detail.dashboardIncentive : '-',
-                        'Difference': detail.difference !== null ? detail.difference : '-'
-                    });
-                });
+                const type = mismatch.employeeType || 'TYPE-3';
+                if (!groupedByType[type]) groupedByType[type] = [];
+                groupedByType[type].push(mismatch);
             });
 
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            XLSX.utils.book_append_sheet(wb, ws, 'Mismatches');
+            // TYPE-1, TYPE-2, TYPE-3 순서로 시트 생성
+            ['TYPE-1', 'TYPE-2', 'TYPE-3'].forEach(typeKey => {
+                const typeGroup = groupedByType[typeKey];
+                if (typeGroup.length === 0) return;
+
+                const exportData = [];
+                typeGroup.forEach(mismatch => {
+                    mismatch.mismatches.forEach(detail => {
+                        exportData.push({
+                            'Employee ID': mismatch.emp_no,
+                            'Name': mismatch.name,
+                            'TYPE': typeKey,
+                            'Position': mismatch.position,
+                            'Field': detail.field,
+                            'Validated Incentive': detail.validatedIncentive !== null && detail.validatedIncentive !== undefined ? detail.validatedIncentive : '-',
+                            'Dashboard Incentive': detail.dashboardIncentive !== null && detail.dashboardIncentive !== undefined ? detail.dashboardIncentive : '-'
+                        });
+                    });
+                });
+
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                XLSX.utils.book_append_sheet(wb, ws, typeKey);
+            });
 
             const fileName = `Validation_Mismatches_${ValidationEngine.state.selectedMonth}_${new Date().toISOString().slice(0, 10)}.xlsx`;
             XLSX.writeFile(wb, fileName);
