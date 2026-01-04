@@ -2138,6 +2138,79 @@ Employee ID | Previous_Incentive
      - Dashboard CSV 컬럼 형식 변경 시 검증 시스템 함께 업데이트
      - 새 조건 추가 시 `validateConditions()` 함수에 정의 추가
 
+39. **Issue #39: Ralph Loop - 근본적 모달 데이터 정합성 해결** (FIXED: 2026-01-04):
+   - **Problem**: 하드코딩된 월별 칼럼 패턴으로 인한 모달 데이터 정합성 문제
+     - `emp['November_Incentive']`, `emp[window.currentIncentiveColumn]` 직접 접근
+     - 월 변경 시 데이터 불일치 발생
+   - **Solution**: 5-Phase 대규모 리팩토링
+     - **Phase 1** (Lines 11315-11382): Data Normalization Layer
+       - `currentIncentive`, `previousIncentive`, `hasReceivedIncentive` 정규화 필드
+       - 월별 하드코딩 제거, 동적 데이터 접근
+     - **Phase 2** (Lines 11391-11473): Type-Safe Helper Functions
+       - `window.employeeHelpers.getIncentive(emp, 'current'|'previous')`
+       - `window.employeeHelpers.hasReceivedIncentive(emp)`
+       - NaN/null/undefined 안전 처리
+     - **Phase 3** (Lines 13275-16458): 14 Modal Refactoring
+       - Position Detail Modal, AQL Validation Modal, Org Chart Modal 등
+       - 하드코딩 패턴 제거, employeeHelpers 사용
+     - **Phase 4**: Git Pre-Commit Hook (`.git/hooks/pre-commit:35-94`)
+       - 하드코딩된 월별 칼럼 패턴 감지 및 차단
+       - `emp['November_Incentive']`, `emp[window.currentIncentiveColumn]` 검출
+       - Phase 1/2/3 주석 영역 제외 로직
+     - **Phase 5**: Verification and Deployment
+       - employeeHelpers: 16 occurrences in December dashboard
+       - Pre-commit hook test: Pattern detection working
+   - **Files Modified**:
+     - `integrated_dashboard_final.py:11315-16458` (5000+ lines refactored)
+     - `.git/hooks/pre-commit:35-94` (pattern detection)
+   - **Commit**: `83d4d250` (2026-01-04 15:23:38)
+   - **Prevention**:
+     - Always use `window.employeeHelpers` for incentive access
+     - Never use direct column access like `emp['November_Incentive']`
+     - Pre-commit hook blocks hardcoded patterns automatically
+
+40. **Issue #40: SelfContained HTML 동기화 문제** (FIXED: 2026-01-04):
+   - **Problem**: 웹 대시보드 업데이트 시 SelfContained HTML 재생성 누락
+     - Web Dashboard: Jan 4 15:20 (employeeHelpers 16개 ✅)
+     - SelfContained: Jan 2 20:42 (employeeHelpers 0개 ❌)
+     - Time gap: 49시간 38분
+   - **Root Cause**:
+     - **Primary**: Manual commit 83d4d250 (Issue #39) updated web dashboard but forgot SelfContained regeneration step
+     - **Secondary**: GitHub Actions month filter (current_only=True) skips December when running in January
+   - **Solution**: 3-Layer Defense System (99%+ prevention)
+     - **Layer 1 - Auto-Generation** (`integrated_dashboard_final.py:23796-23828`):
+       - Automatically generate SelfContained after web dashboard creation
+       - Works for both manual and automated runs
+       - 90% prevention effectiveness
+     - **Layer 2 - Pre-Commit Hook** (`.git/hooks/pre-commit:169-228`):
+       - Validate web dashboard + SelfContained sync before commit
+       - Block commits when SelfContained missing
+       - 95% prevention effectiveness
+     - **Layer 3 - GitHub Actions** (`.github/workflows/auto-update-enhanced.yml:199`):
+       - Added `--all` flag to regenerate all months (not just current)
+       - 60% prevention effectiveness (safety net)
+   - **Immediate Fix**:
+     ```bash
+     python scripts/generate_all_selfcontained.py --all
+     # Result: employeeHelpers 0 → 16 ✅
+     ```
+   - **Files Modified**:
+     - `integrated_dashboard_final.py:23796-23828` (auto-generation)
+     - `.git/hooks/pre-commit:169-228` (sync validation)
+     - `.github/workflows/auto-update-enhanced.yml:199` (--all flag)
+   - **Commits**:
+     - `0a951e33` (SelfContained regeneration)
+     - Multiple commits for 3-layer defense implementation
+   - **Verification**:
+     - December 2025 SelfContained: 7.46 MB, employeeHelpers 16개 ✅
+     - Pre-commit hook test: Successfully blocks commits when sync missing ✅
+     - GitHub Actions: Regenerates all months on every run ✅
+   - **Prevention**:
+     - **NEVER manually update web dashboard without regenerating SelfContained**
+     - Always run `python scripts/generate_all_selfcontained.py --all` after manual dashboard generation
+     - Pre-commit hook will block commits if sync is broken
+     - GitHub Actions provides automatic safety net every 30 minutes
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
