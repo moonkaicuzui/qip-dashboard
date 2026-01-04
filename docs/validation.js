@@ -457,7 +457,7 @@ const ValidationEngine = {
 
             // Get position config
             const positionCode = employee.position_code || '';
-            const positionConfig = positionMatrix.positions[positionCode] || {};
+            const positionConfig = positionMatrix.position_matrix[positionCode] || {};
             const applicableConditions = positionConfig.applicable_conditions || [];
             const employeeType = positionConfig.type || 'TYPE-3';
 
@@ -946,16 +946,64 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLang = lang;
         const t = translations[lang];
 
-        // Update all text elements
+        // Update header
         document.querySelector('header h1').innerHTML = `<i class="fas fa-search-dollar"></i> ${t.title}`;
         document.querySelector('header .lead').textContent = t.subtitle;
 
-        // Update buttons
+        // Update config section
+        const configSection = document.querySelector('.input-section h3');
+        if (configSection) configSection.innerHTML = `<i class="fas fa-cog"></i> ${t.configSection}`;
+
+        // Update month selector
+        const monthLabel = document.querySelector('label[for="monthSelector"] strong');
+        if (monthLabel) monthLabel.textContent = t.monthSelect;
+
+        const monthPlaceholder = document.querySelector('#monthSelector option[value=""]');
+        if (monthPlaceholder) monthPlaceholder.textContent = t.monthPlaceholder;
+
+        // Update Step 1
+        const step1Title = document.querySelector('.template-section h4');
+        if (step1Title) step1Title.innerHTML = `<i class="fas fa-download"></i> ${t.step1Title}`;
+
+        const step1Desc = document.querySelector('.template-section p');
+        if (step1Desc) step1Desc.textContent = t.step1Desc;
+
+        const downloadBtn = document.getElementById('downloadTemplate');
+        if (downloadBtn) downloadBtn.innerHTML = `<i class="fas fa-file-excel"></i> ${t.downloadBtn}`;
+
+        const templateInfo = document.querySelector('.template-info strong');
+        if (templateInfo) templateInfo.innerHTML = `<i class="fas fa-info-circle"></i> ${t.templateInfo}`;
+
+        // Update Step 2
+        const step2Title = document.querySelector('.file-upload h4');
+        if (step2Title) step2Title.innerHTML = `<i class="fas fa-upload"></i> ${t.step2Title}`;
+
+        const step2Label = document.querySelector('.file-upload label');
+        if (step2Label) step2Label.textContent = t.step2Label;
+
+        // Update Start button
+        const startBtn = document.getElementById('startValidation');
+        if (startBtn) startBtn.innerHTML = `<i class="fas fa-check-circle"></i> ${t.startBtn}`;
+
+        // Update Summary section
+        const summaryTitle = document.querySelector('#summary h3');
+        if (summaryTitle) summaryTitle.innerHTML = `<i class="fas fa-chart-bar"></i> ${t.summaryTitle}`;
+
+        // Update KPI cards
+        const kpiTitles = document.querySelectorAll('#summary .card-title');
+        if (kpiTitles[0]) kpiTitles[0].textContent = t.totalEmployees;
+        if (kpiTitles[1]) kpiTitles[1].textContent = t.matched;
+        if (kpiTitles[2]) kpiTitles[2].textContent = t.mismatched;
+        if (kpiTitles[3]) kpiTitles[3].textContent = t.totalIncentive;
+
+        // Update Mismatch table
+        const mismatchTitle = document.querySelector('#mismatchTable h3');
+        if (mismatchTitle) mismatchTitle.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${t.mismatchTitle}`;
+
+        // Update language selector buttons
         document.querySelectorAll('.lang-selector .btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.lang === lang);
         });
-
-        // Add more translations as needed...
     }
 
     // Language selector buttons
