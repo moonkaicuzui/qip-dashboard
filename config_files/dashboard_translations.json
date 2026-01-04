@@ -5671,6 +5671,11 @@
             "en": "Name",
             "vi": "Họ tên"
           },
+          "position": {
+            "ko": "직책",
+            "en": "Position",
+            "vi": "Chức vụ"
+          },
           "supervisor": {
             "ko": "직속 상사",
             "en": "Direct Supervisor",

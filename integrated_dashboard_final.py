@@ -3234,6 +3234,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <tr class="unified-table-row">
                         <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
                         <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
+                        <td class="unified-table-cell">${emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-'}</td>
                         <td class="unified-table-cell">${supervisorName}</td>
                         <td class="unified-table-cell text-center">${supervisorId}</td>
                         <td class="unified-table-cell text-center">
@@ -3252,7 +3253,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }).join('');
 
             const emptyMessage = currentLang === 'ko' ? 'AQL FAIL이 not found' : currentLang === 'en' ? 'No AQL FAIL records' : 'Không có bản ghi AQL FAIL';
-            tbody.innerHTML = tableRows || `<tr><td colspan="9" class="text-center text-muted">${emptyMessage}</td></tr>`;
+            tbody.innerHTML = tableRows || `<tr><td colspan="10" class="text-center text-muted">${emptyMessage}</td></tr>`;
 
             // 정렬 아이콘 업데이트
             document.querySelectorAll('#aqlFailModal th[data-sort]').forEach(th => {
@@ -3486,6 +3487,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         </th>
                                         <th style="cursor: pointer;" data-sort="name" onclick="window.sortAqlData('name')">
                                             <span data-i18n="validationTab.modals.aqlFail.headers.name">${getTranslation('validationTab.modals.aqlFail.headers.name', lang)}</span><span class="sort-icon">${getSortIcon('name')}</span>
+                                        </th>
+                                        <th style="cursor: pointer;" data-sort="position" onclick="window.sortAqlData('position')">
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.position">${getTranslation('validationTab.modals.aqlFail.headers.position', lang)}</span><span class="sort-icon">${getSortIcon('position')}</span>
                                         </th>
                                         <th style="cursor: pointer;" data-sort="supervisor" onclick="window.sortAqlData('supervisor')">
                                             <span data-i18n="validationTab.modals.aqlFail.headers.supervisor">${getTranslation('validationTab.modals.aqlFail.headers.supervisor', lang)}</span><span class="sort-icon">${getSortIcon('supervisor')}</span>
