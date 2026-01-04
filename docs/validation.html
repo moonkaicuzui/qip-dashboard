@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 인센티브 검증 시스템 - QIP Dashboard</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="validation.css">
+
+    <!-- PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <!-- SheetJS for Excel parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- FileSaver.js for downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="mt-4 mb-4">
+            <h1><i class="fas fa-search-dollar"></i> 인센티브 검증 시스템</h1>
+            <p class="lead">독립적인 계산 엔진으로 인센티브 금액을 검증합니다</p>
+
+            <div class="lang-selector mt-3">
+                <button class="btn btn-sm btn-outline-primary active" data-lang="ko">한국어</button>
+                <button class="btn btn-sm btn-outline-primary" data-lang="en">English</button>
+                <button class="btn btn-sm btn-outline-primary" data-lang="vi">Tiếng Việt</button>
+            </div>
+        </header>
+
+        <!-- Input Section -->
+        <section class="input-section card mb-4">
+            <div class="card-body">
+                <h3><i class="fas fa-cog"></i> 검증 설정</h3>
+
+                <!-- Month Selector -->
+                <div class="mb-4">
+                    <label for="monthSelector" class="form-label"><strong>검증 월 선택</strong></label>
+                    <select id="monthSelector" class="form-select">
+                        <option value="">-- 월 선택 --</option>
+                        <option value="december_2025">December 2025 (12월 2025)</option>
+                        <option value="january_2026">January 2026 (1월 2026)</option>
+                        <option value="february_2026">February 2026 (2월 2026)</option>
+                        <option value="march_2026">March 2026 (3월 2026)</option>
+                        <option value="april_2026">April 2026 (4월 2026)</option>
+                        <option value="may_2026">May 2026 (5월 2026)</option>
+                        <option value="june_2026">June 2026 (6월 2026)</option>
+                        <option value="july_2026">July 2026 (7월 2026)</option>
+                        <option value="august_2026">August 2026 (8월 2026)</option>
+                        <option value="september_2026">September 2026 (9월 2026)</option>
+                        <option value="october_2026">October 2026 (10월 2026)</option>
+                        <option value="november_2026">November 2026 (11월 2026)</option>
+                    </select>
+                </div>
+
+                <!-- Template Download Section -->
+                <div class="template-section mb-4">
+                    <h4><i class="fas fa-download"></i> Step 1: 전월 데이터 양식 다운로드</h4>
+                    <p class="text-muted">실제 지급된 전월 인센티브 데이터를 입력할 Excel 양식을 다운로드하세요.</p>
+
+                    <button id="downloadTemplate" class="btn btn-primary">
+                        <i class="fas fa-file-excel"></i> 양식 다운로드 (Previous Month Template)
+                    </button>
+
+                    <div class="template-info alert alert-info mt-3">
+                        <strong><i class="fas fa-info-circle"></i> 양식 안내:</strong>
+                        <ul class="mb-0">
+                            <li><strong>2개 컬럼만</strong>: Employee ID, Previous_Incentive</li>
+                            <li><strong>빈 양식</strong> (데이터 없음) - 직접 복사하여 붙여넣기</li>
+                            <li>급여 시스템에서 <strong>실제 지급 데이터</strong> 복사 → Excel에 붙여넣기</li>
+                            <li>양식을 저장한 후 아래에서 업로드</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- File Upload Section -->
+                <div class="file-upload mb-4">
+                    <h4><i class="fas fa-upload"></i> Step 2: 작성한 양식 업로드</h4>
+                    <label class="form-label">전월 실제 지급 파일 (Previous Month Actual Payment)</label>
+                    <input type="file" id="previousMonthFile" class="form-control" accept=".csv,.xlsx,.xls" />
+                    <div id="uploadStatus" class="mt-2 hidden"></div>
+                </div>
+
+                <!-- Start Validation Button -->
+                <button id="startValidation" class="btn btn-success btn-lg w-100" disabled>
+                    <i class="fas fa-check-circle"></i> 검증 시작 (Start Validation)
+                </button>
+
+                <div id="progressBar" class="progress mt-3 hidden">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                         role="progressbar"
+                         style="width: 0%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Statistics Section -->
+        <section id="summary" class="hidden mb-4">
+            <h3><i class="fas fa-chart-bar"></i> 검증 요약</h3>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">총 직원 수</h5>
+                            <p class="display-4" id="totalEmployees">-</p>
+                            <small class="text-muted">Total Employees</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">일치</h5>
+                            <p class="display-4" id="matchedCount">-</p>
+                            <small id="matchedPercent">-</small>
+                            <br><small>Matched</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">불일치</h5>
+                            <p class="display-4" id="mismatchedCount">-</p>
+                            <small id="mismatchedPercent">-</small>
+                            <br><small>Mismatched</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h5 class="card-title">총 인센티브</h5>
+                            <p class="h5" id="expectedTotal">Expected: -</p>
+                            <p class="h5" id="actualTotal">Actual: -</p>
+                            <small class="text-muted">Total Incentive</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search & Filter Section -->
+        <section id="searchFilter" class="hidden mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text"
+                           id="searchBox"
+                           class="form-control"
+                           placeholder="Search by Employee ID or Name...">
+                </div>
+                <div class="col-md-3">
+                    <select id="filterType" class="form-select">
+                        <option value="mismatched">Mismatched Only</option>
+                        <option value="all">All Employees</option>
+                        <option value="matched">Matched Only</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button id="exportExcel" class="btn btn-success w-100">
+                        <i class="fas fa-file-excel"></i> Export to Excel
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mismatch Table Section -->
+        <section id="mismatchTable" class="hidden mb-4">
+            <h3><i class="fas fa-exclamation-triangle"></i> Validation Mismatches</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Field</th>
+                            <th>Expected</th>
+                            <th>Actual</th>
+                            <th>Difference</th>
+                            <th>Severity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mismatchBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-5 mb-3 text-center text-muted">
+            <p>QIP Incentive Validation System v1.0 | Independent JavaScript Validation Engine</p>
+            <p><small>이 시스템은 Python 계산 엔진과 독립적으로 작동합니다</small></p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Validation Engine -->
+    <script src="validation.js"></script>
+</body>
+</html>
