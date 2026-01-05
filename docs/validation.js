@@ -2600,11 +2600,34 @@ function validateContinuousMonths(allEmployees, previousMonthData, positionMatri
 
     const results = {
         amountConsistency: { total: 0, correct: 0, mismatched: 0, employees: [] },
-        incrementLogic: { total: 0, correct: 0, mismatched: 0, employees: [] }
+        incrementLogic: { total: 0, correct: 0, mismatched: 0, employees: [], skipped: false, skipReason: '' }
     };
 
     // FIX (Issue #41): Use previousContinuousMonths from allEmployees (dashboard CSV data)
     // instead of trying to get it from previousMonthData (user-uploaded file)
+
+    // FIX (Issue #41 Phase 2): Check if Previous_Continuous_Months data is reliable
+    // Python engine bug: always reads july_continuous_months instead of dynamic previous month
+    // Detect unreliable data: all values are 0 or empty
+    const type1Employees = allEmployees.filter(emp => {
+        const position = emp.position || '';
+        return ['ASSEMBLY INSPECTOR', 'MODEL MASTER', 'AUDITOR', 'TRAINER', 'LINE LEADER']
+            .some(p => position.toUpperCase().includes(p));
+    });
+
+    const prevMonthsValues = type1Employees
+        .map(emp => parseInt(emp.previousContinuousMonths || 0))
+        .filter(v => !isNaN(v));
+
+    const allZeros = prevMonthsValues.every(v => v === 0);
+    const hasVariation = prevMonthsValues.some(v => v > 0);
+
+    // If all Previous_Continuous_Months are 0, skip increment logic validation
+    if (allZeros && prevMonthsValues.length > 0) {
+        console.warn('⚠️ Previous_Continuous_Months all zeros - Python engine bug detected');
+        results.incrementLogic.skipped = true;
+        results.incrementLogic.skipReason = 'Python 계산 엔진 버그: Previous_Continuous_Months 컬럼이 모두 0입니다 (step1_인센티브_계산_개선버전.py:4682-4683의 july_continuous_months 하드코딩 문제)';
+    }
 
     allEmployees.forEach(emp => {
         const position = emp.position || '';
@@ -2624,6 +2647,12 @@ function validateContinuousMonths(allEmployees, previousMonthData, positionMatri
         results.amountConsistency.correct++;  // Skip amount validation (non-standard amounts)
 
         // Validation 2: Increment Logic
+        // Skip if data is unreliable
+        if (results.incrementLogic.skipped) {
+            results.incrementLogic.total++;
+            return;  // Don't count as error or correct
+        }
+
         // FIX (Issue #41): Use previousContinuousMonths from dashboard CSV (via allEmployees)
         const prevMonths = parseInt(emp.previousContinuousMonths || 0);
         const allConditionsPass = emp.allConditionsPass || false;  // FIX: use stored value
@@ -3127,8 +3156,26 @@ function displayAdditionalValidations(allEmployees, attendanceData, dashboardDat
     document.getElementById('amountConsistencyCorrect').textContent = continuousResults.amountConsistency.correct;
     document.getElementById('amountConsistencyMismatched').textContent = continuousResults.amountConsistency.mismatched;
 
-    // Display increment logic
-    document.getElementById('incrementLogicTotal').textContent = continuousResults.incrementLogic.total;
-    document.getElementById('incrementLogicCorrect').textContent = continuousResults.incrementLogic.correct;
-    document.getElementById('incrementLogicMismatched').textContent = continuousResults.incrementLogic.mismatched;
+    // Display increment logic (with skip handling for Python engine bug)
+    const incrementLogicContainer = document.getElementById('incrementLogicTotal')?.closest('.row');
+    if (continuousResults.incrementLogic.skipped) {
+        // Show warning instead of numbers when skipped
+        document.getElementById('incrementLogicTotal').textContent = continuousResults.incrementLogic.total;
+        document.getElementById('incrementLogicCorrect').textContent = '-';
+        document.getElementById('incrementLogicMismatched').innerHTML = '<span class="text-warning">건너뜀</span>';
+
+        // Add warning alert below increment logic section
+        const warningDiv = document.createElement('div');
+        warningDiv.className = 'alert alert-warning mt-2';
+        warningDiv.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>증가 로직 검증 건너뜀</strong><br>
+            <small>${continuousResults.incrementLogic.skipReason}</small>
+        `;
+        incrementLogicContainer?.insertAdjacentElement('afterend', warningDiv);
+    } else {
+        document.getElementById('incrementLogicTotal').textContent = continuousResults.incrementLogic.total;
+        document.getElementById('incrementLogicCorrect').textContent = continuousResults.incrementLogic.correct;
+        document.getElementById('incrementLogicMismatched').textContent = continuousResults.incrementLogic.mismatched;
+    }
 }
