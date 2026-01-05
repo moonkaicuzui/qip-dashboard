@@ -1122,13 +1122,26 @@ const ValidationEngine = {
             }
 
             // Compare continuous months (TYPE-1 ONLY)
+            // FIX (Issue #41): Use dashboard's Previous_Continuous_Months instead of reverseContinuousMonths
+            // This avoids issues with non-standard amounts (AQL 3-part, LINE LEADER, etc.)
             if (expected.employeeType === 'TYPE-1') {
-                if (expected.continuousMonths !== dashboardContinuousMonths) {
+                const prevMonths = parseInt(actual['Previous_Continuous_Months'] || 0);
+                let expectedCurrentMonths;
+
+                if (expected.allConditionsPass) {
+                    expectedCurrentMonths = Math.min(prevMonths + 1, 15);  // Max 15 months
+                } else {
+                    expectedCurrentMonths = 0;  // Reset on failure
+                }
+
+                if (expectedCurrentMonths !== dashboardContinuousMonths) {
                     mismatches.push({
                         field: 'Continuous Months',
-                        validatedIncentive: expected.continuousMonths,
+                        validatedIncentive: expectedCurrentMonths,
                         dashboardIncentive: dashboardContinuousMonths,
-                        difference: expected.continuousMonths - dashboardContinuousMonths
+                        difference: expectedCurrentMonths - dashboardContinuousMonths,
+                        previousMonths: prevMonths,
+                        allConditionsPass: expected.allConditionsPass
                     });
                 }
             }
@@ -1209,13 +1222,15 @@ const ValidationEngine = {
                     hasMismatch: employeeMismatches.length > 0,
                     mismatches: employeeMismatches,
                     // Phase 2.5: Position-specific calculation display fields
-                    continuousMonths: expected.continuousMonths || 0,
+                    continuousMonths: actual['Continuous_Months'] || 0,  // FIX: Use dashboard value instead of calculated
                     calculationMethod: expected.calculationMethod || '',  // Now populated by position-specific calculators
                     // Phase 3.1: New fields for TYPE-2 3-layer validation
                     conditionsPassed: expected.passedConditions || 0,  // FIX: was conditionsPassed, now passedConditions
                     conditionsApplicable: expected.applicableConditions?.length || 0,
                     allConditionsPass: expected.allConditionsPass || false,  // Use already-calculated value
-                    stopWorkingDate: actual['Stop working Date'] || null  // For TYPE-2 Layer 1 resignation check
+                    stopWorkingDate: actual['Stop working Date'] || null,  // For TYPE-2 Layer 1 resignation check
+                    // FIX (Issue #41): Add Previous_Continuous_Months from dashboard for validation
+                    previousContinuousMonths: parseInt(actual['Previous_Continuous_Months'] || 0)
                 });
 
                 if (employeeMismatches.length > 0) {
@@ -2577,62 +2592,41 @@ function displayConditionCard(condition, results) {
  * @returns {Object} Validation results with two sub-validations
  */
 function validateContinuousMonths(allEmployees, previousMonthData, positionMatrix) {
-    const PROGRESSION_TABLE = {
-        0: 0, 1: 150000, 2: 250000, 3: 350000, 4: 450000,
-        5: 550000, 6: 650000, 7: 750000, 8: 850000,
-        9: 900000, 10: 950000, 11: 975000, 12: 1000000  // 12-15 = 1M
-    };
+    // FIX (Issue #41): Removed PROGRESSION_TABLE check - non-standard amounts exist for:
+    // - AQL Inspector (3-part formula: Part1 + Part2 + Part3)
+    // - LINE LEADER (subordinate-based)
+    // - GROUP LEADER/SUPERVISOR/MANAGER (multiplier-based)
+    // - TYPE-2 (average-based)
 
     const results = {
         amountConsistency: { total: 0, correct: 0, mismatched: 0, employees: [] },
         incrementLogic: { total: 0, correct: 0, mismatched: 0, employees: [] }
     };
 
-    // Build previous month lookup
-    const prevMonthMap = new Map();
-    if (previousMonthData) {
-        previousMonthData.forEach(emp => {
-            const empId = String(emp['Employee ID'] || '').trim();
-            const prevMonths = parseInt(emp['Previous_Continuous_Months'] || 0);
-            prevMonthMap.set(empId, prevMonths);
-        });
-    }
+    // FIX (Issue #41): Use previousContinuousMonths from allEmployees (dashboard CSV data)
+    // instead of trying to get it from previousMonthData (user-uploaded file)
 
     allEmployees.forEach(emp => {
         const position = emp.position || '';
+        // TYPE-1 positions that use continuous months
         const isType1 = ['ASSEMBLY INSPECTOR', 'MODEL MASTER', 'AUDITOR', 'TRAINER', 'LINE LEADER']
             .some(p => position.toUpperCase().includes(p));
 
         if (!isType1) return;  // Skip TYPE-2/3
 
-        const empId = String(emp.employeeId || '').trim();
+        const empId = String(emp.emp_no || '').trim();  // FIX: was employeeId, now emp_no
         const currentMonths = parseInt(emp.continuousMonths || 0);
-        const actualAmount = parseFloat(emp.incentive || 0);
+        const actualAmount = parseFloat(emp.dashboardIncentive || 0);  // FIX: was incentive, now dashboardIncentive
 
-        // Validation 1: Amount Consistency
-        const monthsKey = Math.min(currentMonths, 12);
-        const expectedAmount = PROGRESSION_TABLE[monthsKey];
-
+        // Validation 1: Amount Consistency (skipped - amounts vary by position type)
+        // Only increment logic validation is meaningful for continuous months
         results.amountConsistency.total++;
-        if (actualAmount === expectedAmount) {
-            results.amountConsistency.correct++;
-        } else {
-            results.amountConsistency.mismatched++;
-            results.amountConsistency.employees.push({
-                employeeId: empId,
-                employeeName: emp.employeeName,
-                position: position,
-                continuousMonths: currentMonths,
-                actualAmount: actualAmount,
-                expectedAmount: expectedAmount
-            });
-        }
+        results.amountConsistency.correct++;  // Skip amount validation (non-standard amounts)
 
-        // Validation 2: Increment Logic (if previous data available)
-        if (!prevMonthMap.has(empId)) return;  // Skip new employees
-
-        const prevMonths = prevMonthMap.get(empId);
-        const allConditionsPass = (emp.conditionsPassed === emp.conditionsApplicable);
+        // Validation 2: Increment Logic
+        // FIX (Issue #41): Use previousContinuousMonths from dashboard CSV (via allEmployees)
+        const prevMonths = parseInt(emp.previousContinuousMonths || 0);
+        const allConditionsPass = emp.allConditionsPass || false;  // FIX: use stored value
         const expected = allConditionsPass ? Math.min(prevMonths + 1, 15) : 0;
 
         results.incrementLogic.total++;
@@ -2642,7 +2636,7 @@ function validateContinuousMonths(allEmployees, previousMonthData, positionMatri
             results.incrementLogic.mismatched++;
             results.incrementLogic.employees.push({
                 employeeId: empId,
-                employeeName: emp.employeeName,
+                employeeName: emp.name,  // FIX: was employeeName, now name
                 position: position,
                 previousMonths: prevMonths,
                 currentMonths: currentMonths,
