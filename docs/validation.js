@@ -384,16 +384,23 @@ const ValidationEngine = {
 
         /**
          * Condition 5: Personal AQL Failure = 0 (current month)
+         * FIXED (Issue #41): Use correct CSV column names
          */
         calculateCondition5_PersonalAQLFailure(employee, aqlData) {
             // Filter AQL data for this employee in current month
-            // Employee No column in basic info vs employee_id in AQL data
-            const empNo = employee['Employee No'];
-            const empAQL = aqlData.filter(row => row.employee_id === empNo);
+            // AQL CSV column is "EMPLOYEE NO" (uppercase), not "employee_id"
+            const empNo = String(employee['Employee No'] || '').trim();
+            const empAQL = aqlData.filter(row =>
+                String(row['EMPLOYEE NO'] || '').trim() === empNo
+            );
 
             if (empAQL.length === 0) return 'PASS';  // No AQL tests = pass
 
-            const failCount = empAQL.filter(row => row.result === 'FAIL' || row.result === 'F').length;
+            // AQL CSV uses "RESULT" column (PASS/FAIL)
+            const failCount = empAQL.filter(row => {
+                const result = (row['RESULT'] || '').toString().toUpperCase().trim();
+                return result === 'FAIL' || result === 'F';
+            }).length;
             return failCount === 0 ? 'PASS' : 'FAIL';
         },
 
@@ -425,28 +432,47 @@ const ValidationEngine = {
 
         /**
          * Condition 9: 5PRS Pass Rate >= 95%
+         * FIXED (Issue #41): Use correct CSV column names
+         * 5PRS CSV: Inspector ID, Pass Qty, Reject Qty, Valiation Qty (typo in original)
          */
         calculateCondition9_5PRSPassRate(employee, prsData) {
-            const empNo = employee['Employee No'];
-            const empPRS = prsData.filter(row => row.employee_id === empNo);
+            // 5PRS CSV column is "Inspector ID", not "employee_id"
+            const empNo = String(employee['Employee No'] || '').trim();
+            const empPRS = prsData.filter(row =>
+                String(row['Inspector ID'] || '').trim() === empNo
+            );
 
-            if (empPRS.length === 0) return 'PASS';  // No PRS tests = pass
+            if (empPRS.length === 0) return 'PASS';  // No PRS inspections = pass
 
-            const totalTests = empPRS.length;
-            const passCount = empPRS.filter(row => row.result === 'PASS' || row.result === 'P').length;
-            const passRate = (passCount / totalTests) * 100;
+            // Calculate pass rate from Pass Qty and Valiation Qty (note: typo in CSV)
+            let totalQty = 0;
+            let passQty = 0;
+            empPRS.forEach(row => {
+                totalQty += parseFloat(row['Valiation Qty'] || row['Validation Qty'] || 0);
+                passQty += parseFloat(row['Pass Qty'] || 0);
+            });
 
+            if (totalQty === 0) return 'PASS';  // No inspections = pass
+
+            const passRate = (passQty / totalQty) * 100;
             return passRate >= 95 ? 'PASS' : 'FAIL';
         },
 
         /**
          * Condition 10: 5PRS Inspection Quantity >= 100
+         * FIXED (Issue #41): Use correct CSV column names
          */
         calculateCondition10_5PRSInspectionQty(employee, prsData) {
-            const empNo = employee['Employee No'];
-            const empPRS = prsData.filter(row => row.employee_id === empNo);
+            // 5PRS CSV column is "Inspector ID", not "employee_id"
+            const empNo = String(employee['Employee No'] || '').trim();
+            const empPRS = prsData.filter(row =>
+                String(row['Inspector ID'] || '').trim() === empNo
+            );
 
-            const totalQty = empPRS.reduce((sum, row) => sum + (row.inspection_qty || 0), 0);
+            // Sum "Valiation Qty" (typo in CSV) for total inspection quantity
+            const totalQty = empPRS.reduce((sum, row) =>
+                sum + (parseFloat(row['Valiation Qty'] || row['Validation Qty'] || 0)), 0
+            );
 
             return totalQty >= 100 ? 'PASS' : 'FAIL';
         },
@@ -591,13 +617,39 @@ const ValidationEngine = {
                 return null;  // Employee not found
             }
 
+            // ========== CRITICAL FIX (Issue #41): Merge Attendance Data ==========
+            // Problem: basicInfo doesn't contain attendance fields
+            // Solution: Find matching attendance record and merge fields
+            const attendanceRecord = attendance.find(row =>
+                String(row['ID No'] || '').trim() === String(empId || '').trim()
+            );
+
+            if (attendanceRecord) {
+                // Merge attendance fields with expected property names
+                employee.actualWorkingDays = parseFloat(attendanceRecord['ACTUAL WORK DAY']) || 0;
+                employee.approvedLeaveDays = parseFloat(attendanceRecord['Approved Leave Days']) || 0;
+                employee.unapprovedAbsence = parseFloat(attendanceRecord['Unapproved Absences']) || 0;
+                employee.totalWorkingDays = parseFloat(attendanceRecord['TOTAL WORK DAY']) || 0;
+                employee.attendanceRate = parseFloat(attendanceRecord['Attendance Rate (%)']) || 0;
+            } else {
+                // No attendance record found - set defaults
+                employee.actualWorkingDays = 0;
+                employee.approvedLeaveDays = 0;
+                employee.unapprovedAbsence = 0;
+                employee.totalWorkingDays = 0;
+                employee.attendanceRate = 0;
+            }
+            // ========== END CRITICAL FIX ==========
+
             // Determine employee TYPE from CSV column
             // CSV column name is "ROLE TYPE STD", not "TYPE"
             const typeColumn = employee['ROLE TYPE STD'] || employee['TYPE'] || '';
             const employeeType = typeColumn || 'TYPE-3';
 
-            // Get position name (not code!)
+            // Get position name (not code!) and assign to employee object
             const position = employee['QIP POSITION 1ST  NAME'] || '';
+            employee.position = position;  // For condition calculators
+            employee.positionCode = employee['QIP POSITION CODE'] || '';  // For QC Assembly check
 
             // Get applicable conditions based on position + TYPE
             const conditionsConfig = this.getApplicableConditions(position, employeeType, positionMatrix);
@@ -993,10 +1045,24 @@ const ValidationEngine = {
                 }
             }
 
-            // Compare condition results (CSV uses cond_1, cond_2, etc.)
+            // Compare condition results (CSV uses full column names like cond_1_attendance_rate)
+            // FIXED (Issue #41): Use correct CSV column names
+            const conditionColumnMap = {
+                1: 'cond_1_attendance_rate',
+                2: 'cond_2_unapproved_absence',
+                3: 'cond_3_actual_working_days',
+                4: 'cond_4_minimum_days',
+                5: 'cond_5_aql_personal_failure',
+                6: 'cond_6_aql_continuous',
+                7: 'cond_7_aql_team_area',
+                8: 'cond_8_area_reject',
+                9: 'cond_9_5prs_pass_rate',
+                10: 'cond_10_5prs_inspection_qty'
+            };
+
             for (let i = 1; i <= 10; i++) {
                 const expectedCond = expected.conditionResults[`condition_${i}`];
-                const actualCond = actual[`cond_${i}`];  // CSV column name
+                const actualCond = actual[conditionColumnMap[i]];  // Use full column name
 
                 if (expectedCond !== actualCond && expected.applicableConditions.includes(i)) {
                     mismatches.push({
@@ -1084,7 +1150,8 @@ const ValidationEngine = {
                 }
 
                 report.expectedTotalIncentive += expected.incentiveAmount;
-                report.actualTotalIncentive += actual['November_Incentive'] || actual.incentive_amount || 0;
+                // FIXED (Issue #41): Use December_Incentive (not November_Incentive)
+                report.actualTotalIncentive += parseFloat(actual['December_Incentive']) || 0;
             });
 
             return report;
