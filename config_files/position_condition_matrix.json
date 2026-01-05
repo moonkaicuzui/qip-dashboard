@@ -35,6 +35,68 @@
     }
   },
 
+  "type_2_multipliers": {
+    "_description": "Single Source of Truth for TYPE-2 incentive multipliers (Issue #40, 2026-01-05)",
+    "_usage": "All 3 systems (Python engine, Dashboard, Validation.js) MUST read from this section",
+    "_prevention": "Eliminates 96% recurrence risk from hardcoded values in multiple files",
+
+    "LINE_LEADER": {
+      "multiplier": 0.12,
+      "base": "subordinate_total",
+      "formula": "부하직원 인센티브 합계 × 12% × 수령 비율",
+      "description_ko": "부하직원 인센티브 합계 기반 계산",
+      "description_en": "Based on subordinate incentive total"
+    },
+    "GROUP_LEADER": {
+      "multiplier": 2.0,
+      "base": "line_leader_average",
+      "formula": "TYPE-1 LINE LEADER 평균 × 2.0",
+      "description_ko": "TYPE-1 LINE LEADER 평균의 2배",
+      "description_en": "2x TYPE-1 LINE LEADER average"
+    },
+    "SUPERVISOR": {
+      "multiplier": 2.5,
+      "base": "line_leader_average",
+      "formula": "TYPE-1 LINE LEADER 평균 × 2.5",
+      "patterns": ["SUPERVISOR", "(V) SUPERVISOR", "V.SUPERVISOR", "V SUPERVISOR"],
+      "description_ko": "TYPE-1 LINE LEADER 평균의 2.5배",
+      "description_en": "2.5x TYPE-1 LINE LEADER average"
+    },
+    "A_SUPERVISOR": {
+      "multiplier": 2.5,
+      "base": "line_leader_average",
+      "formula": "TYPE-1 LINE LEADER 평균 × 2.5",
+      "patterns": ["A.SUPERVISOR", "A. SUPERVISOR", "ASSISTANT SUPERVISOR"],
+      "description_ko": "TYPE-1 LINE LEADER 평균의 2.5배 (SUPERVISOR와 동일)",
+      "description_en": "2.5x TYPE-1 LINE LEADER average (same as SUPERVISOR)"
+    },
+    "A_MANAGER": {
+      "multiplier": 3.0,
+      "base": "line_leader_average",
+      "formula": "TYPE-1 LINE LEADER 평균 × 3.0",
+      "patterns": ["A.MANAGER", "A. MANAGER", "ASSISTANT MANAGER"],
+      "description_ko": "TYPE-1 LINE LEADER 평균의 3배",
+      "description_en": "3x TYPE-1 LINE LEADER average"
+    },
+    "MANAGER": {
+      "multiplier": 3.5,
+      "base": "line_leader_average",
+      "formula": "TYPE-1 LINE LEADER 평균 × 3.5",
+      "patterns": ["MANAGER"],
+      "excludes": ["A.MANAGER", "S.MANAGER", "ASSISTANT", "SENIOR"],
+      "description_ko": "TYPE-1 LINE LEADER 평균의 3.5배",
+      "description_en": "3.5x TYPE-1 LINE LEADER average"
+    },
+    "S_MANAGER": {
+      "multiplier": 4.0,
+      "base": "line_leader_average",
+      "formula": "TYPE-1 LINE LEADER 평균 × 4.0",
+      "patterns": ["S.MANAGER", "S. MANAGER", "SENIOR MANAGER"],
+      "description_ko": "TYPE-1 LINE LEADER 평균의 4배",
+      "description_en": "4x TYPE-1 LINE LEADER average"
+    }
+  },
+
   "conditions": {
     "1": {
       "id": "attendance_rate",

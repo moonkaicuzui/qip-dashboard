@@ -337,6 +337,50 @@ const ValidationEngine = {
         },
 
         /**
+         * Get multiplier from JSON Single Source of Truth (Issue #40, 2026-01-05)
+         * Reads from position_condition_matrix.json -> type_2_multipliers section
+         * @param {string} position - Employee position (e.g., "MANAGER", "A.MANAGER")
+         * @param {object} positionMatrix - position_condition_matrix.json data
+         * @returns {number} Multiplier value (e.g., 3.5 for MANAGER)
+         */
+        getMultiplierFromJSON(position, positionMatrix) {
+            const posUpper = (position || '').toUpperCase();
+            const multipliers = positionMatrix?.type_2_multipliers || {};
+
+            // S.MANAGER / SENIOR MANAGER: 4.0
+            if (posUpper.includes('S.MANAGER') || posUpper.includes('SENIOR MANAGER')) {
+                return multipliers['S_MANAGER']?.multiplier || 4.0;
+            }
+            // A.MANAGER / ASSISTANT MANAGER: 3.0
+            if (posUpper.includes('A.MANAGER') || posUpper.includes('A. MANAGER') || posUpper.includes('ASSISTANT MANAGER')) {
+                return multipliers['A_MANAGER']?.multiplier || 3.0;
+            }
+            // A.SUPERVISOR / ASSISTANT SUPERVISOR: 2.5
+            if (posUpper.includes('A.SUPERVISOR') || posUpper.includes('A. SUPERVISOR') || posUpper.includes('ASSISTANT SUPERVISOR')) {
+                return multipliers['A_SUPERVISOR']?.multiplier || 2.5;
+            }
+            // SUPERVISOR (all variants including (V) SUPERVISOR): 2.5
+            if (posUpper.includes('SUPERVISOR')) {
+                return multipliers['SUPERVISOR']?.multiplier || 2.5;
+            }
+            // MANAGER (excluding A.MANAGER, S.MANAGER): 3.5
+            if (posUpper.includes('MANAGER')) {
+                return multipliers['MANAGER']?.multiplier || 3.5;
+            }
+            // GROUP LEADER: 2.0
+            if (posUpper.includes('GROUP LEADER')) {
+                return multipliers['GROUP_LEADER']?.multiplier || 2.0;
+            }
+            // LINE LEADER: 0.12 (special formula)
+            if (posUpper.includes('LINE LEADER')) {
+                return multipliers['LINE_LEADER']?.multiplier || 0.12;
+            }
+
+            // Default fallback
+            return 1.0;
+        },
+
+        /**
          * Condition 1: Attendance Rate >= 88%
          * Formula: 100 - ((total - actual - approved_leave) / total × 100)
          */
@@ -558,13 +602,15 @@ const ValidationEngine = {
             if (employeeType === 'TYPE-1') {
                 // Use PositionCalculators if context is available
                 if (context.subordinateMap && context.allValidatedEmployees) {
+                    // REFACTOR (2026-01-05 Issue #40): Pass positionMatrix for JSON-based multipliers
                     const result = ValidationEngine.PositionCalculators.calculatePositionSpecificIncentive(
                         employee,
                         position,
                         continuousMonths,
                         context.subordinateMap,
                         context.allValidatedEmployees,
-                        context.aqlConfig
+                        context.aqlConfig,
+                        positionMatrix  // Added for JSON-based multiplier lookup
                     );
                     return result;
                 }
@@ -996,13 +1042,11 @@ const ValidationEngine = {
          * SUPERVISOR: LINE LEADER avg × 2.5
          * (V) SUPERVISOR / V.SUPERVISOR: LINE LEADER avg × 2.5 (same as SUPERVISOR per Python engine)
          * FIX (2026-01-05): A.SUPERVISOR was 3.5, corrected to 2.5 to match Python engine
+         * REFACTOR (2026-01-05 Issue #40): Now reads multiplier from JSON Single Source of Truth
          */
-        calculateSupervisorIncentive(emp, subordinateMap, allValidatedEmployees, position) {
-            const posUpper = (position || '').toUpperCase();
-
-            // Determine multiplier based on position name
-            // All SUPERVISOR variants use 2.5 per Python engine (step1:3699-3700)
-            let multiplier = 2.5;  // Default for all SUPERVISOR types
+        calculateSupervisorIncentive(emp, subordinateMap, allValidatedEmployees, position, positionMatrix) {
+            // Read multiplier from JSON Single Source of Truth (Issue #40)
+            const multiplier = this.getMultiplierFromJSON(position, positionMatrix);
 
             // Use GROUP LEADER logic to find LINE LEADER average
             const groupLeaderResult = this.calculateGroupLeaderIncentive(emp, subordinateMap, allValidatedEmployees);
@@ -1011,7 +1055,7 @@ const ValidationEngine = {
             if (lineLeaderAvg === 0) {
                 return {
                     amount: 0,
-                    method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (LINE LEADER 평균 0)`
+                    method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (LINE LEADER 평균 0, JSON-based)`
                 };
             }
 
@@ -1019,7 +1063,7 @@ const ValidationEngine = {
 
             return {
                 amount: amount,
-                method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (평균 ${Math.round(lineLeaderAvg).toLocaleString()})`
+                method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (평균 ${Math.round(lineLeaderAvg).toLocaleString()}, JSON-based)`
             };
         },
 
@@ -1029,17 +1073,11 @@ const ValidationEngine = {
          * MANAGER: LINE LEADER avg × 3.5
          * A.MANAGER / ASSISTANT MANAGER: LINE LEADER avg × 3.0
          * FIX (2026-01-05): Corrected multipliers to match Python engine (step1:3695-3698)
+         * REFACTOR (2026-01-05 Issue #40): Now reads multiplier from JSON Single Source of Truth
          */
-        calculateManagerIncentive(emp, subordinateMap, allValidatedEmployees, position) {
-            const posUpper = (position || '').toUpperCase();
-
-            // Determine multiplier based on position name (per Python engine step1:3695-3698)
-            let multiplier = 3.5;  // Default for MANAGER
-            if (posUpper.includes('S.MANAGER') || posUpper.includes('SENIOR MANAGER')) {
-                multiplier = 4.0;
-            } else if (posUpper.includes('A.MANAGER') || posUpper.includes('A. MANAGER') || posUpper.includes('ASSISTANT MANAGER')) {
-                multiplier = 3.0;
-            }
+        calculateManagerIncentive(emp, subordinateMap, allValidatedEmployees, position, positionMatrix) {
+            // Read multiplier from JSON Single Source of Truth (Issue #40)
+            const multiplier = this.getMultiplierFromJSON(position, positionMatrix);
 
             // Use GROUP LEADER logic to find LINE LEADER average
             const groupLeaderResult = this.calculateGroupLeaderIncentive(emp, subordinateMap, allValidatedEmployees);
@@ -1048,7 +1086,7 @@ const ValidationEngine = {
             if (lineLeaderAvg === 0) {
                 return {
                     amount: 0,
-                    method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (LINE LEADER 평균 0)`
+                    method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (LINE LEADER 평균 0, JSON-based)`
                 };
             }
 
@@ -1056,15 +1094,16 @@ const ValidationEngine = {
 
             return {
                 amount: amount,
-                method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (평균 ${Math.round(lineLeaderAvg).toLocaleString()})`
+                method: `TYPE-1 LINE LEADER 평균 × ${multiplier} (평균 ${Math.round(lineLeaderAvg).toLocaleString()}, JSON-based)`
             };
         },
 
         /**
          * Phase 2.5: Master function to calculate position-specific incentive
          * Routes to appropriate calculator based on position name
+         * REFACTOR (2026-01-05 Issue #40): Added positionMatrix parameter for JSON-based multipliers
          */
-        calculatePositionSpecificIncentive(emp, position, continuousMonths, subordinateMap, allValidatedEmployees, aqlConfig) {
+        calculatePositionSpecificIncentive(emp, position, continuousMonths, subordinateMap, allValidatedEmployees, aqlConfig, positionMatrix) {
             const PROGRESSION_TABLE = {
                 0: 0, 1: 150000, 2: 250000, 3: 350000, 4: 450000,
                 5: 550000, 6: 650000, 7: 750000, 8: 850000,
@@ -1082,9 +1121,11 @@ const ValidationEngine = {
             } else if (posUpper.includes('GROUP LEADER')) {
                 return this.calculateGroupLeaderIncentive(emp, subordinateMap, allValidatedEmployees);
             } else if (posUpper.includes('SUPERVISOR')) {
-                return this.calculateSupervisorIncentive(emp, subordinateMap, allValidatedEmployees, position);
+                // Pass positionMatrix for JSON-based multiplier lookup (Issue #40)
+                return this.calculateSupervisorIncentive(emp, subordinateMap, allValidatedEmployees, position, positionMatrix);
             } else if (posUpper.includes('MANAGER')) {
-                return this.calculateManagerIncentive(emp, subordinateMap, allValidatedEmployees, position);
+                // Pass positionMatrix for JSON-based multiplier lookup (Issue #40)
+                return this.calculateManagerIncentive(emp, subordinateMap, allValidatedEmployees, position, positionMatrix);
             } else {
                 // Default: Progression table for ASSEMBLY INSPECTOR, MODEL MASTER, AUDITOR, TRAINER
                 const amount = PROGRESSION_TABLE[Math.min(continuousMonths, 15)] || 0;
