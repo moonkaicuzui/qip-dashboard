@@ -15304,15 +15304,22 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 case 'consecutiveAqlFail':
                     // This case is now handled by showConsecutiveAqlFailDetails()
                     // But we still need to handle it here as a fallback
+                    // Issue #언어전환 - 번역 적용
                     modalTitle = getTranslation('validationTab.modalTitles.consecutiveAqlFail', currentLanguage);
-                    tableHeaders = ['직원번호', '이름', '직책', '연속 failed 개월'];
+                    tableHeaders = [
+                        getTranslation('consecutiveAqlModal.headers.employeeNo', currentLanguage) || '직원번호',
+                        getTranslation('consecutiveAqlModal.headers.name', currentLanguage) || '이름',
+                        getTranslation('consecutiveAqlModal.headers.position', currentLanguage) || '직책',
+                        getTranslation('consecutiveAqlModal.headers.consecutiveMonths', currentLanguage) || '연속 실패 개월'
+                    ];
+                    const monthUnit = getTranslation('units.month', currentLanguage) || '개월';
                     tableData = employeeData
                         .filter(emp => emp['Consecutive_Fail_Months'] > 0)
                         .map(emp => [
                             emp['Employee No'],
                             emp['Full Name'],
                             emp['QIP POSITION 1ST  NAME'] || '-',
-                            emp['Consecutive_Fail_Months'] + '개월'
+                            emp['Consecutive_Fail_Months'] + monthUnit
                         ]);
                     break;
 
@@ -19924,15 +19931,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         `;
                     }});
                     if (currentMembersHtml === '') {{
-                        currentMembersHtml = '<p>현재 Talent Pool 멤버가 not found.</p>';
+                        // Issue #언어전환 - 번역 적용
+                        const noMembersMsg = getTranslation('talentPool.noMembers', currentLanguage) || '현재 Talent Pool 멤버가 없습니다.';
+                        currentMembersHtml = `<p>${{noMembersMsg}}</p>`;
                     }}
                     currentMembersDiv.innerHTML = currentMembersHtml;
                 }}
             }} else {{
-                // Talent Pool 멤버가 없는 경우
+                // Talent Pool 멤버가 없는 경우 (Issue #언어전환 - 번역 적용)
                 const currentMembersDiv = document.getElementById('talentProgramCurrentMembers');
                 if (currentMembersDiv) {{
-                    currentMembersDiv.innerHTML = '<p>현재 Talent Pool 멤버가 not found.</p>';
+                    const noMembersMsg = getTranslation('talentPool.noMembers', currentLanguage) || '현재 Talent Pool 멤버가 없습니다.';
+                    currentMembersDiv.innerHTML = `<p>${{noMembersMsg}}</p>`;
                 }}
             }}
         }}
@@ -20317,15 +20327,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const comeLateDays = parseInt(employee['Come Late Days'] || employee['Come_Late_Days'] || 0);
             const leaveEarlyDays = parseInt(employee['Leave Early Days'] || employee['Leave_Early_Days'] || 0);
 
-            // 요약 카드 업데이트
-            document.getElementById('summaryTotalDays').textContent = totalDays + '일';
-            document.getElementById('summaryActualDays').textContent = actualDays + '일';
-            document.getElementById('summaryApprovedLeave').textContent = approvedLeave + '일';
-            document.getElementById('summaryUnapproved').textContent = unapprovedAbsence + '일';
+            // 요약 카드 업데이트 (번역 적용 - Issue #언어전환)
+            const dayUnit = getTranslation('units.day', currentLanguage) || '일';
+            document.getElementById('summaryTotalDays').textContent = totalDays + dayUnit;
+            document.getElementById('summaryActualDays').textContent = actualDays + dayUnit;
+            document.getElementById('summaryApprovedLeave').textContent = approvedLeave + dayUnit;
+            document.getElementById('summaryUnapproved').textContent = unapprovedAbsence + dayUnit;
 
             // 지각/조퇴 카드 업데이트 (새로 추가)
-            document.getElementById('summaryComeLate').textContent = comeLateDays + '일';
-            document.getElementById('summaryLeaveEarly').textContent = leaveEarlyDays + '일';
+            document.getElementById('summaryComeLate').textContent = comeLateDays + dayUnit;
+            document.getElementById('summaryLeaveEarly').textContent = leaveEarlyDays + dayUnit;
 
             // 출근율 표시
             const rateDisplay = document.getElementById('attendanceRateDisplay');
@@ -20360,7 +20371,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             const year = {year};
             const month = {month_num};
-            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            // 요일 배열 (번역 적용 - Issue #언어전환)
+            const weekdays = [
+                getTranslation('attendanceModal.weekdays.sun', currentLanguage) || '일',
+                getTranslation('attendanceModal.weekdays.mon', currentLanguage) || '월',
+                getTranslation('attendanceModal.weekdays.tue', currentLanguage) || '화',
+                getTranslation('attendanceModal.weekdays.wed', currentLanguage) || '수',
+                getTranslation('attendanceModal.weekdays.thu', currentLanguage) || '목',
+                getTranslation('attendanceModal.weekdays.fri', currentLanguage) || '금',
+                getTranslation('attendanceModal.weekdays.sat', currentLanguage) || '토'
+            ];
 
             // 직원 사번 가져오기
             const empNo = String(employee.emp_no || employee['Employee No'] || '');
@@ -20391,22 +20411,31 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     let reason = '-';
                     let rowClass = '';
 
+                    // 출결 상태 번역 적용 (Issue #언어전환)
+                    const presentText = getTranslation('attendanceModal.status.present', currentLanguage) || '출근';
+                    const approvedLeaveText = getTranslation('attendanceModal.status.approvedLeave', currentLanguage) || '승인휴가';
+                    const unapprovedText = getTranslation('attendanceModal.status.unapproved', currentLanguage) || '무단결근';
+                    const normalText = getTranslation('attendanceModal.status.normalAttendance', currentLanguage) || '정상 출근';
+                    const lateText = getTranslation('attendanceModal.status.late', currentLanguage) || '지각';
+                    const earlyLeaveText = getTranslation('attendanceModal.status.earlyLeave', currentLanguage) || '조퇴';
+                    const timesText = getTranslation('attendanceModal.status.times', currentLanguage) || '회';
+
                     if (record.status === 'present') {{
-                        statusBadge = '<span class="badge bg-success">✅ 출근</span>';
-                        reason = '정상 출근';
+                        statusBadge = `<span class="badge bg-success">✅ ${{presentText}}</span>`;
+                        reason = normalText;
                         if (record.come_late > 0) {{
-                            reason += ` (지각 ${{record.come_late}}회)`;
+                            reason += ` (${{lateText}} ${{record.come_late}}${{timesText}})`;
                         }}
                         if (record.leave_early > 0) {{
-                            reason += ` (조퇴 ${{record.leave_early}}회)`;
+                            reason += ` (${{earlyLeaveText}} ${{record.leave_early}}${{timesText}})`;
                         }}
                     }} else if (record.status === 'approved_leave') {{
-                        statusBadge = '<span class="badge bg-warning text-dark">📋 승인휴가</span>';
-                        reason = record.reason || '승인휴가';
+                        statusBadge = `<span class="badge bg-warning text-dark">📋 ${{approvedLeaveText}}</span>`;
+                        reason = record.reason || approvedLeaveText;
                         rowClass = 'table-warning';
                     }} else if (record.status === 'unapproved') {{
-                        statusBadge = '<span class="badge bg-danger">❌ 무단결근</span>';
-                        reason = record.reason || '무단결근';
+                        statusBadge = `<span class="badge bg-danger">❌ ${{unapprovedText}}</span>`;
+                        reason = record.reason || unapprovedText;
                         rowClass = 'table-danger';
                     }}
 
@@ -20450,7 +20479,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             weekdayBody.innerHTML = '';
             reasonBody.innerHTML = '';
 
-            const weekdays = ['월', '화', '수', '목', '금'];
+            // 요일 배열 (번역 적용 - Issue #언어전환)
+            const weekdays = [
+                getTranslation('attendanceModal.weekdays.mon', currentLanguage) || '월',
+                getTranslation('attendanceModal.weekdays.tue', currentLanguage) || '화',
+                getTranslation('attendanceModal.weekdays.wed', currentLanguage) || '수',
+                getTranslation('attendanceModal.weekdays.thu', currentLanguage) || '목',
+                getTranslation('attendanceModal.weekdays.fri', currentLanguage) || '금'
+            ];
             const empNo = String(employee.emp_no || employee['Employee No'] || '');
 
             // 실제 출결 데이터 가져오기
@@ -20461,6 +20497,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let weekdayAbsences = [0, 0, 0, 0, 0];  // 월~금
             const reasonCounts = {{}};
             let totalAbsences = 0;
+
+            // 출결 상태 번역 (Issue #언어전환)
+            const approvedLeaveText = getTranslation('attendanceModal.status.approvedLeave', currentLanguage) || '승인휴가';
+            const unapprovedText = getTranslation('attendanceModal.status.unapproved', currentLanguage) || '무단결근';
 
             if (empAttendance && empAttendance.dates && Object.keys(empAttendance.dates).length > 0) {{
                 // ✅ 실제 데이터 기반 분석
@@ -20476,13 +20516,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             weekdayAbsences[dayOfWeek - 1]++;
                         }}
 
-                        // 사유별 집계
-                        const reason = record.reason || (record.status === 'approved_leave' ? '승인휴가' : '무단결근');
+                        // 사유별 집계 (번역 적용)
+                        const reason = record.reason || (record.status === 'approved_leave' ? approvedLeaveText : unapprovedText);
                         reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
                     }}
                 }});
 
-                // 요일별 테이블 생성
+                // 요일별 테이블 생성 (Issue #언어전환 - 번역 적용)
+                const weekdaySuffix = getTranslation('weekdaySuffix', currentLanguage) || '';
+                const timesUnit = getTranslation('units.times', currentLanguage) || '회';
                 weekdays.forEach((day, idx) => {{
                     const count = weekdayAbsences[idx];
                     const percent = totalAbsences > 0 ? (count / totalAbsences * 100).toFixed(1) : 0;
@@ -20491,13 +20533,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     weekdayBody.innerHTML += `
                         <tr>
-                            <td>${{day}}요일</td>
+                            <td>${{day}}${{weekdaySuffix}}</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="progress flex-grow-1" style="height: 20px;">
                                         <div class="progress-bar bg-danger" style="width: ${{barWidth}}%"></div>
                                     </div>
-                                    <span>${{count}}회</span>
+                                    <span>${{count}}${{timesUnit}}</span>
                                 </div>
                             </td>
                             <td>${{percent}}%</td>
@@ -20505,7 +20547,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     `;
                 }});
 
-                // 사유별 테이블 생성
+                // 사유별 테이블 생성 (Issue #언어전환 - 번역 적용)
+                const unapprovedBadge = getTranslation('attendanceModal.badge.unapproved', currentLanguage) || '무단';
+                const approvedBadge = getTranslation('attendanceModal.badge.approved', currentLanguage) || '승인';
+                const noAbsenceMsg = getTranslation('attendanceModal.summary.noAbsence', currentLanguage) || '결근 사유 없음 (전원 출근)';
                 if (Object.keys(reasonCounts).length > 0) {{
                     Object.entries(reasonCounts).forEach(([reason, count]) => {{
                         const percent = totalAbsences > 0 ? (count / totalAbsences * 100).toFixed(1) : 0;
@@ -20515,24 +20560,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <tr>
                                 <td>
                                     <span class="badge ${{isUnapproved ? 'bg-danger' : 'bg-warning text-dark'}} me-1">
-                                        ${{isUnapproved ? '무단' : '승인'}}
+                                        ${{isUnapproved ? unapprovedBadge : approvedBadge}}
                                     </span>
                                     ${{reason}}
                                 </td>
-                                <td>${{count}}회</td>
+                                <td>${{count}}${{timesUnit}}</td>
                                 <td>${{percent}}%</td>
                             </tr>
                         `;
                     }});
                 }} else {{
-                    reasonBody.innerHTML = '<tr><td colspan="3" class="text-center text-success">✅ 결근 사유 없음 (전원 출근)</td></tr>';
+                    reasonBody.innerHTML = '<tr><td colspan="3" class="text-center text-success">✅ ' + noAbsenceMsg + '</td></tr>';
                 }}
 
             }} else {{
-                // ⚠️ 실제 데이터 없음 - 요약 통계만 표시
+                // ⚠️ 실제 데이터 없음 - 요약 통계만 표시 (Issue #언어전환 - 번역 적용)
+                const noDetailDataMsg = getTranslation('attendanceModal.summary.noDetailData', currentLanguage) || '일별 상세 출결 데이터가 없어 요일별 분석을 표시할 수 없습니다.';
+                const approvedLeaveText = getTranslation('attendanceModal.status.approvedLeave', currentLanguage) || '승인휴가';
+                const unapprovedAbsenceText = getTranslation('attendanceModal.status.unapproved', currentLanguage) || '무단결근';
+                const noAbsenceShortMsg = getTranslation('noAbsenceShort', currentLanguage) || '결근 사유 없음';
+                const approvedBadgeText = getTranslation('attendanceModal.badge.approved', currentLanguage) || '승인';
+                const unapprovedBadgeText = getTranslation('attendanceModal.badge.unapproved', currentLanguage) || '무단';
+                const timesUnitText = getTranslation('units.times', currentLanguage) || '회';
+
                 weekdayBody.innerHTML = `
                     <tr><td colspan="3" class="text-center text-muted">
-                        ⚠️ 일별 상세 출결 데이터가 없어 요일별 분석을 표시할 수 없습니다.
+                        ⚠️ ${{noDetailDataMsg}}
                     </td></tr>
                 `;
 
@@ -20541,8 +20594,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     if (approvedLeave > 0) {{
                         reasonBody.innerHTML += `
                             <tr>
-                                <td><span class="badge bg-warning text-dark me-1">승인</span> 승인휴가</td>
-                                <td>${{approvedLeave}}회</td>
+                                <td><span class="badge bg-warning text-dark me-1">${{approvedBadgeText}}</span> ${{approvedLeaveText}}</td>
+                                <td>${{approvedLeave}}${{timesUnitText}}</td>
                                 <td>-</td>
                             </tr>
                         `;
@@ -20550,82 +20603,121 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     if (unapprovedAbsence > 0) {{
                         reasonBody.innerHTML += `
                             <tr>
-                                <td><span class="badge bg-danger me-1">무단</span> 무단결근</td>
-                                <td>${{unapprovedAbsence}}회</td>
+                                <td><span class="badge bg-danger me-1">${{unapprovedBadgeText}}</span> ${{unapprovedAbsenceText}}</td>
+                                <td>${{unapprovedAbsence}}${{timesUnitText}}</td>
                                 <td>-</td>
                             </tr>
                         `;
                     }}
                 }} else {{
-                    reasonBody.innerHTML = '<tr><td colspan="3" class="text-center text-success">✅ 결근 사유 없음</td></tr>';
+                    reasonBody.innerHTML = '<tr><td colspan="3" class="text-center text-success">✅ ' + noAbsenceShortMsg + '</td></tr>';
                 }}
             }}
 
-            // 패턴 분석 요약
+            // 패턴 분석 요약 (Issue #언어전환 - 번역 적용)
             const patternContent = document.getElementById('patternAnalysisContent');
             let patterns = [];
+
+            // 번역 메시지 로드
+            const mondayFridayWarningMsg = getTranslation('patternAnalysis.mondayFridayWarning', currentLanguage) || '월요일/금요일 결근 비율이 높습니다 (주말 연장 패턴 의심)';
+            const unapprovedExceedsMsg = getTranslation('patternAnalysis.unapprovedExceedsApproved', currentLanguage) || '무단결근이 승인휴가보다 많습니다 - 관리 필요';
+            const noUnapprovedMsg = getTranslation('patternAnalysis.noUnapprovedAbsence', currentLanguage) || '무단결근이 없습니다 - 우수';
+            const noSpecialPatternMsg = getTranslation('patternAnalysis.noSpecialPattern', currentLanguage) || '특이 패턴이 발견되지 않았습니다';
 
             // 월요일/금요일 결근 패턴 확인
             const mondayFridayAbsences = weekdayAbsences[0] + weekdayAbsences[4];
             if (mondayFridayAbsences > totalAbsences * 0.5) {{
-                patterns.push('<span class="badge bg-warning text-dark me-1">⚠️</span> 월요일/금요일 결근 비율이 높습니다 (주말 연장 패턴 의심)');
+                patterns.push('<span class="badge bg-warning text-dark me-1">⚠️</span> ' + mondayFridayWarningMsg);
             }}
 
             // 무단결근 비율 확인
             if (unapprovedAbsence > approvedLeave) {{
-                patterns.push('<span class="badge bg-danger me-1">🚨</span> 무단결근이 승인휴가보다 많습니다 - 관리 필요');
+                patterns.push('<span class="badge bg-danger me-1">🚨</span> ' + unapprovedExceedsMsg);
             }}
 
             // 양호한 경우
             if (unapprovedAbsence === 0) {{
-                patterns.push('<span class="badge bg-success me-1">✅</span> 무단결근이 없습니다 - 우수');
+                patterns.push('<span class="badge bg-success me-1">✅</span> ' + noUnapprovedMsg);
             }}
 
             if (patterns.length === 0) {{
-                patterns.push('<span class="badge bg-info me-1">ℹ️</span> 특이 패턴이 발견되지 않았습니다');
+                patterns.push('<span class="badge bg-info me-1">ℹ️</span> ' + noSpecialPatternMsg);
             }}
 
             patternContent.innerHTML = patterns.map(p => `<p class="mb-2">${{p}}</p>`).join('');
         }}
 
         function generateAttendanceAnalysisSummary(employee, totalDays, actualDays, approvedLeave, unapprovedAbsence, attendanceRate) {{
+            // Issue #언어전환 - 전체 함수 번역 적용
             const summaryDiv = document.getElementById('attendanceAnalysisSummary');
 
-            const name = employee['Full Name'] || employee.name || '직원';
+            const fallbackEmployee = getTranslation('fallback.employee', currentLanguage) || '직원';
+            const name = employee['Full Name'] || employee.name || fallbackEmployee;
             const position = employee.position || employee['Position'] || '-';
             const absenceDays = totalDays - actualDays - approvedLeave;
+            const dayUnit = getTranslation('units.day', currentLanguage) || '일';
+
+            // 번역 로드
+            const summaryTitle = getTranslation('attendanceAnalysis.summaryTitle', currentLanguage) || '출결 현황 요약';
+            const analysisTitle = getTranslation('attendanceAnalysis.analysisTitle', currentLanguage) || '분석 결과';
+            const conditionTitle = getTranslation('attendanceAnalysis.conditionTitle', currentLanguage) || '인센티브 조건 충족 현황';
+            const totalDaysLabel = getTranslation('attendanceAnalysis.totalWorkingDays', currentLanguage) || '총 근무일';
+            const actualLabel = getTranslation('attendanceAnalysis.actualAttendance', currentLanguage) || '실제 출근';
+            const approvedLabel = getTranslation('attendanceAnalysis.approvedLeave', currentLanguage) || '승인휴가';
+            const unapprovedLabel = getTranslation('attendanceAnalysis.unapprovedAbsence', currentLanguage) || '무단결근';
+            const rateLabel = getTranslation('attendanceAnalysis.attendanceRate', currentLanguage) || '출근율';
+            const excellentStatus = getTranslation('attendanceAnalysis.excellentStatus', currentLanguage) || '우수한 출결 상태';
+            const cautionNeeded = getTranslation('attendanceAnalysis.cautionNeeded', currentLanguage) || '주의 필요';
+            const improvementNeeded = getTranslation('attendanceAnalysis.improvementNeeded', currentLanguage) || '개선 필요';
+            const cond1 = getTranslation('attendanceAnalysis.condition1', currentLanguage) || '조건 1';
+            const cond2 = getTranslation('attendanceAnalysis.condition2', currentLanguage) || '조건 2';
+            const cond3 = getTranslation('attendanceAnalysis.condition3', currentLanguage) || '조건 3';
+            const cond4 = getTranslation('attendanceAnalysis.condition4', currentLanguage) || '조건 4';
+            const cond1Desc = getTranslation('attendanceAnalysis.condition1Desc', currentLanguage) || '출근율 ≥ 88%';
+            const cond2Desc = getTranslation('attendanceAnalysis.condition2Desc', currentLanguage) || '무단결근 ≤ 2일';
+            const cond3Desc = getTranslation('attendanceAnalysis.condition3Desc', currentLanguage) || '실제 근무일 > 0';
+            const cond4Desc = getTranslation('attendanceAnalysis.condition4Desc', currentLanguage) || '최소 근무일 ≥ 12일';
+            const metText = getTranslation('attendanceAnalysis.met', currentLanguage) || '충족';
+            const notMetText = getTranslation('attendanceAnalysis.notMet', currentLanguage) || '미충족';
+            const checkNeededText = getTranslation('attendanceAnalysis.checkNeeded', currentLanguage) || '확인 필요';
 
             let summaryHTML = `
                 <div class="row">
                     <div class="col-md-6">
-                        <h5><i class="fas fa-clipboard-list"></i> 출결 현황 요약</h5>
+                        <h5><i class="fas fa-clipboard-list"></i> ${{summaryTitle}}</h5>
                         <ul class="list-unstyled">
-                            <li>📊 <strong>총 근무일:</strong> ${{totalDays}}일</li>
-                            <li>✅ <strong>실제 출근:</strong> ${{actualDays}}일 (${{(actualDays/totalDays*100).toFixed(1)}}%)</li>
-                            <li>📋 <strong>승인휴가:</strong> ${{approvedLeave}}일</li>
-                            <li>❌ <strong>무단결근:</strong> ${{unapprovedAbsence}}일</li>
-                            <li>📈 <strong>출근율:</strong> ${{attendanceRate.toFixed(1)}}%</li>
+                            <li>📊 <strong>${{totalDaysLabel}}:</strong> ${{totalDays}}${{dayUnit}}</li>
+                            <li>✅ <strong>${{actualLabel}}:</strong> ${{actualDays}}${{dayUnit}} (${{(actualDays/totalDays*100).toFixed(1)}}%)</li>
+                            <li>📋 <strong>${{approvedLabel}}:</strong> ${{approvedLeave}}${{dayUnit}}</li>
+                            <li>❌ <strong>${{unapprovedLabel}}:</strong> ${{unapprovedAbsence}}${{dayUnit}}</li>
+                            <li>📈 <strong>${{rateLabel}}:</strong> ${{attendanceRate.toFixed(1)}}%</li>
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <h5><i class="fas fa-lightbulb"></i> 분석 결과</h5>
+                        <h5><i class="fas fa-lightbulb"></i> ${{analysisTitle}}</h5>
                         <div class="alert ${{attendanceRate >= 88 ? 'alert-success' : 'alert-danger'}}">
             `;
 
             if (attendanceRate >= 88 && unapprovedAbsence <= 2) {{
+                let excellentMsg = getTranslation('attendanceAnalysis.excellentMsg', currentLanguage) || '님은 출근율 {{rate}}%로 인센티브 조건 1(≥88%)과 조건 2(무단결근 ≤2일)를 충족합니다.';
+                excellentMsg = excellentMsg.replace('{{rate}}', attendanceRate.toFixed(1));
                 summaryHTML += `
-                    <h6>✅ 우수한 출결 상태</h6>
-                    <p class="mb-0">${{name}}님(${{position}})은 출근율 ${{attendanceRate.toFixed(1)}}%로 인센티브 조건 1(≥88%)과 조건 2(무단결근 ≤2일)를 충족합니다.</p>
+                    <h6>✅ ${{excellentStatus}}</h6>
+                    <p class="mb-0">${{name}}(${{position}})${{excellentMsg}}</p>
                 `;
             }} else if (attendanceRate >= 88) {{
+                let cautionMsg = getTranslation('attendanceAnalysis.cautionMsg', currentLanguage) || '님은 출근율은 {{rate}}%로 기준을 충족하지만, 무단결근이 {{absence}}일로 조건 2(≤2일) 기준을 초과합니다.';
+                cautionMsg = cautionMsg.replace('{{rate}}', attendanceRate.toFixed(1)).replace('{{absence}}', unapprovedAbsence);
                 summaryHTML += `
-                    <h6>⚠️ 주의 필요</h6>
-                    <p class="mb-0">${{name}}님(${{position}})은 출근율은 ${{attendanceRate.toFixed(1)}}%로 기준을 충족하지만, 무단결근이 ${{unapprovedAbsence}}일로 조건 2(≤2일) 기준을 초과합니다.</p>
+                    <h6>⚠️ ${{cautionNeeded}}</h6>
+                    <p class="mb-0">${{name}}(${{position}})${{cautionMsg}}</p>
                 `;
             }} else {{
+                let improvementMsg = getTranslation('attendanceAnalysis.improvementMsg', currentLanguage) || '님은 출근율이 {{rate}}%로 인센티브 기준(≥88%)에 미달합니다. {{diff}}%p 개선이 필요합니다.';
+                improvementMsg = improvementMsg.replace('{{rate}}', attendanceRate.toFixed(1)).replace('{{diff}}', (88 - attendanceRate).toFixed(1));
                 summaryHTML += `
-                    <h6>🚨 개선 필요</h6>
-                    <p class="mb-0">${{name}}님(${{position}})은 출근율이 ${{attendanceRate.toFixed(1)}}%로 인센티브 기준(≥88%)에 미달합니다. ${{(88 - attendanceRate).toFixed(1)}}%p 개선이 필요합니다.</p>
+                    <h6>🚨 ${{improvementNeeded}}</h6>
+                    <p class="mb-0">${{name}}(${{position}})${{improvementMsg}}</p>
                 `;
             }}
 
@@ -20636,30 +20728,30 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <hr>
                 <div class="row">
                     <div class="col-12">
-                        <h5><i class="fas fa-chart-line"></i> 인센티브 조건 충족 현황</h5>
+                        <h5><i class="fas fa-chart-line"></i> ${{conditionTitle}}</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-2">
-                                    <span class="badge ${{attendanceRate >= 88 ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">조건 1</span>
-                                    <span>출근율 ≥ 88%: ${{attendanceRate >= 88 ? '✅ 충족' : '❌ 미충족'}} (${{attendanceRate.toFixed(1)}}%)</span>
+                                    <span class="badge ${{attendanceRate >= 88 ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">${{cond1}}</span>
+                                    <span>${{cond1Desc}}: ${{attendanceRate >= 88 ? '✅ ' + metText : '❌ ' + notMetText}} (${{attendanceRate.toFixed(1)}}%)</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-2">
-                                    <span class="badge ${{unapprovedAbsence <= 2 ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">조건 2</span>
-                                    <span>무단결근 ≤ 2일: ${{unapprovedAbsence <= 2 ? '✅ 충족' : '❌ 미충족'}} (${{unapprovedAbsence}}일)</span>
+                                    <span class="badge ${{unapprovedAbsence <= 2 ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">${{cond2}}</span>
+                                    <span>${{cond2Desc}}: ${{unapprovedAbsence <= 2 ? '✅ ' + metText : '❌ ' + notMetText}} (${{unapprovedAbsence}}${{dayUnit}})</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-2">
-                                    <span class="badge ${{actualDays > 0 ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">조건 3</span>
-                                    <span>실제 근무일 > 0: ${{actualDays > 0 ? '✅ 충족' : '❌ 미충족'}} (${{actualDays}}일)</span>
+                                    <span class="badge ${{actualDays > 0 ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">${{cond3}}</span>
+                                    <span>${{cond3Desc}}: ${{actualDays > 0 ? '✅ ' + metText : '❌ ' + notMetText}} (${{actualDays}}${{dayUnit}})</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-2">
-                                    <span class="badge ${{actualDays >= 12 ? 'bg-success' : 'bg-warning text-dark'}} me-2" style="width: 80px;">조건 4</span>
-                                    <span>최소 근무일 ≥ 12일: ${{actualDays >= 12 ? '✅ 충족' : '⏳ 확인 필요'}} (${{actualDays}}일)</span>
+                                    <span class="badge ${{actualDays >= 12 ? 'bg-success' : 'bg-warning text-dark'}} me-2" style="width: 80px;">${{cond4}}</span>
+                                    <span>${{cond4Desc}}: ${{actualDays >= 12 ? '✅ ' + metText : '⏳ ' + checkNeededText}} (${{actualDays}}${{dayUnit}})</span>
                                 </div>
                             </div>
                         </div>
@@ -21406,11 +21498,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         window[`chart_${{chartId}}`].destroy();
                     }}
                     
-                    // 새 차트 creation
+                    // 새 차트 creation (Issue #언어전환 - 차트 레이블 번역 적용)
+                    const paidLabel = getTranslation('incentiveCalculation.paid', currentLanguage) || '지급';
+                    const notPaidLabel = getTranslation('incentiveCalculation.notPaid', currentLanguage) || '미지급';
                     window[`chart_${{chartId}}`] = new Chart(ctx, {{
                         type: 'doughnut',
                         data: {{
-                            labels: ['지급', '미지급'],
+                            labels: [paidLabel, notPaidLabel],
                             datasets: [{{
                                 data: [paidEmployees, totalEmployees - paidEmployees],
                                 backgroundColor: ['#28a745', '#dc3545'],
