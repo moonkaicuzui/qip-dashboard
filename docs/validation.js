@@ -671,9 +671,12 @@ const ValidationEngine = {
             };
 
             // Check if all applicable conditions pass
-            const passedConditions = applicableConditions.filter(condNum =>
-                conditionResults[`condition_${condNum}`] === 'PASS'
-            ).length;
+            // CRITICAL FIX (Issue #41): 'NOT_APPLICABLE' should count as passing
+            // NOT_APPLICABLE means the condition doesn't apply (e.g., interim report)
+            const passedConditions = applicableConditions.filter(condNum => {
+                const result = conditionResults[`condition_${condNum}`];
+                return result === 'PASS' || result === 'NOT_APPLICABLE';
+            }).length;
 
             const allConditionsPass = (passedConditions === applicableConditions.length);
 
@@ -1643,7 +1646,17 @@ const ValidationEngine = {
             // ============================================
             // Phase 2.6: Two-Pass Validation Strategy
             // ============================================
-            const currentDate = new Date();
+            // CRITICAL FIX (Issue #41): Use config month/year instead of today's date
+            // For December 2025 validation, use end-of-month date (2025-12-31)
+            // This ensures Condition 4 (Minimum Days) cutoff is correctly applied
+            const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
+                               'july', 'august', 'september', 'october', 'november', 'december'];
+            const configMonth = allData.config.month || 'december';
+            const configYear = allData.config.year || 2025;
+            const monthIndex = monthNames.indexOf(configMonth.toLowerCase());
+            // Create date for last day of month (day 31 will auto-adjust to correct last day)
+            const currentDate = new Date(configYear, monthIndex + 1, 0);  // Last day of month
+            console.log(`📅 Validation date set to: ${currentDate.toISOString().slice(0, 10)} (end of ${configMonth} ${configYear})`);
             const expectedResults = [];
 
             // Build subordinate mapping for manager calculations
