@@ -2615,31 +2615,17 @@ function validateContinuousMonths(allEmployees, previousMonthData, positionMatri
             .some(p => position.toUpperCase().includes(p));
     });
 
-    // DEBUG: Log type1Employees count and sample
-    console.log('🔍 DEBUG: type1Employees count:', type1Employees.length);
-    console.log('🔍 DEBUG: Sample type1Employee:', type1Employees[0]);
-
     const prevMonthsValues = type1Employees
         .map(emp => parseInt(emp.previousContinuousMonths || 0))
         .filter(v => !isNaN(v));
 
-    // DEBUG: Log prevMonthsValues
-    console.log('🔍 DEBUG: prevMonthsValues length:', prevMonthsValues.length);
-    console.log('🔍 DEBUG: prevMonthsValues unique:', [...new Set(prevMonthsValues)]);
-
     const allZeros = prevMonthsValues.every(v => v === 0);
-    const hasVariation = prevMonthsValues.some(v => v > 0);
-
-    // DEBUG: Log check results
-    console.log('🔍 DEBUG: allZeros =', allZeros, ', hasVariation =', hasVariation);
 
     // If all Previous_Continuous_Months are 0, skip increment logic validation
+    // This indicates Python engine bug: hardcoded july_continuous_months instead of dynamic lookup
     if (allZeros && prevMonthsValues.length > 0) {
-        console.warn('⚠️ Previous_Continuous_Months all zeros - Python engine bug detected');
         results.incrementLogic.skipped = true;
         results.incrementLogic.skipReason = 'Python 계산 엔진 버그: Previous_Continuous_Months 컬럼이 모두 0입니다 (step1_인센티브_계산_개선버전.py:4682-4683의 july_continuous_months 하드코딩 문제)';
-    } else {
-        console.log('🔍 DEBUG: Skip condition NOT met - allZeros:', allZeros, 'length:', prevMonthsValues.length);
     }
 
     allEmployees.forEach(emp => {
