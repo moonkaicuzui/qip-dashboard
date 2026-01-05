@@ -234,16 +234,19 @@ const ValidationEngine = {
             // File paths - using validation_data folder (GitHub Pages compatible)
             const basePath = './validation_data';  // Files copied to /docs/validation_data
 
+            // Cache-busting: Add timestamp to prevent stale cached files
+            const cacheBuster = `?v=${Date.now()}`;
+
             const filePaths = {
-                attendance: `${basePath}/${monthName}_${year}/attendance data ${monthName}_converted.csv`,
-                aql: `${basePath}/${monthName}_${year}/1.HSRG AQL REPORT-${monthName.toUpperCase()}.${year}.csv`,
-                prs: `${basePath}/${monthName}_${year}/5prs data ${monthName}.csv`,
-                basicInfo: `${basePath}/${monthName}_${year}/basic manpower data ${monthName}.csv`,
-                config: `${basePath}/${monthName}_${year}/config_${monthName}_${year}.json`,
-                positionMatrix: `${basePath}/${monthName}_${year}/position_condition_matrix.json`,
-                dashboardOutput: `${basePath}/${monthName}_${year}/output_QIP_incentive_${monthName}_${year}_Complete_V10.0_Complete.csv`,
+                attendance: `${basePath}/${monthName}_${year}/attendance data ${monthName}_converted.csv${cacheBuster}`,
+                aql: `${basePath}/${monthName}_${year}/1.HSRG AQL REPORT-${monthName.toUpperCase()}.${year}.csv${cacheBuster}`,
+                prs: `${basePath}/${monthName}_${year}/5prs data ${monthName}.csv${cacheBuster}`,
+                basicInfo: `${basePath}/${monthName}_${year}/basic manpower data ${monthName}.csv${cacheBuster}`,
+                config: `${basePath}/${monthName}_${year}/config_${monthName}_${year}.json${cacheBuster}`,
+                positionMatrix: `${basePath}/${monthName}_${year}/position_condition_matrix.json${cacheBuster}`,
+                dashboardOutput: `${basePath}/${monthName}_${year}/output_QIP_incentive_${monthName}_${year}_Complete_V10.0_Complete.csv${cacheBuster}`,
                 // Phase 2.2: Additional data sources for position-specific calculators
-                aqlInspectorConfig: `${basePath}/${monthName}_${year}/aql_inspector_incentive_config.json`
+                aqlInspectorConfig: `${basePath}/${monthName}_${year}/aql_inspector_incentive_config.json${cacheBuster}`
             };
 
             try {
@@ -258,6 +261,14 @@ const ValidationEngine = {
                     // Phase 2.2: Load AQL Inspector 3-Part configuration (fallback to empty object if not found)
                     this.loadJSONFromURL(filePaths.aqlInspectorConfig).catch(() => ({}))
                 ]);
+
+                // DEBUG: Check positionMatrix loading
+                console.log('[DEBUG loadAllSources] positionMatrix type:', typeof positionMatrix);
+                console.log('[DEBUG loadAllSources] positionMatrix keys:', positionMatrix ? Object.keys(positionMatrix) : 'NULL');
+                console.log('[DEBUG loadAllSources] type_2_incentive_calculation exists:', positionMatrix && positionMatrix.type_2_incentive_calculation ? 'YES' : 'NO');
+                if (positionMatrix && positionMatrix.type_2_incentive_calculation) {
+                    console.log('[DEBUG loadAllSources] type_2_incentive_calculation keys:', Object.keys(positionMatrix.type_2_incentive_calculation));
+                }
 
                 return {
                     attendance,
@@ -432,17 +443,21 @@ const ValidationEngine = {
 
         /**
          * Condition 9: 5PRS Pass Rate >= 95%
-         * FIXED (Issue #41): Use correct CSV column names
-         * 5PRS CSV: Inspector ID, Pass Qty, Reject Qty, Valiation Qty (typo in original)
+         * FIXED (Issue #41): Use TQC ID column for ASSEMBLY INSPECTOR matching
+         * 5PRS CSV structure:
+         *   - Inspector ID: Person doing the inspection (AUDIT & TRAINING TEAM)
+         *   - TQC ID: Person being inspected (ASSEMBLY INSPECTOR) ← Use this!
          */
         calculateCondition9_5PRSPassRate(employee, prsData) {
-            // 5PRS CSV column is "Inspector ID", not "employee_id"
+            // CRITICAL FIX: Use TQC ID (person being inspected), NOT Inspector ID
             const empNo = String(employee['Employee No'] || '').trim();
             const empPRS = prsData.filter(row =>
-                String(row['Inspector ID'] || '').trim() === empNo
+                String(row['TQC ID'] || '').trim() === empNo
             );
 
-            if (empPRS.length === 0) return 'PASS';  // No PRS inspections = pass
+            // CRITICAL FIX (Issue #41): No 5PRS data = FAIL (to match dashboard behavior)
+            // Dashboard marks employees without 5PRS inspections as FAIL for both cond_9 and cond_10
+            if (empPRS.length === 0) return 'FAIL';  // No PRS inspections = FAIL
 
             // Calculate pass rate from Pass Qty and Valiation Qty (note: typo in CSV)
             let totalQty = 0;
@@ -460,13 +475,14 @@ const ValidationEngine = {
 
         /**
          * Condition 10: 5PRS Inspection Quantity >= 100
-         * FIXED (Issue #41): Use correct CSV column names
+         * FIXED (Issue #41): Use TQC ID column for ASSEMBLY INSPECTOR matching
+         * Same logic as Condition 9 - use TQC ID (person being inspected)
          */
         calculateCondition10_5PRSInspectionQty(employee, prsData) {
-            // 5PRS CSV column is "Inspector ID", not "employee_id"
+            // CRITICAL FIX: Use TQC ID (person being inspected), NOT Inspector ID
             const empNo = String(employee['Employee No'] || '').trim();
             const empPRS = prsData.filter(row =>
-                String(row['Inspector ID'] || '').trim() === empNo
+                String(row['TQC ID'] || '').trim() === empNo
             );
 
             // Sum "Valiation Qty" (typo in CSV) for total inspection quantity
@@ -560,14 +576,54 @@ const ValidationEngine = {
                 };
             }
 
-            // TYPE-2: Use TYPE-1 reference position average
+            // TYPE-2: Use TYPE-1 reference position average with multiplier
             if (employeeType === 'TYPE-2') {
                 const type2Mapping = positionMatrix.type_2_incentive_calculation || {};
-                // Normalize position name for lookup
-                const normalizedPosition = position.trim();
-                const referencePosition = type2Mapping[normalizedPosition];
+                // Normalize position name for lookup (try exact match, then pattern matching)
+                const normalizedPosition = position.trim().toUpperCase();
 
-                if (!referencePosition) {
+                // DEBUG: Log first 3 TYPE-2 employees
+                if (!window._type2DebugCount) window._type2DebugCount = 0;
+                if (window._type2DebugCount < 3) {
+                    console.log('[TYPE-2 DEBUG] Employee:', employee['Employee No'], 'Position:', position);
+                    console.log('[TYPE-2 DEBUG] type2Mapping keys:', Object.keys(type2Mapping));
+                    console.log('[TYPE-2 DEBUG] _default exists:', !!type2Mapping._default);
+                    window._type2DebugCount++;
+                }
+
+                // Find matching mapping entry (try exact match first, then patterns)
+                let mappingEntry = null;
+                let mappingKey = null;
+
+                // Try exact match first
+                for (const [key, value] of Object.entries(type2Mapping)) {
+                    if (key.startsWith('_')) continue; // Skip meta fields
+                    if (normalizedPosition === key.toUpperCase()) {
+                        mappingEntry = value;
+                        mappingKey = key;
+                        break;
+                    }
+                }
+
+                // Try partial match if no exact match
+                if (!mappingEntry) {
+                    for (const [key, value] of Object.entries(type2Mapping)) {
+                        if (key.startsWith('_')) continue; // Skip meta fields
+                        if (normalizedPosition.includes(key.toUpperCase())) {
+                            mappingEntry = value;
+                            mappingKey = key;
+                            break;
+                        }
+                    }
+                }
+
+                // Use default mapping if still no match
+                if (!mappingEntry && type2Mapping._default) {
+                    mappingEntry = type2Mapping._default;
+                    mappingKey = '_default';
+                }
+
+                if (!mappingEntry) {
                     // No mapping found - use progression table as fallback
                     const amount = progressionTable[continuousMonths] || 0;
                     return {
@@ -576,12 +632,21 @@ const ValidationEngine = {
                     };
                 }
 
+                // Extract reference position and multiplier from mapping entry
+                const referencePosition = mappingEntry.reference_type1_position || mappingKey;
+                const multiplier = mappingEntry.multiplier || 1.0;
+
                 // Get TYPE-1 average from context
                 if (context.type1Averages && context.type1Averages[referencePosition]) {
                     const avg = context.type1Averages[referencePosition];
+                    const finalAmount = Math.round(avg.average * multiplier);
+                    const methodDesc = multiplier === 1.0
+                        ? `TYPE-1 ${referencePosition} 평균 (수령자 ${avg.receivingCount}명, ${avg.average.toLocaleString()} VND)`
+                        : `TYPE-1 ${referencePosition} 평균 × ${multiplier} (수령자 ${avg.receivingCount}명, ${avg.average.toLocaleString()} × ${multiplier} = ${finalAmount.toLocaleString()} VND)`;
+
                     return {
-                        amount: avg.average,
-                        method: `TYPE-1 ${referencePosition} 평균 (수령자 ${avg.receivingCount}명, 평균 ${avg.average.toLocaleString()} VND)`
+                        amount: finalAmount,
+                        method: methodDesc
                     };
                 }
 
@@ -609,6 +674,15 @@ const ValidationEngine = {
          */
         validateEmployee(empId, allData, previousMonthData, currentDate, context = {}) {
             const { attendance, aql, prs, basicInfo, config, positionMatrix } = allData;
+
+            // DEBUG: Check positionMatrix in validateEmployee (first 3 calls only)
+            if (!window._validateDebugCount) window._validateDebugCount = 0;
+            if (window._validateDebugCount < 3) {
+                console.log('[DEBUG validateEmployee] allData.positionMatrix exists:', !!allData.positionMatrix);
+                console.log('[DEBUG validateEmployee] positionMatrix (destructured) exists:', !!positionMatrix);
+                console.log('[DEBUG validateEmployee] type_2_incentive_calculation exists:', positionMatrix && positionMatrix.type_2_incentive_calculation ? 'YES' : 'NO');
+                window._validateDebugCount++;
+            }
 
             // Find employee in basicInfo
             // CSV column is "Employee No" (with space), not "emp_no"
@@ -728,7 +802,8 @@ const ValidationEngine = {
 
             basicInfoData.forEach(emp => {
                 // Try multiple possible column names for BOSS ID
-                const bossId = String(emp['BOSS ID'] || emp['direct boss id'] || emp['Boss ID'] || '').trim();
+                // CRITICAL FIX (Issue #41): 'MST direct boss name' contains the boss's Employee No (not a name!)
+                const bossId = String(emp['MST direct boss name'] || emp['BOSS ID'] || emp['direct boss id'] || emp['Boss ID'] || '').trim();
                 if (!bossId || bossId === '-' || bossId === '0' || bossId === '') return;
 
                 if (!mapping.has(bossId)) {
@@ -788,50 +863,49 @@ const ValidationEngine = {
         /**
          * Phase 2.4.2: Calculate LINE LEADER incentive (Subordinate Formula)
          * Formula: (Total Subordinate Incentive) × 12% × Receiving Ratio
+         * FIXED (Issue #41): Filter by TYPE-1 employees, not position name (matches Python logic)
          */
         calculateLineLeaderIncentive(emp, subordinateMap, allValidatedEmployees) {
             const empNo = String(emp['Employee No'] || emp.emp_no || '').trim();
             const subordinates = subordinateMap.get(empNo) || [];
 
-            // Filter: Only ASSEMBLY INSPECTOR type subordinates
-            const assemblyInspectors = subordinates.filter(sub => {
-                const pos = (sub['Position'] || sub['QIP POSITION 1ST  NAME'] || '').toUpperCase();
-                return pos.includes('ASSEMBLY INSPECTOR') ||
-                       pos.includes('MODEL MASTER') ||
-                       pos.includes('AUDITOR') ||
-                       pos.includes('TRAINER');
+            // FIXED: Filter by TYPE-1 employees (Python uses 'ROLE TYPE STD' == 'TYPE-1')
+            // This matches the Python logic in step1_인센티브_계산_개선버전.py:3555
+            const type1Subordinates = subordinates.filter(sub => {
+                const roleType = (sub['ROLE TYPE STD'] || sub['TYPE'] || '').toUpperCase();
+                return roleType === 'TYPE-1';
             });
 
-            if (assemblyInspectors.length === 0) {
+            if (type1Subordinates.length === 0) {
                 return {
                     amount: 0,
-                    method: 'No Subordinates (부하직원 없음)'
+                    method: 'No TYPE-1 Subordinates (TYPE-1 부하직원 없음)'
                 };
             }
 
-            // Calculate total incentive and receiving count
+            // Calculate total incentive and receiving count from TYPE-1 subordinates
             let totalSubordinateIncentive = 0;
             let receivingCount = 0;
 
-            assemblyInspectors.forEach(sub => {
+            type1Subordinates.forEach(sub => {
                 const subNo = String(sub['Employee No'] || '').trim();
                 const subResult = allValidatedEmployees.find(v =>
                     String(v.emp_no || '').trim() === subNo
                 );
                 if (!subResult) return;
 
-                const subIncentive = subResult.validatedIncentive || 0;
+                const subIncentive = subResult.incentiveAmount || 0;
                 totalSubordinateIncentive += subIncentive;
                 if (subIncentive > 0) receivingCount++;
             });
 
             // Formula: Total × 12% × Receiving Ratio
-            const receivingRatio = receivingCount / assemblyInspectors.length;
+            const receivingRatio = receivingCount / type1Subordinates.length;
             const amount = Math.round(totalSubordinateIncentive * 0.12 * receivingRatio);
 
             return {
                 amount: amount,
-                method: `부하직원 × 12% × 수령비율 (${receivingCount}/${assemblyInspectors.length}명 수령, 합계 ${totalSubordinateIncentive.toLocaleString()})`
+                method: `TYPE-1 부하직원 × 12% × 수령비율 (${receivingCount}/${type1Subordinates.length}명 수령, 합계 ${totalSubordinateIncentive.toLocaleString()})`
             };
         },
 
@@ -883,7 +957,7 @@ const ValidationEngine = {
                 );
                 if (!llResult) return;
 
-                const llIncentive = llResult.validatedIncentive || 0;
+                const llIncentive = llResult.incentiveAmount || 0;
                 if (llIncentive > 0) {
                     totalIncentive += llIncentive;
                     receivingCount++;
@@ -1681,11 +1755,45 @@ const ValidationEngine = {
             // PASS 1: Validate TYPE-1 employees first
             // (Progressive: managers reference already-validated employees)
             // ==========================================
+            // CRITICAL FIX (Issue #41): Order TYPE-1 employees by dependency
+            // 1. ASSEMBLY INSPECTOR, MODEL MASTER, AUDITOR, TRAINER (base positions)
+            // 2. LINE LEADER (needs ASSEMBLY INSPECTOR results)
+            // 3. GROUP LEADER (needs LINE LEADER results)
+            // 4. SUPERVISOR (needs LINE LEADER results via GROUP LEADER logic)
+            // 5. MANAGER (needs LINE LEADER results via GROUP LEADER logic)
+            const positionOrder = {
+                'ASSEMBLY INSPECTOR': 1,
+                'MODEL MASTER': 1,
+                'AUDITOR': 1,
+                'TRAINER': 1,
+                'LINE LEADER': 2,
+                'GROUP LEADER': 3,
+                'SUPERVISOR': 4,
+                'A.SUPERVISOR': 4,
+                'MANAGER': 5,
+                'A.MANAGER': 5
+            };
+
+            const getPositionPriority = (emp) => {
+                const pos = (emp['QIP POSITION 1ST  NAME'] || emp['Position'] || '').toUpperCase();
+                for (const [key, priority] of Object.entries(positionOrder)) {
+                    if (pos.includes(key)) return priority;
+                }
+                return 0;  // Unknown positions first
+            };
+
+            // Sort TYPE-1 employees by position dependency order
+            const sortedType1Employees = [...type1Employees].sort((a, b) =>
+                getPositionPriority(a) - getPositionPriority(b)
+            );
+
+            console.log(`📊 TYPE-1 position ordering applied (base → LINE LEADER → GROUP LEADER → SUPERVISOR → MANAGER)`);
+
             progressBar.style.width = '50%';
             progressBar.textContent = 'Validating TYPE-1 employees...';
 
             const type1Results = [];
-            type1Employees.forEach(employee => {
+            sortedType1Employees.forEach(employee => {
                 const context = {
                     subordinateMap: subordinateMap,
                     allValidatedEmployees: type1Results,  // Pass already-validated TYPE-1 employees
@@ -2719,8 +2827,40 @@ function validateType2Averages(allEmployees, positionMatrix, config = {}, attend
     // ===== 3-Layer Validation for TYPE-2 Employees =====
     allEmployees.filter(emp => emp.employeeType === 'TYPE-2').forEach(emp => {
         const position = emp.position || '';
-        const referencePosition = type2Mapping[position.trim()];
+        const normalizedPosition = position.trim().toUpperCase();
         const actualIncentive = emp.validatedIncentive || 0;
+
+        // Find mapping entry (same logic as calculateIncentiveAmount)
+        let mappingEntry = null;
+
+        // Try exact match first
+        for (const [key, value] of Object.entries(type2Mapping)) {
+            if (key.startsWith('_')) continue;
+            if (normalizedPosition === key.toUpperCase()) {
+                mappingEntry = value;
+                break;
+            }
+        }
+
+        // Try partial match if no exact match
+        if (!mappingEntry) {
+            for (const [key, value] of Object.entries(type2Mapping)) {
+                if (key.startsWith('_')) continue;
+                if (normalizedPosition.includes(key.toUpperCase())) {
+                    mappingEntry = value;
+                    break;
+                }
+            }
+        }
+
+        // Use default mapping if still no match
+        if (!mappingEntry && type2Mapping._default) {
+            mappingEntry = type2Mapping._default;
+        }
+
+        // Extract reference position and multiplier
+        const referencePosition = mappingEntry?.reference_type1_position || null;
+        const multiplier = mappingEntry?.multiplier || 1.0;
 
         // ----- Layer 1: Resignation Check -----
         const stopWorkingDate = emp.stopWorkingDate;
@@ -2767,11 +2907,14 @@ function validateType2Averages(allEmployees, positionMatrix, config = {}, attend
         if (!referencePosition) return;
 
         if (allConditionsPass && !isResigned) {
-            const expectedAvg = type1Averages[referencePosition]?.average || 0;
+            const baseAvg = type1Averages[referencePosition]?.average || 0;
+            const expectedAvg = Math.round(baseAvg * multiplier);  // Apply multiplier
 
             if (!results.positions[position]) {
                 results.positions[position] = {
                     referencePosition: referencePosition,
+                    multiplier: multiplier,
+                    baseAverage: baseAvg,
                     expectedAverage: expectedAvg,
                     type1ReceivingCount: type1Averages[referencePosition]?.receiving || 0,
                     matches: 0,

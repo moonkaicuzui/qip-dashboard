@@ -389,6 +389,77 @@
     }
   },
 
+  "type_2_incentive_calculation": {
+    "_description": "TYPE-2 employees receive incentive based on TYPE-1 reference position average",
+    "_note": "All multipliers and references are based on CLAUDE.md business logic",
+
+    "LINE LEADER": {
+      "reference_type1_position": "LINE LEADER",
+      "calculation_method": "TYPE-1 LINE LEADER average (receiving only)",
+      "multiplier": 1.0
+    },
+    "GROUP LEADER": {
+      "reference_type1_position": "LINE LEADER",
+      "calculation_method": "TYPE-1 LINE LEADER average × 2",
+      "multiplier": 2.0
+    },
+    "(V) SUPERVISOR": {
+      "reference_type1_position": "LINE LEADER",
+      "calculation_method": "TYPE-1 LINE LEADER average × 2.5",
+      "multiplier": 2.5
+    },
+    "A.SUPERVISOR": {
+      "reference_type1_position": "LINE LEADER",
+      "calculation_method": "TYPE-1 LINE LEADER average × 3.5",
+      "multiplier": 3.5
+    },
+    "A.MANAGER": {
+      "reference_type1_position": "LINE LEADER",
+      "calculation_method": "TYPE-1 LINE LEADER average × 5.0",
+      "multiplier": 5.0
+    },
+    "MANAGER": {
+      "reference_type1_position": "LINE LEADER",
+      "calculation_method": "TYPE-1 LINE LEADER average × 10.0",
+      "multiplier": 10.0
+    },
+    "ASSEMBLY INSPECTOR": {
+      "reference_type1_position": "ASSEMBLY INSPECTOR",
+      "calculation_method": "TYPE-1 ASSEMBLY INSPECTOR average (receiving only)",
+      "multiplier": 1.0
+    },
+    "AQL INSPECTOR": {
+      "reference_type1_position": "AQL INSPECTOR",
+      "calculation_method": "TYPE-1 AQL INSPECTOR average (receiving only)",
+      "multiplier": 1.0
+    },
+    "STITCHING INSPECTOR": {
+      "reference_type1_position": "ASSEMBLY INSPECTOR",
+      "calculation_method": "TYPE-1 ASSEMBLY INSPECTOR average (receiving only)",
+      "multiplier": 1.0
+    },
+    "BOTTOM INSPECTOR": {
+      "reference_type1_position": "ASSEMBLY INSPECTOR",
+      "calculation_method": "TYPE-1 ASSEMBLY INSPECTOR average (receiving only)",
+      "multiplier": 1.0
+    },
+    "CUTTING INSPECTOR": {
+      "reference_type1_position": "ASSEMBLY INSPECTOR",
+      "calculation_method": "TYPE-1 ASSEMBLY INSPECTOR average (receiving only)",
+      "multiplier": 1.0
+    },
+    "MTL INSPECTOR": {
+      "reference_type1_position": "ASSEMBLY INSPECTOR",
+      "calculation_method": "TYPE-1 ASSEMBLY INSPECTOR average (receiving only)",
+      "multiplier": 1.0
+    },
+    "_default": {
+      "reference_type1_position": "ASSEMBLY INSPECTOR",
+      "calculation_method": "TYPE-1 ASSEMBLY INSPECTOR average (receiving only)",
+      "multiplier": 1.0
+    }
+  },
+
   "validation_rules": {
     "attendance": {
       "attendance_rate_threshold": 0.88,
