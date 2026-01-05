@@ -800,11 +800,21 @@ const ValidationEngine = {
         buildSubordinateMapping(basicInfoData) {
             const mapping = new Map();
 
+            // DEBUG: Log first employee's keys and BOSS ID value
+            if (basicInfoData.length > 0) {
+                const firstEmp = basicInfoData[0];
+                console.log('[DEBUG buildSubordinateMapping] First employee keys:', Object.keys(firstEmp));
+                console.log('[DEBUG buildSubordinateMapping] MST direct boss name value:', firstEmp['MST direct boss name']);
+                console.log('[DEBUG buildSubordinateMapping] BOSS ID value:', firstEmp['BOSS ID']);
+            }
+
+            let bossIdCount = 0;
             basicInfoData.forEach(emp => {
                 // Try multiple possible column names for BOSS ID
                 // CRITICAL FIX (Issue #41): 'MST direct boss name' contains the boss's Employee No (not a name!)
                 const bossId = String(emp['MST direct boss name'] || emp['BOSS ID'] || emp['direct boss id'] || emp['Boss ID'] || '').trim();
                 if (!bossId || bossId === '-' || bossId === '0' || bossId === '') return;
+                bossIdCount++;
 
                 if (!mapping.has(bossId)) {
                     mapping.set(bossId, []);
@@ -812,6 +822,7 @@ const ValidationEngine = {
                 mapping.get(bossId).push(emp);
             });
 
+            console.log(`[DEBUG buildSubordinateMapping] Employees with valid boss ID: ${bossIdCount}/${basicInfoData.length}`);
             return mapping;  // Map<bossId, [subordinates]>
         },
 
