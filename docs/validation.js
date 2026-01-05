@@ -992,18 +992,17 @@ const ValidationEngine = {
         },
 
         /**
-         * Phase 2.4.4 & 2.4.5: Calculate SUPERVISOR / A.SUPERVISOR incentive (BFS + Multiplier)
+         * Phase 2.4.4 & 2.4.5: Calculate SUPERVISOR incentive (BFS + Multiplier)
          * SUPERVISOR: LINE LEADER avg × 2.5
-         * A.SUPERVISOR: LINE LEADER avg × 3.5
+         * (V) SUPERVISOR / V.SUPERVISOR: LINE LEADER avg × 2.5 (same as SUPERVISOR per Python engine)
+         * FIX (2026-01-05): A.SUPERVISOR was 3.5, corrected to 2.5 to match Python engine
          */
         calculateSupervisorIncentive(emp, subordinateMap, allValidatedEmployees, position) {
             const posUpper = (position || '').toUpperCase();
 
             // Determine multiplier based on position name
-            let multiplier = 2.5;  // Default for SUPERVISOR
-            if (posUpper.includes('A.SUPERVISOR') || posUpper.includes('A. SUPERVISOR')) {
-                multiplier = 3.5;
-            }
+            // All SUPERVISOR variants use 2.5 per Python engine (step1:3699-3700)
+            let multiplier = 2.5;  // Default for all SUPERVISOR types
 
             // Use GROUP LEADER logic to find LINE LEADER average
             const groupLeaderResult = this.calculateGroupLeaderIncentive(emp, subordinateMap, allValidatedEmployees);
@@ -1025,17 +1024,21 @@ const ValidationEngine = {
         },
 
         /**
-         * Phase 2.4.6 & 2.4.7: Calculate MANAGER / A.MANAGER incentive (BFS + Multiplier)
-         * MANAGER: LINE LEADER avg × 10.0
-         * A.MANAGER: LINE LEADER avg × 5.0
+         * Phase 2.4.6 & 2.4.7: Calculate MANAGER incentive (BFS + Multiplier)
+         * S.MANAGER / SENIOR MANAGER: LINE LEADER avg × 4.0
+         * MANAGER: LINE LEADER avg × 3.5
+         * A.MANAGER / ASSISTANT MANAGER: LINE LEADER avg × 3.0
+         * FIX (2026-01-05): Corrected multipliers to match Python engine (step1:3695-3698)
          */
         calculateManagerIncentive(emp, subordinateMap, allValidatedEmployees, position) {
             const posUpper = (position || '').toUpperCase();
 
-            // Determine multiplier based on position name
-            let multiplier = 10.0;  // Default for MANAGER
-            if (posUpper.includes('A.MANAGER') || posUpper.includes('A. MANAGER')) {
-                multiplier = 5.0;
+            // Determine multiplier based on position name (per Python engine step1:3695-3698)
+            let multiplier = 3.5;  // Default for MANAGER
+            if (posUpper.includes('S.MANAGER') || posUpper.includes('SENIOR MANAGER')) {
+                multiplier = 4.0;
+            } else if (posUpper.includes('A.MANAGER') || posUpper.includes('A. MANAGER') || posUpper.includes('ASSISTANT MANAGER')) {
+                multiplier = 3.0;
             }
 
             // Use GROUP LEADER logic to find LINE LEADER average
