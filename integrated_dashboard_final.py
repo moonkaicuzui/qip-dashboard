@@ -3858,7 +3858,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         consecutive: 0,
                         cond7: cond7,
                         cond8: cond8,
-                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급',
+                        incentiveStatus: cond7 && cond8 ? (getTranslation('incentiveStatus.paid', currentLanguage) || '지급') : (getTranslation('incentiveStatus.notPaid', currentLanguage) || '미지급'),
                         sortOrder: buildingOrder[building.replace('Building ', '')] || 99
                     });
                 }
@@ -3895,7 +3895,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         consecutive: 0,
                         cond7: cond7,
                         cond8: cond8,
-                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급',
+                        incentiveStatus: cond7 && cond8 ? (getTranslation('incentiveStatus.paid', currentLanguage) || '지급') : (getTranslation('incentiveStatus.notPaid', currentLanguage) || '미지급'),
                         sortOrder: 5  // All Buildings는 마지막
                     });
                 }
@@ -11424,25 +11424,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }},
 
                 /**
-                 * 수령 상태 텍스트 (한국어)
+                 * 수령 상태 텍스트 (다국어 지원)
                  * @param {{Object}} emp - 직원 객체
-                 * @return {{string}} '수령' 또는 '미수령'
+                 * @return {{string}} 번역된 수령/미수령 텍스트
                  */
-                getReceivedStatusKO: function(emp) {{
-                    return this.hasReceivedIncentive(emp) ? '수령' : '미수령';
+                getReceivedStatusText: function(emp) {{
+                    const receivedText = getTranslation('incentiveStatus.received', currentLanguage) || '수령';
+                    const notReceivedText = getTranslation('incentiveStatus.notReceived', currentLanguage) || '미수령';
+                    return this.hasReceivedIncentive(emp) ? receivedText : notReceivedText;
                 }},
 
                 /**
-                 * 수령 상태 아이콘 HTML
+                 * 수령 상태 아이콘 HTML (다국어 지원)
                  * @param {{Object}} emp - 직원 객체
                  * @return {{string}} HTML 문자열
                  */
                 getReceivedStatusHTML: function(emp) {{
                     const received = this.hasReceivedIncentive(emp);
+                    const receivedText = getTranslation('incentiveStatus.received', currentLanguage) || '수령';
+                    const notReceivedText = getTranslation('incentiveStatus.notReceived', currentLanguage) || '미수령';
                     if (received) {{
-                        return '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>';
+                        return `<span style="color: #28a745; font-weight: 500;">✅ ${{receivedText}}</span>`;
                     }} else {{
-                        return '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
+                        return `<span style="color: #dc3545; font-weight: 500;">${{notReceivedText}}</span>`;
                     }}
                 }},
 
@@ -20293,9 +20297,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <div class="card-body">
                         <h5><i class="fas fa-user"></i> ${{employee['Full Name'] || employee.name || '-'}}</h5>
-                        <p class="mb-1"><strong>사원번호:</strong> ${{employee.emp_no || employee['Employee No'] || '-'}}</p>
-                        <p class="mb-1"><strong>직급:</strong> ${{employee.position || employee['Position'] || '-'}}</p>
-                        <p class="mb-0"><strong>빌딩:</strong> ${{employee.building || employee['BUILDING'] || '-'}}</p>
+                        <p class="mb-1"><strong>${{getTranslation('employeeModal.empNo', currentLanguage)}}:</strong> ${{employee.emp_no || employee['Employee No'] || '-'}}</p>
+                        <p class="mb-1"><strong>${{getTranslation('employeeModal.position', currentLanguage)}}:</strong> ${{employee.position || employee['Position'] || '-'}}</p>
+                        <p class="mb-0"><strong>${{getTranslation('employeeModal.building', currentLanguage)}}:</strong> ${{employee.building || employee['BUILDING'] || '-'}}</p>
                     </div>
                 </div>
             `;
@@ -20334,10 +20338,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             if (attendanceRate >= 88) {{
                 rateBar.className = 'progress-bar bg-success';
-                rateStatus.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> 출근율 기준 충족 (≥88%)</span>';
+                rateStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> ${{getTranslation('employeeModal.attendanceMet', currentLanguage)}}</span>`;
             }} else {{
                 rateBar.className = 'progress-bar bg-danger';
-                rateStatus.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle"></i> 출근율 기준 미충족 (<88%)</span>';
+                rateStatus.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle"></i> ${{getTranslation('employeeModal.attendanceNotMet', currentLanguage)}}</span>`;
             }}
 
             // 일별 출결 현황 생성 (시뮬레이션 - 실제 데이터 없으면 계산으로 대체)
@@ -23380,7 +23384,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             ptrContainer.className = 'ptr-container';
             ptrContainer.innerHTML = `
                 <span class="ptr-arrow">↓</span>
-                <span class="ptr-text">당겨서 새로고침</span>
+                <span class="ptr-text">${{getTranslation('pullToRefresh.pull', currentLanguage)}}</span>
             `;
             document.body.appendChild(ptrContainer);
 
@@ -23406,10 +23410,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     if (pullDistance > 80) {{
                         ptrArrow.classList.add('flipped');
-                        ptrText.textContent = '놓으면 새로고침';
+                        ptrText.textContent = getTranslation('pullToRefresh.release', currentLanguage);
                     }} else {{
                         ptrArrow.classList.remove('flipped');
-                        ptrText.textContent = '당겨서 새로고침';
+                        ptrText.textContent = getTranslation('pullToRefresh.pull', currentLanguage);
                     }}
                 }}
             }}, {{ passive: true }});
@@ -23421,7 +23425,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 if (pullDistance > 80) {{
                     // 새로고침 실행
-                    ptrContainer.innerHTML = `<div class="ptr-spinner"></div><span>새로고침 중...</span>`;
+                    ptrContainer.innerHTML = `<div class="ptr-spinner"></div><span>${{getTranslation('pullToRefresh.refreshing', currentLanguage)}}</span>`;
                     ptrContainer.classList.add('refreshing');
                     ptrContainer.style.transform = 'translateY(0)';
 

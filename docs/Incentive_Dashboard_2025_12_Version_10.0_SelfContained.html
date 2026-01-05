@@ -3634,7 +3634,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="05" data-hour="20" data-minute="41">보고서 생성일: 2026년 01월 05일 20:41</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="05" data-hour="21" data-minute="07">보고서 생성일: 2026년 01월 05일 21:07</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -13409,6 +13409,72 @@
         "vi": "Trạng thái chấm công hàng ngày và kết quả phân tích của nhân viên sẽ được hiển thị"
       }
     }
+  },
+  "employeeModal": {
+    "empNo": {
+      "ko": "사원번호",
+      "en": "Employee No",
+      "vi": "Mã nhân viên"
+    },
+    "position": {
+      "ko": "직급",
+      "en": "Position",
+      "vi": "Chức vụ"
+    },
+    "building": {
+      "ko": "빌딩",
+      "en": "Building",
+      "vi": "Tòa nhà"
+    },
+    "attendanceMet": {
+      "ko": "출근율 기준 충족 (≥88%)",
+      "en": "Attendance requirement met (≥88%)",
+      "vi": "Đạt yêu cầu chuyên cần (≥88%)"
+    },
+    "attendanceNotMet": {
+      "ko": "출근율 기준 미충족 (<88%)",
+      "en": "Attendance requirement not met (<88%)",
+      "vi": "Không đạt yêu cầu chuyên cần (<88%)"
+    }
+  },
+  "pullToRefresh": {
+    "pull": {
+      "ko": "당겨서 새로고침",
+      "en": "Pull to refresh",
+      "vi": "Kéo để làm mới"
+    },
+    "release": {
+      "ko": "놓으면 새로고침",
+      "en": "Release to refresh",
+      "vi": "Thả để làm mới"
+    },
+    "refreshing": {
+      "ko": "새로고침 중...",
+      "en": "Refreshing...",
+      "vi": "Đang làm mới..."
+    }
+  },
+  "incentiveStatus": {
+    "received": {
+      "ko": "수령",
+      "en": "Received",
+      "vi": "Đã nhận"
+    },
+    "notReceived": {
+      "ko": "미수령",
+      "en": "Not Received",
+      "vi": "Chưa nhận"
+    },
+    "paid": {
+      "ko": "지급",
+      "en": "Paid",
+      "vi": "Đã trả"
+    },
+    "notPaid": {
+      "ko": "미지급",
+      "en": "Not Paid",
+      "vi": "Chưa trả"
+    }
   }
 }
     </script>
@@ -13710,25 +13776,29 @@
                 },
 
                 /**
-                 * 수령 상태 텍스트 (한국어)
+                 * 수령 상태 텍스트 (다국어 지원)
                  * @param {Object} emp - 직원 객체
-                 * @return {string} '수령' 또는 '미수령'
+                 * @return {string} 번역된 수령/미수령 텍스트
                  */
-                getReceivedStatusKO: function(emp) {
-                    return this.hasReceivedIncentive(emp) ? '수령' : '미수령';
+                getReceivedStatusText: function(emp) {
+                    const receivedText = getTranslation('incentiveStatus.received', currentLanguage) || '수령';
+                    const notReceivedText = getTranslation('incentiveStatus.notReceived', currentLanguage) || '미수령';
+                    return this.hasReceivedIncentive(emp) ? receivedText : notReceivedText;
                 },
 
                 /**
-                 * 수령 상태 아이콘 HTML
+                 * 수령 상태 아이콘 HTML (다국어 지원)
                  * @param {Object} emp - 직원 객체
                  * @return {string} HTML 문자열
                  */
                 getReceivedStatusHTML: function(emp) {
                     const received = this.hasReceivedIncentive(emp);
+                    const receivedText = getTranslation('incentiveStatus.received', currentLanguage) || '수령';
+                    const notReceivedText = getTranslation('incentiveStatus.notReceived', currentLanguage) || '미수령';
                     if (received) {
-                        return '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>';
+                        return `<span style="color: #28a745; font-weight: 500;">✅ ${receivedText}</span>`;
                     } else {
-                        return '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
+                        return `<span style="color: #dc3545; font-weight: 500;">${notReceivedText}</span>`;
                     }
                 },
 
@@ -19728,7 +19798,7 @@
                         consecutive: 0,
                         cond7: cond7,
                         cond8: cond8,
-                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급',
+                        incentiveStatus: cond7 && cond8 ? (getTranslation('incentiveStatus.paid', currentLanguage) || '지급') : (getTranslation('incentiveStatus.notPaid', currentLanguage) || '미지급'),
                         sortOrder: buildingOrder[building.replace('Building ', '')] || 99
                     });
                 }
@@ -19765,7 +19835,7 @@
                         consecutive: 0,
                         cond7: cond7,
                         cond8: cond8,
-                        incentiveStatus: cond7 && cond8 ? '지급' : '미지급',
+                        incentiveStatus: cond7 && cond8 ? (getTranslation('incentiveStatus.paid', currentLanguage) || '지급') : (getTranslation('incentiveStatus.notPaid', currentLanguage) || '미지급'),
                         sortOrder: 5  // All Buildings는 마지막
                     });
                 }
@@ -26197,9 +26267,9 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                 <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                     <div class="card-body">
                         <h5><i class="fas fa-user"></i> ${employee['Full Name'] || employee.name || '-'}</h5>
-                        <p class="mb-1"><strong>사원번호:</strong> ${employee.emp_no || employee['Employee No'] || '-'}</p>
-                        <p class="mb-1"><strong>직급:</strong> ${employee.position || employee['Position'] || '-'}</p>
-                        <p class="mb-0"><strong>빌딩:</strong> ${employee.building || employee['BUILDING'] || '-'}</p>
+                        <p class="mb-1"><strong>${getTranslation('employeeModal.empNo', currentLanguage)}:</strong> ${employee.emp_no || employee['Employee No'] || '-'}</p>
+                        <p class="mb-1"><strong>${getTranslation('employeeModal.position', currentLanguage)}:</strong> ${employee.position || employee['Position'] || '-'}</p>
+                        <p class="mb-0"><strong>${getTranslation('employeeModal.building', currentLanguage)}:</strong> ${employee.building || employee['BUILDING'] || '-'}</p>
                     </div>
                 </div>
             `;
@@ -26238,10 +26308,10 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
 
             if (attendanceRate >= 88) {
                 rateBar.className = 'progress-bar bg-success';
-                rateStatus.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> 출근율 기준 충족 (≥88%)</span>';
+                rateStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> ${getTranslation('employeeModal.attendanceMet', currentLanguage)}</span>`;
             } else {
                 rateBar.className = 'progress-bar bg-danger';
-                rateStatus.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle"></i> 출근율 기준 미충족 (<88%)</span>';
+                rateStatus.innerHTML = `<span class="text-danger"><i class="fas fa-times-circle"></i> ${getTranslation('employeeModal.attendanceNotMet', currentLanguage)}</span>`;
             }
 
             // 일별 출결 현황 생성 (시뮬레이션 - 실제 데이터 없으면 계산으로 대체)
@@ -29284,7 +29354,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             ptrContainer.className = 'ptr-container';
             ptrContainer.innerHTML = `
                 <span class="ptr-arrow">↓</span>
-                <span class="ptr-text">당겨서 새로고침</span>
+                <span class="ptr-text">${getTranslation('pullToRefresh.pull', currentLanguage)}</span>
             `;
             document.body.appendChild(ptrContainer);
 
@@ -29310,10 +29380,10 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
 
                     if (pullDistance > 80) {
                         ptrArrow.classList.add('flipped');
-                        ptrText.textContent = '놓으면 새로고침';
+                        ptrText.textContent = getTranslation('pullToRefresh.release', currentLanguage);
                     } else {
                         ptrArrow.classList.remove('flipped');
-                        ptrText.textContent = '당겨서 새로고침';
+                        ptrText.textContent = getTranslation('pullToRefresh.pull', currentLanguage);
                     }
                 }
             }, { passive: true });
@@ -29325,7 +29395,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
 
                 if (pullDistance > 80) {
                     // 새로고침 실행
-                    ptrContainer.innerHTML = `<div class="ptr-spinner"></div><span>새로고침 중...</span>`;
+                    ptrContainer.innerHTML = `<div class="ptr-spinner"></div><span>${getTranslation('pullToRefresh.refreshing', currentLanguage)}</span>`;
                     ptrContainer.classList.add('refreshing');
                     ptrContainer.style.transform = 'translateY(0)';
 

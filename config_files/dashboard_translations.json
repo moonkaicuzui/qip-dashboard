@@ -7219,5 +7219,71 @@
         "vi": "Trạng thái chấm công hàng ngày và kết quả phân tích của nhân viên sẽ được hiển thị"
       }
     }
+  },
+  "employeeModal": {
+    "empNo": {
+      "ko": "사원번호",
+      "en": "Employee No",
+      "vi": "Mã nhân viên"
+    },
+    "position": {
+      "ko": "직급",
+      "en": "Position",
+      "vi": "Chức vụ"
+    },
+    "building": {
+      "ko": "빌딩",
+      "en": "Building",
+      "vi": "Tòa nhà"
+    },
+    "attendanceMet": {
+      "ko": "출근율 기준 충족 (≥88%)",
+      "en": "Attendance requirement met (≥88%)",
+      "vi": "Đạt yêu cầu chuyên cần (≥88%)"
+    },
+    "attendanceNotMet": {
+      "ko": "출근율 기준 미충족 (<88%)",
+      "en": "Attendance requirement not met (<88%)",
+      "vi": "Không đạt yêu cầu chuyên cần (<88%)"
+    }
+  },
+  "pullToRefresh": {
+    "pull": {
+      "ko": "당겨서 새로고침",
+      "en": "Pull to refresh",
+      "vi": "Kéo để làm mới"
+    },
+    "release": {
+      "ko": "놓으면 새로고침",
+      "en": "Release to refresh",
+      "vi": "Thả để làm mới"
+    },
+    "refreshing": {
+      "ko": "새로고침 중...",
+      "en": "Refreshing...",
+      "vi": "Đang làm mới..."
+    }
+  },
+  "incentiveStatus": {
+    "received": {
+      "ko": "수령",
+      "en": "Received",
+      "vi": "Đã nhận"
+    },
+    "notReceived": {
+      "ko": "미수령",
+      "en": "Not Received",
+      "vi": "Chưa nhận"
+    },
+    "paid": {
+      "ko": "지급",
+      "en": "Paid",
+      "vi": "Đã trả"
+    },
+    "notPaid": {
+      "ko": "미지급",
+      "en": "Not Paid",
+      "vi": "Chưa trả"
+    }
   }
 }
