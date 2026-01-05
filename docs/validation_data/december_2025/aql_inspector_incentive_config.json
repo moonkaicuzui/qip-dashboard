@@ -63,118 +63,148 @@
     }
   },
   "aql_inspectors": {
-    "620020923": {
-      "name": "BÙI TRƯƠNG NGỌC NHỨT",
-      "cfa_certified": true,
-      "november_2025_incentive": {
-        "part1_months": 3,
-        "part3_months": 3,
-        "total": 1000000
-      },
-      "october_2025_incentive": {
-        "part1_months": 2,
-        "part3_months": 2,
-        "total": 950000
-      },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 1,
-        "total": 850000
-      }
-    },
     "618110077": {
       "name": "LÊ NGỌC LÂM MỸ HUỲNH",
       "cfa_certified": true,
-      "november_2025_incentive": {
-        "part1_months": 3,
-        "part3_months": 3,
-        "total": 1000000
+      "september_2025_incentive": {
+        "part1_months": 11,
+        "part3_months": 11,
+        "total": 2350000
       },
       "october_2025_incentive": {
-        "part1_months": 2,
-        "part3_months": 2,
-        "total": 950000
+        "part1_months": 12,
+        "part3_months": 12,
+        "total": 2400000
       },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 1,
-        "total": 850000
+      "november_2025_incentive": {
+        "part1_months": 13,
+        "part3_months": 13,
+        "total": 2600000
+      },
+      "december_2025_incentive": {
+        "part1_months": 14,
+        "part3_months": 14,
+        "total": 2600000
       }
     },
     "619100307": {
       "name": "DANH THÁI",
       "cfa_certified": true,
-      "november_2025_incentive": {
-        "part1_months": 3,
-        "part3_months": 3,
-        "total": 1000000
+      "september_2025_incentive": {
+        "part1_months": 11,
+        "part3_months": 11,
+        "total": 2350000
       },
       "october_2025_incentive": {
-        "part1_months": 2,
-        "part3_months": 2,
-        "total": 950000
+        "part1_months": 12,
+        "part3_months": 12,
+        "total": 2400000
       },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 1,
-        "total": 850000
+      "november_2025_incentive": {
+        "part1_months": 13,
+        "part3_months": 13,
+        "total": 2600000
+      },
+      "december_2025_incentive": {
+        "part1_months": 14,
+        "part3_months": 14,
+        "total": 2600000
       }
     },
-    "621110376": {
-      "name": "ĐOÀN PHAN NHI",
+    "620020923": {
+      "name": "BÙI TRƯƠNG NGỌC NHỨT",
       "cfa_certified": true,
-      "november_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 0,
-        "total": 0
+      "september_2025_incentive": {
+        "part1_months": 11,
+        "part3_months": 11,
+        "total": 2350000
       },
       "october_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 0,
-        "total": 0
+        "part1_months": 12,
+        "part3_months": 12,
+        "total": 2400000
       },
-      "september_2025_incentive": {
-        "part1_months": 0,
-        "part3_months": 0,
-        "total": 0
+      "november_2025_incentive": {
+        "part1_months": 13,
+        "part3_months": 13,
+        "total": 2600000
+      },
+      "december_2025_incentive": {
+        "part1_months": 14,
+        "part3_months": 14,
+        "total": 2600000
       }
     },
     "620120306": {
       "name": "NGUYỄN NGÔ TUYẾT NGÂN",
       "cfa_certified": true,
-      "november_2025_incentive": {
-        "part1_months": 3,
-        "part3_months": 3,
-        "total": 1000000
+      "september_2025_incentive": {
+        "part1_months": 6,
+        "part3_months": 6,
+        "total": 1650000
       },
       "october_2025_incentive": {
-        "part1_months": 2,
-        "part3_months": 2,
-        "total": 950000
+        "part1_months": 7,
+        "part3_months": 7,
+        "total": 1700000
       },
+      "november_2025_incentive": {
+        "part1_months": 8,
+        "part3_months": 8,
+        "total": 1850000
+      },
+      "december_2025_incentive": {
+        "part1_months": 9,
+        "part3_months": 9,
+        "total": 1950000
+      }
+    },
+    "621110376": {
+      "name": "ĐOÀN PHAN NHI",
+      "cfa_certified": true,
       "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 1,
-        "total": 850000
+        "part1_months": 0,
+        "part3_months": 0,
+        "total": 0
+      },
+      "october_2025_incentive": {
+        "part1_months": 0,
+        "part3_months": 0,
+        "total": 0
+      },
+      "november_2025_incentive": {
+        "part1_months": 0,
+        "part3_months": 0,
+        "total": 0
+      },
+      "december_2025_incentive": {
+        "part1_months": 0,
+        "part3_months": 0,
+        "total": 0
       }
     },
     "622030225": {
       "name": "NGUYỄN THỊ TƯỜNG VY",
       "cfa_certified": true,
-      "november_2025_incentive": {
-        "part1_months": 3,
-        "part3_months": 3,
-        "total": 1000000
+      "september_2025_incentive": {
+        "part1_months": 6,
+        "part3_months": 6,
+        "total": 1650000
       },
       "october_2025_incentive": {
-        "part1_months": 2,
-        "part3_months": 2,
-        "total": 950000
+        "part1_months": 7,
+        "part3_months": 7,
+        "total": 1700000
       },
-      "september_2025_incentive": {
-        "part1_months": 1,
-        "part3_months": 1,
-        "total": 850000
+      "november_2025_incentive": {
+        "part1_months": 8,
+        "part3_months": 8,
+        "total": 1850000
+      },
+      "december_2025_incentive": {
+        "part1_months": 9,
+        "part3_months": 9,
+        "total": 1950000
       }
     }
   },
@@ -182,6 +212,7 @@
     "calculation_method": "총 인센티브 = Part1 + Part2 + Part3",
     "part1_note": "AQL 검사 평가 결과 기반, 연속 달성 개월에 따라 차등",
     "part2_note": "CFA 자격증 보유 시 매월 700,000 VND",
-    "part3_note": "HWK 클레임 없을 시, 4개월부터 지급 시작"
+    "part3_note": "HWK 클레임 없을 시, 4개월부터 지급 시작",
+    "data_source": "2026-01-05: November 데이터는 사용자 스크린샷 기반으로 수정, December는 November+1로 계산"
   }
 }
