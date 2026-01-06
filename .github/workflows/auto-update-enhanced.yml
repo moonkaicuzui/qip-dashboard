@@ -87,15 +87,7 @@ jobs:
         echo ""
 
         # 최신 config 파일 찾기 (Issue #43: ls -t는 GitHub Actions에서 실패 - 파일명 날짜 파싱 사용)
-        LATEST_CONFIG=$(python3 -c "
-from pathlib import Path
-m={'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'september':9,'october':10,'november':11,'december':12}
-configs=list(Path('config_files').glob('config_*_*.json'))
-if configs:
-    print(sorted(configs,key=lambda p:(int(p.stem.split('_')[2]),m.get(p.stem.split('_')[1].lower(),0)))[-1])
-else:
-    print('config_files/config_december_2025.json')
-")
+        LATEST_CONFIG=$(python3 -c "from pathlib import Path; m={'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'september':9,'october':10,'november':11,'december':12}; configs=list(Path('config_files').glob('config_*_*.json')); print(sorted(configs,key=lambda p:(int(p.stem.split('_')[2]),m.get(p.stem.split('_')[1].lower(),0)))[-1] if configs else 'config_files/config_december_2025.json')")
         echo "📂 Using config: $LATEST_CONFIG"
 
         # JSON에서 month와 year 추출
@@ -158,15 +150,7 @@ else:
         echo ""
 
         # 최신 config 파일에서 월 정보 읽기 (Issue #43: ls -t는 GitHub Actions에서 실패 - 파일명 날짜 파싱 사용)
-        LATEST_CONFIG=$(python3 -c "
-from pathlib import Path
-m={'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'september':9,'october':10,'november':11,'december':12}
-configs=list(Path('config_files').glob('config_*_*.json'))
-if configs:
-    print(sorted(configs,key=lambda p:(int(p.stem.split('_')[2]),m.get(p.stem.split('_')[1].lower(),0)))[-1])
-else:
-    print('config_files/config_december_2025.json')
-")
+        LATEST_CONFIG=$(python3 -c "from pathlib import Path; m={'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'september':9,'october':10,'november':11,'december':12}; configs=list(Path('config_files').glob('config_*_*.json')); print(sorted(configs,key=lambda p:(int(p.stem.split('_')[2]),m.get(p.stem.split('_')[1].lower(),0)))[-1] if configs else 'config_files/config_december_2025.json')")
         echo "📂 Using config: $LATEST_CONFIG"
 
         # JSON에서 month와 year 추출
