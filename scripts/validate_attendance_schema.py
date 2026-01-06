@@ -184,6 +184,25 @@ def main():
     print("📋 Attendance Schema Validation")
     print("=" * 60)
 
+    # 월 이름 → 숫자 변환 (날짜 정렬용)
+    MONTH_ORDER = {
+        'january': 1, 'february': 2, 'march': 3, 'april': 4,
+        'may': 5, 'june': 6, 'july': 7, 'august': 8,
+        'september': 9, 'october': 10, 'november': 11, 'december': 12
+    }
+
+    def get_config_date(config_path):
+        """파일 이름에서 (year, month_num) 추출하여 날짜순 정렬 가능하게 함"""
+        # config_december_2025.json → (2025, 12)
+        name = config_path.stem  # config_december_2025
+        parts = name.split('_')  # ['config', 'december', '2025']
+        if len(parts) >= 3:
+            month_name = parts[1].lower()
+            year_num = int(parts[2])
+            month_num = MONTH_ORDER.get(month_name, 0)
+            return (year_num, month_num)
+        return (0, 0)
+
     # 인자 처리
     if len(sys.argv) >= 3:
         month = sys.argv[1].lower()
@@ -191,14 +210,15 @@ def main():
     else:
         # 최신 config에서 월/년 자동 감지
         # BUG FIX (Issue #43): sorted()는 알파벳순 정렬! september > october > november > december
-        # 파일 수정 시간 기준으로 정렬해야 최신 config를 정확히 찾음
+        # GitHub Actions에서 st_mtime은 체크아웃 시간으로 동일하므로 파일 이름에서 날짜 파싱 필요
         config_files = list(Path("config_files").glob("config_*_2025.json"))
         config_files_2026 = list(Path("config_files").glob("config_*_2026.json"))
         config_files.extend(config_files_2026)
 
         if config_files:
-            # 파일 수정 시간 기준 정렬 (가장 최근 파일 선택)
-            latest = sorted(config_files, key=lambda f: f.stat().st_mtime)[-1]
+            # 파일 이름에서 날짜 파싱하여 정렬 (year, month 순)
+            # 예: config_december_2025.json → (2025, 12)
+            latest = sorted(config_files, key=get_config_date)[-1]
             with open(latest) as f:
                 config = json.load(f)
             month = config.get('month', 'december')
