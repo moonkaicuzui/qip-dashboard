@@ -134,7 +134,10 @@ def validate_output_file(month: str, year: int) -> dict:
     """
     import pandas as pd
 
-    output_path = f"output_files/output_QIP_incentive_{month}_{year}_Complete_V9.0_Complete.csv"
+    # V10.0 우선, V9.0 fallback
+    output_path = f"output_files/output_QIP_incentive_{month}_{year}_Complete_V10.0_Complete.csv"
+    if not Path(output_path).exists():
+        output_path = f"output_files/output_QIP_incentive_{month}_{year}_Complete_V9.0_Complete.csv"
 
     if not Path(output_path).exists():
         return {
@@ -187,14 +190,20 @@ def main():
         year = int(sys.argv[2])
     else:
         # 최신 config에서 월/년 자동 감지
+        # BUG FIX (Issue #43): sorted()는 알파벳순 정렬! september > october > november > december
+        # 파일 수정 시간 기준으로 정렬해야 최신 config를 정확히 찾음
         config_files = list(Path("config_files").glob("config_*_2025.json"))
+        config_files_2026 = list(Path("config_files").glob("config_*_2026.json"))
+        config_files.extend(config_files_2026)
+
         if config_files:
-            latest = sorted(config_files)[-1]
+            # 파일 수정 시간 기준 정렬 (가장 최근 파일 선택)
+            latest = sorted(config_files, key=lambda f: f.stat().st_mtime)[-1]
             with open(latest) as f:
                 config = json.load(f)
             month = config.get('month', 'december')
             year = config.get('year', 2025)
-            print(f"ℹ️  자동 감지: {month} {year}")
+            print(f"ℹ️  자동 감지: {month} {year} (config: {latest.name})")
         else:
             month = 'december'
             year = 2025
