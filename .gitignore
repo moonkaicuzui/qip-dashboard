@@ -102,3 +102,7 @@ node_modules/
 # Documentation
 docs/reports/*.pdf
 docs/improvements/*_draft.md
+
+# SelfContained HTML은 용량 문제로 GitHub에 push하지 않음 (Issue #44)
+docs/*SelfContained*.html
+output_files/*SelfContained*.html

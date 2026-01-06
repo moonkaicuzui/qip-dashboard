@@ -279,9 +279,15 @@ jobs:
           echo "📝 변경사항 발견, 커밋 준비 중..."
 
           # Add files we want to commit FIRST (before any stash)
+          # NOTE: SelfContained HTML 제외 (용량 문제로 GitHub 100MB 제한 초과 방지)
           echo "📦 파일 추가 중..."
           git add config_files/*.json 2>/dev/null || true
-          git add docs/*.html 2>/dev/null || true
+          # SelfContained 제외하고 HTML 추가
+          for f in docs/*.html; do
+            if [[ ! "$f" == *"SelfContained"* ]]; then
+              git add "$f" 2>/dev/null || true
+            fi
+          done
           git add docs/*.csv 2>/dev/null || true
           git add docs/*.xlsx 2>/dev/null || true
           git add output_files/*.csv 2>/dev/null || true
