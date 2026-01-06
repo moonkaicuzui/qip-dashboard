@@ -1725,16 +1725,11 @@
 
         /* Hide button text, show only icon on mobile */
         body.mobile-mode #viewModeToggleText,
-        body.mobile-mode #downloadHtmlBtnText,
         body.mobile-mode #downloadExcelBtnText {
             font-size: 0 !important;
         }
         body.mobile-mode #viewModeToggleText::before {
             content: '📱';
-            font-size: 1rem;
-        }
-        body.mobile-mode #downloadHtmlBtnText::before {
-            content: '📦';
             font-size: 1rem;
         }
         body.mobile-mode #downloadExcelBtnText::before {
@@ -3561,9 +3556,6 @@
                 <button id="viewModeToggle" onclick="toggleViewMode()" class="btn btn-sm view-mode-toggle" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="viewModeToggleText">📱 모바일 뷰</span>
                 </button>
-                <button id="downloadHtmlBtn" onclick="downloadDashboard()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
-                    <span id="downloadHtmlBtnText">📦 Offline 버전</span>
-                </button>
                 <button id="downloadExcelBtn" onclick="downloadExcel()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="downloadExcelBtnText">📗 Excel 다운로드</span>
                 </button>
@@ -3574,7 +3566,7 @@
             </div>
             <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="06" data-hour="09" data-minute="50">보고서 생성일: 2026년 01월 06일 09:50</p>
+            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="06" data-hour="14" data-minute="13">보고서 생성일: 2026년 01월 06일 14:13</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -13807,7 +13799,7 @@
     </script>
 
     <script type="application/json" id="aqlIncentiveConfigBase64">
-        eyJkZXNjcmlwdGlvbiI6IlRZUEUtMSBBUUwgSW5zcGVjdG9yIOyduOyEvO2LsOu4jCDqs4TsgrAg7ISk7KCVIiwicGFydHMiOnsicGFydDEiOnsibmFtZSI6IkFRTCBJbnNwZWN0aW9uIEV2YWx1YXRpb24gUmVzdWx0IiwiZGVzY3JpcHRpb24iOiJBUUwg6rKA7IKsIO2PieqwgCDqsrDqs7zsl5Ag65Sw66W4IOyduOyEvO2LsOu4jCIsImNvbmRpdGlvbiI6IlJlamVjdGlvbiByYXRlIGJ5IGFkaWRhcy9UMVFNLzNyZCBQYXJ0eSA8IDMlIiwiaW5jZW50aXZlX3RhYmxlIjp7InN1c3RhaW5lZF9wZXJmb3JtYW5jZSI6eyJkZXNjcmlwdGlvbiI6IkxldmVsLUEgZXZhbHVhdGlvbiByZXN1bHQgbW9yZSB0aGFuIDIgbW9udGhzIiwiYW1vdW50cyI6eyIxIjoxNTAwMDAsIjIiOjI1MDAwMCwiMyI6MzAwMDAwLCI0IjozNTAwMDAsIjUiOjQwMDAwMCwiNiI6NDUwMDAwLCI3Ijo1MDAwMDAsIjgiOjY1MDAwMCwiOSI6NzUwMDAwLCIxMCI6ODUwMDAwLCIxMSI6OTUwMDAwLCIxMiI6MTAwMDAwMCwiMTMiOjEwMDAwMDAsIjE0IjoxMDAwMDAwLCIxNSI6MTAwMDAwMH19LCJub3Rfc3VzdGFpbmVkX3BlcmZvcm1hbmNlIjp7ImRlc2NyaXB0aW9uIjoiTGV2ZWwtQSBldmFsdWF0aW9uIHJlc3VsdCBmb3IgMSBtb250aCBvbmx5IiwiYW1vdW50IjoxNTAwMDB9fX0sInBhcnQyIjp7Im5hbWUiOiJDRkEgQ2VydGlmaWNhdGUgSW5jZW50aXZlIiwiZGVzY3JpcHRpb24iOiJDRkEg7J6Q6rKp7KadIOuztOycoOyXkCDrjIDtlZwg7J247IS87Yuw67iMIiwiY29uZGl0aW9uIjoiVmFsaWQgYWRpZGFzLWFwcHJvdmVkIEFRTCBjZXJ0aWZpY2F0ZSIsImFtb3VudCI6NzAwMDAwfSwicGFydDMiOnsibmFtZSI6IkhXSyBDbGFpbSBQcmV2ZW50aW9uIEluY2VudGl2ZSIsImRlc2NyaXB0aW9uIjoiSFdLIO2BtOugiOyehCDrsKnsp4Ag7J247IS87Yuw67iMIiwiY29uZGl0aW9uIjoiTm8gSFdLIGNvbXBsYWludHMiLCJpbmNlbnRpdmVfdGFibGUiOnsiMCI6MCwiMSI6MCwiMiI6MCwiMyI6MCwiNCI6MzAwMDAwLCI1IjozMDAwMDAsIjYiOjMwMDAwMCwiNyI6NTAwMDAwLCI4Ijo1MDAwMDAsIjkiOjUwMDAwMCwiMTAiOjcwMDAwMCwiMTEiOjcwMDAwMCwiMTIiOjcwMDAwMCwiMTMiOjkwMDAwMCwiMTQiOjkwMDAwMCwiMTUiOjkwMDAwMH19fSwiYXFsX2luc3BlY3RvcnMiOnsiNjE4MTEwMDc3Ijp7Im5hbWUiOiJMw4ogTkfhu4xDIEzDgk0gTeG7uCBIVeG7sk5IIiwiY2ZhX2NlcnRpZmllZCI6dHJ1ZSwic2VwdGVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTEsInBhcnQzX21vbnRocyI6MTEsInRvdGFsIjoyMzUwMDAwfSwib2N0b2Jlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjEyLCJwYXJ0M19tb250aHMiOjEyLCJ0b3RhbCI6MjQwMDAwMH0sIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTMsInBhcnQzX21vbnRocyI6MTMsInRvdGFsIjoyNjAwMDAwfSwiZGVjZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxNCwicGFydDNfbW9udGhzIjoxNCwidG90YWwiOjI2MDAwMDB9fSwiNjE5MTAwMzA3Ijp7Im5hbWUiOiJEQU5IIFRIw4FJIiwiY2ZhX2NlcnRpZmllZCI6dHJ1ZSwic2VwdGVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTEsInBhcnQzX21vbnRocyI6MTEsInRvdGFsIjoyMzUwMDAwfSwib2N0b2Jlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjEyLCJwYXJ0M19tb250aHMiOjEyLCJ0b3RhbCI6MjQwMDAwMH0sIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTMsInBhcnQzX21vbnRocyI6MTMsInRvdGFsIjoyNjAwMDAwfSwiZGVjZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxNCwicGFydDNfbW9udGhzIjoxNCwidG90YWwiOjI2MDAwMDB9fSwiNjIwMDIwOTIzIjp7Im5hbWUiOiJCw5lJIFRSxq/GoE5HIE5H4buMQyBOSOG7qFQiLCJjZmFfY2VydGlmaWVkIjp0cnVlLCJzZXB0ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxMSwicGFydDNfbW9udGhzIjoxMSwidG90YWwiOjIzNTAwMDB9LCJvY3RvYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTIsInBhcnQzX21vbnRocyI6MTIsInRvdGFsIjoyNDAwMDAwfSwibm92ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxMywicGFydDNfbW9udGhzIjoxMywidG90YWwiOjI2MDAwMDB9LCJkZWNlbWJlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjE0LCJwYXJ0M19tb250aHMiOjE0LCJ0b3RhbCI6MjYwMDAwMH19LCI2MjAxMjAzMDYiOnsibmFtZSI6Ik5HVVnhu4ROIE5Hw5QgVFVZ4bq+VCBOR8OCTiIsImNmYV9jZXJ0aWZpZWQiOnRydWUsInNlcHRlbWJlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjYsInBhcnQzX21vbnRocyI6NiwidG90YWwiOjE2NTAwMDB9LCJvY3RvYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6NywicGFydDNfbW9udGhzIjo3LCJ0b3RhbCI6MTcwMDAwMH0sIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6OCwicGFydDNfbW9udGhzIjo4LCJ0b3RhbCI6MTg1MDAwMH0sImRlY2VtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6OSwicGFydDNfbW9udGhzIjo5LCJ0b3RhbCI6MTk1MDAwMH19LCI2MjExMTAzNzYiOnsibmFtZSI6IsSQT8OATiBQSEFOIE5ISSIsImNmYV9jZXJ0aWZpZWQiOnRydWUsInNlcHRlbWJlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjAsInBhcnQzX21vbnRocyI6MCwidG90YWwiOjB9LCJvY3RvYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MCwicGFydDNfbW9udGhzIjowLCJ0b3RhbCI6MH0sIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MCwicGFydDNfbW9udGhzIjowLCJ0b3RhbCI6MH0sImRlY2VtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MCwicGFydDNfbW9udGhzIjowLCJ0b3RhbCI6MH19LCI2MjIwMzAyMjUiOnsibmFtZSI6Ik5HVVnhu4ROIFRI4buKIFTGr+G7nE5HIFZZIiwiY2ZhX2NlcnRpZmllZCI6dHJ1ZSwic2VwdGVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6NiwicGFydDNfbW9udGhzIjo2LCJ0b3RhbCI6MTY1MDAwMH0sIm9jdG9iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjo3LCJwYXJ0M19tb250aHMiOjcsInRvdGFsIjoxNzAwMDAwfSwibm92ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjo4LCJwYXJ0M19tb250aHMiOjgsInRvdGFsIjoxODUwMDAwfSwiZGVjZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjo5LCJwYXJ0M19tb250aHMiOjksInRvdGFsIjoxOTUwMDAwfX19LCJub3RlcyI6eyJjYWxjdWxhdGlvbl9tZXRob2QiOiLstJ0g7J247IS87Yuw67iMID0gUGFydDEgKyBQYXJ0MiArIFBhcnQzIiwicGFydDFfbm90ZSI6IkFRTCDqsoDsgqwg7Y+J6rCAIOqysOqzvCDquLDrsJgsIOyXsOyGjSDri6zshLEg6rCc7JuU7JeQIOuUsOudvCDssKjrk7EiLCJwYXJ0Ml9ub3RlIjoiQ0ZBIOyekOqyqeymnSDrs7TsnKAg7IucIOunpOyblCA3MDAsMDAwIFZORCIsInBhcnQzX25vdGUiOiJIV0sg7YG066CI7J6EIOyXhuydhCDsi5wsIDTqsJzsm5TrtoDthLAg7KeA6riJIOyLnOyekSIsImRhdGFfc291cmNlIjoiMjAyNi0wMS0wNTogTm92ZW1iZXIg642w7J207YSw64qUIOyCrOyaqeyekCDsiqTtgazrprDsg7cg6riw67CY7Jy866GcIOyImOyglSwgRGVjZW1iZXLripQgTm92ZW1iZXIrMeuhnCDqs4TsgrAifX0=
+        eyJkZXNjcmlwdGlvbiI6IlRZUEUtMSBBUUwgSW5zcGVjdG9yIOyduOyEvO2LsOu4jCDqs4TsgrAg7ISk7KCVIiwicGFydHMiOnsicGFydDEiOnsibmFtZSI6IkFRTCBJbnNwZWN0aW9uIEV2YWx1YXRpb24gUmVzdWx0IiwiZGVzY3JpcHRpb24iOiJBUUwg6rKA7IKsIO2PieqwgCDqsrDqs7zsl5Ag65Sw66W4IOyduOyEvO2LsOu4jCIsImNvbmRpdGlvbiI6IlJlamVjdGlvbiByYXRlIGJ5IGFkaWRhcy9UMVFNLzNyZCBQYXJ0eSA8IDMlIiwiaW5jZW50aXZlX3RhYmxlIjp7InN1c3RhaW5lZF9wZXJmb3JtYW5jZSI6eyJkZXNjcmlwdGlvbiI6IkxldmVsLUEgZXZhbHVhdGlvbiByZXN1bHQgbW9yZSB0aGFuIDIgbW9udGhzIiwiYW1vdW50cyI6eyIxIjoxNTAwMDAsIjIiOjI1MDAwMCwiMyI6MzAwMDAwLCI0IjozNTAwMDAsIjUiOjQwMDAwMCwiNiI6NDUwMDAwLCI3Ijo1MDAwMDAsIjgiOjY1MDAwMCwiOSI6NzUwMDAwLCIxMCI6ODUwMDAwLCIxMSI6OTUwMDAwLCIxMiI6MTAwMDAwMCwiMTMiOjEwMDAwMDAsIjE0IjoxMDAwMDAwLCIxNSI6MTAwMDAwMH19LCJub3Rfc3VzdGFpbmVkX3BlcmZvcm1hbmNlIjp7ImRlc2NyaXB0aW9uIjoiTGV2ZWwtQSBldmFsdWF0aW9uIHJlc3VsdCBmb3IgMSBtb250aCBvbmx5IiwiYW1vdW50IjoxNTAwMDB9fX0sInBhcnQyIjp7Im5hbWUiOiJDRkEgQ2VydGlmaWNhdGUgSW5jZW50aXZlIiwiZGVzY3JpcHRpb24iOiJDRkEg7J6Q6rKp7KadIOuztOycoOyXkCDrjIDtlZwg7J247IS87Yuw67iMIiwiY29uZGl0aW9uIjoiVmFsaWQgYWRpZGFzLWFwcHJvdmVkIEFRTCBjZXJ0aWZpY2F0ZSIsImFtb3VudCI6NzAwMDAwfSwicGFydDMiOnsibmFtZSI6IkhXSyBDbGFpbSBQcmV2ZW50aW9uIEluY2VudGl2ZSIsImRlc2NyaXB0aW9uIjoiSFdLIO2BtOugiOyehCDrsKnsp4Ag7J247IS87Yuw67iMIiwiY29uZGl0aW9uIjoiTm8gSFdLIGNvbXBsYWludHMiLCJpbmNlbnRpdmVfdGFibGUiOnsiMCI6MCwiMSI6MCwiMiI6MCwiMyI6MCwiNCI6MzAwMDAwLCI1IjozMDAwMDAsIjYiOjMwMDAwMCwiNyI6NTAwMDAwLCI4Ijo1MDAwMDAsIjkiOjUwMDAwMCwiMTAiOjcwMDAwMCwiMTEiOjcwMDAwMCwiMTIiOjcwMDAwMCwiMTMiOjkwMDAwMCwiMTQiOjkwMDAwMCwiMTUiOjkwMDAwMH19fSwiYXFsX2luc3BlY3RvcnMiOnsiNjE4MTEwMDc3Ijp7Im5hbWUiOiJMw4ogTkfhu4xDIEzDgk0gTeG7uCBIVeG7sk5IIiwiY2ZhX2NlcnRpZmllZCI6dHJ1ZSwic2VwdGVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTEsInBhcnQzX21vbnRocyI6MTEsInRvdGFsIjoyMzUwMDAwfSwib2N0b2Jlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjEyLCJwYXJ0M19tb250aHMiOjEyLCJ0b3RhbCI6MjQwMDAwMH0sIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTMsInBhcnQzX21vbnRocyI6MTMsInRvdGFsIjoyNjAwMDAwfSwiZGVjZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxMywicGFydDNfbW9udGhzIjoxMywidG90YWwiOjI2MDAwMDB9fSwiNjE5MTAwMzA3Ijp7Im5hbWUiOiJEQU5IIFRIw4FJIiwiY2ZhX2NlcnRpZmllZCI6dHJ1ZSwic2VwdGVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTEsInBhcnQzX21vbnRocyI6MTEsInRvdGFsIjoyMzUwMDAwfSwib2N0b2Jlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjEyLCJwYXJ0M19tb250aHMiOjEyLCJ0b3RhbCI6MjQwMDAwMH0sIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTMsInBhcnQzX21vbnRocyI6MTMsInRvdGFsIjoyNjAwMDAwfSwiZGVjZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxMywicGFydDNfbW9udGhzIjoxMywidG90YWwiOjI2MDAwMDB9fSwiNjIwMDIwOTIzIjp7Im5hbWUiOiJCw5lJIFRSxq/GoE5HIE5H4buMQyBOSOG7qFQiLCJjZmFfY2VydGlmaWVkIjp0cnVlLCJzZXB0ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxMSwicGFydDNfbW9udGhzIjoxMSwidG90YWwiOjIzNTAwMDB9LCJvY3RvYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MTIsInBhcnQzX21vbnRocyI6MTIsInRvdGFsIjoyNDAwMDAwfSwibm92ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjoxMywicGFydDNfbW9udGhzIjoxMywidG90YWwiOjI2MDAwMDB9LCJkZWNlbWJlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjEzLCJwYXJ0M19tb250aHMiOjEzLCJ0b3RhbCI6MjYwMDAwMH19LCI2MjAxMjAzMDYiOnsibmFtZSI6Ik5HVVnhu4ROIE5Hw5QgVFVZ4bq+VCBOR8OCTiIsImNmYV9jZXJ0aWZpZWQiOnRydWUsInNlcHRlbWJlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjYsInBhcnQzX21vbnRocyI6NiwidG90YWwiOjE2NTAwMDB9LCJvY3RvYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6NywicGFydDNfbW9udGhzIjo3LCJ0b3RhbCI6MTcwMDAwMH0sIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6OCwicGFydDNfbW9udGhzIjo4LCJ0b3RhbCI6MTg1MDAwMH0sImRlY2VtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6OSwicGFydDNfbW9udGhzIjo5LCJ0b3RhbCI6MTk1MDAwMH19LCI2MjExMTAzNzYiOnsibmFtZSI6IsSQT8OATiBQSEFOIE5ISSIsImNmYV9jZXJ0aWZpZWQiOnRydWUsInNlcHRlbWJlcl8yMDI1X2luY2VudGl2ZSI6eyJwYXJ0MV9tb250aHMiOjAsInBhcnQzX21vbnRocyI6MCwidG90YWwiOjB9LCJvY3RvYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MCwicGFydDNfbW9udGhzIjowLCJ0b3RhbCI6MH0sIm5vdmVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MCwicGFydDNfbW9udGhzIjowLCJ0b3RhbCI6MH0sImRlY2VtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6MCwicGFydDNfbW9udGhzIjowLCJ0b3RhbCI6MH19LCI2MjIwMzAyMjUiOnsibmFtZSI6Ik5HVVnhu4ROIFRI4buKIFTGr+G7nE5HIFZZIiwiY2ZhX2NlcnRpZmllZCI6dHJ1ZSwic2VwdGVtYmVyXzIwMjVfaW5jZW50aXZlIjp7InBhcnQxX21vbnRocyI6NiwicGFydDNfbW9udGhzIjo2LCJ0b3RhbCI6MTY1MDAwMH0sIm9jdG9iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjo3LCJwYXJ0M19tb250aHMiOjcsInRvdGFsIjoxNzAwMDAwfSwibm92ZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjo4LCJwYXJ0M19tb250aHMiOjgsInRvdGFsIjoxODUwMDAwfSwiZGVjZW1iZXJfMjAyNV9pbmNlbnRpdmUiOnsicGFydDFfbW9udGhzIjo5LCJwYXJ0M19tb250aHMiOjksInRvdGFsIjoxOTUwMDAwfX19LCJub3RlcyI6eyJjYWxjdWxhdGlvbl9tZXRob2QiOiLstJ0g7J247IS87Yuw67iMID0gUGFydDEgKyBQYXJ0MiArIFBhcnQzIiwicGFydDFfbm90ZSI6IkFRTCDqsoDsgqwg7Y+J6rCAIOqysOqzvCDquLDrsJgsIOyXsOyGjSDri6zshLEg6rCc7JuU7JeQIOuUsOudvCDssKjrk7EiLCJwYXJ0Ml9ub3RlIjoiQ0ZBIOyekOqyqeymnSDrs7TsnKAg7IucIOunpOyblCA3MDAsMDAwIFZORCIsInBhcnQzX25vdGUiOiJIV0sg7YG066CI7J6EIOyXhuydhCDsi5wsIDTqsJzsm5TrtoDthLAg7KeA6riJIOyLnOyekSIsImRhdGFfc291cmNlIjoiMjAyNi0wMS0wNTogTm92ZW1iZXIg642w7J207YSw64qUIOyCrOyaqeyekCDsiqTtgazrprDsg7cg6riw67CY7Jy866GcIOyImOyglSwgRGVjZW1iZXLripQgTm92ZW1iZXIrMeuhnCDqs4TsgrAifX0=
     </script>
 
     <script type="application/json" id="crossBuildingDataBase64">
@@ -15545,44 +15537,13 @@
             }
         }
 
-        // HTML 대시보드 다운로드 함수 (Self-Contained Offline Version)
+        // Offline download function removed per user request (Issue #44, 2026-01-06)
+        // Reason: SelfContained HTML generation disabled due to GitHub 100MB limit
+        /*
         function downloadDashboard() {
-            const currentYear = '2025';
-            const currentMonth = '12';
-            const filename = `Incentive_Dashboard_${currentYear}_${currentMonth}_Version_10.0_SelfContained.html`;
-
-            // 안내 메시지
-            const infoMessages = {
-                'ko': '📦 Offline 버전 다운로드\n\n✅ 인터넷 없이 작동\n✅ 비밀번호 불필요\n✅ 더블클릭으로 바로 열림\n❌ Excel 다운로드 기능 없음\n\n다운로드하시겠습니까?',
-                'en': '📦 Download Offline Version\n\n✅ Works without internet\n✅ No password required\n✅ Double-click to open\n❌ Excel download not available\n\nDo you want to download?',
-                'vi': '📦 Tải phiên bản ngoại tuyến\n\n✅ Hoạt động không cần internet\n✅ Không cần mật khẩu\n✅ Nhấp đúp để mở\n❌ Không có tải xuống Excel\n\nBạn có muốn tải xuống không?'
-            };
-
-            // 사용자 확인
-            if (!confirm(infoMessages[currentLanguage] || infoMessages['ko'])) {
-                return; // 취소 시 다운로드 중단
-            }
-
-            // Self-Contained 파일 경로 (GitHub Pages에서 다운로드)
-            const link = document.createElement('a');
-            link.href = filename;  // Same directory as current page
-            link.download = filename;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // 다운로드 확인 메시지
-            const successMessages = {
-                'ko': '✅ Offline 버전이 다운로드되었습니다!\n\n📝 사용 방법:\n1. 다운로드된 파일을 더블클릭\n2. 브라우저에서 바로 열림\n3. 비밀번호 입력 불필요\n\n💡 파일을 다른 사람에게 공유할 수 있습니다.',
-                'en': '✅ Offline version downloaded!\n\n📝 How to use:\n1. Double-click the downloaded file\n2. Opens directly in browser\n3. No password needed\n\n💡 You can share this file with others.',
-                'vi': '✅ Đã tải xuống phiên bản ngoại tuyến!\n\n📝 Cách sử dụng:\n1. Nhấp đúp vào tệp đã tải xuống\n2. Mở trực tiếp trong trình duyệt\n3. Không cần mật khẩu\n\n💡 Bạn có thể chia sẻ tệp này với người khác.'
-            };
-
-            setTimeout(() => {
-                alert(successMessages[currentLanguage] || successMessages['ko']);
-            }, 500);
+            // Function disabled - Offline download removed
         }
+        */
 
         // CSV download function removed per user request (2025-11-19)
         // Reason: CSV download button has been removed from the dashboard
@@ -15623,7 +15584,7 @@
         // 데이터 신선도 업데이트 함수
         function updateDataFreshness() {
             // Config의 last_updated 타임스탬프 (embedded in HTML during generation)
-            const configLastUpdated = '2026-01-02T07:46:39.000Z'; // Format: "2025-11-21T12:54:38.600870"
+            const configLastUpdated = '2026-01-03T08:23:21.000Z'; // Format: "2025-11-21T12:54:38.600870"
 
             if (!configLastUpdated || configLastUpdated === '') {
                 console.warn('Config last_updated timestamp not found');
@@ -16078,14 +16039,7 @@
                 viewModeToggleText.textContent = getTranslation(key, currentLanguage);
             }
 
-            // 다운로드 버튼 텍스트 업데이트
-            const downloadHtmlBtnText = document.getElementById('downloadHtmlBtnText');
-            if (downloadHtmlBtnText) {
-                downloadHtmlBtnText.textContent = getTranslation('headers.downloads.offlineVersion', currentLanguage);
-            }
-
-            // CSV download button removed per user request
-
+            // 다운로드 버튼 텍스트 업데이트 (Offline 버전 버튼 제거됨 - Issue #44)
             const downloadExcelBtnText = document.getElementById('downloadExcelBtnText');
             if (downloadExcelBtnText) {
                 downloadExcelBtnText.textContent = getTranslation('headers.downloads.excelDownload', currentLanguage);

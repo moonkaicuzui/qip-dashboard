@@ -6737,16 +6737,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         /* Hide button text, show only icon on mobile */
         body.mobile-mode #viewModeToggleText,
-        body.mobile-mode #downloadHtmlBtnText,
         body.mobile-mode #downloadExcelBtnText {{
             font-size: 0 !important;
         }}
         body.mobile-mode #viewModeToggleText::before {{
             content: '📱';
-            font-size: 1rem;
-        }}
-        body.mobile-mode #downloadHtmlBtnText::before {{
-            content: '📦';
             font-size: 1rem;
         }}
         body.mobile-mode #downloadExcelBtnText::before {{
@@ -8572,9 +8567,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 </select>
                 <button id="viewModeToggle" onclick="toggleViewMode()" class="btn btn-sm view-mode-toggle" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="viewModeToggleText">📱 모바일 뷰</span>
-                </button>
-                <button id="downloadHtmlBtn" onclick="downloadDashboard()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
-                    <span id="downloadHtmlBtnText">📦 Offline 버전</span>
                 </button>
                 <button id="downloadExcelBtn" onclick="downloadExcel()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
                     <span id="downloadExcelBtnText">📗 Excel 다운로드</span>
@@ -12889,44 +12881,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
 
-        // HTML 대시보드 다운로드 함수 (Self-Contained Offline Version)
+        // Offline download function removed per user request (Issue #44, 2026-01-06)
+        // Reason: SelfContained HTML generation disabled due to GitHub 100MB limit
+        /*
         function downloadDashboard() {{
-            const currentYear = '{year}';
-            const currentMonth = '{str(month_num).zfill(2)}';
-            const filename = `Incentive_Dashboard_${{currentYear}}_${{currentMonth}}_Version_10.0_SelfContained.html`;
-
-            // 안내 메시지
-            const infoMessages = {{
-                'ko': '📦 Offline 버전 다운로드\\n\\n✅ 인터넷 없이 작동\\n✅ 비밀번호 불필요\\n✅ 더블클릭으로 바로 열림\\n❌ Excel 다운로드 기능 없음\\n\\n다운로드하시겠습니까?',
-                'en': '📦 Download Offline Version\\n\\n✅ Works without internet\\n✅ No password required\\n✅ Double-click to open\\n❌ Excel download not available\\n\\nDo you want to download?',
-                'vi': '📦 Tải phiên bản ngoại tuyến\\n\\n✅ Hoạt động không cần internet\\n✅ Không cần mật khẩu\\n✅ Nhấp đúp để mở\\n❌ Không có tải xuống Excel\\n\\nBạn có muốn tải xuống không?'
-            }};
-
-            // 사용자 확인
-            if (!confirm(infoMessages[currentLanguage] || infoMessages['ko'])) {{
-                return; // 취소 시 다운로드 중단
-            }}
-
-            // Self-Contained 파일 경로 (GitHub Pages에서 다운로드)
-            const link = document.createElement('a');
-            link.href = filename;  // Same directory as current page
-            link.download = filename;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // 다운로드 확인 메시지
-            const successMessages = {{
-                'ko': '✅ Offline 버전이 다운로드되었습니다!\\n\\n📝 사용 방법:\\n1. 다운로드된 파일을 더블클릭\\n2. 브라우저에서 바로 열림\\n3. 비밀번호 입력 불필요\\n\\n💡 파일을 다른 사람에게 공유할 수 있습니다.',
-                'en': '✅ Offline version downloaded!\\n\\n📝 How to use:\\n1. Double-click the downloaded file\\n2. Opens directly in browser\\n3. No password needed\\n\\n💡 You can share this file with others.',
-                'vi': '✅ Đã tải xuống phiên bản ngoại tuyến!\\n\\n📝 Cách sử dụng:\\n1. Nhấp đúp vào tệp đã tải xuống\\n2. Mở trực tiếp trong trình duyệt\\n3. Không cần mật khẩu\\n\\n💡 Bạn có thể chia sẻ tệp này với người khác.'
-            }};
-
-            setTimeout(() => {{
-                alert(successMessages[currentLanguage] || successMessages['ko']);
-            }}, 500);
+            // Function disabled - Offline download removed
         }}
+        */
 
         // CSV download function removed per user request (2025-11-19)
         // Reason: CSV download button has been removed from the dashboard
@@ -13422,14 +13383,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 viewModeToggleText.textContent = getTranslation(key, currentLanguage);
             }}
 
-            // 다운로드 버튼 텍스트 업데이트
-            const downloadHtmlBtnText = document.getElementById('downloadHtmlBtnText');
-            if (downloadHtmlBtnText) {{
-                downloadHtmlBtnText.textContent = getTranslation('headers.downloads.offlineVersion', currentLanguage);
-            }}
-
-            // CSV download button removed per user request
-
+            // 다운로드 버튼 텍스트 업데이트 (Offline 버전 버튼 제거됨 - Issue #44)
             const downloadExcelBtnText = document.getElementById('downloadExcelBtnText');
             if (downloadExcelBtnText) {{
                 downloadExcelBtnText.textContent = getTranslation('headers.downloads.excelDownload', currentLanguage);
