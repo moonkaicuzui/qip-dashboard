@@ -223,8 +223,18 @@ class AutoValidator:
 
 def find_csv_files():
     """검증할 CSV 파일 찾기"""
-    csv_pattern = "output_files/output_QIP_incentive_*_Complete_V8.02_Complete.csv"
-    csv_files = glob.glob(csv_pattern)
+    # Version priority: V10.0 > V9.1 > V9.0 > V8.02 (통일된 fallback 패턴 2026-01-06)
+    csv_patterns = [
+        "output_files/output_QIP_incentive_*_Complete_V10.0_Complete.csv",
+        "output_files/output_QIP_incentive_*_Complete_V9.1_Complete.csv",
+        "output_files/output_QIP_incentive_*_Complete_V9.0_Complete.csv",
+        "output_files/output_QIP_incentive_*_Complete_V8.02_Complete.csv",
+    ]
+    csv_files = []
+    for pattern in csv_patterns:
+        csv_files.extend(glob.glob(pattern))
+    # 중복 제거 (같은 월에 여러 버전이 있을 경우 최신 버전만 유지)
+    csv_files = list(set(csv_files))
 
     files_info = []
     month_names = {
