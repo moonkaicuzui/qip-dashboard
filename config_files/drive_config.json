@@ -71,6 +71,13 @@
       "local_path": "input_files/{prev_year}년 {prev_month}월 인센티브 지급 세부 정보.csv",
       "required": false,
       "description": "Previous month incentive data for calculation"
+    },
+    {
+      "drive_pattern": "monthly_data/{prev_year}_{prev_month:02d}/Final {prev_month_name} incentive.xlsx",
+      "local_path": "input_files/final_incentive/Final_{prev_month_name}_{prev_year}_incentive.xlsx",
+      "required": true,
+      "description": "Final payroll incentive data - Single Source of Truth for Previous_Incentive",
+      "priority": "highest"
     }
   ],
   "validation_rules": {

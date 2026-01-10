@@ -133,6 +133,70 @@ jobs:
           echo "⚠️ Schema validation script not found - skipping"
         fi
 
+    # 6.7 Final Incentive 다운로드 (Previous Month Single Source of Truth)
+    - name: 💵 Download Final Incentive (Single Source of Truth)
+      env:
+        GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+      run: |
+        echo "====================================="
+        echo "💵 Final Incentive 다운로드"
+        echo "====================================="
+        echo ""
+        echo "📋 이전 달 Final Incentive 파일을 Google Drive에서 다운로드합니다."
+        echo "   - 급여 시스템의 실제 지급 데이터 (Single Source of Truth)"
+        echo "   - Previous_Incentive 계산에 사용"
+        echo ""
+
+        # 최신 config 파일에서 월 정보 읽기
+        LATEST_CONFIG=$(python3 -c "from pathlib import Path; m={'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'september':9,'october':10,'november':11,'december':12}; configs=list(Path('config_files').glob('config_*_*.json')); print(sorted(configs,key=lambda p:(int(p.stem.split('_')[2]),m.get(p.stem.split('_')[1].lower(),0)))[-1] if configs else 'config_files/config_december_2025.json')")
+        echo "📂 Using config: $LATEST_CONFIG"
+
+        # JSON에서 month와 year 추출
+        CURRENT_MONTH=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('month', 'december'))")
+        CURRENT_YEAR=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('year', 2025))")
+
+        echo "📅 Current Month: $CURRENT_MONTH $CURRENT_YEAR"
+
+        # 이전 달 계산
+        PREV_MONTH_INFO=$(python3 -c "
+from datetime import datetime
+m={'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'september':9,'october':10,'november':11,'december':12}
+month_names={1:'january',2:'february',3:'march',4:'april',5:'may',6:'june',7:'july',8:'august',9:'september',10:'october',11:'november',12:'december'}
+current_month = '$CURRENT_MONTH'.lower()
+current_year = int('$CURRENT_YEAR')
+month_num = m.get(current_month, 12)
+if month_num == 1:
+    prev_month = 'december'
+    prev_year = current_year - 1
+else:
+    prev_month = month_names[month_num - 1]
+    prev_year = current_year
+print(f'{prev_month} {prev_year}')
+")
+        PREV_MONTH=$(echo $PREV_MONTH_INFO | cut -d' ' -f1)
+        PREV_YEAR=$(echo $PREV_MONTH_INFO | cut -d' ' -f2)
+
+        echo "📅 Previous Month: $PREV_MONTH $PREV_YEAR"
+        echo ""
+
+        # Final Incentive 다운로드 실행
+        if [ -f "scripts/download_final_incentive.py" ]; then
+          python scripts/download_final_incentive.py $PREV_MONTH $PREV_YEAR || {
+            echo "⚠️ Final Incentive 다운로드 실패 (파일이 아직 없을 수 있음)"
+            echo "   → 기존 방식 (calculated CSV)으로 fallback 처리됩니다"
+          }
+        else
+          echo "⚠️ download_final_incentive.py 스크립트를 찾을 수 없습니다"
+        fi
+
+        echo ""
+        echo "✅ Final Incentive 다운로드 단계 완료!"
+        echo ""
+
+        # 다운로드된 파일 확인
+        echo "📋 다운로드된 Final Incentive 파일:"
+        ls -la input_files/final_incentive/*.xlsx 2>/dev/null || echo "   파일 없음"
+
     # 7. 인센티브 자동 계산
     - name: 💰 Calculate Incentives
       run: |

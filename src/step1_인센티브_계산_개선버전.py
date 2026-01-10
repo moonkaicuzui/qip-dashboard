@@ -5178,21 +5178,79 @@ class CompleteQIPCalculator:
             os.makedirs(output_dir, exist_ok=True)
             
             # previous month incentive data 병합
+            # ✅ 2026-01-06: Final Incentive 파일 우선 사용 (Single Source of Truth)
+            # Google Drive에서 다운로드한 실제 급여 데이터를 최우선으로 사용
             if self.config.previous_months:
                 prev_month = self.config.previous_months[-1]
-                # ✅ Use config path instead of hardcoded path (2025-10-04)
-                prev_file_path = self.config.file_paths.get('previous_incentive',
+                prev_year = self.config.year if prev_month.number < self.config.month.number else self.config.year - 1
+
+                # ✅ Priority 1: Final Incentive 파일 (Google Drive에서 다운로드된 실제 급여 데이터)
+                final_incentive_path = f"input_files/final_incentive/Final_{prev_month.full_name.lower()}_{prev_year}_incentive.xlsx"
+
+                # ✅ Priority 2: 기존 config path (대시보드 계산 결과)
+                fallback_file_path = self.config.file_paths.get('previous_incentive',
                                                              f"input_files/{self.config.year}year {prev_month.number}month incentive 지급 세부 정보.csv")
 
-                if os.path.exists(prev_file_path):
+                prev_incentive_loaded = False
+
+                # === Priority 1: Final Incentive 파일에서 로드 ===
+                if os.path.exists(final_incentive_path):
                     try:
-                        prev_incentive_data = pd.read_csv(prev_file_path, encoding='utf-8-sig')
-                        
+                        print(f"\n  ✅ Final Incentive 파일 발견 (Single Source of Truth):")
+                        print(f"     {final_incentive_path}")
+
+                        final_incentive_data = pd.read_excel(final_incentive_path)
+
+                        # Employee No 변환
+                        final_incentive_data['Employee No'] = pd.to_numeric(final_incentive_data['Employee No'], errors='coerce')
+                        self.month_data['Employee No'] = pd.to_numeric(self.month_data['Employee No'], errors='coerce')
+
+                        # 인센티브 컬럼 찾기
+                        prev_incentive_col = None
+                        possible_cols = [
+                            f'{prev_month.full_name.capitalize()}_Incentive',
+                            f'{prev_month.full_name.upper()}_Incentive',
+                            f'{prev_month.full_name.lower()}_incentive',
+                            'November_Incentive',  # Final Nov incentive.xlsx 컬럼명
+                            'December_Incentive',
+                            'Final Incentive amount'
+                        ]
+
+                        for col in possible_cols:
+                            if col in final_incentive_data.columns:
+                                prev_incentive_col = col
+                                break
+
+                        if prev_incentive_col:
+                            prev_incentive_map = final_incentive_data.set_index('Employee No')[prev_incentive_col].to_dict()
+                            self.month_data['Previous_Incentive'] = self.month_data['Employee No'].map(prev_incentive_map).fillna(0)
+
+                            # 검증
+                            mapped_count = (self.month_data['Previous_Incentive'] > 0).sum()
+                            total_amount = self.month_data['Previous_Incentive'].sum()
+                            print(f"     → 컬럼: {prev_incentive_col}")
+                            print(f"     → 수령자: {mapped_count}명")
+                            print(f"     → 총액: ₫{total_amount:,.0f}")
+                            prev_incentive_loaded = True
+                        else:
+                            print(f"  ⚠️ Final Incentive 파일에서 인센티브 컬럼을 찾을 수 없음")
+                            print(f"     사용 가능한 컬럼: {list(final_incentive_data.columns)[:5]}...")
+
+                    except Exception as e:
+                        print(f"  ⚠️ Final Incentive 파일 로드 실패: {e}")
+
+                # === Priority 2: Fallback - 기존 대시보드 CSV ===
+                if not prev_incentive_loaded and os.path.exists(fallback_file_path):
+                    print(f"\n  ⚠️ Final Incentive 파일 없음, 기존 CSV 사용 (Fallback)")
+                    print(f"     {fallback_file_path}")
+                    try:
+                        prev_incentive_data = pd.read_csv(fallback_file_path, encoding='utf-8-sig')
+
                         # Employee No 숫자with 변환하여 mapping
                         prev_incentive_data['Employee No'] = pd.to_numeric(prev_incentive_data['Employee No'], errors='coerce')
                         self.month_data['Employee No'] = pd.to_numeric(self.month_data['Employee No'], errors='coerce')
 
-                        # previous month incentive column 찾기 (우선순위: month 름 based → Final Incentive amount)
+                        # previous month incentive column 찾기
                         prev_incentive_col = None
                         possible_cols = [
                             f'{prev_month.full_name.capitalize()}_Incentive',
@@ -5222,16 +5280,20 @@ class CompleteQIPCalculator:
                                 print(f"  → 샘플 data:")
                                 for idx, row in sample_data.iterrows():
                                     print(f"    - {row['Employee No']}: {row['Previous_Incentive']:,.0f} VND")
+                            prev_incentive_loaded = True
                         elif f'{prev_month.full_name.capitalize()}_Incentive' in prev_incentive_data.columns:
                             col_name = f'{prev_month.full_name.capitalize()}_Incentive'
                             prev_incentive_map = prev_incentive_data.set_index('Employee No')[col_name].to_dict()
                             self.month_data['Previous_Incentive'] = self.month_data['Employee No'].map(prev_incentive_map).fillna(0)
-                        else:
-                            self.month_data['Previous_Incentive'] = 0
+                            prev_incentive_loaded = True
                     except Exception as e:
                         print(f"  ⚠️ {prev_month.korean_name} incentive data load failed: {e}")
-                        self.month_data['Previous_Incentive'] = 0
-                else:
+
+                # === No data found ===
+                if not prev_incentive_loaded:
+                    print(f"\n  ❌ Previous Incentive 데이터를 찾을 수 없음")
+                    print(f"     - Final Incentive: {final_incentive_path} (없음)")
+                    print(f"     - Fallback CSV: {fallback_file_path} (없음)")
                     self.month_data['Previous_Incentive'] = 0
             else:
                 self.month_data['Previous_Incentive'] = 0
