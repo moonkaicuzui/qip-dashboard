@@ -390,7 +390,7 @@
         <!-- 자동 업데이트 정보 -->
         <div class="refresh-info">
             <p class="mb-0" data-i18n="refresh-info">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
-            <small><span data-i18n="last-update">마지막 업데이트:</span> 2026-01-11 15:47:53</small>
+            <small><span data-i18n="last-update">마지막 업데이트:</span> 2026-01-11 16:07:33</small>
             <button onclick="triggerManualUpdate()" class="btn btn-light btn-sm mt-3" style="background: white; border: 2px solid #4A90E2; color: #4A90E2; font-weight: 600;">
                 🔄 <span data-i18n="manual-update">최신 데이터로 즉시 업데이트</span>
             </button>
@@ -611,10 +611,10 @@
             // HTML lang 속성 변경
             document.documentElement.lang = lang;
 
-            // 모든 번역 요소 업데이트
+            // 모든 번역 요소 업데이트 (2026-01-11: 빈 문자열도 적용되도록 수정)
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
+                if (translations[lang] && translations[lang][key] !== undefined) {
                     element.innerHTML = translations[lang][key];
                 }
             });
