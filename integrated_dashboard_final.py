@@ -14423,6 +14423,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (translations.modalTitles && translations.modalTitles[key]) {{
                     elem.textContent = translations.modalTitles[key][lang] || elem.textContent;
                 }}
+                // 루트 레벨 번역 키 확인 (closeButton 등)
+                if (translations[key] && translations[key][lang]) {{
+                    elem.textContent = translations[key][lang];
+                }}
             }});
             
             // 차트 라벨 업데이트

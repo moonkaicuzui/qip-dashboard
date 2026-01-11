@@ -1,6 +1,6 @@
 ---
 active: true
-iteration: 3
+iteration: 4
 max_iterations: 15
 completion_promise: "모든 문제 해결 완료"
 trigger_keyword: "개선"
