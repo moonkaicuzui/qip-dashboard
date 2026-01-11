@@ -235,6 +235,13 @@ jobs:
         echo "Generating dashboard for all available months..."
         python scripts/generate_dashboard_for_pages.py
 
+        echo ""
+        echo "📋 Dashboard HTML 파일 크기 확인 (Issue #42 디버그):"
+        ls -lh output_files/*.html 2>/dev/null || echo "HTML 파일 없음"
+        echo ""
+        echo "⚠️ 100MB 초과 파일 확인:"
+        find output_files -name "*.html" -size +100M -exec ls -lh {} \; 2>/dev/null || echo "100MB 초과 파일 없음"
+
     # 9.5 SelfContained HTML 생성 (Offline 버전)
     - name: 📦 Generate SelfContained HTML (Offline Version)
       run: |
@@ -317,6 +324,32 @@ jobs:
 
         # 월 선택 페이지 생성
         python scripts/create_month_selector.py
+
+    # 10.5 파일 크기 최종 검증 (Issue #42 Prevention)
+    - name: 📏 Validate File Sizes Before Commit
+      run: |
+        echo "====================================="
+        echo "📏 파일 크기 최종 검증 (Issue #42)"
+        echo "====================================="
+        echo ""
+        echo "📋 docs 폴더 HTML 파일 크기:"
+        ls -lh docs/*.html 2>/dev/null || echo "HTML 파일 없음"
+        echo ""
+        echo "⚠️ 100MB 초과 파일 확인 (커밋 차단 대상):"
+        LARGE_FILES=$(find docs -name "*.html" -size +100M 2>/dev/null)
+        if [ -n "$LARGE_FILES" ]; then
+          echo "❌ 100MB 초과 파일 발견! 해당 파일은 커밋에서 제외합니다:"
+          echo "$LARGE_FILES"
+          for f in $LARGE_FILES; do
+            echo "  🗑️ 제거 중: $f"
+            rm -f "$f"
+          done
+          echo ""
+          echo "✅ 100MB 초과 파일 제거 완료"
+        else
+          echo "✅ 모든 파일 크기 정상 (100MB 미만)"
+        fi
+        echo ""
 
     # 11. 변경사항 커밋 및 푸시
     - name: 📤 Commit and push changes
