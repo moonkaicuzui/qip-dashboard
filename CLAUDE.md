@@ -1262,6 +1262,10 @@ Employee ID | Previous_Incentive
      - **Pros**: True offline access, no technical knowledge required, shareable
      - **Cons**: +0.78MB file size, Excel download unavailable, no automatic updates
    - **Related**: Issue #18 (identified problem), Web-First Deployment Architecture (CLAUDE.md Lines 79-107)
+   - **⚠️ REMOVED (2026-01-11)**: Issue #45에서 완전 제거됨
+     - Issue #44에서 다운로드 버튼 제거 → 사용자 접근 불가
+     - 스크립트 archived: `scripts/archive/generate_all_selfcontained.py`, `scripts/archive/create_self_contained_html.py`
+     - 롤백 필요시 Issue #45 참조
 
 20. **November 2025 Dashboard Comprehensive Fix** (FIXED: 2025-11-21):
    - **Context**: User reported 5 critical issues via screenshots after November data became available
@@ -2254,6 +2258,43 @@ Employee ID | Previous_Incentive
      - Final Incentive 파일의 `{Month}_Incentive` 컬럼이 실제 집행 금액
      - Google Drive에 파일 업로드 시 컬럼명 확인 필수
      - GitHub Actions가 30분마다 자동으로 다운로드 및 적용
+
+42. **Issue #45: SelfContained HTML 완전 제거** (IMPLEMENTED: 2026-01-11):
+   - **Context**: Issue #40 (동기화 방지), Issue #44 (다운로드 버튼 제거)의 후속 조치
+   - **Problem**: SelfContained HTML이 생성되지만 사용되지 않는 상태
+     - Issue #44에서 다운로드 버튼 제거됨 → 사용자 접근 불가
+     - Step 9.5가 여전히 실행됨 → 30초 낭비
+     - Git 커밋에서 제외됨 (100MB 제한)
+     - 결과: 생성만 되고 절대 사용되지 않음
+   - **Solution**: SelfContained 완전 제거
+     - **GitHub Actions** (`.github/workflows/auto-update-enhanced.yml`):
+       - Step 9.5 제거 (라인 245-264 → 주석 처리)
+       - 워크플로우 시간 ~30초 단축
+     - **Dashboard Generator** (`integrated_dashboard_final.py`):
+       - 자동 생성 코드 제거 (라인 23873-23905)
+     - **Existing Files**:
+       - `docs/*SelfContained*.html` 삭제 (7.9 MB)
+     - **Scripts Archived**:
+       - `scripts/generate_all_selfcontained.py` → `scripts/archive/`
+       - `create_self_contained_html.py` → `scripts/archive/`
+   - **Issue #40 재발 가능성**: **없음** ✅
+     - Issue #40은 "두 파일의 동기화 불일치" 문제
+     - SelfContained 자체가 없으면 동기화할 대상 없음
+   - **Rollback Method** (필요시):
+     ```bash
+     # 1. 스크립트 복원
+     mv scripts/archive/generate_all_selfcontained.py scripts/
+     mv scripts/archive/create_self_contained_html.py ./
+
+     # 2. GitHub Actions Step 9.5 주석 해제
+     # .github/workflows/auto-update-enhanced.yml
+
+     # 3. integrated_dashboard_final.py 자동 생성 코드 복원
+     ```
+   - **Commit**: [현재 세션에서 커밋 예정]
+   - **Prevention**:
+     - SelfContained가 다시 필요해지면 `scripts/archive/`에서 복원
+     - 다운로드 버튼 복원 전에는 생성할 필요 없음
 
 ### Debugging Dashboard Issues
 ```bash

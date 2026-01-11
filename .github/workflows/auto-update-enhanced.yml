@@ -242,26 +242,11 @@ jobs:
         echo "⚠️ 100MB 초과 파일 확인:"
         find output_files -name "*.html" -size +100M -exec ls -lh {} \; 2>/dev/null || echo "100MB 초과 파일 없음"
 
-    # 9.5 SelfContained HTML 생성 (Offline 버전)
-    - name: 📦 Generate SelfContained HTML (Offline Version)
-      run: |
-        echo "====================================="
-        echo "📦 SelfContained HTML 자동 생성"
-        echo "====================================="
-        echo ""
-        echo "Web Dashboard와 동기화된 Offline 버전을 생성합니다..."
-        echo ""
-
-        # 모든 대시보드에 대해 SelfContained 버전 생성 (Issue #40: 모든 월 포함)
-        python scripts/generate_all_selfcontained.py --all
-
-        echo ""
-        echo "✅ SelfContained HTML 생성 완료!"
-        echo ""
-
-        # 생성된 파일 확인
-        echo "📋 생성된 SelfContained 파일:"
-        ls -la docs/*SelfContained*.html 2>/dev/null || echo "SelfContained 파일 없음"
+    # Step 9.5 제거됨 (Issue #45: SelfContained 완전 제거, 2026-01-11)
+    # - SelfContained HTML 다운로드 버튼이 Issue #44에서 제거됨
+    # - 사용자가 접근할 방법이 없으므로 생성 불필요
+    # - 워크플로우 시간 ~30초 단축
+    # - 롤백: scripts/archive/generate_all_selfcontained.py 복원
 
     # 10. GitHub Pages 디렉토리 준비
     - name: 📂 Prepare GitHub Pages directory
