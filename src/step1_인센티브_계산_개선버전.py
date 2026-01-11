@@ -520,9 +520,9 @@ class DataProcessor:
             print(f"⚠️ Error loading progression_table: {e}")
             print("Using default progression table.")
             return {
-                0: 0, 1: 150000, 2: 250000, 3: 300000, 4: 350000,
-                5: 400000, 6: 450000, 7: 500000, 8: 650000, 9: 750000,
-                10: 850000, 11: 950000, 12: 1000000, 13: 1000000,
+                0: 0, 1: 150000, 2: 250000, 3: 350000, 4: 450000,
+                5: 550000, 6: 650000, 7: 750000, 8: 850000, 9: 900000,
+                10: 950000, 11: 975000, 12: 1000000, 13: 1000000,
                 14: 1000000, 15: 1000000
             }
 
@@ -1223,8 +1223,36 @@ class DataProcessor:
                 return (None, None)
 
         # ============================================
-        # Case 3: October 이후 - 이전 달 Excel/CSV 파일 로딩
+        # Case 3: October 이후 - 이전 달 데이터 로딩
         # ============================================
+
+        # ✅ Priority 1: Final Incentive 파일 (Single Source of Truth - 실제 급여 데이터)
+        # Issue #42 (2026-01-11): Final Incentive 파일을 최우선으로 사용
+        # 이유: output CSV 파일의 Continuous_Months 값이 잘못된 progression table로 계산될 수 있음
+        # Final Incentive 파일은 Continuous_Months 컬럼이 없어 역산(Priority 3)이 사용됨
+        final_incentive_path = f"input_files/final_incentive/Final_{prev_month_name}_{prev_year}_incentive.xlsx"
+
+        if os.path.exists(final_incentive_path):
+            try:
+                print(f"📂 [Priority 1] Final Incentive 파일 로드 (Single Source of Truth)")
+                print(f"   → {final_incentive_path}")
+                prev_df = pd.read_excel(final_incentive_path)
+
+                # Employee No 표준화
+                if 'Employee No' in prev_df.columns:
+                    prev_df['Employee No'] = prev_df['Employee No'].apply(
+                        lambda x: str(int(x)).zfill(9) if pd.notna(x) else ''
+                    )
+
+                print(f"   ✅ {len(prev_df)}명 직원 데이터 로드 완료")
+                print(f"   ℹ️ Continuous_Months 컬럼 없음 → 인센티브 금액에서 역산 예정")
+                return (prev_df, prev_month_name)
+
+            except Exception as e:
+                print(f"⚠️ Final Incentive 파일 로드 실패: {e}")
+                print(f"   Fallback: Output CSV 파일 사용")
+
+        # ✅ Priority 2: Output CSV 파일 (Fallback)
         # Fallback pattern: V10.0 → V9.1 → V9.0 → V8.02
         # 2025-12-28: V10.0 추가 - Approved Leave Days 버그 수정 반영
         # (V10.0 = 승인휴가 반영된 정확한 계산)
