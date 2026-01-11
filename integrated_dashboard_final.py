@@ -1549,7 +1549,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         if (!modal) {
             const modalHTML = `
                 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-xl">
+                    <div class="modal-dialog modal-xl" style="max-width: 95%;">
                         <div class="modal-content" id="detailModalContent"></div>
                     </div>
                 </div>
@@ -2079,9 +2079,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 인센티브 수령 여부 및 금액 (2025-12-22: 배경 제거, 텍스트 색상으로 구별)
                 const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                 const isReceived = incentiveAmount > 0;
+                const receivedText = getTranslation('incentiveStatus.received', lang) || 'Received';
+                const notReceivedText = getTranslation('incentiveStatus.notReceived', lang) || 'Not Received';
                 const receivedCell = isReceived
-                    ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
-                    : '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
+                    ? `<span style="color: #28a745; font-weight: 500;">✅ ${receivedText}</span>`
+                    : `<span style="color: #dc3545; font-weight: 500;">${notReceivedText}</span>`;
                 const amountCell = incentiveAmount > 0
                     ? `<span style="color: #28a745; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
                     : '<span style="color: #dc3545;">0 ₫</span>';
@@ -2377,10 +2379,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             ${(() => {
                                 const incentive = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                                 const received = incentive > 0;
-                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별
+                                // 2025-12-22: 배경 제거, 텍스트 색상으로 구별 (2026-01-11: 번역 시스템 적용)
+                                const receivedLabel = getTranslation('incentiveStatus.received', lang) || 'Received';
+                                const notReceivedLabel = getTranslation('incentiveStatus.notReceived', lang) || 'Not Received';
                                 return received ?
-                                    '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' :
-                                    '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
+                                    '<span style="color: #28a745; font-weight: 500;">✅ ' + receivedLabel + '</span>' :
+                                    '<span style="color: #dc3545; font-weight: 500;">' + notReceivedLabel + '</span>';
                             })()}
                         </td>
                         <td class="text-center" style="padding: 10px 8px;">
@@ -2480,7 +2484,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         if (!modal) {
             const modalHTML = `
                 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-xl">
+                    <div class="modal-dialog modal-xl" style="max-width: 95%;">
                         <div class="modal-content" id="detailModalContent"></div>
                     </div>
                 </div>
@@ -3089,34 +3093,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             updateTableBody();
         }
 
-        function switchLanguage(lang) {
-            currentLang = lang;
-            // 전역 언어 상태도 synchronization
-            if (typeof window.currentLanguage !== 'undefined') {
-                window.currentLanguage = lang;
-            }
-            if (typeof currentLanguage !== 'undefined') {
-                currentLanguage = lang;
-            }
-            updateAllModalContent();
-            // 언어 버튼 상태 업데이트
-            updateLanguageButtons();
-        }
-
-        function updateLanguageButtons() {
-            const buttons = document.querySelectorAll('#aqlFailModal .btn-group button');
-            buttons.forEach(btn => {
-                const btnLang = btn.getAttribute('onclick').match(/'(\\w+)'/)[1];
-                if (btnLang === currentLang) {
-                    btn.classList.remove('btn-outline-primary');
-                    btn.classList.add('btn-primary');
-                } else {
-                    btn.classList.remove('btn-primary');
-                    btn.classList.add('btn-outline-primary');
-                }
-            });
-        }
-
         function updateAllModalContent() {
             // 모달 제목 업데이트
             const titleEl = document.querySelector('#aqlFailModal .modal-title span[data-i18n]');
@@ -3220,12 +3196,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     failBadgeText = `${failPercent}%`;
                 }
 
-                // 인센티브 수령 여부 및 금액 (Phase 3: 타입 안전 헬퍼 사용)
+                // 인센티브 수령 여부 및 금액 (Phase 3: 타입 안전 헬퍼 사용, 2026-01-11: 번역 시스템 적용)
                 const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current');
                 const isReceived = incentiveAmount > 0;
+                const receivedLabel = getTranslation('incentiveStatus.received', currentLang) || 'Received';
+                const notReceivedLabel = getTranslation('incentiveStatus.notReceived', currentLang) || 'Not Received';
                 const receivedCell = isReceived
-                    ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>'
-                    : '<span style="color: #dc3545; font-weight: 500;">미수령</span>';
+                    ? '<span style="color: #28a745; font-weight: 500;">✅ ' + receivedLabel + '</span>'
+                    : '<span style="color: #dc3545; font-weight: 500;">' + notReceivedLabel + '</span>';
                 const amountCell = incentiveAmount > 0
                     ? '<span style="color: #0d6efd; font-weight: 600;">' + incentiveAmount.toLocaleString() + ' ₫</span>'
                     : '<span style="color: #dc3545;">0 ₫</span>';
@@ -3453,14 +3431,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <i class="fas fa-exclamation-triangle me-2"></i>
                                 <span data-i18n="validationTab.modals.aqlFail.title">${getTranslation('validationTab.modals.aqlFail.title', lang)}</span>
                             </h5>
-                            <div class="d-flex align-items-center">
-                                <div class="btn-group btn-group-sm me-2">
-                                    <button type="button" class="btn btn-sm ${lang === 'ko' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('ko')">한국어</button>
-                                    <button type="button" class="btn btn-sm ${lang === 'en' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('en')">English</button>
-                                    <button type="button" class="btn btn-sm ${lang === 'vi' ? 'btn-primary' : 'btn-outline-primary'}" onclick="window.switchAqlLang('vi')">Tiếng Việt</button>
-                                </div>
-                                <button type="button" class="btn-close" onclick="window.closeAqlModal()"></button>
-                            </div>
+                            <button type="button" class="btn-close" onclick="window.closeAqlModal()"></button>
                         </div>
                         <div class="modal-body" style="overflow-x: auto; max-height: 75vh;">
                             <div class="alert alert-warning d-flex align-items-center mb-3">
@@ -3568,10 +3539,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 전역 함count 등록
             window.sortAqlData = sortData;
-            window.switchAqlLang = switchLanguage;
-
-            // 초기 언어 버튼 상태 설정
-            updateLanguageButtons();
 
             // Draggable 기능 추가 (Issue #39: 모달 좌우 이동 가능)
             const modalDialog = modalDiv.querySelector('.aql-modal-draggable');
@@ -4190,7 +4157,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         if (!modal) {
             const modalHTML = `
                 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
-                    <div class="modal-dialog modal-xl">
+                    <div class="modal-dialog modal-xl" style="max-width: 95%;">
                         <div class="modal-content" id="detailModalContent"></div>
                     </div>
                 </div>
@@ -4375,7 +4342,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passIcon} ${passRate.toFixed(1)}%</span></td>
                     <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
-                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ ' + (getTranslation('incentiveStatus.received', currentLang) || 'Received') + '</span>' : '<span style="color: #dc3545; font-weight: 500;">' + (getTranslation('incentiveStatus.notReceived', currentLang) || 'Not Received') + '</span>'}</td>
                     <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
@@ -4464,7 +4431,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passIcon} ${passRate.toFixed(1)}%</span></td>
                     <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
-                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ ' + (getTranslation('incentiveStatus.received', currentLang) || 'Received') + '</span>' : '<span style="color: #dc3545; font-weight: 500;">' + (getTranslation('incentiveStatus.notReceived', currentLang) || 'Not Received') + '</span>'}</td>
                     <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
@@ -4505,7 +4472,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalDiv.setAttribute('id', 'lowPassRateModal');
 
             const modalHTML = `
-                <div class="modal-dialog modal-xl">
+                <div class="modal-dialog modal-xl" style="max-width: 95%;">
                     <div class="modal-content">
                         <div class="modal-header unified-modal-header">
                             <h5 class="modal-title unified-modal-title">
@@ -4536,8 +4503,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header" data-sort="passQty">${t.passQuantity} ${getSortIcon('passQty')}</th>
                                             <th class="sortable-header" data-sort="passRate">${t.passRate} ${getSortIcon('passRate')}</th>
                                             <th>${t.conditionStatus.split('/')[2]}</th>
-                                            <th class="sortable-header" data-sort="received">${currentLang === 'ko' ? '수령' : currentLang === 'en' ? 'Received' : 'Nhận'}</th>
-                                            <th class="sortable-header" data-sort="incentive">${currentLang === 'ko' ? '인센티브' : currentLang === 'en' ? 'Incentive' : 'Thưởng'}</th>
+                                            <th class="sortable-header" data-sort="received">${getTranslation('incentiveStatus.received', currentLang) || 'Received'}</th>
+                                            <th class="sortable-header" data-sort="incentive">${getTranslation('tableHeaders.incentive', currentLang) || 'Incentive'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -4559,8 +4526,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header-2" data-sort="passQty">${t.passQuantity} ${getSortIcon2('passQty')}</th>
                                             <th class="sortable-header-2" data-sort="passRate">${t.passRate} ${getSortIcon2('passRate')}</th>
                                             <th>${t.conditionStatus.split('/')[2]}</th>
-                                            <th class="sortable-header-2" data-sort="received">${currentLang === 'ko' ? '수령' : currentLang === 'en' ? 'Received' : 'Nhận'}</th>
-                                            <th class="sortable-header-2" data-sort="incentive">${currentLang === 'ko' ? '인센티브' : currentLang === 'en' ? 'Incentive' : 'Thưởng'}</th>
+                                            <th class="sortable-header-2" data-sort="received">${getTranslation('incentiveStatus.received', currentLang) || 'Received'}</th>
+                                            <th class="sortable-header-2" data-sort="incentive">${getTranslation('tableHeaders.incentive', currentLang) || 'Incentive'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -4762,7 +4729,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>TYPE-1</td>
                     <td><span class="badge ${badgeClass}">${qtyIcon} ${inspectionQty}${qtyUnit}</span></td>
                     <td>${statusText}</td>
-                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ 수령</span>' : '<span style="color: #dc3545; font-weight: 500;">미수령</span>'}</td>
+                    <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ ' + (getTranslation('incentiveStatus.received', currentLang) || 'Received') + '</span>' : '<span style="color: #dc3545; font-weight: 500;">' + (getTranslation('incentiveStatus.notReceived', currentLang) || 'Not Received') + '</span>'}</td>
                     <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
                 tbody.appendChild(row);
@@ -4926,7 +4893,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const countText = t('validationTab.modals.lowInspectionQty.count').replace('{count}', lowQtyEmployees.length);
 
             const modalHTML = `
-                <div class="modal-dialog modal-xl">
+                <div class="modal-dialog modal-xl" style="max-width: 95%;">
                     <div class="modal-content">
                         <div class="modal-header unified-modal-header">
                             <h5 class="modal-title unified-modal-title" data-i18n="validationTab.modals.lowInspectionQty.title">
@@ -4952,8 +4919,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th data-i18n="validationTab.modals.lowInspectionQty.headers.type">${t('validationTab.modals.lowInspectionQty.headers.type')}</th>
                                             <th class="sortable-header" data-sort="inspectionQty" data-i18n="validationTab.modals.lowInspectionQty.headers.inspectionQty">${t('validationTab.modals.lowInspectionQty.headers.inspectionQty')} ${getSortIcon('inspectionQty')}</th>
                                             <th data-i18n="validationTab.modals.lowInspectionQty.headers.conditionMet">${t('validationTab.modals.lowInspectionQty.headers.conditionMet')}</th>
-                                            <th class="sortable-header" data-sort="received">${currentLanguage === 'ko' ? '수령' : currentLanguage === 'en' ? 'Received' : 'Nhận'}</th>
-                                            <th class="sortable-header" data-sort="incentive">${currentLanguage === 'ko' ? '인센티브' : currentLanguage === 'en' ? 'Incentive' : 'Thưởng'}</th>
+                                            <th class="sortable-header" data-sort="received">${getTranslation('incentiveStatus.received', currentLanguage) || 'Received'}</th>
+                                            <th class="sortable-header" data-sort="incentive">${getTranslation('tableHeaders.incentive', currentLanguage) || 'Incentive'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -11079,7 +11046,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     <!-- 직원 상세 모달 (Bootstrap 5) -->
     <div class="modal fade" id="employeeModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl" style="max-width: 95%;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle">직원 상세 정보</h5>
@@ -11089,7 +11056,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <!-- JavaScript로 채워질 예정 -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal" id="employeeModalCloseBtn" data-translate="closeButton">닫기</button>
+                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal" id="employeeModalCloseBtn"><span class="modal-close-btn" data-i18n="closeButton">{get_translation('closeButton', 'ko')}</span></button>
                 </div>
             </div>
         </div>
@@ -11097,7 +11064,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     <!-- Position 상세 모달 (Bootstrap 5) -->
     <div class="modal fade" id="positionModal" tabindex="-1" aria-labelledby="positionModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl" style="max-width: 95%;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="positionModalLabel" data-translate="positionModal">직급별 상세 정보</h5>
@@ -11107,7 +11074,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <!-- JavaScript로 채워질 예정 -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal" id="positionModalCloseBtn" data-translate="closeButton">닫기</button>
+                    <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal" id="positionModalCloseBtn"><span class="modal-close-btn" data-i18n="closeButton">{get_translation('closeButton', 'ko')}</span></button>
                 </div>
             </div>
         </div>
@@ -12753,7 +12720,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 elem.textContent = getTranslation('orgChart.modalLabels.calcDetailLineLeader', currentLanguage);
             }});
             document.querySelectorAll('.modal-close-btn').forEach(elem => {{
-                elem.textContent = getTranslation('orgChart.buttons.close', currentLanguage);
+                elem.textContent = getTranslation('orgChart.buttons.close', currentLanguage) || getTranslation('closeButton', currentLanguage) || '닫기';
             }});
             document.querySelectorAll('.modal-team-line-leader-list').forEach(elem => {{
                 elem.textContent = getTranslation('modal.teamLineLeaderList', currentLanguage);
@@ -17183,7 +17150,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
 
-        // 카운트 업데이트 함수
+        // 카운트 업데이트 함수 - 2026-01-11: 다국어 지원 추가
         function updateSubordinateTableCounts(tableId) {{
             const tbody = document.getElementById(`${{tableId}}-tbody`);
             if (!tbody) return;
@@ -17191,9 +17158,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const visibleRows = tbody.querySelectorAll('tr[data-subordinate-row]:not([style*="display: none"])');
             const visibleReceiving = Array.from(visibleRows).filter(r => r.getAttribute('data-receiving') === 'true').length;
 
+            // 다국어 라벨
+            const countLabels = {{
+                ko: {{ shown: '명 표시', received: '명 수령' }},
+                en: {{ shown: ' shown', received: ' receiving' }},
+                vi: {{ shown: ' hiển thị', received: ' nhận' }}
+            }};
+            const lang = currentLanguage || 'ko';
+            const labels = countLabels[lang] || countLabels.ko;
+
             const countEl = document.getElementById(`${{tableId}}-count`);
             if (countEl) {{
-                countEl.textContent = `(${{visibleRows.length}}명 표시, ${{visibleReceiving}}명 수령)`;
+                countEl.textContent = `(${{visibleRows.length}}${{labels.shown}}, ${{visibleReceiving}}${{labels.received}})`;
             }}
         }}
 
@@ -17212,11 +17188,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 Number(sub['{month.lower()}_incentive'] || 0) > 0
             );
 
-            // 필터 버튼 라벨 (다국어)
+            // 필터 버튼 라벨 (다국어) - 2026-01-11: count 라벨 추가
             const filterLabels = {{
-                ko: {{ all: '전체', receiving: '수령자', notReceiving: '미수령자' }},
-                en: {{ all: 'All', receiving: 'Receiving', notReceiving: 'Not Receiving' }},
-                vi: {{ all: 'Tất cả', receiving: 'Nhận', notReceiving: 'Không nhận' }}
+                ko: {{ all: '전체', receiving: '수령자', notReceiving: '미수령자', shown: '명 표시', received: '명 수령' }},
+                en: {{ all: 'All', receiving: 'Receiving', notReceiving: 'Not Receiving', shown: ' shown', received: ' receiving' }},
+                vi: {{ all: 'Tất cả', receiving: 'Nhận', notReceiving: 'Không nhận', shown: ' hiển thị', received: ' nhận' }}
             }};
             const labels = filterLabels[currentLanguage] || filterLabels.ko;
 
@@ -17240,7 +17216,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             ❌ ${{labels.notReceiving}} (${{subordinates.length - receivingSubordinates.length}})
                         </button>
                     </div>
-                    <small id="${{tableId}}-count" class="text-muted">(${{subordinates.length}}명 표시, ${{receivingSubordinates.length}}명 수령)</small>
+                    <small id="${{tableId}}-count" class="text-muted">(${{subordinates.length}}${{labels.shown}}, ${{receivingSubordinates.length}}${{labels.received}})</small>
                 </div>
             `;
 
@@ -17332,7 +17308,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <td>${{subName}}</td>
                                             <td>${{subEmpNo}}</td>
                                             <td class="text-end">${{included ? '₫' + subIncentive.toLocaleString('ko-KR') : '-'}}</td>
-                                            <td class="text-center">${{included ? '<span style="color: #28a745;">✅ 수령</span>' : '<span style="color: #dc3545;">미수령</span>'}}</td>
+                                            <td class="text-center">${{included ? '<span style="color: #28a745;">✅ ' + (getTranslation('incentiveStatus.received', currentLanguage) || 'Received') + '</span>' : '<span style="color: #dc3545;">' + (getTranslation('incentiveStatus.notReceived', currentLanguage) || 'Not Received') + '</span>'}}</td>
                                         </tr>
                                     `;
                                 }}).join('')}}
@@ -17413,7 +17389,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <td>${{subName}}</td>
                                             <td>${{subEmpNo}}</td>
                                             <td class="text-end">${{isReceiving ? '₫' + subIncentive.toLocaleString('ko-KR') : '-'}}</td>
-                                            <td class="text-center">${{isReceiving ? '<span style="color: #28a745;">✅ 수령</span>' : '<span style="color: #dc3545;">미수령</span>'}}</td>
+                                            <td class="text-center">${{isReceiving ? '<span style="color: #28a745;">✅ ' + (getTranslation('incentiveStatus.received', currentLanguage) || 'Received') + '</span>' : '<span style="color: #dc3545;">' + (getTranslation('incentiveStatus.notReceived', currentLanguage) || 'Not Received') + '</span>'}}</td>
                                         </tr>
                                     `;
                                 }}).join('')}}
@@ -21637,7 +21613,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         certified: '보유',
                         notCertified: '미보유',
                         total: '합계',
-                        conditionFailed: '⚠️ 출근 조건 미충족으로 지급 보류'
+                        conditionFailed: '⚠️ 출근 조건 미충족으로 지급 보류',
+                        category: '구분',
+                        condition: '조건',
+                        amount: '금액'
                     }},
                     en: {{
                         title: '🎯 AQL Inspector Incentive Details (3-Part Calculation)',
@@ -21648,7 +21627,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         certified: 'Certified',
                         notCertified: 'Not Certified',
                         total: 'Total',
-                        conditionFailed: '⚠️ Payment suspended due to attendance condition not met'
+                        conditionFailed: '⚠️ Payment suspended due to attendance condition not met',
+                        category: 'Category',
+                        condition: 'Condition',
+                        amount: 'Amount'
                     }},
                     vi: {{
                         title: '🎯 Chi tiết khuyến khích AQL Inspector (Tính toán 3 phần)',
@@ -21659,7 +21641,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         certified: 'Đã có',
                         notCertified: 'Chưa có',
                         total: 'Tổng cộng',
-                        conditionFailed: '⚠️ Tạm ngưng thanh toán do không đạt điều kiện chuyên cần'
+                        conditionFailed: '⚠️ Tạm ngưng thanh toán do không đạt điều kiện chuyên cần',
+                        category: 'Loại',
+                        condition: 'Điều kiện',
+                        amount: 'Số tiền'
                     }}
                 }};
 
@@ -21675,9 +21660,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <table class="table table-sm table-bordered mb-0">
                             <thead style="background-color: #17a2b8; color: white;">
                                 <tr>
-                                    <th width="50%">구분</th>
-                                    <th width="25%">조건</th>
-                                    <th width="25%" class="text-end">금액</th>
+                                    <th width="50%">${{labels.category}}</th>
+                                    <th width="25%">${{labels.condition}}</th>
+                                    <th width="25%" class="text-end">${{labels.amount}}</th>
                                 </tr>
                             </thead>
                             <tbody>

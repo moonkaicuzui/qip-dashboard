@@ -701,10 +701,10 @@ def create_month_selector_page():
             // HTML lang 속성 변경
             document.documentElement.lang = lang;
 
-            // 모든 번역 요소 업데이트
+            // 모든 번역 요소 업데이트 (2026-01-11: 빈 문자열도 적용되도록 수정)
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
+                if (translations[lang] && translations[lang][key] !== undefined) {
                     element.innerHTML = translations[lang][key];
                 }
             });

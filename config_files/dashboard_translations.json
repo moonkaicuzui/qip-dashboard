@@ -501,6 +501,21 @@
       "en": "Special positions (AQL Inspector, Audit Team, Model Master) excluded as they are based on individual performance",
       "vi": "Các vị trí đặc biệt (AQL Inspector, Audit Team, Model Master) được loại trừ vì dựa trên hiệu suất cá nhân"
     },
+    "incentiveReceived": {
+      "ko": "인센티브 수령",
+      "en": "Incentive Received",
+      "vi": "Đã nhận khen thưởng"
+    },
+    "incentiveNotReceived": {
+      "ko": "인센티브 미수령",
+      "en": "Incentive Not Received",
+      "vi": "Chưa nhận khen thưởng"
+    },
+    "noIncentive": {
+      "ko": "인센티브 미수령",
+      "en": "No Incentive",
+      "vi": "Không có khen thưởng"
+    },
     "calculationFormulas": {
       "lineLeader": {
         "ko": "TYPE-1 부하 인센티브 합 × 12% × 수령비율",
