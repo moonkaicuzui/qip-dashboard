@@ -10828,6 +10828,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="kpi-value" id="kpiLowInspectionQty">-</div>
                     <div class="kpi-label" data-i18n="validationKpi.lowInspectionQty">5PRS Inspection < 100 pairs</div>
                 </div>
+
+                <!-- KPI 카드 11: Building 검토 목록 (Issue #46-B) -->
+                <div class="kpi-card" onclick="showBuildingReviewModal()" style="--card-color-1: #ff9800; --card-color-2: #f57c00; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.1);">
+                    <div class="kpi-icon">🏢</div>
+                    <div class="kpi-value" id="kpiBuildingReviewTotal">-</div>
+                    <div class="kpi-label" data-i18n="buildingReview.cardTitle">Building 검토 목록</div>
+                    <div class="kpi-subtitle" id="kpiBuildingReviewSubtitle">-</div>
+                </div>
             </div>
 
             <!-- ===== 월별 트렌드 차트 섹션 (Phase 3 UX 개선) - 2026년부터 적용 ===== -->
@@ -14748,6 +14756,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return isType1 && isAssemblyInspector && hasValidationData && inspectionQty < 100;
             }}).length;
             document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + peopleUnit;
+
+            // 11. Building 검토 목록 (Issue #46-B) - Summary 탭 KPI 카드 초기화
+            if (window.buildingReviewData) {{
+                const brData = window.buildingReviewData;
+                const totalCases = (brData.summary?.building_boss_mismatch || 0) +
+                                   (brData.summary?.boss_no_info || 0) +
+                                   (brData.summary?.data_source_mismatch || 0);
+                document.getElementById('kpiBuildingReviewTotal').textContent = totalCases + peopleUnit;
+
+                // 서브타이틀 표시 (불일치/정보없음/소스불일치)
+                const mismatch = brData.summary?.building_boss_mismatch || 0;
+                const noInfo = brData.summary?.boss_no_info || 0;
+                const dataSrc = brData.summary?.data_source_mismatch || 0;
+                const subtitleEl = document.getElementById('kpiBuildingReviewSubtitle');
+                if (subtitleEl) {{
+                    subtitleEl.innerHTML = `<span style="color: #e74c3c;">불일치: ${{mismatch}}</span> | ` +
+                                           `<span style="color: #f39c12;">정보없음: ${{noInfo}}</span> | ` +
+                                           `<span style="color: #3498db;">소스: ${{dataSrc}}</span>`;
+                }}
+            }} else {{
+                document.getElementById('kpiBuildingReviewTotal').textContent = '-';
+            }}
 
             // 트렌드 차트 초기화 (Phase 3 UX 개선) - 2026년부터 적용
             if ({year} >= 2026) {{
