@@ -5206,12 +5206,16 @@ class CompleteQIPCalculator:
                         self.month_data['Employee No'] = pd.to_numeric(self.month_data['Employee No'], errors='coerce')
 
                         # 인센티브 컬럼 찾기
+                        # ✅ Priority Order (2026-01-11):
+                        # 1. Source_Final_Incentive - 실제 급여 시스템 지급 데이터 (Single Source of Truth)
+                        # 2. 기타 월별 인센티브 컬럼 - 계산된 데이터 (Fallback)
                         prev_incentive_col = None
                         possible_cols = [
+                            'Source_Final_Incentive',  # ✅ 실제 급여 데이터 (최우선!)
                             f'{prev_month.full_name.capitalize()}_Incentive',
                             f'{prev_month.full_name.upper()}_Incentive',
                             f'{prev_month.full_name.lower()}_incentive',
-                            'November_Incentive',  # Final Nov incentive.xlsx 컬럼명
+                            'November_Incentive',
                             'December_Incentive',
                             'Final Incentive amount'
                         ]
@@ -5228,6 +5232,13 @@ class CompleteQIPCalculator:
                             # 검증
                             mapped_count = (self.month_data['Previous_Incentive'] > 0).sum()
                             total_amount = self.month_data['Previous_Incentive'].sum()
+
+                            # Single Source of Truth 사용 여부 표시
+                            if prev_incentive_col == 'Source_Final_Incentive':
+                                print(f"     ✅ 실제 급여 데이터 사용 (Single Source of Truth)")
+                            else:
+                                print(f"     ⚠️ 계산된 데이터 사용 (Source_Final_Incentive 없음)")
+
                             print(f"     → 컬럼: {prev_incentive_col}")
                             print(f"     → 수령자: {mapped_count}명")
                             print(f"     → 총액: ₫{total_amount:,.0f}")
