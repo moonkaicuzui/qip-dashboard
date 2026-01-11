@@ -1220,17 +1220,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         print(f"⚠️ Failed to load aql_inspector_incentive_config.json: {e}")
         aql_incentive_config_b64 = base64.b64encode('{"aql_inspectors":{}}'.encode('utf-8')).decode('ascii')
 
-    # Cross-Building Analysis JSON load and encode to Base64 (2026-01-03 - Issue #34)
+    # Building Review Analysis JSON load and encode to Base64 (2026-01-12 - Issue #46-B)
     try:
-        cross_building_path = os.path.join('output_files', 'cross_building_analysis.json')
-        with open(cross_building_path, 'r', encoding='utf-8') as f:
-            cross_building_data = json.load(f)
-        cross_building_str = json.dumps(cross_building_data, ensure_ascii=False, separators=(',', ':'))
-        cross_building_data_b64 = base64.b64encode(cross_building_str.encode('utf-8')).decode('ascii')
-        print(f"✅ Cross-building analysis loaded: {cross_building_data.get('total_cases', 0)} cases")
+        building_review_path = os.path.join('output_files', 'building_review_analysis.json')
+        with open(building_review_path, 'r', encoding='utf-8') as f:
+            building_review_data = json.load(f)
+        building_review_str = json.dumps(building_review_data, ensure_ascii=False, separators=(',', ':'))
+        building_review_data_b64 = base64.b64encode(building_review_str.encode('utf-8')).decode('ascii')
+        summary = building_review_data.get('summary', {})
+        print(f"✅ Building Review Analysis loaded: {summary.get('total', 0)} cases (Boss불일치:{summary.get('building_boss_mismatch', 0)}, 상사없음:{summary.get('boss_no_info', 0)}, 데이터불일치:{summary.get('data_source_mismatch', 0)})")
     except Exception as e:
-        print(f"⚠️ Failed to load cross_building_analysis.json: {e}")
-        cross_building_data_b64 = base64.b64encode('{"total_cases":0,"cases":[],"statistics":{}}'.encode('utf-8')).decode('ascii')
+        print(f"⚠️ Failed to load building_review_analysis.json: {e}")
+        building_review_data_b64 = base64.b64encode('{"summary":{"building_boss_mismatch":0,"boss_no_info":0,"data_source_mismatch":0,"total":0},"cases":{"building_boss_mismatch":[],"boss_no_info":[],"data_source_mismatch":[]}}'.encode('utf-8')).decode('ascii')
 
     # Auditor/Trainer Area Mapping JSON load and encode to Base64
     try:
@@ -10424,58 +10425,121 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             </div>
         </div>
 
-        <!-- Cross-Building Review Modal (2026-01-03 - Issue #34) -->
-        <div class="modal fade" id="crossBuildingModal" tabindex="-1" role="dialog" aria-labelledby="crossBuildingModalLabel" aria-hidden="true" style="z-index: 1055;">
+        <!-- Building Review Modal (2026-01-12 - Issue #46-B) -->
+        <div class="modal fade" id="buildingReviewModal" tabindex="-1" role="dialog" aria-labelledby="buildingReviewModalLabel" aria-hidden="true" style="z-index: 1055;">
             <div class="modal-dialog modal-fullscreen" role="document" style="margin: 0; width: 100vw; height: 100vh;">
                 <div class="modal-content" style="height: 100%; border: none; border-radius: 0;">
                     <div class="modal-header unified-modal-header" style="flex-shrink: 0;">
-                        <h5 class="modal-title unified-modal-title" id="crossBuildingModalLabel">
+                        <h5 class="modal-title unified-modal-title" id="buildingReviewModalLabel">
                             <i class="fas fa-building me-2"></i>
-                            <span id="crossBuildingModalTitle" data-i18n="crossBuilding.modalTitle">Cross-Building Relationship Review List</span>
+                            <span id="buildingReviewModalTitle" data-i18n="buildingReview.modalTitle">Building Review List</span>
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" style="flex: 1; overflow-y: auto; overflow-x: hidden;">
+                        <!-- Alert Section -->
                         <div class="mb-3">
                             <div class="alert alert-light border-start border-4 border-warning">
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-info-circle text-warning me-2"></i>
                                     <div>
-                                        <div>
-                                            <span id="crossBuildingAlertMsg" data-i18n="crossBuilding.alertMessage">This list shows employees who report to managers in different buildings or whose managers have no building information.</span>
-                                        </div>
-                                        <div class="text-muted small mt-1">
-                                            <span id="crossBuildingExcludeNote" data-i18n="crossBuilding.excludeNote">Building information comes from AQL inspection records only.</span>
-                                        </div>
+                                        <span id="buildingReviewAlertMsg" data-i18n="buildingReview.alertMessage">This list shows building-related issues for review.</span>
                                     </div>
                                 </div>
                             </div>
-                            <p class="text-muted">
-                                <i class="fas fa-users me-2"></i>
-                                <span id="crossBuildingTotal" data-i18n="common.total">Total</span>
-                                <span id="crossBuildingCount">0</span>
-                                <span id="crossBuildingPeople" data-i18n="common.people">people</span>
-                            </p>
                         </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover" style="font-size: 14px;">
-                                <thead class="unified-table-header">
-                                    <tr>
-                                        <th style="min-width: 80px; padding: 12px;" data-i18n="crossBuilding.headers.caseType">Type</th>
-                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.empNo">Employee No</th>
-                                        <th style="min-width: 130px; padding: 12px;" data-i18n="crossBuilding.headers.empName">Employee Name</th>
-                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.empBuilding">Building</th>
-                                        <th style="min-width: 150px; padding: 12px;" data-i18n="crossBuilding.headers.empPosition">Position</th>
-                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.bossNo">Boss No</th>
-                                        <th style="min-width: 130px; padding: 12px;" data-i18n="crossBuilding.headers.bossName">Boss Name</th>
-                                        <th style="min-width: 100px; padding: 12px;" data-i18n="crossBuilding.headers.bossBuilding">Boss Building</th>
-                                        <th style="min-width: 150px; padding: 12px;" data-i18n="crossBuilding.headers.bossPosition">Boss Position</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="crossBuildingTableBody">
-                                    <!-- JavaScript로 동적으로 채워짐 -->
-                                </tbody>
-                            </table>
+
+                        <!-- 3-Tab Navigation -->
+                        <ul class="nav nav-tabs mb-3" id="buildingReviewTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1-content" type="button" role="tab">
+                                    <i class="fas fa-exchange-alt me-1"></i>
+                                    <span data-i18n="buildingReview.tab1Title">Building-Boss Mismatch</span>
+                                    <span class="badge bg-warning text-dark ms-1" id="tab1Count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2-content" type="button" role="tab">
+                                    <i class="fas fa-question-circle me-1"></i>
+                                    <span data-i18n="buildingReview.tab2Title">Boss No Info</span>
+                                    <span class="badge bg-info ms-1" id="tab2Count">0</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3-content" type="button" role="tab">
+                                    <i class="fas fa-database me-1"></i>
+                                    <span data-i18n="buildingReview.tab3Title">Data Source Mismatch</span>
+                                    <span class="badge bg-danger ms-1" id="tab3Count">0</span>
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tab Contents -->
+                        <div class="tab-content" id="buildingReviewTabContent">
+                            <!-- Tab 1: Building-Boss Mismatch -->
+                            <div class="tab-pane fade show active" id="tab1-content" role="tabpanel">
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-exchange-alt me-1"></i>
+                                    <span data-i18n="buildingReview.tab1Desc">Employees whose building differs from their boss's building.</span>
+                                </p>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm" style="font-size: 13px;">
+                                        <thead class="table-warning">
+                                            <tr>
+                                                <th data-i18n="buildingReview.headers.empNo">Employee No</th>
+                                                <th data-i18n="buildingReview.headers.empName">Name</th>
+                                                <th data-i18n="buildingReview.headers.empBuilding">Building</th>
+                                                <th data-i18n="buildingReview.headers.bossName">Boss Name</th>
+                                                <th data-i18n="buildingReview.headers.bossBuilding">Boss Building</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tab1TableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Tab 2: Boss No Info -->
+                            <div class="tab-pane fade" id="tab2-content" role="tabpanel">
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-question-circle me-1"></i>
+                                    <span data-i18n="buildingReview.tab2Desc">Employees with building info, but their boss has no building info.</span>
+                                </p>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm" style="font-size: 13px;">
+                                        <thead class="table-info">
+                                            <tr>
+                                                <th data-i18n="buildingReview.headers.empNo">Employee No</th>
+                                                <th data-i18n="buildingReview.headers.empName">Name</th>
+                                                <th data-i18n="buildingReview.headers.empBuilding">Building</th>
+                                                <th data-i18n="buildingReview.headers.bossName">Boss Name</th>
+                                                <th data-i18n="buildingReview.headers.bossBuilding">Boss Building</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tab2TableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Tab 3: Data Source Mismatch -->
+                            <div class="tab-pane fade" id="tab3-content" role="tabpanel">
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-database me-1"></i>
+                                    <span data-i18n="buildingReview.tab3Desc">Employees with different building info between HR and AQL files.</span>
+                                </p>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm" style="font-size: 13px;">
+                                        <thead class="table-danger">
+                                            <tr>
+                                                <th data-i18n="buildingReview.headers.empNo">Employee No</th>
+                                                <th data-i18n="buildingReview.headers.empName">Name</th>
+                                                <th data-i18n="buildingReview.headers.hrBuilding">HR Building</th>
+                                                <th data-i18n="buildingReview.headers.aqlBuilding">AQL Building</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tab3TableBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -11113,8 +11177,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         {aql_incentive_config_b64}
     </script>
 
-    <script type="application/json" id="crossBuildingDataBase64">
-        {cross_building_data_b64}
+    <script type="application/json" id="buildingReviewDataBase64">
+        {building_review_data_b64}
     </script>
 
     <script>
@@ -11589,16 +11653,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 window.aqlIncentiveConfig = {{ aql_inspectors: {{}}, parts: {{}} }};
             }}
 
-            // Cross-Building Analysis 데이터 로드 (2026-01-03 - Issue #34)
-            const crossBuildingElement = document.getElementById('crossBuildingDataBase64');
-            if (crossBuildingElement) {{
-                const crossBuildingBase64 = crossBuildingElement.textContent.trim();
-                const crossBuildingJson = base64DecodeUnicode(crossBuildingBase64);
-                window.crossBuildingData = JSON.parse(crossBuildingJson);
-                console.log('Cross-Building Analysis loaded:', window.crossBuildingData.total_cases || 0, 'cases');
+            // Building Review Analysis 데이터 로드 (2026-01-12 - Issue #46-B)
+            const buildingReviewElement = document.getElementById('buildingReviewDataBase64');
+            if (buildingReviewElement) {{
+                const buildingReviewBase64 = buildingReviewElement.textContent.trim();
+                const buildingReviewJson = base64DecodeUnicode(buildingReviewBase64);
+                window.buildingReviewData = JSON.parse(buildingReviewJson);
+                console.log('Building Review Analysis loaded:',
+                    'Case1:', window.buildingReviewData.summary?.building_boss_mismatch || 0,
+                    'Case2:', window.buildingReviewData.summary?.boss_no_info || 0,
+                    'Case3:', window.buildingReviewData.summary?.data_source_mismatch || 0);
             }} else {{
-                console.warn('Cross-Building Data element not found, using empty object');
-                window.crossBuildingData = {{ total_cases: 0, cases: [], statistics: {{}} }};
+                console.warn('Building Review Data element not found, using empty object');
+                window.buildingReviewData = {{ summary: {{ building_boss_mismatch: 0, boss_no_info: 0, data_source_mismatch: 0 }}, cases: {{}} }};
             }}
 
             // Build condition_results array from individual condition fields
@@ -16150,29 +16217,39 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
-            // Cross-Building Review KPI Card (2026-01-03 - Issue #34)
-            const crossBuildingData = window.crossBuildingData || {{ total_cases: 0, statistics: {{ by_type: {{ "Case 1": 0, "Case 2": 0 }} }} }};
-            const totalCases = crossBuildingData.total_cases || 0;
-            const case1Count = crossBuildingData.statistics?.by_type?.["Case 1"] || 0;
-            const case2Count = crossBuildingData.statistics?.by_type?.["Case 2"] || 0;
+            // Building Review KPI Card (2026-01-12 - Issue #46-B)
+            const buildingReviewData = window.buildingReviewData || {{ summary: {{ building_boss_mismatch: 0, boss_no_info: 0, data_source_mismatch: 0 }} }};
+            const type1Count = buildingReviewData.summary?.building_boss_mismatch || 0;
+            const type2Count = buildingReviewData.summary?.boss_no_info || 0;
+            const type3Count = buildingReviewData.summary?.data_source_mismatch || 0;
+            const totalReviewCases = type1Count + type2Count + type3Count;
 
-            if (totalCases > 0) {{
+            if (totalReviewCases > 0) {{
                 cardsHTML += `
-                    <div class="col-md-2 col-sm-4 col-6 mb-2">
+                    <div class="col-md-3 col-sm-6 col-12 mb-2">
                         <div class="card h-100" style="border-left: 4px solid #ff9800; cursor: pointer; background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);"
-                             onclick="showCrossBuildingModal();">
+                             onclick="showBuildingReviewModal();">
                             <div class="card-body py-2 px-3">
                                 <h6 class="card-title mb-1" style="color: #ff9800;">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>
-                                    <span id="crossBuildingCardTitle">${{getTranslation('crossBuilding.cardTitle')}}</span>
+                                    <i class="fas fa-building me-1"></i>
+                                    <span id="buildingReviewCardTitle">${{getTranslation('buildingReview.cardTitle')}}</span>
                                 </h6>
                                 <div class="small">
-                                    <div><strong>${{totalCases}}</strong> <span id="crossBuildingCardTotal">${{getTranslation('crossBuilding.totalCases')}}</span></div>
-                                    <div class="text-muted">
-                                        <span id="crossBuildingCardCase1">${{getTranslation('crossBuilding.case1Short')}}</span>: ${{case1Count}}
+                                    <div class="mb-1">
+                                        <span class="badge bg-warning text-dark me-1">${{type1Count}}</span>
+                                        <span data-i18n="buildingReview.type1Short">${{getTranslation('buildingReview.type1Short')}}</span>
                                     </div>
-                                    <div class="text-muted">
-                                        <span id="crossBuildingCardCase2">${{getTranslation('crossBuilding.case2Short')}}</span>: ${{case2Count}}
+                                    <div class="mb-1">
+                                        <span class="badge bg-info me-1">${{type2Count}}</span>
+                                        <span data-i18n="buildingReview.type2Short">${{getTranslation('buildingReview.type2Short')}}</span>
+                                    </div>
+                                    <div class="mb-1">
+                                        <span class="badge bg-danger me-1">${{type3Count}}</span>
+                                        <span data-i18n="buildingReview.type3Short">${{getTranslation('buildingReview.type3Short')}}</span>
+                                    </div>
+                                    <div class="text-muted mt-1 border-top pt-1">
+                                        <i class="fas fa-mouse-pointer me-1"></i>
+                                        <small>${{getTranslation('common.clickForDetails')}}</small>
                                     </div>
                                 </div>
                             </div>
@@ -16184,53 +16261,72 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             container.innerHTML = cardsHTML;
         }}
 
-        // Cross-Building Review Modal function (2026-01-03 - Issue #34)
-        function showCrossBuildingModal() {{
-            const crossBuildingData = window.crossBuildingData;
-            if (!crossBuildingData || !crossBuildingData.cases) {{
-                alert('Cross-building data not loaded');
+        // Building Review Modal function (2026-01-12 - Issue #46-B)
+        function showBuildingReviewModal() {{
+            const data = window.buildingReviewData;
+            if (!data || !data.cases) {{
+                alert('Building review data not loaded');
                 return;
             }}
 
-            // Update modal count
-            document.getElementById('crossBuildingCount').textContent = crossBuildingData.total_cases || 0;
+            // Update tab counts
+            const type1Count = data.summary?.building_boss_mismatch || 0;
+            const type2Count = data.summary?.boss_no_info || 0;
+            const type3Count = data.summary?.data_source_mismatch || 0;
 
-            // Populate table
-            const tbody = document.getElementById('crossBuildingTableBody');
-            if (!tbody) {{
-                console.error('crossBuildingTableBody not found!');
-                return;
-            }}
+            document.getElementById('tab1Count').textContent = type1Count;
+            document.getElementById('tab2Count').textContent = type2Count;
+            document.getElementById('tab3Count').textContent = type3Count;
 
-            let tableHTML = '';
-            const cases = crossBuildingData.cases || [];
-
-            cases.forEach((c, index) => {{
-                const rowClass = index % 2 === 0 ? 'table-light' : '';
-                const typeClass = c.type.includes('Case 1') ? 'badge bg-warning' : 'badge bg-info';
-                const typeBadge = c.type.includes('Case 1')
-                    ? getTranslation('crossBuilding.case1Badge')
-                    : getTranslation('crossBuilding.case2Badge');
-
-                tableHTML += `
-                    <tr class="${{rowClass}}">
-                        <td><span class="${{typeClass}}">${{typeBadge}}</span></td>
+            // Populate Tab 1: Building-Boss Mismatch
+            const tab1Body = document.getElementById('tab1TableBody');
+            let tab1HTML = '';
+            (data.cases?.building_boss_mismatch || []).forEach((c, i) => {{
+                tab1HTML += `
+                    <tr class="${{i % 2 === 0 ? '' : 'table-light'}}">
                         <td>${{c.emp_no || '-'}}</td>
                         <td>${{c.emp_name || '-'}}</td>
                         <td><span class="badge" style="background-color: ${{getBuildingColor(c.emp_building)}};">${{c.emp_building || 'N/A'}}</span></td>
-                        <td>${{c.emp_position || '-'}}</td>
-                        <td>${{c.boss_id || '-'}}</td>
                         <td>${{c.boss_name || '-'}}</td>
                         <td><span class="badge" style="background-color: ${{getBuildingColor(c.boss_building)}};">${{c.boss_building || 'N/A'}}</span></td>
-                        <td>${{c.boss_position || '-'}}</td>
                     </tr>
                 `;
             }});
+            tab1Body.innerHTML = tab1HTML || '<tr><td colspan="5" class="text-center text-muted">No data</td></tr>';
 
-            tbody.innerHTML = tableHTML;
+            // Populate Tab 2: Boss No Info
+            const tab2Body = document.getElementById('tab2TableBody');
+            let tab2HTML = '';
+            (data.cases?.boss_no_info || []).forEach((c, i) => {{
+                tab2HTML += `
+                    <tr class="${{i % 2 === 0 ? '' : 'table-light'}}">
+                        <td>${{c.emp_no || '-'}}</td>
+                        <td>${{c.emp_name || '-'}}</td>
+                        <td><span class="badge" style="background-color: ${{getBuildingColor(c.emp_building)}};">${{c.emp_building || 'N/A'}}</span></td>
+                        <td>${{c.boss_name || '-'}}</td>
+                        <td><span class="badge bg-secondary">N/A</span></td>
+                    </tr>
+                `;
+            }});
+            tab2Body.innerHTML = tab2HTML || '<tr><td colspan="5" class="text-center text-muted">No data</td></tr>';
+
+            // Populate Tab 3: Data Source Mismatch
+            const tab3Body = document.getElementById('tab3TableBody');
+            let tab3HTML = '';
+            (data.cases?.data_source_mismatch || []).forEach((c, i) => {{
+                tab3HTML += `
+                    <tr class="${{i % 2 === 0 ? '' : 'table-light'}}">
+                        <td>${{c.emp_no || '-'}}</td>
+                        <td>${{c.emp_name || '-'}}</td>
+                        <td><span class="badge" style="background-color: ${{getBuildingColor(c.hr_building)}};">${{c.hr_building || 'N/A'}}</span></td>
+                        <td><span class="badge" style="background-color: ${{getBuildingColor(c.aql_building)}};">${{c.aql_building || 'N/A'}}</span></td>
+                    </tr>
+                `;
+            }});
+            tab3Body.innerHTML = tab3HTML || '<tr><td colspan="4" class="text-center text-muted">No data</td></tr>';
 
             // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('crossBuildingModal'));
+            const modal = new bootstrap.Modal(document.getElementById('buildingReviewModal'));
             modal.show();
         }}
 

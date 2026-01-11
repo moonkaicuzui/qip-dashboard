@@ -5544,13 +5544,179 @@ class CompleteQIPCalculator:
             
             # next month 계산용 파일 자동 created
             self.prepare_next_month_file(csv_file)
-            
+
+            # Building Review Analysis JSON 생성 (Issue #46-B)
+            self.generate_building_review_analysis(output_dir)
+
             return True
         except Exception as e:
             print(f"❌ file saved in progress Error: {e}")
             traceback.print_exc()
             return False
     
+    def generate_building_review_analysis(self, output_dir: str) -> Optional[str]:
+        """Building Review Analysis JSON 생성 (Issue #46-B)
+
+        3가지 불일치 유형 분석:
+        1. Building-Boss 불일치: 직원과 상사의 Building이 다름
+        2. 상사 정보없음: 직원은 Building 있지만 상사는 없음
+        3. 데이터 소스 불일치: HR과 AQL 파일 간 Building 다름 (A2=A 제외)
+        """
+        import json
+        import os
+
+        print("\n📊 Building Review Analysis 생성 (Issue #46-B)...")
+
+        try:
+            # 퇴사자 필터링을 위한 계산 월 시작일
+            calc_month_start = pd.Timestamp(year=self.config.year, month=self.config.month.number, day=1)
+
+            # 상사 컬럼 찾기
+            boss_col = self.data_processor.detect_column_names(self.month_data, [
+                'LINE LEADER 1ST BOSS', 'Group Leader 1st Boss',
+                'GROUP LEADER 1ST BOSS', 'Supervisor 1st Boss',
+                'direct boss name', 'Direct Boss Name', 'DIRECT BOSS NAME'
+            ])
+
+            # 결과 저장용
+            building_boss_mismatch = []
+            boss_no_info = []
+            data_source_mismatch = []
+
+            # 정규화 함수: A2→A, B2→B (첫 글자만 추출)
+            def normalize_building(bldg):
+                if pd.isna(bldg) or str(bldg).strip() in ['', 'nan', 'NaN', 'None', 'N/A']:
+                    return None
+                return str(bldg)[0].upper()
+
+            # 직원별 Building 정보 매핑 (emp_no → building)
+            building_map = {}
+            for _, row in self.month_data.iterrows():
+                emp_no = row.get('Employee No')
+                bldg = row.get('BUILDING', '')
+                if pd.notna(emp_no) and bldg and str(bldg).strip() not in ['', 'nan', 'NaN', 'None']:
+                    building_map[emp_no] = str(bldg).strip()
+
+            for idx, row in self.month_data.iterrows():
+                emp_no = row.get('Employee No')
+                emp_name = row.get('Full Name', 'Unknown')
+                emp_building = row.get('BUILDING', '')
+                position = row.get('QIP POSITION 1ST  NAME', row.get('Position', ''))
+
+                # 빈 문자열 정리
+                emp_building = '' if str(emp_building).strip() in ['', 'nan', 'NaN', 'None'] else str(emp_building).strip()
+
+                # 퇴사자 필터링
+                stop_date_str = row.get('Stop working Date')
+                if pd.notna(stop_date_str):
+                    try:
+                        stop_date = pd.to_datetime(stop_date_str)
+                        if stop_date < calc_month_start:
+                            continue  # 퇴사자 제외
+                    except (ValueError, TypeError):
+                        pass
+
+                # 1. Building-Boss 불일치 및 2. 상사 정보없음 분석
+                if boss_col and emp_building:
+                    boss_name = row.get(boss_col)
+                    if pd.notna(boss_name) and str(boss_name).strip():
+                        boss_name = str(boss_name).strip()
+                        # 상사의 Building 찾기
+                        boss_data = self.month_data[
+                            self.month_data['Full Name'] == boss_name
+                        ]
+
+                        if not boss_data.empty:
+                            boss_row = boss_data.iloc[0]
+                            boss_id = boss_row.get('Employee No', '')
+                            boss_building = boss_row.get('BUILDING', '')
+                            boss_position = boss_row.get('QIP POSITION 1ST  NAME', boss_row.get('Position', ''))
+                            boss_building = '' if str(boss_building).strip() in ['', 'nan', 'NaN', 'None'] else str(boss_building).strip()
+
+                            if boss_building:
+                                # 정규화하여 비교 (A2 vs A는 같음)
+                                emp_norm = normalize_building(emp_building)
+                                boss_norm = normalize_building(boss_building)
+
+                                if emp_norm and boss_norm and emp_norm != boss_norm:
+                                    # Case 1: Building-Boss 불일치
+                                    building_boss_mismatch.append({
+                                        'emp_no': str(emp_no),
+                                        'emp_name': emp_name,
+                                        'emp_building': emp_building,
+                                        'emp_position': str(position),
+                                        'boss_id': str(boss_id),
+                                        'boss_name': boss_name,
+                                        'boss_building': boss_building,
+                                        'boss_position': str(boss_position)
+                                    })
+                            else:
+                                # Case 2: 상사 정보없음
+                                boss_no_info.append({
+                                    'emp_no': str(emp_no),
+                                    'emp_name': emp_name,
+                                    'emp_building': emp_building,
+                                    'emp_position': str(position),
+                                    'boss_id': str(boss_id) if boss_id else '',
+                                    'boss_name': boss_name,
+                                    'boss_building': 'NaN',
+                                    'boss_position': str(boss_position) if boss_position else ''
+                                })
+
+                # 3. 데이터 소스 불일치 (HR vs AQL)
+                hr_building = row.get('BUILDING', '')
+                aql_building = row.get('AQL_BUILDING', '')
+
+                hr_building = '' if str(hr_building).strip() in ['', 'nan', 'NaN', 'None'] else str(hr_building).strip()
+                aql_building = '' if str(aql_building).strip() in ['', 'nan', 'NaN', 'None'] else str(aql_building).strip()
+
+                if hr_building and aql_building:
+                    hr_norm = normalize_building(hr_building)
+                    aql_norm = normalize_building(aql_building)
+
+                    if hr_norm and aql_norm and hr_norm != aql_norm:
+                        # 정규화 후에도 다르면 실제 불일치 (A2 vs A는 제외됨)
+                        data_source_mismatch.append({
+                            'emp_no': str(emp_no),
+                            'emp_name': emp_name,
+                            'emp_position': str(position),
+                            'hr_building': hr_building,
+                            'aql_building': aql_building
+                        })
+
+            # JSON 구조 생성
+            review_data = {
+                'summary': {
+                    'building_boss_mismatch': len(building_boss_mismatch),
+                    'boss_no_info': len(boss_no_info),
+                    'data_source_mismatch': len(data_source_mismatch),
+                    'total': len(building_boss_mismatch) + len(boss_no_info) + len(data_source_mismatch)
+                },
+                'cases': {
+                    'building_boss_mismatch': building_boss_mismatch,
+                    'boss_no_info': boss_no_info,
+                    'data_source_mismatch': data_source_mismatch
+                }
+            }
+
+            # JSON 파일 저장
+            json_path = os.path.join(output_dir, 'building_review_analysis.json')
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(review_data, f, ensure_ascii=False, indent=2)
+
+            print(f"  ✅ Building Review Analysis 저장 완료: {json_path}")
+            print(f"     - Building-Boss 불일치: {len(building_boss_mismatch)}건")
+            print(f"     - 상사 정보없음: {len(boss_no_info)}건")
+            print(f"     - 데이터 소스 불일치: {len(data_source_mismatch)}건 (A2=A 제외)")
+            print(f"     - 총: {review_data['summary']['total']}건")
+
+            return json_path
+
+        except Exception as e:
+            print(f"  ⚠️ Building Review Analysis 생성 실패: {e}")
+            traceback.print_exc()
+            return None
+
     def save_calculation_metadata(self, output_dir: str) -> Optional[str]:
         """calculation 메타data JSONwith saved (condition 충족 상세 정보 include)"""
         try:

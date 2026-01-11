@@ -445,6 +445,105 @@
       }
     }
   },
+  "buildingReview": {
+    "cardTitle": {
+      "ko": "Building 검토 목록",
+      "en": "Building Review List",
+      "vi": "Danh sách xem xét Building"
+    },
+    "modalTitle": {
+      "ko": "Building 검토 목록",
+      "en": "Building Review List",
+      "vi": "Danh sách xem xét Building"
+    },
+    "alertMessage": {
+      "ko": "이 목록은 Building 관련 검토가 필요한 항목들을 보여줍니다.",
+      "en": "This list shows items requiring building-related review.",
+      "vi": "Danh sách này hiển thị các mục cần xem xét liên quan đến tòa nhà."
+    },
+    "type1Short": {
+      "ko": "Building-Boss 불일치",
+      "en": "Building-Boss Mismatch",
+      "vi": "Building-Sếp không khớp"
+    },
+    "type2Short": {
+      "ko": "상사 정보없음",
+      "en": "Boss No Info",
+      "vi": "Sếp không có TT"
+    },
+    "type3Short": {
+      "ko": "데이터 소스 불일치",
+      "en": "Data Source Mismatch",
+      "vi": "Nguồn dữ liệu không khớp"
+    },
+    "tab1Title": {
+      "ko": "Building-Boss 불일치",
+      "en": "Building-Boss Mismatch",
+      "vi": "Building-Sếp không khớp"
+    },
+    "tab2Title": {
+      "ko": "상사 정보없음",
+      "en": "Boss No Info",
+      "vi": "Sếp không có TT"
+    },
+    "tab3Title": {
+      "ko": "데이터 소스 불일치",
+      "en": "Data Source Mismatch",
+      "vi": "Nguồn dữ liệu không khớp"
+    },
+    "tab1Desc": {
+      "ko": "직원과 상사의 Building이 다른 경우입니다.",
+      "en": "Employees whose building differs from their boss's building.",
+      "vi": "Nhân viên có tòa nhà khác với sếp."
+    },
+    "tab2Desc": {
+      "ko": "직원은 Building 정보가 있지만 상사는 없는 경우입니다.",
+      "en": "Employees with building info, but their boss has no building info.",
+      "vi": "Nhân viên có thông tin tòa nhà, nhưng sếp không có."
+    },
+    "tab3Desc": {
+      "ko": "HR 파일과 AQL 파일 간 Building 정보가 다른 경우입니다.",
+      "en": "Employees with different building info between HR and AQL files.",
+      "vi": "Nhân viên có thông tin tòa nhà khác nhau giữa HR và AQL."
+    },
+    "headers": {
+      "empNo": {
+        "ko": "직원번호",
+        "en": "Employee No",
+        "vi": "Mã NV"
+      },
+      "empName": {
+        "ko": "직원명",
+        "en": "Name",
+        "vi": "Tên"
+      },
+      "empBuilding": {
+        "ko": "Building",
+        "en": "Building",
+        "vi": "Tòa nhà"
+      },
+      "bossName": {
+        "ko": "상사명",
+        "en": "Boss Name",
+        "vi": "Tên sếp"
+      },
+      "bossBuilding": {
+        "ko": "상사 Building",
+        "en": "Boss Building",
+        "vi": "Tòa nhà sếp"
+      },
+      "hrBuilding": {
+        "ko": "HR Building",
+        "en": "HR Building",
+        "vi": "Building HR"
+      },
+      "aqlBuilding": {
+        "ko": "AQL Building",
+        "en": "AQL Building",
+        "vi": "Building AQL"
+      }
+    }
+  },
   "orgChart": {
     "title": {
       "ko": "TYPE-1 관리자 인센티브 구조",
@@ -2683,6 +2782,11 @@
       "ko": "명",
       "en": "people",
       "vi": "người"
+    },
+    "clickForDetails": {
+      "ko": "클릭하여 상세 보기",
+      "en": "Click for details",
+      "vi": "Nhấp để xem chi tiết"
     },
     "july": {
       "ko": "7월",
