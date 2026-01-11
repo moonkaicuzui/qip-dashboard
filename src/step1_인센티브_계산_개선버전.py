@@ -1873,6 +1873,8 @@ class CompleteQIPCalculator:
     
     def _merge_all_conditions(self):
         """모든 condition data 병합"""
+        print(f"📊 [DEBUG Issue #42] Starting _merge_all_conditions: {len(self.month_data.columns)} columns")
+
         # attendance data 병합
         attendance_key = f"{self.config.month.full_name}_attendance"
         if attendance_key in self.raw_data:
@@ -1910,13 +1912,15 @@ class CompleteQIPCalculator:
                             # att_conditions.loc[att_idx[0], 'attendancy condition 1 - acctual working days is zero'] = 'yes'
                             att_conditions.loc[att_idx[0], '결근율_Absence_Rate_Percent'] = 100.0
                 
+                print(f"📊 [DEBUG Issue #42] Before attendance merge: month_data={len(self.month_data.columns)} cols, att_conditions={len(att_conditions.columns)} cols")
                 self.month_data = pd.merge(
                     self.month_data,
                     att_conditions,
                     on='Employee No',
                     how='left'
                 )
-                
+                print(f"📊 [DEBUG Issue #42] After attendance merge: {len(self.month_data.columns)} columns")
+
                 # 병합 후 퇴사자 absence rate 재calculation
                 self._recalculate_absence_rate_for_resigned()
         
@@ -1927,12 +1931,14 @@ class CompleteQIPCalculator:
                 self.raw_data[prs_key]
             )
             if not prs_conditions.empty:
+                print(f"📊 [DEBUG Issue #42] Before 5PRS merge: month_data={len(self.month_data.columns)} cols, prs_conditions={len(prs_conditions.columns)} cols")
                 self.month_data = pd.merge(
                     self.month_data,
                     prs_conditions,
                     on='Employee No',
                     how='left'
                 )
+                print(f"📊 [DEBUG Issue #42] After 5PRS merge: {len(self.month_data.columns)} columns")
         
         # AQL data 병합
         aql_key = f"{self.config.month.full_name}_aql"
@@ -2016,12 +2022,14 @@ class CompleteQIPCalculator:
                 print(f"  → month_data 샘플: {month_sample}")
                 print(f"  → aql_conditions 샘플: {aql_sample}")
 
+                print(f"📊 [DEBUG Issue #42] Before AQL merge: month_data={len(self.month_data.columns)} cols, aql_conditions={len(aql_conditions.columns)} cols")
                 self.month_data = pd.merge(
                     self.month_data,
                     aql_conditions,
                     on='Employee No',
                     how='left'
                 )
+                print(f"📊 [DEBUG Issue #42] After AQL merge: {len(self.month_data.columns)} columns")
 
                 # 병합 후 AQL failure cases수 checking
                 if aql_col in self.month_data.columns:
@@ -2045,6 +2053,8 @@ class CompleteQIPCalculator:
 
         # AQL Area Reject Rate calculation 및 추
         self._add_area_reject_rates()
+
+        print(f"📊 [DEBUG Issue #42] End of _merge_all_conditions: {len(self.month_data.columns)} columns")
 
     def _add_area_reject_rates(self):
         """각 employeeof in charge area reject rate calculation 및 추"""
@@ -5349,16 +5359,32 @@ class CompleteQIPCalculator:
                     self.month_data['Previous_Month_Incentive'] = self.month_data['Previous_Incentive']
 
             # consecutive months 추적 column 추 (Next_Month_Expected include)
+            print(f"📊 [DEBUG Issue #42] Before add_continuous_months_tracking: {len(self.month_data.columns)} columns")
             self.add_continuous_months_tracking()
+            print(f"📊 [DEBUG Issue #42] After add_continuous_months_tracking: {len(self.month_data.columns)} columns")
 
             # Next_Month_Expected 미 add_continuous_months_trackingfrom 추done
             # in progress복 추 제거
 
             # 10 conditions 평 결and Exceland CSVto 추
+            print(f"📊 [DEBUG Issue #42] Before add_condition_evaluation_to_excel: {len(self.month_data.columns)} columns")
             self.add_condition_evaluation_to_excel()
+            print(f"📊 [DEBUG Issue #42] After add_condition_evaluation_to_excel: {len(self.month_data.columns)} columns")
 
             # AQL 통계 정보 추
+            print(f"📊 [DEBUG Issue #42] Before add_aql_statistics_to_excel: {len(self.month_data.columns)} columns")
             self.add_aql_statistics_to_excel()
+            print(f"📊 [DEBUG Issue #42] After add_aql_statistics_to_excel: {len(self.month_data.columns)} columns")
+
+            # Issue #42 디버깅: 컬럼 수 확인
+            if len(self.month_data.columns) > 100:
+                print(f"⚠️ [Issue #42 WARNING] Column count too high: {len(self.month_data.columns)}")
+                print(f"   First 50 columns: {list(self.month_data.columns[:50])}")
+                print(f"   Last 10 columns: {list(self.month_data.columns[-10:])}")
+                # 중복 컬럼 확인
+                dup_cols = self.month_data.columns[self.month_data.columns.duplicated()].tolist()
+                if dup_cols:
+                    print(f"   ❌ Duplicate columns detected: {dup_cols[:20]}")
 
             # CSV saved (condition 평 후)
             # 2026년부터는 V10.0 강제 (Approved Leave Days 버그 수정 버전) - 2026-01-02
