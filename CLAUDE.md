@@ -2211,50 +2211,48 @@ Employee ID | Previous_Incentive
      - Pre-commit hook will block commits if sync is broken
      - GitHub Actions provides automatic safety net every 30 minutes
 
-41. **Issue #41: Previous_Incentive Single Source of Truth System** (IMPLEMENTED: 2026-01-10, **CRITICAL FIX: 2026-01-11**):
+41. **Issue #41: Previous_Incentive Single Source of Truth System** (IMPLEMENTED: 2026-01-10, **CORRECTED: 2026-01-11**):
    - **Problem**: Previous_Incentive 데이터 불일치 발생
-     - 대시보드 계산 결과 vs 실제 급여 지급 데이터 차이
-     - November 2025: 대시보드 ₫140M vs 실제 급여 ₫103M
-   - **Root Cause (Initial)**: 대시보드 계산 CSV를 Previous_Incentive 소스로 사용
-   - **Root Cause (Critical Bug - 2026-01-11)**: Final Incentive 파일에 두 개의 컬럼 존재
-     - `Source_Final_Incentive`: **320명, ₫103,196,064** (실제 급여 데이터 - SSOT)
-     - `November_Incentive`: 353명, ₫149,003,643 (계산된 데이터)
-     - 계산 엔진이 `November_Incentive` 컬럼을 먼저 찾아서 잘못된 데이터 사용
+     - 대시보드 계산 CSV vs 실제 집행 데이터 차이
+   - **Final Incentive 파일 컬럼 구조**:
+     - `November_Incentive`: **353명, ₫149,003,643** ← **실제 집행 금액 (SSOT)**
+     - `Source_Final_Incentive`: 320명, ₫103,196,064 ← 다른 데이터 (사용 안함)
    - **Solution**:
      - **Phase 1** (2026-01-10): Final Incentive 파일 다운로드 시스템 구축
        - `scripts/download_final_incentive.py` 신규 생성
        - GitHub Actions Step 6.7 추가
-     - **Phase 2 - Critical Fix** (2026-01-11): 컬럼 우선순위 수정
-       - `src/step1_인센티브_계산_개선버전.py:5208-5245`
-       - `Source_Final_Incentive`를 `possible_cols` 리스트의 **첫 번째**로 배치
-       - SSOT 사용 여부 로그 추가
+     - **Phase 2 - Correction** (2026-01-11): 올바른 컬럼 사용
+       - `{Month}_Incentive` 컬럼이 실제 집행 금액
+       - `Source_Final_Incentive` 우선순위에서 제거
    - **Implementation Details**:
      ```python
      # src/step1_인센티브_계산_개선버전.py:5208-5221
      possible_cols = [
-         'Source_Final_Incentive',  # ✅ 실제 급여 데이터 (최우선!)
-         f'{prev_month.full_name.capitalize()}_Incentive',
+         f'{prev_month.full_name.capitalize()}_Incentive',  # ✅ November_Incentive (실제 집행)
+         f'{prev_month.full_name.upper()}_Incentive',
          # ... 기타 fallback 컬럼
      ]
+     # ❌ Source_Final_Incentive는 사용하지 않음
      ```
    - **Verification** (2026-01-11):
      ```
      === December 2025 재계산 결과 ===
-     Previous_Incentive: 320명, ₫103,196,064
-     Source_Final_Incentive: 320명, ₫103,196,064
-     ✅ 정확히 일치 - SSOT 시스템 정상 작동
+     Previous_Incentive: 353명, ₫149,003,643 ✅
+     (November 실제 집행 금액과 정확히 일치)
+
+     December_Incentive: 372명, ₫129,580,729 ✅
      ```
    - **Files Modified**:
      - `scripts/download_final_incentive.py` (신규)
-     - `src/step1_인센티브_계산_개선버전.py:5208-5245` **(Critical Fix)**
+     - `src/step1_인센티브_계산_개선버전.py:5208-5237`
      - `config_files/drive_config.json` (파일 매핑 추가)
      - `.github/workflows/auto-update-enhanced.yml:136-198`
    - **Commits**:
      - `d174cb04` (2026-01-10): Initial SSOT system
-     - `f0a477ca` (2026-01-11): **Critical Fix** - Source_Final_Incentive 우선순위
+     - `267d3f24` (2026-01-11): **Correction** - November_Incentive 사용
    - **Prevention**:
-     - 매월 급여 확정 후 Final Incentive 파일 Google Drive 업로드 필수
-     - Final Incentive 파일에 `Source_Final_Incentive` 컬럼 필수 포함
+     - Final Incentive 파일의 `{Month}_Incentive` 컬럼이 실제 집행 금액
+     - Google Drive에 파일 업로드 시 컬럼명 확인 필수
      - GitHub Actions가 30분마다 자동으로 다운로드 및 적용
 
 ### Debugging Dashboard Issues
