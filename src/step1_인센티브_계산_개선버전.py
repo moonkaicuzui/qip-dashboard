@@ -1612,7 +1612,7 @@ class DataProcessor:
                 current_month_fail_col: current_month_fail_count,
                 'Continuous_FAIL': continuous_fail_3,  # 기존 컬럼 유지 (3개월 연속)
                 'Continuous_FAIL_2Month': continuous_fail_2,  # 새 컬럼 추가 (2개월 연속)
-                'BUILDING': employee_buildings.get(emp_id, '')
+                'AQL_BUILDING': employee_buildings.get(emp_id, '')  # AQL History에서 추출한 BUILDING (Issue #46)
             })
         
         result_df = pd.DataFrame(aql_results)
@@ -2051,10 +2051,126 @@ class CompleteQIPCalculator:
                     if not tran_after.empty:
                         print(f"    → 624040283 Continuous_FAIL 병합 후: {tran_after.iloc[0]['Continuous_FAIL']}")
 
+        # ========== Issue #46: BUILDING 통합 및 불일치 감지 (2026-01-12) ==========
+        # 우선순위: basic_manpower BUILDING > AQL_BUILDING (AQL History)
+        # 불일치 시 "근무지 정보 점검 요망" 경고
+        self._process_building_consolidation()
+
         # AQL Area Reject Rate calculation 및 추
         self._add_area_reject_rates()
 
         print(f"📊 [DEBUG Issue #42] End of _merge_all_conditions: {len(self.month_data.columns)} columns")
+
+    def _process_building_consolidation(self):
+        """Issue #46: BUILDING 정보 통합 및 불일치 감지 (2026-01-12)
+
+        우선순위: basic_manpower BUILDING > AQL_BUILDING (AQL History)
+        불일치 시 '근무지 정보 점검 요망' 경고 출력
+        """
+        print("\n📊 BUILDING 정보 통합 중 (Issue #46)...")
+
+        # basic_manpower의 BUILDING 칼럼 존재 여부 확인
+        has_basic_building = 'BUILDING' in self.month_data.columns
+        has_aql_building = 'AQL_BUILDING' in self.month_data.columns
+
+        if not has_basic_building and not has_aql_building:
+            print("  ⚠️ BUILDING 정보 없음 (basic_manpower, AQL 모두 없음)")
+            self.month_data['BUILDING'] = ''
+            return
+
+        # 통계 초기화
+        building_stats = {
+            'basic_only': 0,      # basic_manpower에만 있음
+            'aql_only': 0,        # AQL에만 있음
+            'both_match': 0,      # 둘 다 있고 일치
+            'both_mismatch': 0,   # 둘 다 있고 불일치
+            'none': 0             # 둘 다 없음
+        }
+        mismatch_list = []  # 불일치 목록
+
+        # 최종 BUILDING 칼럼 생성 (basic_manpower 우선)
+        if has_basic_building:
+            # basic_manpower BUILDING을 기본으로 사용
+            self.month_data['BUILDING_FINAL'] = self.month_data['BUILDING'].fillna('')
+        else:
+            self.month_data['BUILDING_FINAL'] = ''
+
+        for idx, row in self.month_data.iterrows():
+            emp_no = row['Employee No']
+            emp_name = row.get('Full Name', 'Unknown')
+
+            basic_bldg = str(row.get('BUILDING', '')).strip() if has_basic_building else ''
+            aql_bldg = str(row.get('AQL_BUILDING', '')).strip() if has_aql_building else ''
+
+            # 빈 문자열 및 NaN 처리
+            basic_bldg = '' if basic_bldg in ['', 'nan', 'NaN', 'None'] else basic_bldg
+            aql_bldg = '' if aql_bldg in ['', 'nan', 'NaN', 'None'] else aql_bldg
+
+            # 케이스 분류
+            if basic_bldg and aql_bldg:
+                if basic_bldg == aql_bldg:
+                    building_stats['both_match'] += 1
+                    final_bldg = basic_bldg
+                else:
+                    building_stats['both_mismatch'] += 1
+                    final_bldg = basic_bldg  # basic_manpower 우선
+                    mismatch_list.append({
+                        'Employee No': emp_no,
+                        'Full Name': emp_name,
+                        'Basic_BUILDING': basic_bldg,
+                        'AQL_BUILDING': aql_bldg,
+                        'Final_BUILDING': final_bldg,
+                        'Status': '⚠️ 근무지 정보 점검 요망'
+                    })
+            elif basic_bldg:
+                building_stats['basic_only'] += 1
+                final_bldg = basic_bldg
+            elif aql_bldg:
+                building_stats['aql_only'] += 1
+                final_bldg = aql_bldg
+            else:
+                building_stats['none'] += 1
+                final_bldg = ''
+
+            self.month_data.loc[idx, 'BUILDING_FINAL'] = final_bldg
+
+        # 최종 BUILDING 칼럼 업데이트
+        self.month_data['BUILDING'] = self.month_data['BUILDING_FINAL']
+
+        # 통계 출력
+        total = len(self.month_data)
+        print(f"\n  📊 BUILDING 정보 통합 결과:")
+        print(f"     - 총 직원: {total}명")
+        print(f"     - basic_manpower에만 있음: {building_stats['basic_only']}명")
+        print(f"     - AQL에만 있음: {building_stats['aql_only']}명")
+        print(f"     - 둘 다 있고 일치: {building_stats['both_match']}명")
+        print(f"     - ⚠️ 둘 다 있고 불일치: {building_stats['both_mismatch']}명")
+        print(f"     - 정보 없음: {building_stats['none']}명")
+
+        # 불일치 목록 출력
+        if mismatch_list:
+            print(f"\n  ⚠️⚠️⚠️ 근무지 정보 점검 요망 ({len(mismatch_list)}건) ⚠️⚠️⚠️")
+            print("  ┌─────────────┬────────────────────────────┬──────────────┬──────────────┐")
+            print("  │ Employee No │ Full Name                  │ Basic(HR)    │ AQL History  │")
+            print("  ├─────────────┼────────────────────────────┼──────────────┼──────────────┤")
+            for item in mismatch_list[:20]:  # 최대 20건만 표시
+                name = item['Full Name'][:24] if len(item['Full Name']) > 24 else item['Full Name']
+                print(f"  │ {item['Employee No']:11} │ {name:26} │ {item['Basic_BUILDING']:12} │ {item['AQL_BUILDING']:12} │")
+            print("  └─────────────┴────────────────────────────┴──────────────┴──────────────┘")
+            if len(mismatch_list) > 20:
+                print(f"  ... 외 {len(mismatch_list) - 20}건 더 있음")
+
+            # 불일치 목록을 인스턴스 변수로 저장 (나중에 대시보드에서 활용 가능)
+            self.building_mismatch_list = mismatch_list
+        else:
+            self.building_mismatch_list = []
+            print(f"\n  ✅ 모든 BUILDING 정보 일치 (불일치 없음)")
+
+        # 임시 칼럼 정리
+        if 'BUILDING_FINAL' in self.month_data.columns:
+            del self.month_data['BUILDING_FINAL']
+
+        print(f"  ✅ BUILDING 통합 완료")
 
     def _add_area_reject_rates(self):
         """각 employeeof in charge area reject rate calculation 및 추"""
@@ -5389,6 +5505,13 @@ class CompleteQIPCalculator:
             # CSV saved (condition 평 후)
             # 2026년부터는 V10.0 강제 (Approved Leave Days 버그 수정 버전) - 2026-01-02
             version = "V10.0"  # 2026+ 강제, 2025도 V10.0 사용
+
+            # Issue #46 Fix: 저장 전 Unnamed 열 제거 (Excel 빈 열 문제 해결)
+            original_cols = len(self.month_data.columns)
+            self.month_data = self.month_data.loc[:, ~self.month_data.columns.str.contains('^Unnamed', na=False)]
+            if original_cols != len(self.month_data.columns):
+                print(f"  📊 저장 전 Unnamed 열 제거: {original_cols} → {len(self.month_data.columns)}개 열")
+
             csv_file = os.path.join(output_dir, f"{self.config.output_prefix}_Complete_{version}_Complete.csv")
             self.month_data.to_csv(csv_file, index=False, encoding='utf-8-sig')
 
@@ -6762,6 +6885,12 @@ class CompleteDataLoader:
                     try:
                         df = pd.read_csv(file_path, sep=sep, encoding=enc)
                         if len(df) > 0 and len(df.columns) > 1:
+                            # Issue #46 Fix: Unnamed 열 제거 (Excel 빈 열 문제 해결)
+                            original_cols = len(df.columns)
+                            df = df.loc[:, ~df.columns.str.contains('^Unnamed', na=False)]
+                            if original_cols != len(df.columns):
+                                print(f"  📊 Unnamed 열 제거: {original_cols} → {len(df.columns)}개 열")
+
                             # AQL fileof 경우 빈 행 제거 후 cases수 표시
                             if 'aql' in file_key.lower():
                                 valid_df = df.dropna(how='all')
