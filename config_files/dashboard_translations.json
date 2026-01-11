@@ -1305,6 +1305,33 @@
           "vi": "Tổng tiền"
         }
       }
+    },
+    "table": {
+      "type": {
+        "ko": "Type",
+        "en": "Type",
+        "vi": "Loại"
+      },
+      "totalEmployees": {
+        "ko": "전체 인원",
+        "en": "Total Employees",
+        "vi": "Tổng số"
+      },
+      "eligibleEmployees": {
+        "ko": "수령 인원",
+        "en": "Paid Employees",
+        "vi": "Nhân viên đã nhận"
+      },
+      "paymentRate": {
+        "ko": "지급률",
+        "en": "Payment Rate",
+        "vi": "Tỷ lệ"
+      },
+      "totalAmount": {
+        "ko": "총 지급액",
+        "en": "Total Amount",
+        "vi": "Tổng tiền"
+      }
     }
   },
   "position": {
@@ -1807,6 +1834,28 @@
           "ko": "특이사항",
           "en": "Notes",
           "vi": "Ghi chú"
+        }
+      },
+      "type1Table": {
+        "fourConditions": {
+          "ko": "4개",
+          "en": "4",
+          "vi": "4"
+        },
+        "fiveConditions": {
+          "ko": "5개",
+          "en": "5",
+          "vi": "5"
+        },
+        "sixConditions": {
+          "ko": "6개",
+          "en": "6",
+          "vi": "6"
+        },
+        "eightConditions": {
+          "ko": "8개",
+          "en": "8",
+          "vi": "8"
         }
       },
       "type2Table": {
@@ -2704,6 +2753,11 @@
     }
   },
   "incentiveCalculation": {
+    "mainTitle": {
+      "ko": "💰 인센티브 지급액 계산 방법",
+      "en": "💰 Incentive Amount Calculation Method",
+      "vi": "💰 Phương pháp tính tiền thưởng"
+    },
     "type1Title": {
       "ko": "TYPE-1 직급별 인센티브 계산 방법 및 실제 예시",
       "en": "TYPE-1 Position Incentive Calculation Method and Examples",
@@ -4880,6 +4934,16 @@
       "ko": "6개월 총 혜택 예정",
       "en": "Total Benefit Expected (6 months)",
       "vi": "Tổng lợi ích dự kiến (6 tháng)"
+    },
+    "totalBonusLabel": {
+      "ko": "총 보너스 지급액",
+      "en": "Total Bonus Amount",
+      "vi": "Tổng số tiền thưởng"
+    },
+    "paymentPeriodLabel": {
+      "ko": "지급 기간",
+      "en": "Payment Period",
+      "vi": "Thời gian chi trả"
     },
     "selectionCriteria": {
       "ko": "선정 기준",

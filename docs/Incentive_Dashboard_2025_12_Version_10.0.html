@@ -3554,19 +3554,19 @@
                     <option value="attendance" data-i18n="headers.dashboardSelector.attendance">📋 출결 현황 대시보드</option>
                 </select>
                 <button id="viewModeToggle" onclick="toggleViewMode()" class="btn btn-sm view-mode-toggle" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
-                    <span id="viewModeToggleText">📱 모바일 뷰</span>
+                    <span id="viewModeToggleText" data-i18n="viewMode.switchToMobile">📱 모바일 뷰</span>
                 </button>
                 <button id="downloadExcelBtn" onclick="downloadExcel()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap;">
-                    <span id="downloadExcelBtnText">📗 Excel 다운로드</span>
+                    <span id="downloadExcelBtnText" data-i18n="headers.downloads.excelDownload">📗 Excel 다운로드</span>
                 </button>
                 <!-- 다크모드 토글 버튼 (Phase 3 UX 개선) -->
                 <button id="darkModeToggle" onclick="toggleDarkMode()" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); white-space: nowrap; min-width: 44px;">
                     <span id="darkModeIcon">🌙</span>
                 </button>
             </div>
-            <h1 id="mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
-            <p id="mainSubtitle" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="11" data-hour="08" data-minute="53">보고서 생성일: 2026년 01월 11일 08:53</p>
+            <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
+            <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="11" data-hour="09" data-minute="32">보고서 생성일: 2026년 01월 11일 09:32</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -3579,15 +3579,15 @@
 
             <div id="dataPeriodSection" style="color: white; font-size: 0.85em; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                 <p id="dataPeriodTitle" class="data-period-toggle" style="margin: 5px 0; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                    📊 <span data-i18n="dataPeriodTitle">사용 데이터 기간</span>
+                    📊 <span data-i18n="headers.dataPeriod.title">사용 데이터 기간</span>
                     <span id="dataPeriodArrow" style="transition: transform 0.3s ease;">▼</span>
                 </p>
                 <div id="dataPeriodContent" class="data-period-content" style="overflow: hidden; transition: max-height 0.3s ease;">
-                    <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• 인센티브 데이터: 2025년 12월 01일 ~ 31일</p>
-                    <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• 출근 데이터: 2025년 12월 01일 ~ 31일</p>
-                    <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• AQL 데이터: 2025년 12월 01일 ~ 31일</p>
-                    <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• 5PRS 데이터: 2025년 12월 01일 ~ 31일</p>
-                    <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12">• 기본 인력 데이터: 2025년 12월 기준</p>
+                    <p id="incentiveDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• <span data-i18n="headers.dataPeriod.incentiveData">인센티브 데이터</span>: 2025년 12월 01일 ~ 31일</p>
+                    <p id="attendanceDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• <span data-i18n="headers.dataPeriod.attendanceData">출근 데이터</span>: 2025년 12월 01일 ~ 31일</p>
+                    <p id="aqlDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• <span data-i18n="headers.dataPeriod.aqlData">AQL 데이터</span>: 2025년 12월 01일 ~ 31일</p>
+                    <p id="5prsDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12" data-startday="01" data-endday="31">• <span data-i18n="headers.dataPeriod.5prsData">5PRS 데이터</span>: 2025년 12월 01일 ~ 31일</p>
+                    <p id="manpowerDataPeriod" style="margin: 3px 0; padding-left: 20px;" data-year="2025" data-month="12">• <span data-i18n="headers.dataPeriod.manpowerData">기본 인력 데이터</span>: 2025년 12월 <span data-i18n="headers.dataPeriod.basedOn">기준</span></p>
                 </div>
             </div>
         </div>
@@ -3597,14 +3597,14 @@
             <div style="display: flex; align-items: center;">
                 <span class="icon">✅</span>
                 <div class="message">
-                    <div class="title" id="reportTypeTitle">최종 보고서</div>
-                    <div class="description" id="reportTypeDesc">
+                    <div class="title" id="reportTypeTitle" data-i18n="reportTypeBanner.final.title">최종 보고서</div>
+                    <div class="description" id="reportTypeDesc" data-i18n="reportTypeBanner.final.description">
                         이 보고서는 월말 최종 보고서입니다. 모든 인센티브 조건이 정상적으로 적용됩니다.
                     </div>
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;">생성일: 11일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 11일</span>
             </div>
         </div>
 
@@ -3620,7 +3620,7 @@
             <div class="row mb-4 summary-cards-container">
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="totalEmployeesLabel">전체 직원</h6>
+                        <h6 class="text-muted" id="totalEmployeesLabel" data-i18n="summary.cards.totalEmployees">전체 직원</h6>
                         <h2><span id="totalEmployeesValue">421</span> <span class="unit" id="totalEmployeesUnit"></span></h2>
                         <!-- 전체 직원은 변동이 없으므로 트렌드 미표시 (카드 높이 통일을 위해 placeholder 유지) -->
                         <div class="trend same" style="visibility: hidden; pointer-events: none;">
@@ -3632,7 +3632,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
-                        <h6 class="text-muted" id="paidEmployeesLabel">수령 직원</h6>
+                        <h6 class="text-muted" id="paidEmployeesLabel" data-i18n="summary.cards.paidEmployees">수령 직원</h6>
                         <h2><span id="paidEmployeesValue">372</span> <span class="unit" id="paidEmployeesUnit"></span></h2>
                         <div class="trend up" id="paidTrend" style="display: none;">
                             <span class="arrow">▲</span>
@@ -3643,7 +3643,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card kpi-good">
-                        <h6 class="text-muted" id="paymentRateLabel">지급률</h6>
+                        <h6 class="text-muted" id="paymentRateLabel" data-i18n="summary.cards.paymentRate">지급률</h6>
                         <h2 id="paymentRateValue">88.4%</h2>
                         <div class="trend up" id="rateTrend" style="display: none;">
                             <span class="arrow">▲</span>
@@ -3654,7 +3654,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card kpi-good">
-                        <h6 class="text-muted" id="totalAmountLabel">총 지급액</h6>
+                        <h6 class="text-muted" id="totalAmountLabel" data-i18n="summary.cards.totalAmount">총 지급액</h6>
                         <h2 id="totalAmountValue">180,608,844 VND</h2>
                         <div class="trend up" id="amountTrend" style="display: none;">
                             <span class="arrow">▲</span>
@@ -3668,13 +3668,13 @@
 
             <!-- 탭 메뉴 -->
             <div class="tabs">
-                <div class="tab active" data-tab="summary" onclick="showTab('summary')" id="tabSummary">요약</div>
-                <div class="tab" data-tab="position" onclick="showTab('position')" id="tabPosition" data-translate-tab="position">직급별 상세</div>
-                <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual" data-translate-tab="individual">개인별 상세</div>
-                <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria" data-translate-tab="criteria">인센티브 기준</div>
-                <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart">조직도</div>
+                <div class="tab active" data-tab="summary" onclick="showTab('summary')" id="tabSummary" data-i18n="tabs.summary">요약</div>
+                <div class="tab" data-tab="position" onclick="showTab('position')" id="tabPosition" data-i18n="tabs.position">직급별 상세</div>
+                <div class="tab" data-tab="detail" onclick="showTab('detail')" id="tabIndividual" data-i18n="tabs.individual">개인별 상세</div>
+                <div class="tab" data-tab="criteria" onclick="showTab('criteria')" id="tabCriteria" data-i18n="tabs.criteria">인센티브 기준</div>
+                <div class="tab" data-tab="orgchart" onclick="showTab('orgchart')" id="tabOrgChart" data-i18n="tabs.orgchart">조직도</div>
                 <div class="tab" data-tab="team" onclick="showTab('team')" id="tabTeam" data-i18n="nav.team">팀 관리</div>
-                <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation">요약 및 시스템 검증</div>
+                <div class="tab" data-tab="validation" onclick="showTab('validation')" id="tabValidation" data-i18n="tabs.validation">요약 및 시스템 검증</div>
                 <div class="tab" data-tab="attendance-lookup" onclick="showTab('attendance-lookup')" id="tabAttendanceLookup" data-i18n="tabs.attendanceLookup">🔍 개인 출결 조회</div>
             </div>
             
@@ -3685,16 +3685,16 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th rowspan="2" id="summaryTypeHeader">Type</th>
-                                <th rowspan="2" id="summaryTotalHeader">전체 인원</th>
-                                <th rowspan="2" id="summaryEligibleHeader">수령 인원</th>
-                                <th rowspan="2" id="summaryPaymentRateHeader">지급률</th>
-                                <th rowspan="2" id="summaryTotalAmountHeader">총 지급액</th>
-                                <th colspan="2" class="avg-header" id="summaryAvgAmountHeader">평균 지급액</th>
+                                <th rowspan="2" id="summaryTypeHeader" data-i18n="summary.table.type">Type</th>
+                                <th rowspan="2" id="summaryTotalHeader" data-i18n="summary.table.totalEmployees">전체 인원</th>
+                                <th rowspan="2" id="summaryEligibleHeader" data-i18n="summary.table.eligibleEmployees">수령 인원</th>
+                                <th rowspan="2" id="summaryPaymentRateHeader" data-i18n="summary.table.paymentRate">지급률</th>
+                                <th rowspan="2" id="summaryTotalAmountHeader" data-i18n="summary.table.totalAmount">총 지급액</th>
+                                <th colspan="2" class="avg-header" id="summaryAvgAmountHeader" data-i18n="tableHeaders.avgPaymentPaid">평균 지급액</th>
                             </tr>
                             <tr>
-                                <th class="sub-header" id="summaryAvgEligibleHeader" data-translate="avgPaymentPaidBasis">수령인원 기준</th>
-                                <th class="sub-header" id="summaryAvgTotalHeader" data-translate="avgPaymentTotalBasis">전체인원 기준</th>
+                                <th class="sub-header" id="summaryAvgEligibleHeader" data-i18n="tableHeaders.avgPaymentPaidBasis">수령인원 기준</th>
+                                <th class="sub-header" id="summaryAvgTotalHeader" data-i18n="tableHeaders.avgPaymentTotalBasis">전체인원 기준</th>
                             </tr>
                         </thead>
                         <tbody id="typeSummaryBody">
@@ -3716,29 +3716,29 @@
                     <div class="col-12">
                         <div class="card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
                             <div class="card-body">
-                                <h4 class="mb-3" id="talentPoolTitle">🌟 QIP Talent Pool 특별 incentive</h4>
+                                <h4 class="mb-3" id="talentPoolTitle" data-i18n="talentPool.title">🌟 QIP Talent Pool 특별 인센티브</h4>
                                 <div class="row">
                                     <div class="col-md-3">
                                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                                            <h6 style="opacity: 0.9;" id="talentPoolMemberCountLabel">Talent Pool 인원</h6>
+                                            <h6 style="opacity: 0.9;" id="talentPoolMemberCountLabel" data-i18n="talentPool.memberCount">Talent Pool 인원</h6>
                                             <h3 id="talentPoolCount">0명</h3>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                                            <h6 style="opacity: 0.9;" id="talentPoolMonthlyBonusLabel">월 보너스 금액</h6>
+                                            <h6 style="opacity: 0.9;" id="talentPoolMonthlyBonusLabel" data-i18n="talentPool.monthlyBonus">월 보너스 금액</h6>
                                             <h3 id="talentPoolMonthlyBonus">0 VND</h3>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                                            <h6 style="opacity: 0.9;" id="talentPoolTotalBonusLabel">total 보너스 지급액</h6>
+                                            <h6 style="opacity: 0.9;" id="talentPoolTotalBonusLabel" data-i18n="talentPool.totalBonusLabel">총 보너스 지급액</h6>
                                             <h3 id="talentPoolTotalBonus">0 VND</h3>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
-                                            <h6 style="opacity: 0.9;" id="talentPoolPaymentPeriodLabel">지급 기간</h6>
+                                            <h6 style="opacity: 0.9;" id="talentPoolPaymentPeriodLabel" data-i18n="talentPool.paymentPeriodLabel">지급 기간</h6>
                                             <h3 id="talentPoolPeriod">-</h3>
                                         </div>
                                     </div>
@@ -3760,12 +3760,12 @@
                     <div class="row">
                         <div class="col-md-3">
                             <input type="text" id="searchInput" class="form-control"
-                                placeholder="이름 또는 직원번호 검색" onkeyup="filterTable()">
+                                placeholder="이름 또는 직원번호 검색" data-i18n-placeholder="individual.filters.search" onkeyup="filterTable()">
                         </div>
                         <div class="col-md-2">
-                            <select id="typeFilter" class="form-select" 
+                            <select id="typeFilter" class="form-select"
                                 onchange="updatePositionFilter(); filterTable()">
-                                <option value="" id="optAllTypes">모든 Type</option>
+                                <option value="" id="optAllTypes" data-i18n="individual.filters.allTypes">모든 Type</option>
                                 <option value="TYPE-1">TYPE-1</option>
                                 <option value="TYPE-2">TYPE-2</option>
                                 <option value="TYPE-3">TYPE-3</option>
@@ -3773,14 +3773,14 @@
                         </div>
                         <div class="col-md-3">
                             <select id="positionFilter" class="form-select" onchange="filterTable()">
-                                <option value="" id="optAllPositions">모든 직급</option>
+                                <option value="" id="optAllPositions" data-i18n="individual.filters.allPositions">모든 직급</option>
                             </select>
                         </div>
                         <div class="col-md-2">
                             <select id="paymentFilter" class="form-select" onchange="filterTable()">
-                                <option value="" id="optPaymentAll">total</option>
-                                <option value="paid" id="optPaymentPaid">지급</option>
-                                <option value="unpaid" id="optPaymentUnpaid">미지급</option>
+                                <option value="" id="optPaymentAll" data-i18n="individual.filters.allStatus">전체</option>
+                                <option value="paid" id="optPaymentPaid" data-i18n="individual.filters.paidOnly">지급</option>
+                                <option value="unpaid" id="optPaymentUnpaid" data-i18n="individual.filters.unpaidOnly">미지급</option>
                             </select>
                         </div>
                     </div>
@@ -3789,15 +3789,15 @@
                     <table class="table" id="employeeTable">
                         <thead>
                             <tr>
-                                <th id="empIdHeader">사번</th>
-                                <th id="nameHeader">이름</th>
-                                <th id="positionHeader">직급</th>
-                                <th id="typeHeader">Type</th>
+                                <th id="empIdHeader" data-i18n="individual.table.columns.employeeId">사번</th>
+                                <th id="nameHeader" data-i18n="individual.table.columns.name">이름</th>
+                                <th id="positionHeader" data-i18n="individual.table.columns.position">직급</th>
+                                <th id="typeHeader" data-i18n="individual.table.columns.type">Type</th>
                                 <th id="prevMonthHeader">11월</th>
                                 <th id="currentMonthHeader">12월</th>
                                 <th id="talentPoolHeader">Talent Pool</th>
-                                <th id="statusHeader">상태</th>
-                                <th id="detailsHeader">상세</th>
+                                <th id="statusHeader" data-i18n="individual.columns.status">상태</th>
+                                <th id="detailsHeader" data-i18n="individual.columns.details">상세</th>
                             </tr>
                         </thead>
                         <tbody id="employeeTableBody">
@@ -3814,129 +3814,129 @@
 
             <!-- incentive 기준 탭 -->
             <div id="criteria" class="tab-content">
-                <h1 class="section-title" style="text-align: center; font-size: 28px; margin-bottom: 30px;" id="criteriaMainTitle">
-                    QIP incentive 정책 및 calculation 기준
+                <h1 class="section-title" style="text-align: center; font-size: 28px; margin-bottom: 30px;" id="criteriaMainTitle" data-i18n="criteria.title">
+                    인센티브 지급 기준
                 </h1>
                 
                 <!-- 정책 요약 섹션 -->
                 <div class="alert alert-info mb-4">
-                    <h5 class="alert-heading" id="corePrinciplesTitle">📌 핵심 principle</h5>
-                    <p class="mb-2" id="corePrinciplesDesc1">모든 직원은 corresponding 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 incentive를 받을 count 있습니다.</p>
-                    <p class="mb-0" id="corePrinciplesDesc2">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 apply 조건이 다릅니다.</p>
+                    <h5 class="alert-heading" id="corePrinciplesTitle" data-i18n="criteria.corePrinciples.title">📌 핵심 원칙</h5>
+                    <p class="mb-2" id="corePrinciplesDesc1" data-i18n="criteria.corePrinciples.description1">모든 직원은 해당 직급별로 지정된 <strong>모든 조건을 충족</strong>해야 인센티브를 받을 수 있습니다.</p>
+                    <p class="mb-0" id="corePrinciplesDesc2" data-i18n="criteria.corePrinciples.description2">조건은 출근(4개), AQL(4개), 5PRS(2개)로 구성되며, 직급별로 적용 조건이 다릅니다.</p>
                 </div>
                 
                 <!-- 10가지 조건 상세 설직원 -->
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0" id="evaluationConditionsTitle">📊 10가지 평가 조건 상세</h5>
+                        <h5 class="mb-0" id="evaluationConditionsTitle" data-i18n="criteria.evaluationConditions.title">📊 10가지 평가 조건 상세</h5>
                     </div>
                     <div class="card-body">
                         <!-- 출근 조건 -->
-                        <h6 class="text-success mb-3" id="attendanceConditionTitle">📅 출근 조건 (4개)</h6>
+                        <h6 class="text-success mb-3" id="attendanceConditionTitle" data-i18n="criteria.conditions.attendance.title">📅 출근 조건 (4개)</h6>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered mb-4" id="attendanceTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
-                                    <th width="25%" class="cond-th-name">조건직원</th>
-                                    <th width="20%" class="cond-th-criteria">기준</th>
-                                    <th width="50%" class="cond-th-desc">설직원</th>
+                                    <th width="25%" class="cond-th-name" data-i18n="criteria.evaluationConditions.tableHeaders.conditionName">조건명</th>
+                                    <th width="20%" class="cond-th-criteria" data-i18n="criteria.evaluationConditions.tableHeaders.criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc" data-i18n="criteria.evaluationConditions.tableHeaders.description">설명</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>1</td>
-                                    <td class="cond-name-1">출근율</td>
-                                    <td>≥88%</td>
-                                    <td class="cond-desc-1">월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)</td>
+                                    <td class="cond-name-1" data-i18n="criteria.conditions.attendance.items.attendanceRate.name">출근율</td>
+                                    <td data-i18n="criteria.conditions.attendance.items.attendanceRate.criteria">≥88%</td>
+                                    <td class="cond-desc-1" data-i18n="criteria.conditions.attendance.items.attendanceRate.description">월간 출근율이 88% 이상이어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
-                                    <td class="cond-name-2">무단결근</td>
-                                    <td>≤2일</td>
-                                    <td class="cond-desc-2">사전 승인 없는 결근이 month 2일 이하여야 합니다</td>
+                                    <td class="cond-name-2" data-i18n="criteria.conditions.attendance.items.unapprovedAbsence.name">무단결근</td>
+                                    <td data-i18n="criteria.conditions.attendance.items.unapprovedAbsence.criteria">≤2일</td>
+                                    <td class="cond-desc-2" data-i18n="criteria.conditions.attendance.items.unapprovedAbsence.description">사전 승인 없는 결근이 월 2일 이하여야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
-                                    <td class="cond-name-3">actual 근무일</td>
-                                    <td>>0일</td>
-                                    <td class="cond-desc-3">actual 출근한 날이 1일 이상이어야 합니다</td>
+                                    <td class="cond-name-3" data-i18n="criteria.conditions.attendance.items.actualWorkingDays.name">실제 근무일</td>
+                                    <td data-i18n="criteria.conditions.attendance.items.actualWorkingDays.criteria">>0일</td>
+                                    <td class="cond-desc-3" data-i18n="criteria.conditions.attendance.items.actualWorkingDays.description">실제 출근한 날이 1일 이상이어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>4</td>
-                                    <td class="cond-name-4">최소 근무일</td>
-                                    <td>≥12일</td>
-                                    <td class="cond-desc-4">월간 최소 12일 이상 work해야 합니다</td>
+                                    <td class="cond-name-4" data-i18n="criteria.conditions.attendance.items.minimumWorkingDays.name">최소 근무일</td>
+                                    <td data-i18n="criteria.conditions.attendance.items.minimumWorkingDays.criteria">≥12일</td>
+                                    <td class="cond-desc-4" data-i18n="criteria.conditions.attendance.items.minimumWorkingDays.description">월간 최소 12일 이상 근무해야 합니다</td>
                                 </tr>
                             </tbody>
                             </table>
                         </div>
 
                         <!-- AQL 조건 -->
-                        <h6 class="text-primary mb-3" id="aqlConditionTitle">🎯 AQL 조건 (4개)</h6>
+                        <h6 class="text-primary mb-3" id="aqlConditionTitle" data-i18n="criteria.conditions.aql.title">🎯 AQL 조건 (4개)</h6>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered mb-4" id="aqlTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
-                                    <th width="25%" class="cond-th-name">조건직원</th>
-                                    <th width="20%" class="cond-th-criteria">기준</th>
-                                    <th width="50%" class="cond-th-desc">설직원</th>
+                                    <th width="25%" class="cond-th-name" data-i18n="criteria.evaluationConditions.tableHeaders.conditionName">조건명</th>
+                                    <th width="20%" class="cond-th-criteria" data-i18n="criteria.evaluationConditions.tableHeaders.criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc" data-i18n="criteria.evaluationConditions.tableHeaders.description">설명</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>5</td>
-                                    <td class="cond-name-5">개인 AQL (당month)</td>
-                                    <td>failed 0cases</td>
-                                    <td class="cond-desc-5">당month 개인 AQL 검사 failed가 없어야 합니다</td>
+                                    <td class="cond-name-5" data-i18n="criteria.conditions.aql.items.personalFailure.name">개인 AQL (당월)</td>
+                                    <td data-i18n="criteria.conditions.aql.items.personalFailure.criteria">실패 0건</td>
+                                    <td class="cond-desc-5" data-i18n="criteria.conditions.aql.items.personalFailure.description">당월 개인 AQL 검사 실패가 없어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>6</td>
-                                    <td class="cond-name-6">개인 AQL (연속성)</td>
-                                    <td>3연속 개월 실패 없음</td>
-                                    <td class="cond-desc-6">최근 3개월간 연속으로 AQL failed가 없어야 합니다</td>
+                                    <td class="cond-name-6" data-i18n="criteria.conditions.aql.items.personalContinuous.name">개인 AQL (연속성)</td>
+                                    <td data-i18n="criteria.conditions.aql.items.personalContinuous.criteria">3개월 연속 실패 없음</td>
+                                    <td class="cond-desc-6" data-i18n="criteria.conditions.aql.items.personalContinuous.description">최근 3개월간 연속으로 AQL 실패가 없어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>7</td>
-                                    <td class="cond-name-7">팀/구역 AQL</td>
-                                    <td>3연속 개월 실패 없음</td>
-                                    <td class="cond-desc-7">관리하는 팀/구역에서 3연속 개월 실패자가 없어야 합니다</td>
+                                    <td class="cond-name-7" data-i18n="criteria.conditions.aql.items.teamArea.name">팀/구역 AQL</td>
+                                    <td data-i18n="criteria.conditions.aql.items.teamArea.criteria">3개월 연속 실패 없음</td>
+                                    <td class="cond-desc-7" data-i18n="criteria.conditions.aql.items.teamArea.description">관리하는 팀/구역에서 3개월 연속 실패자가 없어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>8</td>
-                                    <td class="cond-name-8">담당구역 AQL Reject율</td>
-                                    <td><3%</td>
-                                    <td class="cond-desc-8">담당 구역의 AQL 리젝률이 3% 미만이어야 합니다</td>
+                                    <td class="cond-name-8" data-i18n="criteria.conditions.aql.items.areaReject.name">담당구역 AQL Reject율</td>
+                                    <td data-i18n="criteria.conditions.aql.items.areaReject.criteria">&lt;3%</td>
+                                    <td class="cond-desc-8" data-i18n="criteria.conditions.aql.items.areaReject.description">담당 구역의 AQL 리젝률이 3% 미만이어야 합니다</td>
                                 </tr>
                             </tbody>
                             </table>
                         </div>
 
                         <!-- 5PRS 조건 -->
-                        <h6 class="text-warning mb-3" id="prsConditionTitle">📊 5PRS 조건 (2개)</h6>
+                        <h6 class="text-warning mb-3" id="prsConditionTitle" data-i18n="criteria.conditions.5prs.title">📊 5PRS 조건 (2개)</h6>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered" id="prsTable">
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%" class="cond-th-number">#</th>
-                                    <th width="25%" class="cond-th-name">조건직원</th>
-                                    <th width="20%" class="cond-th-criteria">기준</th>
-                                    <th width="50%" class="cond-th-desc">설직원</th>
+                                    <th width="25%" class="cond-th-name" data-i18n="criteria.evaluationConditions.tableHeaders.conditionName">조건명</th>
+                                    <th width="20%" class="cond-th-criteria" data-i18n="criteria.evaluationConditions.tableHeaders.criteria">기준</th>
+                                    <th width="50%" class="cond-th-desc" data-i18n="criteria.evaluationConditions.tableHeaders.description">설명</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>9</td>
-                                    <td class="cond-name-9">5PRS 통과율</td>
-                                    <td>≥95%</td>
-                                    <td class="cond-desc-9">5족 평가 시스템에서 95% 이상 통과해야 합니다</td>
+                                    <td class="cond-name-9" data-i18n="criteria.conditions.5prs.items.passRate.name">5PRS 통과율</td>
+                                    <td data-i18n="criteria.conditions.5prs.items.passRate.criteria">≥95%</td>
+                                    <td class="cond-desc-9" data-i18n="criteria.conditions.5prs.items.passRate.description">5족 평가 시스템에서 95% 이상 통과해야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>10</td>
-                                    <td class="cond-name-10">5PRS 검사량</td>
-                                    <td>≥100개</td>
-                                    <td class="cond-desc-10">월간 최소 100개 이상 검사를 count행해야 합니다</td>
+                                    <td class="cond-name-10" data-i18n="criteria.conditions.5prs.items.inspectionQty.name">5PRS 검사량</td>
+                                    <td data-i18n="criteria.conditions.5prs.items.inspectionQty.criteria">≥100개</td>
+                                    <td class="cond-desc-10" data-i18n="criteria.conditions.5prs.items.inspectionQty.description">월간 최소 100개 이상 검사를 수행해야 합니다</td>
                                 </tr>
                             </tbody>
                             </table>
@@ -3947,114 +3947,114 @@
                 <!-- 직급별 apply 조건 매트릭스 -->
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
-                        <h5 class="mb-0" id="positionMatrixTitle">🎖️ 직급별 apply 조건</h5>
+                        <h5 class="mb-0" id="positionMatrixTitle" data-i18n="positionMatrix.title">🎖️ 직급별 적용 조건</h5>
                     </div>
                     <div class="card-body">
                         
-                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type1Header">TYPE-1 직급별 조건</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type1Header" data-i18n="positionMatrix.typeHeaders.type1">TYPE-1 직급별 조건</h6>
                         <table class="table table-sm table-hover position-matrix-table" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
-                                    <th class="pos-header-position">직급</th>
-                                    <th class="pos-header-conditions">apply 조건</th>
-                                    <th class="pos-header-count">조건 count</th>
-                                    <th class="pos-header-notes">비고</th>
+                                    <th class="pos-header-position" data-i18n="positionMatrix.tableHeaders.position">직급</th>
+                                    <th class="pos-header-conditions" data-i18n="positionMatrix.tableHeaders.appliedConditions">적용 조건</th>
+                                    <th class="pos-header-count" data-i18n="positionMatrix.tableHeaders.conditionCount">조건 수</th>
+                                    <th class="pos-header-notes" data-i18n="positionMatrix.tableHeaders.notes">특이사항</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><strong>MANAGER</strong></td>
                                     <td>1, 2, 3, 4</td>
-                                    <td class="condition-count">4개</td>
-                                    <td>출근 조건만 적용</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.fourConditions">4개</td>
+                                    <td data-i18n="positionMatrix.notes.attendanceOnly">출근 조건만</td>
                                 </tr>
                                 <tr>
                                     <td><strong>A.MANAGER</strong></td>
                                     <td>1, 2, 3, 4</td>
-                                    <td class="condition-count">4개</td>
-                                    <td>출근 조건만 적용</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.fourConditions">4개</td>
+                                    <td data-i18n="positionMatrix.notes.attendanceOnly">출근 조건만</td>
                                 </tr>
                                 <tr>
                                     <td><strong>(V) SUPERVISOR</strong></td>
                                     <td>1, 2, 3, 4</td>
-                                    <td class="condition-count">4개</td>
-                                    <td>출근 조건만 적용</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.fourConditions">4개</td>
+                                    <td data-i18n="positionMatrix.notes.attendanceOnly">출근 조건만</td>
                                 </tr>
                                 <tr>
                                     <td><strong>GROUP LEADER</strong></td>
                                     <td>1, 2, 3, 4</td>
-                                    <td class="condition-count">4개</td>
-                                    <td>출근 조건만 적용</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.fourConditions">4개</td>
+                                    <td data-i18n="positionMatrix.notes.attendanceOnly">출근 조건만</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>LINE LEADER</strong></td>
                                     <td>1, 2, 3, 4, 7</td>
-                                    <td class="condition-count">5개</td>
-                                    <td>출근 + 팀/구역 AQL</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.fiveConditions">5개</td>
+                                    <td data-i18n="positionMatrix.notes.attendanceTeamAql">출근 + 팀/구역 AQL</td>
                                 </tr>
                                 <tr>
                                     <td><strong>AQL INSPECTOR</strong></td>
                                     <td>1, 2, 3, 4, 5</td>
-                                    <td class="condition-count">5개</td>
-                                    <td>출근 + 당month AQL (특별 calculation)</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.fiveConditions">5개</td>
+                                    <td data-i18n="positionMatrix.notes.attendanceMonthAql">출근 + 당월 AQL (특별 계산)</td>
                                 </tr>
                                 <tr>
                                     <td><strong>ASSEMBLY INSPECTOR</strong></td>
                                     <td>1, 2, 3, 4, 5, 6, 9, 10</td>
-                                    <td class="condition-count">8개</td>
-                                    <td>출근 + 개인 AQL + 5PRS</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.eightConditions">8개</td>
+                                    <td data-i18n="positionMatrix.notes.attendancePersonalAql5prs">출근 + 개인 AQL + 5PRS</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>AUDIT & TRAINING TEAM</strong></td>
                                     <td>1, 2, 3, 4, 7, 8</td>
-                                    <td class="condition-count">6개</td>
-                                    <td>출근 + 팀/구역 AQL + 담당구역 reject</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.sixConditions">6개</td>
+                                    <td data-i18n="positionMatrix.notes.attendanceTeamAreaReject">출근 + 팀/구역 AQL + 담당구역 reject</td>
                                 </tr>
                                 <tr>
                                     <td><strong>MODEL MASTER</strong></td>
                                     <td>1, 2, 3, 4, 8</td>
-                                    <td class="condition-count">5개</td>
-                                    <td>출근 + 담당구역 reject</td>
+                                    <td class="condition-count" data-i18n="positionMatrix.type1Table.fiveConditions">5개</td>
+                                    <td data-i18n="positionMatrix.notes.attendanceAreaReject">출근 + 담당구역 reject</td>
                                 </tr>
                             </tbody>
                         </table>
                         
-                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3 mt-4" id="type2Header">TYPE-2 직급별 조건</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3 mt-4" id="type2Header" data-i18n="positionMatrix.typeHeaders.type2">TYPE-2 직급별 조건</h6>
                         <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
-                                    <th class="type2-header-position">직급</th>
-                                    <th class="type2-header-conditions">apply 조건</th>
-                                    <th class="type2-header-count">조건 count</th>
-                                    <th class="type2-header-notes">특이사항</th>
+                                    <th class="type2-header-position" data-i18n="positionMatrix.tableHeaders.position">직급</th>
+                                    <th class="type2-header-conditions" data-i18n="positionMatrix.tableHeaders.appliedConditions">적용 조건</th>
+                                    <th class="type2-header-count" data-i18n="positionMatrix.tableHeaders.conditionCount">조건 수</th>
+                                    <th class="type2-header-notes" data-i18n="positionMatrix.tableHeaders.notes">특이사항</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><strong id="type2AllPositions">모든 TYPE-2 직급</strong></td>
+                                    <td><strong id="type2AllPositions" data-i18n="positionMatrix.type2Table.allType2">모든 TYPE-2 직급</strong></td>
                                     <td>1, 2, 3, 4</td>
-                                    <td id="type2FourConditions">4개</td>
-                                    <td id="type2AttendanceOnly">출근 조건만 적용</td>
+                                    <td id="type2FourConditions" data-i18n="positionMatrix.type2Table.fourConditions">4개</td>
+                                    <td id="type2AttendanceOnly" data-i18n="positionMatrix.type2Table.attendanceOnly">출근 조건만 적용</td>
                                 </tr>
                             </tbody>
                         </table>
                         
-                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3 mt-4" id="type3Header">TYPE-3 직급별 조건</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3 mt-4" id="type3Header" data-i18n="positionMatrix.typeHeaders.type3">TYPE-3 직급별 조건</h6>
                         <table class="table table-sm table-hover" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
-                                    <th class="type3-header-position">직급</th>
-                                    <th class="type3-header-conditions">apply 조건</th>
-                                    <th class="type3-header-count">조건 count</th>
-                                    <th class="type3-header-notes">특이사항</th>
+                                    <th class="type3-header-position" data-i18n="positionMatrix.tableHeaders.position">직급</th>
+                                    <th class="type3-header-conditions" data-i18n="positionMatrix.tableHeaders.appliedConditions">적용 조건</th>
+                                    <th class="type3-header-count" data-i18n="positionMatrix.tableHeaders.conditionCount">조건 수</th>
+                                    <th class="type3-header-notes" data-i18n="positionMatrix.tableHeaders.notes">특이사항</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr style="background-color: #fafafa;">
-                                    <td><strong id="type3NewMember">NEW QIP MEMBER</strong></td>
-                                    <td id="type3NoConditions">없음</td>
-                                    <td id="type3ZeroConditions">0개</td>
-                                    <td id="type3NewMemberNote">신입직원 - incentive 없음</td>
+                                    <td><strong id="type3NewMember" data-i18n="positionMatrix.type3Table.newMember">NEW QIP MEMBER</strong></td>
+                                    <td id="type3NoConditions" data-i18n="positionMatrix.type3Table.noConditions">없음</td>
+                                    <td id="type3ZeroConditions" data-i18n="positionMatrix.type3Table.zeroConditions">0개</td>
+                                    <td id="type3NewMemberNote" data-i18n="positionMatrix.type3Table.newMemberNote">신입직원 - 인센티브 없음</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -4064,17 +4064,17 @@
                 <!-- incentive 금액 정보 -->
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
-                        <h5 class="mb-0">💰 incentive 지급액 calculation 방법</h5>
+                        <h5 class="mb-0" data-i18n="incentiveCalculation.mainTitle">💰 인센티브 지급액 계산 방법</h5>
                     </div>
                     <div class="card-body">
                         <!-- TYPE-1 incentive 테이블 -->
-                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type1CalculationTitle">TYPE-1 직급별 incentive calculation 방법 및 actual 예시</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type1CalculationTitle" data-i18n="incentiveCalculation.type1Title">TYPE-1 직급별 인센티브 계산 방법 및 실제 예시</h6>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
-                                    <th width="20%" class="calc-header-position">직급</th>
-                                    <th width="40%" class="calc-header-method">calculation 방법</th>
-                                    <th width="40%" class="calc-header-example">actual calculation 예시 (2025year 12month)</th>
+                                    <th width="20%" class="calc-header-position" data-i18n="incentiveCalculation.tableHeaders.position">직급</th>
+                                    <th width="40%" class="calc-header-method" data-i18n="incentiveCalculation.tableHeaders.calculationMethod">계산 방법</th>
+                                    <th width="40%" class="calc-header-example" data-i18n="incentiveCalculation.tableHeaders.actualExample">실제 계산 예시</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4340,7 +4340,7 @@
                         </div>
 
                         <!-- TYPE-2 incentive calculation 방법 -->
-                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type2CalculationTitle">TYPE-2 total 직급 incentive calculation 방법</h6>
+                        <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type2CalculationTitle" data-i18n="incentiveCalculation.type2CalculationTitle">TYPE-2 전체 직급 인센티브 계산 방법</h6>
                         <div class="alert" style="background-color: #f0f4ff; border-left: 4px solid #ef4444; color: #333;" class="mb-3">
                             <strong>📊 <span id="type2PrincipleLabel">TYPE-2 calculation principle:</span></strong> <span id="type2PrincipleText">TYPE-2 직급은 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
                         </div>
@@ -5345,14 +5345,14 @@
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <select id="orgIncentiveFilter" class="form-select" onchange="updateOrgChart()">
-                                    <option value="" id="filterAll">total 보기</option>
-                                    <option value="paid" id="filterPaid">incentive 수령자</option>
-                                    <option value="unpaid" id="filterUnpaid">incentive 미수령자</option>
+                                    <option value="" id="filterAll" data-i18n="orgChart.filters.viewAll">전체 보기</option>
+                                    <option value="paid" id="filterPaid" data-i18n="orgChart.filters.paidOnly">인센티브 수령자</option>
+                                    <option value="unpaid" id="filterUnpaid" data-i18n="orgChart.filters.unpaidOnly">인센티브 미수령자</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <select id="orgBuildingFilter" class="form-select" onchange="filterOrgChartByBuilding()">
-                                    <option value="all" id="buildingFilterAll">전체 Building</option>
+                                    <option value="all" id="buildingFilterAll" data-i18n="orgChart.filters.allBuildings">전체 Building</option>
                                     <option value="A">Building A</option>
                                     <option value="B">Building B</option>
                                     <option value="B3">Building B3</option>
@@ -5363,7 +5363,7 @@
                             <!-- 2025-12-22: 중복 버튼 제거 - 검색 영역에 펼치기/접기 버튼 있음 -->
                             <div class="col-md-2">
                                 <button class="btn btn-outline-secondary w-100" onclick="resetOrgChart()">
-                                    <i class="fas fa-redo"></i> <span id="resetViewBtn">초기화</span>
+                                    <i class="fas fa-redo"></i> <span id="resetViewBtn" data-i18n="orgChart.buttons.reset">초기화</span>
                                 </button>
                             </div>
                         </div>
@@ -6294,6 +6294,33 @@
           "en": "Total Amount",
           "vi": "Tổng tiền"
         }
+      }
+    },
+    "table": {
+      "type": {
+        "ko": "Type",
+        "en": "Type",
+        "vi": "Loại"
+      },
+      "totalEmployees": {
+        "ko": "전체 인원",
+        "en": "Total Employees",
+        "vi": "Tổng số"
+      },
+      "eligibleEmployees": {
+        "ko": "수령 인원",
+        "en": "Paid Employees",
+        "vi": "Nhân viên đã nhận"
+      },
+      "paymentRate": {
+        "ko": "지급률",
+        "en": "Payment Rate",
+        "vi": "Tỷ lệ"
+      },
+      "totalAmount": {
+        "ko": "총 지급액",
+        "en": "Total Amount",
+        "vi": "Tổng tiền"
       }
     }
   },
@@ -7931,6 +7958,28 @@
           "vi": "Ghi chú"
         }
       },
+      "type1Table": {
+        "fourConditions": {
+          "ko": "4개",
+          "en": "4",
+          "vi": "4"
+        },
+        "fiveConditions": {
+          "ko": "5개",
+          "en": "5",
+          "vi": "5"
+        },
+        "sixConditions": {
+          "ko": "6개",
+          "en": "6",
+          "vi": "6"
+        },
+        "eightConditions": {
+          "ko": "8개",
+          "en": "8",
+          "vi": "8"
+        }
+      },
       "type2Table": {
         "allType2": {
           "ko": "모든 TYPE-2 직급",
@@ -8826,6 +8875,11 @@
     }
   },
   "incentiveCalculation": {
+    "mainTitle": {
+      "ko": "💰 인센티브 지급액 계산 방법",
+      "en": "💰 Incentive Amount Calculation Method",
+      "vi": "💰 Phương pháp tính tiền thưởng"
+    },
     "type1Title": {
       "ko": "TYPE-1 직급별 인센티브 계산 방법 및 실제 예시",
       "en": "TYPE-1 Position Incentive Calculation Method and Examples",
@@ -11002,6 +11056,16 @@
       "ko": "6개월 총 혜택 예정",
       "en": "Total Benefit Expected (6 months)",
       "vi": "Tổng lợi ích dự kiến (6 tháng)"
+    },
+    "totalBonusLabel": {
+      "ko": "총 보너스 지급액",
+      "en": "Total Bonus Amount",
+      "vi": "Tổng số tiền thưởng"
+    },
+    "paymentPeriodLabel": {
+      "ko": "지급 기간",
+      "en": "Payment Period",
+      "vi": "Thời gian chi trả"
     },
     "selectionCriteria": {
       "ko": "선정 기준",
