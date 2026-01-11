@@ -9252,154 +9252,154 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </tbody>
                         </table>
 
-                        <!-- TYPE-1 관리자 직급 인센티브 계산 방법 (2025-12-04 추가) -->
-                        <h6 style="color: #2563eb; font-weight: 600;" class="mb-3 mt-4" id="type1ManagerCalculationTitle">TYPE-1 관리자 직급 incentive calculation 방법</h6>
+                        <!-- TYPE-1 관리자 직급 인센티브 계산 방법 (2025-12-04 추가, 2026-01-11 번역 시스템 적용) -->
+                        <h6 style="color: #2563eb; font-weight: 600;" class="mb-3 mt-4" id="type1ManagerCalculationTitle" data-i18n="type1ManagerCalculation.title">TYPE-1 관리자 직급 인센티브 계산 방법</h6>
                         <div class="alert" style="background-color: #dbeafe; border-left: 4px solid #2563eb; color: #1e40af;" class="mb-3">
-                            <strong>👔 <span id="type1ManagerPrincipleLabel">TYPE-1 관리자 calculation principle:</span></strong>
-                            <span id="type1ManagerPrincipleText">TYPE-1 관리자 직급은 자신에게 속한 <strong>부하 LINE LEADER들의 수령자 평균 incentive</strong>에 직급별 배수를 곱하여 calculation됩니다.</span>
+                            <strong>👔 <span id="type1ManagerPrincipleLabel" data-i18n="type1ManagerCalculation.principleLabel">TYPE-1 관리자 계산 원리:</span></strong>
+                            <span id="type1ManagerPrincipleText" data-i18n="type1ManagerCalculation.principleText">TYPE-1 관리자 직급은 자신에게 속한 <strong>부하 LINE LEADER들의 수령자 평균 인센티브</strong>에 직급별 배수를 곱하여 계산됩니다.</span>
                         </div>
                         <div class="alert" style="background-color: #e8f5e9; border-left: 4px solid #4caf50; color: #1b5e20;" class="mb-3">
-                            <strong>✅ <span id="type1ManagerReceivingLabel">평균 계산 기준:</span></strong>
-                            <span id="type1ManagerReceivingText">부하 LINE LEADER 평균 계산 시 <strong style="color: #d32f2f;">수령자만 대상</strong>으로 합니다. (0 VND 제외)</span>
-                            <br><small id="type1ManagerReceivingNote" style="color: #555;">예: 부하 LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산</small>
+                            <strong>✅ <span id="type1ManagerReceivingLabel" data-i18n="type1ManagerCalculation.averageBasisLabel">평균 계산 기준:</span></strong>
+                            <span id="type1ManagerReceivingText" data-i18n="type1ManagerCalculation.receivingOnlyPrinciple">인센티브를 받는 LINE LEADER만 포함 (0 VND 제외)</span>
+                            <br><small id="type1ManagerReceivingNote" data-i18n="type1ManagerCalculation.exampleNote" style="color: #555;">예: 부하 LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산</small>
                         </div>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #2563eb;">
                                 <tr>
-                                    <th width="25%" class="type1-manager-position-header">TYPE-1 관리자 직급</th>
-                                    <th width="35%" class="type1-manager-method-header">calculation 방법</th>
-                                    <th width="15%" class="type1-manager-multiplier-header">배수</th>
-                                    <th width="25%" class="type1-manager-condition-header">적용 조건</th>
+                                    <th width="25%" class="type1-manager-position-header" data-i18n="type1ManagerCalculation.managerPositionHeader">TYPE-1 관리자 직급</th>
+                                    <th width="35%" class="type1-manager-method-header" data-i18n="type1ManagerCalculation.calculationMethodHeader">계산 방법</th>
+                                    <th width="15%" class="type1-manager-multiplier-header" data-i18n="type1ManagerCalculation.multiplierHeader">배수</th>
+                                    <th width="25%" class="type1-manager-condition-header" data-i18n="type1ManagerCalculation.conditionHeader">적용 조건</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><strong>1. S.MANAGER</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 4.0</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>2. MANAGER</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 3.5</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>3. A.MANAGER</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 3.0</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr style="background-color: #fef3c7;">
                                     <td><strong>4. (V) SUPERVISOR</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 2.5</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr style="background-color: #fef3c7;">
                                     <td><strong>5. SUPERVISOR</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 2.5</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr style="background-color: #ecfdf5;">
                                     <td><strong>6. GROUP LEADER</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 2.0</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="alert alert-info mb-4">
-                            <h6 style="color: #0c4a6e;" id="type1ManagerNoteTitle">📌 TYPE-1 관리자 계산 특이사항</h6>
+                            <h6 style="color: #0c4a6e;" id="type1ManagerNoteTitle" data-i18n="type1ManagerCalculation.notesTitle">📌 TYPE-1 관리자 계산 특이사항</h6>
                             <ul class="mb-0">
-                                <li id="type1ManagerNote1"><strong>부하직원 범위:</strong> 조직도 상 직접 + 간접 부하 LINE LEADER 모두 포함 (BFS 탐색)</li>
-                                <li id="type1ManagerNote2"><strong>수령자만 평균:</strong> 인센티브 0 VND인 LINE LEADER는 평균 계산에서 제외</li>
-                                <li id="type1ManagerNote3"><strong>Fallback:</strong> 부하 LINE LEADER가 없는 경우, 전체 TYPE-1 LINE LEADER 수령자 평균 사용</li>
-                                <li id="type1ManagerNote4"><strong>조건 미충족:</strong> 출근 조건 (1-4번) 중 하나라도 미충족 시 0 VND</li>
+                                <li id="type1ManagerNote1" data-i18n-html="type1ManagerCalculation.subordinateScopeNote"><strong>부하직원 범위:</strong> 조직도 상 직접 + 간접 부하 LINE LEADER 모두 포함 (BFS 탐색)</li>
+                                <li id="type1ManagerNote2" data-i18n-html="type1ManagerCalculation.receivingOnlyNote"><strong>수령자만 평균:</strong> 인센티브 0 VND인 LINE LEADER는 평균 계산에서 제외</li>
+                                <li id="type1ManagerNote3" data-i18n-html="type1ManagerCalculation.fallbackNote"><strong>Fallback:</strong> 부하 LINE LEADER가 없는 경우, 전체 TYPE-1 LINE LEADER 수령자 평균 사용</li>
+                                <li id="type1ManagerNote4" data-i18n-html="type1ManagerCalculation.conditionFailNote"><strong>조건 미충족:</strong> 출근 조건 (1-4번) 중 하나라도 미충족 시 0 VND</li>
                             </ul>
                         </div>
 
-                        <!-- TYPE-2 incentive calculation 방법 -->
+                        <!-- TYPE-2 incentive calculation 방법 (2026-01-11 번역 시스템 적용) -->
                         <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type2CalculationTitle" data-i18n="incentiveCalculation.type2CalculationTitle">TYPE-2 전체 직급 인센티브 계산 방법</h6>
                         <div class="alert" style="background-color: #f0f4ff; border-left: 4px solid #ef4444; color: #333;" class="mb-3">
-                            <strong>📊 <span id="type2PrincipleLabel">TYPE-2 calculation principle:</span></strong> <span id="type2PrincipleText">TYPE-2 직급은 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
+                            <strong>📊 <span id="type2PrincipleLabel" data-i18n="type2Calculation.principleLabel">TYPE-2 계산 원리:</span></strong> <span id="type2PrincipleText" data-i18n="type2Calculation.principleText">TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.</span>
                         </div>
-                        <!-- 수령자만 평균 원칙 설명 (2025-12-04 추가) -->
+                        <!-- 수령자만 평균 원칙 설명 (2025-12-04 추가, 2026-01-11 번역 시스템 적용) -->
                         <div class="alert" style="background-color: #e8f5e9; border-left: 4px solid #4caf50; color: #1b5e20;" class="mb-3">
-                            <strong>✅ <span id="receivingOnlyLabel">평균 계산 기준:</span></strong>
-                            <span id="receivingOnlyText">모든 평균 계산은 <strong style="color: #d32f2f;">수령자만 대상</strong>으로 합니다. (0 VND 제외)</span>
-                            <br><small id="receivingOnlyNote" style="color: #555;">예: LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산 (10명 전체 평균 아님)</small>
+                            <strong>✅ <span id="receivingOnlyLabel" data-i18n="type2Calculation.averageBasisLabel">평균 계산 기준:</span></strong>
+                            <span id="receivingOnlyText" data-i18n-html="type2Calculation.receivingOnlyPrinciple">모든 평균 계산은 <strong style="color: #d32f2f;">수령자만 대상</strong>으로 합니다. (0 VND 제외)</span>
+                            <br><small id="receivingOnlyNote" data-i18n="type2Calculation.exampleNote" style="color: #555;">예: LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산 (10명 전체 평균 아님)</small>
                         </div>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
-                                    <th width="25%" class="type2-calc-header-position">TYPE-2 직급</th>
-                                    <th width="25%" class="type2-calc-header-reference">참조 TYPE-1 직급</th>
-                                    <th width="25%" class="type2-calc-header-method">calculation 방법</th>
-                                    <th width="25%" class="type2-calc-header-average">{year}year {month_kor} 평균</th>
+                                    <th width="25%" class="type2-calc-header-position" data-i18n="type2Calculation.positionHeader">TYPE-2 직급</th>
+                                    <th width="25%" class="type2-calc-header-reference" data-i18n="type2Calculation.referenceHeader">참조 TYPE-1 직급</th>
+                                    <th width="25%" class="type2-calc-header-method" data-i18n="type2Calculation.methodHeader">계산 방법</th>
+                                    <th width="25%" class="type2-calc-header-average" data-i18n="type2Calculation.averageHeader">{year}년 {month_kor} 평균</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><strong>1. (V) SUPERVISOR</strong></td>
                                     <td>TYPE-1 (V) SUPERVISOR</td>
-                                    <td>(V) SUPERVISOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>(V) SUPERVISOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>969,758 VND</td>
                                 </tr>
                                 <tr>
                                     <td><strong>2. A.MANAGER</strong></td>
                                     <td>TYPE-1 A.MANAGER</td>
-                                    <td>A.MANAGER <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>A.MANAGER <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>990,000 VND</td>
                                 </tr>
                                 <tr style="background-color: #fff9e6;">
                                     <td><strong>3. GROUP LEADER</strong></td>
                                     <td>TYPE-1 LINE LEADER</td>
-                                    <td>TYPE-1 LINE LEADER <span class="average-text" style="color: #d32f2f;">수령자 평균</span> × 2</td>
+                                    <td>TYPE-1 LINE LEADER <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span> × 2</td>
                                     <td>679,866 VND</td>
                                 </tr>
                                 <tr style="background-color: #e8f5ff;">
                                     <td><strong>4. LINE LEADER</strong></td>
                                     <td>TYPE-1 LINE LEADER</td>
-                                    <td>TYPE-1 LINE LEADER <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>TYPE-1 LINE LEADER <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>339,933 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>5. AQL INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>6. ASSEMBLY INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>7. STITCHING INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>8. BOTTOM INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>9. CUTTING INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>10. MTL INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
@@ -11298,6 +11298,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const employeeData = JSON.parse(jsonStr);
             window.employeeData = employeeData;
 
+            // CRITICAL FIX (Issue #40): 칼럼명을 Phase 1 정규화 전에 먼저 설정
+            // 이전에는 updateAllTexts()에서 설정되어 정규화 시점에 undefined였음
+            const currentMonthName = '{month}';
+            window.currentIncentiveColumn = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1) + '_Incentive';
+            window.aqlFailuresColumn = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1) + ' AQL Failures';
+            console.log('[CRITICAL FIX] Column names initialized BEFORE Phase 1:', {{
+                currentIncentiveColumn: window.currentIncentiveColumn,
+                aqlFailuresColumn: window.aqlFailuresColumn
+            }});
+
             // Phase 1: 데이터 정규화 레이어 (Issue #39 근본 해결 - Ralph Loop)
             // 월별 칼럼명을 표준 칼럼명으로 매핑하여 모든 모달에서 안전하게 접근 가능
             console.log('[Phase 1] 데이터 정규화 시작:', {{
@@ -13052,6 +13062,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     const translation = getTranslation(key, currentLanguage);
                     if (translation && translation !== key) {{
                         element.placeholder = translation;
+                    }}
+                }}
+            }});
+
+            // data-i18n-html 속성 (HTML 콘텐츠) 업데이트 - 2026-01-11 추가
+            document.querySelectorAll('[data-i18n-html]').forEach(element => {{
+                const key = element.getAttribute('data-i18n-html');
+                if (key) {{
+                    const translation = getTranslation(key, currentLanguage);
+                    if (translation && translation !== key) {{
+                        element.innerHTML = translation;
                     }}
                 }}
             }});

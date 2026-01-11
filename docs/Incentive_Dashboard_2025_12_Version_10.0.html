@@ -3566,7 +3566,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="11" data-hour="09" data-minute="36">보고서 생성일: 2026년 01월 11일 09:36</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="11" data-hour="10" data-minute="08">보고서 생성일: 2026년 01월 11일 10:08</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -4270,154 +4270,154 @@
                             </tbody>
                         </table>
 
-                        <!-- TYPE-1 관리자 직급 인센티브 계산 방법 (2025-12-04 추가) -->
-                        <h6 style="color: #2563eb; font-weight: 600;" class="mb-3 mt-4" id="type1ManagerCalculationTitle">TYPE-1 관리자 직급 incentive calculation 방법</h6>
+                        <!-- TYPE-1 관리자 직급 인센티브 계산 방법 (2025-12-04 추가, 2026-01-11 번역 시스템 적용) -->
+                        <h6 style="color: #2563eb; font-weight: 600;" class="mb-3 mt-4" id="type1ManagerCalculationTitle" data-i18n="type1ManagerCalculation.title">TYPE-1 관리자 직급 인센티브 계산 방법</h6>
                         <div class="alert" style="background-color: #dbeafe; border-left: 4px solid #2563eb; color: #1e40af;" class="mb-3">
-                            <strong>👔 <span id="type1ManagerPrincipleLabel">TYPE-1 관리자 calculation principle:</span></strong>
-                            <span id="type1ManagerPrincipleText">TYPE-1 관리자 직급은 자신에게 속한 <strong>부하 LINE LEADER들의 수령자 평균 incentive</strong>에 직급별 배수를 곱하여 calculation됩니다.</span>
+                            <strong>👔 <span id="type1ManagerPrincipleLabel" data-i18n="type1ManagerCalculation.principleLabel">TYPE-1 관리자 계산 원리:</span></strong>
+                            <span id="type1ManagerPrincipleText" data-i18n="type1ManagerCalculation.principleText">TYPE-1 관리자 직급은 자신에게 속한 <strong>부하 LINE LEADER들의 수령자 평균 인센티브</strong>에 직급별 배수를 곱하여 계산됩니다.</span>
                         </div>
                         <div class="alert" style="background-color: #e8f5e9; border-left: 4px solid #4caf50; color: #1b5e20;" class="mb-3">
-                            <strong>✅ <span id="type1ManagerReceivingLabel">평균 계산 기준:</span></strong>
-                            <span id="type1ManagerReceivingText">부하 LINE LEADER 평균 계산 시 <strong style="color: #d32f2f;">수령자만 대상</strong>으로 합니다. (0 VND 제외)</span>
-                            <br><small id="type1ManagerReceivingNote" style="color: #555;">예: 부하 LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산</small>
+                            <strong>✅ <span id="type1ManagerReceivingLabel" data-i18n="type1ManagerCalculation.averageBasisLabel">평균 계산 기준:</span></strong>
+                            <span id="type1ManagerReceivingText" data-i18n="type1ManagerCalculation.receivingOnlyPrinciple">인센티브를 받는 LINE LEADER만 포함 (0 VND 제외)</span>
+                            <br><small id="type1ManagerReceivingNote" data-i18n="type1ManagerCalculation.exampleNote" style="color: #555;">예: 부하 LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산</small>
                         </div>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #2563eb;">
                                 <tr>
-                                    <th width="25%" class="type1-manager-position-header">TYPE-1 관리자 직급</th>
-                                    <th width="35%" class="type1-manager-method-header">calculation 방법</th>
-                                    <th width="15%" class="type1-manager-multiplier-header">배수</th>
-                                    <th width="25%" class="type1-manager-condition-header">적용 조건</th>
+                                    <th width="25%" class="type1-manager-position-header" data-i18n="type1ManagerCalculation.managerPositionHeader">TYPE-1 관리자 직급</th>
+                                    <th width="35%" class="type1-manager-method-header" data-i18n="type1ManagerCalculation.calculationMethodHeader">계산 방법</th>
+                                    <th width="15%" class="type1-manager-multiplier-header" data-i18n="type1ManagerCalculation.multiplierHeader">배수</th>
+                                    <th width="25%" class="type1-manager-condition-header" data-i18n="type1ManagerCalculation.conditionHeader">적용 조건</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><strong>1. S.MANAGER</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 4.0</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>2. MANAGER</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 3.5</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr>
                                     <td><strong>3. A.MANAGER</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 3.0</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr style="background-color: #fef3c7;">
                                     <td><strong>4. (V) SUPERVISOR</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 2.5</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr style="background-color: #fef3c7;">
                                     <td><strong>5. SUPERVISOR</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 2.5</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                                 <tr style="background-color: #ecfdf5;">
                                     <td><strong>6. GROUP LEADER</strong></td>
-                                    <td>부하 LINE LEADER <span style="color: #d32f2f; font-weight: bold;">수령자</span> 평균</td>
+                                    <td><span data-i18n="type1ManagerCalculation.subordinateLLReceiving">부하 LINE LEADER 수령자 평균</span></td>
                                     <td style="text-align: center; font-weight: bold;">× 2.0</td>
-                                    <td>출근 조건 (1-4번) 100% 충족</td>
+                                    <td><span data-i18n="type1ManagerCalculation.attendanceCondition">출근 조건 (1-4번) 100% 충족</span></td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="alert alert-info mb-4">
-                            <h6 style="color: #0c4a6e;" id="type1ManagerNoteTitle">📌 TYPE-1 관리자 계산 특이사항</h6>
+                            <h6 style="color: #0c4a6e;" id="type1ManagerNoteTitle" data-i18n="type1ManagerCalculation.notesTitle">📌 TYPE-1 관리자 계산 특이사항</h6>
                             <ul class="mb-0">
-                                <li id="type1ManagerNote1"><strong>부하직원 범위:</strong> 조직도 상 직접 + 간접 부하 LINE LEADER 모두 포함 (BFS 탐색)</li>
-                                <li id="type1ManagerNote2"><strong>수령자만 평균:</strong> 인센티브 0 VND인 LINE LEADER는 평균 계산에서 제외</li>
-                                <li id="type1ManagerNote3"><strong>Fallback:</strong> 부하 LINE LEADER가 없는 경우, 전체 TYPE-1 LINE LEADER 수령자 평균 사용</li>
-                                <li id="type1ManagerNote4"><strong>조건 미충족:</strong> 출근 조건 (1-4번) 중 하나라도 미충족 시 0 VND</li>
+                                <li id="type1ManagerNote1" data-i18n-html="type1ManagerCalculation.subordinateScopeNote"><strong>부하직원 범위:</strong> 조직도 상 직접 + 간접 부하 LINE LEADER 모두 포함 (BFS 탐색)</li>
+                                <li id="type1ManagerNote2" data-i18n-html="type1ManagerCalculation.receivingOnlyNote"><strong>수령자만 평균:</strong> 인센티브 0 VND인 LINE LEADER는 평균 계산에서 제외</li>
+                                <li id="type1ManagerNote3" data-i18n-html="type1ManagerCalculation.fallbackNote"><strong>Fallback:</strong> 부하 LINE LEADER가 없는 경우, 전체 TYPE-1 LINE LEADER 수령자 평균 사용</li>
+                                <li id="type1ManagerNote4" data-i18n-html="type1ManagerCalculation.conditionFailNote"><strong>조건 미충족:</strong> 출근 조건 (1-4번) 중 하나라도 미충족 시 0 VND</li>
                             </ul>
                         </div>
 
-                        <!-- TYPE-2 incentive calculation 방법 -->
+                        <!-- TYPE-2 incentive calculation 방법 (2026-01-11 번역 시스템 적용) -->
                         <h6 style="color: #ef4444; font-weight: 600;" class="mb-3" id="type2CalculationTitle" data-i18n="incentiveCalculation.type2CalculationTitle">TYPE-2 전체 직급 인센티브 계산 방법</h6>
                         <div class="alert" style="background-color: #f0f4ff; border-left: 4px solid #ef4444; color: #333;" class="mb-3">
-                            <strong>📊 <span id="type2PrincipleLabel">TYPE-2 calculation principle:</span></strong> <span id="type2PrincipleText">TYPE-2 직급은 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.</span>
+                            <strong>📊 <span id="type2PrincipleLabel" data-i18n="type2Calculation.principleLabel">TYPE-2 계산 원리:</span></strong> <span id="type2PrincipleText" data-i18n="type2Calculation.principleText">TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.</span>
                         </div>
-                        <!-- 수령자만 평균 원칙 설명 (2025-12-04 추가) -->
+                        <!-- 수령자만 평균 원칙 설명 (2025-12-04 추가, 2026-01-11 번역 시스템 적용) -->
                         <div class="alert" style="background-color: #e8f5e9; border-left: 4px solid #4caf50; color: #1b5e20;" class="mb-3">
-                            <strong>✅ <span id="receivingOnlyLabel">평균 계산 기준:</span></strong>
-                            <span id="receivingOnlyText">모든 평균 계산은 <strong style="color: #d32f2f;">수령자만 대상</strong>으로 합니다. (0 VND 제외)</span>
-                            <br><small id="receivingOnlyNote" style="color: #555;">예: LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산 (10명 전체 평균 아님)</small>
+                            <strong>✅ <span id="receivingOnlyLabel" data-i18n="type2Calculation.averageBasisLabel">평균 계산 기준:</span></strong>
+                            <span id="receivingOnlyText" data-i18n-html="type2Calculation.receivingOnlyPrinciple">모든 평균 계산은 <strong style="color: #d32f2f;">수령자만 대상</strong>으로 합니다. (0 VND 제외)</span>
+                            <br><small id="receivingOnlyNote" data-i18n="type2Calculation.exampleNote" style="color: #555;">예: LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산 (10명 전체 평균 아님)</small>
                         </div>
                         <table class="table table-sm table-hover mb-4" style="border: 1px solid #e0e0e0;">
                             <thead style="background-color: #f8f9fa; color: #333; border-bottom: 2px solid #ef4444;">
                                 <tr>
-                                    <th width="25%" class="type2-calc-header-position">TYPE-2 직급</th>
-                                    <th width="25%" class="type2-calc-header-reference">참조 TYPE-1 직급</th>
-                                    <th width="25%" class="type2-calc-header-method">calculation 방법</th>
-                                    <th width="25%" class="type2-calc-header-average">2025year 12month 평균</th>
+                                    <th width="25%" class="type2-calc-header-position" data-i18n="type2Calculation.positionHeader">TYPE-2 직급</th>
+                                    <th width="25%" class="type2-calc-header-reference" data-i18n="type2Calculation.referenceHeader">참조 TYPE-1 직급</th>
+                                    <th width="25%" class="type2-calc-header-method" data-i18n="type2Calculation.methodHeader">계산 방법</th>
+                                    <th width="25%" class="type2-calc-header-average" data-i18n="type2Calculation.averageHeader">2025년 12month 평균</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td><strong>1. (V) SUPERVISOR</strong></td>
                                     <td>TYPE-1 (V) SUPERVISOR</td>
-                                    <td>(V) SUPERVISOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>(V) SUPERVISOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>969,758 VND</td>
                                 </tr>
                                 <tr>
                                     <td><strong>2. A.MANAGER</strong></td>
                                     <td>TYPE-1 A.MANAGER</td>
-                                    <td>A.MANAGER <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>A.MANAGER <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>990,000 VND</td>
                                 </tr>
                                 <tr style="background-color: #fff9e6;">
                                     <td><strong>3. GROUP LEADER</strong></td>
                                     <td>TYPE-1 LINE LEADER</td>
-                                    <td>TYPE-1 LINE LEADER <span class="average-text" style="color: #d32f2f;">수령자 평균</span> × 2</td>
+                                    <td>TYPE-1 LINE LEADER <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span> × 2</td>
                                     <td>679,866 VND</td>
                                 </tr>
                                 <tr style="background-color: #e8f5ff;">
                                     <td><strong>4. LINE LEADER</strong></td>
                                     <td>TYPE-1 LINE LEADER</td>
-                                    <td>TYPE-1 LINE LEADER <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>TYPE-1 LINE LEADER <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>339,933 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>5. AQL INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>6. ASSEMBLY INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>7. STITCHING INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>8. BOTTOM INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>9. CUTTING INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
                                     <td><strong>10. MTL INSPECTOR</strong></td>
                                     <td>TYPE-1 ASSEMBLY INSPECTOR</td>
-                                    <td>ASSEMBLY INSPECTOR <span class="average-text" style="color: #d32f2f;">수령자 평균</span></td>
+                                    <td>ASSEMBLY INSPECTOR <span class="average-text" data-i18n="type2Calculation.receivingAvg" style="color: #d32f2f;">수령자 평균</span></td>
                                     <td>359,210 VND</td>
                                 </tr>
                                 <tr style="background-color: #fafafa;">
@@ -10488,6 +10488,358 @@
       "vi": "(Khi TB TYPE-1 là 0: TB tất cả TYPE-2 LINE LEADER × 2)"
     }
   },
+  "type1ManagerCalculation": {
+    "title": {
+      "ko": "TYPE-1 관리자 직급 인센티브 계산 방법",
+      "en": "TYPE-1 Manager Position Incentive Calculation Method",
+      "vi": "Phương pháp tính thưởng cho vị trí quản lý TYPE-1"
+    },
+    "principleLabel": {
+      "ko": "TYPE-1 관리자 계산 원리:",
+      "en": "TYPE-1 Manager Calculation Principle:",
+      "vi": "Nguyên tắc tính toán quản lý TYPE-1:"
+    },
+    "principleText": {
+      "ko": "TYPE-1 관리자 직급은 자신에게 속한 <strong>부하 LINE LEADER들의 수령자 평균 인센티브</strong>에 직급별 배수를 곱하여 계산됩니다.",
+      "en": "TYPE-1 manager positions are calculated by multiplying the <strong>receiving subordinate LINE LEADERs' average incentive</strong> by position-specific multipliers.",
+      "vi": "Các vị trí quản lý TYPE-1 được tính bằng cách nhân <strong>mức thưởng trung bình của LINE LEADER cấp dưới nhận được</strong> với hệ số nhân theo vị trí."
+    },
+    "averageBasisLabel": {
+      "ko": "평균 계산 기준:",
+      "en": "Average Calculation Basis:",
+      "vi": "Cơ sở tính trung bình:"
+    },
+    "receivingOnlyPrinciple": {
+      "ko": "인센티브를 받는 LINE LEADER만 포함 (0 VND 제외)",
+      "en": "Only LINE LEADERs receiving incentive included (0 VND excluded)",
+      "vi": "Chỉ bao gồm LINE LEADER nhận thưởng (loại trừ 0 VND)"
+    },
+    "exampleNote": {
+      "ko": "예: 부하 LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산",
+      "en": "Ex: If only 7 out of 10 subordinate LINE LEADERs receive incentive, calculate average of 7",
+      "vi": "VD: Nếu chỉ 7/10 LINE LEADER cấp dưới nhận thưởng, tính trung bình của 7 người"
+    },
+    "managerPositionHeader": {
+      "ko": "TYPE-1 관리자 직급",
+      "en": "TYPE-1 Manager Position",
+      "vi": "Vị trí quản lý TYPE-1"
+    },
+    "calculationMethodHeader": {
+      "ko": "계산 방법",
+      "en": "Calculation Method",
+      "vi": "Phương pháp tính"
+    },
+    "multiplierHeader": {
+      "ko": "배수",
+      "en": "Multiplier",
+      "vi": "Hệ số nhân"
+    },
+    "conditionHeader": {
+      "ko": "적용 조건",
+      "en": "Conditions",
+      "vi": "Điều kiện"
+    },
+    "formulaHeader": {
+      "ko": "계산 공식",
+      "en": "Calculation Formula",
+      "vi": "Công thức tính"
+    },
+    "subordinateLLReceiving": {
+      "ko": "부하 LINE LEADER 수령자 평균",
+      "en": "Subordinate LL Receiving Avg",
+      "vi": "TB LINE LEADER nhận"
+    },
+    "attendanceCondition": {
+      "ko": "출근 조건 (1-4번) 100% 충족",
+      "en": "Attendance Cond (1-4) 100% met",
+      "vi": "ĐK Chấm công (1-4) 100%"
+    },
+    "notesTitle": {
+      "ko": "📌 TYPE-1 관리자 계산 특이사항",
+      "en": "📌 TYPE-1 Manager Calculation Notes",
+      "vi": "📌 Lưu ý tính toán quản lý TYPE-1"
+    },
+    "subordinateScopeNote": {
+      "ko": "<strong>부하직원 범위:</strong> 조직도 상 직접 + 간접 부하 LINE LEADER 모두 포함 (BFS 탐색)",
+      "en": "<strong>Subordinate Scope:</strong> Includes all direct + indirect subordinate LINE LEADERs on org chart (BFS search)",
+      "vi": "<strong>Phạm vi cấp dưới:</strong> Bao gồm tất cả LINE LEADER cấp dưới trực tiếp + gián tiếp trên sơ đồ tổ chức (tìm kiếm BFS)"
+    },
+    "receivingOnlyNote": {
+      "ko": "<strong>수령자만 평균:</strong> 인센티브 0 VND인 LINE LEADER는 평균 계산에서 제외",
+      "en": "<strong>Receiving Only Average:</strong> LINE LEADERs with 0 VND incentive are excluded from average calculation",
+      "vi": "<strong>Chỉ tính trung bình người nhận:</strong> LINE LEADER có 0 VND thưởng bị loại khỏi tính trung bình"
+    },
+    "fallbackNote": {
+      "ko": "<strong>Fallback:</strong> 부하 LINE LEADER가 없는 경우, 전체 TYPE-1 LINE LEADER 수령자 평균 사용",
+      "en": "<strong>Fallback:</strong> If no subordinate LINE LEADERs, use overall TYPE-1 LINE LEADER receiving average",
+      "vi": "<strong>Dự phòng:</strong> Nếu không có LINE LEADER cấp dưới, sử dụng trung bình TYPE-1 LINE LEADER nhận"
+    },
+    "conditionFailNote": {
+      "ko": "<strong>조건 미충족:</strong> 출근 조건 (1-4번) 중 하나라도 미충족 시 0 VND",
+      "en": "<strong>Condition Fail:</strong> If any attendance condition (1-4) not met, 0 VND",
+      "vi": "<strong>Không đáp ứng:</strong> Nếu bất kỳ ĐK chấm công (1-4) không đáp ứng, 0 VND"
+    }
+  },
+  "type2Calculation": {
+    "principleLabel": {
+      "ko": "TYPE-2 계산 원리:",
+      "en": "TYPE-2 Calculation Principle:",
+      "vi": "Nguyên tắc tính toán TYPE-2:"
+    },
+    "principleText": {
+      "ko": "TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.",
+      "en": "TYPE-2 positions are calculated based on the average incentive of the corresponding TYPE-1 position.",
+      "vi": "Vị trí TYPE-2 được tính dựa trên mức thưởng trung bình của vị trí TYPE-1 tương ứng."
+    },
+    "averageBasisLabel": {
+      "ko": "평균 계산 기준:",
+      "en": "Average Calculation Basis:",
+      "vi": "Cơ sở tính trung bình:"
+    },
+    "receivingOnlyPrinciple": {
+      "ko": "모든 평균 계산은 <strong style='color: #d32f2f;'>수령자만 대상</strong>으로 합니다. (0 VND 제외)",
+      "en": "All averages are calculated using <strong style='color: #d32f2f;'>only recipients</strong>. (0 VND excluded)",
+      "vi": "Tất cả trung bình được tính chỉ với <strong style='color: #d32f2f;'>người nhận</strong>. (loại trừ 0 VND)"
+    },
+    "exampleNote": {
+      "ko": "예: LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산 (10명 전체 평균 아님)",
+      "en": "Ex: If only 7 out of 10 LINE LEADERs receive incentive, calculate average of 7 (not all 10)",
+      "vi": "VD: Nếu chỉ 7/10 LINE LEADER nhận thưởng, tính trung bình của 7 (không phải cả 10)"
+    },
+    "positionHeader": {
+      "ko": "TYPE-2 직급",
+      "en": "TYPE-2 Position",
+      "vi": "Vị trí TYPE-2"
+    },
+    "referenceHeader": {
+      "ko": "참조 TYPE-1 직급",
+      "en": "Reference TYPE-1 Position",
+      "vi": "Vị trí TYPE-1 tham chiếu"
+    },
+    "methodHeader": {
+      "ko": "계산 방법",
+      "en": "Calculation Method",
+      "vi": "Phương pháp tính"
+    },
+    "averageHeader": {
+      "ko": "{year}년 {month} 평균",
+      "en": "{month} {year} Average",
+      "vi": "Trung bình {month} {year}"
+    },
+    "receivingAvg": {
+      "ko": "수령자 평균",
+      "en": "Receiving Avg",
+      "vi": "TB người nhận"
+    }
+  },
+  "type2QATeamSpecial": {
+    "title": {
+      "ko": "📋 TYPE-2 QA TEAM 특별 계산 규칙",
+      "en": "📋 TYPE-2 QA TEAM Special Calculation Rules",
+      "vi": "📋 Quy tắc tính toán đặc biệt cho TYPE-2 QA TEAM"
+    }
+  },
+  "type3Section": {
+    "newMemberTitle": {
+      "ko": "신입 직원 (NEW QIP MEMBER)",
+      "en": "New Employee (NEW QIP MEMBER)",
+      "vi": "Nhân viên mới (NEW QIP MEMBER)"
+    },
+    "transitionTitle": {
+      "ko": "TYPE-3 → TYPE-1/TYPE-2 전환",
+      "en": "TYPE-3 → TYPE-1/TYPE-2 Transition",
+      "vi": "Chuyển đổi TYPE-3 → TYPE-1/TYPE-2"
+    }
+  },
+  "receivingStatus": {
+    "received": {
+      "ko": "수령",
+      "en": "Received",
+      "vi": "Đã nhận"
+    },
+    "notReceived": {
+      "ko": "미수령",
+      "en": "Not Received",
+      "vi": "Chưa nhận"
+    }
+  },
+  "talentPool": {
+    "title": {
+      "ko": "🌟 QIP Talent Pool 특별 인센티브",
+      "en": "🌟 QIP Talent Pool Special Incentive",
+      "vi": "🌟 Khuyến khích đặc biệt QIP Talent Pool"
+    },
+    "subtitle": {
+      "ko": "우수한 성과를 보이는 인원들을 대상으로 하는 특별 인센티브 프로그램입니다",
+      "en": "Special incentive program for personnel showing excellent performance",
+      "vi": "Chương trình khuyến khích đặc biệt cho nhân viên có thành tích xuất sắc"
+    },
+    "memberCount": {
+      "ko": "Talent Pool 인원",
+      "en": "Talent Pool Members",
+      "vi": "Số thành viên Talent Pool"
+    },
+    "monthlyBonus": {
+      "ko": "월 보너스 금액",
+      "en": "Monthly Bonus Amount",
+      "vi": "Số tiền thưởng hàng tháng"
+    },
+    "totalBenefit": {
+      "ko": "6개월 총 혜택 예정",
+      "en": "Total Benefit Expected (6 months)",
+      "vi": "Tổng lợi ích dự kiến (6 tháng)"
+    },
+    "totalBonusLabel": {
+      "ko": "총 보너스 지급액",
+      "en": "Total Bonus Amount",
+      "vi": "Tổng số tiền thưởng"
+    },
+    "paymentPeriodLabel": {
+      "ko": "지급 기간",
+      "en": "Payment Period",
+      "vi": "Thời gian chi trả"
+    },
+    "selectionCriteria": {
+      "ko": "선정 기준",
+      "en": "Selection Criteria",
+      "vi": "Tiêu chí lựa chọn"
+    },
+    "criteria": {
+      "excellence": {
+        "ko": "업무 성과 우수자",
+        "en": "Excellent work performance",
+        "vi": "Thành tích công việc xuất sắc"
+      },
+      "qualityTop": {
+        "ko": "품질 목표 달성률 상위 10%",
+        "en": "Top 10% in quality target achievement",
+        "vi": "Top 10% đạt mục tiêu chất lượng"
+      },
+      "teamwork": {
+        "ko": "팀워크 및 리더십 발휘",
+        "en": "Teamwork and leadership demonstration",
+        "vi": "Thể hiện tinh thần đồng đội và lãnh đạo"
+      },
+      "improvement": {
+        "ko": "지속적인 개선 활동 참여",
+        "en": "Continuous improvement activity participation",
+        "vi": "Tham gia hoạt động cải tiến liên tục"
+      }
+    },
+    "special": {
+      "ko": "특별",
+      "en": "Special",
+      "vi": "Đặc biệt"
+    },
+    "period": {
+      "ko": "기간",
+      "en": "Period",
+      "vi": "Thời gian"
+    },
+    "benefits": {
+      "title": {
+        "ko": "혜택",
+        "en": "Benefits",
+        "vi": "Quyền lợi"
+      },
+      "monthlyBonus": {
+        "ko": "월 특별 보너스: 150,000 VND",
+        "en": "Monthly Special Bonus: 150,000 VND",
+        "vi": "Thưởng đặc biệt hàng tháng: 150.000 VND"
+      },
+      "totalBonus": {
+        "ko": "총 지급 예정 (6개월): 900,000 VND",
+        "en": "Total Expected (6 months): 900,000 VND",
+        "vi": "Tổng dự kiến (6 tháng): 900.000 VND"
+      }
+    },
+    "process": {
+      "title": {
+        "ko": "평가 프로세스 (6개월 주기)",
+        "en": "Evaluation Process (6-month cycle)",
+        "vi": "Quy trình đánh giá (chu kỳ 6 tháng)"
+      },
+      "step1": {
+        "title": {
+          "ko": "후보자 추천",
+          "en": "Candidate Nomination",
+          "vi": "Đề cử ứng viên"
+        },
+        "description": {
+          "ko": "각 부서에서 우수 인원 추천",
+          "en": "Departments nominate excellent personnel",
+          "vi": "Các phòng ban đề cử nhân viên xuất sắc"
+        }
+      },
+      "step2": {
+        "title": {
+          "ko": "성과 평가",
+          "en": "Performance Evaluation",
+          "vi": "Đánh giá hiệu suất"
+        },
+        "description": {
+          "ko": "최근 3개월간 성과 데이터 분석",
+          "en": "Analyze performance data for recent 3 months",
+          "vi": "Phân tích dữ liệu hiệu suất 3 tháng gần đây"
+        }
+      },
+      "step3": {
+        "title": {
+          "ko": "위원회 심사",
+          "en": "Committee Review",
+          "vi": "Xem xét của ủy ban"
+        },
+        "description": {
+          "ko": "QIP 운영위원회 최종 심사",
+          "en": "QIP Committee final review",
+          "vi": "Xem xét cuối cùng của ủy ban QIP"
+        }
+      },
+      "step4": {
+        "title": {
+          "ko": "최종 선정",
+          "en": "Final Selection",
+          "vi": "Lựa chọn cuối cùng"
+        },
+        "description": {
+          "ko": "Talent Pool 멤버 확정 및 공지",
+          "en": "Confirm and announce Talent Pool members",
+          "vi": "Xác nhận và công bố thành viên Talent Pool"
+        }
+      },
+      "step5": {
+        "title": {
+          "ko": "보너스 지급",
+          "en": "Bonus Payment",
+          "vi": "Chi trả thưởng"
+        },
+        "description": {
+          "ko": "매월 정기 인센티브와 함께 지급",
+          "en": "Paid together with monthly regular incentive",
+          "vi": "Thanh toán cùng với khuyến khích hàng tháng"
+        }
+      },
+      "step6": {
+        "title": {
+          "ko": "재평가",
+          "en": "Re-evaluation",
+          "vi": "Đánh giá lại"
+        },
+        "description": {
+          "ko": "6개월 후 재평가 실시",
+          "en": "Re-evaluation after 6 months",
+          "vi": "Đánh giá lại sau 6 tháng"
+        }
+      }
+    },
+    "conditions": {
+      "attendanceOnly": {
+        "ko": "출근 조건만 적용",
+        "en": "Attendance conditions only",
+        "vi": "Chỉ điều kiện chấm công"
+      }
+    }
+  },
   "type2SupervisorSpecial": {
     "title": {
       "ko": "⚠️ TYPE-2 SUPERVISOR 특별 계산 규칙",
@@ -11028,183 +11380,6 @@
         "ko": "일",
         "en": "days",
         "vi": "ngày"
-      }
-    }
-  },
-  "talentPool": {
-    "title": {
-      "ko": "🌟 QIP Talent Pool 특별 인센티브",
-      "en": "🌟 QIP Talent Pool Special Incentive",
-      "vi": "🌟 Khuyến khích đặc biệt QIP Talent Pool"
-    },
-    "subtitle": {
-      "ko": "우수한 성과를 보이는 인원들을 대상으로 하는 특별 인센티브 프로그램입니다",
-      "en": "Special incentive program for personnel showing excellent performance",
-      "vi": "Chương trình khuyến khích đặc biệt cho nhân viên có thành tích xuất sắc"
-    },
-    "memberCount": {
-      "ko": "Talent Pool 인원",
-      "en": "Talent Pool Members",
-      "vi": "Số thành viên Talent Pool"
-    },
-    "monthlyBonus": {
-      "ko": "월 보너스 금액",
-      "en": "Monthly Bonus Amount",
-      "vi": "Số tiền thưởng hàng tháng"
-    },
-    "totalBenefit": {
-      "ko": "6개월 총 혜택 예정",
-      "en": "Total Benefit Expected (6 months)",
-      "vi": "Tổng lợi ích dự kiến (6 tháng)"
-    },
-    "totalBonusLabel": {
-      "ko": "총 보너스 지급액",
-      "en": "Total Bonus Amount",
-      "vi": "Tổng số tiền thưởng"
-    },
-    "paymentPeriodLabel": {
-      "ko": "지급 기간",
-      "en": "Payment Period",
-      "vi": "Thời gian chi trả"
-    },
-    "selectionCriteria": {
-      "ko": "선정 기준",
-      "en": "Selection Criteria",
-      "vi": "Tiêu chí lựa chọn"
-    },
-    "criteria": {
-      "excellence": {
-        "ko": "업무 성과 우수자",
-        "en": "Excellent work performance",
-        "vi": "Thành tích công việc xuất sắc"
-      },
-      "qualityTop": {
-        "ko": "품질 목표 달성률 상위 10%",
-        "en": "Top 10% in quality target achievement",
-        "vi": "Top 10% đạt mục tiêu chất lượng"
-      },
-      "teamwork": {
-        "ko": "팀워크 및 리더십 발휘",
-        "en": "Teamwork and leadership demonstration",
-        "vi": "Thể hiện tinh thần đồng đội và lãnh đạo"
-      },
-      "improvement": {
-        "ko": "지속적인 개선 활동 참여",
-        "en": "Continuous improvement activity participation",
-        "vi": "Tham gia hoạt động cải tiến liên tục"
-      }
-    },
-    "special": {
-      "ko": "특별",
-      "en": "Special",
-      "vi": "Đặc biệt"
-    },
-    "period": {
-      "ko": "기간",
-      "en": "Period",
-      "vi": "Thời gian"
-    },
-    "benefits": {
-      "title": {
-        "ko": "혜택",
-        "en": "Benefits",
-        "vi": "Quyền lợi"
-      },
-      "monthlyBonus": {
-        "ko": "월 특별 보너스: 150,000 VND",
-        "en": "Monthly Special Bonus: 150,000 VND",
-        "vi": "Thưởng đặc biệt hàng tháng: 150.000 VND"
-      },
-      "totalBonus": {
-        "ko": "총 지급 예정 (6개월): 900,000 VND",
-        "en": "Total Expected (6 months): 900,000 VND",
-        "vi": "Tổng dự kiến (6 tháng): 900.000 VND"
-      }
-    },
-    "process": {
-      "title": {
-        "ko": "평가 프로세스 (6개월 주기)",
-        "en": "Evaluation Process (6-month cycle)",
-        "vi": "Quy trình đánh giá (chu kỳ 6 tháng)"
-      },
-      "step1": {
-        "title": {
-          "ko": "후보자 추천",
-          "en": "Candidate Nomination",
-          "vi": "Đề cử ứng viên"
-        },
-        "description": {
-          "ko": "각 부서에서 우수 인원 추천",
-          "en": "Departments nominate excellent personnel",
-          "vi": "Các phòng ban đề cử nhân viên xuất sắc"
-        }
-      },
-      "step2": {
-        "title": {
-          "ko": "성과 평가",
-          "en": "Performance Evaluation",
-          "vi": "Đánh giá hiệu suất"
-        },
-        "description": {
-          "ko": "최근 3개월간 성과 데이터 분석",
-          "en": "Analyze performance data for recent 3 months",
-          "vi": "Phân tích dữ liệu hiệu suất 3 tháng gần đây"
-        }
-      },
-      "step3": {
-        "title": {
-          "ko": "위원회 심사",
-          "en": "Committee Review",
-          "vi": "Xem xét của ủy ban"
-        },
-        "description": {
-          "ko": "QIP 운영위원회 최종 심사",
-          "en": "QIP Committee final review",
-          "vi": "Xem xét cuối cùng của ủy ban QIP"
-        }
-      },
-      "step4": {
-        "title": {
-          "ko": "최종 선정",
-          "en": "Final Selection",
-          "vi": "Lựa chọn cuối cùng"
-        },
-        "description": {
-          "ko": "Talent Pool 멤버 확정 및 공지",
-          "en": "Confirm and announce Talent Pool members",
-          "vi": "Xác nhận và công bố thành viên Talent Pool"
-        }
-      },
-      "step5": {
-        "title": {
-          "ko": "보너스 지급",
-          "en": "Bonus Payment",
-          "vi": "Chi trả thưởng"
-        },
-        "description": {
-          "ko": "매월 정기 인센티브와 함께 지급",
-          "en": "Paid together with monthly regular incentive",
-          "vi": "Thanh toán cùng với khuyến khích hàng tháng"
-        }
-      },
-      "step6": {
-        "title": {
-          "ko": "재평가",
-          "en": "Re-evaluation",
-          "vi": "Đánh giá lại"
-        },
-        "description": {
-          "ko": "6개월 후 재평가 실시",
-          "en": "Re-evaluation after 6 months",
-          "vi": "Đánh giá lại sau 6 tháng"
-        }
-      }
-    },
-    "conditions": {
-      "attendanceOnly": {
-        "ko": "출근 조건만 적용",
-        "en": "Attendance conditions only",
-        "vi": "Chỉ điều kiện chấm công"
       }
     }
   },
@@ -14018,6 +14193,16 @@
             const employeeData = JSON.parse(jsonStr);
             window.employeeData = employeeData;
 
+            // CRITICAL FIX (Issue #40): 칼럼명을 Phase 1 정규화 전에 먼저 설정
+            // 이전에는 updateAllTexts()에서 설정되어 정규화 시점에 undefined였음
+            const currentMonthName = 'december';
+            window.currentIncentiveColumn = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1) + '_Incentive';
+            window.aqlFailuresColumn = currentMonthName.charAt(0).toUpperCase() + currentMonthName.slice(1) + ' AQL Failures';
+            console.log('[CRITICAL FIX] Column names initialized BEFORE Phase 1:', {
+                currentIncentiveColumn: window.currentIncentiveColumn,
+                aqlFailuresColumn: window.aqlFailuresColumn
+            });
+
             // Phase 1: 데이터 정규화 레이어 (Issue #39 근본 해결 - Ralph Loop)
             // 월별 칼럼명을 표준 칼럼명으로 매핑하여 모든 모달에서 안전하게 접근 가능
             console.log('[Phase 1] 데이터 정규화 시작:', {
@@ -15772,6 +15957,17 @@
                     const translation = getTranslation(key, currentLanguage);
                     if (translation && translation !== key) {
                         element.placeholder = translation;
+                    }
+                }
+            });
+
+            // data-i18n-html 속성 (HTML 콘텐츠) 업데이트 - 2026-01-11 추가
+            document.querySelectorAll('[data-i18n-html]').forEach(element => {
+                const key = element.getAttribute('data-i18n-html');
+                if (key) {
+                    const translation = getTranslation(key, currentLanguage);
+                    if (translation && translation !== key) {
+                        element.innerHTML = translation;
                     }
                 }
             });

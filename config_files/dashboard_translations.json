@@ -4366,6 +4366,203 @@
       "vi": "(Khi TB TYPE-1 là 0: TB tất cả TYPE-2 LINE LEADER × 2)"
     }
   },
+  "type1ManagerCalculation": {
+    "title": {
+      "ko": "TYPE-1 관리자 직급 인센티브 계산 방법",
+      "en": "TYPE-1 Manager Position Incentive Calculation Method",
+      "vi": "Phương pháp tính thưởng cho vị trí quản lý TYPE-1"
+    },
+    "principleLabel": {
+      "ko": "TYPE-1 관리자 계산 원리:",
+      "en": "TYPE-1 Manager Calculation Principle:",
+      "vi": "Nguyên tắc tính toán quản lý TYPE-1:"
+    },
+    "principleText": {
+      "ko": "TYPE-1 관리자 직급은 자신에게 속한 <strong>부하 LINE LEADER들의 수령자 평균 인센티브</strong>에 직급별 배수를 곱하여 계산됩니다.",
+      "en": "TYPE-1 manager positions are calculated by multiplying the <strong>receiving subordinate LINE LEADERs' average incentive</strong> by position-specific multipliers.",
+      "vi": "Các vị trí quản lý TYPE-1 được tính bằng cách nhân <strong>mức thưởng trung bình của LINE LEADER cấp dưới nhận được</strong> với hệ số nhân theo vị trí."
+    },
+    "averageBasisLabel": {
+      "ko": "평균 계산 기준:",
+      "en": "Average Calculation Basis:",
+      "vi": "Cơ sở tính trung bình:"
+    },
+    "receivingOnlyPrinciple": {
+      "ko": "인센티브를 받는 LINE LEADER만 포함 (0 VND 제외)",
+      "en": "Only LINE LEADERs receiving incentive included (0 VND excluded)",
+      "vi": "Chỉ bao gồm LINE LEADER nhận thưởng (loại trừ 0 VND)"
+    },
+    "exampleNote": {
+      "ko": "예: 부하 LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산",
+      "en": "Ex: If only 7 out of 10 subordinate LINE LEADERs receive incentive, calculate average of 7",
+      "vi": "VD: Nếu chỉ 7/10 LINE LEADER cấp dưới nhận thưởng, tính trung bình của 7 người"
+    },
+    "managerPositionHeader": {
+      "ko": "TYPE-1 관리자 직급",
+      "en": "TYPE-1 Manager Position",
+      "vi": "Vị trí quản lý TYPE-1"
+    },
+    "calculationMethodHeader": {
+      "ko": "계산 방법",
+      "en": "Calculation Method",
+      "vi": "Phương pháp tính"
+    },
+    "multiplierHeader": {
+      "ko": "배수",
+      "en": "Multiplier",
+      "vi": "Hệ số nhân"
+    },
+    "conditionHeader": {
+      "ko": "적용 조건",
+      "en": "Conditions",
+      "vi": "Điều kiện"
+    },
+    "formulaHeader": {
+      "ko": "계산 공식",
+      "en": "Calculation Formula",
+      "vi": "Công thức tính"
+    },
+    "subordinateLLReceiving": {
+      "ko": "부하 LINE LEADER 수령자 평균",
+      "en": "Subordinate LL Receiving Avg",
+      "vi": "TB LINE LEADER nhận"
+    },
+    "attendanceCondition": {
+      "ko": "출근 조건 (1-4번) 100% 충족",
+      "en": "Attendance Cond (1-4) 100% met",
+      "vi": "ĐK Chấm công (1-4) 100%"
+    },
+    "notesTitle": {
+      "ko": "📌 TYPE-1 관리자 계산 특이사항",
+      "en": "📌 TYPE-1 Manager Calculation Notes",
+      "vi": "📌 Lưu ý tính toán quản lý TYPE-1"
+    },
+    "subordinateScopeNote": {
+      "ko": "<strong>부하직원 범위:</strong> 조직도 상 직접 + 간접 부하 LINE LEADER 모두 포함 (BFS 탐색)",
+      "en": "<strong>Subordinate Scope:</strong> Includes all direct + indirect subordinate LINE LEADERs on org chart (BFS search)",
+      "vi": "<strong>Phạm vi cấp dưới:</strong> Bao gồm tất cả LINE LEADER cấp dưới trực tiếp + gián tiếp trên sơ đồ tổ chức (tìm kiếm BFS)"
+    },
+    "receivingOnlyNote": {
+      "ko": "<strong>수령자만 평균:</strong> 인센티브 0 VND인 LINE LEADER는 평균 계산에서 제외",
+      "en": "<strong>Receiving Only Average:</strong> LINE LEADERs with 0 VND incentive are excluded from average calculation",
+      "vi": "<strong>Chỉ tính trung bình người nhận:</strong> LINE LEADER có 0 VND thưởng bị loại khỏi tính trung bình"
+    },
+    "fallbackNote": {
+      "ko": "<strong>Fallback:</strong> 부하 LINE LEADER가 없는 경우, 전체 TYPE-1 LINE LEADER 수령자 평균 사용",
+      "en": "<strong>Fallback:</strong> If no subordinate LINE LEADERs, use overall TYPE-1 LINE LEADER receiving average",
+      "vi": "<strong>Dự phòng:</strong> Nếu không có LINE LEADER cấp dưới, sử dụng trung bình TYPE-1 LINE LEADER nhận"
+    },
+    "conditionFailNote": {
+      "ko": "<strong>조건 미충족:</strong> 출근 조건 (1-4번) 중 하나라도 미충족 시 0 VND",
+      "en": "<strong>Condition Fail:</strong> If any attendance condition (1-4) not met, 0 VND",
+      "vi": "<strong>Không đáp ứng:</strong> Nếu bất kỳ ĐK chấm công (1-4) không đáp ứng, 0 VND"
+    }
+  },
+  "type2Calculation": {
+    "principleLabel": {
+      "ko": "TYPE-2 계산 원리:",
+      "en": "TYPE-2 Calculation Principle:",
+      "vi": "Nguyên tắc tính toán TYPE-2:"
+    },
+    "principleText": {
+      "ko": "TYPE-2 직급은 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.",
+      "en": "TYPE-2 positions are calculated based on the average incentive of the corresponding TYPE-1 position.",
+      "vi": "Vị trí TYPE-2 được tính dựa trên mức thưởng trung bình của vị trí TYPE-1 tương ứng."
+    },
+    "averageBasisLabel": {
+      "ko": "평균 계산 기준:",
+      "en": "Average Calculation Basis:",
+      "vi": "Cơ sở tính trung bình:"
+    },
+    "receivingOnlyPrinciple": {
+      "ko": "모든 평균 계산은 <strong style='color: #d32f2f;'>수령자만 대상</strong>으로 합니다. (0 VND 제외)",
+      "en": "All averages are calculated using <strong style='color: #d32f2f;'>only recipients</strong>. (0 VND excluded)",
+      "vi": "Tất cả trung bình được tính chỉ với <strong style='color: #d32f2f;'>người nhận</strong>. (loại trừ 0 VND)"
+    },
+    "exampleNote": {
+      "ko": "예: LINE LEADER 10명 중 7명만 인센티브 수령 시, 7명의 평균으로 계산 (10명 전체 평균 아님)",
+      "en": "Ex: If only 7 out of 10 LINE LEADERs receive incentive, calculate average of 7 (not all 10)",
+      "vi": "VD: Nếu chỉ 7/10 LINE LEADER nhận thưởng, tính trung bình của 7 (không phải cả 10)"
+    },
+    "positionHeader": {
+      "ko": "TYPE-2 직급",
+      "en": "TYPE-2 Position",
+      "vi": "Vị trí TYPE-2"
+    },
+    "referenceHeader": {
+      "ko": "참조 TYPE-1 직급",
+      "en": "Reference TYPE-1 Position",
+      "vi": "Vị trí TYPE-1 tham chiếu"
+    },
+    "methodHeader": {
+      "ko": "계산 방법",
+      "en": "Calculation Method",
+      "vi": "Phương pháp tính"
+    },
+    "averageHeader": {
+      "ko": "{year}년 {month} 평균",
+      "en": "{month} {year} Average",
+      "vi": "Trung bình {month} {year}"
+    },
+    "receivingAvg": {
+      "ko": "수령자 평균",
+      "en": "Receiving Avg",
+      "vi": "TB người nhận"
+    }
+  },
+  "type2QATeamSpecial": {
+    "title": {
+      "ko": "📋 TYPE-2 QA TEAM 특별 계산 규칙",
+      "en": "📋 TYPE-2 QA TEAM Special Calculation Rules",
+      "vi": "📋 Quy tắc tính toán đặc biệt cho TYPE-2 QA TEAM"
+    }
+  },
+  "type3Section": {
+    "newMemberTitle": {
+      "ko": "신입 직원 (NEW QIP MEMBER)",
+      "en": "New Employee (NEW QIP MEMBER)",
+      "vi": "Nhân viên mới (NEW QIP MEMBER)"
+    },
+    "transitionTitle": {
+      "ko": "TYPE-3 → TYPE-1/TYPE-2 전환",
+      "en": "TYPE-3 → TYPE-1/TYPE-2 Transition",
+      "vi": "Chuyển đổi TYPE-3 → TYPE-1/TYPE-2"
+    }
+  },
+  "receivingStatus": {
+    "received": {
+      "ko": "수령",
+      "en": "Received",
+      "vi": "Đã nhận"
+    },
+    "notReceived": {
+      "ko": "미수령",
+      "en": "Not Received",
+      "vi": "Chưa nhận"
+    }
+  },
+  "talentPool": {
+    "bonusIncluded": {
+      "ko": "Talent Pool 보너스 포함",
+      "en": "Talent Pool Bonus Included",
+      "vi": "Bao gồm thưởng Talent Pool"
+    },
+    "base": {
+      "ko": "기본",
+      "en": "Base",
+      "vi": "Cơ bản"
+    },
+    "bonus": {
+      "ko": "보너스",
+      "en": "Bonus",
+      "vi": "Thưởng"
+    },
+    "displayCount": {
+      "ko": "{displayed}명 표시, {receiving}명 수령",
+      "en": "{displayed} shown, {receiving} receiving",
+      "vi": "{displayed} hiển thị, {receiving} nhận"
+    }
+  },
   "type2SupervisorSpecial": {
     "title": {
       "ko": "⚠️ TYPE-2 SUPERVISOR 특별 계산 규칙",
