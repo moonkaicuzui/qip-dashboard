@@ -1074,22 +1074,21 @@ class DataProcessor:
     
     def calculate_continuous_months_from_history(self, emp_id: str, month_data: pd.DataFrame = None) -> int:
         """
-        연속 인센티브 수령 개월 수 계산 (우선순위 기반 로직)
+        연속 인센티브 수령 개월 수 계산 - Final Incentive 파일 기반 (Issue #47)
 
-        우선순위 (CLAUDE.md Issue #8 수정: 2025-12-03):
-        1. Continuous_Months 컬럼 + 1 (가장 신뢰성 높음 - 수학적으로 검증 가능)
-        2. Next_Month_Expected 컬럼 직접 읽기 (fallback - 오류 가능성 있음)
-        3. 인센티브 금액 역산 (progression_table 동적 사용)
+        Single Source of Truth 아키텍처 (CLAUDE.md Issue #47 수정: 2026-01-12):
+        - Final Incentive 파일의 Previous_Incentive만 사용
+        - 이전 달 CSV는 참조하지 않음 (데이터 불일치 방지)
+        - Previous_Incentive = 0 → 첫 달 (1개월)
+        - Previous_Incentive > 0 → 역산하여 이전 개월 수 계산 → +1
 
         Args:
             emp_id: 직원 ID
-            month_data: 현재 달 데이터 (옵션)
+            month_data: 현재 달 데이터 (Previous_Incentive 컬럼 포함)
 
         Returns:
             int: 다음 달 연속 개월 수 (1-15)
         """
-        continuous_months = 0
-
         # month_data 전달되지 않으면 self.month_data 사용 (호환성 유지)
         if month_data is None and hasattr(self, 'month_data'):
             month_data = self.month_data
@@ -1098,74 +1097,52 @@ class DataProcessor:
         emp_id_padded = str(emp_id).zfill(9)
 
         # ============================================
-        # 이전 달 데이터 로딩
+        # [Issue #47] Single Source of Truth: Previous_Incentive 기반 계산
+        # Final Incentive 파일에서 로드된 Previous_Incentive 사용
+        # 이전 달 CSV는 참조하지 않음 (데이터 불일치 방지)
         # ============================================
-        prev_df, prev_month_name = self._load_previous_month_data()
+        if month_data is not None:
+            # 직원 찾기
+            emp_rows = month_data[month_data['Employee No'].astype(str).str.zfill(9) == emp_id_padded]
 
-        if prev_df is None or prev_df.empty:
-            print(f"[New Employee] {emp_id_padded}: No previous month data → Starting at 1 month")
-            return 1
+            if not emp_rows.empty:
+                emp_row = emp_rows.iloc[0]
 
-        # 이전 달에서 해당 직원 찾기
-        emp_prev = prev_df[prev_df['Employee No'] == emp_id_padded]
+                # Previous_Incentive 컬럼 확인 (Final Incentive 파일에서 로드된 값)
+                prev_incentive = 0
+                if 'Previous_Incentive' in month_data.columns:
+                    val = emp_row.get('Previous_Incentive', 0)
+                    if pd.notna(val) and val != '':
+                        try:
+                            prev_incentive = float(val)
+                        except (ValueError, TypeError):
+                            prev_incentive = 0
 
-        if emp_prev.empty:
-            print(f"[New Employee] {emp_id_padded}: Not found in {prev_month_name} data → Starting at 1 month")
-            return 1
+                # ============================================
+                # Case 1: Previous_Incentive = 0 → 첫 달로 시작
+                # 이전 달에 인센티브 미수령 = 새로운 연속 개월 시작
+                # ============================================
+                if prev_incentive == 0 or prev_incentive < 1:
+                    print(f"✅ {emp_id_padded}: [Issue #47] Previous_Incentive=0 → Starting at 1 month")
+                    return 1
 
-        prev_row = emp_prev.iloc[0]
+                # ============================================
+                # Case 2: Previous_Incentive > 0 → 역산 후 +1
+                # 인센티브 금액에서 이전 달 개월 수 역산
+                # ============================================
+                prev_continuous_months = self._reverse_calculate_months_from_incentive(prev_incentive)
+                continuous_months = prev_continuous_months + 1
 
-        # ============================================
-        # 우선순위 1: Continuous_Months + 1 (가장 신뢰성 높음 - CLAUDE.md Issue #8)
-        # 이유: 수학적으로 검증 가능, Next_Month_Expected는 손상 가능성 있음
-        # ============================================
-        if 'Continuous_Months' in prev_df.columns:
-            cont_months = prev_row.get('Continuous_Months', 0)
-            if pd.notna(cont_months) and cont_months != '' and float(cont_months) >= 0:
-                continuous_months = int(cont_months) + 1
-                print(f"✅ {emp_id_padded}: [Priority 1] Continuous_Months + 1 → {int(cont_months)} + 1 = {continuous_months} months")
+                # 최대 15개월 제한
+                continuous_months = min(continuous_months, 15)
+
+                print(f"✅ {emp_id_padded}: [Issue #47] Previous_Incentive={prev_incentive:,.0f} → Prev {prev_continuous_months} months → Next {continuous_months} months")
                 return continuous_months
-
-        # ============================================
-        # 우선순위 2: Next_Month_Expected 컬럼 (fallback - 오류 가능성 있음)
-        # ============================================
-        if 'Next_Month_Expected' in prev_df.columns:
-            next_expected = prev_row.get('Next_Month_Expected', 0)
-            if pd.notna(next_expected) and next_expected != '' and float(next_expected) > 0:
-                continuous_months = int(next_expected)
-                print(f"✅ {emp_id_padded}: [Priority 2] Next_Month_Expected column → {continuous_months} months")
-                return continuous_months
-
-        # ============================================
-        # 우선순위 3: 인센티브 금액 역산
-        # ============================================
-        # 이전 달 인센티브 금액 확인 (여러 가능한 컬럼명 시도)
-        incentive_columns = [
-            f'{prev_month_name}_Incentive',
-            f'{prev_month_name.capitalize()}_Incentive',
-            'Final Incentive amount',
-            'incentive 지급액',
-            'Source_Final_Incentive'
-        ]
-
-        prev_incentive = None
-        for col_name in incentive_columns:
-            if col_name in prev_df.columns:
-                val = prev_row.get(col_name, 0)
-                if pd.notna(val) and val != '' and float(val) > 0:
-                    prev_incentive = float(val)
-                    print(f"  📊 {emp_id_padded}: Found incentive in column '{col_name}': {prev_incentive:,.0f} VND")
-                    break
-
-        if prev_incentive is not None and prev_incentive > 0:
-            continuous_months = self._reverse_calculate_months_from_incentive(prev_incentive)
-            print(f"✅ {emp_id_padded}: [Priority 3] Reverse calculation from {prev_incentive:,.0f} VND → {continuous_months} months")
-            return continuous_months
 
         # ============================================
         # Fallback: 데이터 없음 → 1개월로 시작
         # ============================================
-        print(f"⚠️ {emp_id_padded}: No valid data in {prev_month_name} → Defaulting to 1 month")
+        print(f"⚠️ {emp_id_padded}: [Issue #47] No Previous_Incentive data → Defaulting to 1 month")
         return 1
 
     def _load_previous_month_data(self) -> tuple:

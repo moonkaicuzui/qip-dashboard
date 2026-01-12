@@ -2296,6 +2296,28 @@ Employee ID | Previous_Incentive
      - SelfContained가 다시 필요해지면 `scripts/archive/`에서 복원
      - 다운로드 버튼 복원 전에는 생성할 필요 없음
 
+43. **Issue #47: Continuous_Months Single Source of Truth 아키텍처** (FIXED: 2026-01-12):
+   - **Problem**: 이전 달 CSV의 잘못된 Continuous_Months가 현재 달 계산에 사용됨
+     - 10명 직원이 November_Incentive = 0인데 December_Incentive = 250K~850K로 계산됨
+     - 원인: 이전 달 웹 대시보드 CSV의 Continuous_Months 값이 잘못됨
+   - **Root Cause**: 두 데이터 소스 (Final Incentive 파일, 이전 달 CSV) 간 일관성 없음
+     - `calculate_continuous_months_from_history()` 함수가 이전 달 CSV의 Continuous_Months + 1 사용
+     - Final Incentive 파일의 November_Incentive = 0이 무시됨
+   - **Solution**: Final Incentive 파일만 사용하도록 아키텍처 변경
+     - `calculate_continuous_months_from_history` 함수 완전 재작성 (Lines 1075-1140)
+     - 이전 달 CSV 참조 로직 완전 제거 (`_load_previous_month_data()` 호출 제거)
+     - Previous_Incentive에서 역산하여 Previous_Continuous_Months 계산
+     - Previous_Incentive = 0 → Continuous_Months = 1 (첫 달)
+   - **Impact**:
+     - 10명 직원 모두 December_Incentive = 150,000 VND (정확)
+     - TYPE-1 직급 358명 영향 (더 정확한 계산)
+     - TYPE-2, TYPE-3는 Continuous_Months 미사용으로 영향 없음
+   - **Implementation**: `src/step1_인센티브_계산_개선버전.py:1075-1140`
+   - **Prevention**:
+     - Final Incentive 파일이 유일한 데이터 소스 (Single Source of Truth)
+     - 이전 달 CSV의 잘못된 계산이 현재 달에 영향을 주지 않음
+     - 역산 로직으로 데이터 일관성 보장
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
