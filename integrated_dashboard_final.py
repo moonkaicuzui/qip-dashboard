@@ -16317,8 +16317,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // Populate Tab 1: Building-Boss Mismatch
             const tab1Body = document.getElementById('tab1TableBody');
+            console.log('🏢 Tab1: tab1Body element:', tab1Body);
+            console.log('🏢 Tab1: tab1Body exists?:', !!tab1Body);
+
             let tab1HTML = '';
-            (data.cases?.building_boss_mismatch || []).forEach((c, i) => {{
+            const tab1Data = data.cases?.building_boss_mismatch || [];
+            console.log('🏢 Tab1: data array length:', tab1Data.length);
+
+            tab1Data.forEach((c, i) => {{
                 tab1HTML += `
                     <tr class="${{i % 2 === 0 ? '' : 'table-light'}}">
                         <td>${{c.emp_no || '-'}}</td>
@@ -16329,7 +16335,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </tr>
                 `;
             }});
-            tab1Body.innerHTML = tab1HTML || '<tr><td colspan="5" class="text-center text-muted">No data</td></tr>';
+
+            console.log('🏢 Tab1: generated HTML length:', tab1HTML.length);
+            console.log('🏢 Tab1: first 500 chars of HTML:', tab1HTML.substring(0, 500));
+
+            if (tab1Body) {{
+                tab1Body.innerHTML = tab1HTML || '<tr><td colspan="5" class="text-center text-muted">No data</td></tr>';
+                console.log('🏢 Tab1: innerHTML set successfully');
+                console.log('🏢 Tab1: tab1Body.innerHTML length after set:', tab1Body.innerHTML.length);
+            }} else {{
+                console.error('🏢 Tab1: ERROR - tab1Body is null!');
+            }}
 
             // Populate Tab 2: Boss No Info
             const tab2Body = document.getElementById('tab2TableBody');
