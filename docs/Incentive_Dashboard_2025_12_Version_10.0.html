@@ -2009,6 +2009,17 @@
             display: none !important;
         }
 
+        /* Issue #46-B: Override mobile-mode for Building Review Modal tables */
+        #buildingReviewModal .table-responsive {
+            display: block !important;
+        }
+        #buildingReviewModal .tab-pane {
+            visibility: visible !important;
+        }
+        #buildingReviewModal .tab-pane.active {
+            display: block !important;
+        }
+
         body.mobile-mode .card-view-wrapper {
             display: block !important;
         }
@@ -3566,7 +3577,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="12" data-hour="12" data-minute="12">보고서 생성일: 2026년 01월 12일 12:12</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="12" data-hour="12" data-minute="21">보고서 생성일: 2026년 01월 12일 12:21</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -22931,15 +22942,23 @@
                 alert('Building review data not loaded');
                 return;
             }
+            console.log('🏢 Data check passed');
 
             // Update tab counts
             const type1Count = data.summary?.building_boss_mismatch || 0;
             const type2Count = data.summary?.boss_no_info || 0;
             const type3Count = data.summary?.data_source_mismatch || 0;
+            console.log('🏢 Tab counts:', {type1Count, type2Count, type3Count});
 
-            document.getElementById('tab1Count').textContent = type1Count;
-            document.getElementById('tab2Count').textContent = type2Count;
-            document.getElementById('tab3Count').textContent = type3Count;
+            const tab1CountEl = document.getElementById('tab1Count');
+            const tab2CountEl = document.getElementById('tab2Count');
+            const tab3CountEl = document.getElementById('tab3Count');
+            console.log('🏢 Tab count elements:', {tab1CountEl: !!tab1CountEl, tab2CountEl: !!tab2CountEl, tab3CountEl: !!tab3CountEl});
+
+            if (tab1CountEl) tab1CountEl.textContent = type1Count;
+            if (tab2CountEl) tab2CountEl.textContent = type2Count;
+            if (tab3CountEl) tab3CountEl.textContent = type3Count;
+            console.log('🏢 Tab counts updated');
 
             // Populate Tab 1: Building-Boss Mismatch
             const tab1Body = document.getElementById('tab1TableBody');

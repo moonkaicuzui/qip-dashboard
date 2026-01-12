@@ -6989,6 +6989,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             display: none !important;
         }}
 
+        /* Issue #46-B: Override mobile-mode for Building Review Modal tables */
+        #buildingReviewModal .table-responsive {{
+            display: block !important;
+        }}
+        #buildingReviewModal .tab-pane {{
+            visibility: visible !important;
+        }}
+        #buildingReviewModal .tab-pane.active {{
+            display: block !important;
+        }}
+
         body.mobile-mode .card-view-wrapper {{
             display: block !important;
         }}
@@ -16305,15 +16316,23 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 alert('Building review data not loaded');
                 return;
             }}
+            console.log('🏢 Data check passed');
 
             // Update tab counts
             const type1Count = data.summary?.building_boss_mismatch || 0;
             const type2Count = data.summary?.boss_no_info || 0;
             const type3Count = data.summary?.data_source_mismatch || 0;
+            console.log('🏢 Tab counts:', {{type1Count, type2Count, type3Count}});
 
-            document.getElementById('tab1Count').textContent = type1Count;
-            document.getElementById('tab2Count').textContent = type2Count;
-            document.getElementById('tab3Count').textContent = type3Count;
+            const tab1CountEl = document.getElementById('tab1Count');
+            const tab2CountEl = document.getElementById('tab2Count');
+            const tab3CountEl = document.getElementById('tab3Count');
+            console.log('🏢 Tab count elements:', {{tab1CountEl: !!tab1CountEl, tab2CountEl: !!tab2CountEl, tab3CountEl: !!tab3CountEl}});
+
+            if (tab1CountEl) tab1CountEl.textContent = type1Count;
+            if (tab2CountEl) tab2CountEl.textContent = type2Count;
+            if (tab3CountEl) tab3CountEl.textContent = type3Count;
+            console.log('🏢 Tab counts updated');
 
             // Populate Tab 1: Building-Boss Mismatch
             const tab1Body = document.getElementById('tab1TableBody');
