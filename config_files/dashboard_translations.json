@@ -476,6 +476,21 @@
       "en": "Data Source Mismatch",
       "vi": "Nguồn dữ liệu không khớp"
     },
+    "mismatchLabel": {
+      "ko": "불일치",
+      "en": "Mismatch",
+      "vi": "K.khớp"
+    },
+    "noInfoLabel": {
+      "ko": "정보없음",
+      "en": "No Info",
+      "vi": "K.TT"
+    },
+    "srcLabel": {
+      "ko": "소스",
+      "en": "Source",
+      "vi": "Nguồn"
+    },
     "tab1Title": {
       "ko": "Building-Boss 불일치",
       "en": "Building-Boss Mismatch",

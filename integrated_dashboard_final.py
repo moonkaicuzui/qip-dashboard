@@ -14771,9 +14771,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const dataSrc = brData.summary?.data_source_mismatch || 0;
                 const subtitleEl = document.getElementById('kpiBuildingReviewSubtitle');
                 if (subtitleEl) {{
-                    subtitleEl.innerHTML = `<span style="color: #e74c3c;">불일치: ${{mismatch}}</span> | ` +
-                                           `<span style="color: #f39c12;">정보없음: ${{noInfo}}</span> | ` +
-                                           `<span style="color: #3498db;">소스: ${{dataSrc}}</span>`;
+                    // Issue #46-B: Language switching support for KPI subtitle
+                    subtitleEl.innerHTML = `<span style="color: #e74c3c;">${{getTranslation('buildingReview.mismatchLabel')}}: ${{mismatch}}</span> | ` +
+                                           `<span style="color: #f39c12;">${{getTranslation('buildingReview.noInfoLabel')}}: ${{noInfo}}</span> | ` +
+                                           `<span style="color: #3498db;">${{getTranslation('buildingReview.srcLabel')}}: ${{dataSrc}}</span>`;
                 }}
             }} else {{
                 document.getElementById('kpiBuildingReviewTotal').textContent = '-';
@@ -16294,6 +16295,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // Building Review Modal function (2026-01-12 - Issue #46-B)
         function showBuildingReviewModal() {{
             const data = window.buildingReviewData;
+            console.log('🏢 showBuildingReviewModal called');
+            console.log('🏢 data:', data);
+            console.log('🏢 data.cases:', data?.cases);
+            console.log('🏢 data.cases.building_boss_mismatch:', data?.cases?.building_boss_mismatch);
+            console.log('🏢 data.cases.building_boss_mismatch length:', data?.cases?.building_boss_mismatch?.length);
+
             if (!data || !data.cases) {{
                 alert('Building review data not loaded');
                 return;
