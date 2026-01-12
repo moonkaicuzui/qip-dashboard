@@ -6993,6 +6993,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         #buildingReviewModal .table-responsive {{
             display: block !important;
         }}
+        #buildingReviewModal .tab-content {{
+            display: block !important;
+        }}
         #buildingReviewModal .tab-pane {{
             visibility: visible !important;
         }}
