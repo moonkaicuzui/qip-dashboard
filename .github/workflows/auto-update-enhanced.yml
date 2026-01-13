@@ -407,12 +407,7 @@ jobs:
             # Step 3: 커밋
             echo "💾 Step 3: 커밋 생성..."
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-            git commit -m "🔄 Auto update dashboard + config sync from Google Drive $TIMESTAMP
-
-- Google Drive 데이터 자동 다운로드
-- Config 파일 자동 업데이트 (실제 파일 경로 반영)
-- Working days 자동 계산 및 업데이트
-- 인센티브 계산 및 대시보드 생성" || {
+            git commit -m "🔄 Auto update dashboard + config sync from Google Drive $TIMESTAMP" || {
               echo "⚠️ Commit failed - no changes to commit"
               exit 0
             }
