@@ -1269,7 +1269,133 @@ class DataProcessor:
         # 파일을 찾지 못함
         print(f"⚠️ Previous month CSV not found for {prev_month_name} {prev_year}")
         return (None, None)
-    
+
+    def _load_previous_incentive_early(self, month_data: pd.DataFrame = None):
+        """
+        TYPE-1 계산 전에 Previous_Incentive 조기 로드
+
+        Issue #48: 타이밍 버그 수정 (2026-01-13)
+        - 기존: save_results()에서 로드 (계산 완료 후) → 계산 시점에 Previous_Incentive 없음
+        - 수정: calculate_all_incentives() 시작 전에 로드 → 계산 시점에 Previous_Incentive 사용 가능
+
+        Single Source of Truth: Final Incentive 파일의 {Month}_Incentive 컬럼 사용
+
+        Args:
+            month_data: 현재 달 데이터 DataFrame (CompleteQIPCalculator에서 전달)
+
+        Returns:
+            DataFrame: Previous_Incentive 컬럼이 추가된 month_data
+        """
+        import os
+
+        # month_data 확인
+        if month_data is None:
+            if hasattr(self, 'df') and self.df is not None:
+                month_data = self.df
+            else:
+                print(f"⚠️ [Issue #48] No month_data available")
+                return month_data
+
+        # 이미 로드되어 있으면 스킵
+        if 'Previous_Incentive' in month_data.columns:
+            existing_count = (month_data['Previous_Incentive'] > 0).sum()
+            if existing_count > 0:
+                print(f"✅ [Issue #48] Previous_Incentive already loaded: {existing_count} employees")
+                return month_data
+
+        # 이전 달 정보 계산
+        if not self.config.previous_months:
+            print(f"⚠️ [Issue #48] No previous months configured")
+            month_data['Previous_Incentive'] = 0
+            return month_data
+
+        prev_month = self.config.previous_months[-1]
+        prev_year = self.config.year if prev_month.number < self.config.month.number else self.config.year - 1
+
+        # Final Incentive 파일 경로 (Single Source of Truth)
+        final_incentive_path = f"input_files/final_incentive/Final_{prev_month.full_name.lower()}_{prev_year}_incentive.xlsx"
+
+        print(f"\n🔄 [Issue #48] Loading Previous_Incentive EARLY (before TYPE-1 calculation)...")
+
+        # === Priority 1: Final Incentive 파일에서 로드 ===
+        if os.path.exists(final_incentive_path):
+            try:
+                print(f"  ✅ Final Incentive file found (Single Source of Truth):")
+                print(f"     {final_incentive_path}")
+
+                final_incentive_data = pd.read_excel(final_incentive_path)
+
+                # Employee No 변환
+                final_incentive_data['Employee No'] = pd.to_numeric(final_incentive_data['Employee No'], errors='coerce')
+                month_data['Employee No'] = pd.to_numeric(month_data['Employee No'], errors='coerce')
+
+                # 인센티브 컬럼 찾기 (Issue #41: {Month}_Incentive가 실제 집행 금액)
+                prev_incentive_col = None
+                possible_cols = [
+                    f'{prev_month.full_name.capitalize()}_Incentive',  # November_Incentive 등
+                    f'{prev_month.full_name.upper()}_Incentive',
+                    f'{prev_month.full_name.lower()}_incentive',
+                ]
+
+                for col in possible_cols:
+                    if col in final_incentive_data.columns:
+                        prev_incentive_col = col
+                        break
+
+                if prev_incentive_col:
+                    prev_incentive_map = final_incentive_data.set_index('Employee No')[prev_incentive_col].to_dict()
+                    month_data['Previous_Incentive'] = month_data['Employee No'].map(prev_incentive_map).fillna(0)
+
+                    # 검증
+                    mapped_count = (month_data['Previous_Incentive'] > 0).sum()
+                    total_amount = month_data['Previous_Incentive'].sum()
+
+                    print(f"  ✅ [Issue #48] Previous_Incentive loaded EARLY!")
+                    print(f"     → Column: {prev_incentive_col}")
+                    print(f"     → Recipients: {mapped_count} employees")
+                    print(f"     → Total: ₫{total_amount:,.0f}")
+                    return month_data
+                else:
+                    print(f"  ⚠️ [Issue #48] Incentive column not found in Final file")
+                    print(f"     Available columns: {list(final_incentive_data.columns)[:5]}...")
+
+            except Exception as e:
+                print(f"  ⚠️ [Issue #48] Failed to load Final Incentive file: {e}")
+        else:
+            print(f"  ⚠️ [Issue #48] Final Incentive file not found: {final_incentive_path}")
+
+        # === Fallback: 기존 대시보드 CSV ===
+        fallback_file_path = self.config.file_paths.get('previous_incentive',
+                                                        f"input_files/{self.config.year}year {prev_month.number}month incentive 지급 세부 정보.csv")
+
+        if os.path.exists(fallback_file_path):
+            print(f"  ⚠️ [Issue #48] Using fallback CSV: {fallback_file_path}")
+            try:
+                prev_incentive_data = pd.read_csv(fallback_file_path, encoding='utf-8-sig')
+
+                prev_incentive_data['Employee No'] = pd.to_numeric(prev_incentive_data['Employee No'], errors='coerce')
+
+                prev_incentive_col = None
+                for col in [f'{prev_month.full_name.capitalize()}_Incentive', 'Final Incentive amount']:
+                    if col in prev_incentive_data.columns:
+                        prev_incentive_col = col
+                        break
+
+                if prev_incentive_col:
+                    prev_incentive_map = prev_incentive_data.set_index('Employee No')[prev_incentive_col].to_dict()
+                    month_data['Previous_Incentive'] = month_data['Employee No'].map(prev_incentive_map).fillna(0)
+
+                    mapped_count = (month_data['Previous_Incentive'] > 0).sum()
+                    print(f"  ✅ [Issue #48] Previous_Incentive loaded from fallback: {mapped_count} employees")
+                    return month_data
+            except Exception as e:
+                print(f"  ⚠️ [Issue #48] Failed to load fallback CSV: {e}")
+
+        # === No data found ===
+        print(f"  ❌ [Issue #48] No Previous_Incentive data found - defaulting to 0")
+        month_data['Previous_Incentive'] = 0
+        return month_data
+
     def process_aql_conditions_with_history(self, aql_df: pd.DataFrame = None) -> pd.DataFrame:
         """AQL history file 활용한 3-month consecutive failure 체크"""
         print("\n📊 AQL History Checking 3-month consecutive failures based on files...")
@@ -2549,6 +2675,10 @@ class CompleteQIPCalculator:
         # ⚠️ CRITICAL: approved leave를 포함한 정확한 absence rate로 condition 재평가
         print(f"\n🔄 Updating attendance conditions with approved leave...")
         self.add_condition_evaluation_to_excel()
+
+        # 1.7. [Issue #48] Previous_Incentive 조기 로드 (TYPE-1 계산 전 필수!)
+        # ⚠️ CRITICAL: save_results()에서 로드하면 너무 늦음 - 여기서 먼저 로드해야 함
+        self.month_data = self.data_processor._load_previous_incentive_early(self.month_data)
 
         # 2. Type-1 Assembly Inspector calculation
         self.calculate_assembly_inspector_incentive_type1_only()
@@ -5311,7 +5441,18 @@ class CompleteQIPCalculator:
             # previous month incentive data 병합
             # ✅ 2026-01-06: Final Incentive 파일 우선 사용 (Single Source of Truth)
             # Google Drive에서 다운로드한 실제 급여 데이터를 최우선으로 사용
-            if self.config.previous_months:
+
+            # [Issue #48] 중복 로드 방지 - calculate_all_incentives()에서 이미 로드한 경우 스킵
+            # ⚠️ CRITICAL: _load_previous_incentive_early()에서 이미 로드했으면 다시 로드하지 않음
+            skip_prev_incentive_load = False
+            if 'Previous_Incentive' in self.month_data.columns:
+                existing_count = (self.month_data['Previous_Incentive'] > 0).sum()
+                if existing_count > 0:
+                    print(f"\n  ✅ [Issue #48] Previous_Incentive already loaded - skipping duplicate load")
+                    print(f"     Existing data: {existing_count} employees with Previous_Incentive > 0")
+                    skip_prev_incentive_load = True
+
+            if not skip_prev_incentive_load and self.config.previous_months:
                 prev_month = self.config.previous_months[-1]
                 prev_year = self.config.year if prev_month.number < self.config.month.number else self.config.year - 1
 

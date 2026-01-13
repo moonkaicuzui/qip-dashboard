@@ -2318,6 +2318,48 @@ Employee ID | Previous_Incentive
      - 이전 달 CSV의 잘못된 계산이 현재 달에 영향을 주지 않음
      - 역산 로직으로 데이터 일관성 보장
 
+44. **Issue #48: TYPE-1 Continuous_Months 계산 타이밍 버그** (FIXED: 2026-01-13):
+   - **Problem**: 모든 TYPE-1 ASSEMBLY INSPECTOR 직원이 150,000 VND (1개월 금액)만 수령
+     - December 2025: 116명 전원이 150,000 VND (progressive 인센티브 미작동)
+     - 67명 직원이 잘못된 인센티브 수령 (Previous_Incentive > 0인데 Continuous_Months = 1)
+     - 예: 직원 621040446 - Previous_Incentive 1,000,000 VND → 받아야 할 금액 1,000,000 VND → 실제 150,000 VND
+   - **Root Cause**: **타이밍 버그 (Timing Bug)**
+     - `calculate_continuous_months_from_history()` 호출 시점 (Lines 2929, 3033, 3536): TYPE-1 계산 중
+     - `Previous_Incentive` 로드 시점 (Line 5361): `save_results()` 내에서 계산 완료 후
+     - 계산 시점에 Previous_Incentive 컬럼 없음 → 기본값 1 반환 → 모든 직원 1개월로 리셋
+   - **Solution**: Previous_Incentive 조기 로드 시스템
+     - **Step 1**: `_load_previous_incentive_early()` 함수 추가 (Line 1273-1397)
+       - Final Incentive 파일에서 {Month}_Incentive 컬럼 로드
+       - calculate_all_incentives() 호출 전에 실행
+     - **Step 2**: `calculate_all_incentives()` 시작 부분에서 조기 호출 (Line 2679-2681)
+       ```python
+       # [Issue #48] Previous_Incentive 조기 로드 (TYPE-1 계산 전 필수!)
+       self.month_data = self.data_processor._load_previous_incentive_early(self.month_data)
+       ```
+     - **Step 3**: `save_results()`에서 중복 로드 방지 (Line 5445-5453)
+       - 이미 로드된 경우 스킵 ("Previous_Incentive already loaded - skipping duplicate load")
+   - **Impact**:
+     | 지표 | 수정 전 | 수정 후 |
+     |------|---------|---------|
+     | Bug Cases | 67명 | **0명** ✅ |
+     | 인센티브 값 종류 | 1개 (150K only) | **11개** (150K~1,000K) ✅ |
+     | 353명 Previous_Incentive | 미반영 | **정상 반영** ✅ |
+   - **Verification**:
+     ```bash
+     # December 2025 재계산 후 검증
+     python src/step1_인센티브_계산_개선버전.py --config config_files/config_december_2025.json 2>&1 | grep "Issue #48"
+     # Expected: "🔄 [Issue #48] Loading Previous_Incentive EARLY"
+     # Expected: "✅ [Issue #48] Previous_Incentive loaded EARLY!"
+     ```
+   - **Implementation**:
+     - `src/step1_인센티브_계산_개선버전.py:1273-1397` (새 함수)
+     - `src/step1_인센티브_계산_개선버전.py:2679-2681` (조기 호출)
+     - `src/step1_인센티브_계산_개선버전.py:5445-5453` (중복 방지)
+   - **Prevention**:
+     - TYPE-1 계산 전에 Previous_Incentive가 반드시 로드되어야 함
+     - `save_results()`의 로드는 backup용 (이미 로드된 경우 스킵)
+     - 계산 순서: Config 로드 → Previous_Incentive 로드 → TYPE-1 계산 → 결과 저장
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
