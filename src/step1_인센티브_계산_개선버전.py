@@ -3807,8 +3807,8 @@ class CompleteQIPCalculator:
                 total_count = 0      # 전체 부하employee 수
 
                 for sub_id in subordinates:
-                    # Employee No 타입 일치를 위해 str로 변환하여 검색
-                    sub_data = self.month_data[self.month_data['Employee No'] == str(sub_id)]
+                    # Employee No 타입 일치를 위해 양쪽 모두 str로 변환하여 검색 (Issue #49 fix)
+                    sub_data = self.month_data[self.month_data['Employee No'].astype(str) == str(sub_id)]
 
                     if not sub_data.empty:
                         sub_row = sub_data.iloc[0]
