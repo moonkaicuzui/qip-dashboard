@@ -336,7 +336,7 @@ jobs:
         fi
         echo ""
 
-    # 11. 변경사항 커밋 및 푸시
+    # 11. 변경사항 커밋 및 푸시 (Issue #50: 근본적 Git 로직 수정)
     - name: 📤 Commit and push changes
       run: |
         git config --local user.email "action@github.com"
@@ -345,53 +345,115 @@ jobs:
         # 변경사항 체크
         if [[ -n $(git status -s) ]]; then
           echo "📝 변경사항 발견, 커밋 준비 중..."
+          echo ""
 
-          # Add files we want to commit FIRST (before any stash)
-          # NOTE: SelfContained HTML 제외 (용량 문제로 GitHub 100MB 제한 초과 방지)
-          echo "📦 파일 추가 중..."
+          # ============================================
+          # Issue #50: 올바른 Git 처리 순서
+          # 1. 먼저 원격에서 최신 변경사항 가져오기
+          # 2. 로컬 변경사항 스테이징
+          # 3. 커밋
+          # 4. 푸시 (충돌 시 재시도)
+          # ============================================
+
+          # Step 1: 원격 최신 상태로 업데이트 (변경사항 백업 후)
+          echo "📥 Step 1: 원격 변경사항 동기화..."
+
+          # 커밋할 파일들 목록 저장
+          FILES_TO_COMMIT=$(mktemp)
+          echo "config_files/*.json" >> $FILES_TO_COMMIT
+          find docs -name "*.html" ! -name "*SelfContained*" -type f 2>/dev/null >> $FILES_TO_COMMIT || true
+          find docs -name "*.csv" -type f 2>/dev/null >> $FILES_TO_COMMIT || true
+          find docs -name "*.xlsx" -type f 2>/dev/null >> $FILES_TO_COMMIT || true
+          find output_files -name "*.csv" -type f 2>/dev/null >> $FILES_TO_COMMIT || true
+          find output_files -name "*.xlsx" -type f 2>/dev/null >> $FILES_TO_COMMIT || true
+
+          # 모든 변경사항 stash (staged + unstaged)
+          git stash push -m "GitHub Actions auto-update $(date +%s)" || true
+
+          # 원격에서 최신 상태 가져오기
+          git fetch origin main
+          git reset --hard origin/main
+
+          # stash 복원 (충돌 시 --theirs 사용하여 우리 변경사항 유지)
+          git stash pop || {
+            echo "⚠️ Stash pop 충돌 발생, 로컬 변경사항 우선 적용..."
+            git checkout --theirs . 2>/dev/null || true
+            git stash drop || true
+          }
+
+          # Step 2: 파일 스테이징
+          echo ""
+          echo "📦 Step 2: 파일 스테이징..."
           git add config_files/*.json 2>/dev/null || true
+
           # SelfContained 제외하고 HTML 추가
           for f in docs/*.html; do
-            if [[ ! "$f" == *"SelfContained"* ]]; then
+            if [[ -f "$f" && ! "$f" == *"SelfContained"* ]]; then
               git add "$f" 2>/dev/null || true
             fi
           done
+
           git add docs/*.csv 2>/dev/null || true
           git add docs/*.xlsx 2>/dev/null || true
           git add output_files/*.csv 2>/dev/null || true
           git add output_files/*.xlsx 2>/dev/null || true
 
-          # Check if there are staged changes
+          # 스테이징된 파일 확인
           if [[ -n $(git diff --cached --name-only) ]]; then
             echo "✅ Staged files:"
             git diff --cached --name-only
+            echo ""
 
-            # Pull latest changes before committing
-            echo "Pulling latest changes from remote..."
-            git pull --rebase origin main || {
-              echo "⚠️ Rebase failed, aborting and retrying with merge..."
-              git rebase --abort || true
-              git pull origin main --no-rebase || true
-            }
-
-            # Commit changes
+            # Step 3: 커밋
+            echo "💾 Step 3: 커밋 생성..."
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
             git commit -m "🔄 Auto update dashboard + config sync from Google Drive $TIMESTAMP
 
-            - Google Drive 데이터 자동 다운로드
-            - Config 파일 자동 업데이트 (실제 파일 경로 반영)
-            - Working days 자동 계산 및 업데이트
-            - 인센티브 계산 및 대시보드 생성" || {
-              echo "⚠️ Commit failed"
+- Google Drive 데이터 자동 다운로드
+- Config 파일 자동 업데이트 (실제 파일 경로 반영)
+- Working days 자동 계산 및 업데이트
+- 인센티브 계산 및 대시보드 생성" || {
+              echo "⚠️ Commit failed - no changes to commit"
               exit 0
             }
 
-            # Push changes
-            git push || {
-              echo "❌ Push failed, manual intervention required"
-              exit 1
-            }
+            # Step 4: 푸시 (최대 3회 재시도)
+            echo ""
+            echo "📤 Step 4: 변경사항 푸시..."
 
+            PUSH_SUCCESS=false
+            for i in 1 2 3; do
+              echo "  푸시 시도 $i/3..."
+              if git push origin main; then
+                PUSH_SUCCESS=true
+                echo "✅ 푸시 성공!"
+                break
+              else
+                echo "  ⚠️ 푸시 실패, 원격 변경사항 확인 중..."
+
+                # 원격에 새 커밋이 있으면 rebase 후 재시도
+                git fetch origin main
+                if git rebase origin/main; then
+                  echo "  ✅ Rebase 성공, 재푸시 시도..."
+                else
+                  echo "  ⚠️ Rebase 충돌 발생, 자동 해결 시도..."
+                  # 충돌 파일들을 우리 버전(theirs=로컬)으로 해결
+                  git checkout --theirs . 2>/dev/null || true
+                  git add . 2>/dev/null || true
+                  git rebase --continue || git rebase --abort
+                fi
+
+                sleep 2
+              fi
+            done
+
+            if [ "$PUSH_SUCCESS" = false ]; then
+              echo "❌ 3회 푸시 시도 실패"
+              echo "   → 다음 자동 실행에서 재시도됩니다 (30분 후)"
+              exit 0
+            fi
+
+            echo ""
             echo "✅ Dashboard and config updated successfully!"
           else
             echo "ℹ️ No files to commit after staging"

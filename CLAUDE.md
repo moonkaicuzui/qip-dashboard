@@ -2360,6 +2360,59 @@ Employee ID | Previous_Incentive
      - `save_results()`의 로드는 backup용 (이미 로드된 경우 스킵)
      - 계산 순서: Config 로드 → Previous_Incentive 로드 → TYPE-1 계산 → 결과 저장
 
+45. **Issue #49: LINE LEADER Subordinate Lookup Type Mismatch** (FIXED: 2026-01-13):
+   - **Problem**: LINE LEADER 부하직원 조회 시 타입 불일치로 0명 반환
+     - 모든 LINE LEADER의 부하직원 수가 0명으로 표시
+     - 인센티브 계산: ₫0 (부하직원 없음으로 처리)
+   - **Root Cause**: `create_manager_subordinate_mapping()` 함수의 타입 불일치
+     - CSV 데이터: `boss_id`가 문자열 ("619100392")
+     - Python 비교: 정수형 (619100392) 또는 혼합 타입
+     - `emp_no == boss_id` 비교 시 항상 False
+   - **Solution**: 모든 ID 비교에 문자열 변환 적용
+     - Line 3146-3175: `str(emp_no)`, `str(boss_id)` 변환
+     - 직원 ID와 상사 ID 모두 문자열로 통일
+   - **Implementation**: `src/step1_인센티브_계산_개선버전.py:3146-3175`
+   - **Prevention**: ID 비교 시 항상 `str()` 변환 사용
+
+46. **Issue #50: GitHub Actions Git 로직 Race Condition** (FIXED: 2026-01-13):
+   - **Problem**: GitHub Actions 자동 업데이트 워크플로우 푸시 실패
+     - Error: `cannot pull with rebase: You have unstaged changes`
+     - Error: `Updates were rejected because the tip of your current branch is behind`
+     - 수동 커밋과 자동 커밋 간 충돌 발생
+   - **Root Cause**: **잘못된 Git 처리 순서**
+     ```
+     기존 (잘못됨):
+     1. git add (파일 스테이징) ← 먼저 실행
+     2. git pull --rebase ← staged 상태에서 불가능!
+     3. git commit
+     4. git push ← 충돌!
+
+     원격에 새 커밋이 있을 때 staged 변경사항과 충돌
+     ```
+   - **Solution**: 4-Step 로버스트 Git 처리 시스템
+     ```
+     수정 후 (올바름):
+     1. git stash push ← 모든 로컬 변경사항 임시 저장
+     2. git fetch + reset --hard ← 원격과 완전 동기화
+     3. git stash pop ← 로컬 변경사항 복원
+     4. git add + commit + push (3회 재시도)
+     ```
+   - **Key Changes** (`.github/workflows/auto-update-enhanced.yml:339-463`):
+     - Step 1: 원격 변경사항 먼저 동기화 (stash → fetch → reset → pop)
+     - Step 2: 파일 스테이징 (SelfContained 제외)
+     - Step 3: 커밋 생성
+     - Step 4: 푸시 (최대 3회 재시도, 실패 시 다음 30분에 자동 재시도)
+   - **Retry Logic**:
+     - 푸시 실패 시 `git fetch + rebase` 후 재시도
+     - Rebase 충돌 시 `--theirs` (로컬 우선) 자동 해결
+     - 3회 실패 시 exit 0 (다음 스케줄에서 재시도)
+   - **Implementation**: `.github/workflows/auto-update-enhanced.yml:339-463`
+   - **Commit**: [현재 세션]
+   - **Prevention**:
+     - 수동 커밋 후 GitHub Actions 자동 실행 시 충돌 없음
+     - 동시 커밋 발생 시 자동 해결
+     - 3회 재시도로 일시적 네트워크 오류 대응
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
