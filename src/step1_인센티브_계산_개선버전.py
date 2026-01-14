@@ -1396,6 +1396,672 @@ class DataProcessor:
         month_data['Previous_Incentive'] = 0
         return month_data
 
+    # =========================================================================
+    # Issue #51: 통합 TYPE-1 아키텍처 - Phase 1 Functions
+    # =========================================================================
+    # 목적: "두더지 잡기" 버그 패턴 근본 해결
+    # 원인: 3개 분리된 코드 경로 (ASSEMBLY INSPECTOR, AQL INSPECTOR, AUDITOR/TRAINER)
+    # 해결: 단일 진입점 + 단일 데이터 소스 + 설정 기반 분기
+    # =========================================================================
+
+    def _get_type1_position_category(self, position_code: str, position_name: str) -> str:
+        """
+        [Issue #51 - Phase 1.1] TYPE-1 직급 카테고리 결정
+
+        Args:
+            position_code: 직급 코드 (예: 'A1', 'D', 'P')
+            position_name: 직급 이름 (예: 'ASSEMBLY INSPECTOR', 'AQL INSPECTOR')
+
+        Returns:
+            str: 'AQL_INSPECTOR', 'ASSEMBLY_INSPECTOR', 'AUDITOR_TRAINER', 'MODEL_MASTER', 'OTHER'
+
+        Note:
+            position_condition_matrix.json의 TYPE-1 positions 패턴을 사용하여 분류
+            각 카테고리별로 다른 조건 세트와 계산 방식이 적용됨
+        """
+        # Normalize inputs
+        position_code = str(position_code).strip().upper() if position_code else ''
+        position_name = str(position_name).strip().upper() if position_name else ''
+
+        # Pattern definitions from position_condition_matrix.json TYPE-1 positions
+        # Priority order matters: AQL first (most specific), then others
+
+        # 1. AQL INSPECTOR (Special 3-Part calculation)
+        aql_patterns = ['AQL INSPECTOR', 'AQL', 'CFA CERTIFIED']
+        for pattern in aql_patterns:
+            if pattern in position_name:
+                return 'AQL_INSPECTOR'
+
+        # 2. MANAGER POSITIONS - 부하직원 기반 계산 (기존 코드에서 처리)
+        # Note: 이 직급들은 progression_table이 아닌 부하직원 인센티브 기반으로 계산
+        # 통합 함수에서 제외하고 기존 calculate_type2_type3_incentives()에서 처리
+        manager_patterns = ['MANAGER', 'A.MANAGER', 'SUPERVISOR', 'GROUP LEADER']
+        for pattern in manager_patterns:
+            if pattern in position_name:
+                return 'MANAGER_TYPE'  # 별도 처리 필요 (부하직원 기반)
+
+        # 3. LINE LEADER - 부하직원 기반 계산 (기존 코드에서 처리)
+        if 'LINE LEADER' in position_name:
+            return 'LINE_LEADER_TYPE'  # 별도 처리 필요 (부하직원 × 12%)
+
+        # 4. AUDITOR & TRAINER (conditions 7, 8 - Area/Team based)
+        auditor_patterns = ['AUDIT & TRAINING TEAM', 'AUDIT & TRAINING', 'AUDITOR', 'TRAINER']
+        for pattern in auditor_patterns:
+            if pattern in position_name:
+                return 'AUDITOR_TRAINER'
+
+        # 5. MODEL MASTER (condition 8 - Factory Reject Rate)
+        model_patterns = ['MODEL MASTER', 'SAMPLE']
+        for pattern in model_patterns:
+            if pattern in position_name:
+                return 'MODEL_MASTER'
+
+        # 6. ASSEMBLY INSPECTOR (most common TYPE-1)
+        assembly_patterns = ['ASSEMBLY INSPECTOR']
+        for pattern in assembly_patterns:
+            if pattern in position_name:
+                return 'ASSEMBLY_INSPECTOR'
+
+        # 7. Fallback: Check position code
+        # Position code 'D' is typically MODEL MASTER
+        if position_code == 'D':
+            return 'MODEL_MASTER'
+
+        # Default: OTHER (handled as ASSEMBLY INSPECTOR standard)
+        return 'OTHER'
+
+    def _get_applicable_conditions(self, position_category: str) -> list:
+        """
+        [Issue #51 - Phase 1.2 Helper] 직급 카테고리별 적용 조건 목록 반환
+
+        Args:
+            position_category: 'AQL_INSPECTOR', 'ASSEMBLY_INSPECTOR', 'AUDITOR_TRAINER', 'MODEL_MASTER', 'OTHER'
+
+        Returns:
+            list: 적용할 조건 번호 리스트 (예: [1, 2, 3, 4, 5, 6, 9, 10])
+
+        Note:
+            position_condition_matrix.json의 TYPE-1 position_matrix 정의와 일치
+        """
+        condition_mapping = {
+            'AQL_INSPECTOR': [1, 2, 3, 4, 5],                    # 출근 + 당월 AQL
+            'ASSEMBLY_INSPECTOR': [1, 2, 3, 4, 5, 6, 9, 10],     # 출근 + 개인 AQL + 5PRS
+            'AUDITOR_TRAINER': [1, 2, 3, 4, 7, 8],               # 출근 + 팀/구역 AQL + 담당구역
+            'MODEL_MASTER': [1, 2, 3, 4, 8],                     # 출근 + 담당구역
+            'OTHER': [1, 2, 3, 4]                                # 기본 출근 조건만
+        }
+        return condition_mapping.get(position_category, [1, 2, 3, 4])
+
+    def _evaluate_type1_conditions_unified(self, row: pd.Series, position_category: str) -> dict:
+        """
+        [Issue #51 - Phase 1.2] 통합 TYPE-1 조건 평가
+
+        Args:
+            row: DataFrame의 한 행 (직원 데이터)
+            position_category: 'AQL_INSPECTOR', 'ASSEMBLY_INSPECTOR', 'AUDITOR_TRAINER', 'MODEL_MASTER', 'OTHER'
+
+        Returns:
+            dict: {
+                'all_pass': bool,           # 모든 적용 조건 통과 여부
+                'applicable_conditions': list,  # 적용 조건 목록
+                'passed_conditions': list,  # 통과한 조건 목록
+                'failed_conditions': list,  # 실패한 조건 목록
+                'pass_rate': float,         # 통과율 (0.0 ~ 1.0)
+                'details': dict             # 각 조건별 상세 결과
+            }
+
+        Note:
+            100% Condition Fulfillment Rule 적용:
+            - 모든 적용 조건을 100% 충족해야만 인센티브 수령 자격 있음
+            - 80~99% 통과는 인센티브 미지급
+        """
+        # 적용할 조건 목록 가져오기
+        applicable_conditions = self._get_applicable_conditions(position_category)
+
+        # 조건 컬럼 매핑 (CSV 컬럼명)
+        # [Issue #51] add_condition_evaluation_to_excel()에서 생성하는 실제 컬럼명 사용
+        condition_columns = {
+            1: 'cond_1_attendance_rate',
+            2: 'cond_2_unapproved_absence',
+            3: 'cond_3_actual_working_days',
+            4: 'cond_4_minimum_days',
+            5: 'cond_5_aql_personal_failure',      # 수정: personal_aql_failure → aql_personal_failure
+            6: 'cond_6_aql_continuous',             # 수정: continuous_aql_failure → aql_continuous
+            7: 'cond_7_aql_team_area',              # 수정: team_area_aql → aql_team_area
+            8: 'cond_8_area_reject',                # 수정: area_reject_rate → area_reject
+            9: 'cond_9_5prs_pass_rate',
+            10: 'cond_10_5prs_inspection_qty'
+        }
+
+        # 각 조건 평가
+        passed_conditions = []
+        failed_conditions = []
+        details = {}
+
+        for cond_num in applicable_conditions:
+            col_name = condition_columns.get(cond_num)
+            if col_name is None:
+                # 조건 컬럼이 정의되지 않은 경우 PASS 처리
+                passed_conditions.append(cond_num)
+                details[cond_num] = {'column': None, 'value': None, 'result': 'PASS', 'reason': 'undefined'}
+                continue
+
+            # 조건 값 읽기 (대소문자 무관)
+            value = str(row.get(col_name, 'PASS')).strip().upper()
+
+            # PASS / NOT_APPLICABLE = 통과, 그 외 = 실패
+            if value in ['PASS', 'NOT_APPLICABLE', 'YES', '1', 'TRUE']:
+                passed_conditions.append(cond_num)
+                details[cond_num] = {'column': col_name, 'value': value, 'result': 'PASS'}
+            else:
+                failed_conditions.append(cond_num)
+                details[cond_num] = {'column': col_name, 'value': value, 'result': 'FAIL'}
+
+        # 결과 계산
+        all_pass = len(failed_conditions) == 0
+        pass_rate = len(passed_conditions) / len(applicable_conditions) if applicable_conditions else 0.0
+
+        return {
+            'all_pass': all_pass,
+            'applicable_conditions': applicable_conditions,
+            'passed_conditions': passed_conditions,
+            'failed_conditions': failed_conditions,
+            'pass_rate': pass_rate,
+            'details': details
+        }
+
+    def _calculate_continuous_months_type1_unified(self, emp_id: str, all_conditions_pass: bool,
+                                                    position_category: str = None,
+                                                    row: pd.Series = None) -> int:
+        """
+        [Issue #51 - Phase 1.3] 통합 Continuous_Months 계산
+
+        SINGLE SOURCE OF TRUTH: Final Incentive Excel의 Previous_Incentive 컬럼
+
+        Args:
+            emp_id: 직원 번호
+            all_conditions_pass: 현재 달 모든 조건 통과 여부
+            position_category: 직급 카테고리 (AQL_INSPECTOR는 별도 로직 가능)
+            row: 현재 직원의 DataFrame row (Previous_Incentive 포함)
+
+        Returns:
+            int: 연속 인센티브 수령 개월 수 (0-15)
+
+        Logic:
+            1. all_conditions_pass = False → return 0 (리셋, 조건 미충족)
+            2. Previous_Incentive = 0 or NaN → return 1 (첫 달)
+            3. Previous_Incentive > 0 → 역산 후 +1 (연속 개월)
+            4. 최대값: 15개월 (12개월 이후 동일 금액이므로)
+
+        Note:
+            Issue #47 해결: 이전 달 CSV의 잘못된 Continuous_Months 대신
+            Final Incentive 파일의 실제 지급 금액에서 역산
+        """
+        # 1. 조건 실패 시 0으로 리셋 (가장 중요한 규칙)
+        if not all_conditions_pass:
+            return 0
+
+        # 2. Previous_Incentive 가져오기 - row에서 직접 읽기 (Issue #51 수정)
+        previous_incentive = 0
+        try:
+            if row is not None:
+                # row에서 직접 Previous_Incentive 읽기
+                prev_val = row.get('Previous_Incentive', 0)
+                if prev_val is not None and not pd.isna(prev_val):
+                    previous_incentive = float(prev_val)
+        except Exception as e:
+            # 에러 발생 시 기본값 0 사용 → 1개월로 시작
+            pass
+
+        # 3. Previous_Incentive = 0 → 첫 달
+        if previous_incentive <= 0:
+            return 1
+
+        # 4. Previous_Incentive > 0 → 역산 후 +1
+        # progression_table에서 금액 → 개월 수 역산
+        previous_months = self._reverse_calculate_months_from_incentive_unified(
+            previous_incentive, position_category
+        )
+
+        # 다음 달 = 이전 달 개월 + 1, 최대 15
+        next_months = min(previous_months + 1, 15)
+
+        return next_months
+
+    def _reverse_calculate_months_from_incentive_unified(self, incentive_amount: float,
+                                                          position_category: str = None) -> int:
+        """
+        [Issue #51 - Phase 1.3 Helper] 인센티브 금액에서 개월 수 역산
+
+        Args:
+            incentive_amount: 인센티브 금액 (VND)
+            position_category: 직급 카테고리 (AQL은 3-Part 계산이므로 별도 처리)
+
+        Returns:
+            int: 해당 금액에 해당하는 개월 수
+
+        Note:
+            AQL Inspector는 3-Part 합계이므로 별도 역산 로직 적용 가능
+            다른 TYPE-1은 표준 progression_table 사용
+        """
+        if pd.isna(incentive_amount) or incentive_amount <= 0:
+            return 0
+
+        incentive_int = int(float(incentive_amount))
+
+        # AQL Inspector 특별 처리 (3-Part 합계)
+        if position_category == 'AQL_INSPECTOR':
+            return self._reverse_calculate_aql_months(incentive_int)
+
+        # 표준 TYPE-1 progression table
+        # progression_table: {1: 150000, 2: 250000, ..., 12: 1000000, ...}
+        progression_table = {
+            1: 150000,
+            2: 250000,
+            3: 300000,
+            4: 350000,
+            5: 400000,
+            6: 450000,
+            7: 500000,
+            8: 650000,
+            9: 750000,
+            10: 850000,
+            11: 950000,
+            12: 1000000,
+            13: 1000000,
+            14: 1000000,
+            15: 1000000
+        }
+
+        # 정확히 일치하는 금액 찾기
+        for months, amount in progression_table.items():
+            if incentive_int == amount:
+                return months
+
+        # 가장 가까운 값 찾기 (tolerance 허용)
+        closest_months = 1
+        min_diff = float('inf')
+        for months, amount in progression_table.items():
+            diff = abs(incentive_int - amount)
+            if diff < min_diff:
+                min_diff = diff
+                closest_months = months
+
+        # 오차 범위 내 (10% 이내)면 해당 개월 수 반환
+        if min_diff <= incentive_int * 0.1:
+            return closest_months
+
+        # 그 외 1개월로 처리
+        return 1
+
+    def _reverse_calculate_aql_months(self, total_incentive: int) -> int:
+        """
+        [Issue #51 - Phase 1.3 Helper] AQL Inspector 3-Part 합계에서 개월 수 역산
+
+        AQL Inspector 인센티브 구조:
+        - Part 1: AQL 평가 (progression table)
+        - Part 2: CFA 자격증 (700,000 VND 고정)
+        - Part 3: HWK 클레임 방지 (4개월부터 지급)
+
+        Returns:
+            int: 추정 연속 개월 수 (0: 조건 미충족, 1-15: 연속 개월)
+        """
+        # 0 VND는 조건 미충족 의미
+        if total_incentive <= 0:
+            return 0
+
+        # CFA 자격증 금액 제외 (대부분 CFA 보유)
+        cfa_amount = 700000
+        base_amount = total_incentive - cfa_amount
+
+        # CFA 없이 Part1만 있는 경우도 처리 (base_amount가 음수면 CFA 없는 경우)
+        if base_amount < 0:
+            base_amount = total_incentive  # CFA 없이 계산
+
+        # Part 3 (HWK) 테이블
+        hwk_table = {
+            4: 300000, 5: 300000, 6: 300000,
+            7: 500000, 8: 500000, 9: 500000,
+            10: 700000, 11: 700000, 12: 700000,
+            13: 900000, 14: 900000, 15: 900000
+        }
+
+        # Part 1 테이블
+        part1_table = {
+            1: 150000, 2: 250000, 3: 300000, 4: 350000, 5: 400000,
+            6: 450000, 7: 500000, 8: 650000, 9: 750000, 10: 850000,
+            11: 950000, 12: 1000000, 13: 1000000, 14: 1000000, 15: 1000000
+        }
+
+        # 가능한 조합 찾기 (작은 개월부터 - 더 정확한 매칭)
+        for months in range(1, 16):
+            part1 = part1_table.get(months, 0)
+            part3 = hwk_table.get(months, 0) if months >= 4 else 0
+            expected_base = part1 + part3
+
+            # 오차 범위 내 일치 (5%)
+            if expected_base > 0 and abs(base_amount - expected_base) <= expected_base * 0.05:
+                return months
+
+        # 기본값: 1개월 (유효한 인센티브가 있으면 최소 1개월)
+        return 1
+
+    def _calculate_type1_incentive_by_category(self, position_category: str, continuous_months: int,
+                                                emp_id: str, all_conditions_pass: bool) -> dict:
+        """
+        [Issue #51 - Phase 1.4] 직급 카테고리별 인센티브 계산 위임
+
+        Args:
+            position_category: 'AQL_INSPECTOR', 'ASSEMBLY_INSPECTOR', 'AUDITOR_TRAINER', 'MODEL_MASTER', 'OTHER'
+            continuous_months: 연속 인센티브 수령 개월 수 (0-15)
+            emp_id: 직원 번호
+            all_conditions_pass: 모든 적용 조건 통과 여부
+
+        Returns:
+            dict: {
+                'incentive_amount': int,       # 총 인센티브 금액
+                'continuous_months': int,      # 연속 개월 수
+                'calculation_method': str,     # 계산 방식 ('3-part' or 'standard')
+                'details': dict                # 세부 내역 (AQL의 경우 Part 1/2/3)
+            }
+
+        Note:
+            - AQL_INSPECTOR: 3-Part 계산 (aql_inspector_incentive_config.json 참조)
+            - Others: 표준 progression_table 사용
+            - 100% 조건 충족 필수 (all_conditions_pass = False → 0 VND)
+        """
+        # 조건 미충족 시 0 VND
+        if not all_conditions_pass or continuous_months <= 0:
+            return {
+                'incentive_amount': 0,
+                'continuous_months': 0,
+                'calculation_method': 'conditions_not_met',
+                'details': {'reason': 'Failed to meet all applicable conditions'}
+            }
+
+        # AQL Inspector: 3-Part 특별 계산
+        if position_category == 'AQL_INSPECTOR':
+            return self._calculate_aql_inspector_3part(emp_id, continuous_months)
+
+        # Others: 표준 progression table
+        return self._calculate_standard_progression(continuous_months)
+
+    def _calculate_standard_progression(self, continuous_months: int) -> dict:
+        """
+        [Issue #51 - Phase 1.4 Helper] 표준 TYPE-1 progression table 계산
+
+        Args:
+            continuous_months: 연속 개월 수 (1-15)
+
+        Returns:
+            dict: 인센티브 계산 결과
+        """
+        progression_table = {
+            0: 0,
+            1: 150000,
+            2: 250000,
+            3: 300000,
+            4: 350000,
+            5: 400000,
+            6: 450000,
+            7: 500000,
+            8: 650000,
+            9: 750000,
+            10: 850000,
+            11: 950000,
+            12: 1000000,
+            13: 1000000,
+            14: 1000000,
+            15: 1000000
+        }
+
+        # 최대 15개월로 제한
+        months = min(continuous_months, 15)
+        incentive = progression_table.get(months, 0)
+
+        return {
+            'incentive_amount': incentive,
+            'continuous_months': months,
+            'calculation_method': 'standard_progression',
+            'details': {
+                'table_lookup': f'{months} months = {incentive:,} VND'
+            }
+        }
+
+    def _calculate_aql_inspector_3part(self, emp_id: str, continuous_months: int) -> dict:
+        """
+        [Issue #51 - Phase 1.4 Helper] AQL Inspector 3-Part 인센티브 계산
+
+        구조:
+        - Part 1 (AQL 평가): progression table (1-15개월)
+        - Part 2 (CFA 자격증): 700,000 VND (자격 보유 시)
+        - Part 3 (HWK 클레임 방지): 4개월부터 시작 (300K → 900K)
+
+        Args:
+            emp_id: 직원 번호 (CFA 자격 확인용)
+            continuous_months: 연속 개월 수
+
+        Returns:
+            dict: 3-Part 계산 결과
+        """
+        # Part 1 테이블
+        part1_table = {
+            1: 150000, 2: 250000, 3: 300000, 4: 350000, 5: 400000,
+            6: 450000, 7: 500000, 8: 650000, 9: 750000, 10: 850000,
+            11: 950000, 12: 1000000, 13: 1000000, 14: 1000000, 15: 1000000
+        }
+
+        # Part 3 (HWK) 테이블 - 4개월부터 시작
+        part3_table = {
+            1: 0, 2: 0, 3: 0,
+            4: 300000, 5: 300000, 6: 300000,
+            7: 500000, 8: 500000, 9: 500000,
+            10: 700000, 11: 700000, 12: 700000,
+            13: 900000, 14: 900000, 15: 900000
+        }
+
+        months = min(continuous_months, 15)
+
+        # Part 1: AQL 평가
+        part1 = part1_table.get(months, 0)
+
+        # Part 2: CFA 자격증 확인
+        cfa_certified = self._check_cfa_certification(emp_id)
+        part2 = 700000 if cfa_certified else 0
+
+        # Part 3: HWK 클레임 방지
+        part3 = part3_table.get(months, 0)
+
+        # 총 인센티브
+        total = part1 + part2 + part3
+
+        return {
+            'incentive_amount': total,
+            'continuous_months': months,
+            'calculation_method': '3-part',
+            'details': {
+                'part1_aql_evaluation': part1,
+                'part2_cfa_certificate': part2,
+                'part3_hwk_prevention': part3,
+                'cfa_certified': cfa_certified
+            }
+        }
+
+    def _check_cfa_certification(self, emp_id: str) -> bool:
+        """
+        [Issue #51 - Phase 1.4 Helper] CFA 자격증 보유 여부 확인
+
+        Args:
+            emp_id: 직원 번호
+
+        Returns:
+            bool: CFA 자격증 보유 여부
+
+        Note:
+            aql_inspector_incentive_config.json에서 확인
+            또는 기본 True (대부분의 AQL Inspector가 CFA 보유)
+        """
+        try:
+            import json
+            config_path = 'config_files/aql_inspector_incentive_config.json'
+            with open(config_path, 'r', encoding='utf-8') as f:
+                aql_config = json.load(f)
+
+            emp_id_str = str(emp_id)
+            if emp_id_str in aql_config.get('aql_inspectors', {}):
+                return aql_config['aql_inspectors'][emp_id_str].get('cfa_certified', True)
+
+            # AQL Inspector config에 등록되지 않은 직원은 CFA 미보유로 처리
+            # (실제 AQL Inspector는 모두 config에 등록되어 있어야 함)
+            return False
+        except Exception as e:
+            # 오류 시 보수적으로 False 반환
+            return False
+
+    def calculate_type1_incentive_unified(self, month_data: pd.DataFrame, validation_mode: bool = False) -> pd.DataFrame:
+        """
+        [Issue #51 - Phase 1.5] 통합 TYPE-1 인센티브 계산
+
+        모든 TYPE-1 직급을 단일 함수로 처리:
+        - ASSEMBLY INSPECTOR
+        - AQL INSPECTOR
+        - AUDITOR & TRAINER
+        - MODEL MASTER
+
+        Args:
+            month_data: 직원 데이터 DataFrame (CompleteQIPCalculator에서 전달)
+            validation_mode: True면 기존 코드와 병렬 실행하여 결과 비교
+
+        Returns:
+            pd.DataFrame: 인센티브가 계산된 month_data
+
+        Architecture:
+            1. 직급 카테고리 감지: _get_type1_position_category()
+            2. 조건 평가: _evaluate_type1_conditions_unified()
+            3. 연속 개월 계산: _calculate_continuous_months_type1_unified()
+            4. 인센티브 계산: _calculate_type1_incentive_by_category()
+
+        Note:
+            Issue #51 - "두더지 잡기" 버그 패턴 근본 해결
+            기존 3개 분리 코드 경로 → 단일 통합 경로
+        """
+        print("\n" + "=" * 70)
+        print("🔄 [Issue #51] 통합 TYPE-1 인센티브 계산 시작")
+        print("=" * 70)
+
+        # 인센티브 컬럼 이름
+        incentive_col = f'{self.config.month.full_name.capitalize()}_Incentive'
+
+        # TYPE-1 직원 필터링
+        type1_mask = month_data['ROLE TYPE STD'] == 'TYPE-1'
+        type1_indices = month_data[type1_mask].index.tolist()
+
+        print(f"  📊 TYPE-1 직원 수: {len(type1_indices)}명")
+
+        # 카테고리별 통계
+        category_stats = {
+            'AQL_INSPECTOR': {'count': 0, 'received': 0, 'total': 0},
+            'ASSEMBLY_INSPECTOR': {'count': 0, 'received': 0, 'total': 0},
+            'AUDITOR_TRAINER': {'count': 0, 'received': 0, 'total': 0},
+            'MODEL_MASTER': {'count': 0, 'received': 0, 'total': 0},
+            'OTHER': {'count': 0, 'received': 0, 'total': 0}
+        }
+
+        # 검증 모드용 결과 저장
+        validation_results = [] if validation_mode else None
+
+        # [Issue #51] 부하직원 기반 계산 직급 skip 추적
+        skipped_positions = {}
+
+        # 각 TYPE-1 직원 처리
+        for idx in type1_indices:
+            row = month_data.loc[idx]
+
+            # 1. 직급 카테고리 결정
+            position_code = str(row.get('QIP POSITION 1ST  CODE', '')).strip()
+            position_name = str(row.get('QIP POSITION 1ST  NAME', '')).strip()
+            position_category = self._get_type1_position_category(position_code, position_name)
+
+            # [Issue #51] MANAGER_TYPE, LINE_LEADER_TYPE은 부하직원 기반 계산 사용
+            # 통합 함수에서 skip하고 기존 calculate_type2_type3_incentives()에서 처리
+            if position_category in ['MANAGER_TYPE', 'LINE_LEADER_TYPE']:
+                skipped_positions[position_category] = skipped_positions.get(position_category, 0) + 1
+                continue
+
+            # 2. 조건 평가
+            condition_result = self._evaluate_type1_conditions_unified(row, position_category)
+            all_conditions_pass = condition_result['all_pass']
+
+            # 3. 연속 개월 계산 (row 전달하여 Previous_Incentive 직접 읽기)
+            emp_id = str(row.get('Employee No', ''))
+            continuous_months = self._calculate_continuous_months_type1_unified(
+                emp_id, all_conditions_pass, position_category, row
+            )
+
+            # 4. 인센티브 계산
+            incentive_result = self._calculate_type1_incentive_by_category(
+                position_category, continuous_months, emp_id, all_conditions_pass
+            )
+
+            incentive_amount = incentive_result['incentive_amount']
+
+            # DataFrame 업데이트
+            month_data.loc[idx, incentive_col] = incentive_amount
+            month_data.loc[idx, 'Continuous_Months'] = continuous_months
+            month_data.loc[idx, 'Position_Category'] = position_category
+
+            # 통계 업데이트
+            category_stats[position_category]['count'] += 1
+            if incentive_amount > 0:
+                category_stats[position_category]['received'] += 1
+                category_stats[position_category]['total'] += incentive_amount
+
+            # 검증 모드 결과 저장
+            if validation_mode:
+                validation_results.append({
+                    'emp_id': emp_id,
+                    'position_category': position_category,
+                    'all_conditions_pass': all_conditions_pass,
+                    'continuous_months': continuous_months,
+                    'incentive_amount': incentive_amount,
+                    'calculation_method': incentive_result['calculation_method'],
+                    'details': incentive_result['details']
+                })
+
+        # 결과 출력
+        print("\n  📈 카테고리별 결과:")
+        print("  " + "-" * 60)
+        total_received = 0
+        total_amount = 0
+
+        for category, stats in category_stats.items():
+            if stats['count'] > 0:
+                pct = stats['received'] / stats['count'] * 100 if stats['count'] > 0 else 0
+                print(f"  • {category:20s}: {stats['count']:3d}명 → {stats['received']:3d}명 수령 ({pct:5.1f}%) | ₫{stats['total']:>12,}")
+                total_received += stats['received']
+                total_amount += stats['total']
+
+        print("  " + "-" * 60)
+        processed_count = len(type1_indices) - sum(skipped_positions.values())
+        print(f"  • {'PROCESSED':20s}: {processed_count:3d}명 → {total_received:3d}명 수령 | ₫{total_amount:>12,}")
+
+        # [Issue #51] Skipped positions 출력 (부하직원 기반 계산)
+        if skipped_positions:
+            print("\n  ⏭️  부하직원 기반 계산으로 skip:")
+            for pos_type, count in skipped_positions.items():
+                print(f"     • {pos_type:20s}: {count:3d}명 (기존 코드에서 처리)")
+            print(f"     • {'TOTAL SKIPPED':20s}: {sum(skipped_positions.values()):3d}명")
+
+        print("\n" + "=" * 70)
+        print("✅ [Issue #51] 통합 TYPE-1 인센티브 계산 완료")
+        print("=" * 70)
+
+        # 검증 모드 결과 반환
+        if validation_mode:
+            return month_data, validation_results
+
+        return month_data
+
     def process_aql_conditions_with_history(self, aql_df: pd.DataFrame = None) -> pd.DataFrame:
         """AQL history file 활용한 3-month consecutive failure 체크"""
         print("\n📊 AQL History Checking 3-month consecutive failures based on files...")
@@ -2640,19 +3306,36 @@ class CompleteQIPCalculator:
             print(f"✅ {prev_month}month calculation completed\n")
     
     def calculate_all_incentives_without_check(self):
-        """previous month 체크 없 incentive calculation (재귀 방지용)"""
+        """previous month 체크 없 incentive calculation (재귀 방지용)
+
+        [Issue #51] 통합 아키텍처 적용
+        - 기존: calculate_auditor_trainer_incentive(), calculate_assembly_inspector_incentive_type1_only() 개별 호출
+        - 변경: calculate_type1_incentive_unified() 통합 함수 사용
+        """
         print(f"📊 TYPE별 incentive calculation started...")
-        
-        # manager-부하 mapping created
+
+        # 1. 조건 평가 (area reject rate 등 조건 7, 8 계산 포함)
+        self.add_condition_evaluation_to_excel()
+
+        # 2. Previous_Incentive 조기 로드 (TYPE-1 계산 전 필수!)
+        self.month_data = self.data_processor._load_previous_incentive_early(self.month_data)
+
+        # 3. [Issue #51] 통합 TYPE-1 인센티브 계산
+        # AQL_INSPECTOR, ASSEMBLY_INSPECTOR, AUDITOR_TRAINER, MODEL_MASTER 처리
+        self.month_data = self.data_processor.calculate_type1_incentive_unified(self.month_data)
+
+        # 4. manager-부하 mapping created
         subordinate_mapping = self.create_manager_subordinate_mapping()
-        
-        # same days한 with직 실행
-        self.calculate_auditor_trainer_incentive(subordinate_mapping)
-        self.calculate_assembly_inspector_incentive_type1_only()
+
+        # 5. Type-1 Line Leader calculation
         self.calculate_line_leader_incentive_type1_only(subordinate_mapping)
+
+        # 6. Head(Group Leader) calculation
         self.calculate_head_incentive(subordinate_mapping)
+
+        # 7. Type-2 calculation
         self.calculate_type2_incentive()
-        
+
         print(f"✅ incentive calculation completed")
     
     def calculate_all_incentives(self):
@@ -2680,16 +3363,20 @@ class CompleteQIPCalculator:
         # ⚠️ CRITICAL: save_results()에서 로드하면 너무 늦음 - 여기서 먼저 로드해야 함
         self.month_data = self.data_processor._load_previous_incentive_early(self.month_data)
 
-        # 2. Type-1 Assembly Inspector calculation
-        self.calculate_assembly_inspector_incentive_type1_only()
-        
-        # 3. manager-부하 mapping created
+        # 2. [Issue #51] 통합 TYPE-1 인센티브 계산
+        # AQL_INSPECTOR, ASSEMBLY_INSPECTOR, AUDITOR_TRAINER, MODEL_MASTER 처리
+        # MANAGER_TYPE, LINE_LEADER_TYPE은 skip (부하직원 기반 계산 필요)
+        # Note: 조건 7, 8 (area reject rate)은 add_condition_evaluation_to_excel()에서 이미 계산됨
+        self.month_data = self.data_processor.calculate_type1_incentive_unified(self.month_data)
+
+        # 3. manager-부하 mapping created (LINE LEADER, MANAGER 등 부하직원 기반 계산에 필요)
         subordinate_mapping = self.create_manager_subordinate_mapping()
-        
-        # 4. Type-1 Auditor/Trainer calculation
-        self.calculate_auditor_trainer_incentive(subordinate_mapping)
-        
-        # 5. Type-1 Line Leader calculation
+
+        # [Issue #51] calculate_auditor_trainer_incentive() 호출 제거
+        # 이유: 통합 함수(calculate_type1_incentive_unified)가 이미 처리
+        # 조건 7, 8 (area reject rate)은 add_condition_evaluation_to_excel()에서 사전 계산됨
+
+        # 4. Type-1 Line Leader calculation
         self.calculate_line_leader_incentive_type1_only(subordinate_mapping)
         
         # 5. Head(Group Leader) calculation
@@ -2943,7 +3630,25 @@ class CompleteQIPCalculator:
         return 0.0
     
     def calculate_auditor_trainer_incentive(self, subordinate_mapping: Dict[str, List[str]]):
-        """Auditor/Trainer 및 Model Master incentive calculation (자same화)"""
+        """
+        [DEPRECATED - Issue #51]
+        이 함수는 calculate_type1_incentive_unified()로 대체되었습니다.
+        통합 함수가 AUDITOR_TRAINER, MODEL_MASTER를 포함한 모든 TYPE-1 직급을 처리합니다.
+
+        유지 이유: 디버깅 참조용, 추후 완전 제거 예정
+        대체 함수: CompleteDataLoader.calculate_type1_incentive_unified()
+        """
+        import warnings
+        warnings.warn(
+            "calculate_auditor_trainer_incentive() is deprecated. "
+            "Use calculate_type1_incentive_unified() instead. (Issue #51)",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        print("\n⚠️ [DEPRECATED] calculate_auditor_trainer_incentive() - 통합 함수로 대체됨, 실행 스킵")
+        return  # 실행 스킵 - 통합 함수가 이미 처리함
+
+        # ===== 아래 코드는 DEPRECATED - 참조용으로만 유지 =====
         print("\n👥 TYPE-1 AUDITOR/TRAINER & MODEL MASTER incentive calculation...")
 
         # in charge area reject율 saved할 딕셔너리
@@ -3569,16 +4274,36 @@ class CompleteQIPCalculator:
         return table.get(str(continuous_months), 0)
     
     def calculate_assembly_inspector_incentive_type1_only(self):
-        """Type-1 Assembly Inspector 및 AQL Inspector incentive calculation
-        
+        """
+        [DEPRECATED - Issue #51]
+        이 함수는 calculate_type1_incentive_unified()로 대체되었습니다.
+        통합 함수가 ASSEMBLY_INSPECTOR, AQL_INSPECTOR를 포함한 모든 TYPE-1 직급을 처리합니다.
+
+        유지 이유: 디버깅 참조용, 추후 완전 제거 예정
+        대체 함수: CompleteDataLoader.calculate_type1_incentive_unified()
+
+        --- 이전 설명 ---
+        Type-1 Assembly Inspector 및 AQL Inspector incentive calculation
+
         10 conditions 체계 (4-4-2 구조):
         - attendance condition (4items): attendance율, 무단결근, 실제 근무 days, minimum 12 days
         - AQL condition (4items): 당month failure, 3-month consecutive(ASSEMBLYonly), 부하employee(해당없음), area(해당없음)
         - 5PRS conditions (2items): inspection량, passed율
-        
+
         ASSEMBLY INSPECTOR: 8/10 condition apply (6번 condition include)
         AQL INSPECTOR: 5/10 condition apply (6번 condition exclude)
         """
+        import warnings
+        warnings.warn(
+            "calculate_assembly_inspector_incentive_type1_only() is deprecated. "
+            "Use calculate_type1_incentive_unified() instead. (Issue #51)",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        print("\n⚠️ [DEPRECATED] calculate_assembly_inspector_incentive_type1_only() - 통합 함수로 대체됨, 실행 스킵")
+        return  # 실행 스킵 - 통합 함수가 이미 처리함
+
+        # ===== 아래 코드는 DEPRECATED - 참조용으로만 유지 =====
         print("\n👥 TYPE-1 ASSEMBLY/AQL INSPECTOR incentive calculation...")
         
         # Type-1 Assembly Inspector 필터링
