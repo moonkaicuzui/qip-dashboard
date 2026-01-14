@@ -3,6 +3,7 @@
 
 """
 월 선택 페이지 생성 스크립트
+Modern Card Grid - Dark Theme (2026-01-14)
 모든 월의 대시보드를 선택할 수 있는 메인 페이지 생성
 """
 
@@ -11,7 +12,7 @@ import glob
 from datetime import datetime
 
 def create_month_selector_page():
-    """월 선택 페이지 HTML 생성"""
+    """월 선택 페이지 HTML 생성 - Modern Card Grid Dark Theme"""
 
     # docs 디렉토리의 HTML 파일 찾기
     html_files = glob.glob("docs/Incentive_Dashboard_*.html")
@@ -72,7 +73,7 @@ def create_month_selector_page():
     dashboards = list(unique_dashboards.values())
     dashboards.sort(key=lambda x: x['sort_key'], reverse=True)
 
-    # HTML 생성
+    # HTML 생성 - Modern Card Grid Dark Theme
     html_content = """<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -88,12 +89,25 @@ def create_month_selector_page():
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* ==========================================
+           Modern Card Grid - Dark Theme (2026-01-14)
+           ========================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f172a;
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            color: #e2e8f0;
         }
 
         /* 언어 선택 버튼 */
@@ -103,260 +117,75 @@ def create_month_selector_page():
             right: 20px;
             display: flex;
             gap: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px;
-            border-radius: 25px;
+            background: rgba(30, 41, 59, 0.8);
+            padding: 6px;
+            border-radius: 30px;
             backdrop-filter: blur(10px);
             z-index: 1000;
+            border: 1px solid rgba(99, 102, 241, 0.3);
         }
 
         .lang-btn {
             padding: 8px 16px;
             border: none;
             background: transparent;
-            color: white;
-            font-size: 0.9rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
             font-weight: 600;
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            opacity: 0.7;
         }
 
         .lang-btn:hover {
-            opacity: 1;
+            color: #e2e8f0;
+            background: rgba(99, 102, 241, 0.2);
         }
 
         .lang-btn.active {
-            background: white;
-            color: #667eea;
-            opacity: 1;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
         }
 
         .container {
             max-width: 1200px;
             padding: 20px;
+            margin: 0 auto;
         }
 
+        /* 헤더 섹션 */
         .header {
             text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            animation: fadeIn 0.5s ease-out;
+            color: #e2e8f0;
+            margin-bottom: 50px;
+            padding-top: 60px;
+            animation: fadeInDown 0.6s ease-out;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header p {
-            font-size: 1.2rem;
-            opacity: 0.95;
+            font-size: 1.1rem;
+            color: #94a3b8;
         }
 
-        .month-grid {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 40px;
-            width: 100%;
-        }
-
-        /* 넓은 가로 카드 레이아웃 - 균등한 가로 간격 적용 (2026-01-14) */
-        .month-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px 50px;  /* 좌우 패딩 증가: 30px → 50px */
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            gap: 30px;  /* 내부 간격 증가: 20px → 30px */
-        }
-
-        .month-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* 왼쪽 영역 - 월 정보 */
-        .card-left {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 30px;  /* 배지-텍스트 간격 증가: 20px → 30px */
-            flex: 1;
-        }
-
-        /* 월 배지 (그라디언트 보라색 박스) - 고정 크기로 정렬 */
-        .month-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            width: 70px;
-            height: 70px;
-            border-radius: 14px;
-            font-size: 1.5rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        /* 카드 정보 영역 */
-        .card-info {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .month-year {
-            font-size: 22px;
-            font-weight: bold;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .month-name {
-            font-size: 14px;
-            color: #6b7280;
-        }
-
-        /* NEW 배지 */
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .status-new {
-            background-color: #10b981;
-            color: white;
-        }
-
-        .status-updated {
-            background-color: #f59e0b;
-            color: white;
-        }
-
-        /* 오른쪽 영역 - 버튼 */
-        .card-right {
-            flex-shrink: 0;
-        }
-
-        .view-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-block;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .view-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        /* 카드 푸터 (기존 스타일 유지 - 사용 안함) */
-        .card-footer {
-            display: none;
-        }
-
-        /* 반응형 디자인 - 모바일 */
-        @media (max-width: 768px) {
-            .month-card {
-                flex-direction: column;
-                padding: 20px;
-                text-align: center;
-            }
-
-            .card-left {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .month-badge {
-                padding: 12px 20px;
-                font-size: 1.3rem;
-            }
-
-            .card-info {
-                align-items: center;
-            }
-
-            .month-year {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .card-right {
-                width: 100%;
-            }
-
-            .view-btn {
-                width: 100%;
-                padding: 14px;
-            }
-        }
-
-        .last-update {
-            text-align: center;
-            color: white;
-            margin-top: 30px;
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-
-        .admin-link {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-        }
-
-        .admin-link:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            text-decoration: none;
-        }
-
-        /* 미니멀 인라인 동기화 정보 (2026-01-14 개선) */
+        /* 동기화 정보 - 미니멀 인라인 */
         .sync-info {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
-            color: rgba(255, 255, 255, 0.9);
+            gap: 20px;
+            color: #64748b;
             font-size: 0.9rem;
-            margin-bottom: 25px;
+            margin-bottom: 40px;
             flex-wrap: wrap;
         }
 
@@ -366,33 +195,304 @@ def create_month_selector_page():
             gap: 8px;
         }
 
+        .sync-info .sync-icon {
+            color: #22c55e;
+        }
+
         .sync-info .sync-divider {
-            color: rgba(255, 255, 255, 0.5);
+            color: #334155;
         }
 
         .sync-info .update-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: white;
-            padding: 6px 14px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #a5b4fc;
+            padding: 6px 16px;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
         }
 
         .sync-info .update-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
+            background: rgba(99, 102, 241, 0.3);
+            border-color: #6366f1;
+            color: white;
+            transform: translateY(-2px);
         }
 
-        /* 모바일 반응형 */
-        @media (max-width: 480px) {
+        /* 카드 그리드 레이아웃 */
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        /* 모던 다크 카드 */
+        .month-card {
+            background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+            border-radius: 20px;
+            padding: 28px;
+            border-top: 3px solid;
+            border-image: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%) 1;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .month-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .month-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2), 0 8px 16px rgba(0, 0, 0, 0.4);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .month-card:hover .view-arrow {
+            transform: translateX(5px);
+        }
+
+        /* 카드 상단 영역 */
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        /* 큰 월 숫자 */
+        .month-number {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .month-suffix {
+            font-size: 20px;
+            font-weight: 600;
+            color: #64748b;
+            margin-left: 4px;
+            vertical-align: top;
+        }
+
+        /* NEW 배지 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .status-new {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+
+        .status-updated {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        /* 카드 정보 */
+        .card-info {
+            margin-bottom: 20px;
+        }
+
+        .month-year-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+
+        .month-subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .month-subtitle i {
+            color: #22c55e;
+            font-size: 0.8rem;
+        }
+
+        /* View 버튼 */
+        .view-btn-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .view-arrow {
+            transition: transform 0.3s ease;
+        }
+
+        /* 푸터 */
+        .footer-section {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .footer-section p {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .footer-section i {
+            font-size: 1rem;
+        }
+
+        .admin-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            margin-top: 10px;
+        }
+
+        .admin-link:hover {
+            color: #a5b4fc;
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .month-card {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .lang-selector {
+                top: 10px;
+                right: 10px;
+                padding: 4px;
+            }
+
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+            }
+
+            .header {
+                padding-top: 70px;
+                margin-bottom: 30px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .month-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .month-card {
+                padding: 24px;
+            }
+
+            .month-number {
+                font-size: 48px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
             .sync-info {
                 flex-direction: column;
-                gap: 8px;
+                gap: 12px;
                 font-size: 0.85rem;
             }
 
@@ -401,43 +501,22 @@ def create_month_selector_page():
             }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @media (max-width: 480px) {
+            .view-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 14px;
+            }
+
+            .month-number {
+                font-size: 42px;
+            }
         }
 
-        .month-card {
-            animation: fadeIn 0.5s ease-out forwards;
-            opacity: 0;
-        }
-
-        @media (max-width: 768px) {
-            .lang-selector {
-                top: 10px;
-                right: 10px;
-                padding: 3px;
-            }
-
-            .lang-btn {
-                padding: 6px 12px;
-                font-size: 0.8rem;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
+        /* 태블릿 (2열 그리드) */
+        @media (min-width: 769px) and (max-width: 1024px) {
             .month-grid {
-                /* 이미 flex column으로 설정되어 있음 */
-            }
-
-            .month-card {
-                max-width: 100%;
-            }
-
-            .container {
-                padding: 10px;
-                padding-top: 60px;
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -453,14 +532,14 @@ def create_month_selector_page():
     <div class="container">
         <!-- 헤더 -->
         <div class="header">
-            <h1><span data-i18n="header-title">📊 QIP 인센티브 대시보드</span></h1>
+            <h1 data-i18n="header-title">QIP 인센티브 대시보드</h1>
             <p data-i18n="header-subtitle">원하시는 월을 선택하세요</p>
         </div>
 
-        <!-- 자동 업데이트 정보 (미니멀 인라인 스타일) -->
+        <!-- 동기화 정보 -->
         <div class="sync-info">
             <span class="sync-text">
-                <span>🔄</span>
+                <i class="fas fa-sync-alt sync-icon"></i>
                 <span data-i18n="sync-auto">매시간 자동 동기화</span>
             </span>
             <span class="sync-divider">•</span>
@@ -468,7 +547,10 @@ def create_month_selector_page():
                 <span data-i18n="sync-last">최근:</span>
                 <span>""" + datetime.now().strftime('%Y-%m-%d %H:%M') + """</span>
             </span>
-            <button class="update-btn" onclick="triggerManualUpdate()" data-i18n="sync-update">업데이트</button>
+            <button class="update-btn" onclick="triggerManualUpdate()">
+                <i class="fas fa-refresh"></i>
+                <span data-i18n="sync-update">업데이트</span>
+            </button>
         </div>
 
         <!-- 월 선택 그리드 -->
@@ -477,8 +559,11 @@ def create_month_selector_page():
 
     # 각 월별 카드 추가
     for i, dashboard in enumerate(dashboards):
-        # 최신 3개월은 NEW 배지
-        badge_html = '<span class="status-badge status-new" data-i18n="badge-new">NEW</span>' if i < 3 else ''
+        # 최신 2개월은 NEW 배지
+        badge_html = '''<span class="status-badge status-new">
+                        <i class="fas fa-star"></i>
+                        <span data-i18n="badge-new">NEW</span>
+                    </span>''' if i < 2 else ''
 
         # 애니메이션 지연
         animation_delay = i * 0.1
@@ -487,24 +572,29 @@ def create_month_selector_page():
         month_i18n_key = f"month-{dashboard['month']}"
 
         html_content += f"""
+            <!-- {dashboard['month_name']} {dashboard['year']} Card -->
             <a href="{dashboard['filename']}" class="month-card" style="animation-delay: {animation_delay}s;" data-year="{dashboard['year']}" data-month="{dashboard['month']}">
-                <!-- 왼쪽 영역: 월 정보 -->
-                <div class="card-left">
-                    <div class="month-badge">
-                        <span class="month-text">{dashboard['month']}</span><span data-i18n="month-suffix">월</span>
+                <div class="card-header-row">
+                    <div>
+                        <span class="month-number">{dashboard['month']}</span><span class="month-suffix" data-i18n="month-suffix">월</span>
                     </div>
-                    <div class="card-info">
-                        <div class="month-year">
-                            <span data-lang-show="ko"><span class="year-text">{dashboard['year']}</span><span data-i18n="year-suffix">년</span> <span class="month-text">{dashboard['month']}</span><span data-i18n="month-suffix">월</span></span>
-                            <span class="month-name" data-i18n="{month_i18n_key}" data-lang-hide="ko">{dashboard['month_name']}</span>
-                            {badge_html}
-                        </div>
-                        <div class="month-subtitle" style="color: #6b7280; font-size: 13px;" data-i18n="month-subtitle">최신 평가 데이터 • 업데이트됨</div>
+                    {badge_html}
+                </div>
+                <div class="card-info">
+                    <div class="month-year-text">
+                        <span data-lang-show="ko"><span class="year-text">{dashboard['year']}</span><span data-i18n="year-suffix">년</span> <span>{dashboard['month']}</span><span data-i18n="month-suffix">월</span></span>
+                        <span data-i18n="{month_i18n_key}" data-lang-hide="ko">{dashboard['month_name']} {dashboard['year']}</span>
+                    </div>
+                    <div class="month-subtitle">
+                        <i class="fas fa-check-circle"></i>
+                        <span data-i18n="month-subtitle">최신 평가 데이터 • 업데이트됨</span>
                     </div>
                 </div>
-                <!-- 오른쪽 영역: 버튼 -->
-                <div class="card-right">
-                    <span class="view-btn" data-i18n="view-btn">보기 →</span>
+                <div class="view-btn-container">
+                    <span class="view-btn">
+                        <span data-i18n="view-btn">보기</span>
+                        <i class="fas fa-arrow-right view-arrow"></i>
+                    </span>
                 </div>
             </a>
 """
@@ -513,12 +603,19 @@ def create_month_selector_page():
         </div>
 
         <!-- 푸터 -->
-        <div class="last-update">
-            <p data-i18n="footer-mobile">💡 모바일에서도 완벽하게 작동합니다</p>
-            <p data-i18n="footer-security">🔒 모든 데이터는 안전하게 보호됩니다</p>
-            <p style="margin-top: 20px;">
-                <a href="admin.html" class="admin-link" data-i18n="admin-link">⚙️ 관리자 로그인</a>
+        <div class="footer-section">
+            <p>
+                <i class="fas fa-mobile-alt"></i>
+                <span data-i18n="footer-mobile">모바일에서도 완벽하게 작동합니다</span>
             </p>
+            <p>
+                <i class="fas fa-shield-alt"></i>
+                <span data-i18n="footer-security">모든 데이터는 안전하게 보호됩니다</span>
+            </p>
+            <a href="admin.html" class="admin-link">
+                <i class="fas fa-cog"></i>
+                <span data-i18n="admin-link">관리자 로그인</span>
+            </a>
         </div>
     </div>
 
@@ -606,16 +703,16 @@ def create_month_selector_page():
         const translations = {
             ko: {
                 'page-title': 'QIP 인센티브 대시보드 - 월 선택',
-                'header-title': '📊 QIP 인센티브 대시보드',
+                'header-title': 'QIP 인센티브 대시보드',
                 'header-subtitle': '원하시는 월을 선택하세요',
                 'sync-auto': '매시간 자동 동기화',
                 'sync-last': '최근:',
                 'sync-update': '업데이트',
-                'view-btn': '보기 →',
+                'view-btn': '보기',
                 'badge-new': 'NEW',
-                'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
-                'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다',
-                'admin-link': '⚙️ 관리자 로그인',
+                'footer-mobile': '모바일에서도 완벽하게 작동합니다',
+                'footer-security': '모든 데이터는 안전하게 보호됩니다',
+                'admin-link': '관리자 로그인',
                 'month-subtitle': '최신 평가 데이터 • 업데이트됨',
                 'year-suffix': '년',
                 'month-suffix': '월',
@@ -631,16 +728,16 @@ def create_month_selector_page():
             },
             en: {
                 'page-title': 'QIP Incentive Dashboard - Select Month',
-                'header-title': '📊 QIP Incentive Dashboard',
+                'header-title': 'QIP Incentive Dashboard',
                 'header-subtitle': 'Please select the month you want to view',
                 'sync-auto': 'Auto-sync hourly',
                 'sync-last': 'Last:',
                 'sync-update': 'Update',
-                'view-btn': 'View →',
+                'view-btn': 'View',
                 'badge-new': 'NEW',
-                'footer-mobile': '💡 Works perfectly on mobile devices',
-                'footer-security': '🔒 All data is securely protected',
-                'admin-link': '⚙️ Admin Login',
+                'footer-mobile': 'Works perfectly on mobile devices',
+                'footer-security': 'All data is securely protected',
+                'admin-link': 'Admin Login',
                 'month-subtitle': 'Latest evaluation data • Updated',
                 'year-suffix': '',
                 'month-suffix': '',
@@ -656,16 +753,16 @@ def create_month_selector_page():
             },
             vi: {
                 'page-title': 'Bảng điều khiển Khuyến khích QIP - Chọn Tháng',
-                'header-title': '📊 Bảng điều khiển Khuyến khích QIP',
+                'header-title': 'Bảng điều khiển Khuyến khích QIP',
                 'header-subtitle': 'Vui lòng chọn tháng bạn muốn xem',
                 'sync-auto': 'Tự động đồng bộ mỗi giờ',
                 'sync-last': 'Gần nhất:',
                 'sync-update': 'Cập nhật',
-                'view-btn': 'Xem →',
+                'view-btn': 'Xem',
                 'badge-new': 'MỚI',
-                'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
-                'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn',
-                'admin-link': '⚙️ Đăng nhập Quản trị',
+                'footer-mobile': 'Hoạt động hoàn hảo trên thiết bị di động',
+                'footer-security': 'Tất cả dữ liệu được bảo vệ an toàn',
+                'admin-link': 'Đăng nhập Quản trị',
                 'month-subtitle': 'Dữ liệu đánh giá mới nhất • Đã cập nhật',
                 'year-suffix': '',
                 'month-suffix': '',
@@ -758,21 +855,11 @@ def create_month_selector_page():
         document.querySelectorAll('.month-card').forEach(card => {
             card.addEventListener('click', function(e) {
                 e.preventDefault();
-                this.style.transform = 'scale(0.95)';
+                this.style.transform = 'scale(0.98)';
                 setTimeout(() => {
                     window.location.href = this.href;
-                }, 200);
+                }, 150);
             });
-        });
-
-        // 페이지 로드시 현재 월 하이라이트
-        const currentMonth = new Date().getMonth() + 1;
-        const currentYear = new Date().getFullYear();
-        document.querySelectorAll('.month-card').forEach(card => {
-            const text = card.querySelector('.month-year').textContent;
-            if (text.includes(`${currentYear}년 ${currentMonth}월`)) {
-                card.style.border = '3px solid #667eea';
-            }
         });
 
         // 수동 업데이트 트리거 함수
@@ -811,6 +898,7 @@ def create_month_selector_page():
 
     print(f"✅ 월 선택 페이지 생성 완료: docs/selector.html")
     print(f"   {len(dashboards)}개월 대시보드 링크 포함")
+    print(f"   🎨 Modern Card Grid - Dark Theme (2026-01-14)")
 
 if __name__ == "__main__":
     create_month_selector_page()
