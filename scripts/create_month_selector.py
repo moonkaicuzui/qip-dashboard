@@ -396,29 +396,6 @@ def create_month_selector_page():
             font-size: 1rem;
         }
 
-        .admin-link {
-            color: #64748b;
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 10px 20px;
-            border-radius: 10px;
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid #334155;
-            margin-top: 10px;
-        }
-
-        .admin-link:hover {
-            color: #a5b4fc;
-            background: rgba(99, 102, 241, 0.1);
-            border-color: rgba(99, 102, 241, 0.3);
-            text-decoration: none;
-            transform: translateY(-2px);
-        }
-
         /* 애니메이션 */
         @keyframes fadeInDown {
             from {
@@ -612,10 +589,6 @@ def create_month_selector_page():
                 <i class="fas fa-shield-alt"></i>
                 <span data-i18n="footer-security">모든 데이터는 안전하게 보호됩니다</span>
             </p>
-            <a href="admin.html" class="admin-link">
-                <i class="fas fa-cog"></i>
-                <span data-i18n="admin-link">관리자 로그인</span>
-            </a>
         </div>
     </div>
 
@@ -712,7 +685,6 @@ def create_month_selector_page():
                 'badge-new': 'NEW',
                 'footer-mobile': '모바일에서도 완벽하게 작동합니다',
                 'footer-security': '모든 데이터는 안전하게 보호됩니다',
-                'admin-link': '관리자 로그인',
                 'month-subtitle': '최신 평가 데이터 • 업데이트됨',
                 'year-suffix': '년',
                 'month-suffix': '월',
@@ -737,7 +709,6 @@ def create_month_selector_page():
                 'badge-new': 'NEW',
                 'footer-mobile': 'Works perfectly on mobile devices',
                 'footer-security': 'All data is securely protected',
-                'admin-link': 'Admin Login',
                 'month-subtitle': 'Latest evaluation data • Updated',
                 'year-suffix': '',
                 'month-suffix': '',
@@ -762,7 +733,6 @@ def create_month_selector_page():
                 'badge-new': 'MỚI',
                 'footer-mobile': 'Hoạt động hoàn hảo trên thiết bị di động',
                 'footer-security': 'Tất cả dữ liệu được bảo vệ an toàn',
-                'admin-link': 'Đăng nhập Quản trị',
                 'month-subtitle': 'Dữ liệu đánh giá mới nhất • Đã cập nhật',
                 'year-suffix': '',
                 'month-suffix': '',

@@ -1258,22 +1258,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     current_hour = current_datetime.hour
     current_minute = current_datetime.minute
 
-    # Report type determination (중간 vs final)
-    # 처리하는 월이 현재 월보다 이전이면 Final Report
-    # 처리하는 월이 현재 월과 같고, 현재 날짜가 20일 미만이면 Interim Report
-    if year < current_year or (year == current_year and month_num < current_month):
-        # 이전 월/년도 데이터는 항상 Final Report
-        is_interim_report = False
-    elif year == current_year and month_num == current_month and current_day < 20:
-        # 현재 월 데이터이고 20일 이전이면 Interim Report
-        is_interim_report = True
-    else:
-        # 그 외는 Final Report (20일 이후 또는 미래 월)
-        is_interim_report = False
-
-    report_type_ko = '중간 점검용' if is_interim_report else 'final'
-    report_type_en = 'Interim' if is_interim_report else 'Final'
-    report_type_vi = 'Tạm thời' if is_interim_report else 'Cuối cùng'
+    # [Issue #XX] Interim Report 개념 제거 (2026-01-14)
+    # 항상 Final Report 형식으로 대시보드 생성 - 모든 조건을 정상 평가
+    is_interim_report = False
+    report_type_ko = '최종 보고서'
+    report_type_en = 'Final'
+    report_type_vi = 'Cuối cùng'
 
     # corresponding month의 last 날 calculation
     import calendar
@@ -1355,22 +1345,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         incentive_end_day = int(incentive_end_str)
 
         # 처리하는 월이 현재 월보다 이전이면 Final Report
-        # 처리하는 월이 현재 월과 같고, 현재 날짜가 20일 미만이면 Interim Report
-        # 데이터가 전체 월(20일 이상)을 포함하면 Final Report
-        if year < current_year or (year == current_year and month_num < current_month):
-            # 이전 월/년도 데이터는 항상 Final Report
-            is_interim_report = False
-        elif year == current_year and month_num == current_month and current_day < 20 and incentive_end_day < 20:
-            # 현재 월 데이터이고, 현재 날짜와 데이터 종료일 모두 20일 미만이면 Interim Report
-            is_interim_report = True
-        else:
-            # 그 외는 Final Report (20일 이후 데이터 포함 또는 이전 월)
-            is_interim_report = False
-
-        report_type_ko = '중간 점검용' if is_interim_report else 'final'
-        report_type_en = 'Interim' if is_interim_report else 'Final'
-        report_type_vi = 'Tạm thời' if is_interim_report else 'Cuối cùng'
-        print(f"📊 Report type determination: data last day={incentive_end_day}th → {'interim report' if is_interim_report else 'final report'}")
+        # [Issue #XX] Interim Report 개념 제거 (2026-01-14)
+        # 항상 Final Report - 데이터 종료일과 무관하게 모든 조건 정상 평가
+        is_interim_report = False
+        report_type_ko = '최종 보고서'
+        report_type_en = 'Final'
+        report_type_vi = 'Cuối cùng'
+        print(f"📊 Report type: Final Report (Interim Report 개념 제거됨) - data last day={incentive_end_day}th")
     except ValueError:
         print(f"⚠️ incentive endth conversion failed, existing logic use: {incentive_end_str}")
         pass  # existing 값 유지 (current_day 기준)
@@ -12915,11 +12896,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 4. Validation 탭 KPI 카드 업데이트 (언어 단위 변경)
             if (typeof updateValidationKPIs === 'function') {{
-                // isInterimReport 계산 (validation 탭에서 사용하는 것과 동일한 로직)
-                const totalWorkingDays = (window.excelDashboardData && window.excelDashboardData.attendance)
-                    ? window.excelDashboardData.attendance.total_working_days
-                    : 18;
-                const isInterim = totalWorkingDays < 20;
+                // [Issue #XX] Interim Report 개념 제거 - 항상 Final Report
+                const isInterim = false;
                 updateValidationKPIs(isInterim);
             }}
 
@@ -13379,8 +13357,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // Report Type Banner 업데이트
             const reportTypeBanner = document.getElementById('reportTypeBanner');
             if (reportTypeBanner) {{
-                const isInterim = {str(is_interim_report).lower()};
-                reportType = isInterim ? 'interim' : 'final'; // const 제거, 전역 변count use
+                // [Issue #XX] Interim Report 개념 제거 - 항상 Final Report
+                reportType = 'final';
 
                 // Title 업데이트
                 const reportTypeTitle = document.getElementById('reportTypeTitle');
@@ -14624,13 +14602,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 검증 탭 관련 함count들
         function initValidationTab() {{
 
-            // interim report 여부 확인 (data 기간의 last 날 기준)
-            const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
-            const dataEndDay = incentiveDataPeriod ? parseInt(incentiveDataPeriod.getAttribute('data-endday')) : 0;
-            const isInterimReport = dataEndDay < 20;
+            // [Issue #XX] Interim Report 개념 제거 - 항상 Final Report
+            const isInterimReport = false;
 
-            // interim report 알림 표시
-            if (isInterimReport) {{
+            // interim report 알림은 더 이상 표시하지 않음 (항상 Final Report)
+            if (false) {{  // 제거됨
                 const notice = document.getElementById('interimReportNotice');
                 if (notice) {{
                     notice.style.display = 'block';
@@ -14697,21 +14673,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}).length;
             document.getElementById('kpiZeroWorkingDays').textContent = zeroWorkingDays + peopleUnit;
 
-            // 4. 최소 근무일 미충족 (interim report면 N/A)
-            if (isInterimReport) {{
-                document.getElementById('kpiMinimumDaysNotMet').textContent = 'N/A';
-                document.getElementById('kpiMinimumDaysNotMet').parentElement.style.opacity = '0.5';
-            }} else {{
-                const minimumDaysNotMet = employeeData.filter(emp => {{
-                    // TYPE-3 제외 (incentive 대상 아님)
-                    if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
-                        return false;
-                    }}
-                    // C4 조건 사용 (Single Source of Truth)
-                    return emp['cond_4_minimum_days'] === 'FAIL';
-                }}).length;
-                document.getElementById('kpiMinimumDaysNotMet').textContent = minimumDaysNotMet + peopleUnit;
-            }}
+            // 4. 최소 근무일 미충족 ([Issue #XX] Interim Report 제거 - 항상 정상 표시)
+            const minimumDaysNotMet = employeeData.filter(emp => {{
+                // TYPE-3 제외 (incentive 대상 아님)
+                if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
+                    return false;
+                }}
+                // C4 조건 사용 (Single Source of Truth)
+                return emp['cond_4_minimum_days'] === 'FAIL';
+            }}).length;
+            document.getElementById('kpiMinimumDaysNotMet').textContent = minimumDaysNotMet + peopleUnit;
 
             
             
@@ -15159,10 +15130,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let tableHeaders = [];
             let tableData = [];
 
-            // interim report 여부 확인 (data 기간의 last 날 기준)
-            const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
-            const dataEndDay = incentiveDataPeriod ? parseInt(incentiveDataPeriod.getAttribute('data-endday')) : 0;
-            const isInterimReport = dataEndDay < 20;
+            // [Issue #XX] Interim Report 개념 제거 - 항상 Final Report
+            const isInterimReport = false;
 
             switch(conditionType) {{
                 case 'totalWorkingDays':
@@ -21735,10 +21704,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // incentive 지급 여부 확인
             const isPaidEmployee = parseInt(emp['{month.lower()}_incentive']) > 0;
 
-            // FIXED: isInterimReport를 함수 내부에서 직접 계산 (스코프 에러 해결)
-            const incentiveDataPeriod = document.getElementById('incentiveDataPeriod');
-            const dataEndDay = incentiveDataPeriod ? parseInt(incentiveDataPeriod.getAttribute('data-endday')) : 0;
-            const isInterimReport = dataEndDay < 20;
+            // [Issue #XX] Interim Report 개념 제거 - 항상 Final Report
+            const isInterimReport = false;
 
             // TYPE-3 처리: 모든 조건이 N/A인 경우
             let passRate = 0;

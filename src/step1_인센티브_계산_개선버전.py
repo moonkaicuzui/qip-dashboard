@@ -5852,17 +5852,10 @@ class CompleteQIPCalculator:
                 if position_code_upper.startswith('A') and len(position_code_upper) >= 2 and position_code_upper[1].isdigit():
                     is_qc_assembly = True  # A1-A5 codes
 
-            # Determine if this is an interim report based on position type
-            if is_current_month:
-                cutoff_day = 15 if is_qc_assembly else 20
-                is_interim_report = current_date.day < cutoff_day
-
-                # Log only for QC Assembly Inspector types
-                if is_interim_report and is_qc_assembly:
-                    print(f"  ℹ️ QC Assembly Inspector Interim report: {self.month_data.loc[idx, 'Full Name']} (day {current_date.day} < {cutoff_day}) - 조건 1&4 예외 처리")
-            else:
-                # Past month: always apply full conditions
-                is_interim_report = False
+            # [Issue #XX] Interim Report 개념 제거 (2026-01-14)
+            # 항상 Final Report 형식으로 계산 - 모든 조건(1, 4 포함)을 정상 평가
+            # 월초에 조건 미충족 시 인센티브 0으로 표시 (실제 상태 반영)
+            is_interim_report = False
 
             # position_condition_matrix.jsonfrom 해당 positionof condition configuration 져오기
             pos_config = get_position_config_from_matrix(emp_type, position)
@@ -5884,13 +5877,8 @@ class CompleteQIPCalculator:
             approved_leave = self.month_data.loc[idx, 'Approved Leave Days'] if 'Approved Leave Days' in self.month_data.columns else 0
             expected_working_days = total_days - approved_leave
 
-            # Interim report (20일 이전)에는 조건 1 예외 처리
-            if is_interim_report and 1 in applicable_conditions:
-                # Interim report: 조건 1을 NOT_APPLICABLE로 처리 (중간 보고서에서는 출근율 조건 완화)
-                cond_1_result = 'NOT_APPLICABLE'
-                cond_1_applicable = 'NOT_APPLICABLE'
-                cond_1_threshold = 'N/A (Interim)'
-            elif expected_working_days <= 0:
+            # [Issue #XX] Interim Report 예외 처리 제거 - 항상 정상 평가
+            if expected_working_days <= 0:
                 # 근무해야 할 날이 없으므로 출근율 조건 평가 불가
                 cond_1_result = 'NOT_APPLICABLE'
                 cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
@@ -5928,19 +5916,13 @@ class CompleteQIPCalculator:
             self.month_data.loc[idx, 'cond_3_threshold'] = 0
 
             # condition 4: minimum근무 days >= 12
-            # Interim report (20일 이전)에는 조건 4 예외 처리
-            if is_interim_report and 4 in applicable_conditions:
-                # Interim report: 조건 4를 NOT_APPLICABLE로 처리 (다른 조건만으로 100% 평가)
-                cond_4_result = 'NOT_APPLICABLE'
-                cond_4_applicable = 'NOT_APPLICABLE'
-            else:
-                # Final report 또는 조건 미적용 position
-                cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
-                cond_4_applicable = 'Y' if 4 in applicable_conditions else 'NOT_APPLICABLE'
+            # [Issue #XX] Interim Report 예외 처리 제거 - 항상 정상 평가
+            cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
+            cond_4_applicable = 'Y' if 4 in applicable_conditions else 'NOT_APPLICABLE'
 
             self.month_data.loc[idx, 'cond_4_minimum_days'] = cond_4_applicable if cond_4_applicable == 'NOT_APPLICABLE' else cond_4_result
             self.month_data.loc[idx, 'cond_4_value'] = actual_working_days
-            self.month_data.loc[idx, 'cond_4_threshold'] = 12 if not is_interim_report else 'N/A (Interim)'
+            self.month_data.loc[idx, 'cond_4_threshold'] = 12
 
             # condition 5: items인 AQL 당month failure = 0
             aql_col = f"{self.config.get_month_str('capital')} AQL Failures"
