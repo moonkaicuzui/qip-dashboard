@@ -539,10 +539,10 @@ def create_month_selector_page():
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // ==================== 보안: 세션 검증 ====================
+        // ==================== Firebase 보안: 세션 검증 ====================
         (function() {
-            const SESSION_KEY = 'qip_auth_session_v2';
-            const SESSION_TIMEOUT = 30 * 60 * 1000; // 30분
+            const SESSION_KEY = 'qip_firebase_session';
+            const SESSION_TIMEOUT = 60 * 60 * 1000; // 60분 (Firebase 토큰 수명)
 
             function validateSession() {
                 const session = sessionStorage.getItem(SESSION_KEY);
@@ -557,8 +557,15 @@ def create_month_selector_page():
                     const sessionData = JSON.parse(session);
                     const now = Date.now();
 
+                    // Firebase 세션 필수 필드 검증
+                    if (!sessionData.authenticated || !sessionData.uid || !sessionData.email) {
+                        sessionStorage.removeItem(SESSION_KEY);
+                        window.location.href = 'auth.html';
+                        return false;
+                    }
+
+                    // 세션 만료 검증 (60분)
                     if (now - sessionData.loginTime > SESSION_TIMEOUT) {
-                        // 세션 만료
                         sessionStorage.removeItem(SESSION_KEY);
                         alert('Session expired. Please login again.\\n세션이 만료되었습니다. 다시 로그인하세요.');
                         window.location.href = 'auth.html';
@@ -606,7 +613,7 @@ def create_month_selector_page():
             devtoolsWarning();
             setInterval(devtoolsWarning, 3000);
         })();
-        // ==================== 보안 코드 종료 ====================
+        // ==================== Firebase 보안 코드 종료 ====================
 
         // 다국어 번역 데이터
         const translations = {

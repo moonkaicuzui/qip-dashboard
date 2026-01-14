@@ -7,7 +7,7 @@
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
     <meta name="googlebot" content="noindex, nofollow">
     <meta name="bingbot" content="noindex, nofollow">
-    <title>🔒 QIP</title>
+    <title>QIP Dashboard - Login</title>
     <style>
         * {
             margin: 0;
@@ -15,7 +15,6 @@
             box-sizing: border-box;
         }
 
-        /* iOS Safari viewport height fix */
         :root {
             --vh: 1vh;
         }
@@ -24,13 +23,13 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            min-height: 100dvh; /* iOS 15+ Dynamic viewport */
-            min-height: -webkit-fill-available; /* iOS Safari fallback */
+            min-height: 100dvh;
+            min-height: -webkit-fill-available;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            padding-bottom: env(safe-area-inset-bottom, 20px); /* iPhone X+ notch */
+            padding-bottom: env(safe-area-inset-bottom, 20px);
         }
 
         .auth-container {
@@ -38,7 +37,7 @@
             border-radius: 24px;
             padding: 50px 40px;
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
-            max-width: 380px;
+            max-width: 400px;
             width: 100%;
             animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -56,8 +55,8 @@
 
         .lock-icon {
             text-align: center;
-            font-size: 5rem;
-            margin-bottom: 30px;
+            font-size: 4rem;
+            margin-bottom: 20px;
             animation: pulse 2s ease-in-out infinite;
         }
 
@@ -68,26 +67,34 @@
 
         .brand {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
         }
 
         .brand-title {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: #333;
             letter-spacing: 2px;
         }
 
         .brand-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: #999;
             margin-top: 5px;
             letter-spacing: 1px;
         }
 
         .form-group {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
         }
 
         .input-wrapper {
@@ -99,51 +106,51 @@
         .input-icon {
             position: absolute;
             left: 18px;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: #999;
             pointer-events: none;
             transition: all 0.3s;
         }
 
+        input[type="email"],
         input[type="password"] {
             width: 100%;
-            padding: 18px 18px 18px 55px;
+            padding: 16px 18px 16px 50px;
             border: 2px solid #e8e8e8;
             border-radius: 14px;
-            font-size: 1.05rem;
+            font-size: 1rem;
             transition: all 0.3s;
-            font-family: monospace;
-            letter-spacing: 2px;
         }
 
+        input[type="email"]:focus,
         input[type="password"]:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
-        input[type="password"]:focus + .input-icon {
+        input[type="email"]:focus ~ .input-icon,
+        input[type="password"]:focus ~ .input-icon {
             color: #667eea;
         }
 
-        input[type="password"]::placeholder {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            letter-spacing: normal;
-            color: #ccc;
+        input::placeholder {
+            color: #bbb;
         }
 
         .btn-login {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 14px;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            margin-top: 10px;
         }
 
         .btn-login:hover:not(:disabled) {
@@ -160,6 +167,30 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+        }
+
+        .btn-login.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            top: 50%;
+            left: 50%;
+            margin-left: -12px;
+            margin-top: -12px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .error-message {
@@ -192,28 +223,29 @@
 
         .security-badge {
             margin-top: 30px;
-            padding: 20px;
+            padding: 18px;
             background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
             border-radius: 14px;
             text-align: center;
         }
 
         .security-items {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
             gap: 15px;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .security-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .security-item-icon {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
         }
 
         .security-item-text {
@@ -224,33 +256,25 @@
 
         .footer {
             text-align: center;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid #f0f0f0;
-            font-size: 1.5rem;
-            opacity: 0.5;
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #999;
         }
 
         @media (max-width: 480px) {
             .auth-container {
-                padding: 40px 25px;
+                padding: 35px 25px;
             }
 
             .lock-icon {
-                font-size: 4rem;
+                font-size: 3.5rem;
             }
 
             .brand-title {
-                font-size: 1.2rem;
-            }
-
-            .security-items {
-                grid-template-columns: 1fr;
-                gap: 12px;
+                font-size: 1.3rem;
             }
         }
 
-        /* iOS/Touch device: disable hover states that stick */
         @media (hover: none) {
             .btn-login:hover:not(:disabled) {
                 transform: none;
@@ -258,7 +282,6 @@
             }
         }
 
-        /* Touch device: use active state instead */
         .btn-login:active:not(:disabled) {
             transform: scale(0.98);
         }
@@ -269,28 +292,43 @@
         <div class="lock-icon">🔐</div>
 
         <div class="brand">
-            <div class="brand-title">QIP</div>
-            <div class="brand-subtitle">DASHBOARD</div>
+            <div class="brand-title">QIP DASHBOARD</div>
+            <div class="brand-subtitle">INCENTIVE MANAGEMENT SYSTEM</div>
         </div>
 
         <form id="loginForm">
             <div class="form-group">
+                <label class="form-label">Email</label>
+                <div class="input-wrapper">
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="your@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                    <span class="input-icon">📧</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
                 <div class="input-wrapper">
                     <input
                         type="password"
                         id="password"
                         name="password"
-                        placeholder="● ● ● ● ● ●"
+                        placeholder="Enter password"
                         required
-                        autocomplete="off"
-                        maxlength="50"
+                        autocomplete="current-password"
                     >
                     <span class="input-icon">🔑</span>
                 </div>
             </div>
 
             <button type="submit" class="btn-login" id="loginBtn">
-                🔓
+                Login
             </button>
 
             <div class="error-message" id="errorMessage"></div>
@@ -299,256 +337,78 @@
         <div class="security-badge">
             <div class="security-items">
                 <div class="security-item">
-                    <div class="security-item-icon">⏱️</div>
-                    <div class="security-item-text">30 min</div>
-                </div>
-                <div class="security-item">
-                    <div class="security-item-icon">🛡️</div>
-                    <div class="security-item-text">SHA-256</div>
-                </div>
-                <div class="security-item">
-                    <div class="security-item-icon">🚫</div>
-                    <div class="security-item-text">5 attempts</div>
+                    <div class="security-item-icon">🔥</div>
+                    <div class="security-item-text">Firebase</div>
                 </div>
                 <div class="security-item">
                     <div class="security-item-icon">🔒</div>
-                    <div class="security-item-text">5 min lock</div>
+                    <div class="security-item-text">Encrypted</div>
+                </div>
+                <div class="security-item">
+                    <div class="security-item-icon">⏱️</div>
+                    <div class="security-item-text">60 min session</div>
                 </div>
             </div>
         </div>
 
-        <div class="footer">🔐</div>
+        <div class="footer">
+            Powered by Firebase Authentication
+        </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <script>
         // ============================================
-        // iOS Safari Compatibility Layer (v3.0)
-        // - Private Browsing storage fallback
-        // - crypto.subtle error handling
-        // - Canvas fingerprint fallback
+        // Firebase Authentication System
         // ============================================
 
-        // iOS Viewport Height Fix
-        function setMobileViewportHeight() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-        window.addEventListener('resize', setMobileViewportHeight);
-        window.addEventListener('orientationchange', setMobileViewportHeight);
-        setMobileViewportHeight();
-
-        // Storage Availability Test (iOS Private Browsing fails)
-        function isStorageAvailable(type) {
-            try {
-                const storage = window[type];
-                const test = '__storage_test__';
-                storage.setItem(test, test);
-                storage.removeItem(test);
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        // Memory fallback for Private Browsing mode
-        const memorySessionStorage = {};
-        const memoryLocalStorage = {};
-
-        // Storage wrapper with fallback
-        const safeSessionStorage = {
-            getItem: (key) => isStorageAvailable('sessionStorage')
-                ? sessionStorage.getItem(key)
-                : (memorySessionStorage[key] || null),
-            setItem: (key, value) => isStorageAvailable('sessionStorage')
-                ? sessionStorage.setItem(key, value)
-                : (memorySessionStorage[key] = value),
-            removeItem: (key) => isStorageAvailable('sessionStorage')
-                ? sessionStorage.removeItem(key)
-                : delete memorySessionStorage[key]
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzdmX9kBbeSIX1ROvvNcfu2CzFvnnz3oY",
+            authDomain: "hwk-qip-incentive-dashboard.firebaseapp.com",
+            projectId: "hwk-qip-incentive-dashboard",
+            storageBucket: "hwk-qip-incentive-dashboard.firebasestorage.app",
+            messagingSenderId: "435191241966",
+            appId: "1:435191241966:web:fc8d3382d8189dc11d67ff"
         };
 
-        const safeLocalStorage = {
-            getItem: (key) => isStorageAvailable('localStorage')
-                ? localStorage.getItem(key)
-                : (memoryLocalStorage[key] || null),
-            setItem: (key, value) => isStorageAvailable('localStorage')
-                ? localStorage.setItem(key, value)
-                : (memoryLocalStorage[key] = value),
-            removeItem: (key) => isStorageAvailable('localStorage')
-                ? localStorage.removeItem(key)
-                : delete memoryLocalStorage[key]
-        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
 
-        // Security Configuration (Enhanced v2.0)
-        const _0x4a7b = ['19e49d5a0a97333a704097653034a76eaddb6cff5aeff18e4efec4c871d4caae'];
-        const SECURITY_CONFIG = {
-            _h: _0x4a7b[0],
-            SESSION_TIMEOUT: 30 * 60 * 1000,
-            MAX_ATTEMPTS: 3,
-            LOCKOUT_TIME: 15 * 60 * 1000,
-            SESSION_KEY: 'qip_auth_session_v2',
-            ATTEMPTS_KEY: 'qip_auth_attempts_v2',
-            LOCKOUT_KEY: 'qip_auth_lockout_v2',
-            NONCE_KEY: 'qip_session_nonce'
-        };
+        // Session Configuration
+        const SESSION_KEY = 'qip_firebase_session';
+        const SESSION_TIMEOUT = 60 * 60 * 1000; // 60 minutes
 
-        // Generate secure random nonce (with fallback)
-        function generateNonce() {
-            try {
-                const array = new Uint8Array(32);
-                crypto.getRandomValues(array);
-                return Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
-            } catch (e) {
-                // Fallback for environments without crypto.getRandomValues
-                let nonce = '';
-                for (let i = 0; i < 64; i++) {
-                    nonce += Math.floor(Math.random() * 16).toString(16);
-                }
-                return nonce;
-            }
-        }
-
-        // Generate browser fingerprint for session binding (iOS-safe)
-        function getBrowserFingerprint() {
-            // Basic fingerprint (always works)
-            const basicFP = btoa(
-                navigator.userAgent +
-                screen.width + 'x' + screen.height +
-                navigator.language +
-                new Date().getTimezoneOffset()
-            );
-
-            // Canvas fingerprint (may fail on some iOS versions)
-            try {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                if (ctx) {
-                    ctx.textBaseline = 'top';
-                    ctx.font = '14px Arial';
-                    ctx.fillText('fp', 2, 2);
-                    return basicFP + canvas.toDataURL().slice(-30);
-                }
-            } catch (e) {
-                console.warn('Canvas fingerprint unavailable');
-            }
-
-            return basicFP;
-        }
-
-        // Simple hash fallback (for environments without crypto.subtle)
-        function simpleHash(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                const char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
-            }
-            // Convert to hex and pad to 64 chars to match SHA-256 format
-            const hexHash = Math.abs(hash).toString(16);
-            return hexHash.padStart(64, '0');
-        }
-
-        // SHA-256 Hash Function with iOS fallback
-        async function sha256(message) {
-            try {
-                // Check if crypto.subtle is available (requires HTTPS or localhost)
-                if (window.crypto && window.crypto.subtle) {
-                    const msgBuffer = new TextEncoder().encode(message);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                } else {
-                    throw new Error('crypto.subtle not available');
-                }
-            } catch (e) {
-                console.warn('crypto.subtle unavailable, using fallback hash');
-                return simpleHash(message);
-            }
-        }
-
-        // Timing-safe comparison to prevent timing attacks
-        function timingSafeEqual(a, b) {
-            if (a.length !== b.length) return false;
-            let result = 0;
-            for (let i = 0; i < a.length; i++) {
-                result |= a.charCodeAt(i) ^ b.charCodeAt(i);
-            }
-            return result === 0;
-        }
-
-        // Validate session integrity
-        function validateSession(sessionData) {
-            if (!sessionData || !sessionData.authenticated) return false;
-            if (!sessionData.loginTime || !sessionData.fingerprint || !sessionData.nonce) return false;
-
-            const now = Date.now();
-            if (now - sessionData.loginTime >= SECURITY_CONFIG.SESSION_TIMEOUT) return false;
-
-            // Verify browser fingerprint matches
-            const currentFP = getBrowserFingerprint();
-            if (sessionData.fingerprint !== currentFP) return false;
-
-            return true;
-        }
-
-        // Check Existing Session (uses safe storage wrapper)
+        // Check for existing valid session
         function checkExistingSession() {
-            const session = safeSessionStorage.getItem(SECURITY_CONFIG.SESSION_KEY);
+            const session = sessionStorage.getItem(SESSION_KEY);
             if (session) {
                 try {
                     const sessionData = JSON.parse(session);
-                    if (validateSession(sessionData)) {
+                    const now = Date.now();
+
+                    if (sessionData.authenticated &&
+                        sessionData.uid &&
+                        sessionData.email &&
+                        (now - sessionData.loginTime) < SESSION_TIMEOUT) {
+                        // Valid session exists, redirect to selector
                         window.location.href = 'selector.html';
                         return true;
                     } else {
-                        safeSessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
+                        // Invalid or expired session, clear it
+                        sessionStorage.removeItem(SESSION_KEY);
                     }
                 } catch (e) {
-                    safeSessionStorage.removeItem(SECURITY_CONFIG.SESSION_KEY);
+                    sessionStorage.removeItem(SESSION_KEY);
                 }
             }
             return false;
         }
 
-        // Check Lockout Status (uses safe storage wrapper)
-        function checkLockout() {
-            const lockoutUntil = safeLocalStorage.getItem(SECURITY_CONFIG.LOCKOUT_KEY);
-            if (lockoutUntil) {
-                const now = Date.now();
-                const lockoutTime = parseInt(lockoutUntil);
-
-                if (now < lockoutTime) {
-                    const remainingMinutes = Math.ceil((lockoutTime - now) / 60000);
-                    showError(`🚫 ${remainingMinutes} min`);
-                    document.getElementById('loginBtn').disabled = true;
-                    document.getElementById('password').disabled = true;
-                    return true;
-                } else {
-                    safeLocalStorage.removeItem(SECURITY_CONFIG.LOCKOUT_KEY);
-                    safeLocalStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
-                }
-            }
-            return false;
-        }
-
-        // Record Failed Attempt (uses safe storage wrapper)
-        function recordAttempt() {
-            const attempts = parseInt(safeLocalStorage.getItem(SECURITY_CONFIG.ATTEMPTS_KEY) || '0') + 1;
-            safeLocalStorage.setItem(SECURITY_CONFIG.ATTEMPTS_KEY, attempts.toString());
-
-            if (attempts >= SECURITY_CONFIG.MAX_ATTEMPTS) {
-                const lockoutUntil = Date.now() + SECURITY_CONFIG.LOCKOUT_TIME;
-                safeLocalStorage.setItem(SECURITY_CONFIG.LOCKOUT_KEY, lockoutUntil.toString());
-                checkLockout();
-                return true;
-            }
-
-            const remainingAttempts = SECURITY_CONFIG.MAX_ATTEMPTS - attempts;
-            showError(`❌ ${remainingAttempts} / ${SECURITY_CONFIG.MAX_ATTEMPTS}`);
-            return false;
-        }
-
-        // Show Error Message
+        // Show error message
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
             errorDiv.textContent = message;
@@ -556,59 +416,97 @@
 
             setTimeout(() => {
                 errorDiv.classList.remove('show');
-            }, 4000);
+            }, 5000);
         }
 
-        // Login Form Handler
+        // Get user-friendly error message
+        function getErrorMessage(errorCode) {
+            const messages = {
+                'auth/user-not-found': 'Email not registered / 등록되지 않은 이메일',
+                'auth/wrong-password': 'Incorrect password / 비밀번호 오류',
+                'auth/invalid-email': 'Invalid email format / 잘못된 이메일 형식',
+                'auth/too-many-requests': 'Too many attempts. Try again later / 잠시 후 다시 시도하세요',
+                'auth/network-request-failed': 'Network error. Check connection / 네트워크 오류',
+                'auth/invalid-credential': 'Invalid email or password / 이메일 또는 비밀번호 오류'
+            };
+            return messages[errorCode] || 'Login failed / 로그인 실패';
+        }
+
+        // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            if (checkLockout()) {
+            const btn = document.getElementById('loginBtn');
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Validate inputs
+            if (!email || !password) {
+                showError('Please fill in all fields / 모든 필드를 입력하세요');
                 return;
             }
 
-            const btn = document.getElementById('loginBtn');
+            // Show loading state
             btn.disabled = true;
+            btn.classList.add('loading');
 
-            // Add artificial delay to prevent timing attacks
-            await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 500));
+            try {
+                // Sign in with Firebase
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
 
-            const password = document.getElementById('password').value;
-            const passwordHash = await sha256(password);
-
-            if (timingSafeEqual(passwordHash, SECURITY_CONFIG._h)) {
-                // Authentication Success
-                const nonce = generateNonce();
+                // Store session data
                 const sessionData = {
                     authenticated: true,
-                    loginTime: Date.now(),
-                    fingerprint: getBrowserFingerprint(),
-                    nonce: nonce,
-                    ua: navigator.userAgent.substring(0, 50)
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || email.split('@')[0],
+                    loginTime: Date.now()
                 };
 
-                safeSessionStorage.setItem(SECURITY_CONFIG.SESSION_KEY, JSON.stringify(sessionData));
-                safeLocalStorage.removeItem(SECURITY_CONFIG.ATTEMPTS_KEY);
+                sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
 
-                // Redirect to dashboard
+                // Redirect to selector page
                 window.location.href = 'selector.html';
-            } else {
-                // Authentication Failed
-                recordAttempt();
+
+            } catch (error) {
+                console.error('Login error:', error.code);
+                showError(getErrorMessage(error.code));
                 document.getElementById('password').value = '';
                 document.getElementById('password').focus();
+            } finally {
                 btn.disabled = false;
+                btn.classList.remove('loading');
             }
         });
 
-        // Prevent Right-Click
+        // Firebase auth state listener
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in, check if session exists
+                const session = sessionStorage.getItem(SESSION_KEY);
+                if (!session) {
+                    // Session doesn't exist but Firebase says user is logged in
+                    // This can happen after page reload, create session
+                    const sessionData = {
+                        authenticated: true,
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0],
+                        loginTime: Date.now()
+                    };
+                    sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+                }
+            }
+        });
+
+        // Security: Prevent right-click
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         });
 
-        // Prevent Keyboard Shortcuts
+        // Security: Prevent keyboard shortcuts
         document.addEventListener('keydown', function(e) {
-            // Prevent Ctrl+S, Ctrl+P, Ctrl+U, F12
             if ((e.ctrlKey || e.metaKey) && ['s', 'p', 'u'].includes(e.key.toLowerCase())) {
                 e.preventDefault();
             }
@@ -617,42 +515,24 @@
             }
         });
 
-        // Developer Tools Detection (Enhanced)
-        const devtools = { isOpen: false, warned: false };
-        const threshold = 160;
-
-        const emitEvent = (isOpen) => {
-            if (isOpen && !devtools.warned) {
-                devtools.warned = true;
-                console.clear();
-                console.log('%c⛔ SECURITY WARNING', 'font-size: 40px; color: red; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);');
-                console.log('%cThis browser feature is intended for developers only.', 'font-size: 14px; color: #666;');
-                console.log('%cUnauthorized access attempts are logged and monitored.', 'font-size: 14px; color: orange;');
-                console.log('%cIf you are not authorized, please close this window immediately.', 'font-size: 14px; color: red;');
-            }
-            devtools.isOpen = isOpen;
-        };
-
+        // Security: Developer tools warning
+        const devtools = { warned: false };
         setInterval(() => {
+            const threshold = 160;
             const widthThreshold = window.outerWidth - window.innerWidth > threshold;
             const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-            emitEvent(widthThreshold || heightThreshold);
+
+            if ((widthThreshold || heightThreshold) && !devtools.warned) {
+                devtools.warned = true;
+                console.clear();
+                console.log('%c⛔ SECURITY WARNING', 'font-size: 40px; color: red; font-weight: bold;');
+                console.log('%cUnauthorized access attempts are logged and monitored.', 'font-size: 14px; color: orange;');
+            }
         }, 1000);
-
-        // Clear sensitive data on page unload
-        window.addEventListener('beforeunload', function() {
-            document.getElementById('password').value = '';
-        });
-
-        // Prevent drag and drop
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
-        });
 
         // Initialize
         checkExistingSession();
-        checkLockout();
-        document.getElementById('password').focus();
+        document.getElementById('email').focus();
     </script>
 </body>
 </html>
