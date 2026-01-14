@@ -6300,9 +6300,14 @@ class CompleteQIPCalculator:
                     print(f"     - Final Incentive: {final_incentive_path} (없음)")
                     print(f"     - Fallback CSV: {fallback_file_path} (없음)")
                     self.month_data['Previous_Incentive'] = 0
-            else:
+            # [Issue #52 FIX] skip_prev_incentive_load=True일 때 else 블록이 실행되어
+            # 이미 로드된 Previous_Incentive를 0으로 덮어쓰는 버그 수정
+            # else 블록은 오직 previous_months가 없을 때만 실행되어야 함
+            elif not self.config.previous_months:
+                # previous_months 설정이 없는 경우에만 0으로 초기화
                 self.month_data['Previous_Incentive'] = 0
-            
+                print(f"  ℹ️ [Issue #52] No previous_months configured - Previous_Incentive set to 0")
+
             incentive_col = f"{self.config.get_month_str('capital')}_Incentive"
             
             # Final Incentive amount column current month incentive valuewith configuration
