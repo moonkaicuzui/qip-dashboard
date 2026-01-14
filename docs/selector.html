@@ -273,13 +273,57 @@
             text-decoration: none;
         }
 
-        .refresh-info {
+        /* 미니멀 인라인 동기화 정보 (2026-01-14 개선) */
+        .sync-info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .sync-info .sync-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sync-info .sync-divider {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .sync-info .update-btn {
             background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.4);
             color: white;
-            margin-bottom: 30px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .sync-info .update-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 480px) {
+            .sync-info {
+                flex-direction: column;
+                gap: 8px;
+                font-size: 0.85rem;
+            }
+
+            .sync-info .sync-divider {
+                display: none;
+            }
         }
 
         @keyframes fadeIn {
@@ -338,13 +382,18 @@
             <p data-i18n="header-subtitle">원하시는 월을 선택하세요</p>
         </div>
 
-        <!-- 자동 업데이트 정보 -->
-        <div class="refresh-info">
-            <p class="mb-0" data-i18n="refresh-info">🔄 Google Drive와 매시간 자동 동기화됩니다</p>
-            <small><span data-i18n="last-update">마지막 업데이트:</span> 2026-01-14 12:41:26</small>
-            <button onclick="triggerManualUpdate()" class="btn btn-light btn-sm mt-3" style="background: white; border: 2px solid #4A90E2; color: #4A90E2; font-weight: 600;">
-                🔄 <span data-i18n="manual-update">최신 데이터로 즉시 업데이트</span>
-            </button>
+        <!-- 자동 업데이트 정보 (미니멀 인라인 스타일) -->
+        <div class="sync-info">
+            <span class="sync-text">
+                <span>🔄</span>
+                <span data-i18n="sync-auto">매시간 자동 동기화</span>
+            </span>
+            <span class="sync-divider">•</span>
+            <span class="sync-text">
+                <span data-i18n="sync-last">최근:</span>
+                <span>2026-01-14 12:41</span>
+            </span>
+            <button class="update-btn" onclick="triggerManualUpdate()" data-i18n="sync-update">업데이트</button>
         </div>
 
         <!-- 월 선택 그리드 -->
@@ -490,9 +539,9 @@
                 'page-title': 'QIP 인센티브 대시보드 - 월 선택',
                 'header-title': '📊 QIP 인센티브 대시보드',
                 'header-subtitle': '원하시는 월을 선택하세요',
-                'refresh-info': '🔄 Google Drive와 매시간 자동 동기화됩니다',
-                'last-update': '마지막 업데이트:',
-                'manual-update': '최신 데이터로 즉시 업데이트',
+                'sync-auto': '매시간 자동 동기화',
+                'sync-last': '최근:',
+                'sync-update': '업데이트',
                 'view-btn': '보기 →',
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
@@ -515,9 +564,9 @@
                 'page-title': 'QIP Incentive Dashboard - Select Month',
                 'header-title': '📊 QIP Incentive Dashboard',
                 'header-subtitle': 'Please select the month you want to view',
-                'refresh-info': '🔄 Automatically syncs with Google Drive every hour',
-                'last-update': 'Last updated:',
-                'manual-update': 'Update Now',
+                'sync-auto': 'Auto-sync hourly',
+                'sync-last': 'Last:',
+                'sync-update': 'Update',
                 'view-btn': 'View →',
                 'badge-new': 'NEW',
                 'footer-mobile': '💡 Works perfectly on mobile devices',
@@ -540,9 +589,9 @@
                 'page-title': 'Bảng điều khiển Khuyến khích QIP - Chọn Tháng',
                 'header-title': '📊 Bảng điều khiển Khuyến khích QIP',
                 'header-subtitle': 'Vui lòng chọn tháng bạn muốn xem',
-                'refresh-info': '🔄 Tự động đồng bộ với Google Drive mỗi giờ',
-                'last-update': 'Cập nhật lần cuối:',
-                'manual-update': 'Cập nhật ngay',
+                'sync-auto': 'Tự động đồng bộ mỗi giờ',
+                'sync-last': 'Gần nhất:',
+                'sync-update': 'Cập nhật',
                 'view-btn': 'Xem →',
                 'badge-new': 'MỚI',
                 'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
