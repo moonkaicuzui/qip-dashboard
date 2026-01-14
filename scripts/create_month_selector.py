@@ -166,11 +166,11 @@ def create_month_selector_page():
             width: 100%;
         }
 
-        /* 넓은 가로 카드 레이아웃 */
+        /* 넓은 가로 카드 레이아웃 - 균등한 가로 간격 적용 (2026-01-14) */
         .month-card {
             background: white;
             border-radius: 20px;
-            padding: 20px 30px;
+            padding: 25px 50px;  /* 좌우 패딩 증가: 30px → 50px */
             box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
@@ -182,7 +182,7 @@ def create_month_selector_page():
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            gap: 20px;
+            gap: 30px;  /* 내부 간격 증가: 20px → 30px */
         }
 
         .month-card:hover {
@@ -197,7 +197,7 @@ def create_month_selector_page():
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 20px;
+            gap: 30px;  /* 배지-텍스트 간격 증가: 20px → 30px */
             flex: 1;
         }
 
