@@ -91,7 +91,7 @@ def create_month_selector_page():
 
     <style>
         body {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -129,60 +129,7 @@ def create_month_selector_page():
 
         .lang-btn.active {
             background: white;
-            color: #ef4444;
-            opacity: 1;
-        }
-
-        /* 디바이스/뷰 모드 셀렉터 */
-        .device-selector {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin: 25px auto;
-            padding: 15px 20px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            max-width: 350px;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
-
-        .selector-label {
-            color: white;
-            font-size: 0.95rem;
-            font-weight: 600;
-            opacity: 0.9;
-        }
-
-        .device-buttons {
-            display: flex;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 5px;
-            border-radius: 25px;
-        }
-
-        .device-btn {
-            padding: 10px 20px;
-            border: none;
-            background: transparent;
-            color: white;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            opacity: 0.7;
-        }
-
-        .device-btn:hover {
-            opacity: 1;
-        }
-
-        .device-btn.active {
-            background: white;
-            color: #ef4444;
+            color: #667eea;
             opacity: 1;
         }
 
@@ -222,10 +169,10 @@ def create_month_selector_page():
         /* 넓은 가로 카드 레이아웃 */
         .month-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 20px;
             padding: 20px 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
             text-decoration: none;
             color: inherit;
@@ -254,16 +201,19 @@ def create_month_selector_page():
             flex: 1;
         }
 
-        /* 월 배지 (그라디언트 빨간색 박스) */
+        /* 월 배지 (그라디언트 보라색 박스) - 고정 크기로 정렬 */
         .month-badge {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
+            width: 70px;
+            height: 70px;
+            border-radius: 14px;
             font-size: 1.5rem;
             font-weight: bold;
-            min-width: 80px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         /* 카드 정보 영역 */
@@ -312,20 +262,21 @@ def create_month_selector_page():
         }
 
         .view-btn {
-            background: #ef4444;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 12px 30px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             font-size: 1rem;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: inline-block;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .view-btn:hover {
-            background: #dc2626;
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
         /* 카드 푸터 (기존 스타일 유지 - 사용 안함) */
@@ -469,19 +420,6 @@ def create_month_selector_page():
             <button onclick="triggerManualUpdate()" class="btn btn-light btn-sm mt-3" style="background: white; border: 2px solid #4A90E2; color: #4A90E2; font-weight: 600;">
                 🔄 <span data-i18n="manual-update">최신 데이터로 즉시 업데이트</span>
             </button>
-        </div>
-
-        <!-- 디바이스/뷰 모드 셀렉터 -->
-        <div class="device-selector">
-            <span class="selector-label" data-i18n="viewMode-title">화면 모드</span>
-            <div class="device-buttons">
-                <button class="device-btn active" data-device="desktop" onclick="switchViewMode('desktop')">
-                    💻 <span data-i18n="viewMode-desktop">PC/태블릿</span>
-                </button>
-                <button class="device-btn" data-device="mobile" onclick="switchViewMode('mobile')">
-                    📱 <span data-i18n="viewMode-mobile">모바일</span>
-                </button>
-            </div>
         </div>
 
         <!-- 월 선택 그리드 -->
@@ -629,12 +567,10 @@ def create_month_selector_page():
                 'footer-mobile': '💡 모바일에서도 완벽하게 작동합니다',
                 'footer-security': '🔒 모든 데이터는 안전하게 보호됩니다',
                 'admin-link': '⚙️ 관리자 로그인',
-                'viewMode-title': '화면 모드',
-                'viewMode-desktop': 'PC/태블릿',
-                'viewMode-mobile': '모바일',
                 'month-subtitle': '최신 평가 데이터 • 업데이트됨',
                 'year-suffix': '년',
                 'month-suffix': '월',
+                'month-1': '1월',
                 'month-7': '7월',
                 'month-8': '8월',
                 'month-9': '9월',
@@ -656,12 +592,10 @@ def create_month_selector_page():
                 'footer-mobile': '💡 Works perfectly on mobile devices',
                 'footer-security': '🔒 All data is securely protected',
                 'admin-link': '⚙️ Admin Login',
-                'viewMode-title': 'View Mode',
-                'viewMode-desktop': 'PC/Tablet',
-                'viewMode-mobile': 'Mobile',
                 'month-subtitle': 'Latest evaluation data • Updated',
                 'year-suffix': '',
                 'month-suffix': '',
+                'month-1': 'January 2026',
                 'month-7': 'July 2025',
                 'month-8': 'August 2025',
                 'month-9': 'September 2025',
@@ -683,12 +617,10 @@ def create_month_selector_page():
                 'footer-mobile': '💡 Hoạt động hoàn hảo trên thiết bị di động',
                 'footer-security': '🔒 Tất cả dữ liệu được bảo vệ an toàn',
                 'admin-link': '⚙️ Đăng nhập Quản trị',
-                'viewMode-title': 'Chế độ xem',
-                'viewMode-desktop': 'PC/Máy tính bảng',
-                'viewMode-mobile': 'Di động',
                 'month-subtitle': 'Dữ liệu đánh giá mới nhất • Đã cập nhật',
                 'year-suffix': '',
                 'month-suffix': '',
+                'month-1': 'Tháng 1 năm 2026',
                 'month-7': 'Tháng 7 năm 2025',
                 'month-8': 'Tháng 8 năm 2025',
                 'month-9': 'Tháng 9 năm 2025',
@@ -766,40 +698,11 @@ def create_month_selector_page():
             }
         }
 
-        // 뷰 모드 전환 함수
-        function switchViewMode(mode) {
-            try {
-                localStorage.setItem('viewMode', mode);
-            } catch (e) {
-                console.warn('localStorage unavailable');
-            }
-
-            // 버튼 상태 업데이트
-            document.querySelectorAll('.device-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeBtn = document.querySelector(`.device-btn[data-device="${mode}"]`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
-
-            // 진동 피드백
-            if ('vibrate' in navigator) {
-                navigator.vibrate(30);
-            }
-
-            console.log('[ViewMode] Set to:', mode);
-        }
-
-        // 페이지 로드 시 저장된 언어 및 뷰 모드 적용
+        // 페이지 로드 시 저장된 언어 적용
         document.addEventListener('DOMContentLoaded', function() {
             // 언어 설정 로드
             const savedLang = localStorage.getItem('preferredLanguage') || 'ko';
             switchLanguage(savedLang);
-
-            // 뷰 모드 설정 로드
-            const savedViewMode = localStorage.getItem('viewMode') || 'desktop';
-            switchViewMode(savedViewMode);
         });
 
         // 카드 클릭 애니메이션
@@ -819,7 +722,7 @@ def create_month_selector_page():
         document.querySelectorAll('.month-card').forEach(card => {
             const text = card.querySelector('.month-year').textContent;
             if (text.includes(`${currentYear}년 ${currentMonth}월`)) {
-                card.style.border = '3px solid #ef4444';
+                card.style.border = '3px solid #667eea';
             }
         });
 
