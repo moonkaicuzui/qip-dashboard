@@ -263,7 +263,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.21,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -401,7 +401,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.78,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -594,7 +594,7 @@
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
     "amount": 0.0,
-    "calculation_basis": "in charge area AQL reject율 3.4% (basis: 3% 미only)",
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -642,8 +642,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.44,
+          "passed": true,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -718,7 +718,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.21,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -1679,7 +1679,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.21,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -2994,7 +2994,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.06,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -3069,7 +3069,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.21,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -3305,7 +3305,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.21,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -4237,7 +4237,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.21,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -10817,7 +10817,7 @@
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
     "amount": 0.0,
-    "calculation_basis": "in charge area AQL reject율 3.4% (basis: 3% 미only)",
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -10865,8 +10865,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.44,
+          "passed": true,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }

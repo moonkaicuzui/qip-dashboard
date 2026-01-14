@@ -213,8 +213,8 @@
     "name": "TRẦN THỊ THÚY ANH",
     "position": "MODEL MASTER",
     "type": "TYPE-1",
-    "amount": 150000.0,
-    "calculation_basis": "Model Master incentive",
+    "amount": 0.0,
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -263,7 +263,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.94,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -351,8 +351,8 @@
     "name": "CAO THỊ TỐ NGUYÊN",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 150000.0,
-    "calculation_basis": "Auditor/Trainer incentive",
+    "amount": 0.0,
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -401,7 +401,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.99,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -643,7 +643,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.67,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -668,8 +668,8 @@
     "name": "DANH THỊ ANH ĐÀO",
     "position": "MODEL MASTER",
     "type": "TYPE-1",
-    "amount": 150000.0,
-    "calculation_basis": "Model Master incentive",
+    "amount": 0.0,
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -718,7 +718,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.94,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -1679,7 +1679,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.99,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -2945,7 +2945,7 @@
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
     "amount": 0.0,
-    "calculation_basis": "in charge area AQL reject율 3.2% (basis: 3% 미only)",
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -2993,8 +2993,8 @@
           "applicable": true
         },
         "area_reject_rate": {
-          "passed": false,
-          "value": 3.17,
+          "passed": true,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -3069,7 +3069,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.99,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -3305,7 +3305,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.94,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -4187,8 +4187,8 @@
     "name": "NGUYỄN NGỌC TUẤN",
     "position": "MODEL MASTER",
     "type": "TYPE-1",
-    "amount": 150000.0,
-    "calculation_basis": "Model Master incentive",
+    "amount": 0.0,
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -4237,7 +4237,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.94,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -10866,7 +10866,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 2.67,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }

@@ -263,7 +263,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.9,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -401,7 +401,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.68,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -538,7 +538,7 @@
     "name": "LÊ NGỌC LÂM MỸ HUỲNH",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 2400000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -643,7 +643,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.96,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -718,7 +718,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.9,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -869,7 +869,7 @@
     "name": "DANH THÁI",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 2400000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -1085,7 +1085,7 @@
     "name": "BÙI TRƯƠNG NGỌC NHỨT",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 2400000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -1350,7 +1350,7 @@
     "name": "NGUYỄN NGÔ TUYẾT NGÂN",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 1700000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -1679,7 +1679,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 1.37,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -2242,7 +2242,7 @@
     "name": "NGUYỄN THỊ TƯỜNG VY",
     "position": "AQL INSPECTOR",
     "type": "TYPE-1",
-    "amount": 1700000.0,
+    "amount": 850000.0,
     "calculation_basis": "AQL Inspector 3-part incentive",
     "conditions": {
       "attendance": {
@@ -2994,7 +2994,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.66,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -3069,7 +3069,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 1.37,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -3305,7 +3305,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.9,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -4237,7 +4237,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.9,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
@@ -10880,7 +10880,7 @@
         },
         "area_reject_rate": {
           "passed": true,
-          "value": 0.96,
+          "value": 0.0,
           "threshold": 3.0,
           "applicable": true
         }
