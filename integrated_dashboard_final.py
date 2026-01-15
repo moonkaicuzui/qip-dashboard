@@ -4487,7 +4487,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header" data-sort="passRate">${t.passRate} ${getSortIcon('passRate')}</th>
                                             <th>${t.conditionStatus.split('/')[2]}</th>
                                             <th class="sortable-header" data-sort="received">${getTranslation('incentiveStatus.received', currentLang) || 'Received'}</th>
-                                            <th class="sortable-header" data-sort="incentive">${getTranslation('tableHeaders.incentive', currentLang) || 'Incentive'}</th>
+                                            <th class="sortable-header" data-sort="incentive">${getTranslation('modal.tableHeaders.incentive', currentLang) || 'Incentive'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -4510,7 +4510,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header-2" data-sort="passRate">${t.passRate} ${getSortIcon2('passRate')}</th>
                                             <th>${t.conditionStatus.split('/')[2]}</th>
                                             <th class="sortable-header-2" data-sort="received">${getTranslation('incentiveStatus.received', currentLang) || 'Received'}</th>
-                                            <th class="sortable-header-2" data-sort="incentive">${getTranslation('tableHeaders.incentive', currentLang) || 'Incentive'}</th>
+                                            <th class="sortable-header-2" data-sort="incentive">${getTranslation('modal.tableHeaders.incentive', currentLang) || 'Incentive'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -4611,13 +4611,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
 
             // CRITICAL: validation_qty가 actual로 존재하고(NaN 아님) 100 미만인 경우만
+            // Issue #56: validation_qty = 0은 "데이터 없음"을 의미하므로 제외
             const hasValidationData = emp['validation_qty'] !== null &&
                                      emp['validation_qty'] !== undefined &&
                                      emp['validation_qty'] !== '' &&
                                      !isNaN(parseFloat(emp['validation_qty']));
             const inspectionQty = hasValidationData ? parseFloat(emp['validation_qty']) : 999999;
 
-            return isType1 && isAssemblyInspector && hasValidationData && inspectionQty < 100;
+            // Issue #56 Fix: inspectionQty > 0 조건 추가 (0 = no data, not 0 inspections)
+            return isType1 && isAssemblyInspector && hasValidationData && inspectionQty > 0 && inspectionQty < 100;
         });
 
         let sortColumn = 'inspectionQty';
@@ -4903,7 +4905,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <th class="sortable-header" data-sort="inspectionQty" data-i18n="validationTab.modals.lowInspectionQty.headers.inspectionQty">${t('validationTab.modals.lowInspectionQty.headers.inspectionQty')} ${getSortIcon('inspectionQty')}</th>
                                             <th data-i18n="validationTab.modals.lowInspectionQty.headers.conditionMet">${t('validationTab.modals.lowInspectionQty.headers.conditionMet')}</th>
                                             <th class="sortable-header" data-sort="received">${getTranslation('incentiveStatus.received', currentLanguage) || 'Received'}</th>
-                                            <th class="sortable-header" data-sort="incentive">${getTranslation('tableHeaders.incentive', currentLanguage) || 'Incentive'}</th>
+                                            <th class="sortable-header" data-sort="incentive">${getTranslation('modal.tableHeaders.incentive', currentLanguage) || 'Incentive'}</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -14741,13 +14743,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
 
                 // CRITICAL: validation_qty가 actual로 존재하고(NaN 아님) 100 미만인 경우만
+                // Issue #56: validation_qty = 0은 "데이터 없음"을 의미하므로 제외
                 const hasValidationData = emp['validation_qty'] !== null &&
                                          emp['validation_qty'] !== undefined &&
                                          emp['validation_qty'] !== '' &&
                                          !isNaN(parseFloat(emp['validation_qty']));
                 const inspectionQty = hasValidationData ? parseFloat(emp['validation_qty']) : 999999;
 
-                return isType1 && isAssemblyInspector && hasValidationData && inspectionQty < 100;
+                // Issue #56 Fix: inspectionQty > 0 조건 추가 (0 = no data, not 0 inspections)
+                return isType1 && isAssemblyInspector && hasValidationData && inspectionQty > 0 && inspectionQty < 100;
             }}).length;
             document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + peopleUnit;
 
