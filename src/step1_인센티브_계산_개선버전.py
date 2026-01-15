@@ -2071,14 +2071,18 @@ class DataProcessor:
         import glob
         import re
         
-        def load_aql_history(month_name):
+        def load_aql_history(month_name, year=2025):
             """AQL history file withload (헤더 processing include)
 
             개선사항 (2025-10-07):
             - Mixed-month 데이터 자동 필터링
             - October 2025 이슈 재발 방지
+
+            개선사항 (2026-01-15, Issue #51):
+            - year 파라미터 추가로 2026년 파일 로드 가능
+            - 하드코딩된 .2025.csv 버그 수정
             """
-            file_path = f'input_files/AQL history/1.HSRG AQL REPORT-{month_name}.2025.csv'
+            file_path = f'input_files/AQL history/1.HSRG AQL REPORT-{month_name}.{year}.csv'
 
             if not os.path.exists(file_path):
                 return None
@@ -2168,13 +2172,15 @@ class DataProcessor:
             valid_months = {}
 
             for file_path in files:
-                # fileemployeesfrom month 추출 (예: "1.HSRG AQL REPORT-JULY.2025.csv" → "JULY")
-                match = re.search(r'AQL REPORT-([A-Z]+)\.', os.path.basename(file_path))
+                # fileemployeesfrom month AND year 추출 (예: "1.HSRG AQL REPORT-JULY.2025.csv" → "JULY", "2025")
+                # Issue #51 (2026-01-15): 연도도 추출하여 2026년 파일 지원
+                match = re.search(r'AQL REPORT-([A-Z]+)\.(\d{4})\.csv', os.path.basename(file_path))
                 if match:
                     filename_month = match.group(1)
+                    filename_year = int(match.group(2))
 
-                    # file withload
-                    df = load_aql_history(filename_month)
+                    # file withload (year 파라미터 전달)
+                    df = load_aql_history(filename_month, filename_year)
                     if df is not None and not df.empty:
                         # ==========================================
                         # 개선된 검증 로직 (2025-10-07)
@@ -2222,8 +2228,9 @@ class DataProcessor:
 
                             # 6. 최종 검증: 파일명 == MONTH 컬럼
                             if filename_month.upper() == month_name.upper():
-                                valid_months[month_num] = filename_month
-                                print(f"    ✅ {filename_month}: validation passed (MONTH={month_num})")
+                                # Issue #51 (2026-01-15): (year, month) 튜플로 저장하여 연도 크로싱 지원
+                                valid_months[(filename_year, month_num)] = (filename_month, filename_year)
+                                print(f"    ✅ {filename_month} {filename_year}: validation passed (MONTH={month_num})")
                             else:
                                 print(f"    ⚠️ {filename_month}: 불 days치 - fileemployees={filename_month}, MONTH column={month_name}")
 
@@ -2231,42 +2238,50 @@ class DataProcessor:
                 print("    ❌ No valid AQL history files available.")
                 return None
 
-            # 최신 3-month 선택
-            sorted_months = sorted(valid_months.keys(), reverse=True)[:3]
-            latest_three = [valid_months[m] for m in sorted(sorted_months)]
+            # Issue #51 (2026-01-15): 연도를 고려한 최신 3개월 선택
+            # (year, month) 튜플로 정렬하여 연도 크로싱 정확히 처리
+            # 예: (2026, 1), (2025, 12), (2025, 11) → January 2026, December 2025, November 2025
+            sorted_keys = sorted(valid_months.keys(), reverse=True)[:3]
+            latest_three = [valid_months[k] for k in sorted(sorted_keys)]  # (month_name, year) 튜플 리스트
 
-            print(f"    📅 최신 3-month 선택: {latest_three}")
-            return latest_three
+            print(f"    📅 최신 3-month 선택: {[(m, y) for m, y in latest_three]}")
+            return latest_three  # [(month_name, year), ...] 형태로 반환
         
         # 1. 최신 3-month 자same 선택
         latest_months = get_latest_three_months()
-        
+
         if not latest_months or len(latest_months) < 3:
             # 폴백: 하load코ingdone month 사용
-            print("  ⚠️ Auto-selection failed, using default values (MAY, JUNE, JULY)")
-            latest_months = ['MAY', 'JUNE', 'JULY']
-        
+            # Issue #51 (2026-01-15): 튜플 형식으로 변경 (month_name, year)
+            print("  ⚠️ Auto-selection failed, using default values (MAY, JUNE, JULY 2025)")
+            latest_months = [('MAY', 2025), ('JUNE', 2025), ('JULY', 2025)]
+
         # 2. 3-month AQL history file withload
+        # Issue #51 (2026-01-15): (month_name, year) 튜플 처리
         month_dfs = {}
-        for month_name in latest_months:
-            df = load_aql_history(month_name)
+        month_keys = []  # 순서 유지를 위한 키 리스트
+        for month_name, year in latest_months:
+            df = load_aql_history(month_name, year)
             if df is not None:
-                month_dfs[month_name] = df
+                key = f"{month_name}_{year}"
+                month_dfs[key] = df
+                month_keys.append(key)
                 # 빈 행 제거한 실제 data cases수 표시
                 valid_rows = df.dropna(how='all')
-                print(f"  ✅ {month_name} AQL history withload: {len(valid_rows)}cases")
+                print(f"  ✅ {month_name} {year} AQL history withload: {len(valid_rows)}cases")
             else:
-                print(f"  ⚠️ {month_name} AQL history file load failed")
-        
+                print(f"  ⚠️ {month_name} {year} AQL history file load failed")
+
         # 3-month 모두 withload되었지 checking
         if len(month_dfs) < 3:
             print("  ❌ Cannot load all required AQL history files. Processing with legacy method.")
             return self.process_aql_conditions(aql_df)
-        
+
         # month별 DataFrame 할당 (latest_months 순서대with)
-        month1_df = month_dfs[latest_months[0]]
-        month2_df = month_dfs[latest_months[1]]
-        month3_df = month_dfs[latest_months[2]]
+        # Issue #51 (2026-01-15): month_keys 사용
+        month1_df = month_dfs[month_keys[0]]
+        month2_df = month_dfs[month_keys[1]]
+        month3_df = month_dfs[month_keys[2]]
         
         # 2. 각 monthof failures 추출
         def get_failures(df, month_name):
@@ -2296,10 +2311,15 @@ class DataProcessor:
             return failures
         
         # 각 monthof failures 추출
-        month1_failures = get_failures(month1_df, latest_months[0])
-        month2_failures = get_failures(month2_df, latest_months[1])
-        month3_failures = get_failures(month3_df, latest_months[2])
-        
+        # Issue #51 (2026-01-15): latest_months가 이제 (month_name, year) 튜플 리스트
+        month1_name, month1_year = latest_months[0]
+        month2_name, month2_year = latest_months[1]
+        month3_name, month3_year = latest_months[2]
+
+        month1_failures = get_failures(month1_df, month1_name)
+        month2_failures = get_failures(month2_df, month2_name)
+        month3_failures = get_failures(month3_df, month3_name)
+
         # 3. 연속 실패 찾기 (2개월 및 3개월)
         continuous_fail_3month = set()  # 3개월 연속 실패
         continuous_fail_2month = set()  # 2개월 연속 실패 (최근 2개월: month2 + month3)
@@ -2315,13 +2335,13 @@ class DataProcessor:
             # 3개월 연속 실패 (month1 + month2 + month3)
             if month1_fail and month2_fail and month3_fail:
                 continuous_fail_3month.add(emp_id)
-                print(f"    ✅ {emp_id}: 3개월 연속 실패 ({latest_months[0]}:{month1_failures.get(emp_id)}건, {latest_months[1]}:{month2_failures.get(emp_id)}건, {latest_months[2]}:{month3_failures.get(emp_id)}건)")
+                print(f"    ✅ {emp_id}: 3개월 연속 실패 ({month1_name} {month1_year}:{month1_failures.get(emp_id)}건, {month2_name} {month2_year}:{month2_failures.get(emp_id)}건, {month3_name} {month3_year}:{month3_failures.get(emp_id)}건)")
 
             # 2개월 연속 실패 (최근 2개월: month2 + month3)
             # 3개월 연속 실패자는 제외 (이미 더 심각한 상태)
             elif month2_fail and month3_fail:
                 continuous_fail_2month.add(emp_id)
-                print(f"    ⚠️ {emp_id}: 2개월 연속 실패 ({latest_months[1]}:{month2_failures.get(emp_id)}건, {latest_months[2]}:{month3_failures.get(emp_id)}건)")
+                print(f"    ⚠️ {emp_id}: 2개월 연속 실패 ({month2_name} {month2_year}:{month2_failures.get(emp_id)}건, {month3_name} {month3_year}:{month3_failures.get(emp_id)}건)")
 
         print(f"\n  📊 3개월 연속 실패: {len(continuous_fail_3month)}명")
         print(f"  📊 2개월 연속 실패: {len(continuous_fail_2month)}명 (3개월 연속 제외)")
@@ -2734,16 +2754,41 @@ class CompleteQIPCalculator:
             prev_months = [m.full_name.upper() for m in self.config.previous_months] if self.config.previous_months else []
 
             # 3-month file 모두 있지 checking (current month + previous 2-month)
+            # Issue #51 (2026-01-15): 연도 크로싱 지원 - 각 월의 정확한 연도 계산
             if len(prev_months) >= 2:
                 month1 = prev_months[1]  # 2-month 전
                 month2 = prev_months[0]  # 1-month 전
                 month3 = current_month   # current month
 
+                # 각 월의 연도 계산 (연도 크로싱 지원)
+                current_month_num = self.config.month.number  # .number 사용 (1-12)
+                year3 = self.config.year  # current month year
+
+                # month2 (1개월 전) 연도 계산
+                if current_month_num == 1:  # January → December of prev year
+                    year2 = self.config.year - 1
+                else:
+                    year2 = self.config.year
+
+                # month1 (2개월 전) 연도 계산
+                if current_month_num <= 2:  # Jan/Feb → Nov/Dec of prev year
+                    year1 = self.config.year - 1
+                else:
+                    year1 = self.config.year
+
                 use_history = (
-                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month1}.{self.config.year}.csv') and
-                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month2}.{self.config.year}.csv') and
-                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month3}.{self.config.year}.csv')
+                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month1}.{year1}.csv') and
+                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month2}.{year2}.csv') and
+                    os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month3}.{year3}.csv')
                 )
+
+                if use_history:
+                    print(f"  → AQL History files found: {month1}.{year1}, {month2}.{year2}, {month3}.{year3}")
+                else:
+                    print(f"  → AQL History file check:")
+                    print(f"    - {month1}.{year1}: {'✅' if os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month1}.{year1}.csv') else '❌'}")
+                    print(f"    - {month2}.{year2}: {'✅' if os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month2}.{year2}.csv') else '❌'}")
+                    print(f"    - {month3}.{year3}: {'✅' if os.path.exists(f'{aql_history_path}/1.HSRG AQL REPORT-{month3}.{year3}.csv') else '❌'}")
             else:
                 use_history = False
             
