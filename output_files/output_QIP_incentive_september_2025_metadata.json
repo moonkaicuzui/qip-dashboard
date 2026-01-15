@@ -3,7 +3,7 @@
     "name": "ĐINH KIM NGOAN",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 134612.0,
+    "amount": 103264.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -52,7 +52,7 @@
     "name": "TRẦN KIỀU EM",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 185783.0,
+    "amount": 187874.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -101,7 +101,7 @@
     "name": "LƯƠNG THỊ CẨM TIÊN",
     "position": "A.MANAGER",
     "type": "TYPE-1",
-    "amount": 201918.0,
+    "amount": 154896.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -426,7 +426,7 @@
     "name": "THỊ BÍCH NGÀ",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 67306.0,
+    "amount": 51632.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -973,7 +973,7 @@
     "name": "THỊ KIM THO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 134612.0,
+    "amount": 103264.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1140,7 +1140,7 @@
     "name": "NGUYỄN THỊ BÍCH CHƯƠNG",
     "position": "GROUP LEADER",
     "type": "TYPE-1",
-    "amount": 134612.0,
+    "amount": 103264.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1252,7 +1252,7 @@
     "name": "LÊ THỊ DIỄM LINH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 185783.0,
+    "amount": 187874.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1468,7 +1468,7 @@
     "name": "THÁI UYỂN NHI",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 224675.0,
+    "amount": 227812.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1802,7 +1802,7 @@
     "name": "VÕ THỊ TÝ NỊ",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 185783.0,
+    "amount": 187874.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -1851,7 +1851,7 @@
     "name": "NGUYỄN THỊ MỸ TRÂM",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 46285.0,
+    "amount": 20571.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2395,7 +2395,7 @@
     "name": "VÕ VĂN KIỆT",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-1",
-    "amount": 224675.0,
+    "amount": 227812.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2458,7 +2458,7 @@
     "name": "NGUYỄN THỊ BÍCH PHƯỢNG",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 185783.0,
+    "amount": 187874.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2657,7 +2657,7 @@
     "name": "NGUYỄN THỊ MỸ TIÊN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 67306.0,
+    "amount": 51632.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2769,7 +2769,7 @@
     "name": "NGUYỄN THỊ HẠNH",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 67306.0,
+    "amount": 51632.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2881,7 +2881,7 @@
     "name": "TRẦN THỊ BÍCH LY",
     "position": "MANAGER",
     "type": "TYPE-1",
-    "amount": 235571.0,
+    "amount": 180712.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -2944,8 +2944,8 @@
     "name": "NGUYỄN THANH TRÚC",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 150000.0,
-    "calculation_basis": "Auditor/Trainer incentive",
+    "amount": 0.0,
+    "calculation_basis": "기타 condition 미충족",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -3094,7 +3094,7 @@
     "name": "MAI TUYẾT ANH",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 185783.0,
+    "amount": 187874.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3442,7 +3442,7 @@
     "name": "TRẦN THỊ MỸ MIỀU",
     "position": "(V) SUPERVISOR",
     "type": "TYPE-2",
-    "amount": 185783.0,
+    "amount": 187874.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3540,7 +3540,7 @@
     "name": "THỊ KIM THẢO",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 134612.0,
+    "amount": 103264.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -3620,8 +3620,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -3939,7 +3939,7 @@
     "name": "PHÙNG THỊ THỦY",
     "position": "A.MANAGER",
     "type": "TYPE-2",
-    "amount": 201918.0,
+    "amount": 154896.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4293,8 +4293,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 2,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -4437,7 +4437,7 @@
     "name": "ĐOÀN THỊ MỸ NGÂN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -4468,8 +4468,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -4836,7 +4836,7 @@
     "name": "LƯU GIA HÂN",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 134612.0,
+    "amount": 103264.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -5028,8 +5028,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -5462,7 +5462,7 @@
     "name": "HÀ THỊ MỘNG TUYỀN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 67306.0,
+    "amount": 51632.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6212,7 +6212,7 @@
     "name": "LÊ VĂN NAM",
     "position": "GROUP LEADER",
     "type": "TYPE-2",
-    "amount": 134612.0,
+    "amount": 103264.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6310,7 +6310,7 @@
     "name": "NGUYỄN THỊ ANH THƯ",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -6341,8 +6341,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -6491,8 +6491,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -7603,8 +7603,8 @@
           "applicable": true
         },
         "3월_continuous": {
-          "passed": true,
-          "value": "NO",
+          "passed": false,
+          "value": "YES",
           "threshold": "NO",
           "applicable": true
         }
@@ -8014,7 +8014,7 @@
     "name": "TRẦN NGÔ KIM TUYẾN",
     "position": "LINE LEADER",
     "type": "TYPE-1",
-    "amount": 88615.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -8457,8 +8457,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -8730,8 +8730,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -8880,8 +8880,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -9073,7 +9073,7 @@
     "name": "TRẦN KIM Y",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -9104,8 +9104,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -9748,8 +9748,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -10459,7 +10459,7 @@
     "name": "NGUYỄN THỊ HUỲNH NHƯ",
     "position": "QA TEAM",
     "type": "TYPE-2",
-    "amount": 284612.0,
+    "amount": 253264.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10606,7 +10606,7 @@
     "name": "LÂM THỊ THU LAN",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 0.0,
+    "amount": 150000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -10637,8 +10637,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -12028,8 +12028,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -12630,7 +12630,7 @@
     "name": "NGUYỄN TUYẾT ĐÀO",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 0.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -12661,8 +12661,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": true,
-          "value": 0,
+          "passed": false,
+          "value": 1,
           "threshold": 0,
           "applicable": true
         },
@@ -15412,7 +15412,7 @@
     "name": "LÊ HỒNG ĐÀO",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 0.0,
+    "amount": 150000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -15443,8 +15443,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -16171,7 +16171,7 @@
     "name": "BÙI THANH THẲNG",
     "position": "ASSEMBLY INSPECTOR",
     "type": "TYPE-1",
-    "amount": 0.0,
+    "amount": 150000.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -16202,8 +16202,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -19467,7 +19467,7 @@
     "name": "LƯU KIM TRỌN",
     "position": "LINE LEADER",
     "type": "TYPE-2",
-    "amount": 67306.0,
+    "amount": 51632.0,
     "calculation_basis": "",
     "conditions": {
       "attendance": {
@@ -24438,8 +24438,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
@@ -24896,8 +24896,8 @@
       },
       "aql": {
         "monthly_failure": {
-          "passed": false,
-          "value": 1,
+          "passed": true,
+          "value": 0,
           "threshold": 0,
           "applicable": true
         },
