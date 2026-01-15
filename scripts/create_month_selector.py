@@ -37,8 +37,8 @@ def create_month_selector_page():
             month_name = month_names[month] if 1 <= month <= 12 else str(month)
 
             # V10.0 데이터만 표시: 2025년 12월부터 (Approved Leave Days 버그 수정 버전) - 2026-01-02
-            # 2025년 11월 이하 숨김 (V9.0 데이터)
-            if year == 2025 and month < 12:
+            # 2025년 11월 이하 및 2025년 이전 숨김 (V9.0 데이터) - Issue #52 (2026-01-15)
+            if (year < 2025) or (year == 2025 and month < 12):
                 continue
             # 8월(August) 제외 (다른 해도 적용)
             if month == 8:
@@ -689,6 +689,11 @@ def create_month_selector_page():
                 'year-suffix': '년',
                 'month-suffix': '월',
                 'month-1': '1월',
+                'month-2': '2월',
+                'month-3': '3월',
+                'month-4': '4월',
+                'month-5': '5월',
+                'month-6': '6월',
                 'month-7': '7월',
                 'month-8': '8월',
                 'month-9': '9월',
@@ -713,6 +718,11 @@ def create_month_selector_page():
                 'year-suffix': '',
                 'month-suffix': '',
                 'month-1': 'January 2026',
+                'month-2': 'February 2026',
+                'month-3': 'March 2026',
+                'month-4': 'April 2026',
+                'month-5': 'May 2026',
+                'month-6': 'June 2026',
                 'month-7': 'July 2025',
                 'month-8': 'August 2025',
                 'month-9': 'September 2025',
@@ -737,6 +747,11 @@ def create_month_selector_page():
                 'year-suffix': '',
                 'month-suffix': '',
                 'month-1': 'Tháng 1 năm 2026',
+                'month-2': 'Tháng 2 năm 2026',
+                'month-3': 'Tháng 3 năm 2026',
+                'month-4': 'Tháng 4 năm 2026',
+                'month-5': 'Tháng 5 năm 2026',
+                'month-6': 'Tháng 6 năm 2026',
                 'month-7': 'Tháng 7 năm 2025',
                 'month-8': 'Tháng 8 năm 2025',
                 'month-9': 'Tháng 9 năm 2025',
