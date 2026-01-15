@@ -2846,8 +2846,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const filterPatternMedium = `${monthAbbr[month_N2-1].toUpperCase()}_${monthAbbr[month_N1-1].toUpperCase()}`;  // 예: AUG_SEP
 
         // 3연속 개월 실패자와 2연속 개월 실패자 분리
+        // [Issue #55] 계산 엔진은 'YES'를 생성 (not 'YES_3MONTHS')
         const threeMonthFails = window.employeeData.filter(emp =>
-            emp['Continuous_FAIL'] === 'YES_3MONTHS'
+            emp['Continuous_FAIL'] === 'YES'
         );
 
         // 수정: Continuous_FAIL_2Month 컬럼 사용 (별도 컬럼으로 분리되어 있음)
@@ -14705,9 +14706,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + peopleUnit;
 
             // 7. 3개월 연속 AQL FAIL (Excel의 Continuous_FAIL column use)
+            // [Issue #55] 계산 엔진은 'YES'를 생성 (not 'YES_3MONTHS')
             const consecutiveFail = employeeData.filter(emp => {{
                 const continuous_fail = emp['Continuous_FAIL'] || emp['continuous_fail'] || 'NO';
-                return continuous_fail === 'YES_3MONTHS';
+                return continuous_fail === 'YES';
             }}).length;
             document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + peopleUnit;
 
