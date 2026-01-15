@@ -3946,7 +3946,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'All Buildings', 'total'].map(building => {
+                                ${['Building A', 'Building B', 'Building B3', 'Building C', 'Building D', 'All Buildings', 'total'].map(building => {
                                     const stats = aqlFileStats[building];
                                     if (!stats) return '';
 
@@ -4008,7 +4008,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                             </thead>
                             <tbody>
-                                ${['Building B', 'Building B3', 'Building D', 'Building A', 'Building C', 'total'].map(building => {
+                                ${['Building A', 'Building B', 'Building B3', 'Building C', 'Building D', 'total'].map(building => {
                                     const stats = inspectorStats[building];
                                     if (!stats) return '';
 
