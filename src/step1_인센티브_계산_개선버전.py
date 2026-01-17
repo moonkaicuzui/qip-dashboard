@@ -1373,10 +1373,18 @@ class DataProcessor:
             try:
                 prev_incentive_data = pd.read_csv(fallback_file_path, encoding='utf-8-sig')
 
+                # [Issue #58] CRITICAL FIX: 양쪽 Employee No를 모두 숫자로 변환해야 함
                 prev_incentive_data['Employee No'] = pd.to_numeric(prev_incentive_data['Employee No'], errors='coerce')
+                month_data['Employee No'] = pd.to_numeric(month_data['Employee No'], errors='coerce')
+
+                # prev_month가 Month 객체인지 문자열인지 확인
+                if hasattr(prev_month, 'full_name'):
+                    prev_month_name = prev_month.full_name.capitalize()
+                else:
+                    prev_month_name = str(prev_month).capitalize()
 
                 prev_incentive_col = None
-                for col in [f'{prev_month.full_name.capitalize()}_Incentive', 'Final Incentive amount']:
+                for col in [f'{prev_month_name}_Incentive', 'Final Incentive amount', 'December_Incentive', 'November_Incentive']:
                     if col in prev_incentive_data.columns:
                         prev_incentive_col = col
                         break
@@ -1386,8 +1394,14 @@ class DataProcessor:
                     month_data['Previous_Incentive'] = month_data['Employee No'].map(prev_incentive_map).fillna(0)
 
                     mapped_count = (month_data['Previous_Incentive'] > 0).sum()
+                    total_amount = month_data['Previous_Incentive'].sum()
                     print(f"  ✅ [Issue #48] Previous_Incentive loaded from fallback: {mapped_count} employees")
+                    print(f"     → Column used: {prev_incentive_col}")
+                    print(f"     → Total amount: ₫{total_amount:,.0f}")
                     return month_data
+                else:
+                    print(f"  ⚠️ [Issue #48] No incentive column found in fallback CSV")
+                    print(f"     Available columns: {[c for c in prev_incentive_data.columns if 'Incentive' in c]}")
             except Exception as e:
                 print(f"  ⚠️ [Issue #48] Failed to load fallback CSV: {e}")
 
