@@ -5961,20 +5961,9 @@ class CompleteQIPCalculator:
             self.month_data.loc[idx, 'cond_3_threshold'] = 0
 
             # condition 4: minimum근무 days >= 12
-            # [Issue #57] Interim Report 로직 복원 (2026-01-17)
-            # working_days < 12일 때 (interim report) Condition 4는 NOT_APPLICABLE
-            # 이유: 총 근무일이 threshold 미만이면 달성 불가능한 조건이므로 평가하지 않음
-            total_working_days_in_month = self.config.working_days if hasattr(self.config, 'working_days') else 27
-            is_interim_report = total_working_days_in_month < 12  # threshold for condition 4
-
-            if is_interim_report:
-                # Interim Report: Condition 4 달성 불가 → NOT_APPLICABLE 처리
-                cond_4_result = 'NOT_APPLICABLE'
-                cond_4_applicable = 'NOT_APPLICABLE'
-            else:
-                # Final Report: 정상 평가
-                cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
-                cond_4_applicable = 'Y' if 4 in applicable_conditions else 'NOT_APPLICABLE'
+            # 항상 정상 평가 (Interim Report 개념 제거됨)
+            cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
+            cond_4_applicable = 'Y' if 4 in applicable_conditions else 'NOT_APPLICABLE'
 
             self.month_data.loc[idx, 'cond_4_minimum_days'] = cond_4_applicable if cond_4_applicable == 'NOT_APPLICABLE' else cond_4_result
             self.month_data.loc[idx, 'cond_4_value'] = actual_working_days
