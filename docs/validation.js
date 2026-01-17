@@ -423,17 +423,7 @@ const ValidationEngine = {
             const positionCode = employee.positionCode || '';
             const actualDays = employee.actualWorkingDays || 0;
 
-            // Check if QC Assembly Inspector
-            const isQCAssembly = position.includes('ASSEMBLY INSPECTOR') || positionCode.startsWith('A');
-            const cutoffDay = isQCAssembly ? 15 : 20;
-
-            const currentDay = currentDate.getDate();
-            const isInterimReport = currentDay < cutoffDay;
-
-            if (isInterimReport) {
-                return 'NOT_APPLICABLE';
-            }
-
+            // [Issue #57] Interim Report 개념 완전 제거 - 항상 Condition 4 적용
             return actualDays >= 12 ? 'PASS' : 'FAIL';
         },
 
@@ -791,8 +781,7 @@ const ValidationEngine = {
             };
 
             // Check if all applicable conditions pass
-            // CRITICAL FIX (Issue #41): 'NOT_APPLICABLE' should count as passing
-            // NOT_APPLICABLE means the condition doesn't apply (e.g., interim report)
+            // [Issue #57] Interim Report 제거 - NOT_APPLICABLE은 더 이상 사용되지 않음 (조건이 없는 경우만 해당)
             const passedConditions = applicableConditions.filter(condNum => {
                 const result = conditionResults[`condition_${condNum}`];
                 return result === 'PASS' || result === 'NOT_APPLICABLE';
