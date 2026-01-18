@@ -2098,6 +2098,40 @@ Config: config_files/config_september_2025.json
      - 하드코딩된 칼럼명 패턴 금지 (Pre-commit hook이 자동 차단)
      - Issue #37 Ralph Loop 시스템의 정규화 레이어 활용
 
+47. **Issue #47: KPI 카드 통계 계산 버그 - employeeData vs window.employeeData** (FIXED: 2026-01-18):
+   - **Problem**: KPI 카드(수령 직원, 지급률, 총 지급액)가 0 표시, Type 테이블은 정상
+     - December 2025: KPI 0 vs Type 테이블 369명, 168.7M VND
+     - January 2026: KPI 0 vs Type 테이블 222명, 102.7M VND
+   - **Root Cause**: `dashboardStats` 계산이 Phase 1 정규화 **이전** 데이터 사용
+     ```javascript
+     // 버그 코드 (Lines 9979-9984)
+     let totalCount = employeeData.length;  // ❌ 로컬 변수 (정규화 전)
+     employeeData.forEach(emp => {
+         const amount = emp.currentIncentive || 0;  // ❌ undefined (정규화 전이라 필드 없음)
+     });
+     ```
+     - `employeeData`: Phase 1 정규화 **전** 로컬 변수 → `currentIncentive` 필드 없음
+     - `window.employeeData`: Phase 1 정규화 **후** 전역 변수 → `currentIncentive` 필드 있음
+   - **Solution**: `employeeData` → `window.employeeData` 변경
+     ```javascript
+     // 수정된 코드
+     let totalCount = window.employeeData.length;  // ✅ 전역 변수 (정규화 후)
+     window.employeeData.forEach(emp => {
+         const amount = emp.currentIncentive || 0;  // ✅ 정상 작동
+     });
+     ```
+   - **추가 문제**: GitHub Actions 자동 업데이트(11:57)가 rebase 과정에서 수정본(18:56) 덮어씀
+     - 원인: 자동 업데이트가 수정 전 코드로 January 대시보드 재생성
+     - 해결: January 대시보드 수동 재생성 후 재커밋
+   - **Implementation**: `integrated_dashboard_final.py:9979-9991`
+   - **Commits**:
+     - `9ebb14c5b` (수정 적용)
+     - `d3a765019` (January 재생성)
+   - **Prevention**:
+     - Phase 1 정규화 후에만 `currentIncentive` 접근
+     - 통계 계산 시 항상 `window.employeeData` 사용
+     - `employeeHelpers.getIncentive()` 사용 권장
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
