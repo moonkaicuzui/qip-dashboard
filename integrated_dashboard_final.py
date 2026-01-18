@@ -8685,6 +8685,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <i class="fas fa-check-circle me-2"></i>
                             <span data-i18n="lineLeaderAssignment.noDataMessage">모든 3개월 AQL Fail 직원의 직속상사가 LINE LEADER입니다.</span>
                         </div>
+
+                        <!-- Building-wise Breakdown Section (2026-01-18) -->
+                        <hr class="my-4">
+                        <div class="mb-3">
+                            <h6 class="text-primary mb-2">
+                                <i class="fas fa-building me-2"></i>
+                                <span data-i18n="lineLeaderAssignment.buildingBreakdownTitle">Building별 라인리더 미배정 현황 (전체 직원)</span>
+                            </h6>
+                            <div class="alert alert-info border-start border-4 border-info py-2">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span data-i18n="lineLeaderAssignment.buildingBreakdownDesc">3개월 AQL Fail이 아닌 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.</span>
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Building Summary Cards -->
+                        <div id="buildingBreakdownSummary" class="row g-3 mb-3"></div>
+
+                        <!-- Building Detail Tables (expandable) -->
+                        <div id="buildingBreakdownDetails"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -14541,9 +14562,178 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (tableBody) tableBody.innerHTML = tableHTML;
             }}
 
-            // 7. Show modal
+            // 7. Building-wise breakdown (all employees excluding 3-month AQL fail)
+            const threeMonthFailEmpNos = new Set(threeMonthFailEmployees.map(emp =>
+                String(emp['Employee No'] || emp['emp_no'])
+            ));
+
+            // Find all employees without LINE LEADER boss (excluding 3-month AQL fail)
+            const allNoLineLeaderByBuilding = {{}};
+            employeeData.forEach(emp => {{
+                const empNo = String(emp['Employee No'] || emp['emp_no']);
+                // Skip if already in 3-month AQL fail list
+                if (threeMonthFailEmpNos.has(empNo)) return;
+
+                const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
+                const bossId = String(emp['boss_id'] || '').trim();
+
+                // Find boss position
+                let bossPosition = '';
+                if (bossId || bossName) {{
+                    const boss = employeeData.find(e => {{
+                        const eNo = String(e['Employee No'] || e['emp_no'] || '');
+                        const eName = String(e['Full Name'] || e['name'] || '');
+                        return eNo === bossId || eName === bossName;
+                    }});
+                    if (boss) {{
+                        bossPosition = String(boss['QIP POSITION 1ST  NAME'] || boss['position'] || '');
+                    }}
+                }}
+
+                // Check if boss is NOT LINE LEADER
+                const isLineLeader = bossPosition.toUpperCase().includes('LINE LEADER');
+                if (!isLineLeader && bossName) {{
+                    const empBuilding = String(emp['BUILDING'] || '').toUpperCase().trim() || 'Unknown';
+                    if (!allNoLineLeaderByBuilding[empBuilding]) {{
+                        allNoLineLeaderByBuilding[empBuilding] = [];
+                    }}
+
+                    // Find available LINE LEADERs for this building
+                    let availableLineLeaders = lineLeadersByBuilding[empBuilding] || [];
+                    if (empBuilding.length > 1) {{
+                        const parentBuilding = empBuilding.charAt(0);
+                        const parentLineLeaders = lineLeadersByBuilding[parentBuilding] || [];
+                        availableLineLeaders = [...availableLineLeaders, ...parentLineLeaders];
+                        const seen = new Set();
+                        availableLineLeaders = availableLineLeaders.filter(ll => {{
+                            if (seen.has(ll.emp_no)) return false;
+                            seen.add(ll.emp_no);
+                            return true;
+                        }});
+                    }}
+
+                    allNoLineLeaderByBuilding[empBuilding].push({{
+                        emp_no: empNo,
+                        emp_name: emp['Full Name'] || emp['name'],
+                        emp_position: emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-',
+                        boss_name: bossName || '-',
+                        boss_position: bossPosition || '-',
+                        available_line_leaders: availableLineLeaders
+                    }});
+                }}
+            }});
+
+            // 8. Render Building summary cards
+            const summaryContainer = document.getElementById('buildingBreakdownSummary');
+            const detailsContainer = document.getElementById('buildingBreakdownDetails');
+            const buildings = Object.keys(allNoLineLeaderByBuilding).sort();
+            const totalCount = buildings.reduce((sum, b) => sum + allNoLineLeaderByBuilding[b].length, 0);
+
+            let summaryHTML = '';
+            buildings.forEach(building => {{
+                const count = allNoLineLeaderByBuilding[building].length;
+                const color = getBuildingColor(building);
+                summaryHTML += `
+                    <div class="col-auto">
+                        <div class="card h-100" style="border-left: 4px solid ${{color}}; min-width: 120px; cursor: pointer;"
+                             onclick="toggleBuildingDetails('${{building}}')">
+                            <div class="card-body py-2 px-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="badge" style="background-color: ${{color}};">${{building}}</span>
+                                    <span class="fw-bold fs-5 ms-2">${{count}}</span>
+                                </div>
+                                <small class="text-muted" data-i18n="lineLeaderAssignment.employeeCount">명</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }});
+
+            // Total card
+            if (buildings.length > 0) {{
+                summaryHTML += `
+                    <div class="col-auto">
+                        <div class="card h-100 bg-secondary text-white" style="min-width: 120px;">
+                            <div class="card-body py-2 px-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="badge bg-light text-dark" data-i18n="lineLeaderAssignment.totalByBuilding">합계</span>
+                                    <span class="fw-bold fs-5 ms-2">${{totalCount}}</span>
+                                </div>
+                                <small data-i18n="lineLeaderAssignment.employeeCount">명</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }}
+            if (summaryContainer) summaryContainer.innerHTML = summaryHTML;
+
+            // 9. Render Building detail tables (collapsed by default)
+            let detailsHTML = '';
+            buildings.forEach(building => {{
+                const employees = allNoLineLeaderByBuilding[building];
+                const color = getBuildingColor(building);
+                detailsHTML += `
+                    <div id="buildingDetail_${{building}}" class="mb-3" style="display: none;">
+                        <div class="card">
+                            <div class="card-header py-2" style="background-color: ${{color}}20; border-left: 4px solid ${{color}};">
+                                <strong>
+                                    <span class="badge me-2" style="background-color: ${{color}};">${{building}}</span>
+                                    ${{employees.length}} <span data-i18n="lineLeaderAssignment.employeeCount">명</span>
+                                </strong>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0" style="font-size: 12px;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th data-i18n="lineLeaderAssignment.headers.empNo">사번</th>
+                                                <th data-i18n="lineLeaderAssignment.headers.empName">직원명</th>
+                                                <th data-i18n="lineLeaderAssignment.headers.empPosition">직급</th>
+                                                <th data-i18n="lineLeaderAssignment.headers.bossName">직속상사</th>
+                                                <th data-i18n="lineLeaderAssignment.headers.bossPosition">상사 직급</th>
+                                                <th data-i18n="lineLeaderAssignment.headers.availableLineLeaders">동일 Building LINE LEADER</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${{employees.map((emp, idx) => {{
+                                                const llHTML = emp.available_line_leaders.length > 0
+                                                    ? emp.available_line_leaders.map(ll =>
+                                                        `<span class="badge bg-success me-1">${{ll.name}}</span>`
+                                                      ).join('')
+                                                    : '<span class="badge bg-secondary">없음</span>';
+                                                return `
+                                                    <tr class="${{idx % 2 === 0 ? '' : 'table-light'}}">
+                                                        <td>${{emp.emp_no}}</td>
+                                                        <td>${{emp.emp_name}}</td>
+                                                        <td>${{emp.emp_position}}</td>
+                                                        <td>${{emp.boss_name}}</td>
+                                                        <td><span class="badge bg-warning text-dark">${{emp.boss_position}}</span></td>
+                                                        <td>${{llHTML}}</td>
+                                                    </tr>
+                                                `;
+                                            }}).join('')}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }});
+            if (detailsContainer) detailsContainer.innerHTML = detailsHTML;
+
+            // 10. Show modal
             const modal = new bootstrap.Modal(document.getElementById('lineLeaderAssignmentModal'));
             modal.show();
+        }}
+
+        // Toggle Building detail table visibility
+        function toggleBuildingDetails(building) {{
+            const detailDiv = document.getElementById('buildingDetail_' + building);
+            if (detailDiv) {{
+                const isVisible = detailDiv.style.display !== 'none';
+                detailDiv.style.display = isVisible ? 'none' : 'block';
+            }}
         }}
 
         // Initialize LINE LEADER Assignment KPI card on page load
