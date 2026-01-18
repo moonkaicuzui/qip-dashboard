@@ -8638,6 +8638,64 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             </div>
         </div>
 
+        <!-- LINE LEADER Assignment Modal (2026-01-18) -->
+        <div class="modal fade" id="lineLeaderAssignmentModal" tabindex="-1" role="dialog" aria-labelledby="lineLeaderAssignmentModalLabel" aria-hidden="true" style="z-index: 1055;">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header unified-modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                        <h5 class="modal-title unified-modal-title text-white" id="lineLeaderAssignmentModalLabel">
+                            <i class="fas fa-link me-2"></i>
+                            <span id="lineLeaderAssignmentModalTitle" data-i18n="lineLeaderAssignment.modalTitle">라인리더 미배정 현황</span>
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Alert Section -->
+                        <div class="mb-3">
+                            <div class="alert alert-danger border-start border-4 border-danger">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                    <div>
+                                        <span id="lineLeaderAssignmentAlertMsg" data-i18n="lineLeaderAssignment.alertMessage">3개월 연속 AQL Fail 이력이 있는 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 표시합니다.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm" style="font-size: 13px;">
+                                <thead class="table-danger">
+                                    <tr>
+                                        <th data-i18n="lineLeaderAssignment.headers.empNo">사번</th>
+                                        <th data-i18n="lineLeaderAssignment.headers.empName">직원명</th>
+                                        <th data-i18n="lineLeaderAssignment.headers.empPosition">직급</th>
+                                        <th data-i18n="lineLeaderAssignment.headers.empBuilding">Building</th>
+                                        <th data-i18n="lineLeaderAssignment.headers.bossName">직속상사</th>
+                                        <th data-i18n="lineLeaderAssignment.headers.bossPosition">상사 직급</th>
+                                        <th data-i18n="lineLeaderAssignment.headers.availableLineLeaders">동일 Building LINE LEADER</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lineLeaderAssignmentTableBody"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- No Data Message (hidden by default) -->
+                        <div id="lineLeaderAssignmentNoData" class="alert alert-success text-center" style="display: none;">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span data-i18n="lineLeaderAssignment.noDataMessage">모든 3개월 AQL Fail 직원의 직속상사가 LINE LEADER입니다.</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-1"></i>
+                            <span data-i18n="common.close">닫기</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Building Review Modal (2026-01-12 - Issue #46-B) -->
         <div class="modal fade" id="buildingReviewModal" tabindex="-1" role="dialog" aria-labelledby="buildingReviewModalLabel" aria-hidden="true" style="z-index: 1055;">
             <div class="modal-dialog modal-fullscreen" role="document" style="margin: 0; width: 100vw; height: 100vh;">
@@ -9044,6 +9102,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="kpi-value" id="kpiBuildingReviewTotal">-</div>
                     <div class="kpi-label" data-i18n="buildingReview.cardTitle">Building 검토 목록</div>
                     <div class="kpi-subtitle" id="kpiBuildingReviewSubtitle">-</div>
+                </div>
+
+                <!-- KPI 카드 12: 라인리더 미배정 현황 (2026-01-18) -->
+                <div class="kpi-card" onclick="showLineLeaderAssignmentModal()" style="--card-color-1: #dc3545; --card-color-2: #c82333; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1);">
+                    <div class="kpi-icon">🔗</div>
+                    <div class="kpi-value" id="kpiLineLeaderNotAssigned">-</div>
+                    <div class="kpi-label" data-i18n="lineLeaderAssignment.cardTitle">라인리더 미배정</div>
+                    <div class="kpi-subtitle" id="kpiLineLeaderSubtitle" data-i18n="lineLeaderAssignment.cardSubtitle">3개월 AQL Fail 직원 중</div>
                 </div>
             </div>
 
@@ -14333,6 +14399,192 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function getBuildingColor(building) {{
             const colors = {{ 'A': '#ef4444', 'B': '#3b82f6', 'B3': '#8b5cf6', 'C': '#10b981', 'D': '#f59e0b' }};
             return colors[building] || '#6c757d';
+        }}
+
+        // LINE LEADER Assignment Modal function (2026-01-18)
+        function showLineLeaderAssignmentModal() {{
+            const employeeData = window.employeeData || [];
+
+            // 1. Find 3-month consecutive AQL fail employees
+            const threeMonthFailEmployees = employeeData.filter(emp => {{
+                const continuousFail = String(emp['Continuous_FAIL'] || '');
+                return continuousFail.startsWith('YES');  // Issue #48: startswith('YES') pattern
+            }});
+
+            // 2. Find all TYPE-1 LINE LEADERs (for available LINE LEADER lookup)
+            const allLineLeaders = employeeData.filter(emp => {{
+                const position = String(emp['QIP POSITION 1ST  NAME'] || emp['position'] || '').toUpperCase();
+                const roleType = String(emp['ROLE TYPE STD'] || '').toUpperCase();
+                return position.includes('LINE LEADER') && roleType === 'TYPE-1';
+            }});
+
+            // 3. Build LINE LEADER by Building map
+            const lineLeadersByBuilding = {{}};
+            allLineLeaders.forEach(ll => {{
+                const building = String(ll['BUILDING'] || '').toUpperCase().trim();
+                if (building) {{
+                    if (!lineLeadersByBuilding[building]) {{
+                        lineLeadersByBuilding[building] = [];
+                    }}
+                    lineLeadersByBuilding[building].push({{
+                        emp_no: ll['Employee No'] || ll['emp_no'],
+                        name: ll['Full Name'] || ll['name']
+                    }});
+                }}
+                // Also add to parent building (e.g., A2 -> A)
+                if (building && building.length > 1) {{
+                    const parentBuilding = building.charAt(0);
+                    if (!lineLeadersByBuilding[parentBuilding]) {{
+                        lineLeadersByBuilding[parentBuilding] = [];
+                    }}
+                    // Avoid duplicates
+                    const exists = lineLeadersByBuilding[parentBuilding].some(
+                        x => x.emp_no === (ll['Employee No'] || ll['emp_no'])
+                    );
+                    if (!exists) {{
+                        lineLeadersByBuilding[parentBuilding].push({{
+                            emp_no: ll['Employee No'] || ll['emp_no'],
+                            name: ll['Full Name'] || ll['name']
+                        }});
+                    }}
+                }}
+            }});
+
+            // 4. Filter employees whose direct boss is NOT a LINE LEADER
+            const noLineLeaderBoss = [];
+            threeMonthFailEmployees.forEach(emp => {{
+                const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
+                const bossId = String(emp['boss_id'] || '').trim();
+
+                // Find boss in employeeData
+                let bossPosition = '';
+                if (bossId || bossName) {{
+                    const boss = employeeData.find(e => {{
+                        const empNo = String(e['Employee No'] || e['emp_no'] || '');
+                        const empName = String(e['Full Name'] || e['name'] || '');
+                        return empNo === bossId || empName === bossName;
+                    }});
+                    if (boss) {{
+                        bossPosition = String(boss['QIP POSITION 1ST  NAME'] || boss['position'] || '');
+                    }}
+                }}
+
+                // Check if boss is LINE LEADER
+                const isLineLeader = bossPosition.toUpperCase().includes('LINE LEADER');
+
+                if (!isLineLeader) {{
+                    const empBuilding = String(emp['BUILDING'] || '').toUpperCase().trim();
+                    // Find available LINE LEADERs in same building
+                    let availableLineLeaders = lineLeadersByBuilding[empBuilding] || [];
+                    // Also check parent building
+                    if (empBuilding && empBuilding.length > 1) {{
+                        const parentBuilding = empBuilding.charAt(0);
+                        const parentLineLeaders = lineLeadersByBuilding[parentBuilding] || [];
+                        availableLineLeaders = [...availableLineLeaders, ...parentLineLeaders];
+                        // Remove duplicates
+                        const seen = new Set();
+                        availableLineLeaders = availableLineLeaders.filter(ll => {{
+                            if (seen.has(ll.emp_no)) return false;
+                            seen.add(ll.emp_no);
+                            return true;
+                        }});
+                    }}
+
+                    noLineLeaderBoss.push({{
+                        emp_no: emp['Employee No'] || emp['emp_no'],
+                        emp_name: emp['Full Name'] || emp['name'],
+                        emp_position: emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-',
+                        emp_building: empBuilding || '-',
+                        boss_name: bossName || '-',
+                        boss_position: bossPosition || '-',
+                        available_line_leaders: availableLineLeaders
+                    }});
+                }}
+            }});
+
+            // 5. Update KPI card
+            const kpiValue = document.getElementById('kpiLineLeaderNotAssigned');
+            if (kpiValue) {{
+                kpiValue.textContent = noLineLeaderBoss.length;
+            }}
+
+            // 6. Populate modal table
+            const tableBody = document.getElementById('lineLeaderAssignmentTableBody');
+            const noDataDiv = document.getElementById('lineLeaderAssignmentNoData');
+
+            if (noLineLeaderBoss.length === 0) {{
+                // Show success message
+                if (tableBody) tableBody.innerHTML = '';
+                if (noDataDiv) noDataDiv.style.display = 'block';
+            }} else {{
+                if (noDataDiv) noDataDiv.style.display = 'none';
+                let tableHTML = '';
+                noLineLeaderBoss.forEach((item, i) => {{
+                    const lineLeadersHTML = item.available_line_leaders.length > 0
+                        ? item.available_line_leaders.map(ll =>
+                            `<span class="badge bg-success me-1 mb-1">${{ll.name}}</span>`
+                          ).join('')
+                        : `<span class="badge bg-secondary" data-i18n="lineLeaderAssignment.noneAvailable">없음</span>`;
+
+                    tableHTML += `
+                        <tr class="${{i % 2 === 0 ? '' : 'table-light'}}">
+                            <td>${{item.emp_no}}</td>
+                            <td>${{item.emp_name}}</td>
+                            <td>${{item.emp_position}}</td>
+                            <td><span class="badge" style="background-color: ${{getBuildingColor(item.emp_building)}};">${{item.emp_building}}</span></td>
+                            <td>${{item.boss_name}}</td>
+                            <td><span class="badge bg-warning text-dark">${{item.boss_position}}</span></td>
+                            <td>${{lineLeadersHTML}}</td>
+                        </tr>
+                    `;
+                }});
+                if (tableBody) tableBody.innerHTML = tableHTML;
+            }}
+
+            // 7. Show modal
+            const modal = new bootstrap.Modal(document.getElementById('lineLeaderAssignmentModal'));
+            modal.show();
+        }}
+
+        // Initialize LINE LEADER Assignment KPI card on page load
+        function initLineLeaderAssignmentKPI() {{
+            const employeeData = window.employeeData || [];
+
+            // Find 3-month consecutive AQL fail employees
+            const threeMonthFailEmployees = employeeData.filter(emp => {{
+                const continuousFail = String(emp['Continuous_FAIL'] || '');
+                return continuousFail.startsWith('YES');
+            }});
+
+            // Count those without LINE LEADER as boss
+            let noLineLeaderCount = 0;
+            threeMonthFailEmployees.forEach(emp => {{
+                const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
+                const bossId = String(emp['boss_id'] || '').trim();
+
+                let bossPosition = '';
+                if (bossId || bossName) {{
+                    const boss = employeeData.find(e => {{
+                        const empNo = String(e['Employee No'] || e['emp_no'] || '');
+                        const empName = String(e['Full Name'] || e['name'] || '');
+                        return empNo === bossId || empName === bossName;
+                    }});
+                    if (boss) {{
+                        bossPosition = String(boss['QIP POSITION 1ST  NAME'] || boss['position'] || '');
+                    }}
+                }}
+
+                const isLineLeader = bossPosition.toUpperCase().includes('LINE LEADER');
+                if (!isLineLeader) {{
+                    noLineLeaderCount++;
+                }}
+            }});
+
+            // Update KPI card
+            const kpiValue = document.getElementById('kpiLineLeaderNotAssigned');
+            if (kpiValue) {{
+                kpiValue.textContent = noLineLeaderCount;
+            }}
         }}
 
         // 새로운 접이식 조직도 그리기 함count

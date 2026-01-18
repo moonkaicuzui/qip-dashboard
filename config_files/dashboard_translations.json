@@ -559,6 +559,75 @@
       }
     }
   },
+  "lineLeaderAssignment": {
+    "cardTitle": {
+      "ko": "라인리더 미배정",
+      "en": "No LINE LEADER",
+      "vi": "Chưa có LINE LEADER"
+    },
+    "cardSubtitle": {
+      "ko": "3개월 AQL Fail 직원 중",
+      "en": "Among 3-month AQL Fail",
+      "vi": "Trong số NV thất bại AQL 3 tháng"
+    },
+    "modalTitle": {
+      "ko": "라인리더 미배정 현황 (3개월 연속 AQL Fail)",
+      "en": "LINE LEADER Assignment Status (3-Month AQL Fail)",
+      "vi": "Tình trạng phân công LINE LEADER (Thất bại AQL 3 tháng)"
+    },
+    "alertMessage": {
+      "ko": "3개월 연속 AQL Fail 이력이 있는 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 표시합니다.",
+      "en": "Shows employees with 3-month consecutive AQL Fail whose direct boss is NOT a LINE LEADER.",
+      "vi": "Hiển thị nhân viên có lịch sử thất bại AQL 3 tháng liên tục mà sếp trực tiếp KHÔNG phải LINE LEADER."
+    },
+    "noDataMessage": {
+      "ko": "모든 3개월 AQL Fail 직원의 직속상사가 LINE LEADER입니다.",
+      "en": "All 3-month AQL Fail employees have LINE LEADER as direct boss.",
+      "vi": "Tất cả nhân viên thất bại AQL 3 tháng đều có LINE LEADER làm sếp trực tiếp."
+    },
+    "headers": {
+      "empNo": {
+        "ko": "사번",
+        "en": "Emp No",
+        "vi": "Mã NV"
+      },
+      "empName": {
+        "ko": "직원명",
+        "en": "Name",
+        "vi": "Tên"
+      },
+      "empPosition": {
+        "ko": "직급",
+        "en": "Position",
+        "vi": "Chức vụ"
+      },
+      "empBuilding": {
+        "ko": "Building",
+        "en": "Building",
+        "vi": "Tòa nhà"
+      },
+      "bossName": {
+        "ko": "직속상사",
+        "en": "Direct Boss",
+        "vi": "Sếp trực tiếp"
+      },
+      "bossPosition": {
+        "ko": "상사 직급",
+        "en": "Boss Position",
+        "vi": "Chức vụ sếp"
+      },
+      "availableLineLeaders": {
+        "ko": "동일 Building LINE LEADER",
+        "en": "LINE LEADERs in Same Building",
+        "vi": "LINE LEADER cùng Tòa nhà"
+      }
+    },
+    "noneAvailable": {
+      "ko": "없음",
+      "en": "None",
+      "vi": "Không có"
+    }
+  },
   "orgChart": {
     "title": {
       "ko": "TYPE-1 관리자 인센티브 구조",
