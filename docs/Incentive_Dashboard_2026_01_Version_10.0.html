@@ -1825,7 +1825,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2026" data-month="january" data-month-name="1월">2026년 1월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="12" data-minute="36">보고서 생성일: 2026년 01월 18일 12:36</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="12" data-minute="37">보고서 생성일: 2026년 01월 18일 12:37</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -15994,10 +15994,11 @@
             document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + peopleUnit;
 
             // 7. 3개월 연속 AQL FAIL (Excel의 Continuous_FAIL column use)
-            // [Issue #55] 계산 엔진은 'YES'를 생성 (not 'YES_3MONTHS')
+            // [Issue #48] 계산 엔진은 'YES_3MONTHS'를 생성 (12월부터 확인됨)
+            // includes('YES')로 변경하여 'YES', 'YES_3MONTHS' 모두 처리
             const consecutiveFail = employeeData.filter(emp => {
                 const continuous_fail = emp['Continuous_FAIL'] || emp['continuous_fail'] || 'NO';
-                return continuous_fail === 'YES';
+                return continuous_fail.includes('YES');
             }).length;
             document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + peopleUnit;
 
@@ -17775,10 +17776,12 @@
         const filterPatternMedium = `${monthAbbr[month_N2-1].toUpperCase()}_${monthAbbr[month_N1-1].toUpperCase()}`;  // 예: AUG_SEP
 
         // 3연속 개월 실패자와 2연속 개월 실패자 분리
-        // [Issue #55] 계산 엔진은 'YES'를 생성 (not 'YES_3MONTHS')
-        const threeMonthFails = window.employeeData.filter(emp =>
-            emp['Continuous_FAIL'] === 'YES'
-        );
+        // [Issue #48] 계산 엔진은 'YES_3MONTHS'를 생성 (12월부터 확인됨)
+        // includes('YES')로 변경하여 'YES', 'YES_3MONTHS' 모두 처리
+        const threeMonthFails = window.employeeData.filter(emp => {{
+            const cf = emp['Continuous_FAIL'] || '';
+            return cf.includes('YES');
+        }});
 
         // 수정: Continuous_FAIL_2Month 컬럼 사용 (별도 컬럼으로 분리되어 있음)
         const twoMonthFails = window.employeeData.filter(emp =>
