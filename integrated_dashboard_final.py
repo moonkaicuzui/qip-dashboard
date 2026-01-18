@@ -14463,7 +14463,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
 
                 // LINE LEADER 이상의 관리자 포지션만 포함
-                const position = (emp.position || '').toUpperCase();
+                // [Issue #47 Fix] position 변수는 라인 14445에서 이미 선언됨 - 중복 선언 제거
                 const isManagerLevel = position.includes('MANAGER') ||
                                       position.includes('SUPERVISOR') ||
                                       position.includes('GROUP LEADER') ||
