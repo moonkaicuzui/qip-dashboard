@@ -14696,11 +14696,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}).length;
             document.getElementById('kpiAreaRejectRate').textContent = highRejectRate + peopleUnit;
 
-            // 9. 5PRS 통과율 < 95% (TYPE-1 ASSEMBLY INSPECTOR만)
+            // 9. 5PRS 통과율 < 95% (TYPE-1 ASSEMBLY INSPECTOR만) [Issue #60 Fix]
+            // position_code 사용: 'A1A', 'A1B', 'A1C' = ASSEMBLY INSPECTOR
             const lowPassRate = employeeData.filter(emp => {{
                 const isType1 = emp['type'] === 'TYPE-1';
-                const position = (emp['position'] || '').toUpperCase();
-                const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+                const positionCode = (emp['position_code'] || '').toUpperCase().trim();
+                const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
                 const passRate = parseFloat(emp['pass_rate'] || 100);
                 return isType1 && isAssemblyInspector && passRate < 95 && passRate > 0;
             }}).length;
@@ -15360,12 +15361,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
 
-                    // TYPE-1 ASSEMBLY INSPECTOR만 필터링
+                    // TYPE-1 ASSEMBLY INSPECTOR만 필터링 [Issue #60 Fix]
+                    // position_code 사용: 'A1A', 'A1B', 'A1C' = ASSEMBLY INSPECTOR
                     tableData = employeeData
                         .filter(emp => {{
-                            const position = (emp['position'] || '').toUpperCase();
+                            const positionCode = (emp['position_code'] || '').toUpperCase().trim();
                             const isType1 = emp['type'] === 'TYPE-1';
-                            const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+                            const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
                             const lowPassRate = parseFloat(emp['pass_rate'] || 100) < 95;
                             return isType1 && isAssemblyInspector && lowPassRate;
                         }})
@@ -15380,7 +15382,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             return [
                                 emp['emp_no'],
                                 emp['name'],
-                                emp['position'],
+                                emp['QIP POSITION 1ST  NAME'] || emp['position'] || 'ASSEMBLY INSPECTOR',
                                 emp['type'] || 'TYPE-1',
                                 (parseFloat(emp['pass_rate'] || 0).toFixed(1)) + '%',
                                 emp['cond_9_5prs_pass_rate'] || 'FAIL',
@@ -15403,12 +15405,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.incentiveAmount', currentLanguage)
                     ];
 
-                    // TYPE-1 ASSEMBLY INSPECTOR만 필터링
+                    // TYPE-1 ASSEMBLY INSPECTOR만 필터링 [Issue #60 Fix]
+                    // position_code 사용: 'A1A', 'A1B', 'A1C' = ASSEMBLY INSPECTOR
                     tableData = employeeData
                         .filter(emp => {{
-                            const position = (emp['position'] || '').toUpperCase();
+                            const positionCode = (emp['position_code'] || '').toUpperCase().trim();
                             const isType1 = emp['type'] === 'TYPE-1';
-                            const isAssemblyInspector = position.includes('ASSEMBLY') && position.includes('INSPECTOR');
+                            const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
                             const lowQty = parseFloat(emp['validation_qty'] || 0) < 100;
                             return isType1 && isAssemblyInspector && lowQty;
                         }})
@@ -15423,7 +15426,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             return [
                                 emp['emp_no'],
                                 emp['name'],
-                                emp['position'],
+                                emp['QIP POSITION 1ST  NAME'] || emp['position'] || 'ASSEMBLY INSPECTOR',
                                 emp['type'] || 'TYPE-1',
                                 emp['validation_qty'] || '0',
                                 emp['cond_10_5prs_inspection_qty'] || 'FAIL',
