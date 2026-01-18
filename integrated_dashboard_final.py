@@ -9751,14 +9751,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 window.employeeData.forEach(emp => {{
                     const empType = emp['type'] || emp['ROLE TYPE STD'] || 'TYPE-2';
-                    // 현재 월의 인센티브 컬럼 동적으로 찾기
-                    const monthLower = '{month.lower()}';
-                    const monthCapitalized = monthLower.charAt(0).toUpperCase() + monthLower.slice(1);
-                    const incentiveAmount = parseFloat(
-                        emp[monthLower + '_incentive'] ||
-                        emp[monthCapitalized + '_Incentive'] ||
-                        emp['Final Incentive amount']
-                    ) || 0;
+                    // [Issue #46] Phase 1 정규화된 currentIncentive 또는 헬퍼 함수 사용
+                    // 이전 코드: 하드코딩된 월별 칼럼명으로 직접 조회 → 칼럼명 불일치 버그 발생
+                    // 수정: employeeHelpers.getIncentive() 또는 정규화된 currentIncentive 사용
+                    const incentiveAmount = window.employeeHelpers
+                        ? window.employeeHelpers.getIncentive(emp, 'current')
+                        : (emp.currentIncentive || 0);
 
                     if (typeStats[empType]) {{
                         typeStats[empType].total++;
@@ -13032,15 +13030,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }};
 
             window.employeeData.forEach(emp => {{
-                // 현재 달 인센티브
-                const currIncentive = parseFloat(emp[monthLower + '_incentive'] || emp[monthCapitalized + '_Incentive'] || 0);
+                // [Issue #46] 현재 달 인센티브 - 정규화된 필드 사용
+                const currIncentive = window.employeeHelpers
+                    ? window.employeeHelpers.getIncentive(emp, 'current')
+                    : (emp.currentIncentive || 0);
                 if (currIncentive > 0) {{
                     currMonthData.total += currIncentive;
                     currMonthData.recipients++;
                 }}
 
-                // 전월 인센티브
-                const prevIncentive = parseFloat(emp['Previous_Month_Incentive'] || emp['previous_month_incentive'] || 0);
+                // [Issue #46] 전월 인센티브 - 정규화된 필드 사용
+                const prevIncentive = window.employeeHelpers
+                    ? window.employeeHelpers.getIncentive(emp, 'previous')
+                    : (emp.previousIncentive || 0);
                 if (prevIncentive > 0) {{
                     prevMonthData.total += prevIncentive;
                     prevMonthData.recipients++;
