@@ -33,7 +33,6 @@ QIP (Quality Inspection Process) Incentive Dashboard System - **Real-time Intern
 | **UX/문서** | @UXResearcher | 사용자 경험, 접근성 |
 | | @TechnicalWriter | 문서화 |
 | | @DataVisualization | 차트, 그래프 |
-| | @MobileSpecialist | 반응형 디자인 |
 | **조정** | @ProjectCoordinator | 작업 조율, 우선순위 |
 | | @IntegrationSpecialist | 시스템 통합, API |
 
@@ -338,7 +337,6 @@ git push origin main
 - CSV download contains data
 - Dashboard displays correct values
 - Selector page shows all months
-- Mobile responsive layout works
 
 #### Workflow Summary Checklist
 - [ ] Code changes completed and tested locally
