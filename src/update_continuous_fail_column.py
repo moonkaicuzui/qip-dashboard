@@ -235,6 +235,20 @@ def update_excel_with_continuous_fail(excel_path, analysis_result):
     month_1_ago = analysis_result['month_1_ago']
     current_month = analysis_result['current_month']
 
+    # [Issue #59 Fix] Continuous_FAIL_2Month 컬럼 업데이트 (대시보드 모달에서 사용)
+    # 대시보드 JavaScript: emp['Continuous_FAIL_2Month'] === 'YES' 로 필터링
+    if 'Continuous_FAIL_2Month' not in df.columns:
+        df['Continuous_FAIL_2Month'] = 'NO'
+    else:
+        df['Continuous_FAIL_2Month'] = 'NO'  # 먼저 모두 NO로 초기화
+
+    # 2개월 연속 실패자만 YES 설정 (3개월 연속은 별도 카운트)
+    df.loc[df['Continuous_FAIL'].str.contains('2MONTHS', na=False), 'Continuous_FAIL_2Month'] = 'YES'
+    df.loc[df['Continuous_FAIL'] == 'YES_3MONTHS', 'Continuous_FAIL_2Month'] = 'NO'  # 3개월은 제외
+
+    two_month_count = (df['Continuous_FAIL_2Month'] == 'YES').sum()
+    print(f"\n  [Issue #59] Continuous_FAIL_2Month 컬럼 업데이트: {two_month_count}명")
+
     print(f"\n✅ Update results:")
     print(f"  3-month consecutive failures ({MONTH_NAMES_KR[month_2_ago[0]]}-{MONTH_NAMES_KR[month_1_ago[0]]}-{MONTH_NAMES_KR[current_month[0]]}): {consecutive_3month_count} employees")
     print(f"  2-month consecutive failures (total): {consecutive_2month_count} employees")
