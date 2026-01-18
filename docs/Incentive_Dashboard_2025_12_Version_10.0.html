@@ -1825,7 +1825,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="17" data-minute="11">보고서 생성일: 2026년 01월 18일 17:11</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="18" data-minute="45">보고서 생성일: 2026년 01월 18일 18:45</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -21116,7 +21116,7 @@
                 }
 
                 // LINE LEADER 이상의 관리자 포지션만 포함
-                const position = (emp.position || '').toUpperCase();
+                // [Issue #47 Fix] position 변수는 라인 14445에서 이미 선언됨 - 중복 선언 제거
                 const isManagerLevel = position.includes('MANAGER') ||
                                       position.includes('SUPERVISOR') ||
                                       position.includes('GROUP LEADER') ||
@@ -28081,7 +28081,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                 initFAB();             // 2025-12-20: 플로팅 액션 버튼
                 initPullToRefresh();   // 2025-12-20: Pull-to-Refresh
                 restoreCardsCompactMode();  // 2025-12-21: 카드 축소 모드 복원
-            }
+            // [Issue #47 Fix Part 2] 잘못된 } 제거 - DOMContentLoaded 콜백 중간에서 닫히면 안됨
             // 현재 언어로 body lang 설정
             const currentLang = document.getElementById('languageSelector')?.value || 'ko';
             document.body.setAttribute('lang', currentLang);
