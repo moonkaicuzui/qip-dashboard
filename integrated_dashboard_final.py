@@ -21426,7 +21426,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 initFAB();             // 2025-12-20: 플로팅 액션 버튼
                 initPullToRefresh();   // 2025-12-20: Pull-to-Refresh
                 restoreCardsCompactMode();  // 2025-12-21: 카드 축소 모드 복원
-            }}
+            // [Issue #47 Fix Part 2] 잘못된 }} 제거 - DOMContentLoaded 콜백 중간에서 닫히면 안됨
             // 현재 언어로 body lang 설정
             const currentLang = document.getElementById('languageSelector')?.value || 'ko';
             document.body.setAttribute('lang', currentLang);
