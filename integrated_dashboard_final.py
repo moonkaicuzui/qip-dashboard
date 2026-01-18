@@ -9548,8 +9548,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 const base64Data = base64Element.textContent.trim();
             const jsonStr = base64DecodeUnicode(base64Data);  // UTF-8 지원 디코딩 use
-            const employeeData = JSON.parse(jsonStr);
-            window.employeeData = employeeData;
+
+            // [Issue #47 근본 해결] 로컬 employeeData 변수 제거
+            // 로컬 변수가 존재하면 Phase 1 정규화 후에도 실수로 접근 가능하여 버그 발생
+            // 처음부터 window.employeeData에 직접 할당하여 데이터 일관성 보장
+            window.employeeData = JSON.parse(jsonStr);
 
             // CRITICAL FIX (Issue #40): 칼럼명을 Phase 1 정규화 전에 먼저 설정
             // 이전에는 updateAllTexts()에서 설정되어 정규화 시점에 undefined였음
@@ -9622,6 +9625,37 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     hasReceivedIncentive: window.employeeData[0].hasReceivedIncentive
                 }} : 'No employees'
             }});
+
+            // [Issue #47 근본 해결] Phase 1 런타임 검증
+            // 정규화가 정상적으로 완료되었는지 확인하여 조기 버그 감지
+            (function validatePhase1() {{
+                const testEmp = window.employeeData[0];
+                if (!testEmp) {{
+                    console.error('[Phase 1 VALIDATION FAILED] No employee data!');
+                    return;
+                }}
+
+                const requiredFields = ['currentIncentive', 'previousIncentive', 'hasReceivedIncentive'];
+                const missingFields = requiredFields.filter(field => !(field in testEmp));
+
+                if (missingFields.length > 0) {{
+                    console.error('[Phase 1 VALIDATION FAILED] Missing normalized fields:', missingFields);
+                    console.error('This may cause KPI cards and other statistics to show 0.');
+                    console.error('Check that Phase 1 normalization ran correctly.');
+                }} else {{
+                    console.log('[Phase 1 VALIDATION OK] All normalized fields present:', requiredFields);
+                }}
+
+                // 통계 빠른 검증 (KPI 카드에 표시될 값 미리 계산하여 0인지 체크)
+                const receiving = window.employeeData.filter(emp => emp.currentIncentive > 0).length;
+                const total = window.employeeData.reduce((sum, emp) => sum + (emp.currentIncentive || 0), 0);
+                if (receiving === 0 && window.employeeData.length > 0) {{
+                    console.warn('[Phase 1 WARNING] No employees have currentIncentive > 0');
+                    console.warn('Check if column name matches:', window.currentIncentiveColumn);
+                }} else {{
+                    console.log('[Phase 1 STATS] Receiving:', receiving, 'Total:', total.toLocaleString(), 'VND');
+                }}
+            }})();
 
             // Phase 2: 타입 안전 헬퍼 함수 (Issue #39 근본 해결 - Ralph Loop)
             // 직원 데이터 안전 접근을 위한 유틸리티 함수들
