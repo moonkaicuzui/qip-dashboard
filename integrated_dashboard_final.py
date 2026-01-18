@@ -20874,94 +20874,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             lastScrollY = currentScrollY;
         }}
 
-        // ====== 플로팅 액션 버튼 (FAB) (2025-12-20, Enhanced 2025-12-21) ======
-        function initFAB() {{
-            // 기존 FAB 제거
-            document.querySelectorAll('.fab-container').forEach(el => el.remove());
-
-            // FAB 컨테이너 생성 - "내 인센티브" + "링크 공유" 버튼 추가
-            const fabContainer = document.createElement('div');
-            fabContainer.className = 'fab-container';
-            fabContainer.innerHTML = `
-                <button class="fab-btn fab-secondary hidden" id="fabSearch" title="검색">🔍</button>
-                <button class="fab-btn fab-share hidden" id="fabShare" title="내 링크 공유">🔗</button>
-                <button class="fab-btn fab-summary hidden" id="fabSummary" title="빠른 요약">📊</button>
-                <button class="fab-btn fab-my-incentive" id="fabMyIncentive" title="내 인센티브">👤</button>
-                <button class="fab-btn" id="fabMain" title="메뉴">⬆️</button>
-            `;
-            document.body.appendChild(fabContainer);
-
-            const fabMain = document.getElementById('fabMain');
-            const fabSearch = document.getElementById('fabSearch');
-            const fabShare = document.getElementById('fabShare');
-            const fabSummary = document.getElementById('fabSummary');
-            const fabMyIncentive = document.getElementById('fabMyIncentive');
-            let fabExpanded = false;
-
-            // 메인 FAB 클릭 - 상단 이동 또는 메뉴 토글
-            fabMain.addEventListener('click', function() {{
-                if (window.scrollY > 300) {{
-                    // 스크롤이 많이 된 경우 - 상단으로 이동
-                    window.scrollTo({{ top: 0, behavior: 'smooth' }});
-                }} else {{
-                    // 맨 위에서는 추가 버튼들 토글
-                    fabExpanded = !fabExpanded;
-                    fabSearch.classList.toggle('hidden', !fabExpanded);
-                    fabShare.classList.toggle('hidden', !fabExpanded);
-                    fabSummary.classList.toggle('hidden', !fabExpanded);
-                    fabMain.innerHTML = fabExpanded ? '✖️' : '⬆️';
-                }}
-            }});
-
-            // 검색 FAB 클릭 - 검색창 포커스
-            fabSearch.addEventListener('click', function() {{
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) {{
-                    searchInput.focus();
-                    searchInput.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-                }}
-                fabExpanded = false;
-                fabSearch.classList.add('hidden');
-                fabShare.classList.add('hidden');
-                fabMain.innerHTML = '⬆️';
-            }});
-
-            // 링크 공유 FAB 클릭 - 내 딥링크 복사
-            fabShare.addEventListener('click', function() {{
-                copyMyDeeplink();
-                fabExpanded = false;
-                fabSearch.classList.add('hidden');
-                fabShare.classList.add('hidden');
-                fabSummary.classList.add('hidden');
-                fabMain.innerHTML = '⬆️';
-            }});
-
-            // 빠른 요약 FAB 클릭 - 경량 요약 오버레이 표시
-            fabSummary.addEventListener('click', function() {{
-                showQuickSummary();
-                fabExpanded = false;
-                fabSearch.classList.add('hidden');
-                fabShare.classList.add('hidden');
-                fabSummary.classList.add('hidden');
-                fabMain.innerHTML = '⬆️';
-            }});
-
-            // "내 인센티브" FAB 클릭 - 사번 입력 후 직원 상세 모달 표시
-            fabMyIncentive.addEventListener('click', function() {{
-                showMyIncentive();
-            }});
-
-            // 스크롤에 따라 FAB 아이콘 변경
-            window.addEventListener('scroll', function() {{
-                if (window.scrollY > 300) {{
-                    fabMain.innerHTML = '⬆️';
-                    fabExpanded = false;
-                    fabSearch.classList.add('hidden');
-                    fabShare.classList.add('hidden');
-                    fabSummary.classList.add('hidden');
-                }}
-            }}, {{ passive: true }});
-        }}
+        // ====== [Issue #49] 플로팅 액션 버튼 (FAB) 완전 제거 (2026-01-18) ======
+        // 모바일 UI 요소 제거 요청에 따라 삭제됨
+        // - 원본: Lines 20877-20964 (87 lines)
+        // - 제거된 요소: 🔍 검색, 🔗 링크 공유, 📊 빠른 요약, 👤 내 인센티브, ⬆️ 메뉴
 
         // ====== "내 인센티브" 퀵 액세스 기능 (2025-12-21, Enhanced 2025-12-21 URL Deeplink) ======
 
@@ -21369,79 +21285,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
 
-        // ====== Pull-to-Refresh (2025-12-20) ======
-        let ptrStartY = 0;
-        let ptrCurrentY = 0;
-        let isPulling = false;
-
-        function initPullToRefresh() {{
-            // 기존 PTR 제거
-            document.querySelectorAll('.ptr-container').forEach(el => el.remove());
-
-            // PTR 컨테이너 생성
-            const ptrContainer = document.createElement('div');
-            ptrContainer.className = 'ptr-container';
-            ptrContainer.innerHTML = `
-                <span class="ptr-arrow">↓</span>
-                <span class="ptr-text">${{getTranslation('pullToRefresh.pull', currentLanguage)}}</span>
-            `;
-            document.body.appendChild(ptrContainer);
-
-            const ptrArrow = ptrContainer.querySelector('.ptr-arrow');
-            const ptrText = ptrContainer.querySelector('.ptr-text');
-
-            document.addEventListener('touchstart', function(e) {{
-                if (window.scrollY === 0) {{
-                    ptrStartY = e.touches[0].clientY;
-                    isPulling = true;
-                }}
-            }}, {{ passive: true }});
-
-            document.addEventListener('touchmove', function(e) {{
-                if (!isPulling || window.scrollY > 0) return;
-
-                ptrCurrentY = e.touches[0].clientY;
-                const pullDistance = ptrCurrentY - ptrStartY;
-
-                if (pullDistance > 30 && pullDistance < 150) {{
-                    ptrContainer.classList.add('pulling');
-                    ptrContainer.style.transform = `translateY(${{Math.min(pullDistance - 30, 60)}}px)`;
-
-                    if (pullDistance > 80) {{
-                        ptrArrow.classList.add('flipped');
-                        ptrText.textContent = getTranslation('pullToRefresh.release', currentLanguage);
-                    }} else {{
-                        ptrArrow.classList.remove('flipped');
-                        ptrText.textContent = getTranslation('pullToRefresh.pull', currentLanguage);
-                    }}
-                }}
-            }}, {{ passive: true }});
-
-            document.addEventListener('touchend', function(e) {{
-                if (!isPulling) return;
-
-                const pullDistance = ptrCurrentY - ptrStartY;
-
-                if (pullDistance > 80) {{
-                    // 새로고침 실행
-                    ptrContainer.innerHTML = `<div class="ptr-spinner"></div><span>${{getTranslation('pullToRefresh.refreshing', currentLanguage)}}</span>`;
-                    ptrContainer.classList.add('refreshing');
-                    ptrContainer.style.transform = 'translateY(0)';
-
-                    setTimeout(() => {{
-                        window.location.reload();
-                    }}, 800);
-                }} else {{
-                    // 취소
-                    ptrContainer.classList.remove('pulling');
-                    ptrContainer.style.transform = 'translateY(-100%)';
-                }}
-
-                isPulling = false;
-                ptrStartY = 0;
-                ptrCurrentY = 0;
-            }}, {{ passive: true }});
-        }}
+        // ====== [Issue #49] Pull-to-Refresh 완전 제거 (2026-01-18) ======
+        // 모바일 UI 요소 제거 요청에 따라 삭제됨
+        // - 원본: Lines 21288-21360 (72 lines)
+        // - 제거된 요소: ↓ 당겨서 새로고침 텍스트, PTR 터치 제스처
 
         // 언어 변경 시 body lang 속성 설정
         const originalChangeLanguage = typeof changeLanguage === 'function' ? changeLanguage : null;
@@ -21457,12 +21304,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 초기화
         document.addEventListener('DOMContentLoaded', function() {{
-            
-            
+
+
                 initSwipeGestures();
                 initAutoHideHeader();  // 2025-12-20: 헤더 자동 숨기기
-                initFAB();             // 2025-12-20: 플로팅 액션 버튼
-                initPullToRefresh();   // 2025-12-20: Pull-to-Refresh
+                // [Issue #49] initFAB() 제거됨 (2026-01-18) - 모바일 UI 제거
+                // [Issue #49] initPullToRefresh() 제거됨 (2026-01-18) - 모바일 UI 제거
                 restoreCardsCompactMode();  // 2025-12-21: 카드 축소 모드 복원
             // [Issue #47 Fix Part 2] 잘못된 }} 제거 - DOMContentLoaded 콜백 중간에서 닫히면 안됨
             // 현재 언어로 body lang 설정
