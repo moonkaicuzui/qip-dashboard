@@ -20712,122 +20712,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
         }}
 
-        // ====== 모바일 하단 탭 네비게이션 ======
-        
-
-        // ====== 스와이프 제스처 지원 (2025-12-20 개선) ======
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchEndX = 0;
-        let touchEndY = 0;
-        let isSwiping = false;
-
-        function initSwipeGestures() {{
-            const tabContents = document.querySelectorAll('.tab-content');
-            // 2025-12-20: 실제 탭 순서에 맞게 수정
-            const tabOrder = ['summary', 'position', 'detail', 'criteria', 'orgchart', 'team', 'validation'];
-
-            // 스와이프 인디케이터 생성
-            createSwipeIndicators();
-
-            tabContents.forEach(content => {{
-                content.addEventListener('touchstart', function(e) {{
-                    touchStartX = e.changedTouches[0].screenX;
-                    touchStartY = e.changedTouches[0].screenY;
-                    isSwiping = true;
-                }}, {{ passive: true }});
-
-                content.addEventListener('touchmove', function(e) {{
-                    if (!isSwiping) return;
-                    const currentX = e.changedTouches[0].screenX;
-                    const diffX = touchStartX - currentX;
-                    const diffY = touchStartY - e.changedTouches[0].screenY;
-
-                    // 가로 스와이프가 세로보다 큰 경우에만 인디케이터 표시
-                    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {{
-                        showSwipeIndicator(diffX > 0 ? 'left' : 'right');
-                    }}
-                }}, {{ passive: true }});
-
-                content.addEventListener('touchend', function(e) {{
-                    touchEndX = e.changedTouches[0].screenX;
-                    touchEndY = e.changedTouches[0].screenY;
-                    handleSwipe();
-                    hideSwipeIndicators();
-                    isSwiping = false;
-                }}, {{ passive: true }});
-
-                content.addEventListener('touchcancel', function(e) {{
-                    hideSwipeIndicators();
-                    isSwiping = false;
-                }}, {{ passive: true }});
-            }});
-
-            function handleSwipe() {{
-                const diffX = touchStartX - touchEndX;
-                const diffY = touchStartY - touchEndY;
-
-                // 가로 스와이프가 세로보다 큰 경우만 처리
-                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {{
-                    const currentTab = document.querySelector('.tab-content.active')?.id || 'summary';
-                    const currentIndex = tabOrder.indexOf(currentTab);
-
-                    // 스와이프 애니메이션 적용
-                    const activeContent = document.querySelector('.tab-content.active');
-                    if (activeContent) {{
-                        activeContent.classList.add(diffX > 0 ? 'swipe-left' : 'swipe-right');
-                    }}
-
-                    setTimeout(() => {{
-                        if (diffX > 0) {{
-                            // 왼쪽 스와이프 - 다음 탭
-                            const nextIndex = (currentIndex + 1) % tabOrder.length;
-                            showTab(tabOrder[nextIndex]);
-                        }} else {{
-                            // 오른쪽 스와이프 - 이전 탭
-                            const prevIndex = (currentIndex - 1 + tabOrder.length) % tabOrder.length;
-                            showTab(tabOrder[prevIndex]);
-                        }}
-
-                        // 애니메이션 클래스 제거
-                        document.querySelectorAll('.tab-content').forEach(tc => {{
-                            tc.classList.remove('swipe-left', 'swipe-right');
-                        }});
-                    }}, 150);
-                }}
-            }}
-        }}
-
-        function createSwipeIndicators() {{
-            // 기존 인디케이터 제거
-            document.querySelectorAll('.swipe-indicator').forEach(el => el.remove());
-
-            // 왼쪽 인디케이터 (이전 탭으로)
-            const leftIndicator = document.createElement('div');
-            leftIndicator.className = 'swipe-indicator left';
-            leftIndicator.innerHTML = '◀';
-            document.body.appendChild(leftIndicator);
-
-            // 오른쪽 인디케이터 (다음 탭으로)
-            const rightIndicator = document.createElement('div');
-            rightIndicator.className = 'swipe-indicator right';
-            rightIndicator.innerHTML = '▶';
-            document.body.appendChild(rightIndicator);
-        }}
-
-        function showSwipeIndicator(direction) {{
-            hideSwipeIndicators();
-            const indicator = document.querySelector(`.swipe-indicator.${{direction}}`);
-            if (indicator) {{
-                indicator.classList.add('show');
-            }}
-        }}
-
-        function hideSwipeIndicators() {{
-            document.querySelectorAll('.swipe-indicator').forEach(el => {{
-                el.classList.remove('show');
-            }});
-        }}
+        // ====== [Issue #49] 모바일 하단 탭 네비게이션 + 스와이프 제스처 완전 제거 (2026-01-18) ======
+        // 모바일 UI 요소 제거 요청에 따라 삭제됨
+        // - 스와이프 제스처: initSwipeGestures(), createSwipeIndicators(), showSwipeIndicator(), hideSwipeIndicators()
+        // - 전역 변수: touchStartX, touchStartY, touchEndX, touchEndY, isSwiping
+        // - 제거된 DOM 요소: ◀ ▶ 스와이프 인디케이터
 
         // ====== 스크롤 시 헤더 자동 숨기기 (2025-12-20) ======
         let lastScrollY = 0;
@@ -21304,13 +21193,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 초기화
         document.addEventListener('DOMContentLoaded', function() {{
-
-
-                initSwipeGestures();
-                initAutoHideHeader();  // 2025-12-20: 헤더 자동 숨기기
-                // [Issue #49] initFAB() 제거됨 (2026-01-18) - 모바일 UI 제거
-                // [Issue #49] initPullToRefresh() 제거됨 (2026-01-18) - 모바일 UI 제거
-                restoreCardsCompactMode();  // 2025-12-21: 카드 축소 모드 복원
+                // [Issue #49] 모바일 UI 요소 완전 제거 (2026-01-18)
+                // - initSwipeGestures() 제거 (스와이프 제스처 + ◀▶ 인디케이터)
+                // - initFAB() 제거 (플로팅 액션 버튼)
+                // - initPullToRefresh() 제거 (당겨서 새로고침)
+                initAutoHideHeader();  // 2025-12-20: 헤더 자동 숨기기 (유지)
+                restoreCardsCompactMode();  // 2025-12-21: 카드 축소 모드 복원 (유지)
             // [Issue #47 Fix Part 2] 잘못된 }} 제거 - DOMContentLoaded 콜백 중간에서 닫히면 안됨
             // 현재 언어로 body lang 설정
             const currentLang = document.getElementById('languageSelector')?.value || 'ko';
