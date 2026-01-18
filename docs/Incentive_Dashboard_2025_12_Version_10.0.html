@@ -1825,7 +1825,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="13" data-minute="14">보고서 생성일: 2026년 01월 18일 13:14</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="17" data-minute="11">보고서 생성일: 2026년 01월 18일 17:11</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -12824,14 +12824,12 @@
 
                 window.employeeData.forEach(emp => {
                     const empType = emp['type'] || emp['ROLE TYPE STD'] || 'TYPE-2';
-                    // 현재 월의 인센티브 컬럼 동적으로 찾기
-                    const monthLower = 'december';
-                    const monthCapitalized = monthLower.charAt(0).toUpperCase() + monthLower.slice(1);
-                    const incentiveAmount = parseFloat(
-                        emp[monthLower + '_incentive'] ||
-                        emp[monthCapitalized + '_Incentive'] ||
-                        emp['Final Incentive amount']
-                    ) || 0;
+                    // [Issue #46] Phase 1 정규화된 currentIncentive 또는 헬퍼 함수 사용
+                    // 이전 코드: 하드코딩된 월별 칼럼명으로 직접 조회 → 칼럼명 불일치 버그 발생
+                    // 수정: employeeHelpers.getIncentive() 또는 정규화된 currentIncentive 사용
+                    const incentiveAmount = window.employeeHelpers
+                        ? window.employeeHelpers.getIncentive(emp, 'current')
+                        : (emp.currentIncentive || 0);
 
                     if (typeStats[empType]) {
                         typeStats[empType].total++;
@@ -13056,12 +13054,8 @@
             let totalAmount = 0;
 
             employeeData.forEach(emp => {
-                const amount = parseInt(
-                    emp['december_incentive'] ||
-                    emp['December_Incentive'] ||
-                    emp['Final Incentive amount'] ||
-                    0
-                );
+                // [Issue #46] 정규화된 currentIncentive 사용
+                const amount = emp.currentIncentive || 0;
                 if (amount > 0) {
                     paidCount++;
                     totalAmount += amount;
@@ -15801,13 +15795,8 @@
                     typeData[type].total++;
                     grandTotal++;
 
-                    // 여러 available incentive 필드직원 확인
-                    const amount = parseInt(
-                        emp['december_incentive'] ||
-                        emp['December_Incentive'] ||
-                        emp['Final Incentive amount'] ||
-                        0
-                    );
+                    // [Issue #46] 정규화된 currentIncentive 사용
+                    const amount = emp.currentIncentive || 0;
 
                     if (amount > 0) {
                         typeData[type].paid++;
@@ -16105,15 +16094,19 @@
             };
 
             window.employeeData.forEach(emp => {
-                // 현재 달 인센티브
-                const currIncentive = parseFloat(emp[monthLower + '_incentive'] || emp[monthCapitalized + '_Incentive'] || 0);
+                // [Issue #46] 현재 달 인센티브 - 정규화된 필드 사용
+                const currIncentive = window.employeeHelpers
+                    ? window.employeeHelpers.getIncentive(emp, 'current')
+                    : (emp.currentIncentive || 0);
                 if (currIncentive > 0) {
                     currMonthData.total += currIncentive;
                     currMonthData.recipients++;
                 }
 
-                // 전월 인센티브
-                const prevIncentive = parseFloat(emp['Previous_Month_Incentive'] || emp['previous_month_incentive'] || 0);
+                // [Issue #46] 전월 인센티브 - 정규화된 필드 사용
+                const prevIncentive = window.employeeHelpers
+                    ? window.employeeHelpers.getIncentive(emp, 'previous')
+                    : (emp.previousIncentive || 0);
                 if (prevIncentive > 0) {
                     prevMonthData.total += prevIncentive;
                     prevMonthData.recipients++;
@@ -20519,94 +20512,6 @@
             }
         }
 
-                    const month = 'december'.toLowerCase();
-            const incentiveCol = month + '_incentive';
-
-            // Get managers (LINE LEADER and above)
-            const managers = window.employeeData.filter(emp => {
-                const position = (emp.position || emp['QIP POSITION 1ST NAME'] || '').toUpperCase();
-                return position.includes('LINE LEADER') ||
-                       position.includes('GROUP LEADER') ||
-                       position.includes('SUPERVISOR') ||
-                       position.includes('MANAGER');
-            });
-
-            // 직급 순서 정의 (MANAGER가 먼저, LINE LEADER가 마지막)
-            const positionOrder = { 'MANAGER': 1, 'A.MANAGER': 2, 'SUPERVISOR': 3, 'GROUP LEADER': 4, 'LINE LEADER': 5 };
-
-            // 정렬: 직급 순서 > 인센티브 금액 순
-            managers.sort((a, b) => {
-                const posA = (a.position || a['QIP POSITION 1ST NAME'] || '').toUpperCase();
-                const posB = (b.position || b['QIP POSITION 1ST NAME'] || '').toUpperCase();
-                const orderA = positionOrder[Object.keys(positionOrder).find(k => posA.includes(k))] || 99;
-                const orderB = positionOrder[Object.keys(positionOrder).find(k => posB.includes(k))] || 99;
-                if (orderA !== orderB) return orderA - orderB;
-
-                const amtA = parseInt(a[incentiveCol] || a['November_Incentive'] || 0) || 0;
-                const amtB = parseInt(b[incentiveCol] || b['November_Incentive'] || 0) || 0;
-                return amtB - amtA;
-            });
-
-            let html = '';
-            managers.forEach(manager => {
-                const mgrNo = manager.emp_no || manager['Employee No'] || '';
-                const mgrName = manager.name || manager['Full Name'] || '';
-                const mgrPosition = manager.position || manager['QIP POSITION 1ST NAME'] || '';
-                // 🔧 NaN 안전성 검사 추가
-                const rawMgrAmount = manager[incentiveCol] || manager['November_Incentive'] || 0;
-                const mgrAmount = isNaN(parseInt(rawMgrAmount)) ? 0 : parseInt(rawMgrAmount);
-                const isPaid = mgrAmount > 0;
-
-                // Find subordinates
-                const subordinates = window.employeeData.filter(emp => {
-                    const bossId = String(emp.boss_id || emp['BOSS ID'] || '');
-                    return bossId === String(mgrNo);
-                });
-
-                const subCount = subordinates.length;
-                const paidSubCount = subordinates.filter(s => {
-                    const amt = parseInt(s[incentiveCol] || s['November_Incentive'] || 0) || 0;
-                    return amt > 0;
-                }).length;
-
-                html += `
-                    <div class="org-manager-card ${isPaid ? 'paid' : 'unpaid'}" data-manager-id="${mgrNo}">
-                        <div class="org-card-header" onclick="toggleOrgCard(this.parentElement)">
-                            <div class="org-card-info">
-                                <div class="org-card-name">${mgrName}</div>
-                                <div class="org-card-position">${mgrPosition} ${subCount > 0 ? '(👥 ' + paidSubCount + '/' + subCount + ')' : ''}</div>
-                            </div>
-                            <div class="org-card-incentive ${isPaid ? 'paid' : 'unpaid'}">${mgrAmount.toLocaleString()} VND</div>
-                            <span class="org-card-toggle">${subCount > 0 ? '▼' : ''}</span>
-                        </div>
-                        ${subCount > 0 ? '<div class="org-subordinates">' : ''}
-                `;
-
-                subordinates.forEach(sub => {
-                    const subNo = sub.emp_no || sub['Employee No'] || '';
-                    const subName = sub.name || sub['Full Name'] || '';
-                    // 🔧 NaN 안전성 검사 추가
-                    const rawSubAmount = sub[incentiveCol] || sub['November_Incentive'] || 0;
-                    const subAmount = isNaN(parseInt(rawSubAmount)) ? 0 : parseInt(rawSubAmount);
-                    const subPaid = subAmount > 0;
-
-                    html += `
-                            <div class="org-subordinate-item" onclick="event.stopPropagation(); showEmployeeDetail('${subNo}')">
-                                <span class="org-subordinate-name">${subName}</span>
-                                <span class="org-subordinate-amount ${subPaid ? 'paid' : 'unpaid'}">${subAmount.toLocaleString()} VND</span>
-                            </div>
-                    `;
-                });
-
-                html += `
-                        ${subCount > 0 ? '</div>' : ''}
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
         // Toggle organization card expand/collapse
         function toggleOrgCard(card) {
             card.classList.toggle('expanded');
@@ -20818,7 +20723,7 @@
 
         // incentive 수령 여부 확인 함count
         function hasIncentive(data) {
-            const amount = parseIncentive(data.incentive || data['december_incentive'] || 0);
+            const amount = parseIncentive(data.incentive || data.currentIncentive || 0);
             return amount > 0;
         }
 
@@ -20862,7 +20767,7 @@
                 const building = (emp.BUILDING || emp.building || '').toUpperCase();
                 if (buildingStats[building]) {
                     buildingStats[building].total++;
-                    const amount = parseInt(emp['december_incentive'] || 0);
+                    const amount = emp.currentIncentive;
                     if (amount > 0) {
                         buildingStats[building].paid++;
                         buildingStats[building].totalAmount += amount;
@@ -21253,7 +21158,7 @@
                     name: emp.name,
                     position: emp.position,
                     type: emp.type,
-                    incentive: emp['december_incentive'] || 0,
+                    incentive: emp.currentIncentive || 0,
                     boss_id: emp.boss_id,
                     building: emp.BUILDING || emp.building || '',  // 2026-01-03: Building 정보 추가 (Issue #33)
                     calculationMethod: calculationMethod,
@@ -21358,7 +21263,7 @@
                     );
 
                     const receivingCount = subordinates.filter(sub => {
-                        const incentive = sub['december_incentive'] || 0;
+                        const incentive = sub.currentIncentive || 0;
                         return Number(incentive) > 0;
                     }).length;
 
@@ -21736,7 +21641,7 @@
 
             // 사유가 없는 경우 기본 메시지
             if (reasons.length === 0) {
-                if (employee['december_incentive'] === 0) {
+                if (employee.currentIncentive === 0) {
                     reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.conditionInfoUnavailable', currentLanguage));
                 }
             }
@@ -21824,13 +21729,13 @@
         // Helper: Calculate expected incentive
         function calculateExpectedIncentive(subordinates, config) {
             const receivingSubordinates = subordinates.filter(sub =>
-                Number(sub['december_incentive'] || 0) > 0
+                sub.currentIncentive > 0
             );
 
             if (config.multiplier === 0.12) {
                 // LINE LEADER: sum × 12% × receiving ratio
                 const totalIncentive = subordinates.reduce((sum, sub) =>
-                    sum + Number(sub['december_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const receivingRatio = subordinates.length > 0 ?
                     receivingSubordinates.length / subordinates.length : 0;
@@ -21848,7 +21753,7 @@
                 // Others: average × multiplier (수령자만 평균 - 0 제외, 2025-12-04 수정)
                 // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
-                    sum + Number(sub['december_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const avgIncentive = receivingSubordinates.length > 0 ?
                     receivingIncentive / receivingSubordinates.length : 0;
@@ -22006,7 +21911,7 @@
             };
 
             const receivingSubordinates = subordinates.filter(sub =>
-                Number(sub['december_incentive'] || 0) > 0
+                sub.currentIncentive > 0
             );
 
             // 필터 버튼 라벨 (다국어) - 2026-01-11: count 라벨 추가
@@ -22058,12 +21963,12 @@
                 // 문제: config.useGrouping === true 브랜치에서 totalIncentive 미정의
                 // 원인: 2025-12-04 수정 시 receivingIncentive만 추가하고 totalIncentive 누락
                 const totalIncentive = subordinates.reduce((sum, sub) =>
-                    sum + Number(sub['december_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 // 수령자만 평균 (0 제외) - 2025-12-04 수정
                 // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
-                    sum + Number(sub['december_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const avgIncentive = receivingSubordinates.length > 0 ?
                     receivingIncentive / receivingSubordinates.length : 0;
@@ -22112,7 +22017,7 @@
                             </thead>
                             <tbody id="${tableId}-tbody">
                                 ${flattenedSubs.map((sub, idx) => {
-                                    const subIncentive = Number(sub['december_incentive'] || 0);
+                                    const subIncentive = sub.currentIncentive;
                                     const included = subIncentive > 0;
                                     // 2025-12-22: 미수령자 빨간색 폰트로 시각적 구별 (배경 제거)
                                     const rowStyle = included ? '' : 'color: #dc3545;';
@@ -22155,10 +22060,10 @@
                 // Simple table (LINE LEADER, GROUP LEADER) - 수령자만 평균 (0 제외, 2025-12-04 수정)
                 // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const totalIncentive = subordinates.reduce((sum, sub) =>
-                    sum + Number(sub['december_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
-                    sum + Number(sub['december_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const avgIncentive = receivingSubordinates.length > 0 ?
                     receivingIncentive / receivingSubordinates.length : 0;
@@ -22194,7 +22099,7 @@
                             </thead>
                             <tbody id="${tableId}-tbody">
                                 ${subordinates.map(sub => {
-                                    const subIncentive = Number(sub['december_incentive'] || 0);
+                                    const subIncentive = sub.currentIncentive;
                                     const isReceiving = subIncentive > 0;
                                     const subName = sub.name || sub.employee_name || 'Unknown';
                                     const subEmpNo = sub.emp_no || sub.employee_id || '';
@@ -22240,10 +22145,10 @@
             if (!subordinates || subordinates.length === 0) return '';
 
             const receivingSubordinates = subordinates.filter(sub =>
-                Number(sub['december_incentive'] || 0) > 0
+                sub.currentIncentive > 0
             );
             const totalIncentive = subordinates.reduce((sum, sub) =>
-                sum + Number(sub['december_incentive'] || 0), 0
+                sum + sub.currentIncentive, 0
             );
             const avgIncentive = receivingSubordinates.length > 0 ?
                 totalIncentive / receivingSubordinates.length : 0;
@@ -22255,7 +22160,7 @@
                 const type = sub.type || 'Unknown';
                 if (!byType[type]) byType[type] = { total: 0, receiving: 0, amount: 0 };
                 byType[type].total++;
-                const incentive = Number(sub['december_incentive'] || 0);
+                const incentive = sub.currentIncentive;
                 if (incentive > 0) {
                     byType[type].receiving++;
                     byType[type].amount += incentive;
@@ -22484,12 +22389,12 @@
                 }
 
                 const position = (employee.position || '').toUpperCase();
-                const employeeIncentive = Number(employee['december_incentive'] || 0);
+                const employeeIncentive = Number(employee.currentIncentive || 0);
 
                 // 부하 직원 찾기 (TYPE-1만) - 문자열 비교로 수정
                 const subordinates = employeeData.filter(emp => String(emp.boss_id) === nodeIdStr && emp.type === 'TYPE-1');
                 const receivingSubordinates = subordinates.filter(sub => {
-                    const incentive = sub['december_incentive'] || 0;
+                    const incentive = sub.currentIncentive || 0;
                     return Number(incentive) > 0;
                 });
 
@@ -24156,7 +24061,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                     name: emp.name,
                     position: emp.position || 'Unknown',
                     type: emp.type || '',
-                    incentive: emp['december_incentive'] || '0',
+                    incentive: emp.currentIncentive || '0',
                     parentId: parentId
                 });
             });
@@ -24398,12 +24303,8 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                                 typeData[type].total++;
                                 grandTotal++;
 
-                                const amount = parseInt(
-                                    emp['december_incentive'] ||
-                                    emp['December_Incentive'] ||
-                                    emp['Final Incentive amount'] ||
-                                    0
-                                );
+                                // [Issue #46] 정규화된 currentIncentive 사용
+                                const amount = emp.currentIncentive || 0;
 
                                 if (amount > 0) {
                                     typeData[type].paid++;
@@ -24839,7 +24740,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             let totalIncentive = 0;
 
             const lang = currentLanguage || 'ko';
-            const incentiveCol = 'December_Incentive';  // December_Incentive 형식
+            // [Issue #46] incentiveCol 변수 제거 - currentIncentive 직접 사용
 
             // 테이블 생성
             const tbody = document.getElementById('teamMemberTableBody');
@@ -24884,8 +24785,8 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                     activeCount++;
                 }
 
-                // 인센티브
-                const incentive = parseFloat(emp[incentiveCol] || emp['Final Incentive amount'] || 0) || 0;
+                // [Issue #46] 인센티브 - 정규화된 currentIncentive 사용
+                const incentive = emp.currentIncentive || 0;
                 if (incentive > 0) {
                     receivingCount++;
                     totalIncentive += incentive;
@@ -25550,7 +25451,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                 const empPosition = emp.position || emp['QIP POSITION 1ST NAME'];
                 const empType = emp.type || emp['ROLE TYPE STD'] || 'TYPE-2';
 
-                const amount = parseInt(emp['december_incentive'] || emp.september_incentive || 0);
+                const amount = emp.currentIncentive;
                 const isPaid = amount > 0;
                 const tr = document.createElement('tr');
                 tr.style.cursor = 'pointer';
@@ -25657,7 +25558,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                 
                 window.positionData[key].total++;
                 window.positionData[key].직원.push(emp);
-                const amount = parseInt(emp['december_incentive']) || 0;
+                const amount = emp.currentIncentive || 0;
                 if (amount > 0) {
                     window.positionData[key].paid++;
                     window.positionData[key].totalAmount += amount;
@@ -25821,8 +25722,8 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             
             // 요약 통계 calculation
             const totalEmployees = 직원.length;
-            const paidEmployees = 직원.filter(e => parseInt(e['december_incentive']) > 0).length;
-            const avgIncentive = Math.round(직원.reduce((sum, e) => sum + parseInt(e['december_incentive']), 0) / totalEmployees);
+            const paidEmployees = 직원.filter(e => parseInt(e.currentIncentive) > 0).length;
+            const avgIncentive = Math.round(직원.reduce((sum, e) => sum + parseInt(e.currentIncentive), 0) / totalEmployees);
             const paidRate = Math.round(paidEmployees/totalEmployees*100);
             
             // 조건 ID를 번역 키로 매핑
@@ -25840,8 +25741,8 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             };
             
             // actual incentive 기준으로 통계 calculation (방안 2 apply)
-            const actualPassCount = 직원.filter(emp => parseInt(emp['december_incentive']) > 0).length;
-            const actualFailCount = 직원.filter(emp => parseInt(emp['december_incentive']) === 0).length;
+            const actualPassCount = 직원.filter(emp => emp.currentIncentive > 0).length;
+            const actualFailCount = 직원.filter(emp => emp.currentIncentive === 0).length;
 
             // 각 직원의 조건 충족 통계 calculation (참고용 유지)
             // corresponding 직급에 actual로 apply되는 조건만 표시 (모든 직원이 N/A인 조건 제외)
@@ -25886,7 +25787,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             }
             
             // incentive 통계 calculation
-            const incentiveAmounts = 직원.map(emp => parseInt(emp['december_incentive'])).filter(amt => amt > 0);
+            const incentiveAmounts = 직원.map(emp => emp.currentIncentive).filter(amt => amt > 0);
             const maxIncentive = incentiveAmounts.length > 0 ? Math.max(...incentiveAmounts) : 0;
             const minIncentive = incentiveAmounts.length > 0 ? Math.min(...incentiveAmounts) : 0;
             const medianIncentive = incentiveAmounts.length > 0 ?
@@ -26043,7 +25944,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             `;
             
             직원.forEach(emp => {
-                const amount = parseInt(emp['december_incentive']);
+                const amount = emp.currentIncentive;
                 const isPaid = amount > 0;
                 modalContent += `
                     <tr class="employee-row ${isPaid ? 'paid-row' : 'unpaid-row'}" data-emp-no="${emp.emp_no}" style="cursor: pointer;">
@@ -26323,7 +26224,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             const totalConditions = applicableConditions.length;
 
             // incentive 지급 여부 확인
-            const isPaidEmployee = parseInt(emp['december_incentive']) > 0;
+            const isPaidEmployee = emp.currentIncentive > 0;
 
             // [Issue #57] Interim Report 개념 완전 제거
 
@@ -26859,7 +26760,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
-                            <div class="stat-value">${parseInt(emp['december_incentive']).toLocaleString()} VND</div>
+                            <div class="stat-value">${emp.currentIncentive.toLocaleString()} VND</div>
                             <div class="stat-label">${getTranslation('modal.incentiveInfo.amount')}</div>
                         </div>
                     </div>
@@ -26899,17 +26800,17 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                         <div class="card">
                             <div class="card-body">
                                 <h6 class="card-title">` + getTranslation('modal.detailPopup.paymentStatus', currentLanguage) + `</h6>
-                                <div class="지급-status ${parseInt(emp['december_incentive']) > 0 ? 'paid' : 'unpaid'}">
-                                    ${parseInt(emp['december_incentive']) > 0 ? `
+                                <div class="지급-status ${emp.currentIncentive > 0 ? 'paid' : 'unpaid'}">
+                                    ${emp.currentIncentive > 0 ? `
                                     <div>
                                         <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
                                         <h5>` + getTranslation('status.paid', currentLanguage) + `</h5>
-                                        <p class="mb-1">${parseInt(emp['december_incentive']).toLocaleString()} VND</p>
+                                        <p class="mb-1">${emp.currentIncentive.toLocaleString()} VND</p>
                                         ${emp.Talent_Pool_Member === 'Y' ? `
                                         <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px; border-radius: 8px; margin-top: 10px;">
                                             <small style="color: white; font-weight: bold;">
                                                 🌟 Talent Pool 보너스 포함<br>
-                                                기본: ${(parseInt(emp['december_incentive']) - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()} VND<br>
+                                                기본: ${(emp.currentIncentive - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()} VND<br>
                                                 보너스: +${parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()} VND
                                             </small>
                                         </div>` : ''}
@@ -27341,7 +27242,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             tbody.innerHTML = '';
             
             employeeData.forEach(emp => {
-                const amount = parseInt(emp['december_incentive']);
+                const amount = emp.currentIncentive;
                 const isPaid = amount > 0;
                 
                 // 필터 조건 확인
@@ -27866,9 +27767,9 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             // 데이터 계산
             const employeeData = window.employeeData || [];
             const totalCount = employeeData.length;
-            const receivingEmployees = employeeData.filter(emp => parseInt(emp['december_incentive'] || 0) > 0);
+            const receivingEmployees = employeeData.filter(emp => emp.currentIncentive > 0);
             const receivingCount = receivingEmployees.length;
-            const totalIncentive = employeeData.reduce((sum, emp) => sum + parseInt(emp['december_incentive'] || 0), 0);
+            const totalIncentive = employeeData.reduce((sum, emp) => sum + emp.currentIncentive, 0);
             const avgIncentive = receivingCount > 0 ? Math.round(totalIncentive / receivingCount) : 0;
             const receivingRate = totalCount > 0 ? ((receivingCount / totalCount) * 100).toFixed(1) : 0;
 
@@ -27877,13 +27778,13 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             const type2Count = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-2').length;
             const type3Count = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-3').length;
 
-            const type1Receiving = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-1' && parseInt(emp['december_incentive'] || 0) > 0).length;
-            const type2Receiving = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-2' && parseInt(emp['december_incentive'] || 0) > 0).length;
+            const type1Receiving = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-1' && emp.currentIncentive > 0).length;
+            const type2Receiving = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-2' && emp.currentIncentive > 0).length;
 
-            // TOP 3 인센티브
+            // TOP 3 인센티브 [Issue #46]
             const top3 = [...employeeData]
-                .filter(emp => parseInt(emp['december_incentive'] || 0) > 0)
-                .sort((a, b) => parseInt(b['december_incentive'] || 0) - parseInt(a['december_incentive'] || 0))
+                .filter(emp => emp.currentIncentive > 0)
+                .sort((a, b) => (b.currentIncentive || 0) - (a.currentIncentive || 0))
                 .slice(0, 3);
 
             // 내 정보 확인
@@ -27892,7 +27793,8 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             if (myEmpNo) {
                 const myData = employeeData.find(emp => String(emp.emp_no || '').trim() === String(myEmpNo).trim());
                 if (myData) {
-                    const myIncentive = parseInt(myData['december_incentive'] || 0);
+                    // [Issue #46] 정규화된 currentIncentive 사용
+                    const myIncentive = myData.currentIncentive || 0;
                     myInfoHtml = `
                         <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 12px; padding: 15px; margin-bottom: 20px; color: white;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -27929,7 +27831,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
             // TOP 3 HTML
             const top3Html = top3.map((emp, idx) => {
                 const medals = ['🥇', '🥈', '🥉'];
-                const incentive = parseInt(emp['december_incentive'] || 0);
+                const incentive = emp.currentIncentive;
                 return `
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
                         <span style="font-size: 1.3rem;">${medals[idx]}</span>
