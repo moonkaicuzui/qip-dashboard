@@ -372,11 +372,6 @@ git push origin main
 #   3. Attendance calculation
 #   4. Incentive calculation
 #   5. Dashboard generation
-#   6. Optional data validation
-
-# Standalone validation pipeline
-./run_full_validation.sh
-# Validates all 10 conditions, incentive amounts, dashboard consistency
 ```
 
 ### Dashboard Generation
@@ -386,20 +381,6 @@ python integrated_dashboard_final.py --month 9 --year 2025
 
 # Version 6 (Modular architecture, maintenance mode)
 python dashboard_v2/generate_dashboard.py --month september --year 2025
-```
-
-### Data Validation (NEW)
-```bash
-# Complete validation suite
-./run_full_validation.sh
-
-# Individual validators
-python scripts/verification/validate_condition_evaluation.py september 2025
-python scripts/verification/validate_incentive_amounts.py september 2025
-python scripts/verification/validate_dashboard_consistency.py september 2025
-
-# Integrated report generation
-python scripts/verification/generate_final_report.py september 2025 --run-all
 ```
 
 ### Consecutive AQL Failure Update
@@ -440,13 +421,7 @@ python src/validate_hr_data.py 9 2025
                                ├── Chart.js visualizations
                                └── Multi-language support (KO/EN/VN)
                                        ↓
-                               [6] Data Validation (scripts/verification/)
-                               ├── validate_condition_evaluation.py (10 conditions)
-                               ├── validate_incentive_amounts.py (TYPE-1/2/3 logic)
-                               ├── validate_dashboard_consistency.py (CSV vs Dashboard)
-                               └── generate_final_report.py (integrated Excel report)
-                                       ↓
-                               [7] Web Deployment (GitHub Pages)
+                               [6] Web Deployment (GitHub Pages)
                                ├── Copy outputs to /docs folder
                                ├── Regenerate selector.html (create_month_selector.py)
                                ├── Git commit & push
@@ -543,274 +518,7 @@ Output: output_files/output_QIP_incentive_september_2025_Complete_V9.0_Complete.
         output_files/Incentive_Dashboard_2025_09_Version_9.0.html
 
 Config: config_files/config_september_2025.json
-
-Reports: validation_reports/INTEGRATED_VALIDATION_REPORT_september_2025_[timestamp].xlsx
 ```
-
-## Data Validation System (NEW)
-
-### Validation Architecture
-**Single Source of Truth Validation**:
-```
-Original Data Sources → Python Calculation → Excel Output → Dashboard Display
-        ↓                      ↓                   ↓              ↓
-   (validate_condition_evaluation)  (validate_incentive_amounts)  (validate_dashboard_consistency)
-```
-
-### What Gets Validated
-
-**validate_condition_evaluation.py**
-- Recalculates all 10 conditions from source data
-- Compares with Excel output conditions (YES/NO)
-- Validates 100% rule enforcement
-- Full validation (all employees, no sampling)
-
-**validate_incentive_amounts.py**
-- TYPE-1: Validates against progression_table
-- TYPE-2: Validates 100% rule + TYPE-1 average usage
-- TYPE-3: Validates 0 VND policy
-- Continuous months: Validates increment/reset logic
-
-**validate_dashboard_consistency.py**
-- Validates Dashboard HTML vs CSV exact match
-- KPI summary statistics
-- Individual employee data (all fields)
-- All 10 condition fields
-
-**generate_final_report.py**
-- Aggregates all validation results
-- Priority-ordered action items (CRITICAL/ERROR/WARNING)
-- Comprehensive Excel report with recommendations
-
-### Running Validation
-
-**Integrated into action.sh** (Recommended):
-```bash
-./action.sh
-# After dashboard generation, prompted: "Run automated data validation? (y/n)"
-# Choose 'y' → automatic validation → option to open report
-```
-
-**Standalone**:
-```bash
-./run_full_validation.sh
-# Interactive year/month selection → runs all 4 validators → integrated report
-```
-
-**Exit Codes**:
-- 0 = No issues detected
-- 1 = Findings detected, review reports
-
-## Audit Trail Validation System (IMPLEMENTED: 2026-01-04)
-
-### Overview
-**Purpose**: Independent JavaScript-based validation system that recalculates incentives from original CSV sources and compares against dashboard outputs to verify calculation accuracy.
-
-**Key Principle**: Complete independence from Python calculation engine - validates by independent recalculation, not by comparing Python output with itself.
-
-**Deployment**: GitHub Pages compatible (client-side JavaScript only)
-
-### Why Independent Validation?
-- **Problem**: Python calculation engine validating its own output is circular logic (meaningless)
-- **Solution**: JavaScript engine recalculates from scratch using:
-  - Original 4 CSV files (attendance, AQL, 5PRS, basic_manpower)
-  - 3 Config JSON files (position_condition_matrix, config_[month]_[year], auditor_trainer_area_mapping)
-  - User-uploaded Previous Month actual payment data (from payroll system)
-  - Dashboard output CSV (for comparison only)
-
-### Access
-**Web URL**: `https://moonkaicuzui.github.io/qip-dashboard/validation.html`
-
-**Entry Point**: "검증 시작하기" button on `selector.html` page
-
-### Files Created
-```
-docs/
-├── validation.html          # Main validation page with UI
-├── validation.js            # Independent JavaScript calculation engine
-└── validation.css           # Styling
-
-Modified:
-├── selector.html            # Added validation button + Font Awesome
-```
-
-### User Workflow
-1. **Select Validation Month**: Choose month (December 2025 onwards)
-2. **Download Template**: Click "양식 다운로드" → get blank Excel with 2 columns
-   - Column 1: Employee ID
-   - Column 2: Previous_Incentive (actual payment from payroll system)
-   - No pre-filled data - user pastes their own
-3. **Fill Template**: Copy actual payment data from payroll → paste into Excel → save
-4. **Upload File**: Upload filled Excel file
-5. **Start Validation**: Click "검증 시작" → system validates all 422 employees
-6. **View Results**:
-   - Summary statistics (Total, Matched, Mismatched, Match %)
-   - Search & Filter (All/Matched/Mismatched only)
-   - Mismatch table (red highlighting, Expected vs Actual comparison)
-   - Export to Excel
-
-### Technical Architecture
-
-**JavaScript Modules** (validation.js):
-```javascript
-const ValidationEngine = {
-    // Module 1: File Loaders & Template Generator
-    FileLoader: {
-        generatePreviousMonthTemplate(),    // Create blank 2-column Excel
-        downloadTemplate(),                  // Trigger download
-        loadPreviousMonthExcel(),           // Parse uploaded file (SheetJS)
-        validateUploadedFile(),              // Validate required columns
-        reverseContinuousMonths(),           // Calculate months from incentive
-        loadCSVFromURL(),                    // Load CSVs (PapaParse)
-        loadJSONFromURL(),                   // Load configs (Fetch API)
-        loadAllSources()                     // Parallel loading of all sources
-    },
-
-    // Module 2: Independent Calculator
-    Calculator: {
-        calculateCondition1_AttendanceRate(),     // Condition 1
-        calculateCondition2_UnapprovedAbsence(),  // Condition 2
-        // ... (10 conditions total)
-        calculateContinuousMonths(),              // Continuous_Months logic
-        calculateIncentiveAmount(),               // TYPE-1/2/3 calculation
-        validateEmployee()                        // Master validation function
-    },
-
-    // Module 3: Comparator
-    Comparator: {
-        compareEmployees(),                 // Field-by-field comparison
-        generateValidationReport()          // 422-employee report
-    },
-
-    // Module 4: UI Controller
-    UIController: {
-        displaySummary(),                   // Summary KPI cards
-        displayMismatchTable(),             // Red-highlighted mismatches
-        exportToExcel()                     // Export results
-    },
-
-    // Module 5: Main Workflow
-    runValidation()                         // Orchestrate validation
-};
-```
-
-**Key Formulas Implemented**:
-```javascript
-// Condition 1: Attendance Rate
-const absenceDays = totalDays - actualDays - approvedLeaveDays;
-const absenceRate = (absenceDays / totalDays) * 100;
-const attendanceRate = 100 - absenceRate;
-const pass = attendanceRate >= 88;
-
-// Continuous Months
-if (previousMonthData && allConditionsPass) {
-    continuousMonths = Math.min(previousContinuousMonths + 1, 15);
-} else if (!allConditionsPass) {
-    continuousMonths = 0;  // Reset on failure
-} else {
-    continuousMonths = 1;  // New employee
-}
-
-// 100% Fulfillment Rule
-const allConditionsPass = (passedConditions === applicableConditions.length);
-if (!allConditionsPass) {
-    incentive = 0;  // NO PARTIAL INCENTIVES
-}
-```
-
-**Reverse Continuous_Months Calculation**:
-- **Problem**: User uploads Previous_Incentive only, not Continuous_Months
-- **Solution**: Reverse-calculate from incentive amount
-  ```javascript
-  150,000 VND → 1 month
-  250,000 VND → 2 months
-  ...
-  1,000,000 VND → 12+ months (assume 12, exact number doesn't matter for 12-15)
-  ```
-- **Rationale**: For 12-15 months, all receive 1,000,000 VND, so exact month number is unnecessary
-
-### Previous Month Data Strategy
-
-**Upload Format**: Minimal 2-column Excel template
-- **Column 1**: Employee ID (unique identifier)
-- **Column 2**: Previous_Incentive (actual VND payment from payroll)
-
-**Template Structure**:
-```
-Employee ID | Previous_Incentive
-------------|-------------------
-            |
-            |
-(100+ empty rows for user to paste data)
-```
-
-**Why Only 2 Columns?**
-- **Continuous_Months**: Reverse-calculated from Previous_Incentive amount
-- **Simplicity**: User only needs to copy-paste actual payment data
-- **No Sorting Required**: User can paste in any order
-
-### Validation Scope
-- **Target Months**: December 2025 onwards ONLY
-- **Coverage**: All 422 employees (full validation, no sampling)
-- **Performance**: < 10 seconds for complete validation
-- **Accuracy Target**: 100% formula match with Python engine
-
-### Libraries Used
-- **PapaParse**: CSV parsing
-- **SheetJS (xlsx)**: Excel file generation and parsing
-- **FileSaver.js**: Excel export
-- **Bootstrap 5**: UI components
-- **Font Awesome**: Icons
-
-### Success Criteria
-1. ✅ Formula Accuracy: JavaScript calculations match Python engine 100%
-2. ✅ Performance: < 10 seconds for 422 employees
-3. ✅ User-Friendly: HR team can use without technical knowledge
-4. ✅ Comprehensive: Validates all conditions and incentive amounts
-5. ✅ Actionable: Mismatch reports highlight exact discrepancies
-6. ✅ Independent: Uses only original CSVs (not derived Python outputs)
-
-### Verification Example (December 2025)
-**Expected Results**:
-- Total Employees: 422 ✅
-- Receiving Incentive: 372 ✅
-- Total Amount: ₫136,570,584 ✅
-- **Zero Tolerance**: Any mismatch requires investigation
-
-### Implementation Status
-- **Phase 1 (Foundation)**: ✅ Completed (2026-01-04)
-  - validation.html with UI structure
-  - validation.css with styling
-  - validation.js with file loading and template download
-  - selector.html button integration
-  - Font Awesome integration
-
-- **Phase 2 (Calculator Engine)**: ✅ Completed (2026-01-04)
-  - All 10 condition calculations
-  - Continuous_Months logic
-  - TYPE-1/2/3 incentive calculation
-
-- **Phase 3 (Comparison & Reporting)**: ✅ Completed (2026-01-04)
-  - Field-by-field comparison
-  - Validation report generation
-  - Mismatch identification
-
-- **Phase 4 (UI Display)**: ✅ Completed (2026-01-04)
-  - Summary statistics display
-  - Mismatch table with red highlighting
-  - Excel export functionality
-
-- **Phase 5 (Testing)**: ⏳ Pending
-  - Test with December 2025 real data
-  - Browser compatibility testing
-  - User acceptance testing
-
-### Future Enhancements
-- Multi-language support (Korean/English/Vietnamese)
-- Historical validation (compare multiple months)
-- Export to PDF with charts
-- Severity classification (CRITICAL/HIGH/MEDIUM/LOW)
-- Automatic email alerts for critical mismatches
 
 ## Common Issues & Solutions
 
@@ -2054,95 +1762,7 @@ Employee ID | Previous_Incentive
      - Building 정보는 항상 상사 기준을 따라야 조직도 일관성 유지
      - 상사가 Building 없는 경우 해결을 위해 Basic Manpower에 BUILDING 칼럼 추가 고려
 
-37. **Validation System File Loading & Language Switching** (FIXED: 2026-01-04):
-   - **Problem 1**: "검증 실패: Failed to load source files" 에러 발생
-     - GitHub Pages는 `/docs` 폴더만 서빙
-     - 검증 시스템이 프로젝트 루트의 `/input_files/`, `/config_files/`에 접근 시도
-     - CORS 정책상 불가능 → 파일 로딩 실패
-   - **Problem 2**: 언어 전환 버튼(한국어/English/Tiếng Việt) 작동하지 않음
-     - HTML에는 버튼이 있지만 JavaScript 이벤트 리스너 미구현
-     - 번역 데이터 및 `switchLanguage()` 함수 없음
-   - **Solution 1 - File Loading**:
-     - December 2025 검증 데이터를 `/docs/validation_data/december_2025/` 폴더에 복사
-     - 7개 파일: attendance, AQL, 5PRS, basic_manpower, config, position_condition_matrix, dashboard output
-     - `validation.js` 파일 경로 수정 (Line 234-244): `./validation_data/${monthName}_${year}/...`
-   - **Solution 2 - Language Switching**:
-     - 번역 시스템 추가 (Line 879-966): 한국어/영어/베트남어 translations 객체
-     - `switchLanguage()` 함수 구현: 헤더 제목/부제 실시간 변경
-     - 언어 선택 버튼 이벤트 리스너 연결
-   - **Files Modified**:
-     - `docs/validation.js`: 파일 경로 수정 + 언어 전환 시스템 추가
-     - `docs/validation_data/december_2025/`: 7개 검증 파일 복사
-   - **Implementation**: `docs/validation.js:234-244, 879-966`
-   - **Commit**: `fdc16255` (2026-01-04)
-   - **Verification**:
-     - December 2025 검증 시스템 파일 로딩 성공 예상
-     - 언어 전환 버튼 클릭 시 헤더 텍스트 변경 확인
-     - 추가 UI 번역은 `switchLanguage()` 함수에 추가 가능
-   - **Prevention**:
-     - GitHub Pages 프로젝트는 모든 데이터를 `/docs` 폴더 내에 배치 필수
-     - 프로젝트 루트 파일 접근 불가능 (CORS)
-     - 언어 전환 구현 시 번역 시스템 + 이벤트 리스너 필수
-
-38. **Validation Page - 11 Condition Verification UI Implementation** (IMPLEMENTED: 2026-01-04):
-   - **User Request**: 검증 페이지에 11개 영구 검증 기능 구현 (1회성 스크립트 아님)
-     1. 총 근무일 표시 및 대시보드 일치 확인
-     2-11. 10개 조건별 실패자 파악, 인센티브 수령 여부 확인, 대시보드 비교
-   - **Problem**: 검증 페이지에 조건별 세부 검증 UI가 없음
-   - **Solution**: 2개 새 섹션 + 3개 JavaScript 함수 구현
-     - **Working Days Information Section** (Lines 152-187):
-       - 총 근무일, 근무 기간, Dashboard 일치 여부, Config 값 표시
-       - 4-column Bootstrap card layout
-     - **Condition Validation Details Section** (Lines 189-222):
-       - 3-tier card structure: Attendance (1-4), AQL (5-8), 5PRS (9-10)
-       - Color-coded headers: Attendance(blue), AQL(green), 5PRS(orange)
-     - **JavaScript Functions**:
-       - `displayWorkingDaysInfo()`: 근무일 정보 표시 (Lines 1420-1458)
-       - `validateConditions()`: 10개 조건 검증 로직 (Lines 1464-1633)
-       - `displayConditionCard()`: 조건별 카드 UI 생성 (Lines 1635-1698)
-     - **Integration**: `runValidation()` 함수에 통합 (Lines 1122-1135)
-   - **Bug Fixes**:
-     1. **Dashboard Value Format Mismatch** (Lines 1514-1577, 1622-1627):
-        - Expected: `YES/NO`
-        - Actual: `PASS/FAIL/NOT_APPLICABLE`
-        - Fixed: Changed all condition checkFn to use `PASS/NOT_APPLICABLE`
-     2. **NOT_APPLICABLE Handling** (Lines 1622-1627):
-        - NOT_APPLICABLE 값을 mismatch 체크에서 제외
-        - Dashboard 비교 시 PASS/FAIL만 검증
-   - **Validation Results** (December 2025, 560 employees):
-     | Condition | Failures | Received Incentive | Dashboard Match |
-     |-----------|----------|-------------------|-----------------|
-     | Cond 1: 출근율 ≥88% | 101 | 0 ✅ | 100% ✅ |
-     | Cond 2: 무단결근 ≤2일 | 1 | 0 ✅ | 100% ✅ |
-     | Cond 3: 실제근무일 >0 | 114 | 0 ✅ | 100% ✅ |
-     | Cond 4: 최소근무일 ≥12 | 118 | 0 ✅ | 100% ✅ |
-     | Cond 5: AQL Fail =0 | 11 | 0 ✅ | 100% ✅ |
-     | Cond 6: 3개월 연속 실패 없음 | 0 | 0 ✅ | 100% ✅ |
-     | Cond 7: 팀 AQL 3개월 실패 없음 | 0 | 0 ✅ | 100% ✅ |
-     | Cond 8: Area Reject <3% | 0 | 0 ✅ | 100% ✅ |
-     | Cond 9: 5PRS 통과율 ≥95% | 42 | 0 ✅ | 100% ✅ |
-     | Cond 10: 5PRS 검사량 ≥100 | 35 | 0 ✅ | 100% ✅ |
-   - **Working Days Verification**:
-     - December 2025: 27 working days (2025.12.01 ~ 2025.12.31)
-     - Config value: 27일 ✅
-     - Attendance CSV: 27일 ✅
-     - Dashboard match: 100% ✅
-   - **Files Modified**:
-     - `docs/validation.html:152-222` (2 new sections)
-     - `docs/validation.js:1122-1135, 1420-1698` (3 new functions + integration)
-   - **Browser Testing**:
-     - All HTML elements rendered correctly ✅
-     - All JavaScript functions defined ✅
-     - No console errors ✅
-     - All 10 condition cards display data ✅
-   - **Implementation**: `docs/validation.html:152-222`, `docs/validation.js:1122-1135, 1420-1698`
-   - **Commit**: [to be committed]
-   - **Prevention**:
-     - 사용자 요청 시 "1회성 검증"과 "영구 UI 구현" 구분 필수
-     - Dashboard CSV 컬럼 형식 변경 시 검증 시스템 함께 업데이트
-     - 새 조건 추가 시 `validateConditions()` 함수에 정의 추가
-
-39. **Issue #39: Ralph Loop - 근본적 모달 데이터 정합성 해결** (FIXED: 2026-01-04):
+37. **Issue #37: Ralph Loop - 근본적 모달 데이터 정합성 해결** (FIXED: 2026-01-04):
    - **Problem**: 하드코딩된 월별 칼럼 패턴으로 인한 모달 데이터 정합성 문제
      - `emp['November_Incentive']`, `emp[window.currentIncentiveColumn]` 직접 접근
      - 월 변경 시 데이터 불일치 발생
@@ -2173,7 +1793,7 @@ Employee ID | Previous_Incentive
      - Never use direct column access like `emp['November_Incentive']`
      - Pre-commit hook blocks hardcoded patterns automatically
 
-40. **Issue #40: SelfContained HTML 동기화 문제** (FIXED: 2026-01-04):
+38. **Issue #38: SelfContained HTML 동기화 문제** (FIXED: 2026-01-04):
    - **Problem**: 웹 대시보드 업데이트 시 SelfContained HTML 재생성 누락
      - Web Dashboard: Jan 4 15:20 (employeeHelpers 16개 ✅)
      - SelfContained: Jan 2 20:42 (employeeHelpers 0개 ❌)
@@ -2215,7 +1835,7 @@ Employee ID | Previous_Incentive
      - Pre-commit hook will block commits if sync is broken
      - GitHub Actions provides automatic safety net every 30 minutes
 
-41. **Issue #41: Previous_Incentive Single Source of Truth System** (IMPLEMENTED: 2026-01-10, **CORRECTED: 2026-01-11**):
+39. **Issue #39: Previous_Incentive Single Source of Truth System** (IMPLEMENTED: 2026-01-10, **CORRECTED: 2026-01-11**):
    - **Problem**: Previous_Incentive 데이터 불일치 발생
      - 대시보드 계산 CSV vs 실제 집행 데이터 차이
    - **Final Incentive 파일 컬럼 구조**:
@@ -2259,7 +1879,7 @@ Employee ID | Previous_Incentive
      - Google Drive에 파일 업로드 시 컬럼명 확인 필수
      - GitHub Actions가 30분마다 자동으로 다운로드 및 적용
 
-42. **Issue #45: SelfContained HTML 완전 제거** (IMPLEMENTED: 2026-01-11):
+40. **Issue #40: SelfContained HTML 완전 제거** (IMPLEMENTED: 2026-01-11):
    - **Context**: Issue #40 (동기화 방지), Issue #44 (다운로드 버튼 제거)의 후속 조치
    - **Problem**: SelfContained HTML이 생성되지만 사용되지 않는 상태
      - Issue #44에서 다운로드 버튼 제거됨 → 사용자 접근 불가
@@ -2296,7 +1916,7 @@ Employee ID | Previous_Incentive
      - SelfContained가 다시 필요해지면 `scripts/archive/`에서 복원
      - 다운로드 버튼 복원 전에는 생성할 필요 없음
 
-43. **Issue #47: Continuous_Months Single Source of Truth 아키텍처** (FIXED: 2026-01-12):
+41. **Issue #41: Continuous_Months Single Source of Truth 아키텍처** (FIXED: 2026-01-12):
    - **Problem**: 이전 달 CSV의 잘못된 Continuous_Months가 현재 달 계산에 사용됨
      - 10명 직원이 November_Incentive = 0인데 December_Incentive = 250K~850K로 계산됨
      - 원인: 이전 달 웹 대시보드 CSV의 Continuous_Months 값이 잘못됨
@@ -2318,7 +1938,7 @@ Employee ID | Previous_Incentive
      - 이전 달 CSV의 잘못된 계산이 현재 달에 영향을 주지 않음
      - 역산 로직으로 데이터 일관성 보장
 
-44. **Issue #48: TYPE-1 Continuous_Months 계산 타이밍 버그** (FIXED: 2026-01-13):
+42. **Issue #42: TYPE-1 Continuous_Months 계산 타이밍 버그** (FIXED: 2026-01-13):
    - **Problem**: 모든 TYPE-1 ASSEMBLY INSPECTOR 직원이 150,000 VND (1개월 금액)만 수령
      - December 2025: 116명 전원이 150,000 VND (progressive 인센티브 미작동)
      - 67명 직원이 잘못된 인센티브 수령 (Previous_Incentive > 0인데 Continuous_Months = 1)
@@ -2360,7 +1980,7 @@ Employee ID | Previous_Incentive
      - `save_results()`의 로드는 backup용 (이미 로드된 경우 스킵)
      - 계산 순서: Config 로드 → Previous_Incentive 로드 → TYPE-1 계산 → 결과 저장
 
-45. **Issue #49: LINE LEADER Subordinate Lookup Type Mismatch** (FIXED: 2026-01-13):
+43. **Issue #43: LINE LEADER Subordinate Lookup Type Mismatch** (FIXED: 2026-01-13):
    - **Problem**: LINE LEADER 부하직원 조회 시 타입 불일치로 0명 반환
      - 모든 LINE LEADER의 부하직원 수가 0명으로 표시
      - 인센티브 계산: ₫0 (부하직원 없음으로 처리)
@@ -2374,7 +1994,7 @@ Employee ID | Previous_Incentive
    - **Implementation**: `src/step1_인센티브_계산_개선버전.py:3146-3175`
    - **Prevention**: ID 비교 시 항상 `str()` 변환 사용
 
-46. **Issue #50: GitHub Actions Git 로직 Race Condition** (FIXED: 2026-01-13):
+44. **Issue #44: GitHub Actions Git 로직 Race Condition** (FIXED: 2026-01-13):
    - **Problem**: GitHub Actions 자동 업데이트 워크플로우 푸시 실패
      - Error: `cannot pull with rebase: You have unstaged changes`
      - Error: `Updates were rejected because the tip of your current branch is behind`
@@ -2417,15 +2037,10 @@ Employee ID | Previous_Incentive
 ```bash
 # After modifying dashboard code
 python integrated_dashboard_final.py --month 9 --year 2025
-./run_full_validation.sh  # Validate changes
 
 # If dashboard shows 0 values
 # → Check NaN serialization in complete_renderer.py (Version 6)
 # → Check data file paths in config_[month]_[year].json
-
-# If validation fails
-# → Check validation_reports/INTEGRATED_VALIDATION_REPORT_*.xlsx
-# → Focus on "조치 항목 (우선순위)" sheet for action items
 ```
 
 ## Testing
@@ -2433,9 +2048,6 @@ python integrated_dashboard_final.py --month 9 --year 2025
 ```bash
 # Full system test (if exists)
 ./test_final.sh
-
-# Validation test suite
-./run_full_validation.sh
 
 # Legacy test scripts (in scripts/legacy/)
 python scripts/legacy/simple_deep_test.py      # Browser-based dashboard test
@@ -2449,7 +2061,6 @@ Python 3.9+
 pandas>=1.3.0
 numpy>=1.21.0
 openpyxl>=3.0.9
-beautifulsoup4>=4.9.3  # For dashboard validation
 playwright           # For testing
 gspread>=5.7.0      # For Google Drive
 ```
@@ -2457,9 +2068,8 @@ gspread>=5.7.0      # For Google Drive
 ## Project Organization
 
 ```
-/                                    # Root (clean - only 6 essential files)
+/                                    # Root (clean - only 5 essential files)
 ├── action.sh                        # Main execution script
-├── run_full_validation.sh           # Validation pipeline
 ├── integrated_dashboard_final.py    # Dashboard generator (Version 9)
 ├── CLAUDE.md                        # This file
 ├── README.md                        # Project documentation
@@ -2483,11 +2093,6 @@ gspread>=5.7.0      # For Google Drive
 └── ...
 
 /scripts/                            # Utility scripts (NOT web-served)
-├── verification/                    # Data validation system
-│   ├── validate_condition_evaluation.py
-│   ├── validate_incentive_amounts.py
-│   ├── validate_dashboard_consistency.py
-│   └── generate_final_report.py
 ├── create_month_selector.py        # Selector.html generator
 └── legacy/                          # Legacy/backup scripts
 
@@ -2495,7 +2100,6 @@ gspread>=5.7.0      # For Google Drive
 /config_files/                       # JSON configuration
 /input_files/                        # Source data
 /output_files/                       # Generated reports (→ copied to /docs)
-/validation_reports/                 # Validation Excel reports
 ```
 
 **Web vs Development**:
@@ -2588,7 +2192,7 @@ gspread>=5.7.0      # For Google Drive
 **Moved to `/docs/guides/` (1 file)**:
 - `USER_ACCESS_GUIDE.md` - User guide properly categorized
 
-**Result**: Root directory reduced to 6 essential files (action.sh, CLAUDE.md, README.md, PROJECT_IDENTITY_WEB_DASHBOARD.md, integrated_dashboard_final.py, run_full_validation.sh)
+**Result**: Root directory reduced to 5 essential files (action.sh, CLAUDE.md, README.md, PROJECT_IDENTITY_WEB_DASHBOARD.md, integrated_dashboard_final.py)
 
 ### Anti-Pattern Prevention
 
@@ -2644,24 +2248,15 @@ When updating version numbers (e.g., 9.0 → 9.1), you MUST update these files:
    - Lines 15739-15744: CSV file loading logic with comments
    - Line 15866: HTML output filename
 
-3. **`action.sh`** (5 locations)
-   - Line 413, 427: Validation script Excel file parameters
+3. **`action.sh`** (3 locations)
    - Line 455-456: Dashboard generation description and DASHBOARD_VERSION variable
    - Lines 518-519: Completion message file paths
 
-**Tier 2 - Verification Scripts**:
-4. **`scripts/verification/`** (5 files)
-   - `validate_incentive_amounts.py`: Line 51
-   - `validate_condition_evaluation.py`: Lines 64-65
-   - `validate_dashboard_consistency.py`: Lines 42, 60 (CRITICAL - must match dashboard filename)
-   - `generate_simple_validation_report.py`: Line 24
-   - `analyze_october_data.py`: Line 26
-
-5. **`src/update_continuous_fail_column.py`**
+4. **`src/update_continuous_fail_column.py`**
    - Lines 257-258: Primary file pattern (with fallback to older versions)
 
-**Tier 3 - Documentation**:
-6. **`README.md`** and **`CLAUDE.md`**
+**Tier 2 - Documentation**:
+5. **`README.md`** and **`CLAUDE.md`**
    - Update all version references in examples and file paths
 
 ### Backward Compatibility Pattern (CRITICAL)
@@ -2690,17 +2285,12 @@ excel_patterns = [
 
 ### Common Version Update Pitfalls
 
-1. **Filename Mismatch in Validators**:
-   - Bug: `validate_dashboard_consistency.py` looking for "Version_9.0.html" but generator creates different version
-   - Impact: All dashboard validation fails silently
-   - Fix: Line 60 must match `integrated_dashboard_final.py` line 15866
-
-2. **Missing Fallback Pattern**:
+1. **Missing Fallback Pattern**:
    - Impact: Cannot read previous month files during version transitions
    - Fix: Always maintain fallback to previous version in file loading logic
 
-3. **Incomplete Updates**:
-   - Impact: Mixed version references cause confusion and validation failures
+2. **Incomplete Updates**:
+   - Impact: Mixed version references cause confusion
    - Fix: Use comprehensive grep search to find all references
 
 ### Version Update Validation Checklist
@@ -2717,10 +2307,7 @@ grep -A 5 "excel_patterns\|prev_file_patterns" src/step1_인센티브_계산_개
 ./action.sh  # Select a test month
 
 # 4. Verify output filenames
-ls output_files/*Complete_V8*
-
-# 5. Run validation suite
-./run_full_validation.sh
+ls output_files/*Complete_V9*
 ```
 
 ## Development Notes
@@ -2730,5 +2317,4 @@ ls output_files/*Complete_V8*
 - Position Details modal requires proper 5PRS/AQL field mapping
 - Language switching updates ALL elements via `updateAllTexts()`
 - Modal CSS uses unified Bootstrap 5 classes
-- Validation system integrated into monthly workflow (optional step in action.sh)
 - All backup files excluded from git (.gitignore: *.backup, *backup*.py)
