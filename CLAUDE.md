@@ -2031,6 +2031,37 @@ Config: config_files/config_september_2025.json
      - 동시 커밋 발생 시 자동 해결
      - 3회 재시도로 일시적 네트워크 오류 대응
 
+45. **Issue #45: Building 필터링 버그 - 정확 일치 → 접두사 일치** (FIXED: 2026-01-18):
+   - **Problem**: Building A 필터 클릭 시 VÕ VĂN KIỆT (Building A2) 표시 안됨
+     - 조직도 Building 필터가 정확 일치(`===`)만 처리
+     - "A" !== "A2" → A2 Building 직원 누락
+   - **Root Cause**: JavaScript 필터링 로직의 정확 일치 사용
+     - Line 14515: `empBuilding === selectedBuilding.toUpperCase()`
+     - Line 14532: `empBuilding === selectedBuilding.toUpperCase()`
+     - Line 14642: `nodeBuilding === selectedBuilding`
+   - **Solution**: `===` → `startsWith()`로 접두사 매칭 변경
+     ```javascript
+     // 변경 전
+     if (empBuilding === selectedBuilding.toUpperCase()) {
+
+     // 변경 후
+     if (empBuilding.startsWith(selectedBuilding.toUpperCase())) {
+     ```
+   - **Impact**:
+     | 필터 | 변경 전 | 변경 후 |
+     |------|---------|---------|
+     | A | A만 (22명) | A, A1, A2 (141명) |
+     | B | B만 (9명) | B, B1, B2 (41명) |
+     | B3 | B3 (35명) | B3 (35명 - 유지) |
+   - **Implementation**:
+     - `integrated_dashboard_final.py:14515` (buildingEmployeeIds 수집)
+     - `integrated_dashboard_final.py:14532` (isInBuilding 판정)
+     - `integrated_dashboard_final.py:14642` (nodeBuilding 스타일링)
+   - **Commit**: [현재 세션]
+   - **Prevention**:
+     - Building 필터는 계층 구조 (A→A1,A2) 고려 필요
+     - 정확 일치 필요 시 B3처럼 전체 이름 사용
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code

@@ -14512,7 +14512,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 해당 빌딩의 모든 직원 ID 수집
                 employeeData.forEach(emp => {{
                     const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase();
-                    if (empBuilding === selectedBuilding.toUpperCase()) {{
+                    if (empBuilding.startsWith(selectedBuilding.toUpperCase())) {{
                         const empId = String(emp.emp_no || emp['Employee No'] || '');
                         if (empId && empId !== '' && empId !== 'nan') buildingEmployeeIds.add(empId);
                     }}
@@ -14529,7 +14529,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // Building 필터 적용 (2025-12-22: 상사 체인 포함으로 개선)
                 if (selectedBuilding !== 'all') {{
                     const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase();
-                    const isInBuilding = empBuilding === selectedBuilding.toUpperCase();
+                    const isInBuilding = empBuilding.startsWith(selectedBuilding.toUpperCase());
                     const isInBossChain = bossChainIds.has(empId);
 
                     // 해당 빌딩이거나 상사 체인에 포함된 경우만 표시
@@ -14639,7 +14639,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 let buildingTooltip = '';
 
                 if (selectedBuilding !== 'ALL') {{
-                    if (nodeBuilding === selectedBuilding) {{
+                    if (nodeBuilding.startsWith(selectedBuilding)) {{
                         // Building 일치: 파란 테두리 + 밝은 파란 배경
                         buildingStyle = 'border: 3px solid #0d6efd; background-color: #e7f3ff;';
                     }} else {{
