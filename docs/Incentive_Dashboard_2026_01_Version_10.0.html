@@ -1825,7 +1825,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2026" data-month="january" data-month-name="1월">2026년 1월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="18" data-minute="50">보고서 생성일: 2026년 01월 18일 18:50</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="18" data-minute="56">보고서 생성일: 2026년 01월 18일 18:56</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -13049,11 +13049,12 @@
             });
 
             // data load 후 즉시 상단 카드 업데이트
-            let totalCount = employeeData.length;
+            // [Issue #47 Fix] window.employeeData 사용 - Phase 1 정규화 후 currentIncentive 필드가 있음
+            let totalCount = window.employeeData.length;
             let paidCount = 0;
             let totalAmount = 0;
 
-            employeeData.forEach(emp => {
+            window.employeeData.forEach(emp => {
                 // [Issue #46] 정규화된 currentIncentive 사용
                 const amount = emp.currentIncentive || 0;
                 if (amount > 0) {

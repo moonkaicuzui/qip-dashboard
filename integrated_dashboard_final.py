@@ -9976,11 +9976,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }});
 
             // data load 후 즉시 상단 카드 업데이트
-            let totalCount = employeeData.length;
+            // [Issue #47 Fix] window.employeeData 사용 - Phase 1 정규화 후 currentIncentive 필드가 있음
+            let totalCount = window.employeeData.length;
             let paidCount = 0;
             let totalAmount = 0;
 
-            employeeData.forEach(emp => {{
+            window.employeeData.forEach(emp => {{
                 // [Issue #46] 정규화된 currentIncentive 사용
                 const amount = emp.currentIncentive || 0;
                 if (amount > 0) {{
