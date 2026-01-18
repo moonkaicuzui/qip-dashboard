@@ -1131,8 +1131,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     
     # 통계 calculation
     total_직원 = len(직원)
-    # 현재 month incentive 필드 이름
-    current_month_field = f'{month.lower()}_incentive'
+    # 현재 month incentive 필드 이름 - [Issue #47 Fix] 대소문자 일치 필요 (December_Incentive, January_Incentive)
+    current_month_field = f'{month.capitalize()}_Incentive'
     paid_직원 = sum(1 for e in 직원 if int(float(e.get(current_month_field, '0') or '0')) > 0)
     total_amount = sum(int(float(e.get(current_month_field, '0') or '0')) for e in 직원)
     지급_rate = (paid_직원 / total_직원 * 100) if total_직원 > 0 else 0
