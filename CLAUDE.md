@@ -2132,6 +2132,57 @@ Config: config_files/config_september_2025.json
      - 통계 계산 시 항상 `window.employeeData` 사용
      - `employeeHelpers.getIncentive()` 사용 권장
 
+48. **Issue #48: Continuous_FAIL 데이터 계약 불일치 (Data Contract Mismatch)** (FIXED: 2026-01-18):
+   - **Problem**: 3개월 연속 AQL 실패자가 대시보드 모달/KPI에서 0명으로 표시
+     - 실제 데이터: 1명 (NGUYỄN THỊ CẨM NHUNG, 624060316)
+     - `Continuous_FAIL` 값: `'YES_3MONTHS'`
+     - 대시보드/계산 엔진 필터: `=== 'YES'` (정확 일치)
+     - 결과: `'YES_3MONTHS' !== 'YES'` → 표시 누락
+   - **Root Cause**: **데이터 계약(Data Contract) 불일치**
+     - **데이터 생성**: `'YES_3MONTHS'`, `'YES_2MONTHS_OCT_NOV'`, `'NO'`
+     - **데이터 소비**: `== 'YES'` (정확 일치 - 틀림), `startswith('YES')` (접두사 일치 - 맞음)
+     - 계산 엔진 11곳 중 5곳만 올바른 `startswith('YES')` 사용
+   - **Solution**: 모든 `Continuous_FAIL` 비교를 `startswith('YES')`로 통일
+     - **대시보드** (`integrated_dashboard_final.py`):
+       - Line 2837-2843: 3개월 연속 실패자 모달 필터
+       - Line 12925-12931: KPI 카드 카운트 필터
+       - 변경: `=== 'YES'` → `includes('YES')`
+     - **계산 엔진** (`src/step1_인센티브_계산_개선버전.py`) - 11곳 통일:
+       - Lines 2849, 2890: DataFrame `.str.startswith('YES').sum()`
+       - Line 3565: DataFrame mask `.str.startswith('YES')`
+       - Lines 3786, 3885, 4200: Row-level `str().startswith('YES')`
+       - Lines 6707, 6752, 6804: Inverted `not str().startswith('YES')`
+       - Line 7491: Direct `str().startswith('YES')`
+       - Line 7524: DataFrame `.str.startswith('YES').any()`
+   - **Data Contract Documentation**:
+     ```
+     Continuous_FAIL 컬럼 데이터 계약:
+     ┌─────────────────────────────────────────────────────────────┐
+     │ 값 패턴                  │ 의미                            │
+     ├─────────────────────────┼─────────────────────────────────┤
+     │ 'NO'                    │ 연속 실패 없음                   │
+     │ 'YES_3MONTHS'           │ 3개월 연속 AQL 실패             │
+     │ 'YES_2MONTHS_XXX_YYY'   │ 2개월 연속 (XXX, YYY월)         │
+     └─────────────────────────┴─────────────────────────────────┘
+
+     올바른 필터링 방법:
+     - Python: str(value).startswith('YES')
+     - JavaScript: value.includes('YES') 또는 value.startsWith('YES')
+     - Pandas: df['col'].astype(str).str.startswith('YES')
+
+     ❌ 잘못된 필터링: == 'YES', === 'YES', != 'YES'
+     ```
+   - **Implementation**:
+     - `integrated_dashboard_final.py:2837-2843, 12925-12931`
+     - `src/step1_인센티브_계산_개선버전.py:2849, 2890, 3565, 3786, 3885, 4200, 6707, 6752, 6804, 7491, 7524`
+   - **Commits**:
+     - `bbf7e3319` (대시보드 수정)
+     - [현재 커밋] (계산 엔진 근본 수정)
+   - **Prevention**:
+     - `Continuous_FAIL` 비교 시 항상 `startswith('YES')` / `includes('YES')` 사용
+     - 정확 일치(`==`, `===`)는 데이터 계약 위반
+     - 코드 리뷰 시 `Continuous_FAIL` 비교 패턴 확인 필수
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code

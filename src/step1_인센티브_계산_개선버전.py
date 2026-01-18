@@ -2844,8 +2844,9 @@ class CompleteQIPCalculator:
                         print(f"  → AQL 병합 전: {aql_fail_count}명 AQL failure record 보유")
                 
                 # 3-month consecutive failures checking
+                # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
                 if 'Continuous_FAIL' in aql_conditions.columns:
-                    continuous_fail_count = (aql_conditions['Continuous_FAIL'] == 'YES').sum()
+                    continuous_fail_count = aql_conditions['Continuous_FAIL'].astype(str).str.startswith('YES').sum()
                     if continuous_fail_count > 0:
                         print(f"  → AQL 병합 전: {continuous_fail_count}명 3-month consecutive failure")
                         # 624040283 checking
@@ -2884,8 +2885,9 @@ class CompleteQIPCalculator:
                         print(f"  → employee {test_emp} AQL failure: {test_row.iloc[0][aql_col]}")
                 
                 # 병합 후 3-month consecutive failures checking
+                # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
                 if 'Continuous_FAIL' in self.month_data.columns:
-                    continuous_fail_count_after = (self.month_data['Continuous_FAIL'] == 'YES').sum()
+                    continuous_fail_count_after = self.month_data['Continuous_FAIL'].astype(str).str.startswith('YES').sum()
                     print(f"  → AQL 병합 후: {continuous_fail_count_after}명 3-month consecutive failure")
                     # 624040283 checking
                     tran_after = self.month_data[self.month_data['Employee No'] == '624040283']
@@ -3559,7 +3561,8 @@ class CompleteQIPCalculator:
         3-month consecutive failuresof factory별 분포 반환
         Returns: {factoryemployees: consecutivefailures수}
         """
-        continuous_fail_mask = self.month_data['Continuous_FAIL'] == 'YES'
+        # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+        continuous_fail_mask = self.month_data['Continuous_FAIL'].astype(str).str.startswith('YES')
         continuous_fail_employees = self.month_data[continuous_fail_mask]
         
         factory_counts = {}
@@ -3779,7 +3782,8 @@ class CompleteQIPCalculator:
             )
 
             aql_fail = row.get(aql_col, 0) > 0
-            continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
+            # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+            continuous_fail = str(row.get('Continuous_FAIL', 'NO')).startswith('YES')
 
             # 100% 충족 validation - MODEL MASTER condition 1,2,3,4,8 모두 충족해야 함
             # MODEL MASTER condition 체크 (1,2,3,4,8)
@@ -3877,7 +3881,8 @@ class CompleteQIPCalculator:
             )
 
             aql_fail = row.get(aql_col, 0) > 0
-            continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
+            # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+            continuous_fail = str(row.get('Continuous_FAIL', 'NO')).startswith('YES')
 
             # incentive 결정
             # Direct condition evaluation for Auditor/Trainer positions
@@ -4191,8 +4196,9 @@ class CompleteQIPCalculator:
             
             # AQL condition: 당month failure cases수 0cases, 3-month consecutive failure 아님
             aql_fail = row.get(aql_col, 0) > 0
-            continuous_fail = row.get('Continuous_FAIL', 'NO') == 'YES'
-            
+            # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+            continuous_fail = str(row.get('Continuous_FAIL', 'NO')).startswith('YES')
+
             # AQL INSPECTOR attendance condition(1-4) + 당month AQL condition(5)only 체크
             # 3-Part calculation은 default condition 충족 시toonly 실행
             if attendance_fail or aql_fail:
@@ -6697,7 +6703,8 @@ class CompleteQIPCalculator:
                                 'applicable': False  # Model Master items인 AQL 체크 안함
                             },
                             '3월_continuous': {
-                                'passed': row.get('Continuous_FAIL', 'NO') != 'YES' if pd.notna(row.get('Continuous_FAIL')) else True,
+                                # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+                                'passed': not str(row.get('Continuous_FAIL', 'NO')).startswith('YES') if pd.notna(row.get('Continuous_FAIL')) else True,
                                 'value': row.get('Continuous_FAIL', 'NO'),
                                 'threshold': 'NO',
                                 'applicable': True
@@ -6741,7 +6748,8 @@ class CompleteQIPCalculator:
                                 'applicable': True
                             },
                             '3월_continuous': {
-                                'passed': row.get('Continuous_FAIL', 'NO') != 'YES' if pd.notna(row.get('Continuous_FAIL')) else True,
+                                # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+                                'passed': not str(row.get('Continuous_FAIL', 'NO')).startswith('YES') if pd.notna(row.get('Continuous_FAIL')) else True,
                                 'value': row.get('Continuous_FAIL', 'NO'),
                                 'threshold': 'NO',
                                 'applicable': True
@@ -6792,13 +6800,14 @@ class CompleteQIPCalculator:
                                 'applicable': True
                             },
                             '3월_continuous': {
-                                'passed': row.get('Continuous_FAIL', 'NO') != 'YES' if pd.notna(row.get('Continuous_FAIL')) else True,
+                                # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+                                'passed': not str(row.get('Continuous_FAIL', 'NO')).startswith('YES') if pd.notna(row.get('Continuous_FAIL')) else True,
                                 'value': row.get('Continuous_FAIL', 'NO'),
                                 'threshold': 'NO',
                                 'applicable': True
                             }
                         }
-                
+
                 # 5PRS conditions (TYPE-1, TYPE-2  days부)
                 if row['ROLE TYPE STD'] in ['TYPE-1', 'TYPE-2'] and 'AQL INSPECTOR' not in str(position_value):
                     emp_metadata['conditions']['5prs'] = {
@@ -7478,7 +7487,8 @@ class CompleteQIPCalculator:
                             reasons.append("absence rate >12%")
                         
                         # AQL condition 체크
-                        if row.get('Continuous_FAIL', 'NO') == 'YES':
+                        # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+                        if str(row.get('Continuous_FAIL', 'NO')).startswith('YES'):
                             reasons.append("3-month consecutive AQL failure")
                         elif row.get(f"{month_str} AQL Failures", 0) > 0:
                             reasons.append("AQL failure")
@@ -7510,7 +7520,8 @@ class CompleteQIPCalculator:
                             
                             if should_check_subordinates:
                                 subordinates = valid_employees[valid_employees['MST direct boss name'] == emp_no]
-                                if (subordinates['Continuous_FAIL'] == 'YES').any():
+                                # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+                                if subordinates['Continuous_FAIL'].astype(str).str.startswith('YES').any():
                                     reasons.append("부하employee 3-month consecutive AQL failure (condition 7 미충족)")
                         
                         # AUDITOR/TRAINER special condition
