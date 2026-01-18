@@ -9981,12 +9981,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let totalAmount = 0;
 
             employeeData.forEach(emp => {{
-                const amount = parseInt(
-                    emp['{month.lower()}_incentive'] ||
-                    emp['{month.capitalize()}_Incentive'] ||
-                    emp['Final Incentive amount'] ||
-                    0
-                );
+                // [Issue #46] 정규화된 currentIncentive 사용
+                const amount = emp.currentIncentive || 0;
                 if (amount > 0) {{
                     paidCount++;
                     totalAmount += amount;
@@ -12726,13 +12722,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     typeData[type].total++;
                     grandTotal++;
 
-                    // 여러 available incentive 필드직원 확인
-                    const amount = parseInt(
-                        emp['{month.lower()}_incentive'] ||
-                        emp['{month.lower().capitalize()}_Incentive'] ||
-                        emp['Final Incentive amount'] ||
-                        0
-                    );
+                    // [Issue #46] 정규화된 currentIncentive 사용
+                    const amount = emp.currentIncentive || 0;
 
                     if (amount > 0) {{
                         typeData[type].paid++;
@@ -13868,8 +13859,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
 
-                    const month = '{month}'.toLowerCase();
-            const incentiveCol = month + '_incentive';
+                    // [Issue #46] incentiveCol 변수 제거 - currentIncentive 직접 사용
 
             // Get managers (LINE LEADER and above)
             const managers = window.employeeData.filter(emp => {{
@@ -13883,7 +13873,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 직급 순서 정의 (MANAGER가 먼저, LINE LEADER가 마지막)
             const positionOrder = {{ 'MANAGER': 1, 'A.MANAGER': 2, 'SUPERVISOR': 3, 'GROUP LEADER': 4, 'LINE LEADER': 5 }};
 
-            // 정렬: 직급 순서 > 인센티브 금액 순
+            // 정렬: 직급 순서 > 인센티브 금액 순 [Issue #46]
             managers.sort((a, b) => {{
                 const posA = (a.position || a['QIP POSITION 1ST NAME'] || '').toUpperCase();
                 const posB = (b.position || b['QIP POSITION 1ST NAME'] || '').toUpperCase();
@@ -13891,8 +13881,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const orderB = positionOrder[Object.keys(positionOrder).find(k => posB.includes(k))] || 99;
                 if (orderA !== orderB) return orderA - orderB;
 
-                const amtA = parseInt(a[incentiveCol] || a['November_Incentive'] || 0) || 0;
-                const amtB = parseInt(b[incentiveCol] || b['November_Incentive'] || 0) || 0;
+                const amtA = a.currentIncentive || 0;
+                const amtB = b.currentIncentive || 0;
                 return amtB - amtA;
             }});
 
@@ -13901,9 +13891,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const mgrNo = manager.emp_no || manager['Employee No'] || '';
                 const mgrName = manager.name || manager['Full Name'] || '';
                 const mgrPosition = manager.position || manager['QIP POSITION 1ST NAME'] || '';
-                // 🔧 NaN 안전성 검사 추가
-                const rawMgrAmount = manager[incentiveCol] || manager['November_Incentive'] || 0;
-                const mgrAmount = isNaN(parseInt(rawMgrAmount)) ? 0 : parseInt(rawMgrAmount);
+                // [Issue #46] 정규화된 currentIncentive 사용
+                const mgrAmount = manager.currentIncentive || 0;
                 const isPaid = mgrAmount > 0;
 
                 // Find subordinates
@@ -13913,10 +13902,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }});
 
                 const subCount = subordinates.length;
-                const paidSubCount = subordinates.filter(s => {{
-                    const amt = parseInt(s[incentiveCol] || s['November_Incentive'] || 0) || 0;
-                    return amt > 0;
-                }}).length;
+                // [Issue #46] 정규화된 currentIncentive 사용
+                const paidSubCount = subordinates.filter(s => s.currentIncentive > 0).length;
 
                 html += `
                     <div class="org-manager-card ${{isPaid ? 'paid' : 'unpaid'}}" data-manager-id="${{mgrNo}}">
@@ -13934,9 +13921,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 subordinates.forEach(sub => {{
                     const subNo = sub.emp_no || sub['Employee No'] || '';
                     const subName = sub.name || sub['Full Name'] || '';
-                    // 🔧 NaN 안전성 검사 추가
-                    const rawSubAmount = sub[incentiveCol] || sub['November_Incentive'] || 0;
-                    const subAmount = isNaN(parseInt(rawSubAmount)) ? 0 : parseInt(rawSubAmount);
+                    // [Issue #46] 정규화된 currentIncentive 사용
+                    const subAmount = sub.currentIncentive || 0;
                     const subPaid = subAmount > 0;
 
                     html += `
@@ -14167,7 +14153,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // incentive 수령 여부 확인 함count
         function hasIncentive(data) {{
-            const amount = parseIncentive(data.incentive || data['{month.lower()}_incentive'] || 0);
+            const amount = parseIncentive(data.incentive || data.currentIncentive || 0);
             return amount > 0;
         }}
 
@@ -14211,7 +14197,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const building = (emp.BUILDING || emp.building || '').toUpperCase();
                 if (buildingStats[building]) {{
                     buildingStats[building].total++;
-                    const amount = parseInt(emp['{month.lower()}_incentive'] || 0);
+                    const amount = emp.currentIncentive;
                     if (amount > 0) {{
                         buildingStats[building].paid++;
                         buildingStats[building].totalAmount += amount;
@@ -14602,7 +14588,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     name: emp.name,
                     position: emp.position,
                     type: emp.type,
-                    incentive: emp['{month.lower()}_incentive'] || 0,
+                    incentive: emp.currentIncentive || 0,
                     boss_id: emp.boss_id,
                     building: emp.BUILDING || emp.building || '',  // 2026-01-03: Building 정보 추가 (Issue #33)
                     calculationMethod: calculationMethod,
@@ -14707,7 +14693,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     );
 
                     const receivingCount = subordinates.filter(sub => {{
-                        const incentive = sub['{month.lower()}_incentive'] || 0;
+                        const incentive = sub.currentIncentive || 0;
                         return Number(incentive) > 0;
                     }}).length;
 
@@ -15085,7 +15071,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 사유가 없는 경우 기본 메시지
             if (reasons.length === 0) {{
-                if (employee['{month.lower()}_incentive'] === 0) {{
+                if (employee.currentIncentive === 0) {{
                     reasons.push(getTranslation('orgChart.modal.nonPaymentReasons.conditionInfoUnavailable', currentLanguage));
                 }}
             }}
@@ -15173,13 +15159,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // Helper: Calculate expected incentive
         function calculateExpectedIncentive(subordinates, config) {{
             const receivingSubordinates = subordinates.filter(sub =>
-                Number(sub['{month.lower()}_incentive'] || 0) > 0
+                sub.currentIncentive > 0
             );
 
             if (config.multiplier === 0.12) {{
                 // LINE LEADER: sum × 12% × receiving ratio
                 const totalIncentive = subordinates.reduce((sum, sub) =>
-                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const receivingRatio = subordinates.length > 0 ?
                     receivingSubordinates.length / subordinates.length : 0;
@@ -15197,7 +15183,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // Others: average × multiplier (수령자만 평균 - 0 제외, 2025-12-04 수정)
                 // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
-                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const avgIncentive = receivingSubordinates.length > 0 ?
                     receivingIncentive / receivingSubordinates.length : 0;
@@ -15355,7 +15341,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }};
 
             const receivingSubordinates = subordinates.filter(sub =>
-                Number(sub['{month.lower()}_incentive'] || 0) > 0
+                sub.currentIncentive > 0
             );
 
             // 필터 버튼 라벨 (다국어) - 2026-01-11: count 라벨 추가
@@ -15407,12 +15393,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 문제: config.useGrouping === true 브랜치에서 totalIncentive 미정의
                 // 원인: 2025-12-04 수정 시 receivingIncentive만 추가하고 totalIncentive 누락
                 const totalIncentive = subordinates.reduce((sum, sub) =>
-                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 // 수령자만 평균 (0 제외) - 2025-12-04 수정
                 // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
-                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const avgIncentive = receivingSubordinates.length > 0 ?
                     receivingIncentive / receivingSubordinates.length : 0;
@@ -15461,7 +15447,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </thead>
                             <tbody id="${{tableId}}-tbody">
                                 ${{flattenedSubs.map((sub, idx) => {{
-                                    const subIncentive = Number(sub['{month.lower()}_incentive'] || 0);
+                                    const subIncentive = sub.currentIncentive;
                                     const included = subIncentive > 0;
                                     // 2025-12-22: 미수령자 빨간색 폰트로 시각적 구별 (배경 제거)
                                     const rowStyle = included ? '' : 'color: #dc3545;';
@@ -15504,10 +15490,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // Simple table (LINE LEADER, GROUP LEADER) - 수령자만 평균 (0 제외, 2025-12-04 수정)
                 // 사용자 확인: "인센티브를 받는 사람만으로 계산하는게 맞다"
                 const totalIncentive = subordinates.reduce((sum, sub) =>
-                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const receivingIncentive = receivingSubordinates.reduce((sum, sub) =>
-                    sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                    sum + sub.currentIncentive, 0
                 );
                 const avgIncentive = receivingSubordinates.length > 0 ?
                     receivingIncentive / receivingSubordinates.length : 0;
@@ -15543,7 +15529,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </thead>
                             <tbody id="${{tableId}}-tbody">
                                 ${{subordinates.map(sub => {{
-                                    const subIncentive = Number(sub['{month.lower()}_incentive'] || 0);
+                                    const subIncentive = sub.currentIncentive;
                                     const isReceiving = subIncentive > 0;
                                     const subName = sub.name || sub.employee_name || 'Unknown';
                                     const subEmpNo = sub.emp_no || sub.employee_id || '';
@@ -15589,10 +15575,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (!subordinates || subordinates.length === 0) return '';
 
             const receivingSubordinates = subordinates.filter(sub =>
-                Number(sub['{month.lower()}_incentive'] || 0) > 0
+                sub.currentIncentive > 0
             );
             const totalIncentive = subordinates.reduce((sum, sub) =>
-                sum + Number(sub['{month.lower()}_incentive'] || 0), 0
+                sum + sub.currentIncentive, 0
             );
             const avgIncentive = receivingSubordinates.length > 0 ?
                 totalIncentive / receivingSubordinates.length : 0;
@@ -15604,7 +15590,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const type = sub.type || 'Unknown';
                 if (!byType[type]) byType[type] = {{ total: 0, receiving: 0, amount: 0 }};
                 byType[type].total++;
-                const incentive = Number(sub['{month.lower()}_incentive'] || 0);
+                const incentive = sub.currentIncentive;
                 if (incentive > 0) {{
                     byType[type].receiving++;
                     byType[type].amount += incentive;
@@ -15833,12 +15819,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
 
                 const position = (employee.position || '').toUpperCase();
-                const employeeIncentive = Number(employee['{month.lower()}_incentive'] || 0);
+                const employeeIncentive = Number(employee.currentIncentive || 0);
 
                 // 부하 직원 찾기 (TYPE-1만) - 문자열 비교로 수정
                 const subordinates = employeeData.filter(emp => String(emp.boss_id) === nodeIdStr && emp.type === 'TYPE-1');
                 const receivingSubordinates = subordinates.filter(sub => {{
-                    const incentive = sub['{month.lower()}_incentive'] || 0;
+                    const incentive = sub.currentIncentive || 0;
                     return Number(incentive) > 0;
                 }});
 
@@ -17503,7 +17489,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     name: emp.name,
                     position: emp.position || 'Unknown',
                     type: emp.type || '',
-                    incentive: emp['{month.lower()}_incentive'] || '0',
+                    incentive: emp.currentIncentive || '0',
                     parentId: parentId
                 }});
             }});
@@ -17745,12 +17731,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 typeData[type].total++;
                                 grandTotal++;
 
-                                const amount = parseInt(
-                                    emp['{month.lower()}_incentive'] ||
-                                    emp['{month.capitalize()}_Incentive'] ||
-                                    emp['Final Incentive amount'] ||
-                                    0
-                                );
+                                // [Issue #46] 정규화된 currentIncentive 사용
+                                const amount = emp.currentIncentive || 0;
 
                                 if (amount > 0) {{
                                     typeData[type].paid++;
@@ -18186,7 +18168,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let totalIncentive = 0;
 
             const lang = currentLanguage || 'ko';
-            const incentiveCol = '{month.capitalize()}_Incentive';  // December_Incentive 형식
+            // [Issue #46] incentiveCol 변수 제거 - currentIncentive 직접 사용
 
             // 테이블 생성
             const tbody = document.getElementById('teamMemberTableBody');
@@ -18231,8 +18213,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     activeCount++;
                 }}
 
-                // 인센티브
-                const incentive = parseFloat(emp[incentiveCol] || emp['Final Incentive amount'] || 0) || 0;
+                // [Issue #46] 인센티브 - 정규화된 currentIncentive 사용
+                const incentive = emp.currentIncentive || 0;
                 if (incentive > 0) {{
                     receivingCount++;
                     totalIncentive += incentive;
@@ -18897,7 +18879,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const empPosition = emp.position || emp['QIP POSITION 1ST NAME'];
                 const empType = emp.type || emp['ROLE TYPE STD'] || 'TYPE-2';
 
-                const amount = parseInt(emp['{month.lower()}_incentive'] || emp.september_incentive || 0);
+                const amount = emp.currentIncentive;
                 const isPaid = amount > 0;
                 const tr = document.createElement('tr');
                 tr.style.cursor = 'pointer';
@@ -19004,7 +18986,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 
                 window.positionData[key].total++;
                 window.positionData[key].직원.push(emp);
-                const amount = parseInt(emp['{month.lower()}_incentive']) || 0;
+                const amount = emp.currentIncentive || 0;
                 if (amount > 0) {{
                     window.positionData[key].paid++;
                     window.positionData[key].totalAmount += amount;
@@ -19168,8 +19150,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             // 요약 통계 calculation
             const totalEmployees = 직원.length;
-            const paidEmployees = 직원.filter(e => parseInt(e['{month.lower()}_incentive']) > 0).length;
-            const avgIncentive = Math.round(직원.reduce((sum, e) => sum + parseInt(e['{month.lower()}_incentive']), 0) / totalEmployees);
+            const paidEmployees = 직원.filter(e => parseInt(e.currentIncentive) > 0).length;
+            const avgIncentive = Math.round(직원.reduce((sum, e) => sum + parseInt(e.currentIncentive), 0) / totalEmployees);
             const paidRate = Math.round(paidEmployees/totalEmployees*100);
             
             // 조건 ID를 번역 키로 매핑
@@ -19187,8 +19169,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }};
             
             // actual incentive 기준으로 통계 calculation (방안 2 apply)
-            const actualPassCount = 직원.filter(emp => parseInt(emp['{month.lower()}_incentive']) > 0).length;
-            const actualFailCount = 직원.filter(emp => parseInt(emp['{month.lower()}_incentive']) === 0).length;
+            const actualPassCount = 직원.filter(emp => emp.currentIncentive > 0).length;
+            const actualFailCount = 직원.filter(emp => emp.currentIncentive === 0).length;
 
             // 각 직원의 조건 충족 통계 calculation (참고용 유지)
             // corresponding 직급에 actual로 apply되는 조건만 표시 (모든 직원이 N/A인 조건 제외)
@@ -19233,7 +19215,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
             
             // incentive 통계 calculation
-            const incentiveAmounts = 직원.map(emp => parseInt(emp['{month.lower()}_incentive'])).filter(amt => amt > 0);
+            const incentiveAmounts = 직원.map(emp => emp.currentIncentive).filter(amt => amt > 0);
             const maxIncentive = incentiveAmounts.length > 0 ? Math.max(...incentiveAmounts) : 0;
             const minIncentive = incentiveAmounts.length > 0 ? Math.min(...incentiveAmounts) : 0;
             const medianIncentive = incentiveAmounts.length > 0 ?
@@ -19390,7 +19372,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             `;
             
             직원.forEach(emp => {{
-                const amount = parseInt(emp['{month.lower()}_incentive']);
+                const amount = emp.currentIncentive;
                 const isPaid = amount > 0;
                 modalContent += `
                     <tr class="employee-row ${{isPaid ? 'paid-row' : 'unpaid-row'}}" data-emp-no="${{emp.emp_no}}" style="cursor: pointer;">
@@ -19670,7 +19652,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const totalConditions = applicableConditions.length;
 
             // incentive 지급 여부 확인
-            const isPaidEmployee = parseInt(emp['{month.lower()}_incentive']) > 0;
+            const isPaidEmployee = emp.currentIncentive > 0;
 
             // [Issue #57] Interim Report 개념 완전 제거
 
@@ -20206,7 +20188,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                     <div class="col-md-4">
                         <div class="stat-card">
-                            <div class="stat-value">${{parseInt(emp['{month.lower()}_incentive']).toLocaleString()}} VND</div>
+                            <div class="stat-value">${{emp.currentIncentive.toLocaleString()}} VND</div>
                             <div class="stat-label">${{getTranslation('modal.incentiveInfo.amount')}}</div>
                         </div>
                     </div>
@@ -20246,17 +20228,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="card">
                             <div class="card-body">
                                 <h6 class="card-title">` + getTranslation('modal.detailPopup.paymentStatus', currentLanguage) + `</h6>
-                                <div class="지급-status ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? 'paid' : 'unpaid'}}">
-                                    ${{parseInt(emp['{month.lower()}_incentive']) > 0 ? `
+                                <div class="지급-status ${{emp.currentIncentive > 0 ? 'paid' : 'unpaid'}}">
+                                    ${{emp.currentIncentive > 0 ? `
                                     <div>
                                         <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
                                         <h5>` + getTranslation('status.paid', currentLanguage) + `</h5>
-                                        <p class="mb-1">${{parseInt(emp['{month.lower()}_incentive']).toLocaleString()}} VND</p>
+                                        <p class="mb-1">${{emp.currentIncentive.toLocaleString()}} VND</p>
                                         ${{emp.Talent_Pool_Member === 'Y' ? `
                                         <div style="background: linear-gradient(135deg, #FFD700, #FFA500); padding: 8px; border-radius: 8px; margin-top: 10px;">
                                             <small style="color: white; font-weight: bold;">
                                                 🌟 Talent Pool 보너스 포함<br>
-                                                기본: ${{(parseInt(emp['{month.lower()}_incentive']) - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()}} VND<br>
+                                                기본: ${{(emp.currentIncentive - parseInt(emp.Talent_Pool_Bonus || 0)).toLocaleString()}} VND<br>
                                                 보너스: +${{parseInt(emp.Talent_Pool_Bonus || 0).toLocaleString()}} VND
                                             </small>
                                         </div>` : ''}}
@@ -20688,7 +20670,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             tbody.innerHTML = '';
             
             employeeData.forEach(emp => {{
-                const amount = parseInt(emp['{month.lower()}_incentive']);
+                const amount = emp.currentIncentive;
                 const isPaid = amount > 0;
                 
                 // 필터 조건 확인
@@ -21213,9 +21195,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 데이터 계산
             const employeeData = window.employeeData || [];
             const totalCount = employeeData.length;
-            const receivingEmployees = employeeData.filter(emp => parseInt(emp['{month.lower()}_incentive'] || 0) > 0);
+            const receivingEmployees = employeeData.filter(emp => emp.currentIncentive > 0);
             const receivingCount = receivingEmployees.length;
-            const totalIncentive = employeeData.reduce((sum, emp) => sum + parseInt(emp['{month.lower()}_incentive'] || 0), 0);
+            const totalIncentive = employeeData.reduce((sum, emp) => sum + emp.currentIncentive, 0);
             const avgIncentive = receivingCount > 0 ? Math.round(totalIncentive / receivingCount) : 0;
             const receivingRate = totalCount > 0 ? ((receivingCount / totalCount) * 100).toFixed(1) : 0;
 
@@ -21224,13 +21206,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const type2Count = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-2').length;
             const type3Count = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-3').length;
 
-            const type1Receiving = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-1' && parseInt(emp['{month.lower()}_incentive'] || 0) > 0).length;
-            const type2Receiving = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-2' && parseInt(emp['{month.lower()}_incentive'] || 0) > 0).length;
+            const type1Receiving = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-1' && emp.currentIncentive > 0).length;
+            const type2Receiving = employeeData.filter(emp => emp['ROLE TYPE STD'] === 'TYPE-2' && emp.currentIncentive > 0).length;
 
-            // TOP 3 인센티브
+            // TOP 3 인센티브 [Issue #46]
             const top3 = [...employeeData]
-                .filter(emp => parseInt(emp['{month.lower()}_incentive'] || 0) > 0)
-                .sort((a, b) => parseInt(b['{month.lower()}_incentive'] || 0) - parseInt(a['{month.lower()}_incentive'] || 0))
+                .filter(emp => emp.currentIncentive > 0)
+                .sort((a, b) => (b.currentIncentive || 0) - (a.currentIncentive || 0))
                 .slice(0, 3);
 
             // 내 정보 확인
@@ -21239,7 +21221,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             if (myEmpNo) {{
                 const myData = employeeData.find(emp => String(emp.emp_no || '').trim() === String(myEmpNo).trim());
                 if (myData) {{
-                    const myIncentive = parseInt(myData['{month.lower()}_incentive'] || 0);
+                    // [Issue #46] 정규화된 currentIncentive 사용
+                    const myIncentive = myData.currentIncentive || 0;
                     myInfoHtml = `
                         <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border-radius: 12px; padding: 15px; margin-bottom: 20px; color: white;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -21276,7 +21259,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // TOP 3 HTML
             const top3Html = top3.map((emp, idx) => {{
                 const medals = ['🥇', '🥈', '🥉'];
-                const incentive = parseInt(emp['{month.lower()}_incentive'] || 0);
+                const incentive = emp.currentIncentive;
                 return `
                     <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
                         <span style="font-size: 1.3rem;">${{medals[idx]}}</span>
