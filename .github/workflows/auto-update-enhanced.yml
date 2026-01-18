@@ -222,31 +222,10 @@ jobs:
         echo "📋 Config 변경사항:"
         git diff config_files/aql_inspector_incentive_config.json || echo "변경사항 없음"
 
-    # 7.6 AQL 연속 실패 컬럼 업데이트 [Issue #59 근본적 해결]
-    - name: 🔄 Update Continuous FAIL Column
-      run: |
-        echo "====================================="
-        echo "🔄 AQL 연속 실패 컬럼 업데이트"
-        echo "====================================="
-        echo ""
-
-        # 최신 config에서 월 정보 읽기
-        LATEST_CONFIG=$(python3 -c "from pathlib import Path; m={'january':1,'february':2,'march':3,'april':4,'may':5,'june':6,'july':7,'august':8,'september':9,'october':10,'november':11,'december':12}; configs=list(Path('config_files').glob('config_*_*.json')); print(sorted(configs,key=lambda p:(int(p.stem.split('_')[2]),m.get(p.stem.split('_')[1].lower(),0)))[-1] if configs else 'config_files/config_january_2026.json')")
-        echo "📂 Using config: $LATEST_CONFIG"
-
-        MONTH=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('month', 'january'))")
-        YEAR=$(python3 -c "import json; c=json.load(open('$LATEST_CONFIG')); print(c.get('year', 2026))")
-
-        echo "📅 Updating for: $MONTH $YEAR"
-        echo ""
-
-        # AQL 연속 실패 컬럼 업데이트
-        python src/update_continuous_fail_column.py --month $MONTH --year $YEAR
-
-        echo ""
-        echo "✅ Continuous_FAIL columns updated!"
-        echo "   - Continuous_FAIL: YES_3MONTHS, YES_2MONTHS_... 태그"
-        echo "   - Continuous_FAIL_2Month: YES/NO (대시보드 모달용)"
+    # Step 7.6 제거됨 (Issue #59/60 리팩토링, 2026-01-18)
+    # - step1_인센티브_계산_개선버전.py가 직접 태그 형식 출력 (YES_3MONTHS, YES_2MONTHS_DEC_JAN)
+    # - update_continuous_fail_column.py 별도 실행 불필요 (중복 로직 제거)
+    # - 롤백 필요시: src/update_continuous_fail_column.py --month $MONTH --year $YEAR
 
     # 8. 자동 검증 실행
     - name: 🔍 Auto Validation

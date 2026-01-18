@@ -2403,18 +2403,31 @@ class DataProcessor:
                 all_employees_combined.add(emp_id_str)
 
         for emp_id in all_employees_combined:
-            # 3개월 연속 실패 여부
-            continuous_fail_3 = 'YES' if emp_id in continuous_fail_3month else 'NO'
-            # 2개월 연속 실패 여부
+            # [Issue #59/60 리팩토링] 태그 형식으로 Continuous_FAIL 생성
+            # - 'YES_3MONTHS': 3개월 연속 실패
+            # - 'YES_2MONTHS_DEC_JAN': 2개월 연속 실패 (월 이름 포함)
+            # - 'NO': 연속 실패 없음
+            if emp_id in continuous_fail_3month:
+                continuous_fail_tag = 'YES_3MONTHS'
+            elif emp_id in continuous_fail_2month:
+                # month2_name, month3_name 사용하여 태그 생성 (예: 'YES_2MONTHS_DEC_JAN')
+                m2_abbrev = month2_name[:3].upper()  # 'DECEMBER' -> 'DEC'
+                m3_abbrev = month3_name[:3].upper()  # 'JANUARY' -> 'JAN'
+                continuous_fail_tag = f'YES_2MONTHS_{m2_abbrev}_{m3_abbrev}'
+            else:
+                continuous_fail_tag = 'NO'
+
+            # Continuous_FAIL_2Month: 2개월 연속 실패 여부 (3개월 연속은 제외)
             continuous_fail_2 = 'YES' if emp_id in continuous_fail_2month else 'NO'
-            # 최신 month(3번째 month)of failure cases수
+
+            # 최신 month(3번째 month)의 failure 건수
             current_month_fail_count = month3_failures.get(emp_id, 0)
 
             aql_results.append({
                 'Employee No': emp_id,
                 current_month_fail_col: current_month_fail_count,
-                'Continuous_FAIL': continuous_fail_3,  # 기존 컬럼 유지 (3개월 연속)
-                'Continuous_FAIL_2Month': continuous_fail_2,  # 새 컬럼 추가 (2개월 연속)
+                'Continuous_FAIL': continuous_fail_tag,  # [리팩토링] 태그 형식 (YES_3MONTHS, YES_2MONTHS_DEC_JAN, NO)
+                'Continuous_FAIL_2Month': continuous_fail_2,  # 대시보드 모달용 (YES/NO)
                 'AQL_BUILDING': employee_buildings.get(emp_id, '')  # AQL History에서 추출한 BUILDING (Issue #46)
             })
         
