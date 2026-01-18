@@ -6819,13 +6819,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         </div>
 
         <div class="content p-4">
-            <!-- 모바일 카드 축소 토글 (2025-12-21) -->
-            <div class="cards-compact-toggle" id="cardsCompactToggle">
-                <button onclick="toggleCardsCompact()" id="compactToggleBtn">
-                    <span class="icon">📊</span>
-                    <span class="text" data-i18n="summary.compactMode">축소 보기</span>
-                </button>
-            </div>
             <!-- 요약 카드 - 모바일에서 2x2 그리드, 전월 대비 트렌드 표시 (2025-12-21) -->
             <div class="row mb-4 summary-cards-container">
                 <div class="col-md-3">
@@ -14526,8 +14519,29 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const type1Employees = employeeData.filter(emp => {{
                 const empId = String(emp.emp_no || emp['Employee No'] || '');
 
+                // [Issue #46] 퇴사자 제외 (Stop working Date가 존재하고 현재 월 이전인 경우)
+                const stopWorkingDate = emp['Stop working Date'] || emp.stop_working_date || '';
+                if (stopWorkingDate && stopWorkingDate.trim() !== '') {{
+                    return false;
+                }}
+
+                // [Issue #46] 출산휴가자 제외
+                const pregnantVacation = (emp['pregnant vacation-yes or no'] || emp.pregnant_vacation || '').toLowerCase();
+                if (pregnantVacation === 'yes') {{
+                    return false;
+                }}
+
+                // TYPE-1이 아닌 경우 제외
+                if (emp.type !== 'TYPE-1') {{
+                    return false;
+                }}
+
+                // [Issue #46] MANAGER 직급 (최상위)은 Building 필터와 관계없이 항상 포함
+                const position = (emp.position || '').toUpperCase();
+                const isTopManager = position === 'MANAGER' && !position.includes('A.MANAGER');
+
                 // Building 필터 적용 (2025-12-22: 상사 체인 포함으로 개선)
-                if (selectedBuilding !== 'all') {{
+                if (selectedBuilding !== 'all' && !isTopManager) {{
                     const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase();
                     const isInBuilding = empBuilding.startsWith(selectedBuilding.toUpperCase());
                     const isInBossChain = bossChainIds.has(empId);
@@ -14536,11 +14550,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     if (!isInBuilding && !isInBossChain) {{
                         return false;
                     }}
-                }}
-
-                // TYPE-1이 아닌 경우 제외
-                if (emp.type !== 'TYPE-1') {{
-                    return false;
                 }}
 
                 // Special calculation positions 제외 (AQL INSPECTOR, AUDIT & TRAINING, MODEL MASTER)
@@ -21417,60 +21426,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }} else {{
                 console.error('employeeData not available');
-            }}
-        }}
-
-        // ====== 모바일 카드 축소 모드 토글 (2025-12-21) ======
-        function toggleCardsCompact() {{
-            const body = document.body;
-            const btn = document.getElementById('compactToggleBtn');
-            const isCompact = body.classList.toggle('cards-compact');
-
-            // 버튼 텍스트 업데이트
-            if (btn) {{
-                const textSpan = btn.querySelector('.text');
-                const iconSpan = btn.querySelector('.icon');
-                const lang = body.getAttribute('lang') || 'ko';
-
-                if (isCompact) {{
-                    // 축소 모드 활성화됨 → "확대 보기" 표시
-                    iconSpan.textContent = '📋';
-                    const expandTexts = {{
-                        ko: '확대 보기',
-                        en: 'Expand',
-                        vi: 'Mở rộng'
-                    }};
-                    textSpan.textContent = expandTexts[lang] || expandTexts.ko;
-                }} else {{
-                    // 확대 모드 → "축소 보기" 표시
-                    iconSpan.textContent = '📊';
-                    const compactTexts = {{
-                        ko: '축소 보기',
-                        en: 'Compact',
-                        vi: 'Thu gọn'
-                    }};
-                    textSpan.textContent = compactTexts[lang] || compactTexts.ko;
-                }}
-            }}
-
-            // localStorage에 사용자 선호 저장
-            localStorage.setItem('cardsCompact', isCompact ? 'true' : 'false');
-        }}
-
-        // 페이지 로드 시 저장된 카드 모드 복원
-        function restoreCardsCompactMode() {{
-            const savedMode = localStorage.getItem('cardsCompact');
-            if (savedMode === 'true') {{
-                document.body.classList.add('cards-compact');
-                const btn = document.getElementById('compactToggleBtn');
-                if (btn) {{
-                    const textSpan = btn.querySelector('.text');
-                    const iconSpan = btn.querySelector('.icon');
-                    const lang = document.body.getAttribute('lang') || 'ko';
-                    iconSpan.textContent = '📋';
-                    const expandTexts = {{ ko: '확대 보기', en: 'Expand', vi: 'Mở rộng' }};
-                    textSpan.textContent = expandTexts[lang] || expandTexts.ko;
-                }}
             }}
         }}
 
