@@ -7603,8 +7603,8 @@
           "applicable": true
         },
         "3월_continuous": {
-          "passed": false,
-          "value": "YES",
+          "passed": true,
+          "value": "YES_3MONTHS",
           "threshold": "NO",
           "applicable": true
         }
