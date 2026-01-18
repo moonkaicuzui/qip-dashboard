@@ -2062,6 +2062,42 @@ Config: config_files/config_september_2025.json
      - Building 필터는 계층 구조 (A→A1,A2) 고려 필요
      - 정확 일치 필요 시 B3처럼 전체 이름 사용
 
+46. **Issue #46: TYPE별 현황 테이블 빈 데이터 버그** (FIXED: 2026-01-18):
+   - **Problem**: 2026년 1월 대시보드의 "Type별 현황" 테이블이 비어있음
+     - 전체 직원, 수령 직원, 지급률 등 모든 값이 0으로 표시
+     - CSV 데이터에는 TYPE 정보와 인센티브 금액이 정상 존재
+   - **Root Cause**: `generateTypeTable()` 함수에서 하드코딩된 월별 칼럼명 사용
+     ```javascript
+     // 버그 코드 (Lines 9755-9761)
+     const monthLower = 'january';  // 하드코딩
+     const incentiveAmount = parseFloat(
+         emp[monthLower + '_incentive'] ||  // 'january_incentive' - 존재하지 않음
+         emp[monthCapitalized + '_Incentive'] ||  // 'January_Incentive' - 존재하지만 찾지 못함
+         emp['Final Incentive amount']
+     ) || 0;
+     ```
+     - 실제 CSV 칼럼: `January_Incentive` (대문자 J, 대문자 I)
+     - Phase 1 정규화에서 `emp.currentIncentive`로 이미 변환되어 있음
+     - Issue #37에서 만든 `employeeHelpers.getIncentive()` 사용해야 함
+   - **Solution**: 정규화된 필드 및 헬퍼 함수 사용
+     ```javascript
+     // 수정된 코드
+     const incentiveAmount = window.employeeHelpers
+         ? window.employeeHelpers.getIncentive(emp, 'current')
+         : (emp.currentIncentive || 0);
+     ```
+   - **Affected Functions**:
+     - `generateTypeTable()`: TYPE별 현황 테이블 (Lines 9752-9768)
+     - `initTrendChart()`: 전월 대비 트렌드 차트 (Lines 13032-13050)
+   - **Implementation**:
+     - `integrated_dashboard_final.py:9757-9759` (generateTypeTable)
+     - `integrated_dashboard_final.py:13034-13049` (initTrendChart)
+   - **Commit**: `b649dadc0` (2026-01-18)
+   - **Prevention**:
+     - 월별 인센티브 접근 시 반드시 `employeeHelpers.getIncentive()` 사용
+     - 하드코딩된 칼럼명 패턴 금지 (Pre-commit hook이 자동 차단)
+     - Issue #37 Ralph Loop 시스템의 정규화 레이어 활용
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
