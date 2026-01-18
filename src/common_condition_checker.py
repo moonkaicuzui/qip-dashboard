@@ -176,9 +176,10 @@ class ConditionChecker:
         """
         # 부하직원 중 3개월 연속 실패자 확인
         subordinates = subordinates_data[subordinates_data['MST direct boss name'] == manager_id]
-        
+
         for _, sub in subordinates.iterrows():
-            if sub.get('Continuous_FAIL', 'NO') == 'YES':
+            # [Issue #48 근본 해결] startswith('YES')로 변경 - 'YES', 'YES_3MONTHS' 모두 처리
+            if str(sub.get('Continuous_FAIL', 'NO')).startswith('YES'):
                 return False
         
         # 구역 데이터가 있으면 추가 확인
