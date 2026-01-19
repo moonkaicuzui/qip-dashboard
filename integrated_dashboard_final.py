@@ -18706,11 +18706,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
         // 탭 전환
         function showTab(tabName) {{
-            // 모든 탭과 컨텐츠 숨기기
+            // 모든 탭과 컨텐츠 숨기기 (Issue #49: 모달 내부 제외)
             document.querySelectorAll('.tab').forEach(tab => {{
                 tab.classList.remove('active');
             }});
-            document.querySelectorAll('.tab-content').forEach(content => {{
+            // Issue #49 FIX: 모달 내부의 .tab-content는 제외 (모달 탭 시스템 보호)
+            document.querySelectorAll('.tab-content:not(.modal .tab-content)').forEach(content => {{
                 content.classList.remove('active');
             }});
 
