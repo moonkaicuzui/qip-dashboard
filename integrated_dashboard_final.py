@@ -8766,8 +8766,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </li>
                         </ul>
 
-                        <!-- Tab Contents -->
-                        <div class="tab-content" id="buildingReviewTabContent">
+                        <!-- Tab Contents (Issue #49: added 'active' to fix CSS conflict) -->
+                        <div class="tab-content active" id="buildingReviewTabContent">
                             <!-- Tab 1: Building-Boss Mismatch -->
                             <div class="tab-pane fade show active" id="tab1-content" role="tabpanel">
                                 <p class="text-muted mb-2">
@@ -14414,6 +14414,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('buildingReviewModal'));
             modal.show();
+
+            // Issue #49: Apply translations to dynamically generated content
+            if (typeof updateAllTexts === 'function') {{
+                updateAllTexts();
+            }}
         }}
 
         // Helper function to get building color
@@ -14729,6 +14734,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 10. Show modal
             const modal = new bootstrap.Modal(document.getElementById('lineLeaderAssignmentModal'));
             modal.show();
+
+            // 11. Issue #49: Apply translations to dynamically generated content
+            if (typeof updateAllTexts === 'function') {{
+                updateAllTexts();
+            }}
         }}
 
         // Toggle Building detail table visibility
