@@ -2252,13 +2252,33 @@ class DataProcessor:
                 print("    ❌ No valid AQL history files available.")
                 return None
 
-            # Issue #51 (2026-01-15): 연도를 고려한 최신 3개월 선택
-            # (year, month) 튜플로 정렬하여 연도 크로싱 정확히 처리
-            # 예: (2026, 1), (2025, 12), (2025, 11) → January 2026, December 2025, November 2025
-            sorted_keys = sorted(valid_months.keys(), reverse=True)[:3]
-            latest_three = [valid_months[k] for k in sorted(sorted_keys)]  # (month_name, year) 튜플 리스트
+            # Issue #50 (2026-01-19): 계산월 기준으로 3개월 선택 (미래 월 제외)
+            # 버그 수정: December 2025 계산에 January 2026이 포함되어 잘못된 AQL 데이터 사용됨
+            # 올바른 동작: December 2025 계산 → October, November, December 2025
 
-            print(f"    📅 최신 3-month 선택: {[(m, y) for m, y in latest_three]}")
+            # 현재 계산월 가져오기
+            current_calc_month = self.config.month  # Month enum (e.g., Month.DECEMBER)
+            current_calc_year = self.config.year    # e.g., 2025
+            current_calc_month_num = current_calc_month.number  # e.g., 12
+
+            print(f"    📅 계산월: {current_calc_month.full_name} {current_calc_year} (number={current_calc_month_num})")
+
+            # 계산월 이후의 월은 제외 (미래 데이터 방지)
+            # (year, month_num) 튜플로 비교
+            current_key = (current_calc_year, current_calc_month_num)
+            filtered_keys = [k for k in valid_months.keys() if k <= current_key]
+
+            if len(filtered_keys) < 3:
+                print(f"    ⚠️ 계산월 이전 유효 월이 3개 미만: {len(filtered_keys)}개")
+                # 가능한 모든 월 사용
+                sorted_keys = sorted(filtered_keys, reverse=True)
+            else:
+                # 계산월 포함 최신 3개월 선택
+                sorted_keys = sorted(filtered_keys, reverse=True)[:3]
+
+            latest_three = [valid_months[k] for k in sorted(sorted_keys)]  # 오름차순 정렬된 (month_name, year) 튜플 리스트
+
+            print(f"    📅 선택된 3-month (Issue #50 수정): {[(m, y) for m, y in latest_three]}")
             return latest_three  # [(month_name, year), ...] 형태로 반환
         
         # 1. 최신 3-month 자same 선택
