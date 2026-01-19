@@ -1825,7 +1825,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="18" data-hour="22" data-minute="29">보고서 생성일: 2026년 01월 18일 22:29</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="19" data-hour="07" data-minute="01">보고서 생성일: 2026년 01월 19일 07:01</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -1861,7 +1861,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 18일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 19일</span>
             </div>
         </div>
 
@@ -3766,12 +3766,12 @@
                         <div class="mb-3">
                             <h6 class="text-primary mb-2">
                                 <i class="fas fa-building me-2"></i>
-                                <span data-i18n="lineLeaderAssignment.buildingBreakdownTitle">Building별 라인리더 미배정 현황 (전체 직원)</span>
+                                <span data-i18n="lineLeaderAssignment.buildingBreakdownTitle">Building별 라인리더 미배정 현황 (TYPE-1 직원)</span>
                             </h6>
                             <div class="alert alert-info border-start border-4 border-info py-2">
                                 <small>
                                     <i class="fas fa-info-circle me-1"></i>
-                                    <span data-i18n="lineLeaderAssignment.buildingBreakdownDesc">3개월 AQL Fail이 아닌 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.</span>
+                                    <span data-i18n="lineLeaderAssignment.buildingBreakdownDesc">TYPE-1 직원 중 (3개월 AQL Fail 제외), 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.</span>
                                 </small>
                             </div>
                         </div>
@@ -5249,14 +5249,14 @@
       "vi": "Không có"
     },
     "buildingBreakdownTitle": {
-      "ko": "Building별 라인리더 미배정 현황 (전체 직원)",
-      "en": "LINE LEADER Not Assigned by Building (All Employees)",
-      "vi": "Tình trạng chưa phân công LINE LEADER theo Tòa nhà (Tất cả NV)"
+      "ko": "Building별 라인리더 미배정 현황 (TYPE-1 직원)",
+      "en": "LINE LEADER Not Assigned by Building (TYPE-1 Only)",
+      "vi": "Tình trạng chưa phân công LINE LEADER theo Tòa nhà (Chỉ TYPE-1)"
     },
     "buildingBreakdownDesc": {
-      "ko": "3개월 AQL Fail이 아닌 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.",
-      "en": "Shows employees (excluding 3-month AQL Fail) whose direct boss is NOT a LINE LEADER, grouped by Building.",
-      "vi": "Hiển thị nhân viên (không bao gồm thất bại AQL 3 tháng) mà sếp trực tiếp KHÔNG phải LINE LEADER, theo Tòa nhà."
+      "ko": "TYPE-1 직원 중 (3개월 AQL Fail 제외), 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.",
+      "en": "Shows TYPE-1 employees (excluding 3-month AQL Fail) whose direct boss is NOT a LINE LEADER, grouped by Building.",
+      "vi": "Hiển thị nhân viên TYPE-1 (không bao gồm thất bại AQL 3 tháng) mà sếp trực tiếp KHÔNG phải LINE LEADER, theo Tòa nhà."
     },
     "totalByBuilding": {
       "ko": "Building별 합계",
@@ -14872,9 +14872,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '18th' :
-                               currentLanguage === 'en' ? 'Day 18' :
-                               'Ngày 18';
+                const dayText = currentLanguage === 'ko' ? '19th' :
+                               currentLanguage === 'en' ? 'Day 19' :
+                               'Ngày 19';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
@@ -21319,12 +21319,16 @@
                 String(emp['Employee No'] || emp['emp_no'])
             ));
 
-            // Find all employees without LINE LEADER boss (excluding 3-month AQL fail)
+            // Find all TYPE-1 employees without LINE LEADER boss (excluding 3-month AQL fail)
             const allNoLineLeaderByBuilding = {};
             employeeData.forEach(emp => {
                 const empNo = String(emp['Employee No'] || emp['emp_no']);
                 // Skip if already in 3-month AQL fail list
                 if (threeMonthFailEmpNos.has(empNo)) return;
+
+                // Skip if NOT TYPE-1 employee
+                const roleType = String(emp['ROLE TYPE STD'] || '').toUpperCase();
+                if (roleType !== 'TYPE-1') return;
 
                 const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
                 const bossId = String(emp['boss_id'] || '').trim();

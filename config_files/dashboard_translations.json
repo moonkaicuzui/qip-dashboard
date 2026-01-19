@@ -628,14 +628,14 @@
       "vi": "Không có"
     },
     "buildingBreakdownTitle": {
-      "ko": "Building별 라인리더 미배정 현황 (전체 직원)",
-      "en": "LINE LEADER Not Assigned by Building (All Employees)",
-      "vi": "Tình trạng chưa phân công LINE LEADER theo Tòa nhà (Tất cả NV)"
+      "ko": "Building별 라인리더 미배정 현황 (TYPE-1 직원)",
+      "en": "LINE LEADER Not Assigned by Building (TYPE-1 Only)",
+      "vi": "Tình trạng chưa phân công LINE LEADER theo Tòa nhà (Chỉ TYPE-1)"
     },
     "buildingBreakdownDesc": {
-      "ko": "3개월 AQL Fail이 아닌 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.",
-      "en": "Shows employees (excluding 3-month AQL Fail) whose direct boss is NOT a LINE LEADER, grouped by Building.",
-      "vi": "Hiển thị nhân viên (không bao gồm thất bại AQL 3 tháng) mà sếp trực tiếp KHÔNG phải LINE LEADER, theo Tòa nhà."
+      "ko": "TYPE-1 직원 중 (3개월 AQL Fail 제외), 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.",
+      "en": "Shows TYPE-1 employees (excluding 3-month AQL Fail) whose direct boss is NOT a LINE LEADER, grouped by Building.",
+      "vi": "Hiển thị nhân viên TYPE-1 (không bao gồm thất bại AQL 3 tháng) mà sếp trực tiếp KHÔNG phải LINE LEADER, theo Tòa nhà."
     },
     "totalByBuilding": {
       "ko": "Building별 합계",

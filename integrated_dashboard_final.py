@@ -8691,12 +8691,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="mb-3">
                             <h6 class="text-primary mb-2">
                                 <i class="fas fa-building me-2"></i>
-                                <span data-i18n="lineLeaderAssignment.buildingBreakdownTitle">Building별 라인리더 미배정 현황 (전체 직원)</span>
+                                <span data-i18n="lineLeaderAssignment.buildingBreakdownTitle">Building별 라인리더 미배정 현황 (TYPE-1 직원)</span>
                             </h6>
                             <div class="alert alert-info border-start border-4 border-info py-2">
                                 <small>
                                     <i class="fas fa-info-circle me-1"></i>
-                                    <span data-i18n="lineLeaderAssignment.buildingBreakdownDesc">3개월 AQL Fail이 아닌 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.</span>
+                                    <span data-i18n="lineLeaderAssignment.buildingBreakdownDesc">TYPE-1 직원 중 (3개월 AQL Fail 제외), 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.</span>
                                 </small>
                             </div>
                         </div>
@@ -14567,12 +14567,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 String(emp['Employee No'] || emp['emp_no'])
             ));
 
-            // Find all employees without LINE LEADER boss (excluding 3-month AQL fail)
+            // Find all TYPE-1 employees without LINE LEADER boss (excluding 3-month AQL fail)
             const allNoLineLeaderByBuilding = {{}};
             employeeData.forEach(emp => {{
                 const empNo = String(emp['Employee No'] || emp['emp_no']);
                 // Skip if already in 3-month AQL fail list
                 if (threeMonthFailEmpNos.has(empNo)) return;
+
+                // Skip if NOT TYPE-1 employee
+                const roleType = String(emp['ROLE TYPE STD'] || '').toUpperCase();
+                if (roleType !== 'TYPE-1') return;
 
                 const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
                 const bossId = String(emp['boss_id'] || '').trim();
