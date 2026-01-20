@@ -438,44 +438,44 @@
         "boss_position": "(V) SUPERVISOR"
       },
       {
-        "emp_no": "625120021",
-        "emp_name": "ĐỖ HOÀNG QUYÊN",
-        "emp_building": "A",
-        "emp_position": "NEW",
-        "boss_id": "621030477",
-        "boss_name": "THỊ HỒNG THẮM",
-        "boss_building": "B",
-        "boss_position": "OSC INSPECTOR"
+        "emp_no": "625120052",
+        "emp_name": "TRỊNH THỊ THANH TUYỀN",
+        "emp_building": "D",
+        "emp_position": "STITCHING INSPECTOR",
+        "boss_id": "622021707",
+        "boss_name": "THỊ YẾN NHI",
+        "boss_building": "MTL WH",
+        "boss_position": "MTL INSPECTOR"
       }
     ],
     "boss_no_info": [],
     "data_source_mismatch": [
       {
-        "emp_no": "619100392",
-        "emp_name": "PHẠM MINH HUY",
-        "emp_position": "LINE LEADER",
-        "hr_building": "C",
+        "emp_no": "621040446",
+        "emp_name": "THÁI THỊ XUÂN",
+        "emp_position": "ASSEMBLY INSPECTOR",
+        "hr_building": "D",
         "aql_building": "B3"
       },
       {
-        "emp_no": "624050151",
-        "emp_name": "PHẠM THỊ THU THẢO",
+        "emp_no": "620080362",
+        "emp_name": "DƯƠNG THỊ MỸ XUYÊN",
         "emp_position": "ASSEMBLY INSPECTOR",
-        "hr_building": "B3",
-        "aql_building": "A"
-      },
-      {
-        "emp_no": "620060084",
-        "emp_name": "ĐỖ THỊ HỒNG THÚY",
-        "emp_position": "LINE LEADER",
         "hr_building": "A2",
-        "aql_building": "D"
+        "aql_building": "B3"
       },
       {
-        "emp_no": "622050542",
-        "emp_name": "BÙI THANH THẲNG",
+        "emp_no": "621030557",
+        "emp_name": "THỊ NHÀN",
         "emp_position": "ASSEMBLY INSPECTOR",
-        "hr_building": "C",
+        "hr_building": "D",
+        "aql_building": "B3"
+      },
+      {
+        "emp_no": "622021048",
+        "emp_name": "NGUYỄN MỘNG THÊM",
+        "emp_position": "ASSEMBLY INSPECTOR",
+        "hr_building": "A2",
         "aql_building": "B3"
       }
     ]

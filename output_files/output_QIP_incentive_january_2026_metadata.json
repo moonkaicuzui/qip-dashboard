@@ -593,7 +593,7 @@
     "name": "NGUYỄN THÚY HẰNG",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 300000.0,
     "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
@@ -3019,7 +3019,7 @@
     "name": "PHẠM MỸ HUYỀN",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 300000.0,
     "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
@@ -10830,7 +10830,7 @@
     "name": "SẦM TRÍ THÀNH",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 150000.0,
+    "amount": 300000.0,
     "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
