@@ -1,7 +1,30 @@
 {
   "description": "Position-based condition application matrix for QIP incentive calculation",
-  "version": "1.0.0",
-  "last_updated": "2025-01-30",
+  "version": "1.1.0",
+  "last_updated": "2026-01-20",
+
+  "consecutive_failure_policy": {
+    "_description": "Issue #50: 월별 AQL 연속 실패 판정 기준 (조건 6&7 적용)",
+    "_issue": "Dec 2025에서 2개월 연속 실패(Nov-Dec)가 3개월 연속 실패로 잘못 처리됨",
+    "_solution": "연도별로 다른 기준 적용 - 2025년까지는 3개월만, 2026년부터는 2개월 이상",
+
+    "threshold_by_year": {
+      "2025": {
+        "min_consecutive_months": 3,
+        "check_pattern": "YES_3MONTHS",
+        "description_ko": "2025년: 3개월 연속 실패만 인센티브 제외 (Oct-Nov-Dec)",
+        "description_en": "2025: Only 3-month consecutive failures exclude incentive"
+      },
+      "2026_and_after": {
+        "min_consecutive_months": 2,
+        "check_pattern": "startswith_YES",
+        "description_ko": "2026년 이후: 2개월 이상 연속 실패 시 인센티브 제외",
+        "description_en": "2026+: 2+ month consecutive failures exclude incentive"
+      }
+    },
+    "affected_conditions": [6, 7],
+    "implementation_note": "계산 엔진에서 config.year 기반으로 판정 로직 분기"
+  },
 
   "incentive_progression": {
     "TYPE_1_PROGRESSIVE": {

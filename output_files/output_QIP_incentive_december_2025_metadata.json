@@ -593,8 +593,8 @@
     "name": "NGUYỄN THÚY HẰNG",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "기타 condition 미충족",
+    "amount": 250000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -1629,8 +1629,8 @@
     "name": "DANH THỊ KIM ANH",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "기타 condition 미충족",
+    "amount": 250000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -3019,8 +3019,8 @@
     "name": "PHẠM MỸ HUYỀN",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "기타 condition 미충족",
+    "amount": 250000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {
@@ -10830,8 +10830,8 @@
     "name": "SẦM TRÍ THÀNH",
     "position": "AUDIT & TRAINING TEAM",
     "type": "TYPE-1",
-    "amount": 0.0,
-    "calculation_basis": "기타 condition 미충족",
+    "amount": 250000.0,
+    "calculation_basis": "Auditor/Trainer incentive",
     "conditions": {
       "attendance": {
         "출근율_Attendance_Rate_Percent": {

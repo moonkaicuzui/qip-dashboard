@@ -2605,6 +2605,34 @@ class CompleteQIPCalculator:
         # preparation 작업
         self.prepare_integrated_data()
 
+    def _is_consecutive_failure_for_year(self, continuous_fail_value: str, year: int = None) -> bool:
+        """
+        [Issue #50] 연도별 연속 실패 판정 기준 적용
+
+        정책 (position_condition_matrix.json 참조):
+        - 2025년까지: 3개월 연속 실패만 인센티브 제외 (YES_3MONTHS)
+        - 2026년 이후: 2개월 이상 연속 실패 시 인센티브 제외 (startswith('YES'))
+
+        Args:
+            continuous_fail_value: Continuous_FAIL 컬럼 값 (예: 'YES_3MONTHS', 'YES_2MONTHS_NOV_DEC', 'NO')
+            year: 판정 기준 연도 (None이면 config.year 사용)
+
+        Returns:
+            True = 연속 실패로 인센티브 제외, False = 통과
+        """
+        if year is None:
+            year = self.config.year
+
+        # 문자열 변환 및 안전 처리
+        value = str(continuous_fail_value).strip().upper()
+
+        if year <= 2025:
+            # 2025년까지: 3개월 연속 실패만 제외 (YES_3MONTHS)
+            return value == 'YES_3MONTHS'
+        else:
+            # 2026년 이후: 2개월 이상 연속 실패 제외 (startswith YES)
+            return value.startswith('YES')
+
     def load_july_incentive_data(self):
         """July incentive data withload (August calculation 시 특별 processing)"""
         # August calculation 시toonly 실행
@@ -6031,9 +6059,10 @@ class CompleteQIPCalculator:
             self.month_data.loc[idx, 'cond_5_value'] = aql_fail
             self.month_data.loc[idx, 'cond_5_threshold'] = 0
 
-            # condition 6: 3-month consecutive AQL failure 없음
+            # condition 6: 연속 AQL failure 없음 [Issue #50: 연도별 기준 적용]
+            # 2025년: 3개월 연속(YES_3MONTHS)만 FAIL, 2026년+: 2개월 이상(startswith YES) FAIL
             continuous_fail = self.month_data.loc[idx, 'Continuous_FAIL'] if 'Continuous_FAIL' in self.month_data.columns else 'NO'
-            cond_6_result = 'PASS' if continuous_fail != 'YES' else 'FAIL'
+            cond_6_result = 'PASS' if not self._is_consecutive_failure_for_year(continuous_fail) else 'FAIL'
             cond_6_applicable = 'Y' if 6 in applicable_conditions else 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_6_aql_continuous'] = cond_6_applicable if cond_6_applicable == 'NOT_APPLICABLE' else cond_6_result
             self.month_data.loc[idx, 'cond_6_value'] = continuous_fail
@@ -6070,16 +6099,17 @@ class CompleteQIPCalculator:
                                 subordinate_mapping[manager_id].append(sub_id)
                         self.subordinate_mapping_cache = subordinate_mapping
 
-                    # 부하employee in progress consecutive failures checking
+                    # 부하employee in progress consecutive failures checking [Issue #50: 연도별 기준 적용]
                     if emp_id in self.subordinate_mapping_cache:
                         for sub_id in self.subordinate_mapping_cache[emp_id]:
                             # FIX: Convert both sides to string for type-safe comparison
                             # Employee No might be int64 after save_results() numeric conversion
                             sub_data = self.month_data[self.month_data['Employee No'].astype(str) == str(sub_id)]
                             if not sub_data.empty:
-                                # FIX: Check if Continuous_FAIL starts with 'YES' to match 'YES', 'YES_3MONTHS', 'YES_2MONTHS_AUG_SEP'
+                                # [Issue #50] 연도별 연속 실패 기준 적용
+                                # 2025년: YES_3MONTHS만, 2026년+: startswith('YES')
                                 continuous_fail_value = str(sub_data.iloc[0].get('Continuous_FAIL', 'NO'))
-                                if continuous_fail_value.startswith('YES'):
+                                if self._is_consecutive_failure_for_year(continuous_fail_value):
                                     team_aql_fail = True
                                     break
 
@@ -6095,12 +6125,14 @@ class CompleteQIPCalculator:
                         # 담당 구역 직원 가져오기
                         area_employees = self.get_auditor_area_employees(emp_id, area_mapping)
 
-                        # 담당 구역 직원 중 3개월 연속 실패자 확인
+                        # 담당 구역 직원 중 연속 실패자 확인 [Issue #50: 연도별 기준 적용]
                         for area_emp_id in area_employees:
                             area_emp_data = self.month_data[self.month_data['Employee No'].astype(str) == str(area_emp_id)]
                             if not area_emp_data.empty:
+                                # [Issue #50] 연도별 연속 실패 기준 적용
+                                # 2025년: YES_3MONTHS만, 2026년+: startswith('YES')
                                 continuous_fail_value = str(area_emp_data.iloc[0].get('Continuous_FAIL', 'NO'))
-                                if continuous_fail_value.startswith('YES'):
+                                if self._is_consecutive_failure_for_year(continuous_fail_value):
                                     team_aql_fail = True
                                     break
 
