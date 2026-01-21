@@ -1776,9 +1776,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
                         : `<span style="color: #95a5a6;">0 ₫</span>`;
 
+                    // 2026-01-21: 행 클릭 시 직원 상세 모달 열기
+                    const empNo = emp['Employee No'] || '';
                     return `
-                        <tr class="unified-table-row">
-                            <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
+                        <tr class="unified-table-row" onclick="showEmployeeDetail('${empNo}')" style="cursor: pointer;" title="${lang === 'ko' ? '클릭하여 상세 정보 보기' : lang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết'}">
+                            <td class="unified-table-cell">${empNo}</td>
                             <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
                             <td class="unified-table-cell">${position}</td>
                             <td class="unified-table-cell text-center">${totalDays}</td>
@@ -2062,9 +2064,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     ? `<span style="color: #28a745; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
                     : '<span style="color: #dc3545;">0 ₫</span>';
 
+                // 2026-01-21: 행 클릭 시 직원 상세 모달 열기
+                const empNo = emp['Employee No'] || '';
                 return `
-                    <tr class="unified-table-row">
-                        <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
+                    <tr class="unified-table-row" onclick="showEmployeeDetail('${empNo}')" style="cursor: pointer;" title="${lang === 'ko' ? '클릭하여 상세 정보 보기' : lang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết'}">
+                        <td class="unified-table-cell">${empNo}</td>
                         <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
                         <td class="unified-table-cell">${position}</td>
                         <td class="unified-table-cell text-center">
@@ -2323,9 +2327,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const empType = emp['type'] || emp['ROLE TYPE STD'] || '-';
                 const typeColor = empType === 'TYPE-3' ? 'bg-secondary' : (empType === 'TYPE-1' ? 'bg-primary' : 'bg-success');
 
+                // 2026-01-21: 행 클릭 시 직원 상세 모달 열기
+                const empNo = emp['Employee No'] || '';
                 return `
-                    <tr class="unified-table-row">
-                        <td style="padding: 12px 8px; font-weight: 500;">${emp['Employee No'] || ''}</td>
+                    <tr class="unified-table-row" onclick="showEmployeeDetail('${empNo}')" style="cursor: pointer;" title="${lang === 'ko' ? '클릭하여 상세 정보 보기' : lang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết'}">
+                        <td style="padding: 12px 8px; font-weight: 500;">${empNo}</td>
                         <td style="padding: 12px 8px; font-weight: 500;">${emp['Full Name'] || ''}</td>
                         <td style="padding: 12px 8px; font-size: 13px;">${emp['QIP POSITION 1ST NAME'] || '-'}</td>
                         <td class="text-center" style="padding: 10px 8px;">
@@ -3182,9 +3188,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     ? '<span style="color: #0d6efd; font-weight: 600;">' + incentiveAmount.toLocaleString() + ' ₫</span>'
                     : '<span style="color: #dc3545;">0 ₫</span>';
 
+                // 2026-01-21: 행 클릭 시 직원 상세 모달 열기
+                const empNo = emp['Employee No'] || '';
                 return `
-                    <tr class="unified-table-row">
-                        <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
+                    <tr class="unified-table-row" onclick="showEmployeeDetail('${empNo}')" style="cursor: pointer;" title="${currentLang === 'ko' ? '클릭하여 상세 정보 보기' : currentLang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết'}">
+                        <td class="unified-table-cell">${empNo}</td>
                         <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
                         <td class="unified-table-cell">${emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-'}</td>
                         <td class="unified-table-cell">${supervisorName}</td>
@@ -3327,9 +3335,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     failBadgeText = `${failPercent}%`;
                 }
 
+                // 2026-01-21: 행 클릭 시 직원 상세 모달 열기
+                const empNo = emp['Employee No'] || '';
                 return `
-                    <tr class="unified-table-row">
-                        <td class="unified-table-cell">${emp['Employee No'] || ''}</td>
+                    <tr class="unified-table-row" onclick="showEmployeeDetail('${empNo}')" style="cursor: pointer;" title="${lang === 'ko' ? '클릭하여 상세 정보 보기' : lang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết'}">
+                        <td class="unified-table-cell">${empNo}</td>
                         <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
                         <td class="unified-table-cell">${supervisorName}</td>
                         <td class="unified-table-cell text-center">${supervisorId}</td>
