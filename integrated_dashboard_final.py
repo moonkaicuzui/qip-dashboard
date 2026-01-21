@@ -2835,11 +2835,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         const filterPatternMedium = `${monthAbbr[month_N2-1].toUpperCase()}_${monthAbbr[month_N1-1].toUpperCase()}`;  // 예: AUG_SEP
 
         // 3연속 개월 실패자와 2연속 개월 실패자 분리
-        // [Issue #48] 계산 엔진은 'YES_3MONTHS'를 생성 (12월부터 확인됨)
-        // includes('YES')로 변경하여 'YES', 'YES_3MONTHS' 모두 처리
+        // [Issue #50 Fix] 정확히 'YES_3MONTHS'만 3개월 연속 실패로 처리
+        // includes('YES')는 YES_2MONTHS_NOV_DEC도 포함하므로 잘못됨!
         const threeMonthFails = window.employeeData.filter(emp => {{
             const cf = emp['Continuous_FAIL'] || '';
-            return cf.includes('YES');
+            return cf === 'YES_3MONTHS';  // 정확히 3개월 연속만 매칭
         }});
 
         // 수정: Continuous_FAIL_2Month 컬럼 사용 (별도 컬럼으로 분리되어 있음)
@@ -13010,11 +13010,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.getElementById('kpiAqlFail').textContent = aqlFailEmployees + peopleUnit;
 
             // 7. 3개월 연속 AQL FAIL (Excel의 Continuous_FAIL column use)
-            // [Issue #48] 계산 엔진은 'YES_3MONTHS'를 생성 (12월부터 확인됨)
-            // includes('YES')로 변경하여 'YES', 'YES_3MONTHS' 모두 처리
+            // [Issue #50 Fix] 정확히 'YES_3MONTHS'만 3개월 연속 실패로 카운트
+            // includes('YES')는 YES_2MONTHS_NOV_DEC도 포함하므로 잘못됨!
             const consecutiveFail = employeeData.filter(emp => {{
                 const continuous_fail = emp['Continuous_FAIL'] || emp['continuous_fail'] || 'NO';
-                return continuous_fail.includes('YES');
+                return continuous_fail === 'YES_3MONTHS';  // 정확히 3개월 연속만
             }}).length;
             document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + peopleUnit;
 
