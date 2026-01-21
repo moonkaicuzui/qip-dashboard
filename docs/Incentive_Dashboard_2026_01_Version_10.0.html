@@ -1825,7 +1825,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2026" data-month="january" data-month-name="1월">2026년 1월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="21" data-hour="09" data-minute="00">보고서 생성일: 2026년 01월 21일 09:00</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="21" data-hour="09" data-minute="26">보고서 생성일: 2026년 01월 21일 09:26</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -5623,6 +5623,16 @@
           "ko": "구분",
           "en": "Type",
           "vi": "Loại"
+        },
+        "supervisor": {
+          "ko": "직속상사",
+          "en": "Direct Supervisor",
+          "vi": "Quản lý trực tiếp"
+        },
+        "supervisorPosition": {
+          "ko": "상사 직급",
+          "en": "Supervisor Position",
+          "vi": "Chức vụ quản lý"
         }
       },
       "calculationDetails": {
@@ -27356,6 +27366,28 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                         <div class="stat-card">
                             <div class="stat-value">${emp.currentIncentive.toLocaleString()} VND</div>
                             <div class="stat-label">${getTranslation('modal.incentiveInfo.amount')}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 직속상사 정보 카드 (2026-01-21 추가) -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left: 4px solid #4caf50;">
+                            <div class="stat-value" style="font-size: 1.2rem; color: #2e7d32;">${emp['direct boss name'] || emp['Direct Boss Name'] || '-'}</div>
+                            <div class="stat-label" style="color: #388e3c;">${getTranslation('modal.basicInfo.supervisor')}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3;">
+                            ${(() => {
+                                // 직속상사 직급 조회
+                                const bossId = String(emp['MST direct boss name'] || emp['boss_id'] || '').replace('.0', '');
+                                const bossEmp = bossId ? window.employeeData.find(e => String(e['Employee No'] || e.emp_no || '').replace('.0', '') === bossId) : null;
+                                const bossPosition = bossEmp ? (bossEmp['QIP POSITION 1ST NAME'] || bossEmp['QIP POSITION 1ST  NAME'] || bossEmp.position || bossEmp['FINAL QIP POSITION NAME CODE'] || '-') : '-';
+                                return `<div class="stat-value" style="font-size: 1.2rem; color: #1565c0;">${bossPosition}</div>`;
+                            })()}
+                            <div class="stat-label" style="color: #1976d2;">${getTranslation('modal.basicInfo.supervisorPosition')}</div>
                         </div>
                     </div>
                 </div>
