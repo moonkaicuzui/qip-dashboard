@@ -3546,6 +3546,10 @@ class CompleteQIPCalculator:
         """
         부하employee in progress 3-month consecutive AQL failures 있지 checking
         Returns: True if consecutive failures 있음, False if 없음
+
+        [Issue #50 Fix] 연도별 판정 기준 적용:
+        - 2025년: YES_3MONTHS만 실패 처리
+        - 2026년+: startswith('YES') 모두 실패 처리
         """
         if manager_id not in subordinate_mapping:
             return False
@@ -3554,9 +3558,9 @@ class CompleteQIPCalculator:
             # FIX: Type-safe comparison - Employee No might be int64 after save_results() conversion
             sub_data = self.month_data[self.month_data['Employee No'].astype(str) == str(sub_id)]
             if not sub_data.empty:
-                # FIX: Check if starts with 'YES' to match 'YES', 'YES_3MONTHS', 'YES_2MONTHS_AUG_SEP'
+                # [Issue #50 Fix] 연도별 판정 함수 사용
                 continuous_fail_value = str(sub_data.iloc[0].get('Continuous_FAIL', 'NO'))
-                if continuous_fail_value.startswith('YES'):
+                if self._is_consecutive_failure_for_year(continuous_fail_value):
                     return True
         return False
 
@@ -4196,6 +4200,10 @@ class CompleteQIPCalculator:
     def check_subordinates_continuous_fail(self, manager_id: str, subordinate_mapping: Dict[str, List[str]]) -> bool:
         """
         부하employee in progress 3-month consecutive AQL failures 있지 checking
+
+        [Issue #50 Fix] 연도별 판정 기준 적용:
+        - 2025년: YES_3MONTHS만 실패 처리
+        - 2026년+: startswith('YES') 모두 실패 처리
         """
         if manager_id not in subordinate_mapping:
             return False
@@ -4204,9 +4212,9 @@ class CompleteQIPCalculator:
             # FIX: Type-safe comparison - Employee No might be int64 after save_results() conversion
             sub_data = self.month_data[self.month_data['Employee No'].astype(str) == str(sub_id)]
             if not sub_data.empty:
-                # FIX: Check if starts with 'YES' to match 'YES', 'YES_3MONTHS', 'YES_2MONTHS_AUG_SEP'
+                # [Issue #50 Fix] 연도별 판정 함수 사용
                 continuous_fail_value = str(sub_data.iloc[0].get('Continuous_FAIL', 'NO'))
-                if continuous_fail_value.startswith('YES'):
+                if self._is_consecutive_failure_for_year(continuous_fail_value):
                     return True
 
         return False
