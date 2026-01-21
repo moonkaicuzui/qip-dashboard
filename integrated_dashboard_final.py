@@ -1776,8 +1776,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         ? `<span style="color: #27ae60; font-weight: bold;">${incentiveAmount.toLocaleString()} ₫</span>`
                         : `<span style="color: #95a5a6;">0 ₫</span>`;
 
-                    // 2026-01-21: 행 클릭 시 직원 상세 모달 열기
-                    const empNo = emp['Employee No'] || '';
+                    // 2026-01-21: 행 클릭 시 직원 상세 모달 열기 (empNo는 위에서 이미 선언됨)
                     return `
                         <tr class="unified-table-row" onclick="showEmployeeDetail('${empNo}')" style="cursor: pointer;" title="${lang === 'ko' ? '클릭하여 상세 정보 보기' : lang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết'}">
                             <td class="unified-table-cell">${empNo}</td>
