@@ -1012,6 +1012,16 @@
           "ko": "구분",
           "en": "Type",
           "vi": "Loại"
+        },
+        "supervisor": {
+          "ko": "직속상사",
+          "en": "Direct Supervisor",
+          "vi": "Quản lý trực tiếp"
+        },
+        "supervisorPosition": {
+          "ko": "상사 직급",
+          "en": "Supervisor Position",
+          "vi": "Chức vụ quản lý"
         }
       },
       "calculationDetails": {

@@ -20606,6 +20606,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 </div>
 
+                <!-- 직속상사 정보 카드 (2026-01-21 추가) -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left: 4px solid #4caf50;">
+                            <div class="stat-value" style="font-size: 1.2rem; color: #2e7d32;">${{emp['direct boss name'] || emp['Direct Boss Name'] || '-'}}</div>
+                            <div class="stat-label" style="color: #388e3c;">${{getTranslation('modal.basicInfo.supervisor')}}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3;">
+                            ${{(() => {{
+                                // 직속상사 직급 조회
+                                const bossId = String(emp['MST direct boss name'] || emp['boss_id'] || '').replace('.0', '');
+                                const bossEmp = bossId ? window.employeeData.find(e => String(e['Employee No'] || e.emp_no || '').replace('.0', '') === bossId) : null;
+                                const bossPosition = bossEmp ? (bossEmp['QIP POSITION 1ST NAME'] || bossEmp['QIP POSITION 1ST  NAME'] || bossEmp.position || bossEmp['FINAL QIP POSITION NAME CODE'] || '-') : '-';
+                                return `<div class="stat-value" style="font-size: 1.2rem; color: #1565c0;">${{bossPosition}}</div>`;
+                            }})()}}
+                            <div class="stat-label" style="color: #1976d2;">${{getTranslation('modal.basicInfo.supervisorPosition')}}</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- AQL Inspector 특별 섹션 (Part 1/2/3 breakdown) -->
                 ${{aqlInspectorSection}}
 
