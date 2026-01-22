@@ -2299,6 +2299,11 @@
         "ko": "상사 직급",
         "en": "Supervisor Position",
         "vi": "Chức vụ quản lý"
+      },
+      "clickToViewSupervisor": {
+        "ko": "클릭하여 상사 상세 보기",
+        "en": "Click to view supervisor details",
+        "vi": "Nhấp để xem chi tiết quản lý"
       }
     },
     "modalTitle": {

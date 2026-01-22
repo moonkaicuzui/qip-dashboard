@@ -6538,14 +6538,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             cursor: pointer !important;
         }}
 
-        /* Employee Modal 전용 스타th */
+        /* Employee Modal 전용 스타일 - z-index 10000+ (다른 모달 위에 표시) */
         #employeeModal {{
-            z-index: 1060 !important;
+            z-index: 10000 !important;
         }}
         #employeeModal .modal-dialog {{
             max-width: 80% !important;
             margin: 1.75rem auto !important;
-            z-index: 1061 !important;
+            z-index: 10001 !important;
+        }}
+        #employeeModal .modal-backdrop {{
+            z-index: 9999 !important;
         }}
         #employeeModal .modal-body {{
             max-height: 70vh !important;
@@ -20622,27 +20625,37 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                 </div>
 
-                <!-- 직속상사 정보 카드 (2026-01-21 추가) -->
+                <!-- 직속상사 정보 카드 (2026-01-21 추가, 2026-01-23 클릭 기능 추가) -->
+                ${{(() => {{
+                    // 직속상사 ID 및 정보 조회
+                    const bossId = String(emp['MST direct boss name'] || emp['boss_id'] || '').replace('.0', '');
+                    const bossEmp = bossId ? window.employeeData.find(e => String(e['Employee No'] || e.emp_no || '').replace('.0', '') === bossId) : null;
+                    const bossName = emp['direct boss name'] || emp['Direct Boss Name'] || '-';
+                    const bossPosition = bossEmp ? (bossEmp['QIP POSITION 1ST NAME'] || bossEmp['QIP POSITION 1ST  NAME'] || bossEmp.position || bossEmp['FINAL QIP POSITION NAME CODE'] || '-') : '-';
+
+                    // 클릭 가능 여부 (상사 데이터가 있는 경우만)
+                    const isClickable = bossId && bossEmp;
+                    const clickStyle = isClickable ? 'cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;' : '';
+                    const clickHandler = isClickable ? `onclick="showEmployeeDetail('${{bossId}}')" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"` : '';
+                    const hoverHint = isClickable ? ` title="${{getTranslation('modal.basicInfo.clickToViewSupervisor') || '클릭하여 상사 상세 보기'}}"` : '';
+                    const clickIcon = isClickable ? ' 👆' : '';
+
+                    return `
                 <div class="row mb-4">
                     <div class="col-md-6">
-                        <div class="stat-card" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left: 4px solid #4caf50;">
-                            <div class="stat-value" style="font-size: 1.2rem; color: #2e7d32;">${{emp['direct boss name'] || emp['Direct Boss Name'] || '-'}}</div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left: 4px solid #4caf50; ${{clickStyle}}" ${{clickHandler}}${{hoverHint}}>
+                            <div class="stat-value" style="font-size: 1.2rem; color: #2e7d32;">${{bossName}}${{clickIcon}}</div>
                             <div class="stat-label" style="color: #388e3c;">${{getTranslation('modal.basicInfo.supervisor')}}</div>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="stat-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3;">
-                            ${{(() => {{
-                                // 직속상사 직급 조회
-                                const bossId = String(emp['MST direct boss name'] || emp['boss_id'] || '').replace('.0', '');
-                                const bossEmp = bossId ? window.employeeData.find(e => String(e['Employee No'] || e.emp_no || '').replace('.0', '') === bossId) : null;
-                                const bossPosition = bossEmp ? (bossEmp['QIP POSITION 1ST NAME'] || bossEmp['QIP POSITION 1ST  NAME'] || bossEmp.position || bossEmp['FINAL QIP POSITION NAME CODE'] || '-') : '-';
-                                return `<div class="stat-value" style="font-size: 1.2rem; color: #1565c0;">${{bossPosition}}</div>`;
-                            }})()}}
+                        <div class="stat-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3; ${{clickStyle}}" ${{clickHandler}}${{hoverHint}}>
+                            <div class="stat-value" style="font-size: 1.2rem; color: #1565c0;">${{bossPosition}}${{clickIcon}}</div>
                             <div class="stat-label" style="color: #1976d2;">${{getTranslation('modal.basicInfo.supervisorPosition')}}</div>
                         </div>
                     </div>
-                </div>
+                </div>`;
+                }})()}}
 
                 <!-- AQL Inspector 특별 섹션 (Part 1/2/3 breakdown) -->
                 ${{aqlInspectorSection}}
