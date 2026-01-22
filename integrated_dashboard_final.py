@@ -14001,9 +14001,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 페이지 load 시 초기화
         document.addEventListener('DOMContentLoaded', function() {{
 
-            // View mode initialization - removed (function was never defined)
-            // initViewMode();  // [2026-01-21] Removed: function not defined
-
             // Dark mode initialization (Phase 3 UX 개선)
             initDarkMode();
 
@@ -21686,7 +21683,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // - initFAB() 제거 (플로팅 액션 버튼)
                 // - initPullToRefresh() 제거 (당겨서 새로고침)
                 initAutoHideHeader();  // 2025-12-20: 헤더 자동 숨기기 (유지)
-                // restoreCardsCompactMode();  // [2026-01-21] Removed: function not defined
             // [Issue #47 Fix Part 2] 잘못된 }} 제거 - DOMContentLoaded 콜백 중간에서 닫히면 안됨
             // 현재 언어로 body lang 설정
             const currentLang = document.getElementById('languageSelector')?.value || 'ko';

@@ -1825,7 +1825,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2025" data-month="december" data-month-name="12월">2025년 12월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="21" data-hour="16" data-minute="53">보고서 생성일: 2026년 01월 21일 16:53</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="22" data-hour="20" data-minute="12">보고서 생성일: 2026년 01월 22일 20:12</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -1861,7 +1861,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 21일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 22일</span>
             </div>
         </div>
 
@@ -14882,9 +14882,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '21th' :
-                               currentLanguage === 'en' ? 'Day 21' :
-                               'Ngày 21';
+                const dayText = currentLanguage === 'ko' ? '22th' :
+                               currentLanguage === 'en' ? 'Day 22' :
+                               'Ngày 22';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
@@ -20762,9 +20762,6 @@
 
         // 페이지 load 시 초기화
         document.addEventListener('DOMContentLoaded', function() {
-
-            // View mode initialization - removed (function was never defined)
-            // initViewMode();  // [2026-01-21] Removed: function not defined
 
             // Dark mode initialization (Phase 3 UX 개선)
             initDarkMode();
@@ -28450,7 +28447,6 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                 // - initFAB() 제거 (플로팅 액션 버튼)
                 // - initPullToRefresh() 제거 (당겨서 새로고침)
                 initAutoHideHeader();  // 2025-12-20: 헤더 자동 숨기기 (유지)
-                // restoreCardsCompactMode();  // [2026-01-21] Removed: function not defined
             // [Issue #47 Fix Part 2] 잘못된 } 제거 - DOMContentLoaded 콜백 중간에서 닫히면 안됨
             // 현재 언어로 body lang 설정
             const currentLang = document.getElementById('languageSelector')?.value || 'ko';

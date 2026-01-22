@@ -2183,6 +2183,39 @@ Config: config_files/config_september_2025.json
      - 정확 일치(`==`, `===`)는 데이터 계약 위반
      - 코드 리뷰 시 `Continuous_FAIL` 비교 패턴 확인 필수
 
+49. **Issue #49: 불완전한 리팩토링 - 미정의 함수 호출 잔존** (FIXED: 2026-01-21):
+   - **Problem**: 대시보드 로드 시 ReferenceError 발생
+     - `ReferenceError: initViewMode is not defined`
+     - `ReferenceError: restoreCardsCompactMode is not defined`
+   - **Root Cause**: **불완전한 리팩토링 (Incomplete Refactoring)**
+     - `2cdf49eb3`: 모바일/데스크톱 뷰 셀렉터 기능 추가 (함수 정의 포함)
+     - `ea64be557`: 모바일 뷰 기능 완전 제거 (함수 정의만 삭제, 호출 코드 누락!)
+     - 결과: 함수는 삭제되었지만 호출 코드는 남아 있음
+   - **Solution**: 미정의 함수 호출 코드 완전 삭제
+     - Line 14004-14005: `initViewMode()` 호출 삭제
+     - Line 21685: `restoreCardsCompactMode()` 호출 삭제
+   - **Implementation**: `integrated_dashboard_final.py:14004, 21685`
+   - **Commits**: `fb731cb21` (주석 처리), [현재 커밋] (완전 삭제)
+   - **Prevention**:
+     - 기능 제거 시 **함수 정의 + 모든 호출 코드** 함께 삭제 필수
+     - `git grep "함수명"` 으로 모든 참조 확인 후 삭제
+     - ESLint `no-undef` 규칙 도입 고려
+
+50. **Issue #50: const 변수 중복 선언 오류** (FIXED: 2026-01-21):
+   - **Problem**: Type별 현황 테이블이 빈 값으로 표시됨
+     - 콘솔 오류: `SyntaxError: Cannot declare a const variable twice: 'empNo'`
+   - **Root Cause**: **동일 스코프 내 const 변수 중복 선언**
+     - Line 1743: `const empNo = String(emp['Employee No'] || '').padStart(9, '0');` (기존)
+     - Line 1780: `const empNo = emp['Employee No'] || '';` (추가 - 중복!)
+     - onclick 핸들러 추가 시 기존 변수 확인 없이 새 선언 추가
+   - **Solution**: 중복 선언 제거 (기존 empNo 재사용)
+   - **Implementation**: `integrated_dashboard_final.py:1780` (삭제)
+   - **Commit**: `b3367e046`
+   - **Prevention**:
+     - 변수 추가 전 현재 스코프 내 기존 선언 확인 필수
+     - `node --check` 로 배포 전 JavaScript 구문 검증
+     - JavaScript에서 같은 스코프 내 `const`/`let` 재선언 불가
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
