@@ -2289,6 +2289,18 @@
     }
   },
   "modal": {
+    "basicInfo": {
+      "supervisor": {
+        "ko": "직속상사",
+        "en": "Direct Supervisor",
+        "vi": "Quản lý trực tiếp"
+      },
+      "supervisorPosition": {
+        "ko": "상사 직급",
+        "en": "Supervisor Position",
+        "vi": "Chức vụ quản lý"
+      }
+    },
     "modalTitle": {
       "ko": "인센티브 계산 상세",
       "en": "Incentive Calculation Details",

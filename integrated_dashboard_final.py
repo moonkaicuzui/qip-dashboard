@@ -2888,8 +2888,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.failPattern') + '</th>';
             modalHTML += '</tr></thead><tbody>';
 
+            // [2026-01-22] 3개월 연속 실패자 테이블 - 행 클릭 시 직원 상세 모달 열기
+            const clickTitle3m = currentLang === 'ko' ? '클릭하여 상세 정보 보기' : currentLang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết';
             threeMonthFails.forEach(emp => {
-                modalHTML += '<tr>';
+                const empNo = emp['Employee No'] || emp['emp_no'] || '';
+                modalHTML += '<tr style="cursor: pointer;" onclick="showEmployeeDetail(\\'' + empNo + '\\')" title="' + clickTitle3m + '">';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
@@ -2933,10 +2936,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalHTML += '<th style="border: 1px solid #dee2e6; padding: 8px;">' + t('validationTab.modals.aqlFail.consecutiveAqlFail.headers.risk') + '</th>';
             modalHTML += '</tr></thead><tbody>';
 
-            // 2개월 연속 실패자 모두 표시 (Continuous_FAIL_2Month === 'YES'인 직원)
+            // [2026-01-22] 2개월 연속 실패자 모두 표시 - 행 클릭 시 직원 상세 모달 열기
             // 위험도: 현재 월에 가까울수록 높음 (10-11월 > 9-10월)
+            const clickTitle2m = currentLang === 'ko' ? '클릭하여 상세 정보 보기' : currentLang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết';
             twoMonthFails.forEach(emp => {
-                modalHTML += '<tr style="background: #fff5f5;">';
+                const empNo = emp['Employee No'] || emp['emp_no'] || '';
+                modalHTML += '<tr style="background: #fff5f5; cursor: pointer;" onclick="showEmployeeDetail(\\'' + empNo + '\\')" title="' + clickTitle2m + '">';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Employee No'] || emp['emp_no']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['Full Name'] || emp['name']) + '</td>';
                 modalHTML += '<td style="border: 1px solid #dee2e6; padding: 8px;">' + (emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-') + '</td>';
@@ -3244,6 +3249,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     const supervisorOfSupervisor = supervisorData ? (supervisorData['direct boss name'] || '-') : '-';
 
                     lineLeaderStats[supervisorId] = {
+                        id: supervisorId,  // [2026-01-22] 라인리더 emp_no 추가 (클릭 핸들러용)
                         name: supervisorName,
                         supervisor: supervisorOfSupervisor,
                         totalPass: 0,
@@ -3281,8 +3287,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     failBadgeClass = 'bg-info';
                 }
 
+                // [2026-01-22] 행 클릭 시 라인리더 상세 모달 열기
+                const clickTitle = currentLang === 'ko' ? '클릭하여 상세 정보 보기' : currentLang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết';
                 return `
-                    <tr>
+                    <tr class="unified-table-row" onclick="showEmployeeDetail('${stat.id}')" style="cursor: pointer;" title="${clickTitle}">
                         <td class="unified-table-cell">${stat.name}</td>
                         <td class="unified-table-cell">${stat.supervisor}</td>
                         <td class="unified-table-cell text-center">
@@ -3379,8 +3387,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     failBadgeClass = 'bg-info';
                 }
 
+                // [2026-01-22] 행 클릭 시 라인리더 상세 모달 열기
+                const clickTitle = lang === 'ko' ? '클릭하여 상세 정보 보기' : lang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết';
                 return `
-                    <tr>
+                    <tr class="unified-table-row" onclick="showEmployeeDetail('${stat.id}')" style="cursor: pointer;" title="${clickTitle}">
                         <td class="unified-table-cell">${stat.name}</td>
                         <td class="unified-table-cell">${stat.supervisor}</td>
                         <td class="unified-table-cell text-center">
