@@ -566,24 +566,24 @@
       "vi": "Chưa có LINE LEADER"
     },
     "cardSubtitle": {
-      "ko": "3개월 AQL Fail 직원 중",
-      "en": "Among 3-month AQL Fail",
-      "vi": "Trong số NV thất bại AQL 3 tháng"
+      "ko": "TYPE-1 ASSEMBLY INSPECTOR 중",
+      "en": "Among TYPE-1 ASSEMBLY INSPECTOR",
+      "vi": "Trong số TYPE-1 ASSEMBLY INSPECTOR"
     },
     "modalTitle": {
-      "ko": "라인리더 미배정 현황 (3개월 연속 AQL Fail)",
-      "en": "LINE LEADER Assignment Status (3-Month AQL Fail)",
-      "vi": "Tình trạng phân công LINE LEADER (Thất bại AQL 3 tháng)"
+      "ko": "라인리더 미배정 현황 (TYPE-1 ASSEMBLY INSPECTOR)",
+      "en": "LINE LEADER Assignment Status (TYPE-1 ASSEMBLY INSPECTOR)",
+      "vi": "Tình trạng phân công LINE LEADER (TYPE-1 ASSEMBLY INSPECTOR)"
     },
     "alertMessage": {
-      "ko": "3개월 연속 AQL Fail 이력이 있는 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 표시합니다.",
-      "en": "Shows employees with 3-month consecutive AQL Fail whose direct boss is NOT a LINE LEADER.",
-      "vi": "Hiển thị nhân viên có lịch sử thất bại AQL 3 tháng liên tục mà sếp trực tiếp KHÔNG phải LINE LEADER."
+      "ko": "TYPE-1 ASSEMBLY INSPECTOR 중, 직속상사가 TYPE-1 LINE LEADER가 아닌 경우를 표시합니다.",
+      "en": "Shows TYPE-1 ASSEMBLY INSPECTOR employees whose direct boss is NOT a TYPE-1 LINE LEADER.",
+      "vi": "Hiển thị nhân viên TYPE-1 ASSEMBLY INSPECTOR mà sếp trực tiếp KHÔNG phải TYPE-1 LINE LEADER."
     },
     "noDataMessage": {
-      "ko": "모든 3개월 AQL Fail 직원의 직속상사가 LINE LEADER입니다.",
-      "en": "All 3-month AQL Fail employees have LINE LEADER as direct boss.",
-      "vi": "Tất cả nhân viên thất bại AQL 3 tháng đều có LINE LEADER làm sếp trực tiếp."
+      "ko": "모든 TYPE-1 ASSEMBLY INSPECTOR의 직속상사가 TYPE-1 LINE LEADER입니다.",
+      "en": "All TYPE-1 ASSEMBLY INSPECTOR employees have TYPE-1 LINE LEADER as direct boss.",
+      "vi": "Tất cả nhân viên TYPE-1 ASSEMBLY INSPECTOR đều có TYPE-1 LINE LEADER làm sếp trực tiếp."
     },
     "headers": {
       "empNo": {
@@ -616,6 +616,11 @@
         "en": "Boss Position",
         "vi": "Chức vụ sếp"
       },
+      "bossRoleType": {
+        "ko": "상사 타입",
+        "en": "Boss Type",
+        "vi": "Loại sếp"
+      },
       "availableLineLeaders": {
         "ko": "동일 Building LINE LEADER",
         "en": "LINE LEADERs in Same Building",
@@ -628,14 +633,14 @@
       "vi": "Không có"
     },
     "buildingBreakdownTitle": {
-      "ko": "Building별 라인리더 미배정 현황 (TYPE-1 직원)",
-      "en": "LINE LEADER Not Assigned by Building (TYPE-1 Only)",
-      "vi": "Tình trạng chưa phân công LINE LEADER theo Tòa nhà (Chỉ TYPE-1)"
+      "ko": "Building별 TYPE-1 ASSEMBLY INSPECTOR 라인리더 미배정 현황",
+      "en": "TYPE-1 ASSEMBLY INSPECTOR - LINE LEADER Not Assigned by Building",
+      "vi": "TYPE-1 ASSEMBLY INSPECTOR - Chưa phân công LINE LEADER theo Tòa nhà"
     },
     "buildingBreakdownDesc": {
-      "ko": "TYPE-1 직원 중 (3개월 AQL Fail 제외), 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.",
-      "en": "Shows TYPE-1 employees (excluding 3-month AQL Fail) whose direct boss is NOT a LINE LEADER, grouped by Building.",
-      "vi": "Hiển thị nhân viên TYPE-1 (không bao gồm thất bại AQL 3 tháng) mà sếp trực tiếp KHÔNG phải LINE LEADER, theo Tòa nhà."
+      "ko": "TYPE-1 ASSEMBLY INSPECTOR 중, 직속상사가 TYPE-1 LINE LEADER가 아닌 경우를 Building별로 표시합니다.",
+      "en": "Shows TYPE-1 ASSEMBLY INSPECTOR employees whose direct boss is NOT a TYPE-1 LINE LEADER, grouped by Building.",
+      "vi": "Hiển thị nhân viên TYPE-1 ASSEMBLY INSPECTOR mà sếp trực tiếp KHÔNG phải TYPE-1 LINE LEADER, theo Tòa nhà."
     },
     "totalByBuilding": {
       "ko": "Building별 합계",
@@ -6246,6 +6251,21 @@
             "ko": "인센티브",
             "en": "Incentive",
             "vi": "Thưởng"
+          },
+          "supervisorPosition": {
+            "ko": "상사 직급",
+            "en": "Supervisor Position",
+            "vi": "Chức vụ quản lý"
+          },
+          "supervisorReceived": {
+            "ko": "상사 수령",
+            "en": "Supervisor Rcvd",
+            "vi": "QL nhận"
+          },
+          "supervisorIncentive": {
+            "ko": "상사 인센티브",
+            "en": "Supervisor Incentive",
+            "vi": "Thưởng quản lý"
           }
         },
         "lineLeaderSummary": {

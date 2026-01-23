@@ -3162,6 +3162,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const supervisorName = emp['direct boss name'] || '-';
                 const supervisorId = emp['MST direct boss name'] || '-';
 
+                // [2026-01-23] 상사 정보 조회 (직급, 인센티브 수령여부, 금액)
+                let supervisorPosition = '-';
+                let supervisorIncentive = 0;
+                let supervisorReceived = false;
+                if (supervisorId && supervisorId !== '-') {
+                    const supervisorData = window.employeeData.find(e => String(e['Employee No'] || e['emp_no']) === String(supervisorId));
+                    if (supervisorData) {
+                        supervisorPosition = supervisorData['QIP POSITION 1ST  NAME'] || supervisorData['position'] || '-';
+                        supervisorIncentive = window.employeeHelpers ? window.employeeHelpers.getIncentive(supervisorData, 'current') : 0;
+                        supervisorReceived = supervisorIncentive > 0;
+                    }
+                }
+                const supReceivedLabel = getTranslation('incentiveStatus.received', currentLang) || 'Received';
+                const supNotReceivedLabel = getTranslation('incentiveStatus.notReceived', currentLang) || 'Not Received';
+                const supReceivedCell = supervisorReceived
+                    ? '<span style="color: #28a745; font-weight: 500;">✅ ' + supReceivedLabel + '</span>'
+                    : '<span style="color: #dc3545; font-weight: 500;">' + supNotReceivedLabel + '</span>';
+                const supIncentiveCell = supervisorIncentive > 0
+                    ? '<span style="color: #0d6efd; font-weight: 600;">' + supervisorIncentive.toLocaleString() + ' ₫</span>'
+                    : '<span style="color: #dc3545;">0 ₫</span>';
+
                 const totalTests = emp['AQL_Total_Tests'] || 10;
                 const passCount = emp['AQL_Pass_Count'] || Math.max(0, totalTests - failures);
                 const failPercent = emp['AQL_Fail_Percent'] ? emp['AQL_Fail_Percent'].toFixed(1) : ((failures / totalTests * 100).toFixed(1));
@@ -3201,6 +3222,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <td class="unified-table-cell">${emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-'}</td>
                         <td class="unified-table-cell">${supervisorName}</td>
                         <td class="unified-table-cell text-center">${supervisorId}</td>
+                        <td class="unified-table-cell"><span class="badge bg-secondary">${supervisorPosition}</span></td>
+                        <td class="unified-table-cell text-center">${supReceivedCell}</td>
+                        <td class="unified-table-cell text-center">${supIncentiveCell}</td>
                         <td class="unified-table-cell text-center">
                             <span class="badge bg-success">✅ ${passCount}cases</span>
                         </td>
@@ -3217,7 +3241,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }).join('');
 
             const emptyMessage = currentLang === 'ko' ? 'AQL FAIL이 not found' : currentLang === 'en' ? 'No AQL FAIL records' : 'Không có bản ghi AQL FAIL';
-            tbody.innerHTML = tableRows || `<tr><td colspan="10" class="text-center text-muted">${emptyMessage}</td></tr>`;
+            tbody.innerHTML = tableRows || `<tr><td colspan="13" class="text-center text-muted">${emptyMessage}</td></tr>`;
 
             // 정렬 아이콘 업데이트
             document.querySelectorAll('#aqlFailModal th[data-sort]').forEach(th => {
@@ -3325,6 +3349,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const supervisorName = emp['direct boss name'] || '-';
                 const supervisorId = emp['MST direct boss name'] || '-';
 
+                // [2026-01-23] 상사 정보 조회 (직급, 인센티브 수령여부, 금액)
+                let supervisorPosition = '-';
+                let supervisorIncentive = 0;
+                let supervisorReceived = false;
+                if (supervisorId && supervisorId !== '-') {
+                    const supervisorData = window.employeeData.find(e => String(e['Employee No'] || e['emp_no']) === String(supervisorId));
+                    if (supervisorData) {
+                        supervisorPosition = supervisorData['QIP POSITION 1ST  NAME'] || supervisorData['position'] || '-';
+                        supervisorIncentive = window.employeeHelpers ? window.employeeHelpers.getIncentive(supervisorData, 'current') : 0;
+                        supervisorReceived = supervisorIncentive > 0;
+                    }
+                }
+                const supReceivedLabel = getTranslation('incentiveStatus.received', lang) || 'Received';
+                const supNotReceivedLabel = getTranslation('incentiveStatus.notReceived', lang) || 'Not Received';
+                const supReceivedCell = supervisorReceived
+                    ? '<span style="color: #28a745; font-weight: 500;">✅ ' + supReceivedLabel + '</span>'
+                    : '<span style="color: #dc3545; font-weight: 500;">' + supNotReceivedLabel + '</span>';
+                const supIncentiveCell = supervisorIncentive > 0
+                    ? '<span style="color: #0d6efd; font-weight: 600;">' + supervisorIncentive.toLocaleString() + ' ₫</span>'
+                    : '<span style="color: #dc3545;">0 ₫</span>';
+
                 const totalTests = emp['AQL_Total_Tests'] || 10;
                 const passCount = emp['AQL_Pass_Count'] || Math.max(0, totalTests - failures);
                 const failPercent = emp['AQL_Fail_Percent'] ? emp['AQL_Fail_Percent'].toFixed(1) : ((failures / totalTests * 100).toFixed(1));
@@ -3348,8 +3393,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <tr class="unified-table-row" onclick="showEmployeeDetail('${empNo}')" style="cursor: pointer;" title="${lang === 'ko' ? '클릭하여 상세 정보 보기' : lang === 'en' ? 'Click to view details' : 'Nhấp để xem chi tiết'}">
                         <td class="unified-table-cell">${empNo}</td>
                         <td class="unified-table-cell">${emp['Full Name'] || ''}</td>
+                        <td class="unified-table-cell">${emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-'}</td>
                         <td class="unified-table-cell">${supervisorName}</td>
                         <td class="unified-table-cell text-center">${supervisorId}</td>
+                        <td class="unified-table-cell"><span class="badge bg-secondary">${supervisorPosition}</span></td>
+                        <td class="unified-table-cell text-center">${supReceivedCell}</td>
+                        <td class="unified-table-cell text-center">${supIncentiveCell}</td>
                         <td class="unified-table-cell text-center">
                             <span class="badge bg-success">✅ ${passCount}cases</span>
                         </td>
@@ -3455,6 +3504,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <th class="text-center" style="cursor: pointer;" data-sort="inspectorId" onclick="window.sortAqlData('inspectorId')">
                                             <span data-i18n="validationTab.modals.aqlFail.headers.inspectorId">${getTranslation('validationTab.modals.aqlFail.headers.inspectorId', lang)}</span><span class="sort-icon">${getSortIcon('inspectorId')}</span>
                                         </th>
+                                        <th style="cursor: pointer;" data-sort="supervisorPosition" onclick="window.sortAqlData('supervisorPosition')">
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.supervisorPosition">${getTranslation('validationTab.modals.aqlFail.headers.supervisorPosition', lang)}</span><span class="sort-icon">${getSortIcon('supervisorPosition')}</span>
+                                        </th>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="supervisorReceived" onclick="window.sortAqlData('supervisorReceived')">
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.supervisorReceived">${getTranslation('validationTab.modals.aqlFail.headers.supervisorReceived', lang)}</span><span class="sort-icon">${getSortIcon('supervisorReceived')}</span>
+                                        </th>
+                                        <th class="text-center" style="cursor: pointer;" data-sort="supervisorIncentive" onclick="window.sortAqlData('supervisorIncentive')">
+                                            <span data-i18n="validationTab.modals.aqlFail.headers.supervisorIncentive">${getTranslation('validationTab.modals.aqlFail.headers.supervisorIncentive', lang)}</span><span class="sort-icon">${getSortIcon('supervisorIncentive')}</span>
+                                        </th>
                                         <th class="text-center" style="cursor: pointer;" data-sort="passCount" onclick="window.sortAqlData('passCount')">
                                             <span data-i18n="validationTab.modals.aqlFail.headers.aqlPass">${getTranslation('validationTab.modals.aqlFail.headers.aqlPass', lang)}</span><span class="sort-icon">${getSortIcon('passCount')}</span>
                                         </th>
@@ -3473,7 +3531,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${tableRows || '<tr><td colspan="9" class="text-center text-muted">AQL FAIL이 not found</td></tr>'}
+                                    ${tableRows || '<tr><td colspan="13" class="text-center text-muted">AQL FAIL이 not found</td></tr>'}
                                 </tbody>
                             </table>
 
@@ -8667,18 +8725,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="modal-header unified-modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
                         <h5 class="modal-title unified-modal-title text-white" id="lineLeaderAssignmentModalLabel">
                             <i class="fas fa-link me-2"></i>
-                            <span id="lineLeaderAssignmentModalTitle" data-i18n="lineLeaderAssignment.modalTitle">라인리더 미배정 현황</span>
+                            <span id="lineLeaderAssignmentModalTitle" data-i18n="lineLeaderAssignment.modalTitle">라인리더 미배정 현황 (TYPE-1 ASSEMBLY INSPECTOR)</span>
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Alert Section -->
+                        <!-- Alert Section (Issue #49 Updated 2026-01-23) -->
                         <div class="mb-3">
                             <div class="alert alert-danger border-start border-4 border-danger">
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-exclamation-triangle text-danger me-2"></i>
                                     <div>
-                                        <span id="lineLeaderAssignmentAlertMsg" data-i18n="lineLeaderAssignment.alertMessage">3개월 연속 AQL Fail 이력이 있는 직원 중, 직속상사가 LINE LEADER가 아닌 경우를 표시합니다.</span>
+                                        <span id="lineLeaderAssignmentAlertMsg" data-i18n="lineLeaderAssignment.alertMessage">TYPE-1 ASSEMBLY INSPECTOR 중, 직속상사가 TYPE-1 LINE LEADER가 아닌 경우를 표시합니다.</span>
                                     </div>
                                 </div>
                             </div>
@@ -8695,6 +8753,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <th data-i18n="lineLeaderAssignment.headers.empBuilding">Building</th>
                                         <th data-i18n="lineLeaderAssignment.headers.bossName">직속상사</th>
                                         <th data-i18n="lineLeaderAssignment.headers.bossPosition">상사 직급</th>
+                                        <th data-i18n="lineLeaderAssignment.headers.bossRoleType">상사 타입</th>
                                         <th data-i18n="lineLeaderAssignment.headers.availableLineLeaders">동일 Building LINE LEADER</th>
                                     </tr>
                                 </thead>
@@ -8705,20 +8764,20 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <!-- No Data Message (hidden by default) -->
                         <div id="lineLeaderAssignmentNoData" class="alert alert-success text-center" style="display: none;">
                             <i class="fas fa-check-circle me-2"></i>
-                            <span data-i18n="lineLeaderAssignment.noDataMessage">모든 3개월 AQL Fail 직원의 직속상사가 LINE LEADER입니다.</span>
+                            <span data-i18n="lineLeaderAssignment.noDataMessage">모든 TYPE-1 ASSEMBLY INSPECTOR의 직속상사가 TYPE-1 LINE LEADER입니다.</span>
                         </div>
 
-                        <!-- Building-wise Breakdown Section (2026-01-18) -->
+                        <!-- Building-wise Breakdown Section (Issue #49 Updated 2026-01-23) -->
                         <hr class="my-4">
                         <div class="mb-3">
                             <h6 class="text-primary mb-2">
                                 <i class="fas fa-building me-2"></i>
-                                <span data-i18n="lineLeaderAssignment.buildingBreakdownTitle">Building별 라인리더 미배정 현황 (TYPE-1 직원)</span>
+                                <span data-i18n="lineLeaderAssignment.buildingBreakdownTitle">Building별 TYPE-1 ASSEMBLY INSPECTOR 라인리더 미배정 현황</span>
                             </h6>
                             <div class="alert alert-info border-start border-4 border-info py-2">
                                 <small>
                                     <i class="fas fa-info-circle me-1"></i>
-                                    <span data-i18n="lineLeaderAssignment.buildingBreakdownDesc">TYPE-1 직원 중 (3개월 AQL Fail 제외), 직속상사가 LINE LEADER가 아닌 경우를 Building별로 표시합니다.</span>
+                                    <span data-i18n="lineLeaderAssignment.buildingBreakdownDesc">TYPE-1 ASSEMBLY INSPECTOR 중, 직속상사가 TYPE-1 LINE LEADER가 아닌 경우를 Building별로 표시합니다.</span>
                                 </small>
                             </div>
                         </div>
@@ -9152,7 +9211,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="kpi-icon">🔗</div>
                     <div class="kpi-value" id="kpiLineLeaderNotAssigned">-</div>
                     <div class="kpi-label" data-i18n="lineLeaderAssignment.cardTitle">라인리더 미배정</div>
-                    <div class="kpi-subtitle" id="kpiLineLeaderSubtitle" data-i18n="lineLeaderAssignment.cardSubtitle">3개월 AQL Fail 직원 중</div>
+                    <div class="kpi-subtitle" id="kpiLineLeaderSubtitle" data-i18n="lineLeaderAssignment.cardSubtitle">TYPE-1 ASSEMBLY INSPECTOR 중</div>
                 </div>
             </div>
 
@@ -14446,14 +14505,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return colors[building] || '#6c757d';
         }}
 
-        // LINE LEADER Assignment Modal function (2026-01-18)
+        // LINE LEADER Assignment Modal function (2026-01-18, Updated 2026-01-23 Issue #49)
+        // [Issue #49] 변경: 3개월 AQL Fail → TYPE-1 ASSEMBLY INSPECTOR 전체로 대상 확대
         function showLineLeaderAssignmentModal() {{
             const employeeData = window.employeeData || [];
 
-            // 1. Find 3-month consecutive AQL fail employees
-            const threeMonthFailEmployees = employeeData.filter(emp => {{
-                const continuousFail = String(emp['Continuous_FAIL'] || '');
-                return continuousFail.startsWith('YES');  // Issue #48: startswith('YES') pattern
+            // 1. [Issue #49] Find TYPE-1 ASSEMBLY INSPECTOR employees (instead of 3-month AQL fail)
+            const type1AssemblyInspectors = employeeData.filter(emp => {{
+                const position = String(emp['QIP POSITION 1ST  NAME'] || emp['position'] || '').toUpperCase();
+                const roleType = String(emp['ROLE TYPE STD'] || '').toUpperCase();
+                return position.includes('ASSEMBLY INSPECTOR') && roleType === 'TYPE-1';
             }});
 
             // 2. Find all TYPE-1 LINE LEADERs (for available LINE LEADER lookup)
@@ -14462,6 +14523,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const roleType = String(emp['ROLE TYPE STD'] || '').toUpperCase();
                 return position.includes('LINE LEADER') && roleType === 'TYPE-1';
             }});
+
+            // 2-1. Build set of TYPE-1 LINE LEADER emp_nos for quick lookup
+            const lineLeaderEmpNos = new Set(allLineLeaders.map(ll =>
+                String(ll['Employee No'] || ll['emp_no'])
+            ));
 
             // 3. Build LINE LEADER by Building map
             const lineLeadersByBuilding = {{}};
@@ -14495,14 +14561,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
-            // 4. Filter employees whose direct boss is NOT a LINE LEADER
+            // 4. [Issue #49] Filter TYPE-1 ASSEMBLY INSPECTORs whose direct boss is NOT a TYPE-1 LINE LEADER
             const noLineLeaderBoss = [];
-            threeMonthFailEmployees.forEach(emp => {{
+            type1AssemblyInspectors.forEach(emp => {{
                 const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
                 const bossId = String(emp['boss_id'] || '').trim();
 
                 // Find boss in employeeData
                 let bossPosition = '';
+                let bossRoleType = '';
                 if (bossId || bossName) {{
                     const boss = employeeData.find(e => {{
                         const empNo = String(e['Employee No'] || e['emp_no'] || '');
@@ -14511,13 +14578,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }});
                     if (boss) {{
                         bossPosition = String(boss['QIP POSITION 1ST  NAME'] || boss['position'] || '');
+                        bossRoleType = String(boss['ROLE TYPE STD'] || '').toUpperCase();
                     }}
                 }}
 
-                // Check if boss is LINE LEADER
-                const isLineLeader = bossPosition.toUpperCase().includes('LINE LEADER');
+                // [Issue #49] Check if boss is TYPE-1 LINE LEADER (not just any LINE LEADER)
+                const isType1LineLeader = bossPosition.toUpperCase().includes('LINE LEADER') && bossRoleType === 'TYPE-1';
 
-                if (!isLineLeader) {{
+                // Alternative: Use lineLeaderEmpNos set for more accurate check
+                const bossIsType1LineLeader = lineLeaderEmpNos.has(bossId);
+
+                if (!isType1LineLeader && !bossIsType1LineLeader) {{
                     const empBuilding = String(emp['BUILDING'] || '').toUpperCase().trim();
                     // Find available LINE LEADERs in same building
                     let availableLineLeaders = lineLeadersByBuilding[empBuilding] || [];
@@ -14542,6 +14613,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         emp_building: empBuilding || '-',
                         boss_name: bossName || '-',
                         boss_position: bossPosition || '-',
+                        boss_role_type: bossRoleType || '-',  // [Issue #49] 상사 Role Type 추가
                         available_line_leaders: availableLineLeaders
                     }});
                 }}
@@ -14571,6 +14643,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                           ).join('')
                         : `<span class="badge bg-secondary" data-i18n="lineLeaderAssignment.noneAvailable">없음</span>`;
 
+                    // [Issue #49] Boss role type badge color
+                    const bossRoleTypeColor = item.boss_role_type === 'TYPE-1' ? 'bg-success'
+                        : item.boss_role_type === 'TYPE-2' ? 'bg-info'
+                        : item.boss_role_type === 'TYPE-3' ? 'bg-secondary'
+                        : 'bg-danger';  // Unknown/missing
+
                     tableHTML += `
                         <tr class="${{i % 2 === 0 ? '' : 'table-light'}}">
                             <td>${{item.emp_no}}</td>
@@ -14579,6 +14657,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <td><span class="badge" style="background-color: ${{getBuildingColor(item.emp_building)}};">${{item.emp_building}}</span></td>
                             <td>${{item.boss_name}}</td>
                             <td><span class="badge bg-warning text-dark">${{item.boss_position}}</span></td>
+                            <td><span class="badge ${{bossRoleTypeColor}}">${{item.boss_role_type}}</span></td>
                             <td>${{lineLeadersHTML}}</td>
                         </tr>
                     `;
@@ -14586,69 +14665,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 if (tableBody) tableBody.innerHTML = tableHTML;
             }}
 
-            // 7. Building-wise breakdown (all employees excluding 3-month AQL fail)
-            const threeMonthFailEmpNos = new Set(threeMonthFailEmployees.map(emp =>
-                String(emp['Employee No'] || emp['emp_no'])
-            ));
-
-            // Find all TYPE-1 employees without LINE LEADER boss (excluding 3-month AQL fail)
+            // 7. [Issue #49] Building-wise breakdown (group noLineLeaderBoss by building)
             const allNoLineLeaderByBuilding = {{}};
-            employeeData.forEach(emp => {{
-                const empNo = String(emp['Employee No'] || emp['emp_no']);
-                // Skip if already in 3-month AQL fail list
-                if (threeMonthFailEmpNos.has(empNo)) return;
-
-                // Skip if NOT TYPE-1 employee
-                const roleType = String(emp['ROLE TYPE STD'] || '').toUpperCase();
-                if (roleType !== 'TYPE-1') return;
-
-                const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
-                const bossId = String(emp['boss_id'] || '').trim();
-
-                // Find boss position
-                let bossPosition = '';
-                if (bossId || bossName) {{
-                    const boss = employeeData.find(e => {{
-                        const eNo = String(e['Employee No'] || e['emp_no'] || '');
-                        const eName = String(e['Full Name'] || e['name'] || '');
-                        return eNo === bossId || eName === bossName;
-                    }});
-                    if (boss) {{
-                        bossPosition = String(boss['QIP POSITION 1ST  NAME'] || boss['position'] || '');
-                    }}
+            noLineLeaderBoss.forEach(item => {{
+                const empBuilding = item.emp_building || 'Unknown';
+                if (!allNoLineLeaderByBuilding[empBuilding]) {{
+                    allNoLineLeaderByBuilding[empBuilding] = [];
                 }}
-
-                // Check if boss is NOT LINE LEADER
-                const isLineLeader = bossPosition.toUpperCase().includes('LINE LEADER');
-                if (!isLineLeader && bossName) {{
-                    const empBuilding = String(emp['BUILDING'] || '').toUpperCase().trim() || 'Unknown';
-                    if (!allNoLineLeaderByBuilding[empBuilding]) {{
-                        allNoLineLeaderByBuilding[empBuilding] = [];
-                    }}
-
-                    // Find available LINE LEADERs for this building
-                    let availableLineLeaders = lineLeadersByBuilding[empBuilding] || [];
-                    if (empBuilding.length > 1) {{
-                        const parentBuilding = empBuilding.charAt(0);
-                        const parentLineLeaders = lineLeadersByBuilding[parentBuilding] || [];
-                        availableLineLeaders = [...availableLineLeaders, ...parentLineLeaders];
-                        const seen = new Set();
-                        availableLineLeaders = availableLineLeaders.filter(ll => {{
-                            if (seen.has(ll.emp_no)) return false;
-                            seen.add(ll.emp_no);
-                            return true;
-                        }});
-                    }}
-
-                    allNoLineLeaderByBuilding[empBuilding].push({{
-                        emp_no: empNo,
-                        emp_name: emp['Full Name'] || emp['name'],
-                        emp_position: emp['QIP POSITION 1ST  NAME'] || emp['position'] || '-',
-                        boss_name: bossName || '-',
-                        boss_position: bossPosition || '-',
-                        available_line_leaders: availableLineLeaders
-                    }});
-                }}
+                allNoLineLeaderByBuilding[empBuilding].push(item);
             }});
 
             // 8. Render Building summary cards
@@ -14769,23 +14793,34 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
 
-        // Initialize LINE LEADER Assignment KPI card on page load
+        // Initialize LINE LEADER Assignment KPI card on page load (Issue #49 Updated 2026-01-23)
         function initLineLeaderAssignmentKPI() {{
             const employeeData = window.employeeData || [];
 
-            // Find 3-month consecutive AQL fail employees
-            const threeMonthFailEmployees = employeeData.filter(emp => {{
-                const continuousFail = String(emp['Continuous_FAIL'] || '');
-                return continuousFail.startsWith('YES');
+            // [Issue #49] Find TYPE-1 ASSEMBLY INSPECTOR employees (instead of 3-month AQL fail)
+            const type1AssemblyInspectors = employeeData.filter(emp => {{
+                const position = String(emp['QIP POSITION 1ST  NAME'] || emp['position'] || '').toUpperCase();
+                const roleType = String(emp['ROLE TYPE STD'] || '').toUpperCase();
+                return position.includes('ASSEMBLY INSPECTOR') && roleType === 'TYPE-1';
             }});
 
-            // Count those without LINE LEADER as boss
+            // Find all TYPE-1 LINE LEADERs
+            const lineLeaderEmpNos = new Set(
+                employeeData.filter(emp => {{
+                    const position = String(emp['QIP POSITION 1ST  NAME'] || emp['position'] || '').toUpperCase();
+                    const roleType = String(emp['ROLE TYPE STD'] || '').toUpperCase();
+                    return position.includes('LINE LEADER') && roleType === 'TYPE-1';
+                }}).map(ll => String(ll['Employee No'] || ll['emp_no']))
+            );
+
+            // Count those without TYPE-1 LINE LEADER as boss
             let noLineLeaderCount = 0;
-            threeMonthFailEmployees.forEach(emp => {{
-                const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
+            type1AssemblyInspectors.forEach(emp => {{
                 const bossId = String(emp['boss_id'] || '').trim();
+                const bossName = String(emp['direct boss name'] || emp['boss_name'] || '').trim();
 
                 let bossPosition = '';
+                let bossRoleType = '';
                 if (bossId || bossName) {{
                     const boss = employeeData.find(e => {{
                         const empNo = String(e['Employee No'] || e['emp_no'] || '');
@@ -14794,11 +14829,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }});
                     if (boss) {{
                         bossPosition = String(boss['QIP POSITION 1ST  NAME'] || boss['position'] || '');
+                        bossRoleType = String(boss['ROLE TYPE STD'] || '').toUpperCase();
                     }}
                 }}
 
-                const isLineLeader = bossPosition.toUpperCase().includes('LINE LEADER');
-                if (!isLineLeader) {{
+                // [Issue #49] Check if boss is TYPE-1 LINE LEADER
+                const isType1LineLeader = bossPosition.toUpperCase().includes('LINE LEADER') && bossRoleType === 'TYPE-1';
+                const bossIsType1LineLeader = lineLeaderEmpNos.has(bossId);
+
+                if (!isType1LineLeader && !bossIsType1LineLeader) {{
                     noLineLeaderCount++;
                 }}
             }});
