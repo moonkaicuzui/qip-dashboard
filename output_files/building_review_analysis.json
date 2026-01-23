@@ -1,8 +1,8 @@
 {
   "summary": {
-    "building_boss_mismatch": 44,
+    "building_boss_mismatch": 42,
     "boss_no_info": 0,
-    "data_source_mismatch": 4,
+    "data_source_mismatch": 6,
     "total": 48
   },
   "cases": {
@@ -34,7 +34,7 @@
         "emp_position": "MODEL MASTER",
         "boss_id": "620120386",
         "boss_name": "NGUYỄN NGỌC TUẤN",
-        "boss_building": "A",
+        "boss_building": "QA OFFICE",
         "boss_position": "MODEL MASTER"
       },
       {
@@ -46,16 +46,6 @@
         "boss_name": "TRẦN THỊ BÍCH LY",
         "boss_building": "QIP OFFICE",
         "boss_position": "MANAGER"
-      },
-      {
-        "emp_no": "618100175",
-        "emp_name": "THỊ BÍCH NGÀ",
-        "emp_building": "MTL WH",
-        "emp_position": "LINE LEADER",
-        "boss_id": "618030024",
-        "boss_name": "TRẦN KIỀU EM",
-        "boss_building": "A",
-        "boss_position": "(V) SUPERVISOR"
       },
       {
         "emp_no": "618110077",
@@ -122,16 +112,6 @@
         "emp_name": "LÊ HUỲNH GIAO",
         "emp_building": "D",
         "emp_position": "(V) SUPERVISOR",
-        "boss_id": "620070012",
-        "boss_name": "TRẦN THỊ BÍCH LY",
-        "boss_building": "QIP OFFICE",
-        "boss_position": "MANAGER"
-      },
-      {
-        "emp_no": "620090101",
-        "emp_name": "TRẦN THỊ MỸ MIỀU",
-        "emp_building": "A",
-        "emp_position": "A.MANAGER",
         "boss_id": "620070012",
         "boss_name": "TRẦN THỊ BÍCH LY",
         "boss_building": "QIP OFFICE",
@@ -210,7 +190,7 @@
       {
         "emp_no": "621120402",
         "emp_name": "LÊ THỊ THÚY LIÊN",
-        "emp_building": "B1",
+        "emp_building": "B2",
         "emp_position": "BOTTOM INSPECTOR",
         "boss_id": "620060084",
         "boss_name": "ĐỖ THỊ HỒNG THÚY",
@@ -266,16 +246,6 @@
         "boss_name": "THỊ BÍCH NGÀ",
         "boss_building": "MTL WH",
         "boss_position": "LINE LEADER"
-      },
-      {
-        "emp_no": "623060116",
-        "emp_name": "NGUYỄN THỊ HUỲNH NHƯ",
-        "emp_building": "QA OFFICE",
-        "emp_position": "QA TEAM",
-        "boss_id": "620090101",
-        "boss_name": "TRẦN THỊ MỸ MIỀU",
-        "boss_building": "A",
-        "boss_position": "A.MANAGER"
       },
       {
         "emp_no": "624040331",
@@ -438,6 +408,16 @@
         "boss_position": "(V) SUPERVISOR"
       },
       {
+        "emp_no": "625120039",
+        "emp_name": "PHAN THỊ THANH TUYỀN",
+        "emp_building": "A",
+        "emp_position": "NEW",
+        "boss_id": "621030759",
+        "boss_name": "VŨ HỒNG TIÊN",
+        "boss_building": "D",
+        "boss_position": "LINE LEADER"
+      },
+      {
         "emp_no": "625120052",
         "emp_name": "TRỊNH THỊ THANH TUYỀN",
         "emp_building": "D",
@@ -455,6 +435,20 @@
         "emp_name": "THÁI THỊ XUÂN",
         "emp_position": "ASSEMBLY INSPECTOR",
         "hr_building": "D",
+        "aql_building": "B3"
+      },
+      {
+        "emp_no": "622030777",
+        "emp_name": "NGUYỄN THỊ THẢO QUYÊN",
+        "emp_position": "ASSEMBLY INSPECTOR",
+        "hr_building": "D",
+        "aql_building": "B3"
+      },
+      {
+        "emp_no": "619060201",
+        "emp_name": "BÙI THỊ KIỀU LY",
+        "emp_position": "ASSEMBLY INSPECTOR",
+        "hr_building": "A2",
         "aql_building": "B3"
       },
       {
