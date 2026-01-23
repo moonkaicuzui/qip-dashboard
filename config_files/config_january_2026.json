@@ -1,22 +1,22 @@
 {
   "year": 2026,
   "month": "january",
-  "working_days": 13,
+  "working_days": 19,
   "file_paths": {
-    "attendance": "input_files/attendance/original/attendance data january.csv",
     "basic_manpower": "input_files/basic manpower data january.csv",
+    "attendance": "input_files/attendance/original/attendance data january.csv",
     "5prs": "input_files/5prs data january.csv",
     "aql_current": "input_files/AQL history/1.HSRG AQL REPORT-JANUARY.2026.csv",
     "previous_incentive": "output_files/output_QIP_incentive_december_2025_Complete_V10.0_Complete.csv"
   },
   "files_modified_times": {
-    "attendance": "2026-01-16T12:37:55.000Z",
-    "basic_manpower": "2026-01-16T12:35:55.000Z",
-    "5prs": "2026-01-16T12:25:01.000Z",
-    "aql_current": "2026-01-16T12:28:21.000Z"
+    "basic_manpower": "2026-01-23T06:54:05.000Z",
+    "attendance": "2026-01-23T06:52:37.000Z",
+    "5prs": "2026-01-23T06:50:45.000Z",
+    "aql_current": "2026-01-23T06:51:26.000Z"
   },
   "working_days_source": "attendance_data",
-  "working_days_updated_at": "2026-01-23T06:31:08.860652",
+  "working_days_updated_at": "2026-01-23T07:02:34.115176",
   "previous_months": [
     "november",
     "december"
@@ -24,5 +24,5 @@
   "output_prefix": "output_QIP_incentive_january_2026",
   "data_source": "google_drive",
   "created_at": "2026-01-12T03:24:43.520770",
-  "last_updated": "2026-01-16T12:37:55.000Z"
+  "last_updated": "2026-01-23T06:54:05.000Z"
 }
