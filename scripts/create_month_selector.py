@@ -582,10 +582,6 @@ def create_month_selector_page():
         <!-- 푸터 -->
         <div class="footer-section">
             <p>
-                <i class="fas fa-mobile-alt"></i>
-                <span data-i18n="footer-mobile">모바일에서도 완벽하게 작동합니다</span>
-            </p>
-            <p>
                 <i class="fas fa-shield-alt"></i>
                 <span data-i18n="footer-security">모든 데이터는 안전하게 보호됩니다</span>
             </p>
@@ -683,7 +679,6 @@ def create_month_selector_page():
                 'sync-update': '업데이트',
                 'view-btn': '보기',
                 'badge-new': 'NEW',
-                'footer-mobile': '모바일에서도 완벽하게 작동합니다',
                 'footer-security': '모든 데이터는 안전하게 보호됩니다',
                 'month-subtitle': '최신 평가 데이터 • 업데이트됨',
                 'year-suffix': '년',
@@ -712,7 +707,6 @@ def create_month_selector_page():
                 'sync-update': 'Update',
                 'view-btn': 'View',
                 'badge-new': 'NEW',
-                'footer-mobile': 'Works perfectly on mobile devices',
                 'footer-security': 'All data is securely protected',
                 'month-subtitle': 'Latest evaluation data • Updated',
                 'year-suffix': '',
@@ -741,7 +735,6 @@ def create_month_selector_page():
                 'sync-update': 'Cập nhật',
                 'view-btn': 'Xem',
                 'badge-new': 'MỚI',
-                'footer-mobile': 'Hoạt động hoàn hảo trên thiết bị di động',
                 'footer-security': 'Tất cả dữ liệu được bảo vệ an toàn',
                 'month-subtitle': 'Dữ liệu đánh giá mới nhất • Đã cập nhật',
                 'year-suffix': '',
