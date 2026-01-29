@@ -1,7 +1,7 @@
 {
   "year": 2026,
   "month": "january",
-  "working_days": 21,
+  "working_days": 24,
   "file_paths": {
     "attendance": "input_files/attendance/original/attendance data january.csv",
     "basic_manpower": "input_files/basic manpower data january.csv",
@@ -15,8 +15,8 @@
     "5prs": "2026-01-26T12:18:36.000Z",
     "aql_current": "2026-01-26T12:20:04.000Z"
   },
-  "working_days_source": "attendance_data",
-  "working_days_updated_at": "2026-01-29T03:57:18.763168",
+  "working_days_source": "attendance_data_ssot",
+  "working_days_updated_at": "2026-01-29T11:04:36.847111",
   "previous_months": [
     "november",
     "december"
@@ -24,5 +24,5 @@
   "output_prefix": "output_QIP_incentive_january_2026",
   "data_source": "google_drive",
   "created_at": "2026-01-12T03:24:43.520770",
-  "last_updated": "2026-01-26T12:23:21.000Z"
+  "last_updated": "2026-01-29T10:50:37.113924"
 }
