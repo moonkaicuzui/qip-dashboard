@@ -2216,6 +2216,52 @@ Config: config_files/config_september_2025.json
      - `node --check` 로 배포 전 JavaScript 구문 검증
      - JavaScript에서 같은 스코프 내 `const`/`let` 재선언 불가
 
+51. **Issue #51: Working Days SSOT (Single Source of Truth) 아키텍처** (IMPLEMENTED: 2026-01-29):
+   - **Problem**: Google Drive에 최신 데이터(21일)가 있어도 Config(19일)와 Converted 파일(19일)이 동기화되지 않음
+     - 근본 원인: 3개 데이터 소스 간 동기화 메커니즘 부재
+     - Issue #32 해결책이 불완전했던 이유: Config를 SSOT로 사용 (잘못된 아키텍처)
+   - **Root Cause Analysis**:
+     - **끊김 1**: Google Drive → Config (enhanced_download_with_config.py가 때때로 stale 값 사용)
+     - **끊김 2**: Config → Converted (convert_attendance_data.py가 Config 값을 그대로 신뢰)
+     - **끊김 3**: GitHub Actions 각 Step이 독립 실행되어 Race Condition 발생 가능
+   - **Solution**: **원본 데이터를 SSOT로 변경** (아키텍처 수준 해결)
+     - **Before (문제)**:
+       ```
+       Google Drive → Config(캐시) → Converted → 계산
+                     ↑ 수동 관리   ↑ 동기화 끊김
+       ```
+     - **After (해결)**:
+       ```
+       Google Drive(원본) → [자동 계산] → Config(자동 업데이트) + Converted(자동 생성)
+                           ↑ SSOT       ↑ 불일치 시 즉시 수정
+       ```
+   - **Implementation**:
+     - **`src/convert_attendance_data.py`** (핵심 변경):
+       - `update_config_working_days()` 함수 추가: Config 자동 동기화
+       - Step 1: 원본 데이터에서 `df['Work Date'].nunique()`로 실제 근무일 계산
+       - Step 2: Config와 불일치 시 자동 업데이트 (`working_days_source: attendance_data_ssot`)
+       - Step 3: Converted 파일도 원본 기준으로 검증/재생성
+     - **`.github/workflows/auto-update-enhanced.yml`**:
+       - Step 6.5 스키마 검증 실패 시 `exit 1`로 파이프라인 중단 (기존: 경고만 출력)
+   - **Verification**:
+     ```bash
+     # Config를 19일로 설정 후 변환 스크립트 실행
+     python src/convert_attendance_data.py january 2026
+     # 출력:
+     #   📅 [SSOT] 원본 데이터 실제 근무일: 21일
+     #   ⚠️ [SSOT] 불일치 감지: Config(19일) ≠ 원본(21일)
+     #   🔄 [SSOT] Config working_days 자동 업데이트: 19 → 21
+     #   ✅ [SSOT] 모든 데이터 동기화됨: 21일
+     ```
+   - **Files Modified**:
+     - `src/convert_attendance_data.py:128-210` (SSOT 아키텍처 구현)
+     - `.github/workflows/auto-update-enhanced.yml:120-135` (검증 실패 시 중단)
+   - **Commit**: [현재 세션]
+   - **Prevention**:
+     - 원본 데이터가 항상 SSOT (Config는 캐시로만 사용)
+     - Config 불일치 시 자동 수정 (수동 개입 불필요)
+     - GitHub Actions 검증 실패 시 파이프라인 중단 → 자동 재시도
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code

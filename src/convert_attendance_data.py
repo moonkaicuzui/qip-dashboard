@@ -125,9 +125,52 @@ def aggregate_attendance(df: pd.DataFrame, total_working_days: int = None) -> pd
     return result_df
 
 
+def update_config_working_days(month: str, year: int, actual_working_days: int) -> bool:
+    """
+    Update config file with actual working days from attendance data
+    This ensures Config is always in sync with the actual data (SSOT principle)
+
+    Args:
+        month: Month name (e.g., 'january')
+        year: Year (e.g., 2026)
+        actual_working_days: Actual working days calculated from attendance data
+
+    Returns:
+        bool: True if updated, False if no change needed
+    """
+    base_dir = Path(__file__).parent.parent
+    config_file = base_dir / f"config_files/config_{month}_{year}.json"
+
+    if not config_file.exists():
+        print(f"  ⚠️ Config file not found: {config_file}")
+        return False
+
+    with open(config_file, 'r', encoding='utf-8') as f:
+        config = json.load(f)
+
+    old_days = config.get('working_days', None)
+
+    if old_days != actual_working_days:
+        config['working_days'] = actual_working_days
+        config['working_days_source'] = 'attendance_data_ssot'
+        config['working_days_updated_at'] = datetime.now().isoformat()
+
+        with open(config_file, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
+
+        print(f"  🔄 [SSOT] Config working_days 자동 업데이트: {old_days} → {actual_working_days}")
+        return True
+
+    return False
+
+
 def convert_attendance(month: str, year: int = 2025) -> bool:
     """
     Convert raw daily attendance data to aggregated format
+
+    [Issue #51 - SSOT Architecture]
+    원본 attendance 데이터의 실제 근무일수를 Single Source of Truth로 사용.
+    Config 파일은 캐시로만 활용하고, 불일치 시 자동 업데이트.
 
     Args:
         month: Month name (e.g., 'july', 'august', 'december')
@@ -152,41 +195,53 @@ def convert_attendance(month: str, year: int = 2025) -> bool:
             print(f"  ⚠️ Original file not found: {original_file}")
             return False
 
-        # Load config to get working days (do this early to check for mismatches)
-        config = load_config(month, year)
-        total_working_days = config.get('working_days', None)
+        # ============================================================
+        # [SSOT] Step 1: 원본 데이터에서 실제 근무일수 계산 (Single Source of Truth)
+        # ============================================================
+        df_preview = pd.read_csv(original_file, encoding='utf-8-sig')
+        actual_working_days = df_preview['Work Date'].nunique()
+        print(f"  📅 [SSOT] 원본 데이터 실제 근무일: {actual_working_days}일")
 
-        # Check if reconversion needed
+        # ============================================================
+        # [SSOT] Step 2: Config 파일 자동 동기화
+        # ============================================================
+        config = load_config(month, year)
+        config_working_days = config.get('working_days', None)
+
+        if config_working_days != actual_working_days:
+            print(f"  ⚠️ [SSOT] 불일치 감지: Config({config_working_days}일) ≠ 원본({actual_working_days}일)")
+            update_config_working_days(month, year, actual_working_days)
+
+        # 항상 원본 데이터의 값을 사용 (SSOT)
+        total_working_days = actual_working_days
+
+        # ============================================================
+        # [SSOT] Step 3: Converted 파일 검증 및 재변환 판단
+        # ============================================================
         if converted_file.exists():
             original_mtime = original_file.stat().st_mtime
             converted_mtime = converted_file.stat().st_mtime
 
             if converted_mtime >= original_mtime:
-                # Check if already aggregated (has ACTUAL WORK DAY column)
                 try:
                     existing = pd.read_csv(converted_file, nrows=5, encoding='utf-8-sig')
-                    if 'ACTUAL WORK DAY' in existing.columns:
-                        # CRITICAL: Check if working_days in config differs from converted file
-                        # This prevents Issue #32 (Working Days 불일치)
-                        if total_working_days and 'TOTAL WORK DAY' in existing.columns:
-                            existing_total_days = existing['TOTAL WORK DAY'].iloc[0]
-                            if existing_total_days != total_working_days:
-                                print(f"  🔄 Working days changed: {existing_total_days} → {total_working_days}")
-                                print(f"     Config updated, forcing reconversion...")
-                            else:
-                                print(f"  ℹ️ Already aggregated and up to date: {converted_file.name}")
-                                return True
-                        else:
-                            print(f"  ℹ️ Already aggregated and up to date: {converted_file.name}")
+                    if 'ACTUAL WORK DAY' in existing.columns and 'TOTAL WORK DAY' in existing.columns:
+                        existing_total_days = int(existing['TOTAL WORK DAY'].iloc[0])
+
+                        # [SSOT] Converted 파일도 원본과 비교
+                        if existing_total_days == actual_working_days:
+                            print(f"  ✅ [SSOT] 모든 데이터 동기화됨: {actual_working_days}일")
                             return True
+                        else:
+                            print(f"  🔄 [SSOT] Converted 파일 불일치: {existing_total_days} → {actual_working_days}")
+                            print(f"     강제 재변환 실행...")
                 except Exception as e:
                     print(f"  ⚠️ Could not validate existing file: {e}")
-                    pass
 
             print(f"  🔄 Reconverting: {original_file.name}")
 
-        # Read raw CSV file
-        df = pd.read_csv(original_file, encoding='utf-8-sig')
+        # Read raw CSV file (이미 위에서 읽었으므로 재사용)
+        df = df_preview
         print(f"  📂 Loaded {len(df)} daily records")
 
         # Check if already in aggregated format

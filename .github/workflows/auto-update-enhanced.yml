@@ -117,7 +117,7 @@ jobs:
         echo "   - Issue #32: Working Days 불일치 자동 감지"
         echo ""
 
-        # 스키마 검증 실행
+        # 스키마 검증 실행 [Issue #51: 검증 실패 시 파이프라인 중단]
         if [ -f "scripts/validate_attendance_schema.py" ]; then
           python scripts/validate_attendance_schema.py
           RESULT=$?
@@ -126,8 +126,12 @@ jobs:
             echo "✅ Schema validation PASSED!"
           else
             echo ""
-            echo "⚠️ Schema validation WARNING - check logs above"
-            echo "   참조: CLAUDE.md Issue #31, Issue #32"
+            echo "❌ Schema validation FAILED - Pipeline STOPPED!"
+            echo "   참조: CLAUDE.md Issue #31, Issue #32, Issue #51"
+            echo ""
+            echo "   [Issue #51] 스키마 검증 실패는 데이터 불일치를 의미합니다."
+            echo "   다음 GitHub Actions 실행에서 자동 재시도됩니다."
+            exit 1
           fi
         else
           echo "⚠️ Schema validation script not found - skipping"
