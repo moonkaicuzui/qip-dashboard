@@ -308,16 +308,6 @@
         "boss_position": "MTL INSPECTOR"
       },
       {
-        "emp_no": "624100230",
-        "emp_name": "LƯƠNG THỊ KIM THOA",
-        "emp_building": "EZ HAPPO",
-        "emp_position": "MTL INSPECTOR",
-        "boss_id": "622020079",
-        "boss_name": "NGUYỄN THỊ MỸ NHUNG",
-        "boss_building": "MTL WH",
-        "boss_position": "RQC"
-      },
-      {
         "emp_no": "624100345",
         "emp_name": "MAI HỒNG LỤA",
         "emp_building": "E1",
@@ -386,6 +376,16 @@
         "boss_name": "LÊ VĂN NAM",
         "boss_building": "A2",
         "boss_position": "(V) SUPERVISOR"
+      },
+      {
+        "emp_no": "625100094",
+        "emp_name": "TRẦN KIM HUYỀN",
+        "emp_building": "EZ HAPPO",
+        "emp_position": "MTL INSPECTOR",
+        "boss_id": "618100175",
+        "boss_name": "THỊ BÍCH NGÀ",
+        "boss_building": "MTL WH",
+        "boss_position": "LINE LEADER"
       },
       {
         "emp_no": "625100134",
