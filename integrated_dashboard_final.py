@@ -4671,6 +4671,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
     // 5PRS 검사량 < 100족 상세 모달
     function showLowInspectionQtyDetails() {
+        // Issue #51: currentLang 변수 정의 (필수! - 없으면 ReferenceError 발생하여 테이블 렌더링 실패)
+        let currentLang = (typeof window.currentLanguage !== 'undefined' ? window.currentLanguage : null) ||
+                         document.querySelector('[name="currentLanguage"]')?.value ||
+                         'ko';
+
         // CRITICAL FIX: 5PRS data file에 actual로 있는 직원만 표시
         // TYPE-1 ASSEMBLY INSPECTOR with inspection qty < 100 필터링
         let lowQtyEmployees = window.employeeData.filter(emp => {
