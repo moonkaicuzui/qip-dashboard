@@ -2262,6 +2262,34 @@ Config: config_files/config_september_2025.json
      - Config 불일치 시 자동 수정 (수동 개입 불필요)
      - GitHub Actions 검증 실패 시 파이프라인 중단 → 자동 재시도
 
+52. **Issue #52: 5PRS 검사량 모달 빈 테이블 - currentLang 미정의** (FIXED: 2026-01-30):
+   - **Problem**: "5PRS 검사량 100족 미만 상세" 모달이 "총 2명" 표시하지만 테이블이 비어있음
+     - 필터 로직은 정상 작동 (624060316, 621110407 두 직원 정확히 찾음)
+     - 테이블 렌더링 시 `ReferenceError: currentLang is not defined` 발생
+   - **Root Cause**: **변수 미정의 (Missing Variable Definition)**
+     - `showLowInspectionQtyDetails()` 함수에서 `currentLang` 변수 사용 (Line 4785)
+     - 함수 내부에 `currentLang` 정의 없음 (다른 함수들은 Line 2803, 3021, 4269에 정의)
+     - `getTranslation('incentiveStatus.received', currentLang)` 호출 시 ReferenceError 발생
+     - forEach 루프 전체가 실패하여 테이블 행이 하나도 추가되지 않음
+   - **Solution**: 함수 시작 부분에 `currentLang` 변수 정의 추가
+     ```javascript
+     // Issue #51: currentLang 변수 정의 (필수! - 없으면 ReferenceError 발생하여 테이블 렌더링 실패)
+     let currentLang = (typeof window.currentLanguage !== 'undefined' ? window.currentLanguage : null) ||
+                      document.querySelector('[name="currentLanguage"]')?.value ||
+                      'ko';
+     ```
+   - **Affected Employees** (now correctly displayed):
+     | Employee No | 이름 | 검사량 |
+     |-------------|------|--------|
+     | 624060316 | NGUYỄN THỊ CẨM NHUNG | 60족 |
+     | 621110407 | LÊ YẾN NHI | 60족 |
+   - **Implementation**: `integrated_dashboard_final.py:4673-4678`
+   - **Commit**: `a1cfb730d` (2026-01-30)
+   - **Prevention**:
+     - 모달 함수 생성 시 `currentLang` 변수 정의 필수 (다른 모달 함수 패턴 참조)
+     - 번역 함수 `getTranslation(key, lang)` 호출 전 `lang` 변수 존재 확인
+     - JavaScript 브라우저 콘솔에서 ReferenceError 확인 습관화
+
 ### Debugging Dashboard Issues
 ```bash
 # After modifying dashboard code
