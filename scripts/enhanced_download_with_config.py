@@ -172,11 +172,14 @@ def update_config_for_month(year, month_name, downloaded_files):
             if modified_time:
                 files_modified_times['basic_manpower'] = modified_time
         elif 'attendance' in file_name or '출근' in file_name:
-            if 'converted' in file_path:
+            # [Issue #54] SSOT 원칙: 항상 original 파일만 사용하여 working_days 계산
+            # converted 파일은 stale 데이터일 수 있으므로 무시
+            if 'converted' not in file_path and 'original' in file_path:
                 file_paths['attendance'] = file_path
                 if modified_time:
                     files_modified_times['attendance'] = modified_time
-            elif 'attendance' not in file_paths:  # converted가 없으면 original 사용
+            elif 'attendance' not in file_paths and 'converted' not in file_path:
+                # original 폴더에 없는 경우만 다른 위치 허용
                 file_paths['attendance'] = file_path
                 if modified_time:
                     files_modified_times['attendance'] = modified_time
