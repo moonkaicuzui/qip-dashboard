@@ -1828,7 +1828,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2026" data-month="january" data-month-name="1월">2026년 1월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="31" data-hour="07" data-minute="53">보고서 생성일: 2026년 01월 31일 07:53</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="01" data-day="31" data-hour="07" data-minute="56">보고서 생성일: 2026년 01월 31일 07:56</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -25519,18 +25519,33 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                 // 출근율
                 const attendanceRate = parseFloat(emp['출근율_Attendance_Rate_Percent'] || emp['cond_1_value'] || 0) || 0;
 
-                // AQL 결과 (🔧 색맹 접근성: 아이콘 추가 2025-12-21)
+                // [Issue #56] AQL 결과 - TYPE별 조건 적용 확인
+                // TYPE-1: AQL 조건(5,6,7,8) 적용 → PASS/FAIL 표시
+                // TYPE-2/TYPE-3: AQL 조건 미적용 (출근 조건만) → N/A 표시
+                const empType = emp['type'] || emp['TYPE'] || emp['ROLE TYPE STD'] || 'TYPE-2';
                 const aqlFail = parseInt(emp['January AQL Failures'] || emp['AQL_Fail_Count'] || 0) || 0;
-                const aqlStatus = aqlFail === 0 ?
-                    '<span class="badge bg-success">✅ PASS</span>' :
-                    '<span class="badge bg-danger">❌ FAIL (' + aqlFail + ')</span>';
+                let aqlStatus;
+                if (empType === 'TYPE-1') {
+                    // TYPE-1: AQL 조건 적용 (🔧 색맹 접근성: 아이콘 추가 2025-12-21)
+                    aqlStatus = aqlFail === 0 ?
+                        '<span class="badge bg-success">✅ PASS</span>' :
+                        '<span class="badge bg-danger">❌ FAIL (' + aqlFail + ')</span>';
+                } else {
+                    // TYPE-2, TYPE-3: AQL 조건 미적용 (position_condition_matrix 기준)
+                    aqlStatus = '<span class="badge bg-secondary">➖ N/A</span>';
+                }
 
-                // 5PRS 결과
+                // [Issue #56] 5PRS 결과 - TYPE별 조건 적용 확인
+                // TYPE-1: 5PRS 조건(9,10) 적용 → PASS/FAIL/N/A 표시
+                // TYPE-2/TYPE-3: 5PRS 조건 미적용 → N/A 표시
                 const fivePrsQty = parseInt(emp['5PRS_Inspection_Qty'] || emp['Total Valiation Qty'] || 0) || 0;
                 const fivePrsRate = parseFloat(emp['5PRS_Pass_Rate'] || emp['Pass %'] || 0) || 0;
                 // 🔧 색맹 접근성: 아이콘 추가 (2025-12-21)
                 let fivePrsStatus = '';
-                if (fivePrsQty === 0) {
+                if (empType !== 'TYPE-1') {
+                    // TYPE-2, TYPE-3: 5PRS 조건 미적용 (position_condition_matrix 기준)
+                    fivePrsStatus = '<span class="badge bg-secondary">➖ N/A</span>';
+                } else if (fivePrsQty === 0) {
                     fivePrsStatus = '<span class="badge bg-secondary">➖ N/A</span>';
                 } else if (fivePrsRate >= 95) {
                     fivePrsStatus = '<span class="badge bg-success">✅ ' + fivePrsRate.toFixed(1) + '% (' + fivePrsQty + ')</span>';
