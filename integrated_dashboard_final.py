@@ -9848,9 +9848,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
 
                     if (type === 'current') {{
-                        return emp.currentIncentive ?? 0;
+                        // [Issue #53] Phase 1 정규화된 데이터와 정규화 안된 데이터 모두 지원
+                        // 1. 정규화된 필드 우선 (window.employeeData)
+                        // 2. 동적 컬럼 접근 fallback (window.allEmployeesForTeam 등 비정규화 데이터)
+                        if (emp.currentIncentive !== undefined && emp.currentIncentive !== null) {{
+                            return emp.currentIncentive;
+                        }}
+                        // Fallback: 동적 컬럼명으로 직접 접근 (비정규화 데이터 지원)
+                        const dynamicCol = window.currentIncentiveColumn;
+                        if (dynamicCol && emp[dynamicCol] !== undefined) {{
+                            return parseFloat(emp[dynamicCol]) || 0;
+                        }}
+                        return 0;
                     }} else if (type === 'previous') {{
-                        return emp.previousIncentive ?? 0;
+                        // [Issue #53] 전월 인센티브도 동일한 패턴 적용
+                        if (emp.previousIncentive !== undefined && emp.previousIncentive !== null) {{
+                            return emp.previousIncentive;
+                        }}
+                        // Fallback: Previous_Incentive 컬럼 직접 접근
+                        if (emp['Previous_Incentive'] !== undefined) {{
+                            return parseFloat(emp['Previous_Incentive']) || 0;
+                        }}
+                        return 0;
                     }} else {{
                         console.error('[employeeHelpers] getIncentive: invalid type:', type);
                         return 0;
@@ -18687,8 +18706,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     activeCount++;
                 }}
 
-                // [Issue #46] 인센티브 - 정규화된 currentIncentive 사용
-                const incentive = emp.currentIncentive || 0;
+                // [Issue #53] 인센티브 - employeeHelpers 사용 (정규화 + 비정규화 데이터 모두 지원)
+                // employeeHelpers.getIncentive()가 currentIncentive와 동적 컬럼 모두 체크
+                const incentive = window.employeeHelpers.getIncentive(emp, 'current');
                 if (incentive > 0) {{
                     receivingCount++;
                     totalIncentive += incentive;
