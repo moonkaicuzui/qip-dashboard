@@ -9,6 +9,7 @@ drive_config.json의 file_mappings를 따라 올바른 경로에 파일을 다�
 import os
 import json
 import sys
+import hashlib
 from datetime import datetime
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -72,17 +73,32 @@ def list_files_in_folder(service, folder_id, file_type='csv'):
         return []
 
 def download_file(service, file_id, output_path, force=True):
-    """Google Drive 파일 다운로드
+    """Google Drive 파일 다운로드 (MD5 Checksum 검증 포함)
 
     Args:
         service: Google Drive 서비스 객체
         file_id: 다운로드할 파일 ID
         output_path: 저장 경로
         force: True면 기존 파일 강제 삭제 후 다운로드 (default: True)
+
+    Returns:
+        True: 다운로드 성공 및 검증 완료
+        False: 다운로드 실패 또는 검증 실패
+
+    [Issue #55] 근본적 해결책: MD5 Checksum 검증
+    - Google Drive API에서 파일의 MD5 해시를 가져옴
+    - 다운로드 후 로컬 파일의 MD5 해시 계산
+    - 두 해시가 일치하지 않으면 다운로드 실패 처리
     """
     try:
         # 디렉토리 생성
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # [Issue #55] Step 1: Google Drive에서 파일 메타데이터 (MD5 포함) 가져오기
+        file_metadata = service.files().get(fileId=file_id, fields='md5Checksum,size,modifiedTime').execute()
+        gdrive_md5 = file_metadata.get('md5Checksum')
+        gdrive_size = int(file_metadata.get('size', 0))
+        gdrive_modified = file_metadata.get('modifiedTime', '')
 
         # 기존 파일 존재 확인 및 강제 삭제
         if os.path.exists(output_path):
@@ -94,7 +110,7 @@ def download_file(service, file_id, output_path, force=True):
                 print(f"  ⚠️ 파일이 이미 존재합니다 (건너뜀)")
                 return False
 
-        # 파일 다운로드
+        # [Issue #55] Step 2: 파일 다운로드
         request = service.files().get_media(fileId=file_id)
         fh = io.BytesIO()
         downloader = MediaIoBaseDownload(fh, request)
@@ -103,14 +119,36 @@ def download_file(service, file_id, output_path, force=True):
         while not done:
             status, done = downloader.next_chunk()
 
+        downloaded_content = fh.getvalue()
+
+        # [Issue #55] Step 3: 다운로드된 콘텐츠의 MD5 해시 계산
+        local_md5 = hashlib.md5(downloaded_content).hexdigest()
+
+        # [Issue #55] Step 4: MD5 Checksum 검증
+        if gdrive_md5 and local_md5 != gdrive_md5:
+            print(f"  ❌ [Issue #55] MD5 불일치! 다운로드 실패")
+            print(f"     Google Drive MD5: {gdrive_md5}")
+            print(f"     Local MD5:        {local_md5}")
+            return False
+
+        # [Issue #55] Step 5: 파일 크기 검증
+        if gdrive_size > 0 and len(downloaded_content) != gdrive_size:
+            print(f"  ❌ [Issue #55] 파일 크기 불일치! 다운로드 실패")
+            print(f"     Google Drive Size: {gdrive_size:,} bytes")
+            print(f"     Downloaded Size:   {len(downloaded_content):,} bytes")
+            return False
+
         # 파일 저장
         with open(output_path, 'wb') as f:
-            f.write(fh.getvalue())
+            f.write(downloaded_content)
 
         # 다운로드 후 파일 정보 출력
         new_mtime = datetime.fromtimestamp(os.path.getmtime(output_path))
         file_size = os.path.getsize(output_path)
-        print(f"  ✅ 다운로드 완료 ({file_size:,} bytes, 수정일: {new_mtime.strftime('%Y-%m-%d %H:%M:%S')})")
+
+        # [Issue #55] 검증 완료 메시지
+        verification_status = "✓ MD5 검증됨" if gdrive_md5 else "⚠️ MD5 없음"
+        print(f"  ✅ 다운로드 완료 ({file_size:,} bytes, {verification_status})")
 
         return True
 

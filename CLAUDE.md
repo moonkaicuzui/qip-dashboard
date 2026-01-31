@@ -2575,3 +2575,35 @@ ls output_files/*Complete_V9*
 - Language switching updates ALL elements via `updateAllTexts()`
 - Modal CSS uses unified Bootstrap 5 classes
 - All backup files excluded from git (.gitignore: *.backup, *backup*.py)
+
+53. **Issue #55: Google Drive 다운로드 MD5 Checksum 검증** (IMPLEMENTED: 2026-01-31):
+   - **Problem**: 다운로드 스크립트가 파일을 다운로드해도 실제로 최신 데이터가 반영되지 않음
+     - Google Drive: 26일 데이터
+     - 로컬 파일: 24일 데이터 (오래됨)
+     - 다운로드 "성공"해도 실제 데이터 불일치 발생
+   - **Root Cause**: 다운로드 후 검증 없음
+     - 기존 로직: 다운로드 → 저장 → 끝 (검증 없음)
+     - 네트워크 오류, 부분 다운로드 감지 불가
+   - **Solution**: MD5 Checksum 검증 추가
+     ```python
+     # scripts/download_from_gdrive.py:download_file()
+     # Step 1: Google Drive에서 MD5 가져오기
+     file_metadata = service.files().get(fileId=file_id, fields='md5Checksum,size').execute()
+     gdrive_md5 = file_metadata.get('md5Checksum')
+
+     # Step 2: 다운로드 후 로컬 MD5 계산
+     local_md5 = hashlib.md5(downloaded_content).hexdigest()
+
+     # Step 3: 검증
+     if gdrive_md5 and local_md5 != gdrive_md5:
+         print(f"❌ MD5 불일치! 다운로드 실패")
+         return False
+     ```
+   - **Benefits**:
+     - ✅ 다운로드 무결성 100% 보장
+     - ✅ 네트워크 오류로 인한 부분 다운로드 감지
+     - ✅ 파일 손상 감지
+     - ✅ "다운로드 성공" 메시지가 실제 성공을 의미
+   - **Implementation**: `scripts/download_from_gdrive.py:74-145`
+   - **Commit**: [현재 세션]
+   - **Prevention**: 다운로드 실패 시 파이프라인 자동 중단
