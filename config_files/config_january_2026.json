@@ -15,8 +15,8 @@
     "5prs": "2026-01-30T08:35:45.000Z",
     "aql_current": "2026-01-30T08:33:06.000Z"
   },
-  "working_days_source": "attendance_data_ssot",
-  "working_days_updated_at": "2026-01-31T14:17:21.937305",
+  "working_days_source": "attendance_data",
+  "working_days_updated_at": "2026-01-31T07:28:28.545810",
   "previous_months": [
     "november",
     "december"
