@@ -1,7 +1,7 @@
 {
   "year": 2026,
   "month": "january",
-  "working_days": 24,
+  "working_days": 26,
   "file_paths": {
     "basic_manpower": "input_files/basic manpower data january.csv",
     "attendance": "input_files/attendance/original/attendance data january.csv",
@@ -16,7 +16,7 @@
     "aql_current": "2026-01-30T08:33:06.000Z"
   },
   "working_days_source": "attendance_data_ssot",
-  "working_days_updated_at": "2026-01-31T14:03:57.368974",
+  "working_days_updated_at": "2026-01-31T14:17:21.937305",
   "previous_months": [
     "november",
     "december"
