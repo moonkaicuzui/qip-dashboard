@@ -2607,3 +2607,29 @@ ls output_files/*Complete_V9*
    - **Implementation**: `scripts/download_from_gdrive.py:74-145`
    - **Commit**: [현재 세션]
    - **Prevention**: 다운로드 실패 시 파이프라인 자동 중단
+
+54. **Issue #56: Team 탭 AQL/5PRS 컬럼 TYPE별 N/A 표시** (FIXED: 2026-01-31):
+   - **Problem**: Team 탭에서 TYPE-2 직급(GROUP LEADER, LINE LEADER 등)의 AQL 컬럼이 "N/A" 대신 "PASS" 표시
+     - 스크린샷: GROUP LEADER, OSC INSPECTOR, LINE LEADER, RQC, MTL INSPECTOR 등이 "✓ PASS" 표시
+     - position_condition_matrix 정책: TYPE-2는 조건 [1,2,3,4] (출근)만 적용, AQL(5,6,7,8)과 5PRS(9,10)는 미적용
+   - **Root Cause**: Team 탭 렌더링 로직이 TYPE 구분 없이 무조건 `aqlFail === 0`이면 "PASS" 표시
+   - **Solution**: TYPE별 조건 적용 확인 후 N/A 표시
+     ```javascript
+     // [Issue #56] AQL 결과 - TYPE별 조건 적용 확인
+     const empType = emp['type'] || emp['TYPE'] || emp['ROLE TYPE STD'] || 'TYPE-2';
+     if (empType === 'TYPE-1') {
+         aqlStatus = aqlFail === 0 ? '✅ PASS' : '❌ FAIL';
+     } else {
+         aqlStatus = '➖ N/A';  // TYPE-2, TYPE-3
+     }
+     ```
+   - **Affected Columns**: AQL 컬럼 + 5PRS 컬럼 (동일 로직 적용)
+   - **TYPE별 조건 적용 범위**:
+     | TYPE | 적용 조건 | AQL | 5PRS |
+     |------|----------|-----|------|
+     | TYPE-1 | [1,2,3,4,5,6,7,8,9,10] | PASS/FAIL | PASS/FAIL |
+     | TYPE-2 | [1,2,3,4] | **N/A** | **N/A** |
+     | TYPE-3 | [] | **N/A** | **N/A** |
+   - **Implementation**: `integrated_dashboard_final.py:18723-18757`
+   - **Commit**: [현재 세션]
+   - **Prevention**: 조건 적용 표시 시 항상 position_condition_matrix의 TYPE별 조건 확인 필수

@@ -18720,18 +18720,33 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 출근율
                 const attendanceRate = parseFloat(emp['출근율_Attendance_Rate_Percent'] || emp['cond_1_value'] || 0) || 0;
 
-                // AQL 결과 (🔧 색맹 접근성: 아이콘 추가 2025-12-21)
+                // [Issue #56] AQL 결과 - TYPE별 조건 적용 확인
+                // TYPE-1: AQL 조건(5,6,7,8) 적용 → PASS/FAIL 표시
+                // TYPE-2/TYPE-3: AQL 조건 미적용 (출근 조건만) → N/A 표시
+                const empType = emp['type'] || emp['TYPE'] || emp['ROLE TYPE STD'] || 'TYPE-2';
                 const aqlFail = parseInt(emp['{month.capitalize()} AQL Failures'] || emp['AQL_Fail_Count'] || 0) || 0;
-                const aqlStatus = aqlFail === 0 ?
-                    '<span class="badge bg-success">✅ PASS</span>' :
-                    '<span class="badge bg-danger">❌ FAIL (' + aqlFail + ')</span>';
+                let aqlStatus;
+                if (empType === 'TYPE-1') {{
+                    // TYPE-1: AQL 조건 적용 (🔧 색맹 접근성: 아이콘 추가 2025-12-21)
+                    aqlStatus = aqlFail === 0 ?
+                        '<span class="badge bg-success">✅ PASS</span>' :
+                        '<span class="badge bg-danger">❌ FAIL (' + aqlFail + ')</span>';
+                }} else {{
+                    // TYPE-2, TYPE-3: AQL 조건 미적용 (position_condition_matrix 기준)
+                    aqlStatus = '<span class="badge bg-secondary">➖ N/A</span>';
+                }}
 
-                // 5PRS 결과
+                // [Issue #56] 5PRS 결과 - TYPE별 조건 적용 확인
+                // TYPE-1: 5PRS 조건(9,10) 적용 → PASS/FAIL/N/A 표시
+                // TYPE-2/TYPE-3: 5PRS 조건 미적용 → N/A 표시
                 const fivePrsQty = parseInt(emp['5PRS_Inspection_Qty'] || emp['Total Valiation Qty'] || 0) || 0;
                 const fivePrsRate = parseFloat(emp['5PRS_Pass_Rate'] || emp['Pass %'] || 0) || 0;
                 // 🔧 색맹 접근성: 아이콘 추가 (2025-12-21)
                 let fivePrsStatus = '';
-                if (fivePrsQty === 0) {{
+                if (empType !== 'TYPE-1') {{
+                    // TYPE-2, TYPE-3: 5PRS 조건 미적용 (position_condition_matrix 기준)
+                    fivePrsStatus = '<span class="badge bg-secondary">➖ N/A</span>';
+                }} else if (fivePrsQty === 0) {{
                     fivePrsStatus = '<span class="badge bg-secondary">➖ N/A</span>';
                 }} else if (fivePrsRate >= 95) {{
                     fivePrsStatus = '<span class="badge bg-success">✅ ' + fivePrsRate.toFixed(1) + '% (' + fivePrsQty + ')</span>';
