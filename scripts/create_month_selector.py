@@ -321,6 +321,37 @@ def create_month_selector_page():
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
 
+        /* 기준 업데이트 배지 (Issue #58) */
+        .criteria-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            margin-top: 8px;
+        }
+
+        .criteria-before {
+            background: rgba(100, 116, 139, 0.2);
+            color: #94a3b8;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .criteria-after {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            animation: pulseGreen 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+            50% { box-shadow: 0 0 8px 2px rgba(34, 197, 94, 0.2); }
+        }
+
         /* 카드 정보 */
         .card-info {
             margin-bottom: 20px;
@@ -542,6 +573,14 @@ def create_month_selector_page():
                         <span data-i18n="badge-new">NEW</span>
                     </span>''' if i < 2 else ''
 
+        # [Issue #58] 기준 업데이트 전/후 배지
+        y, m = dashboard['year'], dashboard['month']
+        criteria_badge = ''
+        if (y == 2025 and m == 12) or (y == 2026 and m == 1):
+            criteria_badge = '<div class="criteria-badge criteria-before"><i class="fas fa-history"></i> <span data-i18n="criteria-before">기준 업데이트 전</span></div>'
+        elif y > 2026 or (y == 2026 and m >= 2):
+            criteria_badge = '<div class="criteria-badge criteria-after"><i class="fas fa-arrow-up"></i> <span data-i18n="criteria-after">기준 업데이트 후</span></div>'
+
         # 애니메이션 지연
         animation_delay = i * 0.1
 
@@ -562,6 +601,7 @@ def create_month_selector_page():
                         <span data-lang-show="ko"><span class="year-text">{dashboard['year']}</span><span data-i18n="year-suffix">년</span> <span>{dashboard['month']}</span><span data-i18n="month-suffix">월</span></span>
                         <span data-i18n="{month_i18n_key}" data-lang-hide="ko">{dashboard['month_name']} {dashboard['year']}</span>
                     </div>
+                    {criteria_badge}
                     <div class="month-subtitle">
                         <i class="fas fa-check-circle"></i>
                         <span data-i18n="month-subtitle">최신 평가 데이터 • 업데이트됨</span>
@@ -695,6 +735,8 @@ def create_month_selector_page():
                 'month-10': '10월',
                 'month-11': '11월',
                 'month-12': '12월',
+                'criteria-before': '기준 업데이트 전',
+                'criteria-after': '기준 업데이트 후',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -723,6 +765,8 @@ def create_month_selector_page():
                 'month-10': 'October 2025',
                 'month-11': 'November 2025',
                 'month-12': 'December 2025',
+                'criteria-before': 'Before Criteria Update',
+                'criteria-after': 'After Criteria Update',
                 'months': ['', 'January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December']
             },
@@ -751,6 +795,8 @@ def create_month_selector_page():
                 'month-10': 'Tháng 10 năm 2025',
                 'month-11': 'Tháng 11 năm 2025',
                 'month-12': 'Tháng 12 năm 2025',
+                'criteria-before': 'Trước cập nhật tiêu chí',
+                'criteria-after': 'Sau cập nhật tiêu chí',
                 'months': ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
                           'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12']
             }

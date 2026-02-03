@@ -514,7 +514,7 @@ def get_applicable_conditions(position, type_name, condition_matrix):
     # default value 반환
     return type_matrix.get('default', {}).get('applicable_conditions', [1, 2, 3, 4])
 
-def evaluate_conditions(emp_data, condition_matrix):
+def evaluate_conditions(emp_data, condition_matrix, thresholds=None):
     """직원 data에 대한 조건 평가 - Excel data 우선 use"""
     if not condition_matrix:
         return []
@@ -667,17 +667,25 @@ def evaluate_conditions(emp_data, condition_matrix):
             # applicable은 이미 Line 517에서 가져옴
 
             # 조건 평가 함count 매핑 (existing logic 유지)
+            # [Issue #58] Config 기반 threshold 사용 (fallback evaluators)
+            _th = thresholds or {}
+            _att = _th.get('attendance_rate', 88)
+            _abs = _th.get('unapproved_absence', 2)
+            _min = _th.get('minimum_working_days', 12)
+            _rej = _th.get('area_reject_rate', 3.0)
+            _prs = _th.get('5prs_pass_rate', 95)
+            _qty = _th.get('5prs_min_qty', 100)
             evaluators = {
-                1: lambda d: (d.get('출근율_Attendance_Rate_Percent', 0) >= 88, f"{d.get('출근율_Attendance_Rate_Percent', 0):.1f}%"),
-                2: lambda d: (d.get('unapproved_absences', 0) <= 2, f"{d.get('unapproved_absences', 0)}th"),
+                1: lambda d: (d.get('출근율_Attendance_Rate_Percent', 0) >= _att, f"{d.get('출근율_Attendance_Rate_Percent', 0):.1f}%"),
+                2: lambda d: (d.get('unapproved_absences', 0) <= _abs, f"{d.get('unapproved_absences', 0)}th"),
                 3: lambda d: (d.get('actual_working_days', 0) > 0, f"{d.get('actual_working_days', 0)}th"),
-                4: lambda d: (d.get('actual_working_days', 0) >= 12, f"{d.get('actual_working_days', 0)}th"),
+                4: lambda d: (d.get('actual_working_days', 0) >= _min, f"{d.get('actual_working_days', 0)}th"),
                 5: lambda d: (d.get('aql_failures', 0) == 0, f"{d.get('aql_failures', 0)}cases"),
                 6: lambda d: (d.get('continuous_fail', 'NO') != 'YES', '[PASS]' if d.get('continuous_fail', 'NO') != 'YES' else '[FAIL]'),
                 7: lambda d: (d.get('area_consecutive_fail', 'NO') != 'YES', '[PASS]' if d.get('area_consecutive_fail', 'NO') != 'YES' else '[CONSECUTIVE_FAIL]'),
-                8: lambda d: evaluate_area_reject(d),
-                9: lambda d: (d.get('pass_rate', 0) >= 95, f"{d.get('pass_rate', 0):.1f}%"),
-                10: lambda d: (d.get('validation_qty', 0) >= 100, f"{d.get('validation_qty', 0)}족")
+                8: lambda d: evaluate_area_reject(d, _rej),
+                9: lambda d: (d.get('pass_rate', 0) >= _prs, f"{d.get('pass_rate', 0):.1f}%"),
+                10: lambda d: (d.get('validation_qty', 0) >= _qty, f"{d.get('validation_qty', 0)}족")
             }
 
             # applicable 체크는 이미 Line 530-533에서 count행됨 (중복 제거)
@@ -702,11 +710,11 @@ def create_na_result(cond_id, cond_name):
         'is_na': True
     }
 
-def evaluate_area_reject(emp_data):
-    """조건 8 평가 헬퍼"""
+def evaluate_area_reject(emp_data, threshold=3.0):
+    """조건 8 평가 헬퍼 - [Issue #58] threshold 파라미터 추가"""
     rate = float(emp_data.get('area_reject_rate', 0))
     if rate > 0:
-        return rate < 3.0, f"{rate:.1f}%"
+        return rate < threshold, f"{rate:.1f}%"
     return True, '0.0%'
 
 # Single Source of Truth: 함count들은 더 이상 필요하지 않음
@@ -720,8 +728,17 @@ def calculate_employee_area_stats(emp_no_str, area_mapping, building_stats,
     pass
 '''
 
-def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None, config_last_updated=""):
+def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_days=13, excel_dashboard_data=None, config_last_updated="", thresholds=None):
     """dashboard_version4.html과 완전히 동th한 dashboard creation - Excel data based"""
+
+    # [Issue #58] 월별 Config 기반 Threshold 로드 (2026년 2월부터 변경)
+    _thresholds = thresholds or {}
+    th_attendance_rate = _thresholds.get('attendance_rate', 88)
+    th_unapproved_absence = _thresholds.get('unapproved_absence', 2)
+    th_minimum_working_days = _thresholds.get('minimum_working_days', 12)
+    th_area_reject_rate = _thresholds.get('area_reject_rate', 3.0)
+    th_5prs_pass_rate = _thresholds.get('5prs_pass_rate', 95)
+    th_5prs_min_qty = _thresholds.get('5prs_min_qty', 100)
 
     # Load progression table from JSON (Single Source of Truth)
     progression_table = {}
@@ -971,7 +988,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             emp['condition4'] = str(emp.get('attendancy condition 4 - minimum working days', 'no'))
 
             # CRITICAL FIX: condition_results 추가
-            emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
+            emp['condition_results'] = evaluate_conditions(emp, condition_matrix, _thresholds)
 
             직원.append(emp)
         print(f"✅ Single Source of Truth: from excel_dashboard_data {len(excel_dashboard_data['employee_data'])}out of active 직원 {len(직원)}직원 loaded (resigned {len(excel_dashboard_data['employee_data']) - len(직원)}직원 excluded)")
@@ -1094,7 +1111,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         emp['area_reject_rate'] = float(emp_metadata['conditions']['aql']['area_reject_rate'].get('value', 0))
 
             # 조건 평가 결과 추가
-            emp['condition_results'] = evaluate_conditions(emp, condition_matrix)
+            emp['condition_results'] = evaluate_conditions(emp, condition_matrix, _thresholds)
 
             # failed 사유 표시를 위한 조건 필드 추가 - CSV에서 directly fetch
             emp['attendancy condition 1 - acctual working days is zero'] = str(row_dict.get('attendancy condition 1 - acctual working days is zero', 'no'))
@@ -2638,7 +2655,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }
                 // attendanceRate < 30은 bg-danger (빨간색) 유지
 
-                const conditionMet = attendanceRate >= 88;
+                const conditionMet = attendanceRate >= {th_attendance_rate};
                 const statusText = conditionMet ? metText : notMetText;
                 const statusBadge = conditionMet ? 'bg-success' : 'bg-danger';
 
@@ -4376,7 +4393,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // Pass Rate에 따른 색상과 아이콘
                 let badgeClass = 'bg-danger';
                 let passIcon = '❌';
-                if (passRate >= 95) { badgeClass = 'bg-success'; passIcon = '✅'; }
+                if (passRate >= {th_5prs_pass_rate}) { badgeClass = 'bg-success'; passIcon = '✅'; }
                 else if (passRate >= 90) { badgeClass = 'bg-warning'; passIcon = '⚠️'; }
                 else if (passRate >= 80) { badgeClass = 'bg-orange'; passIcon = '⚠️'; }
 
@@ -4464,7 +4481,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // Pass Rate에 따른 색상과 아이콘
                 let badgeClass = 'bg-danger';
                 let passIcon = '❌';
-                if (passRate >= 95) { badgeClass = 'bg-success'; passIcon = '✅'; }
+                if (passRate >= {th_5prs_pass_rate}) { badgeClass = 'bg-success'; passIcon = '✅'; }
                 else if (passRate >= 90) { badgeClass = 'bg-warning'; passIcon = '⚠️'; }
                 else if (passRate >= 80) { badgeClass = 'bg-orange'; passIcon = '⚠️'; }
 
@@ -4692,7 +4709,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const inspectionQty = hasValidationData ? parseFloat(emp['validation_qty']) : 999999;
 
             // Issue #56 Fix: inspectionQty > 0 조건 추가 (0 = no data, not 0 inspections)
-            return isType1 && isAssemblyInspector && hasValidationData && inspectionQty > 0 && inspectionQty < 100;
+            return isType1 && isAssemblyInspector && hasValidationData && inspectionQty > 0 && inspectionQty < {th_5prs_min_qty};
         });
 
         let sortColumn = 'inspectionQty';
@@ -4754,7 +4771,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 100+족: 초록색 (충족), 80-99족: 노란색 (경고), 50-79족: 주황색 (주의), 0-49족: 빨간색 (심각)
                 let badgeClass = 'bg-danger text-white';
                 let qtyIcon = '❌';
-                if (inspectionQty >= 100) {
+                if (inspectionQty >= {th_5prs_min_qty}) {
                     badgeClass = 'bg-success text-white';
                     qtyIcon = '✅';
                 } else if (inspectionQty >= 80) {
@@ -7133,14 +7150,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tr>
                                     <td>1</td>
                                     <td class="cond-name-1" data-i18n="criteria.conditions.attendance.items.attendanceRate.name">출근율</td>
-                                    <td data-i18n="criteria.conditions.attendance.items.attendanceRate.criteria">≥88%</td>
-                                    <td class="cond-desc-1" data-i18n="criteria.conditions.attendance.items.attendanceRate.description">월간 출근율이 88% 이상이어야 합니다</td>
+                                    <td>≥{th_attendance_rate}%</td>
+                                    <td class="cond-desc-1">월간 출근율이 {th_attendance_rate}% 이상이어야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
                                     <td class="cond-name-2" data-i18n="criteria.conditions.attendance.items.unapprovedAbsence.name">무단결근</td>
-                                    <td data-i18n="criteria.conditions.attendance.items.unapprovedAbsence.criteria">≤2일</td>
-                                    <td class="cond-desc-2" data-i18n="criteria.conditions.attendance.items.unapprovedAbsence.description">사전 승인 없는 결근이 월 2일 이하여야 합니다</td>
+                                    <td>≤{th_unapproved_absence}일</td>
+                                    <td class="cond-desc-2">사전 승인 없는 결근이 월 {th_unapproved_absence}일 이하여야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
@@ -7151,8 +7168,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tr>
                                     <td>4</td>
                                     <td class="cond-name-4" data-i18n="criteria.conditions.attendance.items.minimumWorkingDays.name">최소 근무일</td>
-                                    <td data-i18n="criteria.conditions.attendance.items.minimumWorkingDays.criteria">≥12일</td>
-                                    <td class="cond-desc-4" data-i18n="criteria.conditions.attendance.items.minimumWorkingDays.description">월간 최소 12일 이상 근무해야 합니다</td>
+                                    <td>≥{th_minimum_working_days}일</td>
+                                    <td class="cond-desc-4">월간 최소 {th_minimum_working_days}일 이상 근무해야 합니다</td>
                                 </tr>
                             </tbody>
                             </table>
@@ -7192,8 +7209,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tr>
                                     <td>8</td>
                                     <td class="cond-name-8" data-i18n="criteria.conditions.aql.items.areaReject.name">담당구역 AQL Reject율</td>
-                                    <td data-i18n="criteria.conditions.aql.items.areaReject.criteria">&lt;3%</td>
-                                    <td class="cond-desc-8" data-i18n="criteria.conditions.aql.items.areaReject.description">담당 구역의 AQL 리젝률이 3% 미만이어야 합니다</td>
+                                    <td>&lt;{th_area_reject_rate}%</td>
+                                    <td class="cond-desc-8">담당 구역의 AQL 리젝률이 {th_area_reject_rate}% 미만이어야 합니다</td>
                                 </tr>
                             </tbody>
                             </table>
@@ -7215,14 +7232,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <tr>
                                     <td>9</td>
                                     <td class="cond-name-9" data-i18n="criteria.conditions.5prs.items.passRate.name">5PRS 통과율</td>
-                                    <td data-i18n="criteria.conditions.5prs.items.passRate.criteria">≥95%</td>
-                                    <td class="cond-desc-9" data-i18n="criteria.conditions.5prs.items.passRate.description">5족 평가 시스템에서 95% 이상 통과해야 합니다</td>
+                                    <td>≥{th_5prs_pass_rate}%</td>
+                                    <td class="cond-desc-9">5족 평가 시스템에서 {th_5prs_pass_rate}% 이상 통과해야 합니다</td>
                                 </tr>
                                 <tr>
                                     <td>10</td>
                                     <td class="cond-name-10" data-i18n="criteria.conditions.5prs.items.inspectionQty.name">5PRS 검사량</td>
-                                    <td data-i18n="criteria.conditions.5prs.items.inspectionQty.criteria">≥100개</td>
-                                    <td class="cond-desc-10" data-i18n="criteria.conditions.5prs.items.inspectionQty.description">월간 최소 100개 이상 검사를 수행해야 합니다</td>
+                                    <td>≥{th_5prs_min_qty}개</td>
+                                    <td class="cond-desc-10">월간 최소 {th_5prs_min_qty}개 이상 검사를 수행해야 합니다</td>
                                 </tr>
                             </tbody>
                             </table>
@@ -13160,7 +13177,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const inspectionQty = hasValidationData ? parseFloat(emp['validation_qty']) : 999999;
 
                 // Issue #56 Fix: inspectionQty > 0 조건 추가 (0 = no data, not 0 inspections)
-                return isType1 && isAssemblyInspector && hasValidationData && inspectionQty > 0 && inspectionQty < 100;
+                return isType1 && isAssemblyInspector && hasValidationData && inspectionQty > 0 && inspectionQty < {th_5prs_min_qty};
             }}).length;
             document.getElementById('kpiLowInspectionQty').textContent = lowInspectionQty + peopleUnit;
 
@@ -18748,7 +18765,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     fivePrsStatus = '<span class="badge bg-secondary">➖ N/A</span>';
                 }} else if (fivePrsQty === 0) {{
                     fivePrsStatus = '<span class="badge bg-secondary">➖ N/A</span>';
-                }} else if (fivePrsRate >= 95) {{
+                }} else if (fivePrsRate >= {th_5prs_pass_rate}) {{
                     fivePrsStatus = '<span class="badge bg-success">✅ ' + fivePrsRate.toFixed(1) + '% (' + fivePrsQty + ')</span>';
                 }} else {{
                     fivePrsStatus = '<span class="badge bg-warning text-dark">⚠️ ' + fivePrsRate.toFixed(1) + '% (' + fivePrsQty + ')</span>';
@@ -18760,7 +18777,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     '<span class="badge bg-success">🟢 ' + getTranslation('teamTab.status.active', lang) + '</span>';
 
                 // 출근율 색상
-                const attendanceClass = attendanceRate >= 88 ? 'text-success' : 'text-danger';
+                const attendanceClass = attendanceRate >= {th_attendance_rate} ? 'text-success' : 'text-danger';
 
                 const row = document.createElement('tr');
                 if (isResigned) row.classList.add('table-secondary');
@@ -18962,7 +18979,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             rateBar.style.width = Math.min(attendanceRate, 100) + '%';
             rateBar.textContent = attendanceRate.toFixed(1) + '%';
 
-            if (attendanceRate >= 88) {{
+            if (attendanceRate >= {th_attendance_rate}) {{
                 rateBar.className = 'progress-bar bg-success';
                 rateStatus.innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> ${{getTranslation('employeeModal.attendanceMet', currentLanguage)}}</span>`;
             }} else {{
@@ -19310,26 +19327,26 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     </div>
                     <div class="col-md-6">
                         <h5><i class="fas fa-lightbulb"></i> ${{analysisTitle}}</h5>
-                        <div class="alert ${{attendanceRate >= 88 ? 'alert-success' : 'alert-danger'}}">
+                        <div class="alert ${{attendanceRate >= {th_attendance_rate} ? 'alert-success' : 'alert-danger'}}">
             `;
 
-            if (attendanceRate >= 88 && unapprovedAbsence <= 2) {{
-                let excellentMsg = getTranslation('attendanceAnalysis.excellentMsg', currentLanguage) || '님은 출근율 {{rate}}%로 인센티브 조건 1(≥88%)과 조건 2(무단결근 ≤2일)를 충족합니다.';
+            if (attendanceRate >= {th_attendance_rate} && unapprovedAbsence <= {th_unapproved_absence}) {{
+                let excellentMsg = getTranslation('attendanceAnalysis.excellentMsg', currentLanguage) || '님은 출근율 {{rate}}%로 인센티브 조건 1(≥{th_attendance_rate}%)과 조건 2(무단결근 ≤{th_unapproved_absence}일)를 충족합니다.';
                 excellentMsg = excellentMsg.replace('{{rate}}', attendanceRate.toFixed(1));
                 summaryHTML += `
                     <h6>✅ ${{excellentStatus}}</h6>
                     <p class="mb-0">${{name}}(${{position}})${{excellentMsg}}</p>
                 `;
-            }} else if (attendanceRate >= 88) {{
-                let cautionMsg = getTranslation('attendanceAnalysis.cautionMsg', currentLanguage) || '님은 출근율은 {{rate}}%로 기준을 충족하지만, 무단결근이 {{absence}}일로 조건 2(≤2일) 기준을 초과합니다.';
+            }} else if (attendanceRate >= {th_attendance_rate}) {{
+                let cautionMsg = getTranslation('attendanceAnalysis.cautionMsg', currentLanguage) || '님은 출근율은 {{rate}}%로 기준을 충족하지만, 무단결근이 {{absence}}일로 조건 2(≤{th_unapproved_absence}일) 기준을 초과합니다.';
                 cautionMsg = cautionMsg.replace('{{rate}}', attendanceRate.toFixed(1)).replace('{{absence}}', unapprovedAbsence);
                 summaryHTML += `
                     <h6>⚠️ ${{cautionNeeded}}</h6>
                     <p class="mb-0">${{name}}(${{position}})${{cautionMsg}}</p>
                 `;
             }} else {{
-                let improvementMsg = getTranslation('attendanceAnalysis.improvementMsg', currentLanguage) || '님은 출근율이 {{rate}}%로 인센티브 기준(≥88%)에 미달합니다. {{diff}}%p 개선이 필요합니다.';
-                improvementMsg = improvementMsg.replace('{{rate}}', attendanceRate.toFixed(1)).replace('{{diff}}', (88 - attendanceRate).toFixed(1));
+                let improvementMsg = getTranslation('attendanceAnalysis.improvementMsg', currentLanguage) || '님은 출근율이 {{rate}}%로 인센티브 기준(≥{th_attendance_rate}%)에 미달합니다. {{diff}}%p 개선이 필요합니다.';
+                improvementMsg = improvementMsg.replace('{{rate}}', attendanceRate.toFixed(1)).replace('{{diff}}', ({th_attendance_rate} - attendanceRate).toFixed(1));
                 summaryHTML += `
                     <h6>🚨 ${{improvementNeeded}}</h6>
                     <p class="mb-0">${{name}}(${{position}})${{improvementMsg}}</p>
@@ -19347,14 +19364,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-2">
-                                    <span class="badge ${{attendanceRate >= 88 ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">${{cond1}}</span>
-                                    <span>${{cond1Desc}}: ${{attendanceRate >= 88 ? '✅ ' + metText : '❌ ' + notMetText}} (${{attendanceRate.toFixed(1)}}%)</span>
+                                    <span class="badge ${{attendanceRate >= {th_attendance_rate} ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">${{cond1}}</span>
+                                    <span>${{cond1Desc}}: ${{attendanceRate >= {th_attendance_rate} ? '✅ ' + metText : '❌ ' + notMetText}} (${{attendanceRate.toFixed(1)}}%)</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-2">
-                                    <span class="badge ${{unapprovedAbsence <= 2 ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">${{cond2}}</span>
-                                    <span>${{cond2Desc}}: ${{unapprovedAbsence <= 2 ? '✅ ' + metText : '❌ ' + notMetText}} (${{unapprovedAbsence}}${{dayUnit}})</span>
+                                    <span class="badge ${{unapprovedAbsence <= {th_unapproved_absence} ? 'bg-success' : 'bg-danger'}} me-2" style="width: 80px;">${{cond2}}</span>
+                                    <span>${{cond2Desc}}: ${{unapprovedAbsence <= {th_unapproved_absence} ? '✅ ' + metText : '❌ ' + notMetText}} (${{unapprovedAbsence}}${{dayUnit}})</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -19365,8 +19382,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             </div>
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-2">
-                                    <span class="badge ${{actualDays >= 12 ? 'bg-success' : 'bg-warning text-dark'}} me-2" style="width: 80px;">${{cond4}}</span>
-                                    <span>${{cond4Desc}}: ${{actualDays >= 12 ? '✅ ' + metText : '⏳ ' + checkNeededText}} (${{actualDays}}${{dayUnit}})</span>
+                                    <span class="badge ${{actualDays >= {th_minimum_working_days} ? 'bg-success' : 'bg-warning text-dark'}} me-2" style="width: 80px;">${{cond4}}</span>
+                                    <span>${{cond4Desc}}: ${{actualDays >= {th_minimum_working_days} ? '✅ ' + metText : '⏳ ' + checkNeededText}} (${{actualDays}}${{dayUnit}})</span>
                                 </div>
                             </div>
                         </div>
@@ -20858,9 +20875,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="col-md-6">
                                     <table class="table table-sm table-borderless mb-0">
                                         <tr><td><strong>${{t.absenceRate}}:</strong></td><td>${{absenceRate}}%</td></tr>
-                                        <tr class="${{parseFloat(attendanceRate) >= 88 ? 'table-success' : 'table-danger'}}">
+                                        <tr class="${{parseFloat(attendanceRate) >= {th_attendance_rate} ? 'table-success' : 'table-danger'}}">
                                             <td><strong>${{t.attendanceRate}}:</strong></td>
-                                            <td><strong>${{attendanceRate}}%</strong> ${{parseFloat(attendanceRate) >= 88 ? '✅' : '❌'}}</td>
+                                            <td><strong>${{attendanceRate}}%</strong> ${{parseFloat(attendanceRate) >= {th_attendance_rate} ? '✅' : '❌'}}</td>
                                         </tr>
                                     </table>
                                     <small class="text-muted d-block mt-2">
@@ -22036,7 +22053,9 @@ def main():
     # dashboard creation - Excel data를 전달
     # df_csv를 사용 (최신 데이터)
     dashboard_df = df_csv if 'df_csv' in locals() else df
-    html_content = generate_dashboard_html(dashboard_df, month_name, args.year, args.month, working_days, excel_dashboard_data, config_last_updated)
+    # [Issue #58] Config에서 threshold 로드
+    config_thresholds = config_data.get('thresholds', None) if 'config_data' in locals() else None
+    html_content = generate_dashboard_html(dashboard_df, month_name, args.year, args.month, working_days, excel_dashboard_data, config_last_updated, thresholds=config_thresholds)
 
     # file 저장
     # file직원 형식 변경: Incentive_Dashboard_YYYY_MM_Version_10.0.html (V10.0 업데이트 2025-12-25)

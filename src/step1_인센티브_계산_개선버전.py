@@ -162,6 +162,7 @@ class MonthConfig:
     previous_months: List[Month]  # Previous months for consecutive failure check
     file_paths: Dict[str, str]  # Required file paths
     output_prefix: str  # Output file prefix
+    thresholds: Dict = None  # [Issue #58] Monthly threshold overrides (February 2026+)
     
     def get_month_str(self, format_type: str = "full") -> str:
         """Return month string"""
@@ -187,7 +188,7 @@ class MonthConfig:
     
     def to_dict(self) -> Dict:
         """Convert configuration to dictionary"""
-        return {
+        result = {
             "year": self.year,
             "month": self.month.full_name,
             "working_days": self.working_days,
@@ -195,6 +196,9 @@ class MonthConfig:
             "file_paths": self.file_paths,
             "output_prefix": self.output_prefix
         }
+        if self.thresholds:
+            result["thresholds"] = self.thresholds
+        return result
     
     @classmethod
     def from_dict(cls, data: Dict):
@@ -205,7 +209,8 @@ class MonthConfig:
             working_days=data["working_days"],
             previous_months=[Month.from_name(m) for m in data["previous_months"]],
             file_paths=data["file_paths"],
-            output_prefix=data["output_prefix"]
+            output_prefix=data["output_prefix"],
+            thresholds=data.get("thresholds", None)
         )
 
 
@@ -3643,26 +3648,30 @@ class CompleteQIPCalculator:
         print("\n🔍 data Validating data...")
         
         # AQL reject rate validation
+        # [Issue #58] Config 기반 threshold 사용
+        _vr_thresholds = self.config.thresholds or {}
+        _vr_reject_pct = _vr_thresholds.get('area_reject_rate', 3.0)
+
         aql_data = self.load_aql_data_for_area_calculation()
         if aql_data is not None and not aql_data.empty:
             buildings = ['A', 'B', 'C', 'D']
             problems_found = False
-            
+
             for building in buildings:
                 # REPACKING PO NORMAL PO인 dataonly 필터
                 building_data = aql_data[
-                    (aql_data['BUILDING'] == building) & 
+                    (aql_data['BUILDING'] == building) &
                     (aql_data['REPACKING PO'] == 'NORMAL PO')
                 ]
-                
+
                 if not building_data.empty:
                     total = len(building_data)
                     fails = len(building_data[building_data['RESULT'] == 'FAIL'])
                     rate = (fails / total * 100) if total > 0 else 0
-                    
-                    if rate >= 3.0:
+
+                    if rate >= _vr_reject_pct:
                         problems_found = True
-                        print(f"   ⚠️ Building {building}: Reject Rate {rate:.2f}% (>=3%)")
+                        print(f"   ⚠️ Building {building}: Reject Rate {rate:.2f}% (>={_vr_reject_pct}%)")
                         
                         # 해당 Building in charge자 찾기
                         area_mapping = self.load_auditor_trainer_area_mapping()
@@ -3847,9 +3856,13 @@ class CompleteQIPCalculator:
             # FIX: NOT_APPLICABLE should be treated as PASS (e.g., interim reports with < 12 working days)
             condition_4_pass = row.get('cond_4_minimum_days') in ['PASS', 'NOT_APPLICABLE']
 
-            # Condition 8: in charge area reject율 < 3%
+            # [Issue #58] Config 기반 threshold 로드
+            _thresholds_mm = self.config.thresholds or {}
+            area_reject_pct_mm = _thresholds_mm.get('area_reject_rate', 3.0)
+
+            # Condition 8: in charge area reject율 < {area_reject_pct_mm}%
             area_reject_rate = total_factory_reject_rate  # MODEL MASTER 전체 factory reject율 사용
-            condition_8_pass = area_reject_rate < 3.0
+            condition_8_pass = area_reject_rate < area_reject_pct_mm
 
             # MODEL MASTER 모든 condition(1,2,3,4,8) 충족해야 함
             all_conditions_pass = (condition_1_pass and condition_2_pass and
@@ -3882,10 +3895,10 @@ class CompleteQIPCalculator:
                 if not condition_4_pass: failed_conditions.append('4')
                 if not condition_8_pass: failed_conditions.append('8(reject율)')
                 print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): condition 미충족 [{', '.join(failed_conditions)}] → 0 VND")
-            elif total_factory_reject_rate >= 3.0:  # 전체 factory reject율 3% 상
+            elif total_factory_reject_rate >= area_reject_pct_mm:  # 전체 factory reject율 threshold 이상
                 incentive = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
-                print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): 전체 factory AQL reject율 {total_factory_reject_rate:.1f}% → 0 VND")
+                print(f"    → {row.get('Full Name', 'Unknown')} (Model Master): 전체 factory AQL reject율 {total_factory_reject_rate:.1f}% (≥{area_reject_pct_mm}%) → 0 VND")
             else:
                 # MODEL MASTER ASSEMBLY INSPECTORand 같은 Progressive Table 사용
                 # position_condition_matrix.jsonof incentive_progression.TYPE_1_PROGRESSIVE apply
@@ -3966,9 +3979,9 @@ class CompleteQIPCalculator:
                 # FIX: NOT_APPLICABLE should be treated as PASS (e.g., interim reports with < 12 working days)
                 conditions_met[4] = row.get('cond_4_minimum_days') in ['PASS', 'NOT_APPLICABLE']
 
-            # Condition 7: in charge area reject율 < 3%
+            # Condition 7: in charge area reject율 < {area_reject_pct_mm}%
             if 7 in applicable_conditions:
-                conditions_met[7] = area_reject_rate < 3.0
+                conditions_met[7] = area_reject_rate < area_reject_pct_mm
 
             # Condition 8: in charge factoryto 3-month consecutive failures 없음
             if 8 in applicable_conditions:
@@ -3983,10 +3996,10 @@ class CompleteQIPCalculator:
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
                 failed = [k for k,v in conditions_met.items() if not v]
                 print(f"    → {row.get('Full Name', 'Unknown')} failed conditions: {failed} → 0 VND")
-            elif area_reject_rate >= 3.0:  # in charge area reject율 3% 상with 변경
+            elif area_reject_rate >= area_reject_pct_mm:  # in charge area reject율 threshold 이상
                 incentive = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
-                print(f"    → {row.get('Full Name', 'Unknown')}: in charge area AQL reject율 {area_reject_rate:.1f}% → 0 VND")
+                print(f"    → {row.get('Full Name', 'Unknown')}: in charge area AQL reject율 {area_reject_rate:.1f}% (≥{area_reject_pct_mm}%) → 0 VND")
             elif has_continuous_fail_in_factory:  # in charge factoryto 3-month consecutive failures 있음
                 incentive = 0
                 self.month_data.loc[idx, 'Continuous_Months'] = 0
@@ -6001,8 +6014,18 @@ class CompleteQIPCalculator:
 
             applicable_conditions = pos_config.get('applicable_conditions', [])
 
+            # [Issue #58] 월별 Config 기반 Threshold 로드 (2026년 2월부터 변경)
+            # Fallback: config에 thresholds 없으면 기존 기본값 사용
+            _thresholds = self.config.thresholds or {}
+            attendance_rate_threshold = _thresholds.get('attendance_rate', 88)
+            unapproved_absence_threshold = _thresholds.get('unapproved_absence', 2)
+            minimum_working_days_threshold = _thresholds.get('minimum_working_days', 12)
+            area_reject_pct = _thresholds.get('area_reject_rate', 3.0)
+            prs_pass_rate_threshold = _thresholds.get('5prs_pass_rate', 95)
+            prs_min_qty_threshold = _thresholds.get('5prs_min_qty', 100)
+
             # 10 conditions 각각 평
-            # condition 1: attendance율 >= 88%
+            # condition 1: attendance율 >= {attendance_rate_threshold}%
             attendance_rate = self.month_data.loc[idx, '출근율_Attendance_Rate_Percent'] if '출근율_Attendance_Rate_Percent' in self.month_data.columns else 0
 
             # Expected working days 확인 (Total - Approved Leave)
@@ -6016,11 +6039,11 @@ class CompleteQIPCalculator:
                 # 근무해야 할 날이 없으므로 출근율 조건 평가 불가
                 cond_1_result = 'NOT_APPLICABLE'
                 cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
-                cond_1_threshold = 88
+                cond_1_threshold = attendance_rate_threshold
             else:
-                cond_1_result = 'PASS' if attendance_rate >= 88 else 'FAIL'
+                cond_1_result = 'PASS' if attendance_rate >= attendance_rate_threshold else 'FAIL'
                 cond_1_applicable = 'Y' if 1 in applicable_conditions else 'NOT_APPLICABLE'
-                cond_1_threshold = 88
+                cond_1_threshold = attendance_rate_threshold
 
             # 'N/A' 대신 'NOT_APPLICABLE' 사용 (pandas가 'N/A'를 NaN으로 변환하는 문제 해결)
             self.month_data.loc[idx, 'cond_1_attendance_rate'] = cond_1_applicable if cond_1_applicable == 'NOT_APPLICABLE' else cond_1_result
@@ -6034,12 +6057,12 @@ class CompleteQIPCalculator:
             if pd.isna(unapproved_absence):
                 cond_2_result = 'NOT_APPLICABLE'  # 출결 데이터 없음
             else:
-                cond_2_result = 'PASS' if unapproved_absence <= 2 else 'FAIL'
+                cond_2_result = 'PASS' if unapproved_absence <= unapproved_absence_threshold else 'FAIL'
 
             cond_2_applicable = 'Y' if 2 in applicable_conditions else 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_2_unapproved_absence'] = cond_2_applicable if cond_2_applicable == 'NOT_APPLICABLE' else cond_2_result
             self.month_data.loc[idx, 'cond_2_value'] = unapproved_absence
-            self.month_data.loc[idx, 'cond_2_threshold'] = 2
+            self.month_data.loc[idx, 'cond_2_threshold'] = unapproved_absence_threshold
 
             # condition 3: 실근무 days > 0
             actual_working_days = self.month_data.loc[idx, 'Actual Working Days'] if 'Actual Working Days' in self.month_data.columns else 0
@@ -6049,14 +6072,14 @@ class CompleteQIPCalculator:
             self.month_data.loc[idx, 'cond_3_value'] = actual_working_days
             self.month_data.loc[idx, 'cond_3_threshold'] = 0
 
-            # condition 4: minimum근무 days >= 12
+            # condition 4: minimum근무 days >= {minimum_working_days_threshold}
             # 항상 정상 평가 (Interim Report 개념 제거됨)
-            cond_4_result = 'PASS' if actual_working_days >= 12 else 'FAIL'
+            cond_4_result = 'PASS' if actual_working_days >= minimum_working_days_threshold else 'FAIL'
             cond_4_applicable = 'Y' if 4 in applicable_conditions else 'NOT_APPLICABLE'
 
             self.month_data.loc[idx, 'cond_4_minimum_days'] = cond_4_applicable if cond_4_applicable == 'NOT_APPLICABLE' else cond_4_result
             self.month_data.loc[idx, 'cond_4_value'] = actual_working_days
-            self.month_data.loc[idx, 'cond_4_threshold'] = 12
+            self.month_data.loc[idx, 'cond_4_threshold'] = minimum_working_days_threshold
 
             # condition 5: items인 AQL 당month failure = 0
             aql_col = f"{self.config.get_month_str('capital')} AQL Failures"
@@ -6152,33 +6175,33 @@ class CompleteQIPCalculator:
                 self.month_data.loc[idx, 'cond_7_value'] = 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_7_threshold'] = 'NO'
 
-            # condition 8: in chargearea reject < 3%
+            # condition 8: in chargearea reject < {area_reject_pct}%
             if 8 in applicable_conditions:
                 reject_rate = self.month_data.loc[idx, 'Area_Reject_Rate'] if 'Area_Reject_Rate' in self.month_data.columns else 0
-                # PASS = reject rate < 3%, FAIL = reject rate >= 3%
-                cond_8_result = 'PASS' if reject_rate < 3 else 'FAIL'
+                # PASS = reject rate < threshold, FAIL = reject rate >= threshold
+                cond_8_result = 'PASS' if reject_rate < area_reject_pct else 'FAIL'
                 self.month_data.loc[idx, 'cond_8_area_reject'] = cond_8_result
                 self.month_data.loc[idx, 'cond_8_value'] = reject_rate
             else:
                 self.month_data.loc[idx, 'cond_8_area_reject'] = 'NOT_APPLICABLE'
                 self.month_data.loc[idx, 'cond_8_value'] = 'NOT_APPLICABLE'
-            self.month_data.loc[idx, 'cond_8_threshold'] = 3
+            self.month_data.loc[idx, 'cond_8_threshold'] = area_reject_pct
 
-            # condition 9: 5PRS passed율 >= 95%
+            # condition 9: 5PRS passed율 >= {prs_pass_rate_threshold}%
             prs_pass_rate = self.month_data.loc[idx, '5PRS_Pass_Rate'] if '5PRS_Pass_Rate' in self.month_data.columns else 0
-            cond_9_result = 'PASS' if prs_pass_rate >= 95 else 'FAIL'
+            cond_9_result = 'PASS' if prs_pass_rate >= prs_pass_rate_threshold else 'FAIL'
             cond_9_applicable = 'Y' if 9 in applicable_conditions else 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_9_5prs_pass_rate'] = cond_9_applicable if cond_9_applicable == 'NOT_APPLICABLE' else cond_9_result
             self.month_data.loc[idx, 'cond_9_value'] = prs_pass_rate
-            self.month_data.loc[idx, 'cond_9_threshold'] = 95
+            self.month_data.loc[idx, 'cond_9_threshold'] = prs_pass_rate_threshold
 
-            # condition 10: 5PRS inspection량 >= 100
+            # condition 10: 5PRS inspection량 >= {prs_min_qty_threshold}
             prs_qty = self.month_data.loc[idx, '5PRS_Inspection_Qty'] if '5PRS_Inspection_Qty' in self.month_data.columns else 0
-            cond_10_result = 'PASS' if prs_qty >= 100 else 'FAIL'
+            cond_10_result = 'PASS' if prs_qty >= prs_min_qty_threshold else 'FAIL'
             cond_10_applicable = 'Y' if 10 in applicable_conditions else 'NOT_APPLICABLE'
             self.month_data.loc[idx, 'cond_10_5prs_inspection_qty'] = cond_10_applicable if cond_10_applicable == 'NOT_APPLICABLE' else cond_10_result
             self.month_data.loc[idx, 'cond_10_value'] = prs_qty
-            self.month_data.loc[idx, 'cond_10_threshold'] = 100
+            self.month_data.loc[idx, 'cond_10_threshold'] = prs_min_qty_threshold
 
             # 전체 condition 충족 비율 calculation
             applicable_count = 0
@@ -6719,17 +6742,24 @@ class CompleteQIPCalculator:
                 
                 # condition 충족 정보 구성
                 # attendance condition
+                # [Issue #58] Config 기반 threshold 사용
+                _meta_thresholds = self.config.thresholds or {}
+                _meta_att = _meta_thresholds.get('attendance_rate', 88)
+                _meta_abs = _meta_thresholds.get('unapproved_absence', 2)
+                _meta_min = _meta_thresholds.get('minimum_working_days', 12)
+                _meta_rej = _meta_thresholds.get('area_reject_rate', 3.0)
+
                 emp_metadata['conditions']['attendance'] = {
                     '출근율_Attendance_Rate_Percent': {
-                        'passed': row.get('결근율_Absence_Rate_Percent', 0) <= 12 if pd.notna(row.get('결근율_Absence_Rate_Percent')) else True,
+                        'passed': row.get('결근율_Absence_Rate_Percent', 0) <= (100 - _meta_att) if pd.notna(row.get('결근율_Absence_Rate_Percent')) else True,
                         'value': 100 - row.get('결근율_Absence_Rate_Percent', 0) if pd.notna(row.get('결근율_Absence_Rate_Percent')) else 100,
-                        'threshold': 88,
+                        'threshold': _meta_att,
                         'applicable': True
                     },
                     'unapproved_absence': {
-                        'passed': row.get('Unapproved Absences', 0) <= 2 if pd.notna(row.get('Unapproved Absences')) else True,
+                        'passed': row.get('Unapproved Absences', 0) <= _meta_abs if pd.notna(row.get('Unapproved Absences')) else True,
                         'value': int(row.get('Unapproved Absences', 0)) if pd.notna(row.get('Unapproved Absences')) else 0,
-                        'threshold': 2,
+                        'threshold': _meta_abs,
                         'applicable': True
                     },
                     'working_days': {
@@ -6739,9 +6769,9 @@ class CompleteQIPCalculator:
                         'applicable': True
                     },
                     'minimum_days': {
-                        'passed': row.get('Actual Working Days', 0) >= 12 if pd.notna(row.get('Actual Working Days')) else False,
+                        'passed': row.get('Actual Working Days', 0) >= _meta_min if pd.notna(row.get('Actual Working Days')) else False,
                         'value': int(row.get('Actual Working Days', 0)) if pd.notna(row.get('Actual Working Days')) else 0,
-                        'threshold': 12,
+                        'threshold': _meta_min,
                         'applicable': True
                     }
                 }
@@ -6776,16 +6806,16 @@ class CompleteQIPCalculator:
                                 'applicable': False
                             },
                             'area_reject_rate': {
-                                'passed': area_reject_rate < 3.0,
+                                'passed': area_reject_rate < _meta_rej,
                                 'value': round(area_reject_rate, 2),
-                                'threshold': 3.0,
+                                'threshold': _meta_rej,
                                 'applicable': True
                             }
                         }
-                        
+
                         # 미지급 사유 추
-                        if amount == 0 and area_reject_rate >= 3.0:
-                            emp_metadata['calculation_basis'] = f'전체 factory AQL reject율 {area_reject_rate:.1f}% (basis: 3% 미only)'
+                        if amount == 0 and area_reject_rate >= _meta_rej:
+                            emp_metadata['calculation_basis'] = f'전체 factory AQL reject율 {area_reject_rate:.1f}% (basis: {_meta_rej}% 미only)'
                         elif amount == 0:
                             emp_metadata['calculation_basis'] = '기타 condition 미충족'
                         else:
@@ -6821,16 +6851,16 @@ class CompleteQIPCalculator:
                                 'applicable': True
                             },
                             'area_reject_rate': {
-                                'passed': area_reject_rate < 3.0,
+                                'passed': area_reject_rate < _meta_rej,
                                 'value': round(area_reject_rate, 2),
-                                'threshold': 3.0,
+                                'threshold': _meta_rej,
                                 'applicable': True
                             }
                         }
-                        
+
                         # 미지급 사유 추
-                        if amount == 0 and area_reject_rate >= 3.0:
-                            emp_metadata['calculation_basis'] = f'in charge area AQL reject율 {area_reject_rate:.1f}% (basis: 3% 미only)'
+                        if amount == 0 and area_reject_rate >= _meta_rej:
+                            emp_metadata['calculation_basis'] = f'in charge area AQL reject율 {area_reject_rate:.1f}% (basis: {_meta_rej}% 미only)'
                         elif amount == 0:
                             emp_metadata['calculation_basis'] = '기타 condition 미충족'
                         else:
@@ -6869,18 +6899,21 @@ class CompleteQIPCalculator:
                         }
 
                 # 5PRS conditions (TYPE-1, TYPE-2  days부)
+                # [Issue #58] Config 기반 5PRS threshold 사용
+                _meta_prs_rate = _meta_thresholds.get('5prs_pass_rate', 95)
+                _meta_prs_qty = _meta_thresholds.get('5prs_min_qty', 100)
                 if row['ROLE TYPE STD'] in ['TYPE-1', 'TYPE-2'] and 'AQL INSPECTOR' not in str(position_value):
                     emp_metadata['conditions']['5prs'] = {
                         'volume': {
-                            'passed': row.get('Total Valiation Qty', 0) >= 100 if pd.notna(row.get('Total Valiation Qty')) else False,
+                            'passed': row.get('Total Valiation Qty', 0) >= _meta_prs_qty if pd.notna(row.get('Total Valiation Qty')) else False,
                             'value': int(row.get('Total Valiation Qty', 0)) if pd.notna(row.get('Total Valiation Qty')) else 0,
-                            'threshold': 100,
+                            'threshold': _meta_prs_qty,
                             'applicable': True
                         },
                         'pass_rate': {
-                            'passed': row.get('Pass %', 0) >= 95 if pd.notna(row.get('Pass %')) else False,
+                            'passed': row.get('Pass %', 0) >= _meta_prs_rate if pd.notna(row.get('Pass %')) else False,
                             'value': float(row.get('Pass %', 0)) if pd.notna(row.get('Pass %')) else 0,
-                            'threshold': 95,
+                            'threshold': _meta_prs_rate,
                             'applicable': True
                         }
                     }
