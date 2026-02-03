@@ -2,8 +2,8 @@
   "summary": {
     "building_boss_mismatch": 42,
     "boss_no_info": 0,
-    "data_source_mismatch": 6,
-    "total": 48
+    "data_source_mismatch": 0,
+    "total": 42
   },
   "cases": {
     "building_boss_mismatch": [
@@ -429,49 +429,6 @@
       }
     ],
     "boss_no_info": [],
-    "data_source_mismatch": [
-      {
-        "emp_no": "621040446",
-        "emp_name": "THÁI THỊ XUÂN",
-        "emp_position": "ASSEMBLY INSPECTOR",
-        "hr_building": "D",
-        "aql_building": "B3"
-      },
-      {
-        "emp_no": "622030777",
-        "emp_name": "NGUYỄN THỊ THẢO QUYÊN",
-        "emp_position": "ASSEMBLY INSPECTOR",
-        "hr_building": "D",
-        "aql_building": "B3"
-      },
-      {
-        "emp_no": "619060201",
-        "emp_name": "BÙI THỊ KIỀU LY",
-        "emp_position": "ASSEMBLY INSPECTOR",
-        "hr_building": "A2",
-        "aql_building": "B3"
-      },
-      {
-        "emp_no": "620080362",
-        "emp_name": "DƯƠNG THỊ MỸ XUYÊN",
-        "emp_position": "ASSEMBLY INSPECTOR",
-        "hr_building": "A2",
-        "aql_building": "B3"
-      },
-      {
-        "emp_no": "621030557",
-        "emp_name": "THỊ NHÀN",
-        "emp_position": "ASSEMBLY INSPECTOR",
-        "hr_building": "D",
-        "aql_building": "B3"
-      },
-      {
-        "emp_no": "622021048",
-        "emp_name": "NGUYỄN MỘNG THÊM",
-        "emp_position": "ASSEMBLY INSPECTOR",
-        "hr_building": "A2",
-        "aql_building": "B3"
-      }
-    ]
+    "data_source_mismatch": []
   }
 }
