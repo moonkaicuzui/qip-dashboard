@@ -7471,12 +7471,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <span class="calc-month-range-9">9개월</span>: 750,000 | <span class="calc-month-range-10">10개월</span>: 850,000<br>
                                         <span class="calc-month-range-11">11개월</span>: 950,000 | <span class="calc-month-range-12plus">12개월+</span>: 1,000,000</td>
                                     <td><strong><span class="calc-example-consecutive" data-months="10">예시: 10개월 연속 충족</span></strong><br>
-                                        ✅ <span class="calc-attendance-rate">출근율</span> 92% ≥88%<br>
-                                        ✅ <span class="calc-unauthorized-absence">무단결근</span> <span class="calc-days-text" data-days="0">0일</span> ≤<span class="calc-days-text" data-days="2">2일</span><br>
-                                        ✅ <span class="calc-working-days">근무일</span> <span class="calc-days-text" data-days="20">20일</span> ≥<span class="calc-days-text" data-days="12">12일</span><br>
+                                        ✅ <span class="calc-attendance-rate">출근율</span> 92% ≥{th_attendance_rate}%<br>
+                                        ✅ <span class="calc-unauthorized-absence">무단결근</span> <span class="calc-days-text" data-days="0">0일</span> ≤<span class="calc-days-text" data-days="{th_unapproved_absence}">{th_unapproved_absence}일</span><br>
+                                        ✅ <span class="calc-working-days">근무일</span> <span class="calc-days-text" data-days="20">20일</span> ≥<span class="calc-days-text" data-days="{th_minimum_working_days}">{th_minimum_working_days}일</span><br>
                                         ✅ <span class="calc-personal-aql-failures">개인AQL failed</span> <span class="calc-cases-text" data-cases="0">0cases</span><br>
-                                        ✅ 5PRS <span class="calc-pass-rate">통과율</span> 98% ≥95%<br>
-                                        ✅ 5PRS <span class="calc-inspection-quantity">검사량</span> <span class="calc-pieces-text" data-pieces="250">250족</span> ≥100<br>
+                                        ✅ 5PRS <span class="calc-pass-rate">통과율</span> 98% ≥{th_5prs_pass_rate}%<br>
+                                        ✅ 5PRS <span class="calc-inspection-quantity">검사량</span> <span class="calc-pieces-text" data-pieces="250">250족</span> ≥{th_5prs_min_qty}<br>
                                         → <strong>850,000 VND</strong></td>
                                 </tr>
                                 <tr style="background-color: #f0f4ff;">
@@ -7494,14 +7494,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         <span class="calc-current-month-eval">당month 평가</span>:<br>
                                         ✅ <span class="calc-all-attendance-met">출근 조건 모두 충족</span><br>
                                         ✅ <span class="calc-team-aql-no-fail">팀AQL 연속failed 없음</span><br>
-                                        ❌ <span class="calc-reject-rate">reject율</span> 4.35% >3%<br>
+                                        ❌ <span class="calc-reject-rate">reject율</span> 4.35% >{th_area_reject_rate}%<br>
                                         → <span class="calc-reset-to-zero">연속개월 0으로 리셋</span><br>
                                         → <strong>0 VND</strong></td>
                                 </tr>
                                 <tr>
                                     <td><strong><span class="calc-position-modelmaster">9. MODEL MASTER</span></strong></td>
                                     <td><strong><span class="calc-consecutive-month-incentive">연속 충족 개월 기준 incentive</span></strong><br>
-                                        <small><span class="calc-apply-condition-model">apply 조건: 1-4(출근), 8(reject율 <3%)</span></small><br>
+                                        <small><span class="calc-apply-condition-model">apply 조건: 1-4(출근), 8(reject율 <{th_area_reject_rate}%)</span></small><br>
                                         <span class="calc-month-range-0to1">0-1개월</span>: 150,000 | <span class="calc-month-range-2">2개월</span>: 250,000<br>
                                         <span class="calc-month-range-3">3개월</span>: 300,000 | <span class="calc-month-range-4">4개월</span>: 350,000<br>
                                         <span class="calc-month-range-5">5개월</span>: 400,000 | <span class="calc-month-range-6">6개월</span>: 450,000<br>
@@ -7511,10 +7511,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <td><strong><span class="calc-example-max-achieved" data-months="12">예시: 12개월 이상 최대</span></strong><br>
                                         <span class="calc-previous-month">전month</span>: <span class="calc-months-text" data-months="15">15개월</span> → 1,000,000<br>
                                         <span class="calc-current-month-eval">당month 평가</span>:<br>
-                                        ✅ <span class="calc-attendance-rate">출근율</span> 95% ≥88%<br>
-                                        ✅ <span class="calc-unauthorized-absence">무단결근</span> <span class="calc-days-text" data-days="1">1일</span> ≤<span class="calc-days-text" data-days="2">2일</span><br>
-                                        ✅ <span class="calc-working-days">근무일</span> <span class="calc-days-text" data-days="18">18일</span> ≥<span class="calc-days-text" data-days="12">12일</span><br>
-                                        ✅ <span class="calc-reject-rate">reject율</span> 2.5% <3%<br>
+                                        ✅ <span class="calc-attendance-rate">출근율</span> 95% ≥{th_attendance_rate}%<br>
+                                        ✅ <span class="calc-unauthorized-absence">무단결근</span> <span class="calc-days-text" data-days="1">1일</span> ≤<span class="calc-days-text" data-days="{th_unapproved_absence}">{th_unapproved_absence}일</span><br>
+                                        ✅ <span class="calc-working-days">근무일</span> <span class="calc-days-text" data-days="18">18일</span> ≥<span class="calc-days-text" data-days="{th_minimum_working_days}">{th_minimum_working_days}일</span><br>
+                                        ✅ <span class="calc-reject-rate">reject율</span> 2.5% <{th_area_reject_rate}%<br>
                                         → <span class="calc-consecutive-months" data-months="16">16개월 연속 충족</span><br>
                                         → <strong>1,000,000 VND</strong></td>
                                 </tr>
@@ -7995,14 +7995,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <p><strong id="faqCase1PrevMonthLabel">전month 상태:</strong> <span id="faqCase1PrevMonthText">9개월 연속 work, 750,000 VND 수령</span></p>
                             <p><strong id="faqCase1ConditionsLabel">당month 조건 충족:</strong></p>
                             <ul id="faqCase1ConditionsList">
-                                <li>✅ <span class="faq-attendance-label">출근율:</span> 92% (≥88%)</li>
-                                <li>✅ <span class="faq-absence-label">무단결근:</span> <span class="faq-absence-value">0일</span> (≤<span class="faq-absence-limit">2일</span>)</li>
+                                <li>✅ <span class="faq-attendance-label">출근율:</span> 92% (≥{th_attendance_rate}%)</li>
+                                <li>✅ <span class="faq-absence-label">무단결근:</span> <span class="faq-absence-value">0일</span> (≤<span class="faq-absence-limit">{th_unapproved_absence}일</span>)</li>
                                 <li>✅ <span class="faq-actual-days-label">actual 근무일:</span> <span class="faq-actual-days-value">20일</span> (><span class="faq-actual-days-min">0일</span>)</li>
-                                <li>✅ <span class="faq-min-days-label">최소 근무일:</span> <span class="faq-min-days-value">20일</span> (≥<span class="faq-min-days-req">12일</span>)</li>
+                                <li>✅ <span class="faq-min-days-label">최소 근무일:</span> <span class="faq-min-days-value">20일</span> (≥<span class="faq-min-days-req">{th_minimum_working_days}일</span>)</li>
                                 <li>✅ <span class="faq-aql-current-label">개인 AQL (당month):</span> <span class="faq-aql-current-value">failed 0cases</span></li>
                                 <li>✅ <span class="faq-aql-consecutive-label">개인 AQL (연속):</span> <span class="faq-aql-consecutive-value">3연속 개월 실패 없음</span></li>
-                                <li>✅ <span class="faq-fprs-rate-label">5PRS 통과율:</span> 97% (≥95%)</li>
-                                <li>✅ <span class="faq-fprs-qty-label">5PRS 검사량:</span> <span class="faq-fprs-qty-value">150개</span> (≥<span class="faq-fprs-qty-min">100개</span>)</li>
+                                <li>✅ <span class="faq-fprs-rate-label">5PRS 통과율:</span> 97% (≥{th_5prs_pass_rate}%)</li>
+                                <li>✅ <span class="faq-fprs-qty-label">5PRS 검사량:</span> <span class="faq-fprs-qty-value">150개</span> (≥<span class="faq-fprs-qty-min">{th_5prs_min_qty}개</span>)</li>
                             </ul>
                             <p><strong id="faqCase1ResultLabel">결과:</strong> <span id="faqCase1ResultText">모든 조건 충족 → <span class="badge bg-success">10개월 연속 → 850,000 VND 지급</span></span></p>
                         </div>
@@ -8091,10 +8091,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <p><strong id="faqCase3TypeLabel">직급 type:</strong> TYPE-2</p>
                             <p><strong id="faqCase3StatusLabel">조건 충족 현황:</strong></p>
                             <ul id="faqCase3ConditionsList">
-                                <li>✅ <span class="faq-case3-attendance-label">출근율:</span> 95% (≥88% <span class="faq-case3-met">충족</span>)</li>
-                                <li>✅ <span class="faq-case3-absence-label">무단결근:</span> <span class="faq-case3-absence-value">0일</span> (≤<span class="faq-case3-absence-limit">2일</span> <span class="faq-case3-met">충족</span>)</li>
+                                <li>✅ <span class="faq-case3-attendance-label">출근율:</span> 95% (≥{th_attendance_rate}% <span class="faq-case3-met">충족</span>)</li>
+                                <li>✅ <span class="faq-case3-absence-label">무단결근:</span> <span class="faq-case3-absence-value">0일</span> (≤<span class="faq-case3-absence-limit">{th_unapproved_absence}일</span> <span class="faq-case3-met">충족</span>)</li>
                                 <li>✅ <span class="faq-case3-actual-label">actual근무일:</span> <span class="faq-case3-actual-value">19일</span> (><span class="faq-case3-actual-min">0일</span> <span class="faq-case3-met">충족</span>)</li>
-                                <li>✅ <span class="faq-case3-min-label">최소근무일:</span> <span class="faq-case3-min-value">19일</span> (≥<span class="faq-case3-min-req">12일</span> <span class="faq-case3-met">충족</span>)</li>
+                                <li>✅ <span class="faq-case3-min-label">최소근무일:</span> <span class="faq-case3-min-value">19일</span> (≥<span class="faq-case3-min-req">{th_minimum_working_days}일</span> <span class="faq-case3-met">충족</span>)</li>
                             </ul>
                             <p><strong id="faqCase3CalcLabel">incentive calculation:</strong></p>
                             <p id="faqCase3Explanation">TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 incentive를 받습니다.</p>
@@ -8207,7 +8207,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <li id="attendanceUnapproved1">HR 시스템에서 제공하는 무단결근 thcount data</li>
                                     <li id="attendanceUnapproved2">AR1 (Vắng không phép) 카테고리만 집계</li>
                                     <li id="attendanceUnapproved3">서면통지 결근(Gửi thư)도 AR1에 포함</li>
-                                    <li id="attendanceUnapproved4">incentive 조건: ≤2일 (개인별 최대 허용치)</li>
+                                    <li id="attendanceUnapproved4">incentive 조건: ≤{th_unapproved_absence}일 (개인별 최대 허용치)</li>
                                 </ul>
                             </div>
                         </div>
@@ -11102,7 +11102,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             
             const unapproved4 = document.getElementById('attendanceUnapproved4');
             if (unapproved4) {{
-                unapproved4.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation4?.[lang] || 'incentive 조건: ≤2일 (개인별 최대 허용치)';
+                unapproved4.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation4?.[lang] || 'incentive 조건: ≤{th_unapproved_absence}일 (개인별 최대 허용치)';
             }}
         }}
         

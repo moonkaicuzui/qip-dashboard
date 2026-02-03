@@ -206,6 +206,11 @@
         "en": "Position",
         "vi": "Chức vụ"
       },
+      "building": {
+        "ko": "근무지",
+        "en": "Building",
+        "vi": "Tòa nhà"
+      },
       "status": {
         "ko": "상태",
         "en": "Status",
@@ -736,9 +741,9 @@
     },
     "calculationFormulas": {
       "lineLeader": {
-        "ko": "TYPE-1 부하 인센티브 합 × 12% × 수령비율",
-        "en": "TYPE-1 Subordinate Incentive Sum × 12% × Receiving Rate",
-        "vi": "Tổng khuyến khích cấp dưới TYPE-1 × 12% × Tỷ lệ nhận"
+        "ko": "TYPE-1 부하 인센티브 합 × {threshold_absence_rate}% × 수령비율",
+        "en": "TYPE-1 Subordinate Incentive Sum × {threshold_absence_rate}% × Receiving Rate",
+        "vi": "Tổng khuyến khích cấp dưới TYPE-1 × {threshold_absence_rate}% × Tỷ lệ nhận"
       },
       "groupLeader": {
         "ko": "팀 내 LINE LEADER 평균 × 2",
@@ -1177,9 +1182,9 @@
       },
       "formulas": {
         "lineLeader": {
-          "ko": "TYPE-1 부하 인센티브 합 × 12% × 수령비율",
-          "en": "TYPE-1 Subordinate Incentive Sum × 12% × Receiving Rate",
-          "vi": "Tổng khuyến khích cấp dưới TYPE-1 × 12% × Tỷ lệ nhận"
+          "ko": "TYPE-1 부하 인센티브 합 × {threshold_absence_rate}% × 수령비율",
+          "en": "TYPE-1 Subordinate Incentive Sum × {threshold_absence_rate}% × Receiving Rate",
+          "vi": "Tổng khuyến khích cấp dưới TYPE-1 × {threshold_absence_rate}% × Tỷ lệ nhận"
         },
         "groupLeader": {
           "ko": "팀 내 LINE LEADER 평균 × 2",
@@ -1209,14 +1214,14 @@
           "vi": "Ngày làm việc thực tế 0 (Điều kiện chấm công 1 không đáp ứng)"
         },
         "unapprovedAbsenceOver2": {
-          "ko": "무단결근 2일 초과 (출근 조건 2번 미충족)",
-          "en": "Unapproved absence over 2 days (Attendance condition 2 not met)",
-          "vi": "Vắng mặt không phép trên 2 ngày (Điều kiện chấm công 2 không đáp ứng)"
+          "ko": "무단결근 {threshold_unapproved_absence}일 초과 (출근 조건 2번 미충족)",
+          "en": "Unapproved absence over {threshold_unapproved_absence} days (Attendance condition 2 not met)",
+          "vi": "Vắng mặt không phép trên {threshold_unapproved_absence} ngày (Điều kiện chấm công 2 không đáp ứng)"
         },
         "absentRateOver12": {
-          "ko": "결근율 12% 초과 (출근 조건 3번 미충족)",
-          "en": "Absence rate over 12% (Attendance condition 3 not met)",
-          "vi": "Tỷ lệ vắng mặt trên 12% (Điều kiện chấm công 3 không đáp ứng)"
+          "ko": "결근율 {threshold_absence_rate}% 초과 (출근 조건 3번 미충족)",
+          "en": "Absence rate over {threshold_absence_rate}% (Attendance condition 3 not met)",
+          "vi": "Tỷ lệ vắng mặt trên {threshold_absence_rate}% (Điều kiện chấm công 3 không đáp ứng)"
         },
         "minimumWorkingDays": {
           "ko": "최소 근무일 미달 (출근 조건 4번 미충족)",
@@ -1244,9 +1249,9 @@
           "vi": "Thất bại AQL 2 tháng liên tiếp"
         },
         "prs5ValidationOrPassRate": {
-          "ko": "5PRS 검증 부족 또는 합격률 95% 미달 (5PRS 조건 1번 미충족)",
-          "en": "5PRS validation insufficient or pass rate below 95% (5PRS condition 1 not met)",
-          "vi": "Xác thực 5PRS không đủ hoặc tỷ lệ đạt dưới 95% (Điều kiện 5PRS 1 không đáp ứng)"
+          "ko": "5PRS 검증 부족 또는 합격률 {threshold_5prs_pass_rate}% 미달 (5PRS 조건 1번 미충족)",
+          "en": "5PRS validation insufficient or pass rate below {threshold_5prs_pass_rate}% (5PRS condition 1 not met)",
+          "vi": "Xác thực 5PRS không đủ hoặc tỷ lệ đạt dưới {threshold_5prs_pass_rate}% (Điều kiện 5PRS 1 không đáp ứng)"
         },
         "prs5TotalQtyZero": {
           "ko": "5PRS 총 검증 수량 0 (5PRS 조건 2번 미충족)",
@@ -1269,9 +1274,9 @@
           "vi": "Điều kiện không đạt"
         },
         "cond1_attendance_rate": {
-          "ko": "출근율 88% 미만",
-          "en": "Attendance rate < 88%",
-          "vi": "Tỷ lệ đi làm < 88%"
+          "ko": "출근율 {threshold_attendance_rate}% 미만",
+          "en": "Attendance rate < {threshold_attendance_rate}%",
+          "vi": "Tỷ lệ đi làm < {threshold_attendance_rate}%"
         },
         "cond2_unapproved_absence": {
           "ko": "무단결근 3일 이상",
@@ -1284,9 +1289,9 @@
           "vi": "Số ngày làm việc thực tế là 0"
         },
         "cond4_minimum_days": {
-          "ko": "최소 근무일수 미달 (12일)",
-          "en": "Below minimum working days (12 days)",
-          "vi": "Dưới số ngày làm việc tối thiểu (12 ngày)"
+          "ko": "최소 근무일수 미달 ({threshold_minimum_working_days}일)",
+          "en": "Below minimum working days ({threshold_minimum_working_days} days)",
+          "vi": "Dưới số ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày)"
         },
         "cond5_aql_personal_failure": {
           "ko": "개인 AQL 실패 (당월)",
@@ -1304,19 +1309,19 @@
           "vi": "AQL nhóm/khu vực thất bại 3 tháng liên tiếp"
         },
         "cond8_area_reject": {
-          "ko": "담당 구역 불량률 3% 초과",
-          "en": "Area reject rate > 3%",
-          "vi": "Tỷ lệ lỗi khu vực > 3%"
+          "ko": "담당 구역 불량률 {threshold_area_reject_rate}% 초과",
+          "en": "Area reject rate > {threshold_area_reject_rate}%",
+          "vi": "Tỷ lệ lỗi khu vực > {threshold_area_reject_rate}%"
         },
         "cond9_5prs_pass_rate": {
-          "ko": "5PRS 통과율 95% 미만",
-          "en": "5PRS pass rate < 95%",
-          "vi": "Tỷ lệ đạt 5PRS < 95%"
+          "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 미만",
+          "en": "5PRS pass rate < {threshold_5prs_pass_rate}%",
+          "vi": "Tỷ lệ đạt 5PRS < {threshold_5prs_pass_rate}%"
         },
         "cond10_5prs_inspection_qty": {
-          "ko": "5PRS 검사 수량 100개 미만",
-          "en": "5PRS inspection quantity < 100 pieces",
-          "vi": "Số lượng kiểm tra 5PRS < 100 cái"
+          "ko": "5PRS 검사 수량 {threshold_5prs_min_qty}개 미만",
+          "en": "5PRS inspection quantity < {threshold_5prs_min_qty} pieces",
+          "vi": "Số lượng kiểm tra 5PRS < {threshold_5prs_min_qty} cái"
         }
       }
     },
@@ -1447,9 +1452,9 @@
         "vi": "Báo cáo tạm thời"
       },
       "description": {
-        "ko": "이 보고서는 월중 점검용 중간 보고서입니다. 최소 근무일(12일) 및 결근율(12%) 조건이 적용되지 않습니다.",
-        "en": "This is an interim report for mid-month review. Minimum working days (12 days) and absence rate (12%) conditions are not applied.",
-        "vi": "Đây là báo cáo tạm thời để kiểm tra giữa tháng. Các điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ vắng mặt (12%) không được áp dụng."
+        "ko": "이 보고서는 월중 점검용 중간 보고서입니다. 최소 근무일({threshold_minimum_working_days}일) 및 결근율({threshold_absence_rate}%) 조건이 적용되지 않습니다.",
+        "en": "This is an interim report for mid-month review. Minimum working days ({threshold_minimum_working_days} days) and absence rate ({threshold_absence_rate}%) conditions are not applied.",
+        "vi": "Đây là báo cáo tạm thời để kiểm tra giữa tháng. Các điều kiện ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày) và tỷ lệ vắng mặt ({threshold_absence_rate}%) không được áp dụng."
       }
     },
     "final": {
@@ -1867,14 +1872,14 @@
               "vi": "Tỷ lệ chấm công"
             },
             "criteria": {
-              "ko": "≥88%",
-              "en": "≥88%",
-              "vi": "≥88%"
+              "ko": "≥{threshold_attendance_rate}%",
+              "en": "≥{threshold_attendance_rate}%",
+              "vi": "≥{threshold_attendance_rate}%"
             },
             "description": {
-              "ko": "월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)",
-              "en": "Monthly attendance rate must be 88% or higher (absence rate 12% or lower)",
-              "vi": "Tỷ lệ chấm công hàng tháng phải từ 88% trở lên (tỷ lệ vắng mặt dưới 12%)"
+              "ko": "월간 출근율이 {threshold_attendance_rate}% 이상이어야 합니다 (결근율 {threshold_absence_rate}% 이하)",
+              "en": "Monthly attendance rate must be {threshold_attendance_rate}% or higher (absence rate {threshold_absence_rate}% or lower)",
+              "vi": "Tỷ lệ chấm công hàng tháng phải từ {threshold_attendance_rate}% trở lên (tỷ lệ vắng mặt dưới {threshold_absence_rate}%)"
             }
           },
           "unapprovedAbsence": {
@@ -1884,14 +1889,14 @@
               "vi": "Vắng không phép"
             },
             "criteria": {
-              "ko": "≤2일",
-              "en": "≤2 days",
-              "vi": "≤2 ngày"
+              "ko": "≤{threshold_unapproved_absence}일",
+              "en": "≤{threshold_unapproved_absence} days",
+              "vi": "≤{threshold_unapproved_absence} ngày"
             },
             "description": {
-              "ko": "사전 승인 없는 결근이 월 2일 이하여야 합니다",
-              "en": "Unapproved absences must be 2 days or less per month",
-              "vi": "Vắng không phép phải dưới 2 ngày mỗi tháng"
+              "ko": "사전 승인 없는 결근이 월 {threshold_unapproved_absence}일 이하여야 합니다",
+              "en": "Unapproved absences must be {threshold_unapproved_absence} days or less per month",
+              "vi": "Vắng không phép phải dưới {threshold_unapproved_absence} ngày mỗi tháng"
             }
           },
           "actualWorkingDays": {
@@ -1918,14 +1923,14 @@
               "vi": "Ngày làm tối thiểu"
             },
             "criteria": {
-              "ko": "≥12일",
-              "en": "≥12 days",
-              "vi": "≥12 ngày"
+              "ko": "≥{threshold_minimum_working_days}일",
+              "en": "≥{threshold_minimum_working_days} days",
+              "vi": "≥{threshold_minimum_working_days} ngày"
             },
             "description": {
-              "ko": "월간 최소 12일 이상 근무해야 합니다",
-              "en": "Must work at least 12 days per month",
-              "vi": "Phải làm việc ít nhất 12 ngày mỗi tháng"
+              "ko": "월간 최소 {threshold_minimum_working_days}일 이상 근무해야 합니다",
+              "en": "Must work at least {threshold_minimum_working_days} days per month",
+              "vi": "Phải làm việc ít nhất {threshold_minimum_working_days} ngày mỗi tháng"
             }
           }
         }
@@ -1995,14 +2000,14 @@
               "vi": "Tỷ lệ từ chối AQL khu vực"
             },
             "criteria": {
-              "ko": "<3%",
-              "en": "<3%",
-              "vi": "<3%"
+              "ko": "<{threshold_area_reject_rate}%",
+              "en": "<{threshold_area_reject_rate}%",
+              "vi": "<{threshold_area_reject_rate}%"
             },
             "description": {
-              "ko": "담당 구역의 AQL 리젝률이 3% 미만이어야 합니다",
-              "en": "Area AQL reject rate must be less than 3%",
-              "vi": "Tỷ lệ từ chối AQL khu vực phải dưới 3%"
+              "ko": "담당 구역의 AQL 리젝률이 {threshold_area_reject_rate}% 미만이어야 합니다",
+              "en": "Area AQL reject rate must be less than {threshold_area_reject_rate}%",
+              "vi": "Tỷ lệ từ chối AQL khu vực phải dưới {threshold_area_reject_rate}%"
             }
           }
         }
@@ -2021,14 +2026,14 @@
               "vi": "Tỷ lệ đạt 5PRS"
             },
             "criteria": {
-              "ko": "≥95%",
-              "en": "≥95%",
-              "vi": "≥95%"
+              "ko": "≥{threshold_5prs_pass_rate}%",
+              "en": "≥{threshold_5prs_pass_rate}%",
+              "vi": "≥{threshold_5prs_pass_rate}%"
             },
             "description": {
-              "ko": "5족 평가 시스템에서 95% 이상 통과해야 합니다",
-              "en": "Must pass 95% or more in 5-pair evaluation system",
-              "vi": "Phải đạt từ 95% trở lên trong hệ thống đánh giá 5 đôi"
+              "ko": "5족 평가 시스템에서 {threshold_5prs_pass_rate}% 이상 통과해야 합니다",
+              "en": "Must pass {threshold_5prs_pass_rate}% or more in 5-pair evaluation system",
+              "vi": "Phải đạt từ {threshold_5prs_pass_rate}% trở lên trong hệ thống đánh giá 5 đôi"
             }
           },
           "inspectionQty": {
@@ -2038,14 +2043,14 @@
               "vi": "Số lượng kiểm tra 5PRS"
             },
             "criteria": {
-              "ko": "≥100개",
-              "en": "≥100 pairs",
-              "vi": "≥100 đôi"
+              "ko": "≥{threshold_5prs_min_qty}개",
+              "en": "≥{threshold_5prs_min_qty} pairs",
+              "vi": "≥{threshold_5prs_min_qty} đôi"
             },
             "description": {
-              "ko": "월간 최소 100개 이상 검사를 수행해야 합니다",
-              "en": "Must perform at least 100 inspections per month",
-              "vi": "Phải thực hiện ít nhất 100 kiểm tra mỗi tháng"
+              "ko": "월간 최소 {threshold_5prs_min_qty}개 이상 검사를 수행해야 합니다",
+              "en": "Must perform at least {threshold_5prs_min_qty} inspections per month",
+              "vi": "Phải thực hiện ít nhất {threshold_5prs_min_qty} kiểm tra mỗi tháng"
             }
           }
         }
@@ -2492,14 +2497,14 @@
     },
     "conditionNames": {
       "attendance_88": {
-        "ko": "출근율 88% 이상",
-        "en": "Attendance ≥88%",
-        "vi": "Chấm công ≥88%"
+        "ko": "출근율 {threshold_attendance_rate}% 이상",
+        "en": "Attendance ≥{threshold_attendance_rate}%",
+        "vi": "Chấm công ≥{threshold_attendance_rate}%"
       },
       "no_unexcused_2days": {
-        "ko": "무단결근 2일 이하",
-        "en": "Unexcused absence ≤2 days",
-        "vi": "Vắng không phép ≤2 ngày"
+        "ko": "무단결근 {threshold_unapproved_absence}일 이하",
+        "en": "Unexcused absence ≤{threshold_unapproved_absence} days",
+        "vi": "Vắng không phép ≤{threshold_unapproved_absence} ngày"
       },
       "accident_free": {
         "ko": "실제근무일 0일 초과",
@@ -2507,7 +2512,7 @@
         "vi": "Ngày làm việc thực tế >0"
       },
       "min_days_12": {
-        "ko": "최소 근무일 12일 이상",
+        "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
         "en": "Min. working days ≥12",
         "vi": "Ngày làm việc tối thiểu ≥12"
       },
@@ -2527,19 +2532,19 @@
         "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng"
       },
       "reject_rate_3": {
-        "ko": "담당구역 reject % < 3%",
-        "en": "Area reject rate <3%",
-        "vi": "Tỷ lệ từ chối khu vực <3%"
+        "ko": "담당구역 reject % < {threshold_area_reject_rate}%",
+        "en": "Area reject rate <{threshold_area_reject_rate}%",
+        "vi": "Tỷ lệ từ chối khu vực <{threshold_area_reject_rate}%"
       },
       "prs_rate_95": {
-        "ko": "5PRS 통과율 95% 이상",
-        "en": "5PRS pass rate ≥95%",
-        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+        "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 이상",
+        "en": "5PRS pass rate ≥{threshold_5prs_pass_rate}%",
+        "vi": "Tỷ lệ đạt 5PRS ≥{threshold_5prs_pass_rate}%"
       },
       "prs_count_100": {
-        "ko": "5PRS 검사량 100족 이상",
-        "en": "5PRS inspection ≥100 pairs",
-        "vi": "Kiểm tra 5PRS ≥100 đôi"
+        "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 이상",
+        "en": "5PRS inspection ≥{threshold_5prs_min_qty} pairs",
+        "vi": "Kiểm tra 5PRS ≥{threshold_5prs_min_qty} đôi"
       }
     },
     "conditionCategories": {
@@ -2825,14 +2830,14 @@
     },
     "conditionTexts": {
       "attendanceRate": {
-        "ko": "출근율 88% 이상",
-        "en": "Attendance rate ≥88%",
-        "vi": "Tỷ lệ chấm công ≥88%"
+        "ko": "출근율 {threshold_attendance_rate}% 이상",
+        "en": "Attendance rate ≥{threshold_attendance_rate}%",
+        "vi": "Tỷ lệ chấm công ≥{threshold_attendance_rate}%"
       },
       "unapprovedAbsence": {
-        "ko": "무단결근 2일 이하",
-        "en": "Unapproved absence ≤2 days",
-        "vi": "Vắng không phép ≤2 ngày"
+        "ko": "무단결근 {threshold_unapproved_absence}일 이하",
+        "en": "Unapproved absence ≤{threshold_unapproved_absence} days",
+        "vi": "Vắng không phép ≤{threshold_unapproved_absence} ngày"
       },
       "actualWorkingDays": {
         "ko": "실제근무일 0일 초과",
@@ -2840,9 +2845,9 @@
         "vi": "Ngày làm thực tế >0"
       },
       "minWorkingDays": {
-        "ko": "최소 근무일 12일 이상",
+        "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
         "en": "Minimum working days ≥12",
-        "vi": "Tối thiểu ≥12 ngày"
+        "vi": "Tối thiểu ≥{threshold_minimum_working_days} ngày"
       },
       "personalAQLFail": {
         "ko": "개인AQL: 당월실패 0건",
@@ -2860,31 +2865,31 @@
         "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"
       },
       "areaRejectRate": {
-        "ko": "담당구역 reject % < 3%",
-        "en": "Area reject rate < 3%",
-        "vi": "Tỷ lệ từ chối khu vực < 3%"
+        "ko": "담당구역 reject % < {threshold_area_reject_rate}%",
+        "en": "Area reject rate < {threshold_area_reject_rate}%",
+        "vi": "Tỷ lệ từ chối khu vực < {threshold_area_reject_rate}%"
       },
       "5prsPassRate": {
-        "ko": "5PRS 통과율 95% 이상",
-        "en": "5PRS pass rate ≥95%",
-        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+        "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 이상",
+        "en": "5PRS pass rate ≥{threshold_5prs_pass_rate}%",
+        "vi": "Tỷ lệ đạt 5PRS ≥{threshold_5prs_pass_rate}%"
       },
       "5prsInspectionQty": {
-        "ko": "5PRS 검사량 100족 이상",
-        "en": "5PRS inspection qty ≥100 pairs",
-        "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
+        "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 이상",
+        "en": "5PRS inspection qty ≥{threshold_5prs_min_qty} pairs",
+        "vi": "Số lượng kiểm tra 5PRS ≥{threshold_5prs_min_qty} đôi"
       }
     },
     "tenConditions": {
       "1": {
-        "ko": "출근율 88% 이상",
-        "en": "Attendance rate ≥88%",
-        "vi": "Tỷ lệ chấm công ≥88%"
+        "ko": "출근율 {threshold_attendance_rate}% 이상",
+        "en": "Attendance rate ≥{threshold_attendance_rate}%",
+        "vi": "Tỷ lệ chấm công ≥{threshold_attendance_rate}%"
       },
       "2": {
-        "ko": "무단결근 2일 이하",
-        "en": "Unapproved absence ≤2 days",
-        "vi": "Vắng không phép ≤2 ngày"
+        "ko": "무단결근 {threshold_unapproved_absence}일 이하",
+        "en": "Unapproved absence ≤{threshold_unapproved_absence} days",
+        "vi": "Vắng không phép ≤{threshold_unapproved_absence} ngày"
       },
       "3": {
         "ko": "실제근무일 0일 초과",
@@ -2892,9 +2897,9 @@
         "vi": "Ngày làm thực tế >0"
       },
       "4": {
-        "ko": "최소 근무일 12일 이상",
+        "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
         "en": "Min working days ≥12",
-        "vi": "Tối thiểu ≥12 ngày"
+        "vi": "Tối thiểu ≥{threshold_minimum_working_days} ngày"
       },
       "5": {
         "ko": "개인AQL: 당월실패 0건",
@@ -2912,19 +2917,19 @@
         "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"
       },
       "8": {
-        "ko": "담당구역 reject % < 3%",
-        "en": "Area reject rate < 3%",
-        "vi": "Tỷ lệ từ chối khu vực < 3%"
+        "ko": "담당구역 reject % < {threshold_area_reject_rate}%",
+        "en": "Area reject rate < {threshold_area_reject_rate}%",
+        "vi": "Tỷ lệ từ chối khu vực < {threshold_area_reject_rate}%"
       },
       "9": {
-        "ko": "5PRS 통과율 95% 이상",
-        "en": "5PRS pass rate ≥95%",
-        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+        "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 이상",
+        "en": "5PRS pass rate ≥{threshold_5prs_pass_rate}%",
+        "vi": "Tỷ lệ đạt 5PRS ≥{threshold_5prs_pass_rate}%"
       },
       "10": {
-        "ko": "5PRS 검사량 100족 이상",
-        "en": "5PRS inspection qty ≥100 pairs",
-        "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
+        "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 이상",
+        "en": "5PRS inspection qty ≥{threshold_5prs_min_qty} pairs",
+        "vi": "Số lượng kiểm tra 5PRS ≥{threshold_5prs_min_qty} đôi"
       }
     }
   },
@@ -3343,9 +3348,9 @@
       "vi": "Điều kiện áp dụng: 1-4(Chấm công), 7(AQL nhóm), 8(Tỷ lệ từ chối)"
     },
     "applyConditionModel": {
-      "ko": "적용 조건: 1-4(출근), 8(reject율 <3%)",
-      "en": "Applied conditions: 1-4(Attendance), 8(Reject rate <3%)",
-      "vi": "Điều kiện áp dụng: 1-4(Chấm công), 8(Tỷ lệ từ chối <3%)"
+      "ko": "적용 조건: 1-4(출근), 8(reject율 <{threshold_area_reject_rate}%)",
+      "en": "Applied conditions: 1-4(Attendance), 8(Reject rate <{threshold_area_reject_rate}%)",
+      "vi": "Điều kiện áp dụng: 1-4(Chấm công), 8(Tỷ lệ từ chối <{threshold_area_reject_rate}%)"
     },
     "levelA": {
       "ko": "Level-A",
@@ -3719,9 +3724,9 @@
           "vi": "Khi nào tôi có thể bắt đầu nhận thưởng?"
         },
         "a2": {
-          "ko": "입사 1개월 후 현장에 배치되고, 해당 월의 모든 조건(출근율 88% 이상, AQL 실패 0건 등)을 충족하면 다음 달부터 인센티브를 받습니다.",
-          "en": "After 1 month of training and field assignment, if you meet all conditions (88%+ attendance, 0 AQL failures, etc.), you will receive incentives from the following month.",
-          "vi": "Sau 1 tháng đào tạo và phân công thực địa, nếu bạn đáp ứng tất cả các điều kiện (tỷ lệ đi làm 88%+, 0 lỗi AQL, v.v.), bạn sẽ nhận được thưởng từ tháng tiếp theo."
+          "ko": "입사 1개월 후 현장에 배치되고, 해당 월의 모든 조건(출근율 {threshold_attendance_rate}% 이상, AQL 실패 0건 등)을 충족하면 다음 달부터 인센티브를 받습니다.",
+          "en": "After 1 month of training and field assignment, if you meet all conditions ({threshold_attendance_rate}%+ attendance, 0 AQL failures, etc.), you will receive incentives from the following month.",
+          "vi": "Sau 1 tháng đào tạo và phân công thực địa, nếu bạn đáp ứng tất cả các điều kiện (tỷ lệ đi làm {threshold_attendance_rate}%+, 0 lỗi AQL, v.v.), bạn sẽ nhận được thưởng từ tháng tiếp theo."
         },
         "q3": {
           "ko": "첫 인센티브는 얼마인가요?",
@@ -3802,9 +3807,9 @@
         "vi": "Ngày làm việc"
       },
       "lessThan12Days": {
-        "ko": "12일 미만시 미지급",
-        "en": "No payment if less than 12 days",
-        "vi": "Không thanh toán nếu ít hơn 12 ngày"
+        "ko": "{threshold_minimum_working_days}일 미만시 미지급",
+        "en": "No payment if less than {threshold_minimum_working_days} days",
+        "vi": "Không thanh toán nếu ít hơn {threshold_minimum_working_days} ngày"
       },
       "november11Days": {
         "ko": "11월 근무 → 0 VND",
@@ -3817,9 +3822,9 @@
         "vi": "Tỷ lệ chuyên cần"
       },
       "lessThan88Percent": {
-        "ko": "88% 미만시 미지급",
-        "en": "No payment if less than 88%",
-        "vi": "Không thanh toán nếu dưới 88%"
+        "ko": "{threshold_attendance_rate}% 미만시 미지급",
+        "en": "No payment if less than {threshold_attendance_rate}%",
+        "vi": "Không thanh toán nếu dưới {threshold_attendance_rate}%"
       },
       "attendanceExample": {
         "ko": "87% 출근율 → 0 VND",
@@ -3862,9 +3867,9 @@
         "vi": "Tỷ lệ đạt 5PRS"
       },
       "lessThan95Percent": {
-        "ko": "95% 미만시 미지급 (해당자)",
-        "en": "No payment if less than 95% (applicable)",
-        "vi": "Không thanh toán nếu dưới 95% (áp dụng)"
+        "ko": "{threshold_5prs_pass_rate}% 미만시 미지급 (해당자)",
+        "en": "No payment if less than {threshold_5prs_pass_rate}% (applicable)",
+        "vi": "Không thanh toán nếu dưới {threshold_5prs_pass_rate}% (áp dụng)"
       },
       "fprsExample": {
         "ko": "94% → 0 VND",
@@ -3969,9 +3974,9 @@
         "vi": "ngày"
       },
       "lessThan88": {
-        "ko": "88% 미만",
-        "en": "Less than 88%",
-        "vi": "Dưới 88%"
+        "ko": "{threshold_attendance_rate}% 미만",
+        "en": "Less than {threshold_attendance_rate}%",
+        "vi": "Dưới {threshold_attendance_rate}%"
       }
     },
     "faq": {
@@ -4146,9 +4151,9 @@
         "vi": "Các điều kiện khác không đạt"
       },
       "rejectRateNote": {
-        "ko": "* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)",
-        "en": "* Reject rate criteria: Less than 3% (✅ Met, ❌ Not met)",
-        "vi": "* Tiêu chí tỷ lệ từ chối: Dưới 3% (✅ Đạt, ❌ Không đạt)"
+        "ko": "* Reject율 기준: {threshold_area_reject_rate}% 미만 (✅ 충족, ❌ 미충족)",
+        "en": "* Reject rate criteria: Less than {threshold_area_reject_rate}% (✅ Met, ❌ Not met)",
+        "vi": "* Tiêu chí tỷ lệ từ chối: Dưới {threshold_area_reject_rate}% (✅ Đạt, ❌ Không đạt)"
       },
       "memberNote": {
         "ko": "* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원",
@@ -4312,14 +4317,14 @@
       },
       "answer1Reasons": {
         "minDays": {
-          "ko": "최소 근무일 12일 미충족",
+          "ko": "최소 근무일 {threshold_minimum_working_days}일 미충족",
           "en": "Less than 12 minimum working days",
-          "vi": "Ít hơn 12 ngày làm việc tối thiểu"
+          "vi": "Ít hơn {threshold_minimum_working_days} ngày làm việc tối thiểu"
         },
         "attendance": {
-          "ko": "출근율 88% 미만",
-          "en": "Attendance rate less than 88%",
-          "vi": "Tỷ lệ chuyên cần dưới 88%"
+          "ko": "출근율 {threshold_attendance_rate}% 미만",
+          "en": "Attendance rate less than {threshold_attendance_rate}%",
+          "vi": "Tỷ lệ chuyên cần dưới {threshold_attendance_rate}%"
         },
         "absence": {
           "ko": "무단결근 3일 이상",
@@ -4332,9 +4337,9 @@
           "vi": "Thất bại AQL (vị trí áp dụng)"
         },
         "fprs": {
-          "ko": "5PRS 통과율 95% 미만 (해당 직급)",
-          "en": "5PRS pass rate less than 95% (applicable positions)",
-          "vi": "Tỷ lệ đạt 5PRS dưới 95% (vị trí áp dụng)"
+          "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 미만 (해당 직급)",
+          "en": "5PRS pass rate less than {threshold_5prs_pass_rate}% (applicable positions)",
+          "vi": "Tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}% (vị trí áp dụng)"
         }
       },
       "answer1CheckMethod": {
@@ -4343,9 +4348,9 @@
         "vi": "Bạn có thể kiểm tra việc đáp ứng điều kiện của mình trên trang chi tiết cá nhân."
       },
       "answer2Main": {
-        "ko": "무단결근은 최대 2일까지 허용됩니다.",
+        "ko": "무단결근은 최대 {threshold_unapproved_absence}일까지 허용됩니다.",
         "en": "Up to 2 unauthorized absence days are allowed.",
-        "vi": "Cho phép tối đa 2 ngày vắng không phép."
+        "vi": "Cho phép tối đa {threshold_unapproved_absence} ngày vắng không phép."
       },
       "answer2Detail": {
         "ko": "3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.",
@@ -4413,14 +4418,14 @@
         "vi": "Các vị trí liên quan 5PRS phải đáp ứng các điều kiện sau:"
       },
       "answer6Detail1": {
-        "ko": "검사량 100족 이상",
-        "en": "Inspection quantity of 100 pairs or more",
-        "vi": "Số lượng kiểm tra từ 100 đôi trở lên"
+        "ko": "검사량 {threshold_5prs_min_qty}족 이상",
+        "en": "Inspection quantity of {threshold_5prs_min_qty} pairs or more",
+        "vi": "Số lượng kiểm tra từ {threshold_5prs_min_qty} đôi trở lên"
       },
       "answer6Detail2": {
-        "ko": "통과율 95% 이상",
-        "en": "Pass rate of 95% or higher",
-        "vi": "Tỷ lệ đạt từ 95% trở lên"
+        "ko": "통과율 {threshold_5prs_pass_rate}% 이상",
+        "en": "Pass rate of {threshold_5prs_pass_rate}% or higher",
+        "vi": "Tỷ lệ đạt từ {threshold_5prs_pass_rate}% trở lên"
       },
       "answer6Conclusion": {
         "ko": "둘 중 하나라도 미충족시 인센티브를 받을 수 없습니다.",
@@ -4433,9 +4438,9 @@
         "vi": "Thưởng không được trả trong thời gian nghỉ thai sản hoặc nghỉ ốm dài hạn."
       },
       "answer7Detail1": {
-        "ko": "최소 근무일 12일 조건을 충족할 수 없기 때문",
+        "ko": "최소 근무일 {threshold_minimum_working_days}일 조건을 충족할 수 없기 때문",
         "en": "Because the minimum 12 working days condition cannot be met",
-        "vi": "Vì không thể đáp ứng điều kiện tối thiểu 12 ngày làm việc"
+        "vi": "Vì không thể đáp ứng điều kiện tối thiểu {threshold_minimum_working_days} ngày làm việc"
       },
       "answer7Detail2": {
         "ko": "복귀 후 조건 충족시 다시 인센티브 수령 가능",
@@ -5068,9 +5073,9 @@
         "vi": "Các điều kiện khác không đạt"
       },
       "rejectRateNote": {
-        "ko": "* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)",
-        "en": "* Reject rate standard: Less than 3% (✅ Met, ❌ Not met)",
-        "vi": "* Tiêu chuẩn tỷ lệ từ chối: Dưới 3% (✅ Đạt, ❌ Không đạt)"
+        "ko": "* Reject율 기준: {threshold_area_reject_rate}% 미만 (✅ 충족, ❌ 미충족)",
+        "en": "* Reject rate standard: Less than {threshold_area_reject_rate}% (✅ Met, ❌ Not met)",
+        "vi": "* Tiêu chuẩn tỷ lệ từ chối: Dưới {threshold_area_reject_rate}% (✅ Đạt, ❌ Không đạt)"
       },
       "memberNote": {
         "ko": "* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원",
@@ -5210,14 +5215,14 @@
         "vi": "Tỷ lệ chuyên cần"
       },
       "lessThan88": {
-        "ko": "88% 미만",
-        "en": "Less than 88%",
-        "vi": "Dưới 88%"
+        "ko": "{threshold_attendance_rate}% 미만",
+        "en": "Less than {threshold_attendance_rate}%",
+        "vi": "Dưới {threshold_attendance_rate}%"
       },
       "moreThan88": {
-        "ko": "88% 이상",
-        "en": "88% or more",
-        "vi": "88% trở lên"
+        "ko": "{threshold_attendance_rate}% 이상",
+        "en": "{threshold_attendance_rate}% or more",
+        "vi": "{threshold_attendance_rate}% trở lên"
       },
       "condition2NotMet": {
         "ko": "단, 무단결근 3일로 조건 2 미충족 → 인센티브 0원",
@@ -5320,9 +5325,9 @@
         "vi": "Chỉ danh mục AR1 được tính là vắng không phép"
       },
       "countingRule2": {
-        "ko": "2일까지는 인센티브 지급 가능",
-        "en": "Up to 2 days eligible for incentive",
-        "vi": "Tối đa 2 ngày vẫn đủ điều kiện nhận thưởng"
+        "ko": "{threshold_unapproved_absence}일까지는 인센티브 지급 가능",
+        "en": "Up to {threshold_unapproved_absence} days eligible for incentive",
+        "vi": "Tối đa {threshold_unapproved_absence} ngày vẫn đủ điều kiện nhận thưởng"
       },
       "countingRule3": {
         "ko": "3일 이상 → 인센티브 0원",
@@ -5335,14 +5340,14 @@
         "vi": "Tiêu chí đáp ứng điều kiện:"
       },
       "attendanceCriteria": {
-        "ko": "출근율: ≥ 88% (결근율 ≤ 12%)",
-        "en": "Attendance Rate: ≥ 88% (Absence Rate ≤ 12%)",
-        "vi": "Tỷ lệ chuyên cần: ≥ 88% (Tỷ lệ vắng mặt ≤ 12%)"
+        "ko": "출근율: ≥ {threshold_attendance_rate}% (결근율 ≤ {threshold_absence_rate}%)",
+        "en": "Attendance Rate: ≥ {threshold_attendance_rate}% (Absence Rate ≤ {threshold_absence_rate}%)",
+        "vi": "Tỷ lệ chuyên cần: ≥ {threshold_attendance_rate}% (Tỷ lệ vắng mặt ≤ {threshold_absence_rate}%)"
       },
       "unauthorizedAbsenceCriteria": {
-        "ko": "무단결근: ≤ 2일 (AR1 카테고리만 해당)",
-        "en": "Unauthorized Absence: ≤ 2 days (AR1 category only)",
-        "vi": "Vắng không phép: ≤ 2 ngày (chỉ danh mục AR1)"
+        "ko": "무단결근: ≤ {threshold_unapproved_absence}일 (AR1 카테고리만 해당)",
+        "en": "Unauthorized Absence: ≤ {threshold_unapproved_absence} days (AR1 category only)",
+        "vi": "Vắng không phép: ≤ {threshold_unapproved_absence} ngày (chỉ danh mục AR1)"
       },
       "actualWorkingDaysCriteria": {
         "ko": "실제 근무일: > 0일",
@@ -5350,9 +5355,9 @@
         "vi": "Ngày làm việc thực tế: > 0 ngày"
       },
       "minimumWorkingDaysCriteria": {
-        "ko": "최소 근무일: ≥ 12일",
-        "en": "Minimum Working Days: ≥ 12 days",
-        "vi": "Ngày làm việc tối thiểu: ≥ 12 ngày"
+        "ko": "최소 근무일: ≥ {threshold_minimum_working_days}일",
+        "en": "Minimum Working Days: ≥ {threshold_minimum_working_days} days",
+        "vi": "Ngày làm việc tối thiểu: ≥ {threshold_minimum_working_days} ngày"
       },
       "unapprovedAbsenceExplanationTitle": {
         "ko": "📊 Unapproved Absence Days 설명:",
@@ -5375,9 +5380,9 @@
         "vi": "Vắng có thông báo bằng văn bản (Gửi thư) cũng thuộc AR1"
       },
       "unapprovedAbsenceExplanation4": {
-        "ko": "인센티브 조건: ≤2일 (개인별 최대 허용치)",
-        "en": "Incentive condition: ≤2 days (maximum allowed per person)",
-        "vi": "Điều kiện thưởng: ≤2 ngày (tối đa cho phép mỗi người)"
+        "ko": "인센티브 조건: ≤{threshold_unapproved_absence}일 (개인별 최대 허용치)",
+        "en": "Incentive condition: ≤{threshold_unapproved_absence} days (maximum allowed per person)",
+        "vi": "Điều kiện thưởng: ≤{threshold_unapproved_absence} ngày (tối đa cho phép mỗi người)"
       },
       "days": {
         "ko": "일",
@@ -5622,9 +5627,9 @@
       "vi": "Tóm tắt & Xác thực hệ thống"
     },
     "interimNotice": {
-      "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
-      "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
-      "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
+      "ko": "중간 보고서 - 최소 근무일({threshold_minimum_working_days}일) 및 출근율({threshold_attendance_rate}%) 조건이 적용되지 않습니다",
+      "en": "Interim Report - Minimum working days ({threshold_minimum_working_days} days) and attendance rate ({threshold_attendance_rate}%) conditions are not applied",
+      "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày) và tỷ lệ chấm công ({threshold_attendance_rate}%) không được áp dụng"
     },
     "kpiCards": {
       "totalWorkingDays": {
@@ -5682,9 +5687,9 @@
       },
       "attendanceBelow88": {
         "title": {
-          "ko": "출근율 88% 미만",
-          "en": "Attendance < 88%",
-          "vi": "Tỷ lệ đi làm < 88%"
+          "ko": "출근율 {threshold_attendance_rate}% 미만",
+          "en": "Attendance < {threshold_attendance_rate}%",
+          "vi": "Tỷ lệ đi làm < {threshold_attendance_rate}%"
         },
         "unit": {
           "ko": "명",
@@ -5730,9 +5735,9 @@
       },
       "lowPassRate": {
         "title": {
-          "ko": "5PRS 통과율 < 95%",
-          "en": "5PRS Pass Rate < 95%",
-          "vi": "Tỷ lệ đạt 5PRS < 95%"
+          "ko": "5PRS 통과율 < {threshold_5prs_pass_rate}%",
+          "en": "5PRS Pass Rate < {threshold_5prs_pass_rate}%",
+          "vi": "Tỷ lệ đạt 5PRS < {threshold_5prs_pass_rate}%"
         },
         "unit": {
           "ko": "명",
@@ -5742,9 +5747,9 @@
       },
       "lowInspectionQty": {
         "title": {
-          "ko": "5PRS 검사량 < 100족",
-          "en": "5PRS Inspection < 100 pairs",
-          "vi": "Kiểm tra 5PRS < 100 đôi"
+          "ko": "5PRS 검사량 < {threshold_5prs_min_qty}족",
+          "en": "5PRS Inspection < {threshold_5prs_min_qty} pairs",
+          "vi": "Kiểm tra 5PRS < {threshold_5prs_min_qty} đôi"
         },
         "unit": {
           "ko": "명",
@@ -5917,9 +5922,9 @@
         "vi": "Chi tiết không đủ ngày tối thiểu"
       },
       "attendanceBelow88": {
-        "ko": "출근율 88% 미만 상세",
-        "en": "Attendance Below 88% Details",
-        "vi": "Chi tiết tỷ lệ đi làm dưới 88%"
+        "ko": "출근율 {threshold_attendance_rate}% 미만 상세",
+        "en": "Attendance Below {threshold_attendance_rate}% Details",
+        "vi": "Chi tiết tỷ lệ đi làm dưới {threshold_attendance_rate}%"
       },
       "aqlFail": {
         "ko": "AQL FAIL 상세",
@@ -6089,21 +6094,21 @@
           "vi": "Tất cả nhân viên đã đáp ứng yêu cầu ngày làm việc tối thiểu"
         },
         "interimMessage": {
-          "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
-          "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
-          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
+          "ko": "중간 보고서 - 최소 근무일({threshold_minimum_working_days}일) 및 출근율({threshold_attendance_rate}%) 조건이 적용되지 않습니다",
+          "en": "Interim Report - Minimum working days ({threshold_minimum_working_days} days) and attendance rate ({threshold_attendance_rate}%) conditions are not applied",
+          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày) và tỷ lệ chấm công ({threshold_attendance_rate}%) không được áp dụng"
         }
       },
       "attendanceBelow88": {
         "title": {
-          "ko": "출근율 88% 미만 직원 상세",
-          "en": "Attendance < 88% Employee Details",
-          "vi": "Chi tiết nhân viên có tỷ lệ chuyên cần < 88%"
+          "ko": "출근율 {threshold_attendance_rate}% 미만 직원 상세",
+          "en": "Attendance < {threshold_attendance_rate}% Employee Details",
+          "vi": "Chi tiết nhân viên có tỷ lệ chuyên cần < {threshold_attendance_rate}%"
         },
         "alertMessage": {
-          "ko": "출근율 88% 미만인 직원은 인센티브 지급이 제한될 수 있습니다",
-          "en": "Employees with attendance rate below 88% may have incentive restrictions",
-          "vi": "Nhân viên có tỷ lệ chuyên cần dưới 88% có thể bị hạn chế khuyến khích"
+          "ko": "출근율 {threshold_attendance_rate}% 미만인 직원은 인센티브 지급이 제한될 수 있습니다",
+          "en": "Employees with attendance rate below {threshold_attendance_rate}% may have incentive restrictions",
+          "vi": "Nhân viên có tỷ lệ chuyên cần dưới {threshold_attendance_rate}% có thể bị hạn chế khuyến khích"
         },
         "excludeNote": {
           "ko": "(TYPE-3는 인센티브 대상에서 제외됩니다)",
@@ -6165,14 +6170,14 @@
           }
         },
         "emptyMessage": {
-          "ko": "모든 직원이 출근율 88% 이상을 달성했습니다",
-          "en": "All employees achieved attendance rate of 88% or higher",
-          "vi": "Tất cả nhân viên đạt tỷ lệ chuyên cần từ 88% trở lên"
+          "ko": "모든 직원이 출근율 {threshold_attendance_rate}% 이상을 달성했습니다",
+          "en": "All employees achieved attendance rate of {threshold_attendance_rate}% or higher",
+          "vi": "Tất cả nhân viên đạt tỷ lệ chuyên cần từ {threshold_attendance_rate}% trở lên"
         },
         "interimMessage": {
-          "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
-          "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
-          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
+          "ko": "중간 보고서 - 최소 근무일({threshold_minimum_working_days}일) 및 출근율({threshold_attendance_rate}%) 조건이 적용되지 않습니다",
+          "en": "Interim Report - Minimum working days ({threshold_minimum_working_days} days) and attendance rate ({threshold_attendance_rate}%) conditions are not applied",
+          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày) và tỷ lệ chấm công ({threshold_attendance_rate}%) không được áp dụng"
         },
         "earlyResignBadge": {
           "ko": "조기퇴사",
@@ -6440,19 +6445,19 @@
       },
       "lowInspectionQty": {
         "title": {
-          "ko": "5PRS 검사량 100족 미만 상세",
+          "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 미만 상세",
           "en": "5PRS Inspection Quantity Below 100 Pairs Details",
-          "vi": "Chi tiết số lượng kiểm tra 5PRS dưới 100 đôi"
+          "vi": "Chi tiết số lượng kiểm tra 5PRS dưới {threshold_5prs_min_qty} đôi"
         },
         "alert": {
-          "ko": "<strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 100족 미만인 경우 인센티브를 받을 수 없습니다.",
-          "en": "<strong>Condition Description:</strong> TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS inspection quantity is below 100 pairs.",
-          "vi": "<strong>Mô tả điều kiện:</strong> TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu số lượng kiểm tra 5PRS dưới 100 đôi."
+          "ko": "<strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 {threshold_5prs_min_qty}족 미만인 경우 인센티브를 받을 수 없습니다.",
+          "en": "<strong>Condition Description:</strong> TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS inspection quantity is below {threshold_5prs_min_qty} pairs.",
+          "vi": "<strong>Mô tả điều kiện:</strong> TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu số lượng kiểm tra 5PRS dưới {threshold_5prs_min_qty} đôi."
         },
         "count": {
-          "ko": "총 {count}명이 5PRS 검사량 100족 미만입니다.",
-          "en": "Total {count} employees have 5PRS inspection quantity below 100 pairs.",
-          "vi": "Tổng số {count} nhân viên có số lượng kiểm tra 5PRS dưới 100 đôi."
+          "ko": "총 {count}명이 5PRS 검사량 {threshold_5prs_min_qty}족 미만입니다.",
+          "en": "Total {count} employees have 5PRS inspection quantity below {threshold_5prs_min_qty} pairs.",
+          "vi": "Tổng số {count} nhân viên có số lượng kiểm tra 5PRS dưới {threshold_5prs_min_qty} đôi."
         },
         "headers": {
           "empNo": {
@@ -6923,9 +6928,9 @@
       "vi": "Không đạt ngày tối thiểu"
     },
     "attendanceBelow88": {
-      "ko": "출근율 88% 미만",
-      "en": "Attendance < 88%",
-      "vi": "Chấm công < 88%"
+      "ko": "출근율 {threshold_attendance_rate}% 미만",
+      "en": "Attendance < {threshold_attendance_rate}%",
+      "vi": "Chấm công < {threshold_attendance_rate}%"
     },
     "attendanceBelow88Subtitle": {
       "ko": "정당한 사유 제외",
@@ -6933,9 +6938,9 @@
       "vi": "Loại trừ lý do chính đáng"
     },
     "attendanceBelow88Tooltip": {
-      "ko": "정당한 사유 없이 결근이 많아 출근율이 88% 미만인 직원 (출산휴가는 출근으로 인정)",
-      "en": "Employees with attendance <88% without legitimate reasons (maternity leave counted as attendance)",
-      "vi": "Nhân viên có tỷ lệ chấm công <88% không có lý do chính đáng (nghỉ thai sản được tính là chấm công)"
+      "ko": "정당한 사유 없이 결근이 많아 출근율이 {threshold_attendance_rate}% 미만인 직원 (출산휴가는 출근으로 인정)",
+      "en": "Employees with attendance <{threshold_attendance_rate}% without legitimate reasons (maternity leave counted as attendance)",
+      "vi": "Nhân viên có tỷ lệ chấm công <{threshold_attendance_rate}% không có lý do chính đáng (nghỉ thai sản được tính là chấm công)"
     },
     "aqlFail": {
       "ko": "AQL FAIL 보유자",
@@ -6948,19 +6953,19 @@
       "vi": "3 tháng liên tiếp AQL FAIL"
     },
     "areaRejectRate": {
-      "ko": "구역 AQL Reject ≥3%",
-      "en": "Area AQL Reject ≥3%",
-      "vi": "Khu vực AQL từ chối ≥3%"
+      "ko": "구역 AQL Reject ≥{threshold_area_reject_rate}%",
+      "en": "Area AQL Reject ≥{threshold_area_reject_rate}%",
+      "vi": "Khu vực AQL từ chối ≥{threshold_area_reject_rate}%"
     },
     "lowPassRate": {
-      "ko": "5PRS Pass Rate < 95%",
-      "en": "5PRS Pass Rate < 95%",
-      "vi": "Tỷ lệ đạt 5PRS < 95%"
+      "ko": "5PRS Pass Rate < {threshold_5prs_pass_rate}%",
+      "en": "5PRS Pass Rate < {threshold_5prs_pass_rate}%",
+      "vi": "Tỷ lệ đạt 5PRS < {threshold_5prs_pass_rate}%"
     },
     "lowInspectionQty": {
-      "ko": "5PRS 검사량 < 100족",
-      "en": "5PRS Inspection < 100 pairs",
-      "vi": "Kiểm tra 5PRS < 100 đôi"
+      "ko": "5PRS 검사량 < {threshold_5prs_min_qty}족",
+      "en": "5PRS Inspection < {threshold_5prs_min_qty} pairs",
+      "vi": "Kiểm tra 5PRS < {threshold_5prs_min_qty} đôi"
     }
   },
   "workingDaysModal": {
@@ -7351,9 +7356,9 @@
       "vi": "Điều kiện 7: Có người thất bại liên tục 3 tháng trong khu vực phụ trách (không trả nếu có ít nhất 1 người)"
     },
     "condition8Description": {
-      "ko": "조건8: 담당 구역 Reject Rate 3% 초과 (초과 시 미지급)",
-      "en": "Condition 8: Responsible area Reject Rate exceeds 3% (not paid if exceeded)",
-      "vi": "Điều kiện 8: Tỷ lệ loại bỏ khu vực phụ trách vượt quá 3% (không trả nếu vượt quá)"
+      "ko": "조건8: 담당 구역 Reject Rate {threshold_area_reject_rate}% 초과 (초과 시 미지급)",
+      "en": "Condition 8: Responsible area Reject Rate exceeds {threshold_area_reject_rate}% (not paid if exceeded)",
+      "vi": "Điều kiện 8: Tỷ lệ loại bỏ khu vực phụ trách vượt quá {threshold_area_reject_rate}% (không trả nếu vượt quá)"
     },
     "incentiveNote": {
       "ko": "인센티브: 두 조건 모두 충족 시에만 지급",
@@ -7366,9 +7371,9 @@
       "vi": "Có người thất bại liên tục 3 tháng trong khu vực - 0 người"
     },
     "condition8Detail": {
-      "ko": "Building Reject Rate 3% 초과 -",
-      "en": "Building Reject Rate exceeds 3% -",
-      "vi": "Tỷ lệ loại bỏ Building vượt quá 3% -"
+      "ko": "Building Reject Rate {threshold_area_reject_rate}% 초과 -",
+      "en": "Building Reject Rate exceeds {threshold_area_reject_rate}% -",
+      "vi": "Tỷ lệ loại bỏ Building vượt quá {threshold_area_reject_rate}% -"
     },
     "auditorTrainer": {
       "ko": "(Auditor/Trainer)",
@@ -7423,24 +7428,24 @@
   },
   "fivePrsModal": {
     "title": {
-      "ko": "5PRS 통과율 95% 미만 상세",
-      "en": "5PRS Pass Rate Below 95% Details",
-      "vi": "Chi tiết tỷ lệ đạt 5PRS dưới 95%"
+      "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 미만 상세",
+      "en": "5PRS Pass Rate Below {threshold_5prs_pass_rate}% Details",
+      "vi": "Chi tiết tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}%"
     },
     "description": {
-      "ko": "TYPE-1 ASSEMBLY INSPECTOR의 5PRS 통과율이 95% 미만인 경우 인센티브를 받을 수 없습니다.",
-      "en": "TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS pass rate is below 95%.",
-      "vi": "TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu tỷ lệ đạt 5PRS dưới 95%."
+      "ko": "TYPE-1 ASSEMBLY INSPECTOR의 5PRS 통과율이 {threshold_5prs_pass_rate}% 미만인 경우 인센티브를 받을 수 없습니다.",
+      "en": "TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS pass rate is below {threshold_5prs_pass_rate}%.",
+      "vi": "TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}%."
     },
     "totalCount": {
-      "ko": "총 {{count}}명이 5PRS 통과율 95% 미만입니다.",
-      "en": "Total {{count}} people have 5PRS pass rate below 95%.",
-      "vi": "Tổng cộng {{count}} người có tỷ lệ đạt 5PRS dưới 95%."
+      "ko": "총 {{count}}명이 5PRS 통과율 {threshold_5prs_pass_rate}% 미만입니다.",
+      "en": "Total {{count}} people have 5PRS pass rate below {threshold_5prs_pass_rate}%.",
+      "vi": "Tổng cộng {{count}} người có tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}%."
     },
     "table1Title": {
-      "ko": "5PRS 통과율 95% 미만 인원",
-      "en": "Personnel with 5PRS Pass Rate Below 95%",
-      "vi": "Nhân viên có tỷ lệ đạt 5PRS dưới 95%"
+      "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 미만 인원",
+      "en": "Personnel with 5PRS Pass Rate Below {threshold_5prs_pass_rate}%",
+      "vi": "Nhân viên có tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}%"
     },
     "table2Title": {
       "ko": "통과율 최하위 10명",
@@ -7793,14 +7798,14 @@
       "vi": "Tòa nhà"
     },
     "attendanceMet": {
-      "ko": "출근율 기준 충족 (≥88%)",
-      "en": "Attendance requirement met (≥88%)",
-      "vi": "Đạt yêu cầu chuyên cần (≥88%)"
+      "ko": "출근율 기준 충족 (≥{threshold_attendance_rate}%)",
+      "en": "Attendance requirement met (≥{threshold_attendance_rate}%)",
+      "vi": "Đạt yêu cầu chuyên cần (≥{threshold_attendance_rate}%)"
     },
     "attendanceNotMet": {
-      "ko": "출근율 기준 미충족 (<88%)",
-      "en": "Attendance requirement not met (<88%)",
-      "vi": "Không đạt yêu cầu chuyên cần (<88%)"
+      "ko": "출근율 기준 미충족 (<{threshold_attendance_rate}%)",
+      "en": "Attendance requirement not met (<{threshold_attendance_rate}%)",
+      "vi": "Không đạt yêu cầu chuyên cần (<{threshold_attendance_rate}%)"
     }
   },
   "pullToRefresh": {
@@ -7943,28 +7948,28 @@
     "cautionNeeded": { "ko": "주의 필요", "en": "Caution Needed", "vi": "Cần chú ý" },
     "improvementNeeded": { "ko": "개선 필요", "en": "Improvement Needed", "vi": "Cần cải thiện" },
     "excellentMsg": {
-      "ko": "님은 출근율 {rate}%로 인센티브 조건 1(≥88%)과 조건 2(무단결근 ≤2일)를 충족합니다.",
-      "en": " has {rate}% attendance rate, meeting Condition 1 (≥88%) and Condition 2 (unapproved absence ≤2 days).",
-      "vi": " có tỷ lệ chấm công {rate}%, đáp ứng Điều kiện 1 (≥88%) và Điều kiện 2 (vắng không phép ≤2 ngày)."
+      "ko": "님은 출근율 {rate}%로 인센티브 조건 1(≥{threshold_attendance_rate}%)과 조건 2(무단결근 ≤{threshold_unapproved_absence}일)를 충족합니다.",
+      "en": " has {rate}% attendance rate, meeting Condition 1 (≥{threshold_attendance_rate}%) and Condition 2 (unapproved absence ≤{threshold_unapproved_absence} days).",
+      "vi": " có tỷ lệ chấm công {rate}%, đáp ứng Điều kiện 1 (≥{threshold_attendance_rate}%) và Điều kiện 2 (vắng không phép ≤{threshold_unapproved_absence} ngày)."
     },
     "cautionMsg": {
-      "ko": "님은 출근율은 {rate}%로 기준을 충족하지만, 무단결근이 {absence}일로 조건 2(≤2일) 기준을 초과합니다.",
-      "en": " has {rate}% attendance rate (meets Condition 1), but unapproved absence is {absence} days, exceeding Condition 2 (≤2 days).",
-      "vi": " có tỷ lệ chấm công {rate}% (đạt Điều kiện 1), nhưng vắng không phép {absence} ngày, vượt quá Điều kiện 2 (≤2 ngày)."
+      "ko": "님은 출근율은 {rate}%로 기준을 충족하지만, 무단결근이 {absence}일로 조건 2(≤{threshold_unapproved_absence}일) 기준을 초과합니다.",
+      "en": " has {rate}% attendance rate (meets Condition 1), but unapproved absence is {absence} days, exceeding Condition 2 (≤{threshold_unapproved_absence} days).",
+      "vi": " có tỷ lệ chấm công {rate}% (đạt Điều kiện 1), nhưng vắng không phép {absence} ngày, vượt quá Điều kiện 2 (≤{threshold_unapproved_absence} ngày)."
     },
     "improvementMsg": {
-      "ko": "님은 출근율이 {rate}%로 인센티브 기준(≥88%)에 미달합니다. {diff}%p 개선이 필요합니다.",
-      "en": " has {rate}% attendance rate, below incentive requirement (≥88%). Needs {diff}%p improvement.",
-      "vi": " có tỷ lệ chấm công {rate}%, dưới yêu cầu thưởng (≥88%). Cần cải thiện {diff}%p."
+      "ko": "님은 출근율이 {rate}%로 인센티브 기준(≥{threshold_attendance_rate}%)에 미달합니다. {diff}%p 개선이 필요합니다.",
+      "en": " has {rate}% attendance rate, below incentive requirement (≥{threshold_attendance_rate}%). Needs {diff}%p improvement.",
+      "vi": " có tỷ lệ chấm công {rate}%, dưới yêu cầu thưởng (≥{threshold_attendance_rate}%). Cần cải thiện {diff}%p."
     },
     "condition1": { "ko": "조건 1", "en": "Condition 1", "vi": "Điều kiện 1" },
     "condition2": { "ko": "조건 2", "en": "Condition 2", "vi": "Điều kiện 2" },
     "condition3": { "ko": "조건 3", "en": "Condition 3", "vi": "Điều kiện 3" },
     "condition4": { "ko": "조건 4", "en": "Condition 4", "vi": "Điều kiện 4" },
-    "condition1Desc": { "ko": "출근율 ≥ 88%", "en": "Attendance Rate ≥ 88%", "vi": "Tỷ lệ chấm công ≥ 88%" },
-    "condition2Desc": { "ko": "무단결근 ≤ 2일", "en": "Unapproved Absence ≤ 2 days", "vi": "Vắng không phép ≤ 2 ngày" },
+    "condition1Desc": { "ko": "출근율 ≥ {threshold_attendance_rate}%", "en": "Attendance Rate ≥ {threshold_attendance_rate}%", "vi": "Tỷ lệ chấm công ≥ {threshold_attendance_rate}%" },
+    "condition2Desc": { "ko": "무단결근 ≤ {threshold_unapproved_absence}일", "en": "Unapproved Absence ≤ {threshold_unapproved_absence} days", "vi": "Vắng không phép ≤ {threshold_unapproved_absence} ngày" },
     "condition3Desc": { "ko": "실제 근무일 > 0", "en": "Actual Working Days > 0", "vi": "Ngày làm việc thực tế > 0" },
-    "condition4Desc": { "ko": "최소 근무일 ≥ 12일", "en": "Minimum Working Days ≥ 12 days", "vi": "Số ngày làm việc tối thiểu ≥ 12 ngày" },
+    "condition4Desc": { "ko": "최소 근무일 ≥ {threshold_minimum_working_days}일", "en": "Minimum Working Days ≥ {threshold_minimum_working_days} days", "vi": "Số ngày làm việc tối thiểu ≥ {threshold_minimum_working_days} ngày" },
     "met": { "ko": "충족", "en": "Met", "vi": "Đạt" },
     "notMet": { "ko": "미충족", "en": "Not Met", "vi": "Không đạt" },
     "checkNeeded": { "ko": "확인 필요", "en": "Check Needed", "vi": "Cần kiểm tra" }
