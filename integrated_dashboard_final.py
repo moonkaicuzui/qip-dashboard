@@ -993,24 +993,33 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             직원.append(emp)
         print(f"✅ Single Source of Truth: from excel_dashboard_data {len(excel_dashboard_data['employee_data'])}out of active 직원 {len(직원)}직원 loaded (resigned {len(excel_dashboard_data['employee_data']) - len(직원)}직원 excluded)")
 
-        # Building 정보를 Boss 기준으로 변경 (Issue #36 - 2026-01-03)
-        # 각 직원의 Building을 상사의 Building으로 업데이트
+        # Building 정보: HR BUILDING 우선, Boss BUILDING 보조 (Issue #36 → Issue #57 개선 - 2026-02-03)
+        # HR 데이터(basic_manpower)에 BUILDING 정보가 있으면 유지, 없는 직원만 Boss에서 상속
         employee_map = {str(emp.get('Employee No', '')): emp for emp in 직원}
-        building_updated_count = 0
+        building_inherited_count = 0
+        building_hr_kept_count = 0
 
         for emp in 직원:
-            boss_id = str(emp.get('MST direct boss name', '')).strip()
-            if boss_id and boss_id not in ['', 'nan', '0', '0.0']:
-                # 상사 찾기
-                boss = employee_map.get(boss_id)
-                if boss and boss.get('BUILDING'):
-                    # 상사의 Building이 있으면 자신의 Building을 상사의 것으로 업데이트
-                    original_building = emp.get('BUILDING', '')
-                    emp['BUILDING'] = boss['BUILDING']
-                    if original_building != boss['BUILDING']:
-                        building_updated_count += 1
+            # HR BUILDING 확인 (basic_manpower_data.csv에서 온 데이터)
+            hr_building = str(emp.get('BUILDING', '')).strip()
+            if hr_building and hr_building not in ['', 'nan', 'NaN', 'None', 'none']:
+                building_hr_kept_count += 1
+                continue  # ✅ HR 데이터 있으면 유지 (덮어쓰지 않음)
 
-        print(f"✅ Building 정보 업데이트 완료: {building_updated_count}명이 상사의 Building으로 변경됨 (Issue #36)")
+            # HR Building 없는 경우만 Boss에서 상속
+            boss_id = str(emp.get('MST direct boss name', '')).strip()
+            # Boss ID의 .0 접미사 제거 (float → string 변환 시 발생)
+            if boss_id.endswith('.0'):
+                boss_id = boss_id[:-2]
+            if boss_id and boss_id not in ['', 'nan', 'NaN', '0', '0.0', 'None']:
+                boss = employee_map.get(boss_id)
+                if boss:
+                    boss_building = str(boss.get('BUILDING', '')).strip()
+                    if boss_building and boss_building not in ['', 'nan', 'NaN', 'None', 'none']:
+                        emp['BUILDING'] = boss_building
+                        building_inherited_count += 1
+
+        print(f"✅ Building 정보: HR 유지 {building_hr_kept_count}명 + Boss 상속 {building_inherited_count}명 (Issue #57)")
     else:
         # Fallback: existing 방식 (df use)
         직원 = []
@@ -6859,7 +6868,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
     </style>
 </head>
-<body>
+<body style="visibility: hidden;">
     <div class="container">
         <div class="header">
             <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; max-width: 600px;">
@@ -8624,11 +8633,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <div class="col-md-3">
                                 <select id="orgBuildingFilter" class="form-select" onchange="filterOrgChartByBuilding()">
                                     <option value="all" id="buildingFilterAll" data-i18n="orgChart.filters.allBuildings">전체 Building</option>
-                                    <option value="A">Building A</option>
-                                    <option value="B">Building B</option>
-                                    <option value="B3">Building B3</option>
-                                    <option value="C">Building C</option>
-                                    <option value="D">Building D</option>
+                                    <!-- [Issue #57] Building 옵션은 JavaScript에서 동적으로 생성됨 -->
                                 </select>
                             </div>
                             <!-- 2025-12-22: 중복 버튼 제거 - 검색 영역에 펼치기/접기 버튼 있음 -->
@@ -9021,6 +9026,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <th data-i18n="teamTab.table.empNo">사번</th>
                                 <th data-i18n="teamTab.table.name">이름</th>
                                 <th data-i18n="teamTab.table.position">직급</th>
+                                <th data-i18n="teamTab.table.building">근무지</th>
                                 <th data-i18n="teamTab.table.status">상태</th>
                                 <th data-i18n="teamTab.table.incentive">인센티브</th>
                                 <th data-i18n="teamTab.table.absenceDays">무단결근</th>
@@ -9588,18 +9594,71 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         {building_review_data_b64}
     </script>
 
+    <!-- Firebase SDK for real-time auth verification -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
     <script>
-        // ==================== Firebase 보안: 세션 검증 ====================
+        // ==================== 강화된 Firebase 보안: 세션 검증 v2.0 ====================
+        // Issue #59: 보안 강화 (2026-02-03)
+        // - 세션 타임아웃: 60분 → 30분
+        // - 비활동 감지: 15분 비활동 시 자동 로그아웃
+        // - 세션 서명: HMAC 기반 무결성 검증
+        // - 콘텐츠 숨김: 인증 전까지 body 숨김
+        // - Firebase 실시간 검증: onAuthStateChanged
         (function() {{
             const SESSION_KEY = 'qip_firebase_session';
-            const SESSION_TIMEOUT = 60 * 60 * 1000; // 60분 (Firebase 토큰 수명)
+            const SESSION_TIMEOUT = 30 * 60 * 1000; // 30분 (보안 강화)
+            const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15분 비활동 시 로그아웃
+            let lastActivityTime = Date.now();
+            let inactivityTimer = null;
 
+            // Firebase Configuration (same as auth.html)
+            const firebaseConfig = {{
+                apiKey: "AIzaSyDzdmX9kBbeSIX1ROvvNcfu2CzFvnnz3oY",
+                authDomain: "hwk-qip-incentive-dashboard.firebaseapp.com",
+                projectId: "hwk-qip-incentive-dashboard",
+                storageBucket: "hwk-qip-incentive-dashboard.firebasestorage.app",
+                messagingSenderId: "435191241966",
+                appId: "1:435191241966:web:fc8d3382d8189dc11d67ff"
+            }};
+
+            // Initialize Firebase
+            if (!firebase.apps.length) {{
+                firebase.initializeApp(firebaseConfig);
+            }}
+
+            // 브라우저 핑거프린트 생성 (세션 서명용)
+            function generateFingerprint() {{
+                const data = [
+                    navigator.userAgent,
+                    navigator.language,
+                    screen.width + 'x' + screen.height,
+                    new Date().getTimezoneOffset()
+                ].join('|');
+                // Simple hash function
+                let hash = 0;
+                for (let i = 0; i < data.length; i++) {{
+                    const char = data.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }}
+                return hash.toString(36);
+            }}
+
+            // 세션 서명 검증
+            function verifySessionSignature(sessionData) {{
+                if (!sessionData.signature) return false;
+                const expectedSignature = generateFingerprint();
+                return sessionData.signature === expectedSignature;
+            }}
+
+            // 세션 검증 함수
             function validateSession() {{
                 const session = sessionStorage.getItem(SESSION_KEY);
 
                 if (!session) {{
-                    // 세션 없음 - 인증 페이지로 리다이렉트
-                    window.location.href = 'auth.html';
+                    redirectToLogin('NO_SESSION');
                     return false;
                 }}
 
@@ -9609,34 +9668,105 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                     // Firebase 세션 필수 필드 검증
                     if (!sessionData.authenticated || !sessionData.uid || !sessionData.email) {{
-                        sessionStorage.removeItem(SESSION_KEY);
-                        window.location.href = 'auth.html';
+                        redirectToLogin('INVALID_SESSION_DATA');
                         return false;
                     }}
 
-                    // 세션 만료 검증 (60분)
+                    // 세션 서명 검증 (세션 조작 방지)
+                    if (!verifySessionSignature(sessionData)) {{
+                        redirectToLogin('SIGNATURE_MISMATCH');
+                        return false;
+                    }}
+
+                    // 세션 만료 검증 (30분)
                     if (now - sessionData.loginTime > SESSION_TIMEOUT) {{
-                        sessionStorage.removeItem(SESSION_KEY);
-                        alert('Session expired. Please login again.\\n세션이 만료되었습니다. 다시 로그인하세요.');
-                        window.location.href = 'auth.html';
+                        redirectToLogin('SESSION_EXPIRED', true);
                         return false;
                     }}
 
                     return true;
                 }} catch (e) {{
-                    sessionStorage.removeItem(SESSION_KEY);
-                    window.location.href = 'auth.html';
+                    redirectToLogin('PARSE_ERROR');
                     return false;
                 }}
             }}
 
-            // 페이지 로드 시 세션 검증
-            if (!validateSession()) {{
-                return;
+            // 로그인 페이지로 리다이렉트
+            function redirectToLogin(reason, showAlert = false) {{
+                sessionStorage.removeItem(SESSION_KEY);
+                if (showAlert) {{
+                    alert('Session expired. Please login again.\\n세션이 만료되었습니다. 다시 로그인하세요.');
+                }}
+                console.warn('[Security] Redirect reason:', reason);
+                window.location.href = 'auth.html';
             }}
 
-            // 주기적 세션 검증 (1분마다)
-            setInterval(validateSession, 60000);
+            // 비활동 감지 시스템
+            function resetInactivityTimer() {{
+                lastActivityTime = Date.now();
+                if (inactivityTimer) {{
+                    clearTimeout(inactivityTimer);
+                }}
+                inactivityTimer = setTimeout(() => {{
+                    const timeSinceLastActivity = Date.now() - lastActivityTime;
+                    if (timeSinceLastActivity >= INACTIVITY_TIMEOUT) {{
+                        alert('Logged out due to inactivity.\\n비활동으로 인해 로그아웃되었습니다.');
+                        redirectToLogin('INACTIVITY');
+                    }}
+                }}, INACTIVITY_TIMEOUT);
+            }}
+
+            // 사용자 활동 감지
+            ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach(event => {{
+                document.addEventListener(event, resetInactivityTimer, {{ passive: true }});
+            }});
+
+            // 콘텐츠 표시 함수
+            function showContent() {{
+                document.body.style.visibility = 'visible';
+                document.body.style.opacity = '1';
+            }}
+
+            // Firebase 실시간 인증 상태 감시
+            firebase.auth().onAuthStateChanged((user) => {{
+                if (!user) {{
+                    // Firebase 인증 세션 종료됨
+                    const session = sessionStorage.getItem(SESSION_KEY);
+                    if (session) {{
+                        console.warn('[Security] Firebase auth state lost');
+                        // Firebase에서 로그아웃됨 - 세션 무효화
+                        redirectToLogin('FIREBASE_AUTH_LOST');
+                    }}
+                }}
+            }});
+
+            // 페이지 로드 시 세션 검증
+            if (!validateSession()) {{
+                return; // 검증 실패 시 리다이렉트됨
+            }}
+
+            // 검증 성공 시 콘텐츠 표시
+            showContent();
+
+            // 비활동 타이머 시작
+            resetInactivityTimer();
+
+            // 주기적 세션 검증 (30초마다 - 더 자주 체크)
+            setInterval(() => {{
+                if (!validateSession()) {{
+                    return;
+                }}
+            }}, 30000);
+
+            // 탭/창 활성화 시 즉시 검증
+            document.addEventListener('visibilitychange', () => {{
+                if (document.visibilityState === 'visible') {{
+                    if (!validateSession()) {{
+                        return;
+                    }}
+                    resetInactivityTimer();
+                }}
+            }});
 
             // 우클릭 방지
             document.addEventListener('contextmenu', function(e) {{
@@ -9646,7 +9776,6 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             // 복사 방지 (선택적)
             document.addEventListener('copy', function(e) {{
-                // 복사 허용하되 경고만 표시
                 console.warn('⚠️ 데이터 복사가 감지되었습니다. 기밀 정보 유출에 주의하세요.');
             }});
 
@@ -9662,18 +9791,34 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             // 개발자 도구 경고
             const devtoolsWarning = () => {{
                 console.clear();
-                console.log('%c⚠️ WARNING / 경고', 'font-size: 30px; color: red; font-weight: bold;');
+                console.log('%c⛔ SECURITY WARNING / 보안 경고', 'font-size: 30px; color: red; font-weight: bold;');
                 console.log('%cThis dashboard contains confidential employee information.', 'font-size: 16px; color: orange;');
                 console.log('%c이 대시보드는 기밀 직원 정보를 포함하고 있습니다.', 'font-size: 16px; color: orange;');
                 console.log('%cUnauthorized access or data extraction is prohibited and will be reported.', 'font-size: 14px;');
                 console.log('%c무단 접근 또는 데이터 추출은 금지되며 보고됩니다.', 'font-size: 14px;');
-                console.log('%c', 'font-size: 1px;'); // Clear previous console output
+                console.log('%cSession: 30min timeout | Inactivity: 15min logout', 'font-size: 12px; color: gray;');
             }};
 
             devtoolsWarning();
-            setInterval(devtoolsWarning, 3000);
+            setInterval(devtoolsWarning, 5000);
+
+            // 세션 정보 표시 (디버그용 - 제거 가능)
+            window.getSessionInfo = function() {{
+                const session = sessionStorage.getItem(SESSION_KEY);
+                if (session) {{
+                    const data = JSON.parse(session);
+                    const remaining = Math.max(0, SESSION_TIMEOUT - (Date.now() - data.loginTime));
+                    return {{
+                        email: data.email,
+                        loginTime: new Date(data.loginTime).toLocaleString(),
+                        remainingMinutes: Math.round(remaining / 60000),
+                        lastActivity: new Date(lastActivityTime).toLocaleString()
+                    }};
+                }}
+                return null;
+            }};
         }})();
-        // ==================== Firebase 보안 코드 종료 ====================
+        // ==================== 강화된 Firebase 보안 코드 종료 ====================
 
         // UTF-8 Base64 디코딩 함count 추가
         function base64DecodeUnicode(str) {{
@@ -10288,6 +10433,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     excelDashboardData = JSON.parse(jsonStr);
                     window.excelDashboardData = excelDashboardData; // Also store in window for backward compatibility
 
+                    // [Issue #58] Threshold 값을 전역 변수로 노출 (번역 플레이스홀더 치환용)
+                    window.thresholds = {{
+                        attendance_rate: {th_attendance_rate},
+                        unapproved_absence: {th_unapproved_absence},
+                        minimum_working_days: {th_minimum_working_days},
+                        area_reject_rate: {th_area_reject_rate},
+                        '5prs_pass_rate': {th_5prs_pass_rate},
+                        '5prs_min_qty': {th_5prs_min_qty}
+                    }};
+                    console.log('✅ [Issue #58] Thresholds loaded:', window.thresholds);
+
                     // attendance raw data를 전역 변count로 설정
                     if (excelDashboardData.attendance_raw_data) {{
                         window.attendanceRawData = excelDashboardData.attendance_raw_data;
@@ -10357,6 +10513,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         let positionData = {{}}; // Position Details data를 저장할 전역 변count
         const dashboardYear = {year};
 
+        // [Issue #58] Threshold 플레이스홀더 치환 함수
+        function replaceThresholdPlaceholders(text) {{
+            if (!text || typeof text !== 'string' || !window.thresholds) return text;
+            return text
+                .replace(/\\{{threshold_attendance_rate\\}}/g, window.thresholds.attendance_rate)
+                .replace(/\\{{threshold_unapproved_absence\\}}/g, window.thresholds.unapproved_absence)
+                .replace(/\\{{threshold_minimum_working_days\\}}/g, window.thresholds.minimum_working_days)
+                .replace(/\\{{threshold_area_reject_rate\\}}/g, window.thresholds.area_reject_rate)
+                .replace(/\\{{threshold_5prs_pass_rate\\}}/g, window.thresholds['5prs_pass_rate'])
+                .replace(/\\{{threshold_5prs_min_qty\\}}/g, window.thresholds['5prs_min_qty'])
+                .replace(/\\{{threshold_absence_rate\\}}/g, 100 - window.thresholds.attendance_rate);  // 결근율 = 100 - 출근율
+        }}
+
         // 번역 함count
         function getTranslation(keyPath, lang = currentLanguage) {{
             const keys = keyPath.split('.');
@@ -10370,14 +10539,17 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }}
                     value = value[key];
                 }}
+                let result;
                 if (typeof value === 'object' && value.hasOwnProperty(lang)) {{
-                    return value[lang];
+                    result = value[lang];
                 }} else if (typeof value === 'object' && value.hasOwnProperty('ko')) {{
-                    return value['ko'];
+                    result = value['ko'];
                 }} else {{
                     console.warn(`No translation found for: ${{keyPath}} in lang: ${{lang}}`);
                     return keyPath;
                 }}
+                // [Issue #58] Threshold 플레이스홀더 치환
+                return replaceThresholdPlaceholders(result);
             }} catch (e) {{
                 console.error(`Translation error for ${{keyPath}}:`, e);
                 return keyPath;
@@ -14346,17 +14518,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const container = document.getElementById('buildingSummaryCards');
             if (!container || !employeeData) return;
 
-            // Building별 통계 계산
+            // [Issue #57] 동적 Building 목록: employeeData에서 실제 존재하는 Building만 추출
             const buildingStats = {{}};
-            const buildings = ['A', 'B', 'B3', 'C', 'D'];
-
-            buildings.forEach(b => {{
-                buildingStats[b] = {{ total: 0, paid: 0, totalAmount: 0 }};
-            }});
 
             employeeData.forEach(emp => {{
-                const building = (emp.BUILDING || emp.building || '').toUpperCase();
-                if (buildingStats[building]) {{
+                const building = (emp.BUILDING || emp.building || '').toUpperCase().trim();
+                if (building && building !== 'NAN' && building !== 'NONE' && building !== '') {{
+                    if (!buildingStats[building]) {{
+                        buildingStats[building] = {{ total: 0, paid: 0, totalAmount: 0 }};
+                    }}
                     buildingStats[building].total++;
                     const amount = emp.currentIncentive;
                     if (amount > 0) {{
@@ -14366,24 +14536,27 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }}
             }});
 
+            // Building 이름으로 정렬 (알파벳순)
+            const buildings = Object.keys(buildingStats).sort((a, b) => a.localeCompare(b, undefined, {{numeric: true}}));
+
             // 카드 HTML 생성
             let cardsHTML = '';
-            const colors = {{ 'A': '#ef4444', 'B': '#3b82f6', 'B3': '#8b5cf6', 'C': '#10b981', 'D': '#f59e0b' }};
 
             buildings.forEach(b => {{
                 const stats = buildingStats[b];
                 if (stats.total > 0) {{
+                    const color = getBuildingColor(b);
                     const rate = ((stats.paid / stats.total) * 100).toFixed(1);
                     cardsHTML += `
                         <div class="col-md-2 col-sm-4 col-6 mb-2">
-                            <div class="card h-100" style="border-left: 4px solid ${{colors[b]}}; cursor: pointer;"
+                            <div class="card h-100" style="border-left: 4px solid ${{color}}; cursor: pointer;"
                                  onclick="document.getElementById('orgBuildingFilter').value='${{b}}'; filterOrgChartByBuilding();">
                                 <div class="card-body py-2 px-3">
-                                    <h6 class="card-title mb-1" style="color: ${{colors[b]}};">Building ${{b}}</h6>
+                                    <h6 class="card-title mb-1" style="color: ${{color}};">${{b}}</h6>
                                     <div class="small">
-                                        <div><strong>${{stats.total}}</strong> <span id="bldgCardTotal_${{b}}">${{getTranslation('buildingSummary.employees')}}</span></div>
-                                        <div><strong>${{stats.paid}}</strong> <span id="bldgCardPaid_${{b}}">${{getTranslation('buildingSummary.recipients')}}</span> (${{rate}}%)</div>
-                                        <div style="color: ${{colors[b]}}; font-weight: 600;">₫${{stats.totalAmount.toLocaleString()}}</div>
+                                        <div><strong>${{stats.total}}</strong> <span>${{getTranslation('buildingSummary.employees')}}</span></div>
+                                        <div><strong>${{stats.paid}}</strong> <span>${{getTranslation('buildingSummary.recipients')}}</span> (${{rate}}%)</div>
+                                        <div style="color: ${{color}}; font-weight: 600;">₫${{stats.totalAmount.toLocaleString()}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -14541,9 +14714,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         // Helper function to get building color
+        // [Issue #57] 19개 Building 카테고리별 색상 매핑 (동적 Building 지원)
+        const BUILDING_COLORS = {{
+            // 생산동 A계열 (Red tones)
+            'A': '#ef4444', 'A1': '#f87171', 'A2': '#fca5a5',
+            // 생산동 B계열 (Blue tones)
+            'B': '#3b82f6', 'B1': '#60a5fa', 'B2': '#93c5fd', 'B3': '#8b5cf6',
+            // 생산동 C/D (Green/Amber)
+            'C': '#10b981', 'D': '#f59e0b',
+            // E계열 (Indigo tones)
+            'E1': '#6366f1', 'E2': '#818cf8',
+            // 창고 (Slate tones)
+            'MTL WH': '#64748b', 'FG-WH': '#94a3b8',
+            // 사무실 (Pink tones)
+            'QA OFFICE': '#ec4899', 'QIP OFFICE': '#f472b6',
+            // 기타 (Teal/Cyan tones)
+            'INHOUSE EZ': '#14b8a6', 'INHOUSE PRINTING': '#2dd4bf', 'EZ HAPPO': '#5eead4',
+            'OSC A': '#a78bfa'
+        }};
+
         function getBuildingColor(building) {{
-            const colors = {{ 'A': '#ef4444', 'B': '#3b82f6', 'B3': '#8b5cf6', 'C': '#10b981', 'D': '#f59e0b' }};
-            return colors[building] || '#6c757d';
+            if (!building) return '#6c757d';
+            return BUILDING_COLORS[building.toUpperCase().trim()] || '#6c757d';
         }}
 
         // LINE LEADER Assignment Modal function (2026-01-18, Updated 2026-01-23 Issue #49)
@@ -14891,8 +15083,40 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         }}
 
         // 새로운 접이식 조직도 그리기 함count
+        // [Issue #57] Building 필터 드롭다운 동적 생성
+        function populateBuildingFilter() {{
+            const select = document.getElementById('orgBuildingFilter');
+            if (!select) return;
+
+            // 현재 선택값 보존
+            const currentValue = select.value;
+
+            // "전체" 옵션만 유지, 나머지 제거
+            while (select.options.length > 1) select.remove(1);
+
+            // employeeData에서 실제 존재하는 Building 추출
+            const allBuildings = [...new Set(
+                (window.employeeData || []).map(emp => (emp.BUILDING || emp.building || '').toUpperCase().trim())
+                .filter(b => b && b !== 'NAN' && b !== 'NONE' && b !== '')
+            )].sort((a, b) => a.localeCompare(b, undefined, {{numeric: true}}));
+
+            // 동적 옵션 추가
+            allBuildings.forEach(b => {{
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                select.appendChild(opt);
+            }});
+
+            // 이전 선택값 복원
+            if (currentValue && [...select.options].some(o => o.value === currentValue)) {{
+                select.value = currentValue;
+            }}
+        }}
+
         function drawOrgChart() {{
-            buildBuildingSummaryCards();  // Building 요약 카드 업데이트
+            populateBuildingFilter();      // [Issue #57] Building 필터 동적 생성
+            buildBuildingSummaryCards();    // Building 요약 카드 업데이트
             drawCollapsibleOrgChart();
         }}
 
@@ -18779,6 +19003,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // 출근율 색상
                 const attendanceClass = attendanceRate >= {th_attendance_rate} ? 'text-success' : 'text-danger';
 
+                // [Issue #57] Building 배지 (색상 매핑 사용)
+                const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase().trim();
+                const bldgColor = getBuildingColor(empBuilding);
+                const buildingBadge = empBuilding && empBuilding !== 'NAN' && empBuilding !== 'NONE'
+                    ? `<span class="badge" style="background-color: ${{bldgColor}}; font-size: 0.75em;">${{empBuilding}}</span>`
+                    : '<span class="badge bg-secondary" style="font-size: 0.75em;">-</span>';
+
                 const row = document.createElement('tr');
                 if (isResigned) row.classList.add('table-secondary');
 
@@ -18786,6 +19017,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${{empNo}}</td>
                     <td>${{name}}</td>
                     <td>${{position}}</td>
+                    <td class="text-center">${{buildingBadge}}</td>
                     <td>${{statusBadge}}</td>
                     <td class="text-end">${{incentive > 0 ? incentive.toLocaleString() + ' VND' : '-'}}</td>
                     <td class="text-center">${{absenceDays > 0 ? '<span class="text-danger">' + absenceDays + '</span>' : '0'}}</td>

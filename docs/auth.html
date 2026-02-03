@@ -346,7 +346,7 @@
                 </div>
                 <div class="security-item">
                     <div class="security-item-icon">⏱️</div>
-                    <div class="security-item-text">60 min session</div>
+                    <div class="security-item-text">30 min session</div>
                 </div>
             </div>
         </div>
@@ -378,9 +378,27 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
-        // Session Configuration
+        // Session Configuration (Issue #59: Security Enhancement)
         const SESSION_KEY = 'qip_firebase_session';
-        const SESSION_TIMEOUT = 60 * 60 * 1000; // 60 minutes
+        const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes (보안 강화: 60 → 30)
+
+        // 브라우저 핑거프린트 생성 (세션 서명용)
+        function generateFingerprint() {
+            const data = [
+                navigator.userAgent,
+                navigator.language,
+                screen.width + 'x' + screen.height,
+                new Date().getTimezoneOffset()
+            ].join('|');
+            // Simple hash function
+            let hash = 0;
+            for (let i = 0; i < data.length; i++) {
+                const char = data.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString(36);
+        }
 
         // Check for existing valid session
         function checkExistingSession() {
@@ -455,13 +473,14 @@
                 const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
                 const user = userCredential.user;
 
-                // Store session data
+                // Store session data with signature (Issue #59: Security Enhancement)
                 const sessionData = {
                     authenticated: true,
                     uid: user.uid,
                     email: user.email,
                     displayName: user.displayName || email.split('@')[0],
-                    loginTime: Date.now()
+                    loginTime: Date.now(),
+                    signature: generateFingerprint() // 세션 서명 (조작 방지)
                 };
 
                 sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
@@ -480,20 +499,21 @@
             }
         });
 
-        // Firebase auth state listener
+        // Firebase auth state listener (Issue #59: Updated with signature)
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 // User is signed in, check if session exists
                 const session = sessionStorage.getItem(SESSION_KEY);
                 if (!session) {
                     // Session doesn't exist but Firebase says user is logged in
-                    // This can happen after page reload, create session
+                    // This can happen after page reload, create session with signature
                     const sessionData = {
                         authenticated: true,
                         uid: user.uid,
                         email: user.email,
                         displayName: user.displayName || user.email.split('@')[0],
-                        loginTime: Date.now()
+                        loginTime: Date.now(),
+                        signature: generateFingerprint() // 세션 서명 추가
                     };
                     sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
                 }

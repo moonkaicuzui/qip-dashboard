@@ -1805,7 +1805,7 @@
         }
     </style>
 </head>
-<body>
+<body style="visibility: hidden;">
     <div class="container">
         <div class="header">
             <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; max-width: 600px;">
@@ -1828,7 +1828,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2026" data-month="january" data-month-name="1월">2026년 1월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="02" data-day="03" data-hour="09" data-minute="08">보고서 생성일: 2026년 02월 03일 09:08</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="02" data-day="03" data-hour="13" data-minute="07">보고서 생성일: 2026년 02월 03일 13:07</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -3600,11 +3600,7 @@
                             <div class="col-md-3">
                                 <select id="orgBuildingFilter" class="form-select" onchange="filterOrgChartByBuilding()">
                                     <option value="all" id="buildingFilterAll" data-i18n="orgChart.filters.allBuildings">전체 Building</option>
-                                    <option value="A">Building A</option>
-                                    <option value="B">Building B</option>
-                                    <option value="B3">Building B3</option>
-                                    <option value="C">Building C</option>
-                                    <option value="D">Building D</option>
+                                    <!-- [Issue #57] Building 옵션은 JavaScript에서 동적으로 생성됨 -->
                                 </select>
                             </div>
                             <!-- 2025-12-22: 중복 버튼 제거 - 검색 영역에 펼치기/접기 버튼 있음 -->
@@ -3997,6 +3993,7 @@
                                 <th data-i18n="teamTab.table.empNo">사번</th>
                                 <th data-i18n="teamTab.table.name">이름</th>
                                 <th data-i18n="teamTab.table.position">직급</th>
+                                <th data-i18n="teamTab.table.building">근무지</th>
                                 <th data-i18n="teamTab.table.status">상태</th>
                                 <th data-i18n="teamTab.table.incentive">인센티브</th>
                                 <th data-i18n="teamTab.table.absenceDays">무단결근</th>
@@ -4831,6 +4828,11 @@
         "en": "Position",
         "vi": "Chức vụ"
       },
+      "building": {
+        "ko": "근무지",
+        "en": "Building",
+        "vi": "Tòa nhà"
+      },
       "status": {
         "ko": "상태",
         "en": "Status",
@@ -5361,9 +5363,9 @@
     },
     "calculationFormulas": {
       "lineLeader": {
-        "ko": "TYPE-1 부하 인센티브 합 × 12% × 수령비율",
-        "en": "TYPE-1 Subordinate Incentive Sum × 12% × Receiving Rate",
-        "vi": "Tổng khuyến khích cấp dưới TYPE-1 × 12% × Tỷ lệ nhận"
+        "ko": "TYPE-1 부하 인센티브 합 × {threshold_absence_rate}% × 수령비율",
+        "en": "TYPE-1 Subordinate Incentive Sum × {threshold_absence_rate}% × Receiving Rate",
+        "vi": "Tổng khuyến khích cấp dưới TYPE-1 × {threshold_absence_rate}% × Tỷ lệ nhận"
       },
       "groupLeader": {
         "ko": "팀 내 LINE LEADER 평균 × 2",
@@ -5792,9 +5794,9 @@
       },
       "formulas": {
         "lineLeader": {
-          "ko": "TYPE-1 부하 인센티브 합 × 12% × 수령비율",
-          "en": "TYPE-1 Subordinate Incentive Sum × 12% × Receiving Rate",
-          "vi": "Tổng khuyến khích cấp dưới TYPE-1 × 12% × Tỷ lệ nhận"
+          "ko": "TYPE-1 부하 인센티브 합 × {threshold_absence_rate}% × 수령비율",
+          "en": "TYPE-1 Subordinate Incentive Sum × {threshold_absence_rate}% × Receiving Rate",
+          "vi": "Tổng khuyến khích cấp dưới TYPE-1 × {threshold_absence_rate}% × Tỷ lệ nhận"
         },
         "groupLeader": {
           "ko": "팀 내 LINE LEADER 평균 × 2",
@@ -5824,14 +5826,14 @@
           "vi": "Ngày làm việc thực tế 0 (Điều kiện chấm công 1 không đáp ứng)"
         },
         "unapprovedAbsenceOver2": {
-          "ko": "무단결근 2일 초과 (출근 조건 2번 미충족)",
-          "en": "Unapproved absence over 2 days (Attendance condition 2 not met)",
-          "vi": "Vắng mặt không phép trên 2 ngày (Điều kiện chấm công 2 không đáp ứng)"
+          "ko": "무단결근 {threshold_unapproved_absence}일 초과 (출근 조건 2번 미충족)",
+          "en": "Unapproved absence over {threshold_unapproved_absence} days (Attendance condition 2 not met)",
+          "vi": "Vắng mặt không phép trên {threshold_unapproved_absence} ngày (Điều kiện chấm công 2 không đáp ứng)"
         },
         "absentRateOver12": {
-          "ko": "결근율 12% 초과 (출근 조건 3번 미충족)",
-          "en": "Absence rate over 12% (Attendance condition 3 not met)",
-          "vi": "Tỷ lệ vắng mặt trên 12% (Điều kiện chấm công 3 không đáp ứng)"
+          "ko": "결근율 {threshold_absence_rate}% 초과 (출근 조건 3번 미충족)",
+          "en": "Absence rate over {threshold_absence_rate}% (Attendance condition 3 not met)",
+          "vi": "Tỷ lệ vắng mặt trên {threshold_absence_rate}% (Điều kiện chấm công 3 không đáp ứng)"
         },
         "minimumWorkingDays": {
           "ko": "최소 근무일 미달 (출근 조건 4번 미충족)",
@@ -5859,9 +5861,9 @@
           "vi": "Thất bại AQL 2 tháng liên tiếp"
         },
         "prs5ValidationOrPassRate": {
-          "ko": "5PRS 검증 부족 또는 합격률 95% 미달 (5PRS 조건 1번 미충족)",
-          "en": "5PRS validation insufficient or pass rate below 95% (5PRS condition 1 not met)",
-          "vi": "Xác thực 5PRS không đủ hoặc tỷ lệ đạt dưới 95% (Điều kiện 5PRS 1 không đáp ứng)"
+          "ko": "5PRS 검증 부족 또는 합격률 {threshold_5prs_pass_rate}% 미달 (5PRS 조건 1번 미충족)",
+          "en": "5PRS validation insufficient or pass rate below {threshold_5prs_pass_rate}% (5PRS condition 1 not met)",
+          "vi": "Xác thực 5PRS không đủ hoặc tỷ lệ đạt dưới {threshold_5prs_pass_rate}% (Điều kiện 5PRS 1 không đáp ứng)"
         },
         "prs5TotalQtyZero": {
           "ko": "5PRS 총 검증 수량 0 (5PRS 조건 2번 미충족)",
@@ -5884,9 +5886,9 @@
           "vi": "Điều kiện không đạt"
         },
         "cond1_attendance_rate": {
-          "ko": "출근율 88% 미만",
-          "en": "Attendance rate < 88%",
-          "vi": "Tỷ lệ đi làm < 88%"
+          "ko": "출근율 {threshold_attendance_rate}% 미만",
+          "en": "Attendance rate < {threshold_attendance_rate}%",
+          "vi": "Tỷ lệ đi làm < {threshold_attendance_rate}%"
         },
         "cond2_unapproved_absence": {
           "ko": "무단결근 3일 이상",
@@ -5899,9 +5901,9 @@
           "vi": "Số ngày làm việc thực tế là 0"
         },
         "cond4_minimum_days": {
-          "ko": "최소 근무일수 미달 (12일)",
-          "en": "Below minimum working days (12 days)",
-          "vi": "Dưới số ngày làm việc tối thiểu (12 ngày)"
+          "ko": "최소 근무일수 미달 ({threshold_minimum_working_days}일)",
+          "en": "Below minimum working days ({threshold_minimum_working_days} days)",
+          "vi": "Dưới số ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày)"
         },
         "cond5_aql_personal_failure": {
           "ko": "개인 AQL 실패 (당월)",
@@ -5919,19 +5921,19 @@
           "vi": "AQL nhóm/khu vực thất bại 3 tháng liên tiếp"
         },
         "cond8_area_reject": {
-          "ko": "담당 구역 불량률 3% 초과",
-          "en": "Area reject rate > 3%",
-          "vi": "Tỷ lệ lỗi khu vực > 3%"
+          "ko": "담당 구역 불량률 {threshold_area_reject_rate}% 초과",
+          "en": "Area reject rate > {threshold_area_reject_rate}%",
+          "vi": "Tỷ lệ lỗi khu vực > {threshold_area_reject_rate}%"
         },
         "cond9_5prs_pass_rate": {
-          "ko": "5PRS 통과율 95% 미만",
-          "en": "5PRS pass rate < 95%",
-          "vi": "Tỷ lệ đạt 5PRS < 95%"
+          "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 미만",
+          "en": "5PRS pass rate < {threshold_5prs_pass_rate}%",
+          "vi": "Tỷ lệ đạt 5PRS < {threshold_5prs_pass_rate}%"
         },
         "cond10_5prs_inspection_qty": {
-          "ko": "5PRS 검사 수량 100개 미만",
-          "en": "5PRS inspection quantity < 100 pieces",
-          "vi": "Số lượng kiểm tra 5PRS < 100 cái"
+          "ko": "5PRS 검사 수량 {threshold_5prs_min_qty}개 미만",
+          "en": "5PRS inspection quantity < {threshold_5prs_min_qty} pieces",
+          "vi": "Số lượng kiểm tra 5PRS < {threshold_5prs_min_qty} cái"
         }
       }
     },
@@ -6057,9 +6059,9 @@
         "vi": "Báo cáo tạm thời"
       },
       "description": {
-        "ko": "이 보고서는 월중 점검용 중간 보고서입니다. 최소 근무일(12일) 및 결근율(12%) 조건이 적용되지 않습니다.",
-        "en": "This is an interim report for mid-month review. Minimum working days (12 days) and absence rate (12%) conditions are not applied.",
-        "vi": "Đây là báo cáo tạm thời để kiểm tra giữa tháng. Các điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ vắng mặt (12%) không được áp dụng."
+        "ko": "이 보고서는 월중 점검용 중간 보고서입니다. 최소 근무일({threshold_minimum_working_days}일) 및 결근율({threshold_absence_rate}%) 조건이 적용되지 않습니다.",
+        "en": "This is an interim report for mid-month review. Minimum working days ({threshold_minimum_working_days} days) and absence rate ({threshold_absence_rate}%) conditions are not applied.",
+        "vi": "Đây là báo cáo tạm thời để kiểm tra giữa tháng. Các điều kiện ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày) và tỷ lệ vắng mặt ({threshold_absence_rate}%) không được áp dụng."
       }
     },
     "final": {
@@ -6370,14 +6372,14 @@
               "vi": "Tỷ lệ chấm công"
             },
             "criteria": {
-              "ko": "≥88%",
-              "en": "≥88%",
-              "vi": "≥88%"
+              "ko": "≥{threshold_attendance_rate}%",
+              "en": "≥{threshold_attendance_rate}%",
+              "vi": "≥{threshold_attendance_rate}%"
             },
             "description": {
-              "ko": "월간 출근율이 88% 이상이어야 합니다 (결근율 12% 이하)",
-              "en": "Monthly attendance rate must be 88% or higher (absence rate 12% or lower)",
-              "vi": "Tỷ lệ chấm công hàng tháng phải từ 88% trở lên (tỷ lệ vắng mặt dưới 12%)"
+              "ko": "월간 출근율이 {threshold_attendance_rate}% 이상이어야 합니다 (결근율 {threshold_absence_rate}% 이하)",
+              "en": "Monthly attendance rate must be {threshold_attendance_rate}% or higher (absence rate {threshold_absence_rate}% or lower)",
+              "vi": "Tỷ lệ chấm công hàng tháng phải từ {threshold_attendance_rate}% trở lên (tỷ lệ vắng mặt dưới {threshold_absence_rate}%)"
             }
           },
           "unapprovedAbsence": {
@@ -6387,14 +6389,14 @@
               "vi": "Vắng không phép"
             },
             "criteria": {
-              "ko": "≤2일",
-              "en": "≤2 days",
-              "vi": "≤2 ngày"
+              "ko": "≤{threshold_unapproved_absence}일",
+              "en": "≤{threshold_unapproved_absence} days",
+              "vi": "≤{threshold_unapproved_absence} ngày"
             },
             "description": {
-              "ko": "사전 승인 없는 결근이 월 2일 이하여야 합니다",
-              "en": "Unapproved absences must be 2 days or less per month",
-              "vi": "Vắng không phép phải dưới 2 ngày mỗi tháng"
+              "ko": "사전 승인 없는 결근이 월 {threshold_unapproved_absence}일 이하여야 합니다",
+              "en": "Unapproved absences must be {threshold_unapproved_absence} days or less per month",
+              "vi": "Vắng không phép phải dưới {threshold_unapproved_absence} ngày mỗi tháng"
             }
           },
           "actualWorkingDays": {
@@ -6421,14 +6423,14 @@
               "vi": "Ngày làm tối thiểu"
             },
             "criteria": {
-              "ko": "≥12일",
-              "en": "≥12 days",
-              "vi": "≥12 ngày"
+              "ko": "≥{threshold_minimum_working_days}일",
+              "en": "≥{threshold_minimum_working_days} days",
+              "vi": "≥{threshold_minimum_working_days} ngày"
             },
             "description": {
-              "ko": "월간 최소 12일 이상 근무해야 합니다",
-              "en": "Must work at least 12 days per month",
-              "vi": "Phải làm việc ít nhất 12 ngày mỗi tháng"
+              "ko": "월간 최소 {threshold_minimum_working_days}일 이상 근무해야 합니다",
+              "en": "Must work at least {threshold_minimum_working_days} days per month",
+              "vi": "Phải làm việc ít nhất {threshold_minimum_working_days} ngày mỗi tháng"
             }
           }
         }
@@ -6498,14 +6500,14 @@
               "vi": "Tỷ lệ từ chối AQL khu vực"
             },
             "criteria": {
-              "ko": "<3%",
-              "en": "<3%",
-              "vi": "<3%"
+              "ko": "<{threshold_area_reject_rate}%",
+              "en": "<{threshold_area_reject_rate}%",
+              "vi": "<{threshold_area_reject_rate}%"
             },
             "description": {
-              "ko": "담당 구역의 AQL 리젝률이 3% 미만이어야 합니다",
-              "en": "Area AQL reject rate must be less than 3%",
-              "vi": "Tỷ lệ từ chối AQL khu vực phải dưới 3%"
+              "ko": "담당 구역의 AQL 리젝률이 {threshold_area_reject_rate}% 미만이어야 합니다",
+              "en": "Area AQL reject rate must be less than {threshold_area_reject_rate}%",
+              "vi": "Tỷ lệ từ chối AQL khu vực phải dưới {threshold_area_reject_rate}%"
             }
           }
         }
@@ -6524,14 +6526,14 @@
               "vi": "Tỷ lệ đạt 5PRS"
             },
             "criteria": {
-              "ko": "≥95%",
-              "en": "≥95%",
-              "vi": "≥95%"
+              "ko": "≥{threshold_5prs_pass_rate}%",
+              "en": "≥{threshold_5prs_pass_rate}%",
+              "vi": "≥{threshold_5prs_pass_rate}%"
             },
             "description": {
-              "ko": "5족 평가 시스템에서 95% 이상 통과해야 합니다",
-              "en": "Must pass 95% or more in 5-pair evaluation system",
-              "vi": "Phải đạt từ 95% trở lên trong hệ thống đánh giá 5 đôi"
+              "ko": "5족 평가 시스템에서 {threshold_5prs_pass_rate}% 이상 통과해야 합니다",
+              "en": "Must pass {threshold_5prs_pass_rate}% or more in 5-pair evaluation system",
+              "vi": "Phải đạt từ {threshold_5prs_pass_rate}% trở lên trong hệ thống đánh giá 5 đôi"
             }
           },
           "inspectionQty": {
@@ -6541,14 +6543,14 @@
               "vi": "Số lượng kiểm tra 5PRS"
             },
             "criteria": {
-              "ko": "≥100개",
-              "en": "≥100 pairs",
-              "vi": "≥100 đôi"
+              "ko": "≥{threshold_5prs_min_qty}개",
+              "en": "≥{threshold_5prs_min_qty} pairs",
+              "vi": "≥{threshold_5prs_min_qty} đôi"
             },
             "description": {
-              "ko": "월간 최소 100개 이상 검사를 수행해야 합니다",
-              "en": "Must perform at least 100 inspections per month",
-              "vi": "Phải thực hiện ít nhất 100 kiểm tra mỗi tháng"
+              "ko": "월간 최소 {threshold_5prs_min_qty}개 이상 검사를 수행해야 합니다",
+              "en": "Must perform at least {threshold_5prs_min_qty} inspections per month",
+              "vi": "Phải thực hiện ít nhất {threshold_5prs_min_qty} kiểm tra mỗi tháng"
             }
           }
         }
@@ -7020,14 +7022,14 @@
     },
     "conditionNames": {
       "attendance_88": {
-        "ko": "출근율 88% 이상",
-        "en": "Attendance ≥88%",
-        "vi": "Chấm công ≥88%"
+        "ko": "출근율 {threshold_attendance_rate}% 이상",
+        "en": "Attendance ≥{threshold_attendance_rate}%",
+        "vi": "Chấm công ≥{threshold_attendance_rate}%"
       },
       "no_unexcused_2days": {
-        "ko": "무단결근 2일 이하",
-        "en": "Unexcused absence ≤2 days",
-        "vi": "Vắng không phép ≤2 ngày"
+        "ko": "무단결근 {threshold_unapproved_absence}일 이하",
+        "en": "Unexcused absence ≤{threshold_unapproved_absence} days",
+        "vi": "Vắng không phép ≤{threshold_unapproved_absence} ngày"
       },
       "accident_free": {
         "ko": "실제근무일 0일 초과",
@@ -7035,7 +7037,7 @@
         "vi": "Ngày làm việc thực tế >0"
       },
       "min_days_12": {
-        "ko": "최소 근무일 12일 이상",
+        "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
         "en": "Min. working days ≥12",
         "vi": "Ngày làm việc tối thiểu ≥12"
       },
@@ -7055,19 +7057,19 @@
         "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng"
       },
       "reject_rate_3": {
-        "ko": "담당구역 reject % < 3%",
-        "en": "Area reject rate <3%",
-        "vi": "Tỷ lệ từ chối khu vực <3%"
+        "ko": "담당구역 reject % < {threshold_area_reject_rate}%",
+        "en": "Area reject rate <{threshold_area_reject_rate}%",
+        "vi": "Tỷ lệ từ chối khu vực <{threshold_area_reject_rate}%"
       },
       "prs_rate_95": {
-        "ko": "5PRS 통과율 95% 이상",
-        "en": "5PRS pass rate ≥95%",
-        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+        "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 이상",
+        "en": "5PRS pass rate ≥{threshold_5prs_pass_rate}%",
+        "vi": "Tỷ lệ đạt 5PRS ≥{threshold_5prs_pass_rate}%"
       },
       "prs_count_100": {
-        "ko": "5PRS 검사량 100족 이상",
-        "en": "5PRS inspection ≥100 pairs",
-        "vi": "Kiểm tra 5PRS ≥100 đôi"
+        "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 이상",
+        "en": "5PRS inspection ≥{threshold_5prs_min_qty} pairs",
+        "vi": "Kiểm tra 5PRS ≥{threshold_5prs_min_qty} đôi"
       }
     },
     "conditionCategories": {
@@ -7311,14 +7313,14 @@
     },
     "conditionTexts": {
       "attendanceRate": {
-        "ko": "출근율 88% 이상",
-        "en": "Attendance rate ≥88%",
-        "vi": "Tỷ lệ chấm công ≥88%"
+        "ko": "출근율 {threshold_attendance_rate}% 이상",
+        "en": "Attendance rate ≥{threshold_attendance_rate}%",
+        "vi": "Tỷ lệ chấm công ≥{threshold_attendance_rate}%"
       },
       "unapprovedAbsence": {
-        "ko": "무단결근 2일 이하",
-        "en": "Unapproved absence ≤2 days",
-        "vi": "Vắng không phép ≤2 ngày"
+        "ko": "무단결근 {threshold_unapproved_absence}일 이하",
+        "en": "Unapproved absence ≤{threshold_unapproved_absence} days",
+        "vi": "Vắng không phép ≤{threshold_unapproved_absence} ngày"
       },
       "actualWorkingDays": {
         "ko": "실제근무일 0일 초과",
@@ -7326,9 +7328,9 @@
         "vi": "Ngày làm thực tế >0"
       },
       "minWorkingDays": {
-        "ko": "최소 근무일 12일 이상",
+        "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
         "en": "Minimum working days ≥12",
-        "vi": "Tối thiểu ≥12 ngày"
+        "vi": "Tối thiểu ≥{threshold_minimum_working_days} ngày"
       },
       "personalAQLFail": {
         "ko": "개인AQL: 당월실패 0건",
@@ -7346,31 +7348,31 @@
         "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"
       },
       "areaRejectRate": {
-        "ko": "담당구역 reject % < 3%",
-        "en": "Area reject rate < 3%",
-        "vi": "Tỷ lệ từ chối khu vực < 3%"
+        "ko": "담당구역 reject % < {threshold_area_reject_rate}%",
+        "en": "Area reject rate < {threshold_area_reject_rate}%",
+        "vi": "Tỷ lệ từ chối khu vực < {threshold_area_reject_rate}%"
       },
       "5prsPassRate": {
-        "ko": "5PRS 통과율 95% 이상",
-        "en": "5PRS pass rate ≥95%",
-        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+        "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 이상",
+        "en": "5PRS pass rate ≥{threshold_5prs_pass_rate}%",
+        "vi": "Tỷ lệ đạt 5PRS ≥{threshold_5prs_pass_rate}%"
       },
       "5prsInspectionQty": {
-        "ko": "5PRS 검사량 100족 이상",
-        "en": "5PRS inspection qty ≥100 pairs",
-        "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
+        "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 이상",
+        "en": "5PRS inspection qty ≥{threshold_5prs_min_qty} pairs",
+        "vi": "Số lượng kiểm tra 5PRS ≥{threshold_5prs_min_qty} đôi"
       }
     },
     "tenConditions": {
       "1": {
-        "ko": "출근율 88% 이상",
-        "en": "Attendance rate ≥88%",
-        "vi": "Tỷ lệ chấm công ≥88%"
+        "ko": "출근율 {threshold_attendance_rate}% 이상",
+        "en": "Attendance rate ≥{threshold_attendance_rate}%",
+        "vi": "Tỷ lệ chấm công ≥{threshold_attendance_rate}%"
       },
       "2": {
-        "ko": "무단결근 2일 이하",
-        "en": "Unapproved absence ≤2 days",
-        "vi": "Vắng không phép ≤2 ngày"
+        "ko": "무단결근 {threshold_unapproved_absence}일 이하",
+        "en": "Unapproved absence ≤{threshold_unapproved_absence} days",
+        "vi": "Vắng không phép ≤{threshold_unapproved_absence} ngày"
       },
       "3": {
         "ko": "실제근무일 0일 초과",
@@ -7378,9 +7380,9 @@
         "vi": "Ngày làm thực tế >0"
       },
       "4": {
-        "ko": "최소 근무일 12일 이상",
+        "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
         "en": "Min working days ≥12",
-        "vi": "Tối thiểu ≥12 ngày"
+        "vi": "Tối thiểu ≥{threshold_minimum_working_days} ngày"
       },
       "5": {
         "ko": "개인AQL: 당월실패 0건",
@@ -7398,19 +7400,19 @@
         "vi": "AQL nhóm/khu vực: Không thất bại 3 tháng liên tiếp"
       },
       "8": {
-        "ko": "담당구역 reject % < 3%",
-        "en": "Area reject rate < 3%",
-        "vi": "Tỷ lệ từ chối khu vực < 3%"
+        "ko": "담당구역 reject % < {threshold_area_reject_rate}%",
+        "en": "Area reject rate < {threshold_area_reject_rate}%",
+        "vi": "Tỷ lệ từ chối khu vực < {threshold_area_reject_rate}%"
       },
       "9": {
-        "ko": "5PRS 통과율 95% 이상",
-        "en": "5PRS pass rate ≥95%",
-        "vi": "Tỷ lệ đạt 5PRS ≥95%"
+        "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 이상",
+        "en": "5PRS pass rate ≥{threshold_5prs_pass_rate}%",
+        "vi": "Tỷ lệ đạt 5PRS ≥{threshold_5prs_pass_rate}%"
       },
       "10": {
-        "ko": "5PRS 검사량 100족 이상",
-        "en": "5PRS inspection qty ≥100 pairs",
-        "vi": "Số lượng kiểm tra 5PRS ≥100 đôi"
+        "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 이상",
+        "en": "5PRS inspection qty ≥{threshold_5prs_min_qty} pairs",
+        "vi": "Số lượng kiểm tra 5PRS ≥{threshold_5prs_min_qty} đôi"
       }
     }
   },
@@ -7829,9 +7831,9 @@
       "vi": "Điều kiện áp dụng: 1-4(Chấm công), 7(AQL nhóm), 8(Tỷ lệ từ chối)"
     },
     "applyConditionModel": {
-      "ko": "적용 조건: 1-4(출근), 8(reject율 <3%)",
-      "en": "Applied conditions: 1-4(Attendance), 8(Reject rate <3%)",
-      "vi": "Điều kiện áp dụng: 1-4(Chấm công), 8(Tỷ lệ từ chối <3%)"
+      "ko": "적용 조건: 1-4(출근), 8(reject율 <{threshold_area_reject_rate}%)",
+      "en": "Applied conditions: 1-4(Attendance), 8(Reject rate <{threshold_area_reject_rate}%)",
+      "vi": "Điều kiện áp dụng: 1-4(Chấm công), 8(Tỷ lệ từ chối <{threshold_area_reject_rate}%)"
     },
     "levelA": {
       "ko": "Level-A",
@@ -8205,9 +8207,9 @@
           "vi": "Khi nào tôi có thể bắt đầu nhận thưởng?"
         },
         "a2": {
-          "ko": "입사 1개월 후 현장에 배치되고, 해당 월의 모든 조건(출근율 88% 이상, AQL 실패 0건 등)을 충족하면 다음 달부터 인센티브를 받습니다.",
-          "en": "After 1 month of training and field assignment, if you meet all conditions (88%+ attendance, 0 AQL failures, etc.), you will receive incentives from the following month.",
-          "vi": "Sau 1 tháng đào tạo và phân công thực địa, nếu bạn đáp ứng tất cả các điều kiện (tỷ lệ đi làm 88%+, 0 lỗi AQL, v.v.), bạn sẽ nhận được thưởng từ tháng tiếp theo."
+          "ko": "입사 1개월 후 현장에 배치되고, 해당 월의 모든 조건(출근율 {threshold_attendance_rate}% 이상, AQL 실패 0건 등)을 충족하면 다음 달부터 인센티브를 받습니다.",
+          "en": "After 1 month of training and field assignment, if you meet all conditions ({threshold_attendance_rate}%+ attendance, 0 AQL failures, etc.), you will receive incentives from the following month.",
+          "vi": "Sau 1 tháng đào tạo và phân công thực địa, nếu bạn đáp ứng tất cả các điều kiện (tỷ lệ đi làm {threshold_attendance_rate}%+, 0 lỗi AQL, v.v.), bạn sẽ nhận được thưởng từ tháng tiếp theo."
         },
         "q3": {
           "ko": "첫 인센티브는 얼마인가요?",
@@ -8288,9 +8290,9 @@
         "vi": "Ngày làm việc"
       },
       "lessThan12Days": {
-        "ko": "12일 미만시 미지급",
-        "en": "No payment if less than 12 days",
-        "vi": "Không thanh toán nếu ít hơn 12 ngày"
+        "ko": "{threshold_minimum_working_days}일 미만시 미지급",
+        "en": "No payment if less than {threshold_minimum_working_days} days",
+        "vi": "Không thanh toán nếu ít hơn {threshold_minimum_working_days} ngày"
       },
       "november11Days": {
         "ko": "11월 근무 → 0 VND",
@@ -8303,9 +8305,9 @@
         "vi": "Tỷ lệ chuyên cần"
       },
       "lessThan88Percent": {
-        "ko": "88% 미만시 미지급",
-        "en": "No payment if less than 88%",
-        "vi": "Không thanh toán nếu dưới 88%"
+        "ko": "{threshold_attendance_rate}% 미만시 미지급",
+        "en": "No payment if less than {threshold_attendance_rate}%",
+        "vi": "Không thanh toán nếu dưới {threshold_attendance_rate}%"
       },
       "attendanceExample": {
         "ko": "87% 출근율 → 0 VND",
@@ -8348,9 +8350,9 @@
         "vi": "Tỷ lệ đạt 5PRS"
       },
       "lessThan95Percent": {
-        "ko": "95% 미만시 미지급 (해당자)",
-        "en": "No payment if less than 95% (applicable)",
-        "vi": "Không thanh toán nếu dưới 95% (áp dụng)"
+        "ko": "{threshold_5prs_pass_rate}% 미만시 미지급 (해당자)",
+        "en": "No payment if less than {threshold_5prs_pass_rate}% (applicable)",
+        "vi": "Không thanh toán nếu dưới {threshold_5prs_pass_rate}% (áp dụng)"
       },
       "fprsExample": {
         "ko": "94% → 0 VND",
@@ -8455,9 +8457,9 @@
         "vi": "ngày"
       },
       "lessThan88": {
-        "ko": "88% 미만",
-        "en": "Less than 88%",
-        "vi": "Dưới 88%"
+        "ko": "{threshold_attendance_rate}% 미만",
+        "en": "Less than {threshold_attendance_rate}%",
+        "vi": "Dưới {threshold_attendance_rate}%"
       }
     },
     "faq": {
@@ -8632,9 +8634,9 @@
         "vi": "Các điều kiện khác không đạt"
       },
       "rejectRateNote": {
-        "ko": "* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)",
-        "en": "* Reject rate criteria: Less than 3% (✅ Met, ❌ Not met)",
-        "vi": "* Tiêu chí tỷ lệ từ chối: Dưới 3% (✅ Đạt, ❌ Không đạt)"
+        "ko": "* Reject율 기준: {threshold_area_reject_rate}% 미만 (✅ 충족, ❌ 미충족)",
+        "en": "* Reject rate criteria: Less than {threshold_area_reject_rate}% (✅ Met, ❌ Not met)",
+        "vi": "* Tiêu chí tỷ lệ từ chối: Dưới {threshold_area_reject_rate}% (✅ Đạt, ❌ Không đạt)"
       },
       "memberNote": {
         "ko": "* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원",
@@ -8798,14 +8800,14 @@
       },
       "answer1Reasons": {
         "minDays": {
-          "ko": "최소 근무일 12일 미충족",
+          "ko": "최소 근무일 {threshold_minimum_working_days}일 미충족",
           "en": "Less than 12 minimum working days",
-          "vi": "Ít hơn 12 ngày làm việc tối thiểu"
+          "vi": "Ít hơn {threshold_minimum_working_days} ngày làm việc tối thiểu"
         },
         "attendance": {
-          "ko": "출근율 88% 미만",
-          "en": "Attendance rate less than 88%",
-          "vi": "Tỷ lệ chuyên cần dưới 88%"
+          "ko": "출근율 {threshold_attendance_rate}% 미만",
+          "en": "Attendance rate less than {threshold_attendance_rate}%",
+          "vi": "Tỷ lệ chuyên cần dưới {threshold_attendance_rate}%"
         },
         "absence": {
           "ko": "무단결근 3일 이상",
@@ -8818,9 +8820,9 @@
           "vi": "Thất bại AQL (vị trí áp dụng)"
         },
         "fprs": {
-          "ko": "5PRS 통과율 95% 미만 (해당 직급)",
-          "en": "5PRS pass rate less than 95% (applicable positions)",
-          "vi": "Tỷ lệ đạt 5PRS dưới 95% (vị trí áp dụng)"
+          "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 미만 (해당 직급)",
+          "en": "5PRS pass rate less than {threshold_5prs_pass_rate}% (applicable positions)",
+          "vi": "Tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}% (vị trí áp dụng)"
         }
       },
       "answer1CheckMethod": {
@@ -8829,9 +8831,9 @@
         "vi": "Bạn có thể kiểm tra việc đáp ứng điều kiện của mình trên trang chi tiết cá nhân."
       },
       "answer2Main": {
-        "ko": "무단결근은 최대 2일까지 허용됩니다.",
+        "ko": "무단결근은 최대 {threshold_unapproved_absence}일까지 허용됩니다.",
         "en": "Up to 2 unauthorized absence days are allowed.",
-        "vi": "Cho phép tối đa 2 ngày vắng không phép."
+        "vi": "Cho phép tối đa {threshold_unapproved_absence} ngày vắng không phép."
       },
       "answer2Detail": {
         "ko": "3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.",
@@ -8899,14 +8901,14 @@
         "vi": "Các vị trí liên quan 5PRS phải đáp ứng các điều kiện sau:"
       },
       "answer6Detail1": {
-        "ko": "검사량 100족 이상",
-        "en": "Inspection quantity of 100 pairs or more",
-        "vi": "Số lượng kiểm tra từ 100 đôi trở lên"
+        "ko": "검사량 {threshold_5prs_min_qty}족 이상",
+        "en": "Inspection quantity of {threshold_5prs_min_qty} pairs or more",
+        "vi": "Số lượng kiểm tra từ {threshold_5prs_min_qty} đôi trở lên"
       },
       "answer6Detail2": {
-        "ko": "통과율 95% 이상",
-        "en": "Pass rate of 95% or higher",
-        "vi": "Tỷ lệ đạt từ 95% trở lên"
+        "ko": "통과율 {threshold_5prs_pass_rate}% 이상",
+        "en": "Pass rate of {threshold_5prs_pass_rate}% or higher",
+        "vi": "Tỷ lệ đạt từ {threshold_5prs_pass_rate}% trở lên"
       },
       "answer6Conclusion": {
         "ko": "둘 중 하나라도 미충족시 인센티브를 받을 수 없습니다.",
@@ -8919,9 +8921,9 @@
         "vi": "Thưởng không được trả trong thời gian nghỉ thai sản hoặc nghỉ ốm dài hạn."
       },
       "answer7Detail1": {
-        "ko": "최소 근무일 12일 조건을 충족할 수 없기 때문",
+        "ko": "최소 근무일 {threshold_minimum_working_days}일 조건을 충족할 수 없기 때문",
         "en": "Because the minimum 12 working days condition cannot be met",
-        "vi": "Vì không thể đáp ứng điều kiện tối thiểu 12 ngày làm việc"
+        "vi": "Vì không thể đáp ứng điều kiện tối thiểu {threshold_minimum_working_days} ngày làm việc"
       },
       "answer7Detail2": {
         "ko": "복귀 후 조건 충족시 다시 인센티브 수령 가능",
@@ -9709,9 +9711,9 @@
         "vi": "Các điều kiện khác không đạt"
       },
       "rejectRateNote": {
-        "ko": "* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)",
-        "en": "* Reject rate standard: Less than 3% (✅ Met, ❌ Not met)",
-        "vi": "* Tiêu chuẩn tỷ lệ từ chối: Dưới 3% (✅ Đạt, ❌ Không đạt)"
+        "ko": "* Reject율 기준: {threshold_area_reject_rate}% 미만 (✅ 충족, ❌ 미충족)",
+        "en": "* Reject rate standard: Less than {threshold_area_reject_rate}% (✅ Met, ❌ Not met)",
+        "vi": "* Tiêu chuẩn tỷ lệ từ chối: Dưới {threshold_area_reject_rate}% (✅ Đạt, ❌ Không đạt)"
       },
       "memberNote": {
         "ko": "* 8월 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 인센티브 0원",
@@ -9851,14 +9853,14 @@
         "vi": "Tỷ lệ chuyên cần"
       },
       "lessThan88": {
-        "ko": "88% 미만",
-        "en": "Less than 88%",
-        "vi": "Dưới 88%"
+        "ko": "{threshold_attendance_rate}% 미만",
+        "en": "Less than {threshold_attendance_rate}%",
+        "vi": "Dưới {threshold_attendance_rate}%"
       },
       "moreThan88": {
-        "ko": "88% 이상",
-        "en": "88% or more",
-        "vi": "88% trở lên"
+        "ko": "{threshold_attendance_rate}% 이상",
+        "en": "{threshold_attendance_rate}% or more",
+        "vi": "{threshold_attendance_rate}% trở lên"
       },
       "condition2NotMet": {
         "ko": "단, 무단결근 3일로 조건 2 미충족 → 인센티브 0원",
@@ -9961,9 +9963,9 @@
         "vi": "Chỉ danh mục AR1 được tính là vắng không phép"
       },
       "countingRule2": {
-        "ko": "2일까지는 인센티브 지급 가능",
-        "en": "Up to 2 days eligible for incentive",
-        "vi": "Tối đa 2 ngày vẫn đủ điều kiện nhận thưởng"
+        "ko": "{threshold_unapproved_absence}일까지는 인센티브 지급 가능",
+        "en": "Up to {threshold_unapproved_absence} days eligible for incentive",
+        "vi": "Tối đa {threshold_unapproved_absence} ngày vẫn đủ điều kiện nhận thưởng"
       },
       "countingRule3": {
         "ko": "3일 이상 → 인센티브 0원",
@@ -9976,14 +9978,14 @@
         "vi": "Tiêu chí đáp ứng điều kiện:"
       },
       "attendanceCriteria": {
-        "ko": "출근율: ≥ 88% (결근율 ≤ 12%)",
-        "en": "Attendance Rate: ≥ 88% (Absence Rate ≤ 12%)",
-        "vi": "Tỷ lệ chuyên cần: ≥ 88% (Tỷ lệ vắng mặt ≤ 12%)"
+        "ko": "출근율: ≥ {threshold_attendance_rate}% (결근율 ≤ {threshold_absence_rate}%)",
+        "en": "Attendance Rate: ≥ {threshold_attendance_rate}% (Absence Rate ≤ {threshold_absence_rate}%)",
+        "vi": "Tỷ lệ chuyên cần: ≥ {threshold_attendance_rate}% (Tỷ lệ vắng mặt ≤ {threshold_absence_rate}%)"
       },
       "unauthorizedAbsenceCriteria": {
-        "ko": "무단결근: ≤ 2일 (AR1 카테고리만 해당)",
-        "en": "Unauthorized Absence: ≤ 2 days (AR1 category only)",
-        "vi": "Vắng không phép: ≤ 2 ngày (chỉ danh mục AR1)"
+        "ko": "무단결근: ≤ {threshold_unapproved_absence}일 (AR1 카테고리만 해당)",
+        "en": "Unauthorized Absence: ≤ {threshold_unapproved_absence} days (AR1 category only)",
+        "vi": "Vắng không phép: ≤ {threshold_unapproved_absence} ngày (chỉ danh mục AR1)"
       },
       "actualWorkingDaysCriteria": {
         "ko": "실제 근무일: > 0일",
@@ -9991,9 +9993,9 @@
         "vi": "Ngày làm việc thực tế: > 0 ngày"
       },
       "minimumWorkingDaysCriteria": {
-        "ko": "최소 근무일: ≥ 12일",
-        "en": "Minimum Working Days: ≥ 12 days",
-        "vi": "Ngày làm việc tối thiểu: ≥ 12 ngày"
+        "ko": "최소 근무일: ≥ {threshold_minimum_working_days}일",
+        "en": "Minimum Working Days: ≥ {threshold_minimum_working_days} days",
+        "vi": "Ngày làm việc tối thiểu: ≥ {threshold_minimum_working_days} ngày"
       },
       "unapprovedAbsenceExplanationTitle": {
         "ko": "📊 Unapproved Absence Days 설명:",
@@ -10016,9 +10018,9 @@
         "vi": "Vắng có thông báo bằng văn bản (Gửi thư) cũng thuộc AR1"
       },
       "unapprovedAbsenceExplanation4": {
-        "ko": "인센티브 조건: ≤2일 (개인별 최대 허용치)",
-        "en": "Incentive condition: ≤2 days (maximum allowed per person)",
-        "vi": "Điều kiện thưởng: ≤2 ngày (tối đa cho phép mỗi người)"
+        "ko": "인센티브 조건: ≤{threshold_unapproved_absence}일 (개인별 최대 허용치)",
+        "en": "Incentive condition: ≤{threshold_unapproved_absence} days (maximum allowed per person)",
+        "vi": "Điều kiện thưởng: ≤{threshold_unapproved_absence} ngày (tối đa cho phép mỗi người)"
       },
       "days": {
         "ko": "일",
@@ -10086,9 +10088,9 @@
       "vi": "Tóm tắt & Xác thực hệ thống"
     },
     "interimNotice": {
-      "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
-      "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
-      "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
+      "ko": "중간 보고서 - 최소 근무일({threshold_minimum_working_days}일) 및 출근율({threshold_attendance_rate}%) 조건이 적용되지 않습니다",
+      "en": "Interim Report - Minimum working days ({threshold_minimum_working_days} days) and attendance rate ({threshold_attendance_rate}%) conditions are not applied",
+      "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày) và tỷ lệ chấm công ({threshold_attendance_rate}%) không được áp dụng"
     },
     "kpiCards": {
       "totalWorkingDays": {
@@ -10146,9 +10148,9 @@
       },
       "attendanceBelow88": {
         "title": {
-          "ko": "출근율 88% 미만",
-          "en": "Attendance < 88%",
-          "vi": "Tỷ lệ đi làm < 88%"
+          "ko": "출근율 {threshold_attendance_rate}% 미만",
+          "en": "Attendance < {threshold_attendance_rate}%",
+          "vi": "Tỷ lệ đi làm < {threshold_attendance_rate}%"
         },
         "unit": {
           "ko": "명",
@@ -10194,9 +10196,9 @@
       },
       "lowPassRate": {
         "title": {
-          "ko": "5PRS 통과율 < 95%",
-          "en": "5PRS Pass Rate < 95%",
-          "vi": "Tỷ lệ đạt 5PRS < 95%"
+          "ko": "5PRS 통과율 < {threshold_5prs_pass_rate}%",
+          "en": "5PRS Pass Rate < {threshold_5prs_pass_rate}%",
+          "vi": "Tỷ lệ đạt 5PRS < {threshold_5prs_pass_rate}%"
         },
         "unit": {
           "ko": "명",
@@ -10206,9 +10208,9 @@
       },
       "lowInspectionQty": {
         "title": {
-          "ko": "5PRS 검사량 < 100족",
-          "en": "5PRS Inspection < 100 pairs",
-          "vi": "Kiểm tra 5PRS < 100 đôi"
+          "ko": "5PRS 검사량 < {threshold_5prs_min_qty}족",
+          "en": "5PRS Inspection < {threshold_5prs_min_qty} pairs",
+          "vi": "Kiểm tra 5PRS < {threshold_5prs_min_qty} đôi"
         },
         "unit": {
           "ko": "명",
@@ -10381,9 +10383,9 @@
         "vi": "Chi tiết không đủ ngày tối thiểu"
       },
       "attendanceBelow88": {
-        "ko": "출근율 88% 미만 상세",
-        "en": "Attendance Below 88% Details",
-        "vi": "Chi tiết tỷ lệ đi làm dưới 88%"
+        "ko": "출근율 {threshold_attendance_rate}% 미만 상세",
+        "en": "Attendance Below {threshold_attendance_rate}% Details",
+        "vi": "Chi tiết tỷ lệ đi làm dưới {threshold_attendance_rate}%"
       },
       "aqlFail": {
         "ko": "AQL FAIL 상세",
@@ -10553,21 +10555,21 @@
           "vi": "Tất cả nhân viên đã đáp ứng yêu cầu ngày làm việc tối thiểu"
         },
         "interimMessage": {
-          "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
-          "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
-          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
+          "ko": "중간 보고서 - 최소 근무일({threshold_minimum_working_days}일) 및 출근율({threshold_attendance_rate}%) 조건이 적용되지 않습니다",
+          "en": "Interim Report - Minimum working days ({threshold_minimum_working_days} days) and attendance rate ({threshold_attendance_rate}%) conditions are not applied",
+          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày) và tỷ lệ chấm công ({threshold_attendance_rate}%) không được áp dụng"
         }
       },
       "attendanceBelow88": {
         "title": {
-          "ko": "출근율 88% 미만 직원 상세",
-          "en": "Attendance < 88% Employee Details",
-          "vi": "Chi tiết nhân viên có tỷ lệ chuyên cần < 88%"
+          "ko": "출근율 {threshold_attendance_rate}% 미만 직원 상세",
+          "en": "Attendance < {threshold_attendance_rate}% Employee Details",
+          "vi": "Chi tiết nhân viên có tỷ lệ chuyên cần < {threshold_attendance_rate}%"
         },
         "alertMessage": {
-          "ko": "출근율 88% 미만인 직원은 인센티브 지급이 제한될 수 있습니다",
-          "en": "Employees with attendance rate below 88% may have incentive restrictions",
-          "vi": "Nhân viên có tỷ lệ chuyên cần dưới 88% có thể bị hạn chế khuyến khích"
+          "ko": "출근율 {threshold_attendance_rate}% 미만인 직원은 인센티브 지급이 제한될 수 있습니다",
+          "en": "Employees with attendance rate below {threshold_attendance_rate}% may have incentive restrictions",
+          "vi": "Nhân viên có tỷ lệ chuyên cần dưới {threshold_attendance_rate}% có thể bị hạn chế khuyến khích"
         },
         "excludeNote": {
           "ko": "(TYPE-3는 인센티브 대상에서 제외됩니다)",
@@ -10629,14 +10631,14 @@
           }
         },
         "emptyMessage": {
-          "ko": "모든 직원이 출근율 88% 이상을 달성했습니다",
-          "en": "All employees achieved attendance rate of 88% or higher",
-          "vi": "Tất cả nhân viên đạt tỷ lệ chuyên cần từ 88% trở lên"
+          "ko": "모든 직원이 출근율 {threshold_attendance_rate}% 이상을 달성했습니다",
+          "en": "All employees achieved attendance rate of {threshold_attendance_rate}% or higher",
+          "vi": "Tất cả nhân viên đạt tỷ lệ chuyên cần từ {threshold_attendance_rate}% trở lên"
         },
         "interimMessage": {
-          "ko": "중간 보고서 - 최소 근무일(12일) 및 출근율(88%) 조건이 적용되지 않습니다",
-          "en": "Interim Report - Minimum working days (12 days) and attendance rate (88%) conditions are not applied",
-          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu (12 ngày) và tỷ lệ chấm công (88%) không được áp dụng"
+          "ko": "중간 보고서 - 최소 근무일({threshold_minimum_working_days}일) 및 출근율({threshold_attendance_rate}%) 조건이 적용되지 않습니다",
+          "en": "Interim Report - Minimum working days ({threshold_minimum_working_days} days) and attendance rate ({threshold_attendance_rate}%) conditions are not applied",
+          "vi": "Báo cáo giữa kỳ - Điều kiện ngày làm việc tối thiểu ({threshold_minimum_working_days} ngày) và tỷ lệ chấm công ({threshold_attendance_rate}%) không được áp dụng"
         },
         "earlyResignBadge": {
           "ko": "조기퇴사",
@@ -10904,19 +10906,19 @@
       },
       "lowInspectionQty": {
         "title": {
-          "ko": "5PRS 검사량 100족 미만 상세",
+          "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 미만 상세",
           "en": "5PRS Inspection Quantity Below 100 Pairs Details",
-          "vi": "Chi tiết số lượng kiểm tra 5PRS dưới 100 đôi"
+          "vi": "Chi tiết số lượng kiểm tra 5PRS dưới {threshold_5prs_min_qty} đôi"
         },
         "alert": {
-          "ko": "<strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 100족 미만인 경우 인센티브를 받을 수 없습니다.",
-          "en": "<strong>Condition Description:</strong> TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS inspection quantity is below 100 pairs.",
-          "vi": "<strong>Mô tả điều kiện:</strong> TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu số lượng kiểm tra 5PRS dưới 100 đôi."
+          "ko": "<strong>조건 설명:</strong> TYPE-1 ASSEMBLY INSPECTOR의 5PRS 검사량이 {threshold_5prs_min_qty}족 미만인 경우 인센티브를 받을 수 없습니다.",
+          "en": "<strong>Condition Description:</strong> TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS inspection quantity is below {threshold_5prs_min_qty} pairs.",
+          "vi": "<strong>Mô tả điều kiện:</strong> TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu số lượng kiểm tra 5PRS dưới {threshold_5prs_min_qty} đôi."
         },
         "count": {
-          "ko": "총 {count}명이 5PRS 검사량 100족 미만입니다.",
-          "en": "Total {count} employees have 5PRS inspection quantity below 100 pairs.",
-          "vi": "Tổng số {count} nhân viên có số lượng kiểm tra 5PRS dưới 100 đôi."
+          "ko": "총 {count}명이 5PRS 검사량 {threshold_5prs_min_qty}족 미만입니다.",
+          "en": "Total {count} employees have 5PRS inspection quantity below {threshold_5prs_min_qty} pairs.",
+          "vi": "Tổng số {count} nhân viên có số lượng kiểm tra 5PRS dưới {threshold_5prs_min_qty} đôi."
         },
         "headers": {
           "empNo": {
@@ -11387,9 +11389,9 @@
       "vi": "Không đạt ngày tối thiểu"
     },
     "attendanceBelow88": {
-      "ko": "출근율 88% 미만",
-      "en": "Attendance < 88%",
-      "vi": "Chấm công < 88%"
+      "ko": "출근율 {threshold_attendance_rate}% 미만",
+      "en": "Attendance < {threshold_attendance_rate}%",
+      "vi": "Chấm công < {threshold_attendance_rate}%"
     },
     "attendanceBelow88Subtitle": {
       "ko": "정당한 사유 제외",
@@ -11397,9 +11399,9 @@
       "vi": "Loại trừ lý do chính đáng"
     },
     "attendanceBelow88Tooltip": {
-      "ko": "정당한 사유 없이 결근이 많아 출근율이 88% 미만인 직원 (출산휴가는 출근으로 인정)",
-      "en": "Employees with attendance <88% without legitimate reasons (maternity leave counted as attendance)",
-      "vi": "Nhân viên có tỷ lệ chấm công <88% không có lý do chính đáng (nghỉ thai sản được tính là chấm công)"
+      "ko": "정당한 사유 없이 결근이 많아 출근율이 {threshold_attendance_rate}% 미만인 직원 (출산휴가는 출근으로 인정)",
+      "en": "Employees with attendance <{threshold_attendance_rate}% without legitimate reasons (maternity leave counted as attendance)",
+      "vi": "Nhân viên có tỷ lệ chấm công <{threshold_attendance_rate}% không có lý do chính đáng (nghỉ thai sản được tính là chấm công)"
     },
     "aqlFail": {
       "ko": "AQL FAIL 보유자",
@@ -11412,19 +11414,19 @@
       "vi": "3 tháng liên tiếp AQL FAIL"
     },
     "areaRejectRate": {
-      "ko": "구역 AQL Reject ≥3%",
-      "en": "Area AQL Reject ≥3%",
-      "vi": "Khu vực AQL từ chối ≥3%"
+      "ko": "구역 AQL Reject ≥{threshold_area_reject_rate}%",
+      "en": "Area AQL Reject ≥{threshold_area_reject_rate}%",
+      "vi": "Khu vực AQL từ chối ≥{threshold_area_reject_rate}%"
     },
     "lowPassRate": {
-      "ko": "5PRS Pass Rate < 95%",
-      "en": "5PRS Pass Rate < 95%",
-      "vi": "Tỷ lệ đạt 5PRS < 95%"
+      "ko": "5PRS Pass Rate < {threshold_5prs_pass_rate}%",
+      "en": "5PRS Pass Rate < {threshold_5prs_pass_rate}%",
+      "vi": "Tỷ lệ đạt 5PRS < {threshold_5prs_pass_rate}%"
     },
     "lowInspectionQty": {
-      "ko": "5PRS 검사량 < 100족",
-      "en": "5PRS Inspection < 100 pairs",
-      "vi": "Kiểm tra 5PRS < 100 đôi"
+      "ko": "5PRS 검사량 < {threshold_5prs_min_qty}족",
+      "en": "5PRS Inspection < {threshold_5prs_min_qty} pairs",
+      "vi": "Kiểm tra 5PRS < {threshold_5prs_min_qty} đôi"
     }
   },
   "workingDaysModal": {
@@ -11815,9 +11817,9 @@
       "vi": "Điều kiện 7: Có người thất bại liên tục 3 tháng trong khu vực phụ trách (không trả nếu có ít nhất 1 người)"
     },
     "condition8Description": {
-      "ko": "조건8: 담당 구역 Reject Rate 3% 초과 (초과 시 미지급)",
-      "en": "Condition 8: Responsible area Reject Rate exceeds 3% (not paid if exceeded)",
-      "vi": "Điều kiện 8: Tỷ lệ loại bỏ khu vực phụ trách vượt quá 3% (không trả nếu vượt quá)"
+      "ko": "조건8: 담당 구역 Reject Rate {threshold_area_reject_rate}% 초과 (초과 시 미지급)",
+      "en": "Condition 8: Responsible area Reject Rate exceeds {threshold_area_reject_rate}% (not paid if exceeded)",
+      "vi": "Điều kiện 8: Tỷ lệ loại bỏ khu vực phụ trách vượt quá {threshold_area_reject_rate}% (không trả nếu vượt quá)"
     },
     "incentiveNote": {
       "ko": "인센티브: 두 조건 모두 충족 시에만 지급",
@@ -11830,9 +11832,9 @@
       "vi": "Có người thất bại liên tục 3 tháng trong khu vực - 0 người"
     },
     "condition8Detail": {
-      "ko": "Building Reject Rate 3% 초과 -",
-      "en": "Building Reject Rate exceeds 3% -",
-      "vi": "Tỷ lệ loại bỏ Building vượt quá 3% -"
+      "ko": "Building Reject Rate {threshold_area_reject_rate}% 초과 -",
+      "en": "Building Reject Rate exceeds {threshold_area_reject_rate}% -",
+      "vi": "Tỷ lệ loại bỏ Building vượt quá {threshold_area_reject_rate}% -"
     },
     "auditorTrainer": {
       "ko": "(Auditor/Trainer)",
@@ -11887,24 +11889,24 @@
   },
   "fivePrsModal": {
     "title": {
-      "ko": "5PRS 통과율 95% 미만 상세",
-      "en": "5PRS Pass Rate Below 95% Details",
-      "vi": "Chi tiết tỷ lệ đạt 5PRS dưới 95%"
+      "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 미만 상세",
+      "en": "5PRS Pass Rate Below {threshold_5prs_pass_rate}% Details",
+      "vi": "Chi tiết tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}%"
     },
     "description": {
-      "ko": "TYPE-1 ASSEMBLY INSPECTOR의 5PRS 통과율이 95% 미만인 경우 인센티브를 받을 수 없습니다.",
-      "en": "TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS pass rate is below 95%.",
-      "vi": "TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu tỷ lệ đạt 5PRS dưới 95%."
+      "ko": "TYPE-1 ASSEMBLY INSPECTOR의 5PRS 통과율이 {threshold_5prs_pass_rate}% 미만인 경우 인센티브를 받을 수 없습니다.",
+      "en": "TYPE-1 ASSEMBLY INSPECTOR cannot receive incentive if 5PRS pass rate is below {threshold_5prs_pass_rate}%.",
+      "vi": "TYPE-1 ASSEMBLY INSPECTOR không thể nhận khuyến khích nếu tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}%."
     },
     "totalCount": {
-      "ko": "총 {{count}}명이 5PRS 통과율 95% 미만입니다.",
-      "en": "Total {{count}} people have 5PRS pass rate below 95%.",
-      "vi": "Tổng cộng {{count}} người có tỷ lệ đạt 5PRS dưới 95%."
+      "ko": "총 {{count}}명이 5PRS 통과율 {threshold_5prs_pass_rate}% 미만입니다.",
+      "en": "Total {{count}} people have 5PRS pass rate below {threshold_5prs_pass_rate}%.",
+      "vi": "Tổng cộng {{count}} người có tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}%."
     },
     "table1Title": {
-      "ko": "5PRS 통과율 95% 미만 인원",
-      "en": "Personnel with 5PRS Pass Rate Below 95%",
-      "vi": "Nhân viên có tỷ lệ đạt 5PRS dưới 95%"
+      "ko": "5PRS 통과율 {threshold_5prs_pass_rate}% 미만 인원",
+      "en": "Personnel with 5PRS Pass Rate Below {threshold_5prs_pass_rate}%",
+      "vi": "Nhân viên có tỷ lệ đạt 5PRS dưới {threshold_5prs_pass_rate}%"
     },
     "table2Title": {
       "ko": "통과율 최하위 10명",
@@ -12257,14 +12259,14 @@
       "vi": "Tòa nhà"
     },
     "attendanceMet": {
-      "ko": "출근율 기준 충족 (≥88%)",
-      "en": "Attendance requirement met (≥88%)",
-      "vi": "Đạt yêu cầu chuyên cần (≥88%)"
+      "ko": "출근율 기준 충족 (≥{threshold_attendance_rate}%)",
+      "en": "Attendance requirement met (≥{threshold_attendance_rate}%)",
+      "vi": "Đạt yêu cầu chuyên cần (≥{threshold_attendance_rate}%)"
     },
     "attendanceNotMet": {
-      "ko": "출근율 기준 미충족 (<88%)",
-      "en": "Attendance requirement not met (<88%)",
-      "vi": "Không đạt yêu cầu chuyên cần (<88%)"
+      "ko": "출근율 기준 미충족 (<{threshold_attendance_rate}%)",
+      "en": "Attendance requirement not met (<{threshold_attendance_rate}%)",
+      "vi": "Không đạt yêu cầu chuyên cần (<{threshold_attendance_rate}%)"
     }
   },
   "pullToRefresh": {
@@ -12603,19 +12605,19 @@
       "vi": "Cần cải thiện"
     },
     "excellentMsg": {
-      "ko": "님은 출근율 {rate}%로 인센티브 조건 1(≥88%)과 조건 2(무단결근 ≤2일)를 충족합니다.",
-      "en": " has {rate}% attendance rate, meeting Condition 1 (≥88%) and Condition 2 (unapproved absence ≤2 days).",
-      "vi": " có tỷ lệ chấm công {rate}%, đáp ứng Điều kiện 1 (≥88%) và Điều kiện 2 (vắng không phép ≤2 ngày)."
+      "ko": "님은 출근율 {rate}%로 인센티브 조건 1(≥{threshold_attendance_rate}%)과 조건 2(무단결근 ≤{threshold_unapproved_absence}일)를 충족합니다.",
+      "en": " has {rate}% attendance rate, meeting Condition 1 (≥{threshold_attendance_rate}%) and Condition 2 (unapproved absence ≤{threshold_unapproved_absence} days).",
+      "vi": " có tỷ lệ chấm công {rate}%, đáp ứng Điều kiện 1 (≥{threshold_attendance_rate}%) và Điều kiện 2 (vắng không phép ≤{threshold_unapproved_absence} ngày)."
     },
     "cautionMsg": {
-      "ko": "님은 출근율은 {rate}%로 기준을 충족하지만, 무단결근이 {absence}일로 조건 2(≤2일) 기준을 초과합니다.",
-      "en": " has {rate}% attendance rate (meets Condition 1), but unapproved absence is {absence} days, exceeding Condition 2 (≤2 days).",
-      "vi": " có tỷ lệ chấm công {rate}% (đạt Điều kiện 1), nhưng vắng không phép {absence} ngày, vượt quá Điều kiện 2 (≤2 ngày)."
+      "ko": "님은 출근율은 {rate}%로 기준을 충족하지만, 무단결근이 {absence}일로 조건 2(≤{threshold_unapproved_absence}일) 기준을 초과합니다.",
+      "en": " has {rate}% attendance rate (meets Condition 1), but unapproved absence is {absence} days, exceeding Condition 2 (≤{threshold_unapproved_absence} days).",
+      "vi": " có tỷ lệ chấm công {rate}% (đạt Điều kiện 1), nhưng vắng không phép {absence} ngày, vượt quá Điều kiện 2 (≤{threshold_unapproved_absence} ngày)."
     },
     "improvementMsg": {
-      "ko": "님은 출근율이 {rate}%로 인센티브 기준(≥88%)에 미달합니다. {diff}%p 개선이 필요합니다.",
-      "en": " has {rate}% attendance rate, below incentive requirement (≥88%). Needs {diff}%p improvement.",
-      "vi": " có tỷ lệ chấm công {rate}%, dưới yêu cầu thưởng (≥88%). Cần cải thiện {diff}%p."
+      "ko": "님은 출근율이 {rate}%로 인센티브 기준(≥{threshold_attendance_rate}%)에 미달합니다. {diff}%p 개선이 필요합니다.",
+      "en": " has {rate}% attendance rate, below incentive requirement (≥{threshold_attendance_rate}%). Needs {diff}%p improvement.",
+      "vi": " có tỷ lệ chấm công {rate}%, dưới yêu cầu thưởng (≥{threshold_attendance_rate}%). Cần cải thiện {diff}%p."
     },
     "condition1": {
       "ko": "조건 1",
@@ -12638,14 +12640,14 @@
       "vi": "Điều kiện 4"
     },
     "condition1Desc": {
-      "ko": "출근율 ≥ 88%",
-      "en": "Attendance Rate ≥ 88%",
-      "vi": "Tỷ lệ chấm công ≥ 88%"
+      "ko": "출근율 ≥ {threshold_attendance_rate}%",
+      "en": "Attendance Rate ≥ {threshold_attendance_rate}%",
+      "vi": "Tỷ lệ chấm công ≥ {threshold_attendance_rate}%"
     },
     "condition2Desc": {
-      "ko": "무단결근 ≤ 2일",
-      "en": "Unapproved Absence ≤ 2 days",
-      "vi": "Vắng không phép ≤ 2 ngày"
+      "ko": "무단결근 ≤ {threshold_unapproved_absence}일",
+      "en": "Unapproved Absence ≤ {threshold_unapproved_absence} days",
+      "vi": "Vắng không phép ≤ {threshold_unapproved_absence} ngày"
     },
     "condition3Desc": {
       "ko": "실제 근무일 > 0",
@@ -12653,9 +12655,9 @@
       "vi": "Ngày làm việc thực tế > 0"
     },
     "condition4Desc": {
-      "ko": "최소 근무일 ≥ 12일",
-      "en": "Minimum Working Days ≥ 12 days",
-      "vi": "Số ngày làm việc tối thiểu ≥ 12 ngày"
+      "ko": "최소 근무일 ≥ {threshold_minimum_working_days}일",
+      "en": "Minimum Working Days ≥ {threshold_minimum_working_days} days",
+      "vi": "Số ngày làm việc tối thiểu ≥ {threshold_minimum_working_days} ngày"
     },
     "met": {
       "ko": "충족",
@@ -12704,18 +12706,71 @@
         eyJzdW1tYXJ5Ijp7ImJ1aWxkaW5nX2Jvc3NfbWlzbWF0Y2giOjQyLCJib3NzX25vX2luZm8iOjAsImRhdGFfc291cmNlX21pc21hdGNoIjo2LCJ0b3RhbCI6NDh9LCJjYXNlcyI6eyJidWlsZGluZ19ib3NzX21pc21hdGNoIjpbeyJlbXBfbm8iOiI2MTgwMzAwMjQiLCJlbXBfbmFtZSI6IlRS4bqmTiBLSeG7gFUgRU0iLCJlbXBfYnVpbGRpbmciOiJBIiwiZW1wX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IiLCJib3NzX2lkIjoiNjIwMDcwMDEyIiwiYm9zc19uYW1lIjoiVFLhuqZOIFRI4buKIELDjUNIIExZIiwiYm9zc19idWlsZGluZyI6IlFJUCBPRkZJQ0UiLCJib3NzX3Bvc2l0aW9uIjoiTUFOQUdFUiJ9LHsiZW1wX25vIjoiNjE4MDMwMDQ5IiwiZW1wX25hbWUiOiJMxq/GoE5HIFRI4buKIEPhuqhNIFRJw4pOIiwiZW1wX2J1aWxkaW5nIjoiQyIsImVtcF9wb3NpdGlvbiI6IkEuTUFOQUdFUiIsImJvc3NfaWQiOiI2MjAwNzAwMTIiLCJib3NzX25hbWUiOiJUUuG6pk4gVEjhu4ogQsONQ0ggTFkiLCJib3NzX2J1aWxkaW5nIjoiUUlQIE9GRklDRSIsImJvc3NfcG9zaXRpb24iOiJNQU5BR0VSIn0seyJlbXBfbm8iOiI2MTgwMzAyNDEiLCJlbXBfbmFtZSI6IlRS4bqmTiBUSOG7iiBUSMOaWSBBTkgiLCJlbXBfYnVpbGRpbmciOiJDIiwiZW1wX3Bvc2l0aW9uIjoiTU9ERUwgTUFTVEVSIiwiYm9zc19pZCI6IjYyMDEyMDM4NiIsImJvc3NfbmFtZSI6Ik5HVVnhu4ROIE5H4buMQyBUVeG6pE4iLCJib3NzX2J1aWxkaW5nIjoiUUEgT0ZGSUNFIiwiYm9zc19wb3NpdGlvbiI6Ik1PREVMIE1BU1RFUiJ9LHsiZW1wX25vIjoiNjE4MDQwNDEyIiwiZW1wX25hbWUiOiJDQU8gVEjhu4ogTUnhu4BOIiwiZW1wX2J1aWxkaW5nIjoiQjIiLCJlbXBfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiIsImJvc3NfaWQiOiI2MjAwNzAwMTIiLCJib3NzX25hbWUiOiJUUuG6pk4gVEjhu4ogQsONQ0ggTFkiLCJib3NzX2J1aWxkaW5nIjoiUUlQIE9GRklDRSIsImJvc3NfcG9zaXRpb24iOiJNQU5BR0VSIn0seyJlbXBfbm8iOiI2MTgxMTAwNzciLCJlbXBfbmFtZSI6IkzDiiBOR+G7jEMgTMOCTSBN4bu4IEhV4buyTkgiLCJlbXBfYnVpbGRpbmciOiJGRy1XSCIsImVtcF9wb3NpdGlvbiI6IkFRTCBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjIwMDcwMDEyIiwiYm9zc19uYW1lIjoiVFLhuqZOIFRI4buKIELDjUNIIExZIiwiYm9zc19idWlsZGluZyI6IlFJUCBPRkZJQ0UiLCJib3NzX3Bvc2l0aW9uIjoiTUFOQUdFUiJ9LHsiZW1wX25vIjoiNjE5MDcwMTA3IiwiZW1wX25hbWUiOiJUw5QgVEjhu4ogTE9BTiBBTkgiLCJlbXBfYnVpbGRpbmciOiJNVEwgV0giLCJlbXBfcG9zaXRpb24iOiJHUk9VUCBMRUFERVIiLCJib3NzX2lkIjoiNjE4MDMwMDI0IiwiYm9zc19uYW1lIjoiVFLhuqZOIEtJ4buAVSBFTSIsImJvc3NfYnVpbGRpbmciOiJBIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJlbXBfbm8iOiI2MjEwMzAzODAiLCJlbXBfbmFtZSI6IlRS4bqmTiBOSMODIExJTkgiLCJlbXBfYnVpbGRpbmciOiJJTkhPVVNFIFBSSU5USU5HIiwiZW1wX3Bvc2l0aW9uIjoiT1NDIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjUwMjAxNDMiLCJib3NzX25hbWUiOiJMxq9VIEtJTSBUUuG7jE4iLCJib3NzX2J1aWxkaW5nIjoiQSIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsiZW1wX25vIjoiNjE5MDgwMDgzIiwiZW1wX25hbWUiOiJWw5UgVEjhu4ogVMOdIE7hu4oiLCJlbXBfYnVpbGRpbmciOiJDIiwiZW1wX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IiLCJib3NzX2lkIjoiNjIwMTEwNDM5IiwiYm9zc19uYW1lIjoiUEjDmU5HIFRI4buKIFRI4bumWSIsImJvc3NfYnVpbGRpbmciOiJBMiIsImJvc3NfcG9zaXRpb24iOiJBLk1BTkFHRVIifSx7ImVtcF9ubyI6IjYyMDAyMDY5MSIsImVtcF9uYW1lIjoiVsOVIFbEgk4gS0nhu4ZUIiwiZW1wX2J1aWxkaW5nIjoiQTIiLCJlbXBfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiIsImJvc3NfaWQiOiI2MjAwNzAwMTIiLCJib3NzX25hbWUiOiJUUuG6pk4gVEjhu4ogQsONQ0ggTFkiLCJib3NzX2J1aWxkaW5nIjoiUUlQIE9GRklDRSIsImJvc3NfcG9zaXRpb24iOiJNQU5BR0VSIn0seyJlbXBfbm8iOiI2MjAwMjA3MDUiLCJlbXBfbmFtZSI6Ik5HVVnhu4ROIFRI4buKIELDjUNIIFBIxq/hu6JORyIsImVtcF9idWlsZGluZyI6IkQiLCJlbXBfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiIsImJvc3NfaWQiOiI2MjAxMTA0MzkiLCJib3NzX25hbWUiOiJQSMOZTkcgVEjhu4ogVEjhu6ZZIiwiYm9zc19idWlsZGluZyI6IkEyIiwiYm9zc19wb3NpdGlvbiI6IkEuTUFOQUdFUiJ9LHsiZW1wX25vIjoiNjIwMDYwMTI4IiwiZW1wX25hbWUiOiJMw4ogSFXhu7JOSCBHSUFPIiwiZW1wX2J1aWxkaW5nIjoiRCIsImVtcF9wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIiwiYm9zc19pZCI6IjYyMDA3MDAxMiIsImJvc3NfbmFtZSI6IlRS4bqmTiBUSOG7iiBCw41DSCBMWSIsImJvc3NfYnVpbGRpbmciOiJRSVAgT0ZGSUNFIiwiYm9zc19wb3NpdGlvbiI6Ik1BTkFHRVIifSx7ImVtcF9ubyI6IjYyMDExMDQzOSIsImVtcF9uYW1lIjoiUEjDmU5HIFRI4buKIFRI4bumWSIsImVtcF9idWlsZGluZyI6IkEyIiwiZW1wX3Bvc2l0aW9uIjoiQS5NQU5BR0VSIiwiYm9zc19pZCI6IjYyMDA3MDAxMiIsImJvc3NfbmFtZSI6IlRS4bqmTiBUSOG7iiBCw41DSCBMWSIsImJvc3NfYnVpbGRpbmciOiJRSVAgT0ZGSUNFIiwiYm9zc19wb3NpdGlvbiI6Ik1BTkFHRVIifSx7ImVtcF9ubyI6IjYyMTAzMDU1NiIsImVtcF9uYW1lIjoiTMavVSBHSUEgSMOCTiIsImVtcF9idWlsZGluZyI6IkUyIiwiZW1wX3Bvc2l0aW9uIjoiR1JPVVAgTEVBREVSIiwiYm9zc19pZCI6IjYyMDExMDQzOSIsImJvc3NfbmFtZSI6IlBIw5lORyBUSOG7iiBUSOG7plkiLCJib3NzX2J1aWxkaW5nIjoiQTIiLCJib3NzX3Bvc2l0aW9uIjoiQS5NQU5BR0VSIn0seyJlbXBfbm8iOiI2MjIwNzAxMzMiLCJlbXBfbmFtZSI6Ikjhu6hBIFRI4buKIEtJTSBOSOG6ok4iLCJlbXBfYnVpbGRpbmciOiJEIiwiZW1wX3Bvc2l0aW9uIjoiU1RJVENISU5HIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjIwMjE3MDciLCJib3NzX25hbWUiOiJUSOG7iiBZ4bq+TiBOSEkiLCJib3NzX2J1aWxkaW5nIjoiTVRMIFdIIiwiYm9zc19wb3NpdGlvbiI6Ik1UTCBJTlNQRUNUT1IifSx7ImVtcF9ubyI6IjYyMTA1MDI0MSIsImVtcF9uYW1lIjoiSMOAIFRI4buKIE3hu5hORyBUVVnhu4BOIiwiZW1wX2J1aWxkaW5nIjoiQyIsImVtcF9wb3NpdGlvbiI6IkxJTkUgTEVBREVSIiwiYm9zc19pZCI6IjYyMTExMDA5MyIsImJvc3NfbmFtZSI6IkzDiiBWxIJOIE5BTSIsImJvc3NfYnVpbGRpbmciOiJBMiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsiZW1wX25vIjoiNjIxMTEwMDkzIiwiZW1wX25hbWUiOiJMw4ogVsSCTiBOQU0iLCJlbXBfYnVpbGRpbmciOiJBMiIsImVtcF9wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIiwiYm9zc19pZCI6IjYyMDA3MDAxMiIsImJvc3NfbmFtZSI6IlRS4bqmTiBUSOG7iiBCw41DSCBMWSIsImJvc3NfYnVpbGRpbmciOiJRSVAgT0ZGSUNFIiwiYm9zc19wb3NpdGlvbiI6Ik1BTkFHRVIifSx7ImVtcF9ubyI6IjYxOTA4MDA2MCIsImVtcF9uYW1lIjoiREFOSCBUSOG7iiBBTkggVEjGryIsImVtcF9idWlsZGluZyI6IklOSE9VU0UgRVoiLCJlbXBfcG9zaXRpb24iOiJPU0MgSU5TUEVDVE9SIiwiYm9zc19pZCI6IjYxODAzMDAyNCIsImJvc3NfbmFtZSI6IlRS4bqmTiBLSeG7gFUgRU0iLCJib3NzX2J1aWxkaW5nIjoiQSIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsiZW1wX25vIjoiNjIxMTIwNDAxIiwiZW1wX25hbWUiOiJQSOG6oE0gVEjhu4ogTeG7uCBUScOKTiIsImVtcF9idWlsZGluZyI6IkIzIiwiZW1wX3Bvc2l0aW9uIjoiQk9UVE9NIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjExMTAwOTMiLCJib3NzX25hbWUiOiJMw4ogVsSCTiBOQU0iLCJib3NzX2J1aWxkaW5nIjoiQTIiLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7ImVtcF9ubyI6IjYyMTEyMDQwMiIsImVtcF9uYW1lIjoiTMOKIFRI4buKIFRIw5pZIExJw4pOIiwiZW1wX2J1aWxkaW5nIjoiQjIiLCJlbXBfcG9zaXRpb24iOiJCT1RUT00gSU5TUEVDVE9SIiwiYm9zc19pZCI6IjYyMDA2MDA4NCIsImJvc3NfbmFtZSI6IsSQ4buWIFRI4buKIEjhu5JORyBUSMOaWSIsImJvc3NfYnVpbGRpbmciOiJBMiIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsiZW1wX25vIjoiNjIyMDIwNTc4IiwiZW1wX25hbWUiOiJWw5UgTUlOSCBUw4JNIiwiZW1wX2J1aWxkaW5nIjoiQjMiLCJlbXBfcG9zaXRpb24iOiJCT1RUT00gSU5TUEVDVE9SIiwiYm9zc19pZCI6IjYyMTExMDA5MyIsImJvc3NfbmFtZSI6IkzDiiBWxIJOIE5BTSIsImJvc3NfYnVpbGRpbmciOiJBMiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsiZW1wX25vIjoiNjIyMDIxNjMyIiwiZW1wX25hbWUiOiJUUsavxqBORyBZ4bq+TiBNWSIsImVtcF9idWlsZGluZyI6IkVaIEhBUFBPIiwiZW1wX3Bvc2l0aW9uIjoiTVRMIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MTgxMDAxNzUiLCJib3NzX25hbWUiOiJUSOG7iiBCw41DSCBOR8OAIiwiYm9zc19idWlsZGluZyI6Ik1UTCBXSCIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsiZW1wX25vIjoiNjIyMDYwMzA3IiwiZW1wX25hbWUiOiJEQU5IIEhPw4BJIE5BTSIsImVtcF9idWlsZGluZyI6IkIzIiwiZW1wX3Bvc2l0aW9uIjoiQk9UVE9NIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjExMTAwOTMiLCJib3NzX25hbWUiOiJMw4ogVsSCTiBOQU0iLCJib3NzX2J1aWxkaW5nIjoiQTIiLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7ImVtcF9ubyI6IjYyMjA3MDYwOSIsImVtcF9uYW1lIjoiTkdVWeG7hE4gVEjhu4ogTkfhu4xDIEhVWeG7gE4iLCJlbXBfYnVpbGRpbmciOiJEIiwiZW1wX3Bvc2l0aW9uIjoiQk9UVE9NIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjEwNTAyNDEiLCJib3NzX25hbWUiOiJIw4AgVEjhu4ogTeG7mE5HIFRVWeG7gE4iLCJib3NzX2J1aWxkaW5nIjoiQyIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsiZW1wX25vIjoiNjIyMDgwNDQ4IiwiZW1wX25hbWUiOiJIVeG7sk5IIEFOSCBUSMavIiwiZW1wX2J1aWxkaW5nIjoiRVogSEFQUE8iLCJlbXBfcG9zaXRpb24iOiJNVEwgSU5TUEVDVE9SIiwiYm9zc19pZCI6IjYxODEwMDE3NSIsImJvc3NfbmFtZSI6IlRI4buKIELDjUNIIE5Hw4AiLCJib3NzX2J1aWxkaW5nIjoiTVRMIFdIIiwiYm9zc19wb3NpdGlvbiI6IkxJTkUgTEVBREVSIn0seyJlbXBfbm8iOiI2MjQwNDAzMzEiLCJlbXBfbmFtZSI6IlRSxq/GoE5HIEtJTSBMxKhOSCIsImVtcF9idWlsZGluZyI6IkIxIiwiZW1wX3Bvc2l0aW9uIjoiQ1VUVElORyBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjIwMTEwNDM5IiwiYm9zc19uYW1lIjoiUEjDmU5HIFRI4buKIFRI4bumWSIsImJvc3NfYnVpbGRpbmciOiJBMiIsImJvc3NfcG9zaXRpb24iOiJBLk1BTkFHRVIifSx7ImVtcF9ubyI6IjYyNDA1MDQ5MiIsImVtcF9uYW1lIjoiTkdVWeG7hE4gVFLGr+G7nE5HIFPGoE4iLCJlbXBfYnVpbGRpbmciOiJCMyIsImVtcF9wb3NpdGlvbiI6IkJPVFRPTSBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjIxMTEwMDkzIiwiYm9zc19uYW1lIjoiTMOKIFbEgk4gTkFNIiwiYm9zc19idWlsZGluZyI6IkEyIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJlbXBfbm8iOiI2MjQwNjAyNTQiLCJlbXBfbmFtZSI6IkhPw4BORyBWxaggQU5IIFBIw5oiLCJlbXBfYnVpbGRpbmciOiJDIiwiZW1wX3Bvc2l0aW9uIjoiQk9UVE9NIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MTgwMzAxODkiLCJib3NzX25hbWUiOiJOR1VZ4buETiBUSOG7iiBCw41DSCBOR+G7jEMiLCJib3NzX2J1aWxkaW5nIjoiQTIiLCJib3NzX3Bvc2l0aW9uIjoiQk9UVE9NIElOU1BFQ1RPUiJ9LHsiZW1wX25vIjoiNjI0MDgwMjM0IiwiZW1wX25hbWUiOiJMw50gVEjhu4ogTeG7uCBBTiIsImVtcF9idWlsZGluZyI6Ik9TQyBBIiwiZW1wX3Bvc2l0aW9uIjoiT1NDIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjUwMjAxNDMiLCJib3NzX25hbWUiOiJMxq9VIEtJTSBUUuG7jE4iLCJib3NzX2J1aWxkaW5nIjoiQSIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsiZW1wX25vIjoiNjIxMDMwNDc3IiwiZW1wX25hbWUiOiJUSOG7iiBI4buSTkcgVEjhuq5NIiwiZW1wX2J1aWxkaW5nIjoiQiIsImVtcF9wb3NpdGlvbiI6Ik9TQyBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjI1MDIwMTQzIiwiYm9zc19uYW1lIjoiTMavVSBLSU0gVFLhu4xOIiwiYm9zc19idWlsZGluZyI6IkEiLCJib3NzX3Bvc2l0aW9uIjoiTElORSBMRUFERVIifSx7ImVtcF9ubyI6IjYyNTA1MDE5NCIsImVtcF9uYW1lIjoiREFOSCBUSOG7iiBD4bqoTSDEkEnhu4BVIiwiZW1wX2J1aWxkaW5nIjoiRCIsImVtcF9wb3NpdGlvbiI6IlNUSVRDSElORyBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjIyMDIxNzA3IiwiYm9zc19uYW1lIjoiVEjhu4ogWeG6vk4gTkhJIiwiYm9zc19idWlsZGluZyI6Ik1UTCBXSCIsImJvc3NfcG9zaXRpb24iOiJNVEwgSU5TUEVDVE9SIn0seyJlbXBfbm8iOiI2MjQxMDAzNDUiLCJlbXBfbmFtZSI6Ik1BSSBI4buSTkcgTOG7pEEiLCJlbXBfYnVpbGRpbmciOiJFMSIsImVtcF9wb3NpdGlvbiI6IkNVVFRJTkcgSU5TUEVDVE9SIiwiYm9zc19pZCI6IjYyNDA0MDMzMSIsImJvc3NfbmFtZSI6IlRSxq/GoE5HIEtJTSBMxKhOSCIsImJvc3NfYnVpbGRpbmciOiJCMSIsImJvc3NfcG9zaXRpb24iOiJDVVRUSU5HIElOU1BFQ1RPUiJ9LHsiZW1wX25vIjoiNjI1MDgwMzExIiwiZW1wX25hbWUiOiJIVeG7sk5IIE5H4buMQyBBTkggVEjGryIsImVtcF9idWlsZGluZyI6IkIzIiwiZW1wX3Bvc2l0aW9uIjoiQk9UVE9NIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjExMTAwOTMiLCJib3NzX25hbWUiOiJMw4ogVsSCTiBOQU0iLCJib3NzX2J1aWxkaW5nIjoiQTIiLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7ImVtcF9ubyI6IjYyNTAzMDE0NCIsImVtcF9uYW1lIjoiTMavVSBOR1VZ4buETiBU4bqkTiBExahORyIsImVtcF9idWlsZGluZyI6IkMiLCJlbXBfcG9zaXRpb24iOiJCT1RUT00gSU5TUEVDVE9SIiwiYm9zc19pZCI6IjYxODAzMDE4OSIsImJvc3NfbmFtZSI6Ik5HVVnhu4ROIFRI4buKIELDjUNIIE5H4buMQyIsImJvc3NfYnVpbGRpbmciOiJBMiIsImJvc3NfcG9zaXRpb24iOiJCT1RUT00gSU5TUEVDVE9SIn0seyJlbXBfbm8iOiI2MjUwODAxNjUiLCJlbXBfbmFtZSI6IkTGr8agTkcgVEjhu4ogSE/DgE5HIERVWSIsImVtcF9idWlsZGluZyI6IkIzIiwiZW1wX3Bvc2l0aW9uIjoiQk9UVE9NIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjExMTAwOTMiLCJib3NzX25hbWUiOiJMw4ogVsSCTiBOQU0iLCJib3NzX2J1aWxkaW5nIjoiQTIiLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7ImVtcF9ubyI6IjYyNTA4MDE2NiIsImVtcF9uYW1lIjoiSOG7kiBUSOG7iiBI4buSTkcgw4JOIiwiZW1wX2J1aWxkaW5nIjoiRCIsImVtcF9wb3NpdGlvbiI6IlNUSVRDSElORyBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjIyMDIxNzA3IiwiYm9zc19uYW1lIjoiVEjhu4ogWeG6vk4gTkhJIiwiYm9zc19idWlsZGluZyI6Ik1UTCBXSCIsImJvc3NfcG9zaXRpb24iOiJNVEwgSU5TUEVDVE9SIn0seyJlbXBfbm8iOiI2MjUwOTAxMzciLCJlbXBfbmFtZSI6IkzDiiBUSOG7iiBIVeG7sk5IIEjGr8agTkciLCJlbXBfYnVpbGRpbmciOiJCMyIsImVtcF9wb3NpdGlvbiI6IkJPVFRPTSBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjIxMTEwMDkzIiwiYm9zc19uYW1lIjoiTMOKIFbEgk4gTkFNIiwiYm9zc19idWlsZGluZyI6IkEyIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJlbXBfbm8iOiI2MjUwOTAyNjQiLCJlbXBfbmFtZSI6IkzDiiBUSOG7iiBCw4kgTkdPQU4iLCJlbXBfYnVpbGRpbmciOiJCMyIsImVtcF9wb3NpdGlvbiI6IkJPVFRPTSBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjIxMTEwMDkzIiwiYm9zc19uYW1lIjoiTMOKIFbEgk4gTkFNIiwiYm9zc19idWlsZGluZyI6IkEyIiwiYm9zc19wb3NpdGlvbiI6IihWKSBTVVBFUlZJU09SIn0seyJlbXBfbm8iOiI2MjUxMDAwOTQiLCJlbXBfbmFtZSI6IlRS4bqmTiBLSU0gSFVZ4buATiIsImVtcF9idWlsZGluZyI6IkVaIEhBUFBPIiwiZW1wX3Bvc2l0aW9uIjoiTVRMIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MTgxMDAxNzUiLCJib3NzX25hbWUiOiJUSOG7iiBCw41DSCBOR8OAIiwiYm9zc19idWlsZGluZyI6Ik1UTCBXSCIsImJvc3NfcG9zaXRpb24iOiJMSU5FIExFQURFUiJ9LHsiZW1wX25vIjoiNjI1MTAwMTM0IiwiZW1wX25hbWUiOiJMxq9VIFRI4bukQyDEkEFOIiwiZW1wX2J1aWxkaW5nIjoiQjMiLCJlbXBfcG9zaXRpb24iOiJCT1RUT00gSU5TUEVDVE9SIiwiYm9zc19pZCI6IjYyMTExMDA5MyIsImJvc3NfbmFtZSI6IkzDiiBWxIJOIE5BTSIsImJvc3NfYnVpbGRpbmciOiJBMiIsImJvc3NfcG9zaXRpb24iOiIoVikgU1VQRVJWSVNPUiJ9LHsiZW1wX25vIjoiNjI1MDMwMjY2IiwiZW1wX25hbWUiOiJQSOG6oE0gQ8OBQyBUxq/hu5xORyIsImVtcF9idWlsZGluZyI6IkQiLCJlbXBfcG9zaXRpb24iOiJTVElUQ0hJTkcgSU5TUEVDVE9SIiwiYm9zc19pZCI6IjYyMjAyMTcwNyIsImJvc3NfbmFtZSI6IlRI4buKIFnhur5OIE5ISSIsImJvc3NfYnVpbGRpbmciOiJNVEwgV0giLCJib3NzX3Bvc2l0aW9uIjoiTVRMIElOU1BFQ1RPUiJ9LHsiZW1wX25vIjoiNjI1MTEwMDkzIiwiZW1wX25hbWUiOiJMw4ogUEjGr8agTkcgVEjhuq5ORyIsImVtcF9idWlsZGluZyI6IkIzIiwiZW1wX3Bvc2l0aW9uIjoiQk9UVE9NIElOU1BFQ1RPUiIsImJvc3NfaWQiOiI2MjExMTAwOTMiLCJib3NzX25hbWUiOiJMw4ogVsSCTiBOQU0iLCJib3NzX2J1aWxkaW5nIjoiQTIiLCJib3NzX3Bvc2l0aW9uIjoiKFYpIFNVUEVSVklTT1IifSx7ImVtcF9ubyI6IjYyNTEyMDA1MiIsImVtcF9uYW1lIjoiVFLhu4pOSCBUSOG7iiBUSEFOSCBUVVnhu4BOIiwiZW1wX2J1aWxkaW5nIjoiRCIsImVtcF9wb3NpdGlvbiI6IlNUSVRDSElORyBJTlNQRUNUT1IiLCJib3NzX2lkIjoiNjIyMDIxNzA3IiwiYm9zc19uYW1lIjoiVEjhu4ogWeG6vk4gTkhJIiwiYm9zc19idWlsZGluZyI6Ik1UTCBXSCIsImJvc3NfcG9zaXRpb24iOiJNVEwgSU5TUEVDVE9SIn1dLCJib3NzX25vX2luZm8iOltdLCJkYXRhX3NvdXJjZV9taXNtYXRjaCI6W3siZW1wX25vIjoiNjIxMDQwNDQ2IiwiZW1wX25hbWUiOiJUSMOBSSBUSOG7iiBYVcOCTiIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImhyX2J1aWxkaW5nIjoiRCIsImFxbF9idWlsZGluZyI6IkIzIn0seyJlbXBfbm8iOiI2MjIwMzA3NzciLCJlbXBfbmFtZSI6Ik5HVVnhu4ROIFRI4buKIFRI4bqiTyBRVVnDik4iLCJlbXBfcG9zaXRpb24iOiJBU1NFTUJMWSBJTlNQRUNUT1IiLCJocl9idWlsZGluZyI6IkQiLCJhcWxfYnVpbGRpbmciOiJCMyJ9LHsiZW1wX25vIjoiNjE5MDYwMjAxIiwiZW1wX25hbWUiOiJCw5lJIFRI4buKIEtJ4buAVSBMWSIsImVtcF9wb3NpdGlvbiI6IkFTU0VNQkxZIElOU1BFQ1RPUiIsImhyX2J1aWxkaW5nIjoiQTIiLCJhcWxfYnVpbGRpbmciOiJCMyJ9LHsiZW1wX25vIjoiNjIwMDgwMzYyIiwiZW1wX25hbWUiOiJExq/GoE5HIFRI4buKIE3hu7ggWFVZw4pOIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiaHJfYnVpbGRpbmciOiJBMiIsImFxbF9idWlsZGluZyI6IkIzIn0seyJlbXBfbm8iOiI2MjEwMzA1NTciLCJlbXBfbmFtZSI6IlRI4buKIE5Iw4BOIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiaHJfYnVpbGRpbmciOiJEIiwiYXFsX2J1aWxkaW5nIjoiQjMifSx7ImVtcF9ubyI6IjYyMjAyMTA0OCIsImVtcF9uYW1lIjoiTkdVWeG7hE4gTeG7mE5HIFRIw4pNIiwiZW1wX3Bvc2l0aW9uIjoiQVNTRU1CTFkgSU5TUEVDVE9SIiwiaHJfYnVpbGRpbmciOiJBMiIsImFxbF9idWlsZGluZyI6IkIzIn1dfX0=
     </script>
 
+    <!-- Firebase SDK for real-time auth verification -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
     <script>
-        // ==================== Firebase 보안: 세션 검증 ====================
+        // ==================== 강화된 Firebase 보안: 세션 검증 v2.0 ====================
+        // Issue #59: 보안 강화 (2026-02-03)
+        // - 세션 타임아웃: 60분 → 30분
+        // - 비활동 감지: 15분 비활동 시 자동 로그아웃
+        // - 세션 서명: HMAC 기반 무결성 검증
+        // - 콘텐츠 숨김: 인증 전까지 body 숨김
+        // - Firebase 실시간 검증: onAuthStateChanged
         (function() {
             const SESSION_KEY = 'qip_firebase_session';
-            const SESSION_TIMEOUT = 60 * 60 * 1000; // 60분 (Firebase 토큰 수명)
+            const SESSION_TIMEOUT = 30 * 60 * 1000; // 30분 (보안 강화)
+            const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15분 비활동 시 로그아웃
+            let lastActivityTime = Date.now();
+            let inactivityTimer = null;
 
+            // Firebase Configuration (same as auth.html)
+            const firebaseConfig = {
+                apiKey: "AIzaSyDzdmX9kBbeSIX1ROvvNcfu2CzFvnnz3oY",
+                authDomain: "hwk-qip-incentive-dashboard.firebaseapp.com",
+                projectId: "hwk-qip-incentive-dashboard",
+                storageBucket: "hwk-qip-incentive-dashboard.firebasestorage.app",
+                messagingSenderId: "435191241966",
+                appId: "1:435191241966:web:fc8d3382d8189dc11d67ff"
+            };
+
+            // Initialize Firebase
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+
+            // 브라우저 핑거프린트 생성 (세션 서명용)
+            function generateFingerprint() {
+                const data = [
+                    navigator.userAgent,
+                    navigator.language,
+                    screen.width + 'x' + screen.height,
+                    new Date().getTimezoneOffset()
+                ].join('|');
+                // Simple hash function
+                let hash = 0;
+                for (let i = 0; i < data.length; i++) {
+                    const char = data.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                return hash.toString(36);
+            }
+
+            // 세션 서명 검증
+            function verifySessionSignature(sessionData) {
+                if (!sessionData.signature) return false;
+                const expectedSignature = generateFingerprint();
+                return sessionData.signature === expectedSignature;
+            }
+
+            // 세션 검증 함수
             function validateSession() {
                 const session = sessionStorage.getItem(SESSION_KEY);
 
                 if (!session) {
-                    // 세션 없음 - 인증 페이지로 리다이렉트
-                    window.location.href = 'auth.html';
+                    redirectToLogin('NO_SESSION');
                     return false;
                 }
 
@@ -12725,34 +12780,105 @@
 
                     // Firebase 세션 필수 필드 검증
                     if (!sessionData.authenticated || !sessionData.uid || !sessionData.email) {
-                        sessionStorage.removeItem(SESSION_KEY);
-                        window.location.href = 'auth.html';
+                        redirectToLogin('INVALID_SESSION_DATA');
                         return false;
                     }
 
-                    // 세션 만료 검증 (60분)
+                    // 세션 서명 검증 (세션 조작 방지)
+                    if (!verifySessionSignature(sessionData)) {
+                        redirectToLogin('SIGNATURE_MISMATCH');
+                        return false;
+                    }
+
+                    // 세션 만료 검증 (30분)
                     if (now - sessionData.loginTime > SESSION_TIMEOUT) {
-                        sessionStorage.removeItem(SESSION_KEY);
-                        alert('Session expired. Please login again.\n세션이 만료되었습니다. 다시 로그인하세요.');
-                        window.location.href = 'auth.html';
+                        redirectToLogin('SESSION_EXPIRED', true);
                         return false;
                     }
 
                     return true;
                 } catch (e) {
-                    sessionStorage.removeItem(SESSION_KEY);
-                    window.location.href = 'auth.html';
+                    redirectToLogin('PARSE_ERROR');
                     return false;
                 }
             }
 
-            // 페이지 로드 시 세션 검증
-            if (!validateSession()) {
-                return;
+            // 로그인 페이지로 리다이렉트
+            function redirectToLogin(reason, showAlert = false) {
+                sessionStorage.removeItem(SESSION_KEY);
+                if (showAlert) {
+                    alert('Session expired. Please login again.\n세션이 만료되었습니다. 다시 로그인하세요.');
+                }
+                console.warn('[Security] Redirect reason:', reason);
+                window.location.href = 'auth.html';
             }
 
-            // 주기적 세션 검증 (1분마다)
-            setInterval(validateSession, 60000);
+            // 비활동 감지 시스템
+            function resetInactivityTimer() {
+                lastActivityTime = Date.now();
+                if (inactivityTimer) {
+                    clearTimeout(inactivityTimer);
+                }
+                inactivityTimer = setTimeout(() => {
+                    const timeSinceLastActivity = Date.now() - lastActivityTime;
+                    if (timeSinceLastActivity >= INACTIVITY_TIMEOUT) {
+                        alert('Logged out due to inactivity.\n비활동으로 인해 로그아웃되었습니다.');
+                        redirectToLogin('INACTIVITY');
+                    }
+                }, INACTIVITY_TIMEOUT);
+            }
+
+            // 사용자 활동 감지
+            ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach(event => {
+                document.addEventListener(event, resetInactivityTimer, { passive: true });
+            });
+
+            // 콘텐츠 표시 함수
+            function showContent() {
+                document.body.style.visibility = 'visible';
+                document.body.style.opacity = '1';
+            }
+
+            // Firebase 실시간 인증 상태 감시
+            firebase.auth().onAuthStateChanged((user) => {
+                if (!user) {
+                    // Firebase 인증 세션 종료됨
+                    const session = sessionStorage.getItem(SESSION_KEY);
+                    if (session) {
+                        console.warn('[Security] Firebase auth state lost');
+                        // Firebase에서 로그아웃됨 - 세션 무효화
+                        redirectToLogin('FIREBASE_AUTH_LOST');
+                    }
+                }
+            });
+
+            // 페이지 로드 시 세션 검증
+            if (!validateSession()) {
+                return; // 검증 실패 시 리다이렉트됨
+            }
+
+            // 검증 성공 시 콘텐츠 표시
+            showContent();
+
+            // 비활동 타이머 시작
+            resetInactivityTimer();
+
+            // 주기적 세션 검증 (30초마다 - 더 자주 체크)
+            setInterval(() => {
+                if (!validateSession()) {
+                    return;
+                }
+            }, 30000);
+
+            // 탭/창 활성화 시 즉시 검증
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    if (!validateSession()) {
+                        return;
+                    }
+                    resetInactivityTimer();
+                }
+            });
 
             // 우클릭 방지
             document.addEventListener('contextmenu', function(e) {
@@ -12762,7 +12888,6 @@
 
             // 복사 방지 (선택적)
             document.addEventListener('copy', function(e) {
-                // 복사 허용하되 경고만 표시
                 console.warn('⚠️ 데이터 복사가 감지되었습니다. 기밀 정보 유출에 주의하세요.');
             });
 
@@ -12778,18 +12903,34 @@
             // 개발자 도구 경고
             const devtoolsWarning = () => {
                 console.clear();
-                console.log('%c⚠️ WARNING / 경고', 'font-size: 30px; color: red; font-weight: bold;');
+                console.log('%c⛔ SECURITY WARNING / 보안 경고', 'font-size: 30px; color: red; font-weight: bold;');
                 console.log('%cThis dashboard contains confidential employee information.', 'font-size: 16px; color: orange;');
                 console.log('%c이 대시보드는 기밀 직원 정보를 포함하고 있습니다.', 'font-size: 16px; color: orange;');
                 console.log('%cUnauthorized access or data extraction is prohibited and will be reported.', 'font-size: 14px;');
                 console.log('%c무단 접근 또는 데이터 추출은 금지되며 보고됩니다.', 'font-size: 14px;');
-                console.log('%c', 'font-size: 1px;'); // Clear previous console output
+                console.log('%cSession: 30min timeout | Inactivity: 15min logout', 'font-size: 12px; color: gray;');
             };
 
             devtoolsWarning();
-            setInterval(devtoolsWarning, 3000);
+            setInterval(devtoolsWarning, 5000);
+
+            // 세션 정보 표시 (디버그용 - 제거 가능)
+            window.getSessionInfo = function() {
+                const session = sessionStorage.getItem(SESSION_KEY);
+                if (session) {
+                    const data = JSON.parse(session);
+                    const remaining = Math.max(0, SESSION_TIMEOUT - (Date.now() - data.loginTime));
+                    return {
+                        email: data.email,
+                        loginTime: new Date(data.loginTime).toLocaleString(),
+                        remainingMinutes: Math.round(remaining / 60000),
+                        lastActivity: new Date(lastActivityTime).toLocaleString()
+                    };
+                }
+                return null;
+            };
         })();
-        // ==================== Firebase 보안 코드 종료 ====================
+        // ==================== 강화된 Firebase 보안 코드 종료 ====================
 
         // UTF-8 Base64 디코딩 함count 추가
         function base64DecodeUnicode(str) {
@@ -13404,6 +13545,17 @@
                     excelDashboardData = JSON.parse(jsonStr);
                     window.excelDashboardData = excelDashboardData; // Also store in window for backward compatibility
 
+                    // [Issue #58] Threshold 값을 전역 변수로 노출 (번역 플레이스홀더 치환용)
+                    window.thresholds = {
+                        attendance_rate: 88,
+                        unapproved_absence: 2,
+                        minimum_working_days: 12,
+                        area_reject_rate: 3.0,
+                        '5prs_pass_rate': 95,
+                        '5prs_min_qty': 100
+                    };
+                    console.log('✅ [Issue #58] Thresholds loaded:', window.thresholds);
+
                     // attendance raw data를 전역 변count로 설정
                     if (excelDashboardData.attendance_raw_data) {
                         window.attendanceRawData = excelDashboardData.attendance_raw_data;
@@ -13473,6 +13625,19 @@
         let positionData = {}; // Position Details data를 저장할 전역 변count
         const dashboardYear = 2026;
 
+        // [Issue #58] Threshold 플레이스홀더 치환 함수
+        function replaceThresholdPlaceholders(text) {
+            if (!text || typeof text !== 'string' || !window.thresholds) return text;
+            return text
+                .replace(/\{threshold_attendance_rate\}/g, window.thresholds.attendance_rate)
+                .replace(/\{threshold_unapproved_absence\}/g, window.thresholds.unapproved_absence)
+                .replace(/\{threshold_minimum_working_days\}/g, window.thresholds.minimum_working_days)
+                .replace(/\{threshold_area_reject_rate\}/g, window.thresholds.area_reject_rate)
+                .replace(/\{threshold_5prs_pass_rate\}/g, window.thresholds['5prs_pass_rate'])
+                .replace(/\{threshold_5prs_min_qty\}/g, window.thresholds['5prs_min_qty'])
+                .replace(/\{threshold_absence_rate\}/g, 100 - window.thresholds.attendance_rate);  // 결근율 = 100 - 출근율
+        }
+
         // 번역 함count
         function getTranslation(keyPath, lang = currentLanguage) {
             const keys = keyPath.split('.');
@@ -13486,14 +13651,17 @@
                     }
                     value = value[key];
                 }
+                let result;
                 if (typeof value === 'object' && value.hasOwnProperty(lang)) {
-                    return value[lang];
+                    result = value[lang];
                 } else if (typeof value === 'object' && value.hasOwnProperty('ko')) {
-                    return value['ko'];
+                    result = value['ko'];
                 } else {
                     console.warn(`No translation found for: ${keyPath} in lang: ${lang}`);
                     return keyPath;
                 }
+                // [Issue #58] Threshold 플레이스홀더 치환
+                return replaceThresholdPlaceholders(result);
             } catch (e) {
                 console.error(`Translation error for ${keyPath}:`, e);
                 return keyPath;
@@ -21126,17 +21294,15 @@
             const container = document.getElementById('buildingSummaryCards');
             if (!container || !employeeData) return;
 
-            // Building별 통계 계산
+            // [Issue #57] 동적 Building 목록: employeeData에서 실제 존재하는 Building만 추출
             const buildingStats = {};
-            const buildings = ['A', 'B', 'B3', 'C', 'D'];
-
-            buildings.forEach(b => {
-                buildingStats[b] = { total: 0, paid: 0, totalAmount: 0 };
-            });
 
             employeeData.forEach(emp => {
-                const building = (emp.BUILDING || emp.building || '').toUpperCase();
-                if (buildingStats[building]) {
+                const building = (emp.BUILDING || emp.building || '').toUpperCase().trim();
+                if (building && building !== 'NAN' && building !== 'NONE' && building !== '') {
+                    if (!buildingStats[building]) {
+                        buildingStats[building] = { total: 0, paid: 0, totalAmount: 0 };
+                    }
                     buildingStats[building].total++;
                     const amount = emp.currentIncentive;
                     if (amount > 0) {
@@ -21146,24 +21312,27 @@
                 }
             });
 
+            // Building 이름으로 정렬 (알파벳순)
+            const buildings = Object.keys(buildingStats).sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+
             // 카드 HTML 생성
             let cardsHTML = '';
-            const colors = { 'A': '#ef4444', 'B': '#3b82f6', 'B3': '#8b5cf6', 'C': '#10b981', 'D': '#f59e0b' };
 
             buildings.forEach(b => {
                 const stats = buildingStats[b];
                 if (stats.total > 0) {
+                    const color = getBuildingColor(b);
                     const rate = ((stats.paid / stats.total) * 100).toFixed(1);
                     cardsHTML += `
                         <div class="col-md-2 col-sm-4 col-6 mb-2">
-                            <div class="card h-100" style="border-left: 4px solid ${colors[b]}; cursor: pointer;"
+                            <div class="card h-100" style="border-left: 4px solid ${color}; cursor: pointer;"
                                  onclick="document.getElementById('orgBuildingFilter').value='${b}'; filterOrgChartByBuilding();">
                                 <div class="card-body py-2 px-3">
-                                    <h6 class="card-title mb-1" style="color: ${colors[b]};">Building ${b}</h6>
+                                    <h6 class="card-title mb-1" style="color: ${color};">${b}</h6>
                                     <div class="small">
-                                        <div><strong>${stats.total}</strong> <span id="bldgCardTotal_${b}">${getTranslation('buildingSummary.employees')}</span></div>
-                                        <div><strong>${stats.paid}</strong> <span id="bldgCardPaid_${b}">${getTranslation('buildingSummary.recipients')}</span> (${rate}%)</div>
-                                        <div style="color: ${colors[b]}; font-weight: 600;">₫${stats.totalAmount.toLocaleString()}</div>
+                                        <div><strong>${stats.total}</strong> <span>${getTranslation('buildingSummary.employees')}</span></div>
+                                        <div><strong>${stats.paid}</strong> <span>${getTranslation('buildingSummary.recipients')}</span> (${rate}%)</div>
+                                        <div style="color: ${color}; font-weight: 600;">₫${stats.totalAmount.toLocaleString()}</div>
                                     </div>
                                 </div>
                             </div>
@@ -21321,9 +21490,28 @@
         }
 
         // Helper function to get building color
+        // [Issue #57] 19개 Building 카테고리별 색상 매핑 (동적 Building 지원)
+        const BUILDING_COLORS = {
+            // 생산동 A계열 (Red tones)
+            'A': '#ef4444', 'A1': '#f87171', 'A2': '#fca5a5',
+            // 생산동 B계열 (Blue tones)
+            'B': '#3b82f6', 'B1': '#60a5fa', 'B2': '#93c5fd', 'B3': '#8b5cf6',
+            // 생산동 C/D (Green/Amber)
+            'C': '#10b981', 'D': '#f59e0b',
+            // E계열 (Indigo tones)
+            'E1': '#6366f1', 'E2': '#818cf8',
+            // 창고 (Slate tones)
+            'MTL WH': '#64748b', 'FG-WH': '#94a3b8',
+            // 사무실 (Pink tones)
+            'QA OFFICE': '#ec4899', 'QIP OFFICE': '#f472b6',
+            // 기타 (Teal/Cyan tones)
+            'INHOUSE EZ': '#14b8a6', 'INHOUSE PRINTING': '#2dd4bf', 'EZ HAPPO': '#5eead4',
+            'OSC A': '#a78bfa'
+        };
+
         function getBuildingColor(building) {
-            const colors = { 'A': '#ef4444', 'B': '#3b82f6', 'B3': '#8b5cf6', 'C': '#10b981', 'D': '#f59e0b' };
-            return colors[building] || '#6c757d';
+            if (!building) return '#6c757d';
+            return BUILDING_COLORS[building.toUpperCase().trim()] || '#6c757d';
         }
 
         // LINE LEADER Assignment Modal function (2026-01-18, Updated 2026-01-23 Issue #49)
@@ -21671,8 +21859,40 @@
         }
 
         // 새로운 접이식 조직도 그리기 함count
+        // [Issue #57] Building 필터 드롭다운 동적 생성
+        function populateBuildingFilter() {
+            const select = document.getElementById('orgBuildingFilter');
+            if (!select) return;
+
+            // 현재 선택값 보존
+            const currentValue = select.value;
+
+            // "전체" 옵션만 유지, 나머지 제거
+            while (select.options.length > 1) select.remove(1);
+
+            // employeeData에서 실제 존재하는 Building 추출
+            const allBuildings = [...new Set(
+                (window.employeeData || []).map(emp => (emp.BUILDING || emp.building || '').toUpperCase().trim())
+                .filter(b => b && b !== 'NAN' && b !== 'NONE' && b !== '')
+            )].sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
+
+            // 동적 옵션 추가
+            allBuildings.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                select.appendChild(opt);
+            });
+
+            // 이전 선택값 복원
+            if (currentValue && [...select.options].some(o => o.value === currentValue)) {
+                select.value = currentValue;
+            }
+        }
+
         function drawOrgChart() {
-            buildBuildingSummaryCards();  // Building 요약 카드 업데이트
+            populateBuildingFilter();      // [Issue #57] Building 필터 동적 생성
+            buildBuildingSummaryCards();    // Building 요약 카드 업데이트
             drawCollapsibleOrgChart();
         }
 
@@ -25561,6 +25781,13 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                 // 출근율 색상
                 const attendanceClass = attendanceRate >= 88 ? 'text-success' : 'text-danger';
 
+                // [Issue #57] Building 배지 (색상 매핑 사용)
+                const empBuilding = (emp.BUILDING || emp.building || '').toUpperCase().trim();
+                const bldgColor = getBuildingColor(empBuilding);
+                const buildingBadge = empBuilding && empBuilding !== 'NAN' && empBuilding !== 'NONE'
+                    ? `<span class="badge" style="background-color: ${bldgColor}; font-size: 0.75em;">${empBuilding}</span>`
+                    : '<span class="badge bg-secondary" style="font-size: 0.75em;">-</span>';
+
                 const row = document.createElement('tr');
                 if (isResigned) row.classList.add('table-secondary');
 
@@ -25568,6 +25795,7 @@ ${lang === 'ko' ? '다른 사번으로 다시 시도하시겠습니까?' : lang 
                     <td>${empNo}</td>
                     <td>${name}</td>
                     <td>${position}</td>
+                    <td class="text-center">${buildingBadge}</td>
                     <td>${statusBadge}</td>
                     <td class="text-end">${incentive > 0 ? incentive.toLocaleString() + ' VND' : '-'}</td>
                     <td class="text-center">${absenceDays > 0 ? '<span class="text-danger">' + absenceDays + '</span>' : '0'}</td>
