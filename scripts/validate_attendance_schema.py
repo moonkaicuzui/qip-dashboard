@@ -218,12 +218,34 @@ def main():
         if config_files:
             # 파일 이름에서 날짜 파싱하여 정렬 (year, month 순)
             # 예: config_december_2025.json → (2025, 12)
-            latest = sorted(config_files, key=get_config_date)[-1]
-            with open(latest) as f:
-                config = json.load(f)
-            month = config.get('month', 'december')
-            year = config.get('year', 2025)
-            print(f"ℹ️  자동 감지: {month} {year} (config: {latest.name})")
+            sorted_configs = sorted(config_files, key=get_config_date)
+
+            # [Issue #57] 데이터가 실제 존재하는 최신 config 찾기
+            # converted 출근 파일이 없는 월은 건너뜀 (데이터 미존재)
+            month = None
+            year = None
+            for cfg_path in reversed(sorted_configs):
+                with open(cfg_path) as f:
+                    cfg = json.load(f)
+                cfg_month = cfg.get('month', '')
+                cfg_year = cfg.get('year', 2025)
+                converted_path = f"input_files/attendance/converted/attendance data {cfg_month}_converted.csv"
+                if Path(converted_path).exists():
+                    month = cfg_month
+                    year = cfg_year
+                    print(f"ℹ️  자동 감지: {month} {year} (config: {cfg_path.name})")
+                    break
+                else:
+                    print(f"⏭️  {cfg_month} {cfg_year} 건너뜀 (converted 파일 없음 - 데이터 미존재)")
+
+            # 모든 config에 대해 converted 파일이 없는 경우
+            if month is None:
+                latest = sorted_configs[-1]
+                with open(latest) as f:
+                    config = json.load(f)
+                month = config.get('month', 'december')
+                year = config.get('year', 2025)
+                print(f"⚠️  Fallback: {month} {year} (converted 파일 존재하는 config 없음)")
         else:
             month = 'december'
             year = 2025

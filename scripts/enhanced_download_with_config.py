@@ -379,8 +379,13 @@ def main():
                             })
                         break
 
-        # Config 파일 자동 업데이트
-        update_config_for_month(month_folder['year'], month_folder['month_name'], downloaded_files)
+        # Config 파일 자동 업데이트 (다운로드된 파일이 있을 때만)
+        # [Issue #57] 데이터 없는 월의 config 생성 방지 (GitHub Actions 파이프라인 장애 원인)
+        if downloaded_files:
+            update_config_for_month(month_folder['year'], month_folder['month_name'], downloaded_files)
+        else:
+            print(f"  ⏭️ Config 업데이트 건너뜀 (다운로드된 파일 없음 - {month_folder['month_name']} {month_folder['year']})")
+            print(f"     → Google Drive에 해당 월 데이터가 아직 없습니다.")
 
     print("\n" + "=" * 70)
     print("✅ Google Drive 다운로드 + Config 업데이트 완료!")
