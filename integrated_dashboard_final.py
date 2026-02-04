@@ -22154,14 +22154,32 @@ def main():
             if os.path.exists(config_path):
                 with open(config_path, 'r', encoding='utf-8') as f:
                     config_data = json.load(f)
-                    working_days = config_data.get('working_days', 22)
+                    working_days = config_data.get('working_days', None)
                     attendance_file_path = config_data.get('file_paths', {}).get('attendance', None)
                     config_last_updated = config_data.get('last_updated', config_data.get('working_days_updated_at', ""))
+
+                    # [Issue #58] Layer 3: Config working_days 유효성 검증
+                    if working_days is None or working_days <= 0:
+                        print(f"❌ [Issue #58] Config에 유효하지 않은 working_days: {working_days}")
+                        print(f"   Config 파일이 손상되었거나 attendance 파일 없이 생성되었습니다.")
+                        print(f"   해결: python src/convert_attendance_data.py {month_name} {args.year}")
+                        raise ValueError(f"Invalid working_days in config: {working_days}")
+
                     print(f"📊 actual total 근무일count (Config based): {working_days}th")
                     print(f"🕐 Config last updated: {config_last_updated}")
+
+                    # [Issue #58] Layer 3: Attendance 파일 존재 검증
+                    if not attendance_file_path or not os.path.exists(attendance_file_path):
+                        print(f"❌ [Issue #58] Attendance 파일 없음: {attendance_file_path}")
+                        print(f"   데이터 동기화가 필요합니다.")
+                        print(f"   해결: python scripts/download_from_gdrive.py")
+                        raise FileNotFoundError(f"Attendance file not found: {attendance_file_path}")
             else:
-                working_days = 22  # attendance data에서 calculation된 actual 값
-                print(f"📊 actual total 근무일count (default value): {working_days}th")
+                # [Issue #58] Config 없으면 대시보드 생성 거부
+                print(f"❌ [Issue #58] Config 파일 없음: {config_path}")
+                print(f"   Config 없이 대시보드를 생성할 수 없습니다.")
+                print(f"   해결: python scripts/enhanced_download_with_config.py")
+                raise FileNotFoundError(f"Config file not found: {config_path}")
 
             # attendance daily_data 및 직원by raw data creation
             daily_data = {}
@@ -22236,6 +22254,22 @@ def main():
 
                         print(f"✅ Daily attendance data creation completed: {len(daily_data)}th")
                         print(f"✅ 직원by attendance raw data creation completed: {len(attendance_raw_data)}직원")
+
+                        # [Issue #58] Layer 3: Config vs 실제 데이터 검증
+                        actual_working_days = len(daily_data)
+                        if actual_working_days != working_days:
+                            print(f"⚠️ [Issue #58] Working days 불일치 감지!")
+                            print(f"   Config: {working_days}일 vs 실제: {actual_working_days}일")
+                            print(f"   🔄 실제 데이터로 자동 수정합니다.")
+                            working_days = actual_working_days  # 실제 데이터 우선
+                            # Config 파일도 업데이트 (SSOT)
+                            config_data['working_days'] = actual_working_days
+                            config_data['working_days_source'] = 'dashboard_validation_ssot'
+                            from datetime import datetime
+                            config_data['working_days_updated_at'] = datetime.now().isoformat()
+                            with open(config_path, 'w', encoding='utf-8') as f:
+                                json.dump(config_data, f, ensure_ascii=False, indent=2)
+                            print(f"   ✅ Config 자동 업데이트: {config_path}")
                     else:
                         print("⚠️ Work Date column을 find count not found.")
                 except Exception as e:

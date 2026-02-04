@@ -140,10 +140,22 @@ def calculate_working_days_from_attendance(attendance_file_path):
         return None
 
 def update_config_for_month(year, month_name, downloaded_files):
-    """특정 월의 config 파일을 업데이트 (modifiedTime 포함)"""
+    """특정 월의 config 파일을 업데이트 (modifiedTime 포함)
+
+    [Issue #58] 근본 개선: Attendance 파일 필수 검증
+    - Config 생성 전 attendance 파일 존재 확인
+    - 파일 없으면 config 생성 거부 (잘못된 working_days 방지)
+    """
     config_path = f"config_files/config_{month_name}_{year}.json"
 
     print(f"\n  📝 Config 업데이트: {config_path}")
+
+    # [Issue #58] Attendance 파일 존재 확인 (필수 조건)
+    attendance_path = f"input_files/attendance/original/attendance data {month_name}.csv"
+    if not os.path.exists(attendance_path):
+        print(f"    ❌ [Issue #58] Attendance 파일 없음: {attendance_path}")
+        print(f"    ⚠️ Config 생성 건너뜀 - 잘못된 working_days 방지")
+        return None  # Config 생성 거부
 
     # 기존 config 로드 또는 새로 생성
     if os.path.exists(config_path):
@@ -152,10 +164,11 @@ def update_config_for_month(year, month_name, downloaded_files):
         print("    기존 config 파일 로드")
     else:
         print("    새 config 파일 생성")
+        # [Issue #58] default working_days 제거 - 반드시 파일에서 계산
         config = {
             "year": year,
             "month": month_name,
-            "working_days": 23
+            "working_days": None  # 명시적으로 None (나중에 계산됨)
         }
 
     # 실제 다운로드된 파일 경로 매핑 + modifiedTime 저장
@@ -210,16 +223,30 @@ def update_config_for_month(year, month_name, downloaded_files):
     config['file_paths'] = file_paths
     config['files_modified_times'] = files_modified_times
 
-    # Working days 계산 및 업데이트
+    # [Issue #58] Working days 계산 및 업데이트 - 필수 검증 강화
     if 'attendance' in file_paths and os.path.exists(file_paths['attendance']):
         print(f"    📊 Working days 계산 중...")
         working_days = calculate_working_days_from_attendance(file_paths['attendance'])
-        if working_days:
+        if working_days and working_days > 0:
             old_days = config.get('working_days', 'N/A')
             config['working_days'] = working_days
             config['working_days_source'] = 'attendance_data'
             config['working_days_updated_at'] = datetime.now().isoformat()
             print(f"    ✅ Working days 업데이트: {old_days} → {working_days}")
+        else:
+            print(f"    ❌ [Issue #58] Working days 계산 실패 (결과: {working_days})")
+            print(f"    ⚠️ Config 생성 중단 - 잘못된 데이터 방지")
+            return None  # Config 생성 거부
+    else:
+        print(f"    ❌ [Issue #58] Attendance 파일 없음 또는 경로 누락")
+        print(f"    ⚠️ Config 생성 중단 - working_days 계산 불가")
+        return None  # Config 생성 거부
+
+    # [Issue #58] 최종 검증: working_days가 유효한지 확인
+    if config.get('working_days') is None or config.get('working_days', 0) <= 0:
+        print(f"    ❌ [Issue #58] 최종 검증 실패: working_days = {config.get('working_days')}")
+        print(f"    ⚠️ Config 저장 거부")
+        return None
 
     # Previous months 설정
     months = ['january', 'february', 'march', 'april', 'may', 'june',

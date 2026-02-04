@@ -2633,3 +2633,39 @@ ls output_files/*Complete_V9*
    - **Implementation**: `integrated_dashboard_final.py:18723-18757`
    - **Commit**: [현재 세션]
    - **Prevention**: 조건 적용 표시 시 항상 position_condition_matrix의 TYPE별 조건 확인 필수
+
+58. **Issue #58: Config 생성 조건 강화 및 대시보드 검증 게이트** (IMPLEMENTED: 2026-02-04):
+   - **Problem**: 2월 대시보드에서 "총 근무일: 1일" 표시, 모든 날짜에 "데이터 없음"
+     - Config: working_days = 1 (잘못됨)
+     - Google Drive: 2일 데이터 존재 (2월 2일, 3일)
+     - 대시보드: config의 잘못된 값 사용
+   - **Root Cause Chain**:
+     1. Config가 attendance 파일 없이 생성됨 (default working_days 사용)
+     2. SSOT 시스템이 파일 없어서 무력화
+     3. 대시보드가 검증 없이 config 값 사용
+   - **Solution**: 3-Layer 방어 시스템 구현
+     - **Layer 1** (기존): MD5 checksum으로 다운로드 무결성 검증
+     - **Layer 2** (신규): Config 생성 조건 강화
+       - Attendance 파일 필수 검증 후 config 생성
+       - working_days는 반드시 파일에서 계산 (default 금지)
+       - 검증 실패 시 config 생성 거부
+     - **Layer 3** (신규): 대시보드 생성 전 검증 게이트
+       - Config working_days 유효성 검증 (None, 0 거부)
+       - Attendance 파일 존재 확인
+       - Config vs 실제 데이터 불일치 시 자동 수정
+   - **Implementation**:
+     - `scripts/enhanced_download_with_config.py:142-175` (Layer 2)
+     - `scripts/enhanced_download_with_config.py:226-248` (Layer 2 검증)
+     - `integrated_dashboard_final.py:22154-22182` (Layer 3)
+     - `integrated_dashboard_final.py:22255-22273` (SSOT 자동 수정)
+   - **Verification**:
+     ```bash
+     # Config와 실제 데이터 일치 확인
+     python integrated_dashboard_final.py --month 2 --year 2026 2>&1 | grep "Working days"
+     # Output: 불일치 시 자동 수정 메시지 표시
+     ```
+   - **Commit**: [현재 세션]
+   - **Prevention**:
+     - Config는 attendance 파일 없이 생성될 수 없음
+     - 대시보드 생성 시 항상 실제 데이터와 검증
+     - 불일치 발견 시 자동 수정 (SSOT 우선)
