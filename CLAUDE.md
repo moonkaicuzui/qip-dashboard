@@ -144,6 +144,35 @@ grep -n "새로운_스크립트_이름" .github/workflows/auto-update-enhanced.y
 - (2025-12-28, Issue #31): 스키마 검증을 `action.sh`에만 추가하고 GitHub Actions에 추가하지 않아, 자동화 시스템에서 버그 예방이 작동하지 않는 상태로 1시간 경과. 이후 수정하여 양쪽 모두 적용.
 - (2026-01-02, Issue #32): GitHub Actions Step 6에 month/year 파라미터 전달 누락으로, Google Drive 업데이트 시 attendance 재변환이 자동 실행되지 않음. 결과적으로 working_days 불일치 발생 (22일 vs 27일). 이후 Step 6 개선 + Step 6.5 추가로 완전 자동화.
 
+### 0.6 DOCUMENTATION SECURITY PRINCIPLE (문서화 보안 원칙, 2026-02-05)
+**문서, 코드, 커밋에 민감 정보 절대 포함 금지**
+
+**금지 항목 (NEVER include)**:
+| 항목 | 예시 | 대체 방법 |
+|------|------|----------|
+| 비밀번호 | `jbesyhkrbklmkfpz` | GitHub Secrets 사용 (`${{ secrets.SMTP_PASSWORD }}`) |
+| API 키 | `AIzaSy...` | 환경 변수 참조 |
+| 이메일 인증 정보 | App Password | GitHub Secrets에만 저장 |
+| 서비스 계정 JSON | 전체 키 내용 | 파일 경로만 참조 |
+| 개인 이메일 | `user@example.com` | `${{ env.ALERT_EMAIL }}` 참조 |
+
+**보안 체크리스트 (커밋 전)**:
+- [ ] 비밀번호, API 키가 코드/문서에 없는가?
+- [ ] `.gitignore`에 민감 파일 포함되어 있는가?
+- [ ] GitHub Secrets로 민감 정보 관리하는가?
+- [ ] 예제 코드에서 실제 값 대신 placeholder 사용하는가?
+
+**올바른 패턴**:
+```yaml
+# ✅ Good: GitHub Secrets 참조
+password: ${{ secrets.SMTP_PASSWORD }}
+
+# ❌ Bad: 실제 비밀번호 하드코딩
+password: "myActualPassword123"
+```
+
+**Historical Note** (2026-02-05): 이 원칙은 Workflow Watchdog 구현 중 Gmail App Password 설정 과정에서 추가됨. 채팅 내용은 로깅되므로 민감 정보를 공유할 때 주의 필요.
+
 ### Google Drive Data-First Principle (Google Drive 데이터 우선 원칙)
 - **ALWAYS use Google Drive as single source of truth** - 항상 Google Drive를 유일한 데이터 소스로 사용
 - **NEVER rely on outdated local data** - 오래된 로컬 데이터에 의존하지 마라
@@ -2669,3 +2698,31 @@ ls output_files/*Complete_V9*
      - Config는 attendance 파일 없이 생성될 수 없음
      - 대시보드 생성 시 항상 실제 데이터와 검증
      - 불일치 발견 시 자동 수정 (SSOT 우선)
+
+59. **Issue #59: Workflow Watchdog 시스템 - 비활성화 감지 및 자동 복구** (IMPLEMENTED: 2026-02-05):
+   - **Problem**: GitHub Actions 자동 업데이트 워크플로우가 수동으로 비활성화됨
+     - 상태: `disabled_manually`
+     - 마지막 실행: 2026-02-03
+     - 결과: 2일간 대시보드 미업데이트 (Google Drive 3일 데이터 → 대시보드 2일 표시)
+   - **Root Cause**:
+     - GitHub 60일 비활성화 정책 (scheduled workflows)
+     - 수동 비활성화 가능 (Settings → Actions → Workflows)
+     - 모니터링 시스템 부재
+   - **Solution**: Workflow Watchdog 시스템 구현
+     - **자동 복구**: 비활성화 감지 시 자동 활성화 + 즉시 실행
+     - **이메일 알림**: 비활성화 감지/24시간 미실행 시 알림 발송
+     - **Keep-Alive**: 60일 비활성화 정책 방지용 매일 커밋
+   - **Implementation**:
+     - `.github/workflows/workflow-watchdog.yml` (신규)
+       - 실행 주기: 매일 오전 9시 (베트남 시간)
+       - 이메일: `${{ env.ALERT_EMAIL }}`
+       - SMTP: Gmail App Password (`${{ secrets.SMTP_PASSWORD }}`)
+     - `.github/last-watchdog-check.txt` (Keep-Alive 파일)
+   - **GitHub Secrets 설정**:
+     - `SMTP_USERNAME`: Gmail 계정 (Secrets에서 관리)
+     - `SMTP_PASSWORD`: Gmail App Password (16자리, 공백 없음)
+   - **Commits**: `1f795c8a0`, `bd205e25e`, `45dd60266`
+   - **Prevention**:
+     - Watchdog이 매일 워크플로우 상태 확인
+     - 비활성화 시 자동 복구 + 이메일 알림
+     - Keep-Alive 커밋으로 60일 정책 방지
