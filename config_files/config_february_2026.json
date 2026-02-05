@@ -1,7 +1,7 @@
 {
   "year": 2026,
   "month": "february",
-  "working_days": 2,
+  "working_days": 3,
   "file_paths": {
     "attendance": "input_files/attendance/original/attendance data february.csv",
     "5prs": "input_files/5prs data february.csv",
@@ -30,7 +30,7 @@
     "aql_current": "2026-02-03T02:55:38.000Z"
   },
   "working_days_source": "attendance_data_ssot",
-  "working_days_updated_at": "2026-02-04T10:54:06.191131",
+  "working_days_updated_at": "2026-02-05T08:20:42.071642",
   "data_source": "google_drive",
   "last_updated": "2026-02-03T02:55:38.000Z"
 }
