@@ -21,6 +21,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 0. 저장소 체크아웃 (Keep-Alive 커밋에 필요)
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: true
+        fetch-depth: 1
+
     - name: 🔍 Check Main Workflow Status
       id: check_status
       env:
@@ -125,7 +132,9 @@ jobs:
     - name: 🏥 Keep-Alive (60일 비활성화 방지)
       run: |
         echo "=== Keep-Alive: 레포지토리 활성 상태 유지 ==="
+        mkdir -p .github
         echo "마지막 확인: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" > .github/last-watchdog-check.txt
+        cat .github/last-watchdog-check.txt
 
     - name: 📝 Commit Keep-Alive (변경사항 있을 때만)
       run: |
@@ -140,6 +149,33 @@ jobs:
           git commit -m "🛡️ Watchdog: Keep-alive check $(date -u +"%Y-%m-%d")" || echo "Nothing to commit"
           git push || echo "Push failed - will retry next run"
         fi
+
+    - name: 📧 Send Test Email (최초 설정 확인용 - 수동 실행 시에만)
+      if: github.event_name == 'workflow_dispatch'
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.SMTP_USERNAME }}
+        password: ${{ secrets.SMTP_PASSWORD }}
+        subject: "✅ [QIP Dashboard] Watchdog 이메일 테스트 성공"
+        to: ${{ env.ALERT_EMAIL }}
+        from: QIP Dashboard Bot <${{ secrets.SMTP_USERNAME }}>
+        body: |
+          ✅ QIP Dashboard Watchdog 이메일 알림 시스템이 정상 작동합니다!
+
+          📊 현재 상태:
+          - 메인 워크플로우: ${{ steps.check_status.outputs.workflow_state }}
+          - 마지막 성공 실행: ${{ steps.check_status.outputs.last_success }}
+          - 경과 시간: ${{ steps.check_status.outputs.hours_since_success }}시간
+
+          🔗 확인하기:
+          - Actions: https://github.com/${{ github.repository }}/actions
+          - Dashboard: https://moonkaicuzui.github.io/qip-dashboard/
+
+          ---
+          이 테스트 이메일은 수동 실행 시에만 발송됩니다.
+      continue-on-error: true
 
     - name: ✅ Summary
       run: |
