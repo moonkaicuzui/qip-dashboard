@@ -739,6 +739,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     th_area_reject_rate = _thresholds.get('area_reject_rate', 3.0)
     th_5prs_pass_rate = _thresholds.get('5prs_pass_rate', 95)
     th_5prs_min_qty = _thresholds.get('5prs_min_qty', 100)
+    th_absence_rate = 100 - th_attendance_rate  # [Issue #60] 결근율 = 100 - 출근율
+    th_unapproved_absence_exceed = th_unapproved_absence + 1  # [Issue #60] 초과 기준 (threshold + 1)
 
     # Load progression table from JSON (Single Source of Truth)
     progression_table = {}
@@ -2017,8 +2019,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     case 'status':
                         const aDays = parseFloat(a['Unapproved Absences'] || 0);
                         const bDays = parseFloat(b['Unapproved Absences'] || 0);
-                        aVal = aDays > 2 ? 3 : (aDays === 2 ? 2 : 1);
-                        bVal = bDays > 2 ? 3 : (bDays === 2 ? 2 : 1);
+                        // [Issue #60] 동적 threshold 사용
+                        const absLimitSort = window.thresholds ? window.thresholds.unapproved_absence : {th_unapproved_absence};
+                        aVal = aDays > absLimitSort ? 3 : (aDays === absLimitSort ? 2 : 1);
+                        bVal = bDays > absLimitSort ? 3 : (bDays === absLimitSort ? 2 : 1);
                         break;
                 }
 
@@ -2035,15 +2039,16 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function renderTable() {
             const lang = currentLanguage || 'ko';
 
-            // Calculate statistics before rendering
+            // [Issue #60] threshold 기반 통계 계산
+            const absThreshold = window.thresholds ? window.thresholds.unapproved_absence : {th_unapproved_absence};
             const total = absentEmployees.length;
             const excluded = absentEmployees.filter(emp => {
                 const days = parseFloat(emp['Unapproved Absences'] || 0);
-                return days >= 3;
+                return days > absThreshold;
             }).length;
             const warning = absentEmployees.filter(emp => {
                 const days = parseFloat(emp['Unapproved Absences'] || 0);
-                return days === 2;
+                return days === absThreshold;
             }).length;
             const caution = total - excluded - warning;
 
@@ -2054,13 +2059,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 const pregnant = emp['pregnant vacation-yes or no'] || '';
                 const remark = emp['RE MARK'] || '-';  // Fixed: no trailing space (normalized)
 
-                // 상태 및 스타th
+                // [Issue #60] 상태 및 스타일 - threshold 기반
                 let statusLabel, statusClass, daysBadgeClass;
-                if (days >= 3) {
+                if (days > absThreshold) {
                     statusLabel = getTranslation('validationTab.status.excluded', lang);
                     statusClass = 'bg-danger';
                     daysBadgeClass = 'bg-danger';
-                } else if (days === 2) {
+                } else if (days === absThreshold) {
                     statusLabel = getTranslation('validationTab.status.warning', lang);
                     statusClass = 'bg-warning text-dark';
                     daysBadgeClass = 'bg-warning text-dark';
@@ -2532,14 +2537,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     }
 
     function showAttendanceBelow88Details() {
-        // 출근율 88% 미만 직원 필터링 (TYPE-3 제외)
+        // [Issue #60] 출근율 threshold 미만 직원 필터링 (TYPE-3 제외)
+        const attThreshold = window.thresholds ? window.thresholds.attendance_rate : 88;
         let below88Employees = window.employeeData.filter(emp => {
             // TYPE-3 제외 (incentive 대상 아님)
             if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {
                 return false;
             }
             const attendanceRate = parseFloat(emp['출근율_Attendance_Rate_Percent'] || emp['Attendance Rate'] || 0);
-            return attendanceRate < 88;
+            return attendanceRate < attThreshold;
         });
 
         let sortColumn = 'attendanceRate';
@@ -3689,6 +3695,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         // 테이블 3: Auditor/Trainer incentive 현황 (책임 range)
         // ========================================================================
 
+        // [Issue #60] Area Reject Rate threshold (동적)
+        const areaRejectThreshold = window.thresholds ? window.thresholds.area_reject_rate : 3.0;
+
         // 현재 보고서 연도/월 가져오기
         const reportYear = parseInt(document.getElementById('incentiveDataPeriod').getAttribute('data-year'));
         const reportMonthNum = parseInt(document.getElementById('incentiveDataPeriod').getAttribute('data-month'));
@@ -3777,11 +3786,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             return cond7 === 'FAIL';
         });
 
-        // 조건 8번: 구역 reject rate > 3% (AQL 관련 직원 중)
+        // 조건 8번: 구역 reject rate > threshold (AQL 관련 직원 중) [Issue #60]
+        const rejectThresholdAql = window.thresholds ? window.thresholds.area_reject_rate : {th_area_reject_rate};
         let cond8FailEmployees = aqlRelevantEmployees.filter(emp => {
             const cond8 = emp['cond_8_area_reject'] || 'PASS';
             const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || 0);
-            return cond8 === 'FAIL' || areaRejectRate > 3;
+            return cond8 === 'FAIL' || areaRejectRate > rejectThresholdAql;
         });
 
         // 조건별 실패 인원 수 계산
@@ -4050,13 +4060,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     let badgeClass = 'bg-success';
                                     let statusText = t.performanceExcellent;
 
-                                    if (rejectRate > 3) {
+                                    // [Issue #60] 동적 threshold 사용 (비례 단계: threshold, threshold*0.83, threshold*0.5)
+                                    if (rejectRate > areaRejectThreshold) {
                                         badgeClass = 'bg-danger';
                                         statusText = t.performanceImprovement;
-                                    } else if (rejectRate > 2.5) {
+                                    } else if (rejectRate > areaRejectThreshold * 0.83) {
                                         badgeClass = 'bg-warning';
                                         statusText = t.performanceWarning;
-                                    } else if (rejectRate > 1.5) {
+                                    } else if (rejectRate > areaRejectThreshold * 0.5) {
                                         badgeClass = 'bg-info';
                                         statusText = t.performanceGood;
                                     }
@@ -4112,13 +4123,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     let badgeClass = 'bg-success';
                                     let statusText = t.performanceExcellent;
 
-                                    if (rejectRate > 3) {
+                                    // [Issue #60] 동적 threshold 사용 (비례 단계)
+                                    if (rejectRate > areaRejectThreshold) {
                                         badgeClass = 'bg-danger';
                                         statusText = t.performanceImprovement;
-                                    } else if (rejectRate > 2.5) {
+                                    } else if (rejectRate > areaRejectThreshold * 0.83) {
                                         badgeClass = 'bg-warning';
                                         statusText = t.performanceWarning;
-                                    } else if (rejectRate > 1.5) {
+                                    } else if (rejectRate > areaRejectThreshold * 0.5) {
                                         badgeClass = 'bg-info';
                                         statusText = t.performanceGood;
                                     }
@@ -4179,8 +4191,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                             <td style="padding: 8px;"><strong>${stats.building}</strong></td>
                                             <td style="padding: 8px;">${stats.name}</td>
                                             <td style="padding: 8px; text-align: center;">
-                                                <span class="badge ${parseFloat(stats.rejectRate) > 3 ? 'bg-danger' : 'bg-success'}" style="font-size: 13px;">
-                                                    ${parseFloat(stats.rejectRate) > 3 ? '❌' : '✅'} ${stats.rejectRate}%
+                                                <span class="badge ${parseFloat(stats.rejectRate) > areaRejectThreshold ? 'bg-danger' : 'bg-success'}" style="font-size: 13px;">
+                                                    ${parseFloat(stats.rejectRate) > areaRejectThreshold ? '❌' : '✅'} ${stats.rejectRate}%
                                                 </span>
                                             </td>
                                             <td style="padding: 8px; text-align: center;">${stats.consecutive}${t.unitPeople}</td>
@@ -4418,7 +4430,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${totalQty.toFixed(0)}${t.unitPcs}</td>
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passIcon} ${passRate.toFixed(1)}%</span></td>
-                    <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
+                    <td>${passRate < prThreshold ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
                     <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ ' + (getTranslation('incentiveStatus.received', currentLang) || 'Received') + '</span>' : '<span style="color: #dc3545; font-weight: 500;">' + (getTranslation('incentiveStatus.notReceived', currentLang) || 'Not Received') + '</span>'}</td>
                     <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
@@ -4507,7 +4519,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <td>${totalQty.toFixed(0)}${t.unitPcs}</td>
                     <td>${passQty}${t.unitPcs}</td>
                     <td><span class="badge ${badgeClass}">${passIcon} ${passRate.toFixed(1)}%</span></td>
-                    <td>${passRate < 95 ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
+                    <td>${passRate < prThreshold ? t.conditionStatus.split('/')[1] : t.conditionStatus.split('/')[0]}</td>
                     <td class="text-center">${received ? '<span style="color: #28a745; font-weight: 500;">✅ ' + (getTranslation('incentiveStatus.received', currentLang) || 'Received') + '</span>' : '<span style="color: #dc3545; font-weight: 500;">' + (getTranslation('incentiveStatus.notReceived', currentLang) || 'Not Received') + '</span>'}</td>
                     <td class="text-center">${incentive > 0 ? '<span style="color: #0d6efd; font-weight: 600;">' + incentive.toLocaleString() + ' ₫</span>' : '<span style="color: #dc3545;">0 ₫</span>'}</td>
                 `;
@@ -4529,11 +4541,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 return isType1 && isAssemblyInspector;
             });
 
-            // TYPE-1 ASSEMBLY INSPECTOR with pass rate < 95% 필터링 (첫 번째 테이블용)
+            // TYPE-1 ASSEMBLY INSPECTOR with pass rate < threshold 필터링 (첫 번째 테이블용) [Issue #60]
+            const prThreshold = window.thresholds ? window.thresholds['5prs_pass_rate'] : 95;
             lowPassEmployees = allType1Inspectors.filter(emp => {
                 const passRate = parseFloat(emp['pass_rate'] || emp['5PRS_Pass_Rate'] || emp['5PRS Pass Rate'] || 100);
                 // Debug log removed for performance
-                return passRate < 95;
+                return passRate < prThreshold;
             });
 
             // 백드롭 creation
@@ -4793,7 +4806,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
                 // 언어별 단위 및 상태 텍스트
                 const qtyUnit = currentLanguage === 'ko' ? '족' : currentLanguage === 'en' ? ' prs' : ' đôi';
-                const statusText = inspectionQty < 100 ?
+                const iqThreshold = window.thresholds ? window.thresholds['5prs_min_qty'] : {th_5prs_min_qty};
+                const statusText = inspectionQty < iqThreshold ?
                     (currentLanguage === 'ko' ? '미충족' : currentLanguage === 'en' ? 'Not Met' : 'Không đạt') :
                     (currentLanguage === 'ko' ? '충족' : currentLanguage === 'en' ? 'Met' : 'Đạt');
 
@@ -7859,7 +7873,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         </h2>
                                         <div id="type3Faq2" class="accordion-collapse collapse" data-bs-parent="#type3FaqAccordion">
                                             <div class="accordion-body" style="background: #fdf4ff; color: #581c87;" id="type3FaqA2">
-                                                입사 1개월 후 현장에 배치되고, 해당 월의 모든 조건(출근율 88% 이상, AQL 실패 0건 등)을 충족하면 <strong>다음 달부터</strong> 인센티브를 받습니다. 예: 10월 입사 → 11월 교육 완료 → 11월 조건 충족 → 12월 인센티브 지급
+                                                입사 1개월 후 현장에 배치되고, 해당 월의 모든 조건(출근율 {th_attendance_rate}% 이상, AQL 실패 0건 등)을 충족하면 <strong>다음 달부터</strong> 인센티브를 받습니다. 예: 10월 입사 → 11월 교육 완료 → 11월 조건 충족 → 12월 인센티브 지급
                                             </div>
                                         </div>
                                     </div>
@@ -7893,7 +7907,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div>
                                     <strong style="color: #047857;" id="type3ImportantTitle">중요 팁!</strong>
                                     <p class="mb-0 mt-1" style="color: #065f46; font-size: 0.95rem;" id="type3ImportantNote">
-                                        TYPE-3 기간에도 <strong>출근율 88% 이상</strong>과 <strong>AQL 품질 기준</strong>을 유지하면 TYPE 전환 직후부터 바로 인센티브를 받을 수 있습니다!
+                                        TYPE-3 기간에도 <strong>출근율 {th_attendance_rate}% 이상</strong>과 <strong>AQL 품질 기준</strong>을 유지하면 TYPE 전환 직후부터 바로 인센티브를 받을 수 있습니다!
                                     </p>
                                 </div>
                             </div>
@@ -7955,18 +7969,18 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <tbody>
                                 <tr>
                                     <td class="minimum-days-label">근무일count</td>
-                                    <td class="less-than-12-days">12일 미만시 미지급</td>
+                                    <td class="less-than-12-days">{th_minimum_working_days}일 미만시 미지급</td>
                                     <td class="november-11-days">11일 work → 0 VND</td>
                                 </tr>
                                 <tr>
                                     <td class="attendance-rate-label">출근율</td>
-                                    <td class="less-than-88-percent">88% 미만시 미지급</td>
+                                    <td class="less-than-88-percent">{th_attendance_rate}% 미만시 미지급</td>
                                     <td class="attendance-example">87% 출근율 → 0 VND</td>
                                 </tr>
                                 <tr>
                                     <td class="unauthorized-absence-label">무단결근</td>
-                                    <td class="more-than-3-days">3일 이상시 미지급</td>
-                                    <td class="unauthorized-example">3일 무단결근 → 0 VND</td>
+                                    <td class="more-than-3-days">{th_unapproved_absence_exceed}일 이상시 미지급</td>
+                                    <td class="unauthorized-example">{th_unapproved_absence_exceed}일 무단결근 → 0 VND</td>
                                 </tr>
                                 <tr>
                                     <td class="aql-failure-label">AQL failed</td>
@@ -7975,7 +7989,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tr>
                                 <tr>
                                     <td class="fprs-pass-rate-label">5PRS 통과율</td>
-                                    <td class="less-than-95-percent">95% 미만시 미지급 (corresponding자)</td>
+                                    <td class="less-than-95-percent">{th_5prs_pass_rate}% 미만시 미지급 (corresponding자)</td>
                                     <td class="fprs-example">94% → 0 VND</td>
                                 </tr>
                             </tbody>
@@ -8014,7 +8028,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             <p><strong><span id="faqCase2InspectionLabel">Building B 구역 생산 total AQL 검사 PO count량:</span> <span id="faqCase2InspectionQty">100개</span></strong></p>
                             <p><strong><span id="faqCase2RejectLabel">Building B 구역 생산 total AQL 리젝 PO count량:</span> <span id="faqCase2RejectQty">2개</span></strong></p>
                             <p><strong id="faqCase2CalcLabel">calculation:</strong> 2 / 100 × 100 = 2%</p>
-                            <p><strong id="faqCase2ResultLabel">결과:</strong> ✅ 2% < 3% → <span class="badge bg-success" id="faqCase2ResultBadge">조건 충족</span></p>
+                            <p><strong id="faqCase2ResultLabel">결과:</strong> ✅ 2% < {th_area_reject_rate}% → <span class="badge bg-success" id="faqCase2ResultBadge">조건 충족</span></p>
                         </div>
                         
                         <h6 class="text-primary mb-3 mt-4" id="faqMemberTableTitle">AUDIT & TRAINING TEAM 멤버by 담당 구역</h6>
@@ -8080,7 +8094,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 </tbody>
                             </table>
                             <p class="text-muted small mt-2">
-                                <span id="faqRejectRateNote">* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)</span><br>
+                                <span id="faqRejectRateNote">* Reject율 기준: {th_area_reject_rate}% 미만 (✅ 충족, ❌ 미충족)</span><br>
                                 <span id="faqMemberNote">* {month_kor} 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 incentive 0원</span>
                             </p>
                         </div>
@@ -8140,7 +8154,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 • <span class="att-unauthorized-absence-label">무단결근</span>: 4<span class="att-days-unit">th</span> (AR1)<br>
                                 • <span class="att-absence-days-label">결근 thcount</span>: 27 - 22 - 1 = 4<span class="att-days-unit">th</span><br>
                                 • <span class="att-absence-rate-label">결근율</span>: (4 / 27) × 100 = <strong>14.8%</strong><br>
-                                • <span class="att-attendance-rate-label">출근율</span>: 100 - 14.8 = <strong>85.2%</strong> ❌ (<span class="att-less-than-88">88% 미만</span>)
+                                • <span class="att-attendance-rate-label">출근율</span>: 100 - 14.8 = <strong>85.2%</strong> ❌ (<span class="att-less-than-88">{th_attendance_rate}% 미만</span>)
                             </div>
                             <div class="alert alert-light">
                                 <strong id="attendanceExample3Title">예시 3: 조건 충족 경계선</strong><br>
@@ -8150,8 +8164,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 • <span class="att-unauthorized-absence-label">무단결근</span>: 3<span class="att-days-unit">th</span> (AR1)<br>
                                 • <span class="att-absence-days-label">결근 thcount</span>: 27 - 24 - 0 = 3<span class="att-days-unit">th</span><br>
                                 • <span class="att-absence-rate-label">결근율</span>: (3 / 27) × 100 = <strong>11.1%</strong><br>
-                                • <span class="att-attendance-rate-label">출근율</span>: 100 - 11.1 = <strong>88.9%</strong> ✅ (<span class="att-more-than-88">88% 이상</span>)<br>
-                                • <span id="attendanceCondition2NotMet">단, 무단결근 3일로 조건 2 미충족 → incentive 0원</span>
+                                • <span class="att-attendance-rate-label">출근율</span>: 100 - 11.1 = <strong>88.9%</strong> ✅ (<span class="att-more-than-88">{th_attendance_rate}% 이상</span>)<br>
+                                • <span id="attendanceCondition2NotMet">단, 무단결근 {th_unapproved_absence_exceed}일로 조건 2 미충족 → incentive 0원</span>
                             </div>
                         </div>
                         
@@ -8196,10 +8210,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         <div class="formula-box p-3 bg-light rounded">
                             <h6 id="attendanceConditionCriteriaTitle">조건 충족 기준:</h6>
                             <ul>
-                                <li id="attendanceCriteria1"><strong>출근율:</strong> ≥ 88% (결근율 ≤ 12%)</li>
-                                <li id="attendanceCriteria2"><strong>무단결근:</strong> ≤ 2일 (AR1 카테고리만 corresponding)</li>
+                                <li id="attendanceCriteria1"><strong>출근율:</strong> ≥ {th_attendance_rate}% (결근율 ≤ {th_absence_rate}%)</li>
+                                <li id="attendanceCriteria2"><strong>무단결근:</strong> ≤ {th_unapproved_absence}일 (AR1 카테고리만 corresponding)</li>
                                 <li id="attendanceCriteria3"><strong>actual 근무일:</strong> > 0일</li>
-                                <li id="attendanceCriteria4"><strong>최소 근무일:</strong> ≥ 12일</li>
+                                <li id="attendanceCriteria4"><strong>최소 근무일:</strong> ≥ {th_minimum_working_days}일</li>
                             </ul>
                             <div class="alert alert-info mt-2">
                                 <strong id="attendanceUnapprovedTitle">📊 Unapproved Absence Days 설직원:</strong>
@@ -8418,11 +8432,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="faq-answer">
                                     <strong id="faqAnswer1Main">incentive를 받지 못한 주요 이유:</strong>
                                     <ul>
-                                        <li id="faqAnswer1Reason1">최소 근무일 12일 미충족</li>
-                                        <li id="faqAnswer1Reason2">출근율 88% 미만</li>
-                                        <li id="faqAnswer1Reason3">무단결근 3일 이상</li>
+                                        <li id="faqAnswer1Reason1">최소 근무일 {th_minimum_working_days}일 미충족</li>
+                                        <li id="faqAnswer1Reason2">출근율 {th_attendance_rate}% 미만</li>
+                                        <li id="faqAnswer1Reason3">무단결근 {th_unapproved_absence_exceed}일 이상</li>
                                         <li id="faqAnswer1Reason4">AQL failed (corresponding 직급)</li>
-                                        <li id="faqAnswer1Reason5">5PRS 통과율 95% 미만 (corresponding 직급)</li>
+                                        <li id="faqAnswer1Reason5">5PRS 통과율 {th_5prs_pass_rate}% 미만 (corresponding 직급)</li>
                                     </ul>
                                     <span id="faqAnswer1CheckMethod">개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 count 있습니다.</span>
                                 </div>
@@ -8433,7 +8447,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <span aria-hidden="true" class="faq-icon">▶</span> Q2. 무단결근이 며칠까지 허용되나요?
                                 </div>
                                 <div class="faq-answer">
-                                    <strong id="faqAnswer2Main">무단결근은 최대 2일까지 허용됩니다.</strong> <span id="faqAnswer2Detail">3일 이상 무단결근시 corresponding month incentive를 받을 count not found. 사전 승인된 휴가나 병가는 무단결근에 포함되지 not.</span>
+                                    <strong id="faqAnswer2Main">무단결근은 최대 {th_unapproved_absence}일까지 허용됩니다.</strong> <span id="faqAnswer2Detail">{th_unapproved_absence_exceed}일 이상 무단결근시 corresponding month incentive를 받을 count not found. 사전 승인된 휴가나 병가는 무단결근에 포함되지 not.</span>
                                 </div>
                             </div>
                             
@@ -8485,8 +8499,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="faq-answer">
                                     <span id="faqAnswer6Main">5PRS 관련 직급은 다음 조건을 충족해야 합니다:</span>
                                     <ul>
-                                        <li id="faqAnswer6Detail1">검사량 100족 이상</li>
-                                        <li id="faqAnswer6Detail2">통과율 95% 이상</li>
+                                        <li id="faqAnswer6Detail1">검사량 {th_5prs_min_qty}족 이상</li>
+                                        <li id="faqAnswer6Detail2">통과율 {th_5prs_pass_rate}% 이상</li>
                                     </ul>
                                     <strong id="faqAnswer6Conclusion">둘 중 하나라도 미충족시 incentive를 받을 count not found.</strong>
                                 </div>
@@ -8499,7 +8513,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="faq-answer">
                                     <strong id="faqAnswer7Main">출산휴가나 장기 병가 중에는 incentive가 지급되지 not.</strong>
                                     <ul>
-                                        <li id="faqAnswer7Detail1">최소 근무일 12일 조건을 충족할 count 없기 때문</li>
+                                        <li id="faqAnswer7Detail1">최소 근무일 {th_minimum_working_days}일 조건을 충족할 count 없기 때문</li>
                                         <li id="faqAnswer7Detail2">복귀 후 조건 충족시 다시 incentive 수령 가능</li>
                                         <li id="faqAnswer7Detail3">ASSEMBLY INSPECTOR의 경우 연속 개월count는 0으로 리셋</li>
                                     </ul>
@@ -9157,12 +9171,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="kpi-label" data-i18n="validationKpi.totalWorkingDays">총 근무일수</div>
                 </div>
 
-                <!-- KPI 카드 2: 무단결근 3일 이상 -->
+                <!-- KPI 카드 2: 무단결근 threshold 초과 [Issue #60] -->
                 <div class="kpi-card" onclick="showValidationModal('absentWithoutInform')" style="--card-color-1: #f39c12; --card-color-2: #f1c40f; box-shadow: 0 4px 15px rgba(243, 156, 18, 0.1);"
                      title="" data-i18n-title="validationKpi.absentWithoutInformTooltip">
                     <div class="kpi-icon">⚠️</div>
                     <div class="kpi-value" id="kpiAbsentWithoutInform">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.absentWithoutInform">무단결근 ≥3일</div>
+                    <div class="kpi-label" data-i18n="validationKpi.absentWithoutInform">무단결근 ≥{th_unapproved_absence_exceed}일</div>
                     <div class="kpi-subtitle" data-i18n="validationKpi.absentWithoutInformSubtitle">인센티브 자동 제외</div>
                 </div>
 
@@ -9182,12 +9196,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="kpi-label" data-i18n="validationKpi.minimumDaysNotMet">최소 근무일 미충족</div>
                 </div>
 
-                <!-- KPI 카드 5: 출근율 88% 미만 -->
+                <!-- KPI 카드 5: 출근율 threshold 미만 [Issue #60] -->
                 <div class="kpi-card" onclick="showValidationModal('attendanceBelow88')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);"
                      title="" data-i18n-title="validationKpi.attendanceBelow88Tooltip">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-value" id="kpiAttendanceBelow88">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.attendanceBelow88">출근율 88% 미만</div>
+                    <div class="kpi-label" data-i18n="validationKpi.attendanceBelow88">출근율 {th_attendance_rate}% 미만</div>
                     <div class="kpi-subtitle" data-i18n="validationKpi.attendanceBelow88Subtitle">정당한 사유 제외</div>
                 </div>
 
@@ -9205,25 +9219,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     <div class="kpi-label" data-i18n="validationKpi.consecutiveAqlFail">3개월 연속 AQL FAIL</div>
                 </div>
 
-                <!-- KPI 카드 8: 구역 AQL Reject 3% 이상 -->
+                <!-- KPI 카드 8: 구역 AQL Reject threshold 이상 [Issue #60] -->
                 <div class="kpi-card" onclick="showValidationModal('areaRejectRate')" style="--card-color-1: #3498db; --card-color-2: #2980b9; box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);">
                     <div class="kpi-icon">📊</div>
                     <div class="kpi-value" id="kpiAreaRejectRate">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.areaRejectRate">구역 AQL Reject ≥3%</div>
+                    <div class="kpi-label" data-i18n="validationKpi.areaRejectRate">구역 AQL Reject ≥{th_area_reject_rate}%</div>
                 </div>
 
-                <!-- KPI 카드 9: 5PRS 통과율 < 95% -->
+                <!-- KPI 카드 9: 5PRS 통과율 < threshold [Issue #60] -->
                 <div class="kpi-card" onclick="showValidationModal('lowPassRate')" style="--card-color-1: #9b59b6; --card-color-2: #8e44ad; box-shadow: 0 4px 15px rgba(155, 89, 182, 0.1);">
                     <div class="kpi-icon">📉</div>
                     <div class="kpi-value" id="kpiLowPassRate">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.lowPassRate">5PRS Pass Rate < 95%</div>
+                    <div class="kpi-label" data-i18n="validationKpi.lowPassRate">5PRS Pass Rate < {th_5prs_pass_rate}%</div>
                 </div>
 
-                <!-- KPI 카드 10: 5PRS 검사량 < 100족 -->
+                <!-- KPI 카드 10: 5PRS 검사량 < threshold [Issue #60] -->
                 <div class="kpi-card" onclick="showValidationModal('lowInspectionQty')" style="--card-color-1: #1abc9c; --card-color-2: #16a085; box-shadow: 0 4px 15px rgba(26, 188, 156, 0.1);">
                     <div class="kpi-icon">🔍</div>
                     <div class="kpi-value" id="kpiLowInspectionQty">-</div>
-                    <div class="kpi-label" data-i18n="validationKpi.lowInspectionQty">5PRS Inspection < 100 pairs</div>
+                    <div class="kpi-label" data-i18n="validationKpi.lowInspectionQty">5PRS Inspection < {th_5prs_min_qty} pairs</div>
                 </div>
 
                 <!-- KPI 카드 11: Building 검토 목록 (Issue #46-B) -->
@@ -10523,7 +10537,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 .replace(/\\{{threshold_area_reject_rate\\}}/g, window.thresholds.area_reject_rate)
                 .replace(/\\{{threshold_5prs_pass_rate\\}}/g, window.thresholds['5prs_pass_rate'])
                 .replace(/\\{{threshold_5prs_min_qty\\}}/g, window.thresholds['5prs_min_qty'])
-                .replace(/\\{{threshold_absence_rate\\}}/g, 100 - window.thresholds.attendance_rate);  // 결근율 = 100 - 출근율
+                .replace(/\\{{threshold_absence_rate\\}}/g, 100 - window.thresholds.attendance_rate)  // 결근율 = 100 - 출근율
+                .replace(/\\{{threshold_unapproved_absence_exceed\\}}/g, window.thresholds.unapproved_absence + 1);  // [Issue #60] 초과 기준 (threshold + 1)
         }}
 
         // 번역 함count
@@ -10580,75 +10595,66 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         function updateFAQExamples() {{
             const lang = currentLanguage;
             
-            // FAQ calculation 예시 타이틀
+            // [Issue #60] FAQ calculation 예시 타이틀 - getTranslation() 사용
             const calcTitle = document.getElementById('faqCalculationExampleTitle');
-            if (calcTitle) {{
-                calcTitle.textContent = translations.incentiveCalculation?.faq?.calculationExampleTitle?.[lang] || '📐 actual calculation 예시';
-            }}
-            
+            if (calcTitle) calcTitle.textContent = getTranslation('incentiveCalculation.faq.calculationExampleTitle', lang);
+
             // Case 1 - TYPE-1 ASSEMBLY INSPECTOR
             const case1Title = document.getElementById('faqCase1Title');
-            if (case1Title) {{
-                case1Title.textContent = translations.incentiveCalculation?.faq?.case1Title?.[lang] || '예시 1: TYPE-1 ASSEMBLY INSPECTOR (10개월 연속 work)';
-            }}
-            
+            if (case1Title) case1Title.textContent = getTranslation('incentiveCalculation.faq.case1Title', lang);
+
             const case1EmployeeLabel = document.getElementById('faqCase1EmployeeLabel');
-            if (case1EmployeeLabel) {{
-                case1EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
-            }}
-            
+            if (case1EmployeeLabel) case1EmployeeLabel.textContent = getTranslation('incentiveCalculation.faq.employee', lang);
+
             const case1PrevMonthLabel = document.getElementById('faqCase1PrevMonthLabel');
-            if (case1PrevMonthLabel) {{
-                case1PrevMonthLabel.textContent = translations.incentiveCalculation?.faq?.previousMonth?.[lang] || '전month 상태:';
-            }}
-            
+            if (case1PrevMonthLabel) case1PrevMonthLabel.textContent = getTranslation('incentiveCalculation.faq.previousMonth', lang);
+
             const case1PrevMonthText = document.getElementById('faqCase1PrevMonthText');
             if (case1PrevMonthText) {{
-                const months = translations.incentiveCalculation?.faq?.consecutiveMonthsWorked?.[lang] || '개월 연속 →';
-                const received = translations.incentiveCalculation?.faq?.incentiveReceived?.[lang] || 'VND 수령';
+                const months = getTranslation('incentiveCalculation.faq.consecutiveMonthsWorked', lang) || '개월 연속 →';
+                const received = getTranslation('incentiveCalculation.faq.incentiveReceived', lang) || 'VND 수령';
                 case1PrevMonthText.textContent = `9${{months}} 750,000 ${{received}}`;
             }}
-            
+
             const case1ConditionsLabel = document.getElementById('faqCase1ConditionsLabel');
-            if (case1ConditionsLabel) {{
-                case1ConditionsLabel.textContent = translations.incentiveCalculation?.faq?.conditionEvaluation?.[lang] || '당month 조건 충족:';
-            }}
-            
+            if (case1ConditionsLabel) case1ConditionsLabel.textContent = getTranslation('incentiveCalculation.faq.conditionEvaluation', lang);
+
             // Case 1 조건들 업데이트
             document.querySelectorAll('.faq-attendance-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.attendanceRateMet?.[lang] || '출근율:';
+                el.textContent = getTranslation('incentiveCalculation.faq.attendanceRateMet', lang);
             }});
             document.querySelectorAll('.faq-absence-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.unauthorizedAbsenceMet?.[lang] || '무단결근:';
+                el.textContent = getTranslation('incentiveCalculation.faq.unauthorizedAbsenceMet', lang);
             }});
             document.querySelectorAll('.faq-actual-days-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.actualWorkingDays?.[lang] || 'actual 근무일:';
+                el.textContent = getTranslation('incentiveCalculation.faq.actualWorkingDays', lang);
             }});
             document.querySelectorAll('.faq-min-days-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.minimumWorkingDays?.[lang] || '최소 근무일:';
+                el.textContent = getTranslation('incentiveCalculation.faq.minimumWorkingDays', lang);
             }});
             document.querySelectorAll('.faq-aql-current-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.personalAql?.[lang] || '개인 AQL (당month):';
+                el.textContent = getTranslation('incentiveCalculation.faq.personalAql', lang);
             }});
             document.querySelectorAll('.faq-aql-consecutive-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.personalAqlContinuous?.[lang] || '개인 AQL (연속):';
+                el.textContent = getTranslation('incentiveCalculation.faq.personalAqlContinuous', lang);
             }});
             document.querySelectorAll('.faq-fprs-rate-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.fprsPassRate?.[lang] || '5PRS 통과율:';
+                el.textContent = getTranslation('incentiveCalculation.faq.fprsPassRate', lang);
             }});
             document.querySelectorAll('.faq-fprs-qty-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.fprsInspection?.[lang] || '5PRS 검사량:';
+                el.textContent = getTranslation('incentiveCalculation.faq.fprsInspection', lang);
             }});
             
-            // 값들 업데이트
-            const days = translations.incentiveCalculation?.faq?.days?.[lang] || 'th';
-            const items = translations.incentiveCalculation?.faq?.items?.[lang] || '개';
-            
+            // [Issue #60 P2] 값들 업데이트 - threshold 동적 참조
+            const days = getTranslation('incentiveCalculation.faq.days', lang) || 'th';
+            const items = getTranslation('incentiveCalculation.faq.items', lang) || '개';
+            const th = window.thresholds || {{}};
+
             document.querySelectorAll('.faq-absence-value').forEach(el => {{
                 el.textContent = '0' + days;
             }});
             document.querySelectorAll('.faq-absence-limit').forEach(el => {{
-                el.textContent = '2' + days;
+                el.textContent = (th.unapproved_absence || 2) + days;
             }});
             document.querySelectorAll('.faq-actual-days-value').forEach(el => {{
                 el.textContent = '20' + days;
@@ -10660,182 +10666,140 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = '20' + days;
             }});
             document.querySelectorAll('.faq-min-days-req').forEach(el => {{
-                el.textContent = '12' + days;
+                el.textContent = (th.minimum_working_days || 12) + days;
             }});
             document.querySelectorAll('.faq-aql-current-value').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.failureText?.[lang] || 'failed 0cases';
+                el.textContent = getTranslation('incentiveCalculation.faq.failureText', lang) || 'failed 0cases';
             }});
             document.querySelectorAll('.faq-aql-consecutive-value').forEach(el => {{
-                el.textContent = '3' + (translations.incentiveCalculation?.faq?.monthsConsecutiveNoFailure?.[lang] || '연속 개월 실패 없음');
+                el.textContent = '3' + (getTranslation('incentiveCalculation.faq.monthsConsecutiveNoFailure', lang) || '연속 개월 실패 없음');
             }});
             document.querySelectorAll('.faq-fprs-qty-value').forEach(el => {{
                 el.textContent = '150' + items;
             }});
             document.querySelectorAll('.faq-fprs-qty-min').forEach(el => {{
-                el.textContent = '100' + items;
+                el.textContent = (th['5prs_min_qty'] || 100) + items;
             }});
             
+            // [Issue #60] Case 1 결과 - getTranslation() 사용
             const case1ResultLabel = document.getElementById('faqCase1ResultLabel');
-            if (case1ResultLabel) {{
-                case1ResultLabel.textContent = translations.incentiveCalculation?.faq?.result?.[lang] || '결과:';
-            }}
-            
+            if (case1ResultLabel) case1ResultLabel.textContent = getTranslation('incentiveCalculation.faq.result', lang);
+
             const case1ResultText = document.getElementById('faqCase1ResultText');
             if (case1ResultText) {{
-                const allMet = translations.incentiveCalculation?.faq?.allConditionsMet?.[lang] || '모든 조건 충족';
-                const consecutive = translations.incentiveCalculation?.faq?.consecutiveMonthsWorked?.[lang] || '개월 연속 →';
-                const 지급 = translations.incentiveCalculation?.faq?.incentivePayment?.[lang] || 'VND 지급';
-                case1ResultText.innerHTML = `${{allMet}} → <span class="badge bg-success">10${{consecutive}} 850,000 ${{지급}}</span>`;
+                const allMet = getTranslation('incentiveCalculation.faq.allConditionsMet', lang) || '모든 조건 충족';
+                const consecutive = getTranslation('incentiveCalculation.faq.consecutiveMonthsWorked', lang) || '개월 연속 →';
+                const payment = getTranslation('incentiveCalculation.faq.incentivePayment', lang) || 'VND 지급';
+                case1ResultText.innerHTML = `${{allMet}} → <span class="badge bg-success">10${{consecutive}} 850,000 ${{payment}}</span>`;
             }}
-            
-            // Case 2 - AUDIT & TRAINING TEAM
+
+            // [Issue #60] Case 2 - AUDIT & TRAINING TEAM - getTranslation() 사용
             const case2Title = document.getElementById('faqCase2Title');
-            if (case2Title) {{
-                case2Title.textContent = translations.incentiveCalculation?.faq?.case2Title?.[lang] || '예시 2: AUDIT & TRAINING TEAM (담당구역 reject율 calculation)';
-            }}
-            
+            if (case2Title) case2Title.textContent = getTranslation('incentiveCalculation.faq.case2Title', lang);
+
             const case2EmployeeLabel = document.getElementById('faqCase2EmployeeLabel');
-            if (case2EmployeeLabel) {{
-                case2EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
-            }}
-            
+            if (case2EmployeeLabel) case2EmployeeLabel.textContent = getTranslation('incentiveCalculation.faq.employee', lang);
+
             const case2AreaLabel = document.getElementById('faqCase2AreaLabel');
-            if (case2AreaLabel) {{
-                case2AreaLabel.textContent = translations.incentiveCalculation?.faq?.teamLeader?.[lang] || '담당 구역:';
-            }}
-            
+            if (case2AreaLabel) case2AreaLabel.textContent = getTranslation('incentiveCalculation.faq.teamLeader', lang);
+
             const case2InspectionLabel = document.getElementById('faqCase2InspectionLabel');
             if (case2InspectionLabel) {{
-                const label = translations.incentiveCalculation?.faq?.aqlInspectionPassed?.[lang] || '구역 생산 total AQL 검사 PO count량:';
+                const label = getTranslation('incentiveCalculation.faq.aqlInspectionPassed', lang) || '구역 생산 total AQL 검사 PO count량:';
                 case2InspectionLabel.textContent = 'Building B ' + label;
             }}
-            
+
             const case2InspectionQty = document.getElementById('faqCase2InspectionQty');
-            if (case2InspectionQty) {{
-                case2InspectionQty.textContent = '100' + items;
-            }}
-            
+            if (case2InspectionQty) case2InspectionQty.textContent = '100' + items;
+
             const case2RejectLabel = document.getElementById('faqCase2RejectLabel');
             if (case2RejectLabel) {{
-                const label = translations.incentiveCalculation?.faq?.aqlRejectPo?.[lang] || '구역 생산 total AQL 리젝 PO count량:';
+                const label = getTranslation('incentiveCalculation.faq.aqlRejectPo', lang) || '구역 생산 total AQL 리젝 PO count량:';
                 case2RejectLabel.textContent = 'Building B ' + label;
             }}
-            
+
             const case2RejectQty = document.getElementById('faqCase2RejectQty');
-            if (case2RejectQty) {{
-                case2RejectQty.textContent = '2' + items;
-            }}
-            
+            if (case2RejectQty) case2RejectQty.textContent = '2' + items;
+
             const case2CalcLabel = document.getElementById('faqCase2CalcLabel');
-            if (case2CalcLabel) {{
-                case2CalcLabel.textContent = translations.incentiveCalculation?.faq?.calculation?.[lang] || 'calculation:';
-            }}
-            
+            if (case2CalcLabel) case2CalcLabel.textContent = getTranslation('incentiveCalculation.faq.calculation', lang);
+
             const case2ResultLabel = document.getElementById('faqCase2ResultLabel');
-            if (case2ResultLabel) {{
-                case2ResultLabel.textContent = translations.incentiveCalculation?.faq?.resultCondition?.[lang] || '결과:';
-            }}
-            
+            if (case2ResultLabel) case2ResultLabel.textContent = getTranslation('incentiveCalculation.faq.resultCondition', lang);
+
             const case2ResultBadge = document.getElementById('faqCase2ResultBadge');
-            if (case2ResultBadge) {{
-                case2ResultBadge.textContent = translations.incentiveCalculation?.faq?.conditionMet?.[lang] || '조건 충족';
-            }}
-            
+            if (case2ResultBadge) case2ResultBadge.textContent = getTranslation('incentiveCalculation.faq.conditionMet', lang);
+
             // 멤버 테이블 타이틀
             const memberTableTitle = document.getElementById('faqMemberTableTitle');
-            if (memberTableTitle) {{
-                memberTableTitle.textContent = translations.incentiveCalculation?.faq?.memberTable?.[lang] || 'AUDIT & TRAINING TEAM 멤버by 담당 구역';
-            }}
-            
+            if (memberTableTitle) memberTableTitle.textContent = getTranslation('incentiveCalculation.faq.memberTable', lang);
+
             // 테이블 헤더
             const headerName = document.getElementById('faqTableHeaderName');
-            if (headerName) {{
-                headerName.textContent = translations.incentiveCalculation?.faq?.employeeNameLabel?.[lang] || '직원employees';
-            }}
-            
+            if (headerName) headerName.textContent = getTranslation('incentiveCalculation.faq.employeeNameLabel', lang);
+
             const headerBuilding = document.getElementById('faqTableHeaderBuilding');
-            if (headerBuilding) {{
-                headerBuilding.textContent = translations.incentiveCalculation?.faq?.assignedBuilding?.[lang] || '담당 Building';
-            }}
-            
+            if (headerBuilding) headerBuilding.textContent = getTranslation('incentiveCalculation.faq.assignedBuilding', lang);
+
             const headerDesc = document.getElementById('faqTableHeaderDesc');
-            if (headerDesc) {{
-                headerDesc.textContent = translations.incentiveCalculation?.faq?.buildingDescription?.[lang] || '설직원';
-            }}
-            
+            if (headerDesc) headerDesc.textContent = getTranslation('incentiveCalculation.faq.buildingDescription', lang);
+
             const headerReject = document.getElementById('faqTableHeaderReject');
-            if (headerReject) {{
-                headerReject.textContent = translations.incentiveCalculation?.faq?.rejectRate?.[lang] || 'Reject율';
-            }}
-            
+            if (headerReject) headerReject.textContent = getTranslation('incentiveCalculation.faq.rejectRate', lang);
+
             // 테이블 내용
             document.querySelectorAll('.faq-building-whole').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.buildingWhole?.[lang] || 'total';
+                el.textContent = getTranslation('incentiveCalculation.faq.buildingWhole', lang);
             }});
-            
             document.querySelectorAll('.faq-team-leader-desc').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.teamLeaderDescription?.[lang] || 'Team Leader - total Building total괄';
+                el.textContent = getTranslation('incentiveCalculation.faq.teamLeaderDescription', lang);
             }});
-            
             document.querySelectorAll('.faq-other-conditions').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.noMissingData?.[lang] || '기타 조건 미충족';
+                el.textContent = getTranslation('incentiveCalculation.faq.noMissingData', lang);
             }});
-            
+
             const rejectRateNote = document.getElementById('faqRejectRateNote');
-            if (rejectRateNote) {{
-                rejectRateNote.textContent = translations.incentiveCalculation?.faq?.rejectRateNote?.[lang] || '* Reject율 기준: 3% 미만 (✅ 충족, ❌ 미충족)';
-            }}
-            
+            if (rejectRateNote) rejectRateNote.textContent = getTranslation('incentiveCalculation.faq.rejectRateNote', lang);
+
             const memberNote = document.getElementById('faqMemberNote');
-            if (memberNote) {{
-                const monthText = '{month.lower()}' === 'september' ? '9month' : '{month.lower()}' === 'august' ? '8month' : '{month.lower()}' === 'july' ? 'July' : '{month.lower()}';
-                memberNote.textContent = translations.incentiveCalculation?.faq?.memberNote?.[lang] || `* ${{monthText}} 기준 모든 AUDIT & TRAINING TEAM 멤버가 reject율 조건 미충족으로 incentive 0원`;
-            }}
+            if (memberNote) memberNote.textContent = getTranslation('incentiveCalculation.faq.memberNote', lang);
             
-            // Case 3 - TYPE-2 STITCHING INSPECTOR
+            // [Issue #60] Case 3 - TYPE-2 STITCHING INSPECTOR - getTranslation() 사용
             const case3Title = document.getElementById('faqCase3Title');
-            if (case3Title) {{
-                case3Title.textContent = translations.incentiveCalculation?.faq?.case3Title?.[lang] || '예시 3: TYPE-2 STITCHING INSPECTOR';
-            }}
-            
+            if (case3Title) case3Title.textContent = getTranslation('incentiveCalculation.faq.case3Title', lang);
+
             const case3EmployeeLabel = document.getElementById('faqCase3EmployeeLabel');
-            if (case3EmployeeLabel) {{
-                case3EmployeeLabel.textContent = translations.incentiveCalculation?.faq?.employee?.[lang] || '직원:';
-            }}
-            
+            if (case3EmployeeLabel) case3EmployeeLabel.textContent = getTranslation('incentiveCalculation.faq.employee', lang);
+
             const case3TypeLabel = document.getElementById('faqCase3TypeLabel');
-            if (case3TypeLabel) {{
-                case3TypeLabel.textContent = translations.incentiveCalculation?.faq?.positionType?.[lang] || '직급 type:';
-            }}
-            
+            if (case3TypeLabel) case3TypeLabel.textContent = getTranslation('incentiveCalculation.faq.positionType', lang);
+
             const case3StatusLabel = document.getElementById('faqCase3StatusLabel');
-            if (case3StatusLabel) {{
-                case3StatusLabel.textContent = translations.incentiveCalculation?.faq?.conditionStatus?.[lang] || '조건 충족 현황:';
-            }}
-            
+            if (case3StatusLabel) case3StatusLabel.textContent = getTranslation('incentiveCalculation.faq.conditionStatus', lang);
+
             // Case 3 조건들
             document.querySelectorAll('.faq-case3-attendance-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.attendanceRateMet?.[lang] || '출근율:';
+                el.textContent = getTranslation('incentiveCalculation.faq.attendanceRateMet', lang);
             }});
             document.querySelectorAll('.faq-case3-absence-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.unauthorizedAbsenceMet?.[lang] || '무단결근:';
+                el.textContent = getTranslation('incentiveCalculation.faq.unauthorizedAbsenceMet', lang);
             }});
             document.querySelectorAll('.faq-case3-actual-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.actualWorkingDays?.[lang] || 'actual근무일:';
+                el.textContent = getTranslation('incentiveCalculation.faq.actualWorkingDays', lang);
             }});
             document.querySelectorAll('.faq-case3-min-label').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.minimumWorkingDays?.[lang] || '최소근무일:';
+                el.textContent = getTranslation('incentiveCalculation.faq.minimumWorkingDays', lang);
             }});
-            
-            // Case 3 값들
+
+            // [Issue #60 P2] Case 3 값들 - threshold 동적 참조
             document.querySelectorAll('.faq-case3-met').forEach(el => {{
-                el.textContent = translations.incentiveCalculation?.faq?.conditionsMet?.[lang] || '충족';
+                el.textContent = getTranslation('incentiveCalculation.faq.conditionsMet', lang);
             }});
             document.querySelectorAll('.faq-case3-absence-value').forEach(el => {{
                 el.textContent = '0' + days;
             }});
             document.querySelectorAll('.faq-case3-absence-limit').forEach(el => {{
-                el.textContent = '2' + days;
+                el.textContent = (th.unapproved_absence || 2) + days;
             }});
             document.querySelectorAll('.faq-case3-actual-value').forEach(el => {{
                 el.textContent = '19' + days;
@@ -10847,263 +10811,200 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 el.textContent = '19' + days;
             }});
             document.querySelectorAll('.faq-case3-min-req').forEach(el => {{
-                el.textContent = '12' + days;
+                el.textContent = (th.minimum_working_days || 12) + days;
             }});
-            
+
             const case3CalcLabel = document.getElementById('faqCase3CalcLabel');
-            if (case3CalcLabel) {{
-                case3CalcLabel.textContent = translations.incentiveCalculation?.faq?.incentiveCalculation?.[lang] || 'incentive calculation:';
-            }}
-            
+            if (case3CalcLabel) case3CalcLabel.textContent = getTranslation('incentiveCalculation.faq.incentiveCalculation', lang);
+
             const case3Explanation = document.getElementById('faqCase3Explanation');
-            if (case3Explanation) {{
-                case3Explanation.textContent = translations.incentiveCalculation?.faq?.type2Explanation?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 출근 조건(1-4번)만 확인하며, 모든 조건을 충족했으므로 기본 incentive를 받습니다.';
-            }}
-            
+            if (case3Explanation) case3Explanation.textContent = getTranslation('incentiveCalculation.faq.type2Explanation', lang);
+
             const case3PaymentLabel = document.getElementById('faqCase3PaymentLabel');
-            if (case3PaymentLabel) {{
-                case3PaymentLabel.textContent = translations.incentiveCalculation?.faq?.paymentAmount?.[lang] || '지급액:';
-            }}
-            
+            if (case3PaymentLabel) case3PaymentLabel.textContent = getTranslation('incentiveCalculation.faq.paymentAmount', lang);
+
             const case3BasicText = document.getElementById('faqCase3BasicText');
-            if (case3BasicText) {{
-                case3BasicText.textContent = translations.incentiveCalculation?.faq?.type2BasicIncentive?.[lang] || 'TYPE-2 기본 incentive';
-            }}
+            if (case3BasicText) case3BasicText.textContent = getTranslation('incentiveCalculation.faq.type2BasicIncentive', lang);
             
             const case3Note = document.getElementById('faqCase3Note');
-            if (case3Note) {{
-                case3Note.textContent = translations.incentiveCalculation?.faq?.type2Note?.[lang] || '* TYPE-2는 AQL이나 5PRS 조건 without 출근 조건만으로 incentive가 determination됩니다.';
-            }}
+            if (case3Note) case3Note.textContent = getTranslation('incentiveCalculation.faq.type2Note', lang);
         }}
         
         // 출근율 calculation 방식 섹션 업데이트 함count
+        // [Issue #60 P0] updateAttendanceSection - getTranslation() 사용으로 replaceThresholdPlaceholders() 자동 호출
         function updateAttendanceSection() {{
             const lang = currentLanguage;
-            
+
             // 제목
             const title = document.getElementById('attendanceCalcTitle');
-            if (title) {{
-                title.textContent = translations.incentive?.attendance?.title?.[lang] || '📊 출근율 calculation 방식';
-            }}
-            
+            if (title) title.textContent = getTranslation('incentive.attendance.title', lang);
+
             // 공식 제목
             const formulaTitle = document.getElementById('attendanceFormulaTitle');
-            if (formulaTitle) {{
-                formulaTitle.textContent = translations.incentive?.attendance?.formulaTitle?.[lang] || 'actual calculation 공식 (시스템 구현):';
-            }}
-            
+            if (formulaTitle) formulaTitle.textContent = getTranslation('incentive.attendance.formulaTitle', lang);
+
             // 공식들
             const formula1 = document.getElementById('attendanceFormula1');
-            if (formula1) {{
-                formula1.textContent = translations.incentive?.attendance?.attendanceFormula?.[lang] || '출근율(%) = 100 - 결근율(%)';
-            }}
-            
+            if (formula1) formula1.textContent = getTranslation('incentive.attendance.attendanceFormula', lang);
+
             const formula2 = document.getElementById('attendanceFormula2');
-            if (formula2) {{
-                formula2.textContent = translations.incentive?.attendance?.absenceFormula?.[lang] || '결근율(%) = (결근 thcount / total 근무일) × 100';
-            }}
-            
+            if (formula2) formula2.textContent = getTranslation('incentive.attendance.absenceFormula', lang);
+
             const formulaNote = document.getElementById('attendanceFormulaNote');
-            if (formulaNote) {{
-                formulaNote.textContent = translations.incentive?.attendance?.absenceDaysNote?.[lang] || '* 결근 thcount = total 근무일 - actual 근무일 - 승인된 휴가';
-            }}
-            
+            if (formulaNote) formulaNote.textContent = getTranslation('incentive.attendance.absenceDaysNote', lang);
+
             // 예시 제목
             const examplesTitle = document.getElementById('attendanceExamplesTitle');
-            if (examplesTitle) {{
-                examplesTitle.textContent = translations.incentive?.attendance?.examplesTitle?.[lang] || '결근율 calculation 예시:';
-            }}
-            
+            if (examplesTitle) examplesTitle.textContent = getTranslation('incentive.attendance.examplesTitle', lang);
+
             const example1Title = document.getElementById('attendanceExample1Title');
-            if (example1Title) {{
-                example1Title.textContent = translations.incentive?.attendance?.example1Title?.[lang] || '예시 1: 정상 work자';
-            }}
-            
+            if (example1Title) example1Title.textContent = getTranslation('incentive.attendance.example1Title', lang);
+
             const example2Title = document.getElementById('attendanceExample2Title');
-            if (example2Title) {{
-                example2Title.textContent = translations.incentive?.attendance?.example2Title?.[lang] || '예시 2: 무단결근 포함';
-            }}
-            
+            if (example2Title) example2Title.textContent = getTranslation('incentive.attendance.example2Title', lang);
+
             const example3Title = document.getElementById('attendanceExample3Title');
-            if (example3Title) {{
-                example3Title.textContent = translations.incentive?.attendance?.example3Title?.[lang] || '예시 3: 조건 충족 경계선';
-            }}
-            
-            // 라벨들 업데이트
+            if (example3Title) example3Title.textContent = getTranslation('incentive.attendance.example3Title', lang);
+
+            // 라벨들 업데이트 (querySelectorAll)
             document.querySelectorAll('.att-total-days-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.totalWorkingDays?.[lang] || 'total 근무일';
+                el.textContent = getTranslation('incentive.attendance.totalWorkingDays', lang);
             }});
             document.querySelectorAll('.att-actual-days-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.actualWorkingDays?.[lang] || 'actual 근무일';
+                el.textContent = getTranslation('incentive.attendance.actualWorkingDays', lang);
             }});
             document.querySelectorAll('.att-approved-leave-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.approvedLeave?.[lang] || '승인된 휴가';
+                el.textContent = getTranslation('incentive.attendance.approvedLeave', lang);
             }});
             document.querySelectorAll('.att-absence-days-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.absenceDays?.[lang] || '결근 thcount';
+                el.textContent = getTranslation('incentive.attendance.absenceDays', lang);
             }});
             document.querySelectorAll('.att-absence-rate-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.absenceRate?.[lang] || '결근율';
+                el.textContent = getTranslation('incentive.attendance.absenceRate', lang);
             }});
             document.querySelectorAll('.att-attendance-rate-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.attendanceRate?.[lang] || '출근율';
+                el.textContent = getTranslation('incentive.attendance.attendanceRate', lang);
             }});
             document.querySelectorAll('.att-unauthorized-absence-label').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.unauthorizedAbsence?.[lang] || '무단결근';
+                el.textContent = getTranslation('incentive.attendance.unauthorizedAbsence', lang);
             }});
             document.querySelectorAll('.att-annual-leave').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.annualLeave?.[lang] || '연차';
+                el.textContent = getTranslation('incentive.attendance.annualLeave', lang);
             }});
             document.querySelectorAll('.att-sick-leave').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.sickLeave?.[lang] || '병가';
+                el.textContent = getTranslation('incentive.attendance.sickLeave', lang);
             }});
             document.querySelectorAll('.att-days-unit').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.days?.[lang] || 'th';
+                el.textContent = getTranslation('incentive.attendance.days', lang);
             }});
             document.querySelectorAll('.att-less-than-88').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.lessThan88?.[lang] || '88% 미만';
+                el.textContent = getTranslation('incentive.attendance.lessThan88', lang);
             }});
             document.querySelectorAll('.att-more-than-88').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.moreThan88?.[lang] || '88% 이상';
+                el.textContent = getTranslation('incentive.attendance.moreThan88', lang);
             }});
-            
+
             const condition2NotMet = document.getElementById('attendanceCondition2NotMet');
-            if (condition2NotMet) {{
-                condition2NotMet.textContent = translations.incentive?.attendance?.condition2NotMet?.[lang] || '단, 무단결근 3일로 조건 2 미충족 → incentive 0원';
-            }}
-            
+            if (condition2NotMet) condition2NotMet.textContent = getTranslation('incentive.attendance.condition2NotMet', lang);
+
             // 결근 분류 섹션
             const classificationTitle = document.getElementById('attendanceClassificationTitle');
-            if (classificationTitle) {{
-                classificationTitle.textContent = translations.incentive?.attendance?.absenceClassificationTitle?.[lang] || '결근 사유by 분류:';
-            }}
-            
+            if (classificationTitle) classificationTitle.textContent = getTranslation('incentive.attendance.absenceClassificationTitle', lang);
+
             const notIncludedTitle = document.getElementById('attendanceNotIncludedTitle');
-            if (notIncludedTitle) {{
-                notIncludedTitle.textContent = translations.incentive?.attendance?.notIncludedInAbsence?.[lang] || '✅ 결근율에 포함 안됨 (승인된 휴가):';
-            }}
-            
+            if (notIncludedTitle) notIncludedTitle.textContent = getTranslation('incentive.attendance.notIncludedInAbsence', lang);
+
             const includedTitle = document.getElementById('attendanceIncludedTitle');
-            if (includedTitle) {{
-                includedTitle.textContent = translations.incentive?.attendance?.includedInAbsence?.[lang] || '❌ 결근율에 포함됨 (무단결근):';
-            }}
-            
+            if (includedTitle) includedTitle.textContent = getTranslation('incentive.attendance.includedInAbsence', lang);
+
             // 휴가 type 번역
             document.querySelectorAll('.att-maternity-leave').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.maternityLeave?.[lang] || '출산휴가';
+                el.textContent = getTranslation('incentive.attendance.maternityLeave', lang);
             }});
             document.querySelectorAll('.att-annual-leave-vn').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.annualLeaveVn?.[lang] || '연차휴가';
+                el.textContent = getTranslation('incentive.attendance.annualLeaveVn', lang);
             }});
             document.querySelectorAll('.att-approved-absence').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.approvedAbsence?.[lang] || '승인된 휴가';
+                el.textContent = getTranslation('incentive.attendance.approvedAbsence', lang);
             }});
             document.querySelectorAll('.att-postpartum-rest').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.postpartumRest?.[lang] || '출산 후 요양';
+                el.textContent = getTranslation('incentive.attendance.postpartumRest', lang);
             }});
             document.querySelectorAll('.att-prenatal-checkup').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.prenatalCheckup?.[lang] || '산전검진';
+                el.textContent = getTranslation('incentive.attendance.prenatalCheckup', lang);
             }});
             document.querySelectorAll('.att-childcare-leave').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.childcareLeave?.[lang] || '육아휴가';
+                el.textContent = getTranslation('incentive.attendance.childcareLeave', lang);
             }});
             document.querySelectorAll('.att-short-sick-leave').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.shortSickLeave?.[lang] || '병가';
+                el.textContent = getTranslation('incentive.attendance.shortSickLeave', lang);
             }});
             document.querySelectorAll('.att-business-trip').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.businessTrip?.[lang] || '출장';
+                el.textContent = getTranslation('incentive.attendance.businessTrip', lang);
             }});
             document.querySelectorAll('.att-military-service').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.militaryService?.[lang] || '군복무';
+                el.textContent = getTranslation('incentive.attendance.militaryService', lang);
             }});
             document.querySelectorAll('.att-card-not-swiped').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.cardNotSwiped?.[lang] || '출퇴근 체크 누락';
+                el.textContent = getTranslation('incentive.attendance.cardNotSwiped', lang);
             }});
             document.querySelectorAll('.att-new-employee').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.newEmployee?.[lang] || '신규입사 특례';
+                el.textContent = getTranslation('incentive.attendance.newEmployee', lang);
             }});
             document.querySelectorAll('.att-compensatory-leave').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.compensatoryLeave?.[lang] || '대체휴무';
+                el.textContent = getTranslation('incentive.attendance.compensatoryLeave', lang);
             }});
             document.querySelectorAll('.att-unauthorized-absence-ar1').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.unauthorizedAbsenceAR1?.[lang] || '무단결근';
+                el.textContent = getTranslation('incentive.attendance.unauthorizedAbsenceAR1', lang);
             }});
             document.querySelectorAll('.att-written-notice-absence').forEach(el => {{
-                el.textContent = translations.incentive?.attendance?.writtenNoticeAbsence?.[lang] || '서면통지 결근';
+                el.textContent = getTranslation('incentive.attendance.writtenNoticeAbsence', lang);
             }});
-            
+
             // 카운팅 규칙
             const countingRulesTitle = document.getElementById('attendanceCountingRulesTitle');
-            if (countingRulesTitle) {{
-                countingRulesTitle.textContent = translations.incentive?.attendance?.countingRulesTitle?.[lang] || '📢 무단결근 카운팅 규칙:';
-            }}
-            
+            if (countingRulesTitle) countingRulesTitle.textContent = getTranslation('incentive.attendance.countingRulesTitle', lang);
+
             const countingRule1 = document.getElementById('attendanceCountingRule1');
-            if (countingRule1) {{
-                countingRule1.textContent = translations.incentive?.attendance?.countingRule1?.[lang] || 'AR1 카테고리만 무단결근으로 카운트';
-            }}
-            
+            if (countingRule1) countingRule1.textContent = getTranslation('incentive.attendance.countingRule1', lang);
+
             const countingRule2 = document.getElementById('attendanceCountingRule2');
-            if (countingRule2) {{
-                countingRule2.textContent = translations.incentive?.attendance?.countingRule2?.[lang] || '2일까지는 incentive 지급 가능';
-            }}
-            
+            if (countingRule2) countingRule2.textContent = getTranslation('incentive.attendance.countingRule2', lang);
+
             const countingRule3 = document.getElementById('attendanceCountingRule3');
-            if (countingRule3) {{
-                countingRule3.textContent = translations.incentive?.attendance?.countingRule3?.[lang] || '3일 이상 → incentive 0원';
-            }}
-            
+            if (countingRule3) countingRule3.textContent = getTranslation('incentive.attendance.countingRule3', lang);
+
             // 조건 충족 기준
             const conditionCriteriaTitle = document.getElementById('attendanceConditionCriteriaTitle');
-            if (conditionCriteriaTitle) {{
-                conditionCriteriaTitle.textContent = translations.incentive?.attendance?.conditionCriteriaTitle?.[lang] || '조건 충족 기준:';
-            }}
-            
+            if (conditionCriteriaTitle) conditionCriteriaTitle.textContent = getTranslation('incentive.attendance.conditionCriteriaTitle', lang);
+
             const criteria1 = document.getElementById('attendanceCriteria1');
-            if (criteria1) {{
-                criteria1.innerHTML = translations.incentive?.attendance?.attendanceCriteria?.[lang] || '<strong>출근율:</strong> ≥ 88% (결근율 ≤ 12%)';
-            }}
-            
+            if (criteria1) criteria1.innerHTML = getTranslation('incentive.attendance.attendanceCriteria', lang);
+
             const criteria2 = document.getElementById('attendanceCriteria2');
-            if (criteria2) {{
-                criteria2.innerHTML = translations.incentive?.attendance?.unauthorizedAbsenceCriteria?.[lang] || '<strong>무단결근:</strong> ≤ 2일 (AR1 카테고리만 corresponding)';
-            }}
-            
+            if (criteria2) criteria2.innerHTML = getTranslation('incentive.attendance.unauthorizedAbsenceCriteria', lang);
+
             const criteria3 = document.getElementById('attendanceCriteria3');
-            if (criteria3) {{
-                criteria3.innerHTML = translations.incentive?.attendance?.actualWorkingDaysCriteria?.[lang] || '<strong>actual 근무일:</strong> > 0일';
-            }}
-            
+            if (criteria3) criteria3.innerHTML = getTranslation('incentive.attendance.actualWorkingDaysCriteria', lang);
+
             const criteria4 = document.getElementById('attendanceCriteria4');
-            if (criteria4) {{
-                criteria4.innerHTML = translations.incentive?.attendance?.minimumWorkingDaysCriteria?.[lang] || '<strong>최소 근무일:</strong> ≥ 12일';
-            }}
-            
-            // Unapproved Absence 설직원
+            if (criteria4) criteria4.innerHTML = getTranslation('incentive.attendance.minimumWorkingDaysCriteria', lang);
+
+            // Unapproved Absence 설명
             const unapprovedTitle = document.getElementById('attendanceUnapprovedTitle');
-            if (unapprovedTitle) {{
-                unapprovedTitle.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanationTitle?.[lang] || '📊 Unapproved Absence Days 설직원:';
-            }}
-            
+            if (unapprovedTitle) unapprovedTitle.textContent = getTranslation('incentive.attendance.unapprovedAbsenceExplanationTitle', lang);
+
             const unapproved1 = document.getElementById('attendanceUnapproved1');
-            if (unapproved1) {{
-                unapproved1.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation1?.[lang] || 'HR 시스템에서 제공하는 무단결근 thcount data';
-            }}
-            
+            if (unapproved1) unapproved1.textContent = getTranslation('incentive.attendance.unapprovedAbsenceExplanation1', lang);
+
             const unapproved2 = document.getElementById('attendanceUnapproved2');
-            if (unapproved2) {{
-                unapproved2.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation2?.[lang] || 'AR1 (Vắng không phép) 카테고리만 집계';
-            }}
-            
+            if (unapproved2) unapproved2.textContent = getTranslation('incentive.attendance.unapprovedAbsenceExplanation2', lang);
+
             const unapproved3 = document.getElementById('attendanceUnapproved3');
-            if (unapproved3) {{
-                unapproved3.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation3?.[lang] || '서면통지 결근(Gửi thư)도 AR1에 포함';
-            }}
-            
+            if (unapproved3) unapproved3.textContent = getTranslation('incentive.attendance.unapprovedAbsenceExplanation3', lang);
+
             const unapproved4 = document.getElementById('attendanceUnapproved4');
-            if (unapproved4) {{
-                unapproved4.textContent = translations.incentive?.attendance?.unapprovedAbsenceExplanation4?.[lang] || 'incentive 조건: ≤{th_unapproved_absence}일 (개인별 최대 허용치)';
-            }}
+            if (unapproved4) unapproved4.textContent = getTranslation('incentive.attendance.unapprovedAbsenceExplanation4', lang);
         }}
         
         // FAQ Q&A 섹션 업데이트 함수 - [Issue #60] getTranslation() 사용으로 replaceThresholdPlaceholders() 자동 호출
@@ -11338,31 +11239,34 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 answer11Conclusion.textContent = getTranslation('incentiveCalculation.faq.answer11Conclusion', lang);
             }}
 
-            // TYPE-2 GROUP LEADER Special Calculation Box translations
+            // [Issue #60 P1] TYPE-2 GROUP LEADER Special Calculation Box - getTranslation() 사용
             const type2SpecialTitle = document.getElementById('type2GroupLeaderSpecialTitle');
-            if (type2SpecialTitle) {{
-                type2SpecialTitle.textContent = translations.type2GroupLeaderSpecial?.title?.[lang] || '⚠️ TYPE-2 GROUP LEADER 특별 calculation 규칙';
-            }}
+            if (type2SpecialTitle) type2SpecialTitle.textContent = getTranslation('type2GroupLeaderSpecial.title', lang);
+
             const type2BaseCalc = document.getElementById('type2BaseCalc');
-            if (type2BaseCalc) {{
-                const baseText = translations.type2GroupLeaderSpecial?.baseCalculation?.[lang] || '기본 calculation: TYPE-1 LINE LEADER 평균 incentive × 2 use';
-                type2BaseCalc.innerHTML = `<strong>${{baseText.split(':')[0]}}:</strong> ${{baseText.split(':')[1] || ''}}`;
-            }}
+            if (type2BaseCalc) type2BaseCalc.innerHTML = getTranslation('type2GroupLeaderSpecial.baseCalc', lang);
+
             const type2IndependentCalc = document.getElementById('type2IndependentCalc');
-            if (type2IndependentCalc) {{
-                const indepText = translations.type2GroupLeaderSpecial?.independentCalculation?.[lang] || 'Fallback (TYPE-1 평균 0 VND): TYPE-2 LINE LEADER 평균 × 2로 calculation';
-                type2IndependentCalc.innerHTML = `<strong>${{indepText.split(':')[0]}}:</strong> ${{indepText.split(':')[1] || ''}}`;
-            }}
+            if (type2IndependentCalc) type2IndependentCalc.innerHTML = getTranslation('type2GroupLeaderSpecial.fallbackCalc', lang);
+
             const type2Important = document.getElementById('type2Important');
-            if (type2Important) {{
-                const importantText = translations.type2GroupLeaderSpecial?.important?.[lang] || '중요: 모든 평균은 인센티브 수령자만 대상 (0 VND 제외)';
-                type2Important.innerHTML = `<strong>${{importantText.split(':')[0]}}:</strong> ${{importantText.split(':')[1] || ''}}`;
-            }}
+            if (type2Important) type2Important.innerHTML = getTranslation('type2GroupLeaderSpecial.important', lang);
+
             const type2Conditions = document.getElementById('type2Conditions');
-            if (type2Conditions) {{
-                const conditionsText = translations.type2GroupLeaderSpecial?.conditions?.[lang] || 'apply 조건: TYPE-2는 출근 조건(1-4번)만 충족하면 incentive 지급';
-                type2Conditions.innerHTML = `<strong>${{conditionsText.split(':')[0]}}:</strong> ${{conditionsText.split(':')[1] || ''}}`;
-            }}
+            if (type2Conditions) type2Conditions.innerHTML = getTranslation('type2GroupLeaderSpecial.conditions', lang);
+
+            // [Issue #60 P1] TYPE-2 QA TEAM Special Calculation Box - getTranslation() 사용
+            const type2QATeamTitle = document.getElementById('type2QATeamSpecialTitle');
+            if (type2QATeamTitle) type2QATeamTitle.textContent = getTranslation('type2QATeamSpecial.title', lang);
+
+            const type2QA3B = document.getElementById('type2QATeamQA3B');
+            if (type2QA3B) type2QA3B.innerHTML = getTranslation('type2QATeamSpecial.qa3b', lang);
+
+            const type2QA3A = document.getElementById('type2QATeamQA3A');
+            if (type2QA3A) type2QA3A.innerHTML = getTranslation('type2QATeamSpecial.qa3a', lang);
+
+            const type2QANote = document.getElementById('type2QATeamNote');
+            if (type2QANote) type2QANote.innerHTML = getTranslation('type2QATeamSpecial.note', lang);
 
             // Talent Pool 섹션 번역 업데이트
             const talentPoolTitle = document.getElementById('talentPoolTitle');
@@ -12166,11 +12070,11 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const conditionTranslations = {{
                 1: {{
                     name: getTranslation('criteria.conditions.1.name', currentLanguage) || '출근율',
-                    desc: getTranslation('criteria.conditions.1.description', currentLanguage) || '월간 출근율이 88% 이상이어야 합니다'
+                    desc: getTranslation('criteria.conditions.1.description', currentLanguage) || '월간 출근율이 {th_attendance_rate}% 이상이어야 합니다'
                 }},
                 2: {{
                     name: getTranslation('criteria.conditions.2.name', currentLanguage) || '무단결근',
-                    desc: getTranslation('criteria.conditions.2.description', currentLanguage) || '사전 승인 없는 결근이 month 2일 이하여야 합니다'
+                    desc: getTranslation('criteria.conditions.2.description', currentLanguage) || '사전 승인 없는 결근이 month {th_unapproved_absence}일 이하여야 합니다'
                 }},
                 3: {{
                     name: getTranslation('criteria.conditions.3.name', currentLanguage) || 'actual 근무일',
@@ -12178,7 +12082,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }},
                 4: {{
                     name: getTranslation('criteria.conditions.4.name', currentLanguage) || '최소 근무일',
-                    desc: getTranslation('criteria.conditions.4.description', currentLanguage) || '월간 최소 12일 이상 work해야 합니다'
+                    desc: getTranslation('criteria.conditions.4.description', currentLanguage) || '월간 최소 {th_minimum_working_days}일 이상 work해야 합니다'
                 }},
                 5: {{
                     name: getTranslation('criteria.conditions.5.name', currentLanguage) || '개인 AQL (당month)',
@@ -12194,15 +12098,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 }},
                 8: {{
                     name: getTranslation('criteria.conditions.8.name', currentLanguage) || '담당구역 AQL Reject율',
-                    desc: getTranslation('criteria.conditions.8.description', currentLanguage) || '담당 구역의 AQL 리젝률이 3% 미만이어야 합니다'
+                    desc: getTranslation('criteria.conditions.8.description', currentLanguage) || '담당 구역의 AQL 리젝률이 {th_area_reject_rate}% 미만이어야 합니다'
                 }},
                 9: {{
                     name: getTranslation('criteria.conditions.9.name', currentLanguage) || '5PRS 통과율',
-                    desc: getTranslation('criteria.conditions.9.description', currentLanguage) || '5족 평가 시스템에서 95% 이상 통과해야 합니다'
+                    desc: getTranslation('criteria.conditions.9.description', currentLanguage) || '5족 평가 시스템에서 {th_5prs_pass_rate}% 이상 통과해야 합니다'
                 }},
                 10: {{
                     name: getTranslation('criteria.conditions.10.name', currentLanguage) || '5PRS 검사량',
-                    desc: getTranslation('criteria.conditions.10.description', currentLanguage) || '월간 최소 100개 이상 검사를 count행해야 합니다'
+                    desc: getTranslation('criteria.conditions.10.description', currentLanguage) || '월간 최소 {th_5prs_min_qty}개 이상 검사를 count행해야 합니다'
                 }}
             }};
 
@@ -13293,9 +13197,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.getElementById('kpiTotalWorkingDays').textContent = totalWorkingDays + daysUnit;
 
             // 2. 무단결근 현황
-            // 3일 이상 무단결근 (인센티브 자동 제외)
+            // [Issue #60] threshold 초과 무단결근 (인센티브 자동 제외)
+            const absenceThreshold = window.thresholds ? window.thresholds.unapproved_absence : {th_unapproved_absence};
             const absent3Plus = employeeData.filter(emp =>
-                parseFloat(emp['unapproved_absences'] || emp['Unapproved Absences'] || 0) >= 3
+                parseFloat(emp['unapproved_absences'] || emp['Unapproved Absences'] || 0) > absenceThreshold
             ).length;
             document.getElementById('kpiAbsentWithoutInform').textContent = absent3Plus + peopleUnit;
 
@@ -13324,13 +13229,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
 
             
             
-            // 5. 출근율 88% 미만 (TYPE-3 제외)
+            // 5. 출근율 threshold 미만 (TYPE-3 제외) [Issue #60]
+            const attendanceThreshold = window.thresholds ? window.thresholds.attendance_rate : {th_attendance_rate};
             const attendanceBelow88 = employeeData.filter(emp => {{
                 // TYPE-3 제외 (incentive 대상 아님)
                 if (emp['type'] === 'TYPE-3' || emp['ROLE TYPE STD'] === 'TYPE-3') {{
                     return false;
                 }}
-                return parseFloat(emp['출근율_Attendance_Rate_Percent'] || emp['Attendance Rate'] || 0) < 88;
+                return parseFloat(emp['출근율_Attendance_Rate_Percent'] || emp['Attendance Rate'] || 0) < attendanceThreshold;
             }}).length;
             document.getElementById('kpiAttendanceBelow88').textContent = attendanceBelow88 + peopleUnit;
 
@@ -13351,23 +13257,25 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}).length;
             document.getElementById('kpiConsecutiveAqlFail').textContent = consecutiveFail + peopleUnit;
 
-            // 8. 구역 AQL Reject Rate 3% 초과 직원 count (조건 8번만 카운트)
+            // 8. 구역 AQL Reject Rate threshold 초과 직원 count (조건 8번만 카운트) [Issue #60]
+            const rejectThreshold = window.thresholds ? window.thresholds.area_reject_rate : {th_area_reject_rate};
             const highRejectRate = employeeData.filter(emp => {{
-                // 조건 8번: 구역 reject rate > 3%만 체크 (조건 7번 제외)
+                // 조건 8번: 구역 reject rate > threshold만 체크 (조건 7번 제외)
                 const cond8 = emp['cond_8_area_reject'] || 'PASS';
                 const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || emp['area_reject_rate'] || 0);
-                return cond8 === 'FAIL' || areaRejectRate > 3;
+                return cond8 === 'FAIL' || areaRejectRate > rejectThreshold;
             }}).length;
             document.getElementById('kpiAreaRejectRate').textContent = highRejectRate + peopleUnit;
 
-            // 9. 5PRS 통과율 < 95% (TYPE-1 ASSEMBLY INSPECTOR만) [Issue #60 Fix]
+            // 9. 5PRS 통과율 < threshold (TYPE-1 ASSEMBLY INSPECTOR만) [Issue #60 Fix]
             // position_code 사용: 'A1A', 'A1B', 'A1C' = ASSEMBLY INSPECTOR
+            const passRateThreshold = window.thresholds ? window.thresholds['5prs_pass_rate'] : {th_5prs_pass_rate};
             const lowPassRate = employeeData.filter(emp => {{
                 const isType1 = emp['type'] === 'TYPE-1';
                 const positionCode = (emp['position_code'] || '').toUpperCase().trim();
                 const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
                 const passRate = parseFloat(emp['pass_rate'] || 100);
-                return isType1 && isAssemblyInspector && passRate < 95 && passRate > 0;
+                return isType1 && isAssemblyInspector && passRate < passRateThreshold && passRate > 0;
             }}).length;
             document.getElementById('kpiLowPassRate').textContent = lowPassRate + peopleUnit;
 
@@ -13791,11 +13699,15 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 case 'absentWithoutInform':
                     modalTitle = getTranslation('validationTab.modalTitles.absentWithoutInform', currentLanguage);
 
+                    // [Issue #60] 동적 threshold 사용
+                    const absThresholdVal = window.thresholds ? window.thresholds.unapproved_absence : {th_unapproved_absence};
+                    const exceedDays = absThresholdVal + 1;
+
                     // 무단결근 분포 계산
                     const absenceData = employeeData.filter(emp => parseFloat(emp['Unapproved Absences'] || 0) >= 1);
                     const absence1 = absenceData.filter(emp => parseFloat(emp['Unapproved Absences']) === 1).length;
                     const absence2 = absenceData.filter(emp => parseFloat(emp['Unapproved Absences']) === 2).length;
-                    const absence3plus = absenceData.filter(emp => parseFloat(emp['Unapproved Absences']) >= 3).length;
+                    const absenceExceed = absenceData.filter(emp => parseFloat(emp['Unapproved Absences']) > absThresholdVal).length;
 
                     // 요약 섹션 HTML
                     const summaryHtml = `
@@ -13810,8 +13722,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                     <div style="font-size: 14px; color: #7f8c8d;">2일</div>
                                 </div>
                                 <div style="flex: 1;">
-                                    <div style="font-size: 24px; font-weight: bold; color: #e74c3c;">${'${absence3plus}'}</div>
-                                    <div style="font-size: 14px; color: #7f8c8d;">3일 이상 (조건 초과)</div>
+                                    <div style="font-size: 24px; font-weight: bold; color: #e74c3c;">${'${absenceExceed}'}</div>
+                                    <div style="font-size: 14px; color: #7f8c8d;">${'${exceedDays}'}일 이상 (조건 초과)</div>
                                 </div>
                             </div>
                         </div>
@@ -13829,7 +13741,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     tableData = absenceData
                         .map(emp => {{
                             const days = parseFloat(emp['Unapproved Absences']);
-                            const daysCell = days >= 3 ? `<span style="color: #e74c3c; font-weight: bold;">${'${days}'}</span>` : days;
+                            const daysCell = days > absThresholdVal ? `<span style="color: #e74c3c; font-weight: bold;">${'${days}'}</span>` : days;
                             // 인센티브 금액 가져오기 (November_Incentive 또는 Incentive 필드)
                             const incentiveAmount = window.employeeHelpers.getIncentive(emp, 'current') // Phase 3: 타입 안전 헬퍼 사용;
                             const isReceived = incentiveAmount > 0;
@@ -13844,7 +13756,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 emp['Full Name'],
                                 emp['FINAL QIP POSITION NAME CODE'],
                                 daysCell,
-                                emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || (days > 2 ? 'FAIL' : 'PASS'),
+                                emp['attendancy condition 2 - unapproved Absence Day is more than 2 days'] || (days > absThresholdVal ? 'FAIL' : 'PASS'),
                                 receivedCell,
                                 amountCell
                             ];
@@ -14004,9 +13916,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         getTranslation('validationTab.tableHeaders.conditionStatus', currentLanguage)
                     ];
 
-                    // Area AQL reject rate > 3% 필터링 (구역by AQL Reject 3% 이상)
+                    // Area AQL reject rate > threshold 필터링 [Issue #60]
+                    const rejectThresholdModal = window.thresholds ? window.thresholds.area_reject_rate : {th_area_reject_rate};
                     tableData = employeeData
-                        .filter(emp => parseFloat(emp['area_reject_rate'] || 0) > 3)
+                        .filter(emp => parseFloat(emp['area_reject_rate'] || 0) > rejectThresholdModal)
                         .map(emp => [
                             emp['Employee No'],
                             emp['Full Name'],
@@ -14036,7 +13949,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const positionCode = (emp['position_code'] || '').toUpperCase().trim();
                             const isType1 = emp['type'] === 'TYPE-1';
                             const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
-                            const lowPassRate = parseFloat(emp['pass_rate'] || 100) < 95;
+                            const lowPassRate = parseFloat(emp['pass_rate'] || 100) < (window.thresholds ? window.thresholds['5prs_pass_rate'] : {th_5prs_pass_rate});
                             return isType1 && isAssemblyInspector && lowPassRate;
                         }})
                         .map(emp => {{
@@ -14080,7 +13993,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                             const positionCode = (emp['position_code'] || '').toUpperCase().trim();
                             const isType1 = emp['type'] === 'TYPE-1';
                             const isAssemblyInspector = ['A1A', 'A1B', 'A1C'].includes(positionCode);
-                            const lowQty = parseFloat(emp['validation_qty'] || 0) < 100;
+                            const lowQty = parseFloat(emp['validation_qty'] || 0) < (window.thresholds ? window.thresholds['5prs_min_qty'] : {th_5prs_min_qty});
                             return isType1 && isAssemblyInspector && lowQty;
                         }})
                         .map(emp => {{
@@ -19576,10 +19489,10 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             const cond2 = getTranslation('attendanceAnalysis.condition2', currentLanguage) || '조건 2';
             const cond3 = getTranslation('attendanceAnalysis.condition3', currentLanguage) || '조건 3';
             const cond4 = getTranslation('attendanceAnalysis.condition4', currentLanguage) || '조건 4';
-            const cond1Desc = getTranslation('attendanceAnalysis.condition1Desc', currentLanguage) || '출근율 ≥ 88%';
-            const cond2Desc = getTranslation('attendanceAnalysis.condition2Desc', currentLanguage) || '무단결근 ≤ 2일';
+            const cond1Desc = getTranslation('attendanceAnalysis.condition1Desc', currentLanguage) || '출근율 ≥ {th_attendance_rate}%';
+            const cond2Desc = getTranslation('attendanceAnalysis.condition2Desc', currentLanguage) || '무단결근 ≤ {th_unapproved_absence}일';
             const cond3Desc = getTranslation('attendanceAnalysis.condition3Desc', currentLanguage) || '실제 근무일 > 0';
-            const cond4Desc = getTranslation('attendanceAnalysis.condition4Desc', currentLanguage) || '최소 근무일 ≥ 12일';
+            const cond4Desc = getTranslation('attendanceAnalysis.condition4Desc', currentLanguage) || '최소 근무일 ≥ {th_minimum_working_days}일';
             const metText = getTranslation('attendanceAnalysis.met', currentLanguage) || '충족';
             const notMetText = getTranslation('attendanceAnalysis.notMet', currentLanguage) || '미충족';
             const checkNeededText = getTranslation('attendanceAnalysis.checkNeeded', currentLanguage) || '확인 필요';
@@ -20603,9 +20516,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         previousLabel: '이전 연속월',
                         currentLabel: '현재 연속월',
                         resetReason: '리셋 원인 (가능성)',
-                        reason1: '출근율 88% 미만',
-                        reason2: '무단결근 2일 초과',
-                        reason3: '최소 근무일 12일 미만',
+                        reason1: '출근율 {th_attendance_rate}% 미만',
+                        reason2: '무단결근 {th_unapproved_absence}일 초과',
+                        reason3: '최소 근무일 {th_minimum_working_days}일 미만',
                         reason4: '개인 AQL 불합격',
                         restartGuide: '📈 인센티브 재시작 가이드',
                         tip1: '다음 달 모든 조건 충족 시 1개월부터 다시 시작',
@@ -20624,9 +20537,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         previousLabel: 'Previous Months',
                         currentLabel: 'Current Months',
                         resetReason: 'Possible Reset Reasons',
-                        reason1: 'Attendance rate below 88%',
-                        reason2: 'More than 2 unapproved absences',
-                        reason3: 'Less than 12 minimum working days',
+                        reason1: 'Attendance rate below {th_attendance_rate}%',
+                        reason2: 'More than {th_unapproved_absence} unapproved absences',
+                        reason3: 'Less than {th_minimum_working_days} minimum working days',
                         reason4: 'Personal AQL failure',
                         restartGuide: '📈 Incentive Restart Guide',
                         tip1: 'If all conditions are met next month, you start from month 1',
@@ -20645,9 +20558,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                         previousLabel: 'Tháng trước',
                         currentLabel: 'Tháng hiện tại',
                         resetReason: 'Nguyên nhân có thể',
-                        reason1: 'Tỷ lệ chuyên cần dưới 88%',
-                        reason2: 'Vắng không phép hơn 2 ngày',
-                        reason3: 'Ít hơn 12 ngày làm việc tối thiểu',
+                        reason1: 'Tỷ lệ chuyên cần dưới {th_attendance_rate}%',
+                        reason2: 'Vắng không phép hơn {th_unapproved_absence} ngày',
+                        reason3: 'Ít hơn {th_minimum_working_days} ngày làm việc tối thiểu',
                         reason4: 'Không đạt AQL cá nhân',
                         restartGuide: '📈 Hướng dẫn khởi động lại',
                         tip1: 'Nếu đạt tất cả điều kiện tháng tới, bạn bắt đầu từ tháng 1',
@@ -21189,14 +21102,14 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                         // 조건별 개선 가이드 메시지 (2025-12-21)
                                         const improvementGuides = {{
                                             1: {{
-                                                ko: '💡 출근율 88% 달성을 위해 무단결근을 줄이고 정시 출근하세요.',
-                                                en: '💡 Reduce absences and arrive on time to achieve 88% attendance.',
-                                                vi: '💡 Giảm nghỉ không phép và đến đúng giờ để đạt 88% chuyên cần.'
+                                                ko: '💡 출근율 {th_attendance_rate}% 달성을 위해 무단결근을 줄이고 정시 출근하세요.',
+                                                en: '💡 Reduce absences and arrive on time to achieve {th_attendance_rate}% attendance.',
+                                                vi: '💡 Giảm nghỉ không phép và đến đúng giờ để đạt {th_attendance_rate}% chuyên cần.'
                                             }},
                                             2: {{
-                                                ko: '💡 무단결근 2일 이하를 유지하세요. 부득이한 경우 사전 승인을 받으세요.',
-                                                en: '💡 Keep unexcused absences ≤2 days. Get prior approval if needed.',
-                                                vi: '💡 Giữ nghỉ không phép ≤2 ngày. Xin phê duyệt trước nếu cần.'
+                                                ko: '💡 무단결근 {th_unapproved_absence}일 이하를 유지하세요. 부득이한 경우 사전 승인을 받으세요.',
+                                                en: '💡 Keep unexcused absences ≤{th_unapproved_absence} days. Get prior approval if needed.',
+                                                vi: '💡 Giữ nghỉ không phép ≤{th_unapproved_absence} ngày. Xin phê duyệt trước nếu cần.'
                                             }},
                                             3: {{
                                                 ko: '💡 실제 근무일이 0일입니다. 근무 기록을 확인하세요.',
@@ -21204,9 +21117,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                                 vi: '💡 Không có ngày làm việc. Vui lòng kiểm tra bản ghi chấm công.'
                                             }},
                                             4: {{
-                                                ko: '💡 최소 12일 근무가 필요합니다. 휴가 복귀 후 조건 충족이 가능합니다.',
-                                                en: '💡 Minimum 12 working days required. Meet conditions after leave return.',
-                                                vi: '💡 Yêu cầu tối thiểu 12 ngày làm việc. Đủ điều kiện sau khi trở lại.'
+                                                ko: '💡 최소 {th_minimum_working_days}일 근무가 필요합니다. 휴가 복귀 후 조건 충족이 가능합니다.',
+                                                en: '💡 Minimum {th_minimum_working_days} working days required. Meet conditions after leave return.',
+                                                vi: '💡 Yêu cầu tối thiểu {th_minimum_working_days} ngày làm việc. Đủ điều kiện sau khi trở lại.'
                                             }},
                                             5: {{
                                                 ko: '💡 당월 AQL 불합격을 0건으로 유지하세요. 품질 검사에 더 주의하세요.',
@@ -21224,19 +21137,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                                 vi: '💡 Nhóm/Khu vực có AQL thất bại liên tiếp. Cần kiểm soát chất lượng toàn nhóm.'
                                             }},
                                             8: {{
-                                                ko: '💡 구역 불합격률 3% 미만을 유지하세요. 팀원들과 협력하여 품질을 높이세요.',
-                                                en: '💡 Keep area reject rate under 3%. Collaborate with teammates to improve quality.',
-                                                vi: '💡 Giữ tỷ lệ từ chối khu vực dưới 3%. Hợp tác với đồng nghiệp để cải thiện.'
+                                                ko: '💡 구역 불합격률 {th_area_reject_rate}% 미만을 유지하세요. 팀원들과 협력하여 품질을 높이세요.',
+                                                en: '💡 Keep area reject rate under {th_area_reject_rate}%. Collaborate with teammates to improve quality.',
+                                                vi: '💡 Giữ tỷ lệ từ chối khu vực dưới {th_area_reject_rate}%. Hợp tác với đồng nghiệp để cải thiện.'
                                             }},
                                             9: {{
-                                                ko: '💡 5PRS 합격률 95% 이상을 달성하세요. 검사 품질에 더 주의하세요.',
-                                                en: '💡 Achieve 5PRS pass rate of 95%+. Pay more attention to inspection quality.',
-                                                vi: '💡 Đạt tỷ lệ đậu 5PRS 95%+. Chú ý hơn đến chất lượng kiểm tra.'
+                                                ko: '💡 5PRS 합격률 {th_5prs_pass_rate}% 이상을 달성하세요. 검사 품질에 더 주의하세요.',
+                                                en: '💡 Achieve 5PRS pass rate of {th_5prs_pass_rate}%+. Pay more attention to inspection quality.',
+                                                vi: '💡 Đạt tỷ lệ đậu 5PRS {th_5prs_pass_rate}%+. Chú ý hơn đến chất lượng kiểm tra.'
                                             }},
                                             10: {{
-                                                ko: '💡 5PRS 검수량 100족 이상이 필요합니다. 검수 수량을 늘리세요.',
-                                                en: '💡 Need 5PRS inspection qty of 100+ pairs. Increase inspection volume.',
-                                                vi: '💡 Cần số lượng kiểm tra 5PRS 100+ đôi. Tăng khối lượng kiểm tra.'
+                                                ko: '💡 5PRS 검수량 {th_5prs_min_qty}족 이상이 필요합니다. 검수 수량을 늘리세요.',
+                                                en: '💡 Need 5PRS inspection qty of {th_5prs_min_qty}+ pairs. Increase inspection volume.',
+                                                vi: '💡 Cần số lượng kiểm tra 5PRS {th_5prs_min_qty}+ đôi. Tăng khối lượng kiểm tra.'
                                             }}
                                         }};
 

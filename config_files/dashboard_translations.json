@@ -1279,9 +1279,9 @@
           "vi": "Tỷ lệ đi làm < {threshold_attendance_rate}%"
         },
         "cond2_unapproved_absence": {
-          "ko": "무단결근 3일 이상",
-          "en": "Unapproved absence ≥ 3 days",
-          "vi": "Vắng mặt không phép ≥ 3 ngày"
+          "ko": "무단결근 {threshold_unapproved_absence_exceed}일 이상",
+          "en": "Unapproved absence ≥ {threshold_unapproved_absence_exceed} days",
+          "vi": "Vắng mặt không phép ≥ {threshold_unapproved_absence_exceed} ngày"
         },
         "cond3_actual_working_days": {
           "ko": "실제 근무일수 0일",
@@ -3837,14 +3837,14 @@
         "vi": "Vắng mặt không phép"
       },
       "moreThan3Days": {
-        "ko": "3일 이상시 미지급",
-        "en": "No payment if 3 days or more",
-        "vi": "Không thanh toán nếu 3 ngày trở lên"
+        "ko": "{threshold_unapproved_absence_exceed}일 이상시 미지급",
+        "en": "No payment if {threshold_unapproved_absence_exceed} days or more",
+        "vi": "Không thanh toán nếu {threshold_unapproved_absence_exceed} ngày trở lên"
       },
       "unauthorizedExample": {
-        "ko": "3일 무단결근 → 0 VND",
-        "en": "3 days unauthorized absence → 0 VND",
-        "vi": "3 ngày vắng không phép → 0 VND"
+        "ko": "{threshold_unapproved_absence_exceed}일 무단결근 → 0 VND",
+        "en": "{threshold_unapproved_absence_exceed} days unauthorized absence → 0 VND",
+        "vi": "{threshold_unapproved_absence_exceed} ngày vắng không phép → 0 VND"
       },
       "aqlFailure": {
         "ko": "AQL 실패",
@@ -4353,9 +4353,9 @@
         "vi": "Cho phép tối đa {threshold_unapproved_absence} ngày vắng không phép."
       },
       "answer2Detail": {
-        "ko": "3일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.",
-        "en": "With 3 or more unauthorized absence days, you cannot receive incentives for that month. Pre-approved vacation or sick leave is not counted as unauthorized absence.",
-        "vi": "Với 3 ngày trở lên vắng không phép, bạn không thể nhận thưởng trong tháng đó. Nghỉ phép hoặc nghỉ ốm được phê duyệt trước không được tính là vắng không phép."
+        "ko": "{threshold_unapproved_absence_exceed}일 이상 무단결근시 해당 월 인센티브를 받을 수 없습니다. 사전 승인된 휴가나 병가는 무단결근에 포함되지 않습니다.",
+        "en": "With {threshold_unapproved_absence_exceed} or more unauthorized absence days, you cannot receive incentives for that month. Pre-approved vacation or sick leave is not counted as unauthorized absence.",
+        "vi": "Với {threshold_unapproved_absence_exceed} ngày trở lên vắng không phép, bạn không thể nhận thưởng trong tháng đó. Nghỉ phép hoặc nghỉ ốm được phê duyệt trước không được tính là vắng không phép."
       },
       "answer3Main": {
         "ko": "TYPE-2 직급의 인센티브는 해당하는 TYPE-1 직급의 평균 인센티브를 기준으로 계산됩니다.",
@@ -4795,11 +4795,53 @@
       "vi": "TB người nhận"
     }
   },
+  "type2GroupLeaderSpecial": {
+    "title": {
+      "ko": "⚠️ TYPE-2 GROUP LEADER 특별 계산 규칙",
+      "en": "⚠️ TYPE-2 GROUP LEADER Special Calculation Rules",
+      "vi": "⚠️ Quy tắc tính toán đặc biệt cho TYPE-2 GROUP LEADER"
+    },
+    "baseCalc": {
+      "ko": "<strong>기본 계산:</strong> TYPE-1 LINE LEADER <span style='color: #d32f2f; font-weight: bold;'>수령자</span> 평균 인센티브 × 2",
+      "en": "<strong>Base Calculation:</strong> TYPE-1 LINE LEADER <span style='color: #d32f2f; font-weight: bold;'>recipient</span> average incentive × 2",
+      "vi": "<strong>Tính cơ bản:</strong> Trung bình thưởng <span style='color: #d32f2f; font-weight: bold;'>người nhận</span> TYPE-1 LINE LEADER × 2"
+    },
+    "fallbackCalc": {
+      "ko": "<strong>Fallback (TYPE-1 평균 0 VND):</strong> TYPE-2 LINE LEADER <span style='color: #d32f2f; font-weight: bold;'>수령자</span> 평균 × 2로 계산",
+      "en": "<strong>Fallback (TYPE-1 avg 0 VND):</strong> Calculate using TYPE-2 LINE LEADER <span style='color: #d32f2f; font-weight: bold;'>recipient</span> average × 2",
+      "vi": "<strong>Dự phòng (TB TYPE-1 = 0 VND):</strong> Tính bằng TB <span style='color: #d32f2f; font-weight: bold;'>người nhận</span> TYPE-2 LINE LEADER × 2"
+    },
+    "important": {
+      "ko": "<strong>중요:</strong> 모든 평균은 인센티브 수령자만 대상 (0 VND 제외)",
+      "en": "<strong>Important:</strong> All averages use only incentive recipients (0 VND excluded)",
+      "vi": "<strong>Quan trọng:</strong> Tất cả trung bình chỉ tính người nhận thưởng (loại trừ 0 VND)"
+    },
+    "conditions": {
+      "ko": "<strong>적용 조건:</strong> TYPE-2는 출근 조건(1-4번)만 충족하면 인센티브 지급",
+      "en": "<strong>Conditions:</strong> TYPE-2 only needs to meet attendance conditions (1-4) for incentive",
+      "vi": "<strong>Điều kiện:</strong> TYPE-2 chỉ cần đạt điều kiện chuyên cần (1-4) để nhận thưởng"
+    }
+  },
   "type2QATeamSpecial": {
     "title": {
       "ko": "📋 TYPE-2 QA TEAM 특별 계산 규칙",
       "en": "📋 TYPE-2 QA TEAM Special Calculation Rules",
       "vi": "📋 Quy tắc tính toán đặc biệt cho TYPE-2 QA TEAM"
+    },
+    "qa3b": {
+      "ko": "<strong>QA3B 코드:</strong> TYPE-1 ASSEMBLY INSPECTOR <span style='color: #d32f2f; font-weight: bold;'>수령자</span> 평균",
+      "en": "<strong>QA3B Code:</strong> TYPE-1 ASSEMBLY INSPECTOR <span style='color: #d32f2f; font-weight: bold;'>recipient</span> average",
+      "vi": "<strong>Mã QA3B:</strong> Trung bình <span style='color: #d32f2f; font-weight: bold;'>người nhận</span> TYPE-1 ASSEMBLY INSPECTOR"
+    },
+    "qa3a": {
+      "ko": "<strong>QA3A 코드:</strong> TYPE-1 LINE LEADER <span style='color: #d32f2f; font-weight: bold;'>수령자</span> 평균 × 2 (GROUP LEADER와 동일)",
+      "en": "<strong>QA3A Code:</strong> TYPE-1 LINE LEADER <span style='color: #d32f2f; font-weight: bold;'>recipient</span> average × 2 (same as GROUP LEADER)",
+      "vi": "<strong>Mã QA3A:</strong> TB <span style='color: #d32f2f; font-weight: bold;'>người nhận</span> TYPE-1 LINE LEADER × 2 (giống GROUP LEADER)"
+    },
+    "note": {
+      "ko": "<strong>구분 기준:</strong> 직원의 FINAL QIP POSITION NAME CODE 값으로 QA3A/QA3B 구분",
+      "en": "<strong>Classification:</strong> Distinguished by employee's FINAL QIP POSITION NAME CODE value (QA3A/QA3B)",
+      "vi": "<strong>Phân loại:</strong> Phân biệt bằng giá trị FINAL QIP POSITION NAME CODE của nhân viên (QA3A/QA3B)"
     }
   },
   "type3Section": {
@@ -5225,9 +5267,9 @@
         "vi": "{threshold_attendance_rate}% trở lên"
       },
       "condition2NotMet": {
-        "ko": "단, 무단결근 3일로 조건 2 미충족 → 인센티브 0원",
-        "en": "However, condition 2 not met with 3 days unauthorized absence → Incentive 0",
-        "vi": "Tuy nhiên, điều kiện 2 không đạt với 3 ngày vắng không phép → Thưởng 0"
+        "ko": "단, 무단결근 {threshold_unapproved_absence_exceed}일로 조건 2 미충족 → 인센티브 0원",
+        "en": "However, condition 2 not met with {threshold_unapproved_absence_exceed} days unauthorized absence → Incentive 0",
+        "vi": "Tuy nhiên, điều kiện 2 không đạt với {threshold_unapproved_absence_exceed} ngày vắng không phép → Thưởng 0"
       },
       "absenceClassificationTitle": {
         "ko": "결근 사유별 분류:",
@@ -5330,9 +5372,9 @@
         "vi": "Tối đa {threshold_unapproved_absence} ngày vẫn đủ điều kiện nhận thưởng"
       },
       "countingRule3": {
-        "ko": "3일 이상 → 인센티브 0원",
-        "en": "3 days or more → Incentive 0",
-        "vi": "3 ngày trở lên → Thưởng 0"
+        "ko": "{threshold_unapproved_absence_exceed}일 이상 → 인센티브 0원",
+        "en": "{threshold_unapproved_absence_exceed} days or more → Incentive 0",
+        "vi": "{threshold_unapproved_absence_exceed} ngày trở lên → Thưởng 0"
       },
       "conditionCriteriaTitle": {
         "ko": "조건 충족 기준:",
@@ -5646,9 +5688,9 @@
       },
       "absentWithoutInform": {
         "title": {
-          "ko": "무단결근 3일 이상",
-          "en": "Absent Without Inform ≥3 days",
-          "vi": "Vắng không phép ≥3 ngày"
+          "ko": "무단결근 {threshold_unapproved_absence_exceed}일 이상",
+          "en": "Absent Without Inform ≥{threshold_unapproved_absence_exceed} days",
+          "vi": "Vắng không phép ≥{threshold_unapproved_absence_exceed} ngày"
         },
         "unit": {
           "ko": "명",
@@ -6446,7 +6488,7 @@
       "lowInspectionQty": {
         "title": {
           "ko": "5PRS 검사량 {threshold_5prs_min_qty}족 미만 상세",
-          "en": "5PRS Inspection Quantity Below 100 Pairs Details",
+          "en": "5PRS Inspection Quantity Below {threshold_5prs_min_qty} Pairs Details",
           "vi": "Chi tiết số lượng kiểm tra 5PRS dưới {threshold_5prs_min_qty} đôi"
         },
         "alert": {
@@ -6893,9 +6935,9 @@
       "vi": "Tổng số ngày làm việc"
     },
     "absentWithoutInform": {
-      "ko": "무단결근 ≥3일",
-      "en": "Unapproved Absences ≥3 days",
-      "vi": "Nghỉ không phép ≥3 ngày"
+      "ko": "무단결근 ≥{threshold_unapproved_absence_exceed}일",
+      "en": "Unapproved Absences ≥{threshold_unapproved_absence_exceed} days",
+      "vi": "Nghỉ không phép ≥{threshold_unapproved_absence_exceed} ngày"
     },
     "absentWithoutInformSubtitle": {
       "ko": "인센티브 자동 제외",
