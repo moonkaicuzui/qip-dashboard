@@ -11106,197 +11106,236 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             }}
         }}
         
-        // FAQ Q&A 섹션 업데이트 함count
+        // FAQ Q&A 섹션 업데이트 함수 - [Issue #60] getTranslation() 사용으로 replaceThresholdPlaceholders() 자동 호출
         function updateFAQQASection() {{
             const lang = currentLanguage;
-            
+
             // FAQ 섹션 제목
             const faqTitle = document.getElementById('faqSectionTitle');
             if (faqTitle) {{
-                faqTitle.textContent = translations.incentiveCalculation?.faq?.faqSectionTitle?.[lang] || '❓ 자주 묻는 질문 (FAQ)';
+                faqTitle.textContent = getTranslation('incentiveCalculation.faq.faqSectionTitle', lang);
             }}
-            
+
             // Q1
             const q1 = document.getElementById('faqQuestion1');
             if (q1) {{
-                const newText = translations.incentiveCalculation?.faq?.question1?.[lang] || 'Q1. 왜 나는 incentive를 못 받았나요? 조건을 확인하는 방법은?';
-                q1.textContent = newText;
+                q1.textContent = getTranslation('incentiveCalculation.faq.question1', lang);
             }}
-            document.getElementById('faqAnswer1Main').textContent = translations.incentiveCalculation?.faq?.answer1Main?.[lang] || 'incentive를 받지 못한 주요 이유:';
-            document.getElementById('faqAnswer1Reason1').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.minDays?.[lang] || '최소 근무일 12일 미충족';
-            document.getElementById('faqAnswer1Reason2').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.attendance?.[lang] || '출근율 88% 미만';
-            document.getElementById('faqAnswer1Reason3').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.absence?.[lang] || '무단결근 3일 이상';
-            document.getElementById('faqAnswer1Reason4').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.aql?.[lang] || 'AQL failed (corresponding 직급)';
-            document.getElementById('faqAnswer1Reason5').textContent = translations.incentiveCalculation?.faq?.answer1Reasons?.fprs?.[lang] || '5PRS 통과율 95% 미만 (corresponding 직급)';
-            document.getElementById('faqAnswer1CheckMethod').textContent = translations.incentiveCalculation?.faq?.answer1CheckMethod?.[lang] || '개인별 상세 페이지에서 본인의 조건 충족 여부를 확인할 count 있습니다.';
-            
+            const a1Main = document.getElementById('faqAnswer1Main');
+            if (a1Main) a1Main.textContent = getTranslation('incentiveCalculation.faq.answer1Main', lang);
+            const a1r1 = document.getElementById('faqAnswer1Reason1');
+            if (a1r1) a1r1.textContent = getTranslation('incentiveCalculation.faq.answer1Reasons.minDays', lang);
+            const a1r2 = document.getElementById('faqAnswer1Reason2');
+            if (a1r2) a1r2.textContent = getTranslation('incentiveCalculation.faq.answer1Reasons.attendance', lang);
+            const a1r3 = document.getElementById('faqAnswer1Reason3');
+            if (a1r3) a1r3.textContent = getTranslation('incentiveCalculation.faq.answer1Reasons.absence', lang);
+            const a1r4 = document.getElementById('faqAnswer1Reason4');
+            if (a1r4) a1r4.textContent = getTranslation('incentiveCalculation.faq.answer1Reasons.aql', lang);
+            const a1r5 = document.getElementById('faqAnswer1Reason5');
+            if (a1r5) a1r5.textContent = getTranslation('incentiveCalculation.faq.answer1Reasons.fprs', lang);
+            const a1cm = document.getElementById('faqAnswer1CheckMethod');
+            if (a1cm) a1cm.textContent = getTranslation('incentiveCalculation.faq.answer1CheckMethod', lang);
+
             // Q2
             const q2 = document.getElementById('faqQuestion2');
             if (q2) {{
-                q2.textContent = translations.incentiveCalculation?.faq?.question2?.[lang] || 'Q2. 무단결근이 며칠까지 허용되나요?';
+                q2.textContent = getTranslation('incentiveCalculation.faq.question2', lang);
             }}
-            document.getElementById('faqAnswer2Main').textContent = translations.incentiveCalculation?.faq?.answer2Main?.[lang] || '무단결근은 최대 2일까지 허용됩니다.';
-            document.getElementById('faqAnswer2Detail').textContent = translations.incentiveCalculation?.faq?.answer2Detail?.[lang] || '3일 이상 무단결근시 corresponding month incentive를 받을 count not found. 사전 승인된 휴가나 병가는 무단결근에 포함되지 not.';
-            
+            const a2Main = document.getElementById('faqAnswer2Main');
+            if (a2Main) a2Main.textContent = getTranslation('incentiveCalculation.faq.answer2Main', lang);
+            const a2Det = document.getElementById('faqAnswer2Detail');
+            if (a2Det) a2Det.textContent = getTranslation('incentiveCalculation.faq.answer2Detail', lang);
+
             // Q3
             const q3 = document.getElementById('faqQuestion3');
             if (q3) {{
-                q3.textContent = translations.incentiveCalculation?.faq?.question3?.[lang] || 'Q3. TYPE-2 직급의 incentive는 어떻게 calculation되나요?';
+                q3.textContent = getTranslation('incentiveCalculation.faq.question3', lang);
             }}
-            document.getElementById('faqAnswer3Main').textContent = translations.incentiveCalculation?.faq?.answer3Main?.[lang] || 'TYPE-2 직급의 incentive는 corresponding하는 TYPE-1 직급의 평균 incentive를 기준으로 calculation됩니다.';
-            document.getElementById('faqAnswer3Example').textContent = translations.incentiveCalculation?.faq?.answer3Example?.[lang] || '예를 들어:';
-            document.getElementById('faqAnswer3Example1').textContent = translations.incentiveCalculation?.faq?.answer3Example1?.[lang] || 'TYPE-2 GROUP LEADER는 TYPE-1 LINE LEADER 평균 incentive × 2';
-            document.getElementById('faqAnswer3Example2').textContent = translations.incentiveCalculation?.faq?.answer3Example2?.[lang] || 'TYPE-2 STITCHING INSPECTOR는 TYPE-1 ASSEMBLY INSPECTOR들의 평균 incentive';
-            
+            const a3Main = document.getElementById('faqAnswer3Main');
+            if (a3Main) a3Main.textContent = getTranslation('incentiveCalculation.faq.answer3Main', lang);
+            const a3Ex = document.getElementById('faqAnswer3Example');
+            if (a3Ex) a3Ex.textContent = getTranslation('incentiveCalculation.faq.answer3Example', lang);
+            const a3Ex1 = document.getElementById('faqAnswer3Example1');
+            if (a3Ex1) a3Ex1.textContent = getTranslation('incentiveCalculation.faq.answer3Example1', lang);
+            const a3Ex2 = document.getElementById('faqAnswer3Example2');
+            if (a3Ex2) a3Ex2.textContent = getTranslation('incentiveCalculation.faq.answer3Example2', lang);
+
             // Q4
             const q4 = document.getElementById('faqQuestion4');
             if (q4) {{
-                q4.textContent = translations.incentiveCalculation?.faq?.question4?.[lang] || 'Q4. ASSEMBLY INSPECTOR의 연속 work 개월은 어떻게 calculation되나요?';
+                q4.textContent = getTranslation('incentiveCalculation.faq.question4', lang);
             }}
-            document.getElementById('faqAnswer4Main').textContent = translations.incentiveCalculation?.faq?.answer4Main?.[lang] || 'TYPE-1 ASSEMBLY INSPECTOR만 corresponding되며, 조건을 충족하며 incentive를 받은 개월count가 누적됩니다.';
-            document.getElementById('faqAnswer4Detail1').textContent = translations.incentiveCalculation?.faq?.answer4Detail1?.[lang] || '조건 미충족으로 incentive를 못 받으면 0개월로 리셋';
-            document.getElementById('faqAnswer4Detail2').textContent = translations.incentiveCalculation?.faq?.answer4Detail2?.[lang] || '12개월 이상 연속시 최대 incentive 1,000,000 VND';
-            
+            const a4Main = document.getElementById('faqAnswer4Main');
+            if (a4Main) a4Main.textContent = getTranslation('incentiveCalculation.faq.answer4Main', lang);
+            const a4d1 = document.getElementById('faqAnswer4Detail1');
+            if (a4d1) a4d1.textContent = getTranslation('incentiveCalculation.faq.answer4Detail1', lang);
+            const a4d2 = document.getElementById('faqAnswer4Detail2');
+            if (a4d2) a4d2.textContent = getTranslation('incentiveCalculation.faq.answer4Detail2', lang);
+
             // Q5
             const q5 = document.getElementById('faqQuestion5');
             if (q5) {{
-                q5.textContent = translations.incentiveCalculation?.faq?.question5?.[lang] || 'Q5. AQL failed가 무엇이고 어떤 영향을 미치나요?';
+                q5.textContent = getTranslation('incentiveCalculation.faq.question5', lang);
             }}
-            document.getElementById('faqAnswer5Main').textContent = translations.incentiveCalculation?.faq?.answer5Main?.[lang] || 'AQL(Acceptable Quality Limit)은 품질 검사 기준입니다.';
-            document.getElementById('faqAnswer5Detail1').textContent = translations.incentiveCalculation?.faq?.answer5Detail1?.[lang] || '개인 AQL failed: corresponding month에 품질 검사 failed한 경우';
-            document.getElementById('faqAnswer5Detail2').textContent = translations.incentiveCalculation?.faq?.answer5Detail2?.[lang] || '3연속 개월 실패: 지난 3개월 동안 연속으로 failed한 경우';
-            document.getElementById('faqAnswer5Detail3').textContent = translations.incentiveCalculation?.faq?.answer5Detail3?.[lang] || 'AQL 관련 직급만 영향받음 (INSPECTOR 계열 등)';
-            
+            const a5Main = document.getElementById('faqAnswer5Main');
+            if (a5Main) a5Main.textContent = getTranslation('incentiveCalculation.faq.answer5Main', lang);
+            const a5d1 = document.getElementById('faqAnswer5Detail1');
+            if (a5d1) a5d1.textContent = getTranslation('incentiveCalculation.faq.answer5Detail1', lang);
+            const a5d2 = document.getElementById('faqAnswer5Detail2');
+            if (a5d2) a5d2.textContent = getTranslation('incentiveCalculation.faq.answer5Detail2', lang);
+            const a5d3 = document.getElementById('faqAnswer5Detail3');
+            if (a5d3) a5d3.textContent = getTranslation('incentiveCalculation.faq.answer5Detail3', lang);
+
             // Q6
             const q6 = document.getElementById('faqQuestion6');
             if (q6) {{
-                q6.textContent = translations.incentiveCalculation?.faq?.question6?.[lang] || 'Q6. 5PRS 검사량이 부족하면 어떻게 되나요?';
+                q6.textContent = getTranslation('incentiveCalculation.faq.question6', lang);
             }}
-            document.getElementById('faqAnswer6Main').textContent = translations.incentiveCalculation?.faq?.answer6Main?.[lang] || '5PRS 관련 직급은 다음 조건을 충족해야 합니다:';
-            document.getElementById('faqAnswer6Detail1').textContent = translations.incentiveCalculation?.faq?.answer6Detail1?.[lang] || '검사량 100족 이상';
-            document.getElementById('faqAnswer6Detail2').textContent = translations.incentiveCalculation?.faq?.answer6Detail2?.[lang] || '통과율 95% 이상';
-            document.getElementById('faqAnswer6Conclusion').textContent = translations.incentiveCalculation?.faq?.answer6Conclusion?.[lang] || '둘 중 하나라도 미충족시 incentive를 받을 count not found.';
-            
+            const a6Main = document.getElementById('faqAnswer6Main');
+            if (a6Main) a6Main.textContent = getTranslation('incentiveCalculation.faq.answer6Main', lang);
+            const a6d1 = document.getElementById('faqAnswer6Detail1');
+            if (a6d1) a6d1.textContent = getTranslation('incentiveCalculation.faq.answer6Detail1', lang);
+            const a6d2 = document.getElementById('faqAnswer6Detail2');
+            if (a6d2) a6d2.textContent = getTranslation('incentiveCalculation.faq.answer6Detail2', lang);
+            const a6con = document.getElementById('faqAnswer6Conclusion');
+            if (a6con) a6con.textContent = getTranslation('incentiveCalculation.faq.answer6Conclusion', lang);
+
             // Q7
             const q7 = document.getElementById('faqQuestion7');
             if (q7) {{
-                q7.textContent = translations.incentiveCalculation?.faq?.question7?.[lang] || 'Q7. 출산휴가나 병가 중에도 incentive를 받을 count 있나요?';
+                q7.textContent = getTranslation('incentiveCalculation.faq.question7', lang);
             }}
-            document.getElementById('faqAnswer7Main').textContent = translations.incentiveCalculation?.faq?.answer7Main?.[lang] || '출산휴가나 장기 병가 중에는 incentive가 지급되지 not.';
-            document.getElementById('faqAnswer7Detail1').textContent = translations.incentiveCalculation?.faq?.answer7Detail1?.[lang] || '최소 근무일 12일 조건을 충족할 count 없기 때문';
-            document.getElementById('faqAnswer7Detail2').textContent = translations.incentiveCalculation?.faq?.answer7Detail2?.[lang] || '복귀 후 조건 충족시 다시 incentive 수령 가능';
-            document.getElementById('faqAnswer7Detail3').textContent = translations.incentiveCalculation?.faq?.answer7Detail3?.[lang] || 'ASSEMBLY INSPECTOR의 경우 연속 개월count는 0으로 리셋';
+            const a7Main = document.getElementById('faqAnswer7Main');
+            if (a7Main) a7Main.textContent = getTranslation('incentiveCalculation.faq.answer7Main', lang);
+            const a7d1 = document.getElementById('faqAnswer7Detail1');
+            if (a7d1) a7d1.textContent = getTranslation('incentiveCalculation.faq.answer7Detail1', lang);
+            const a7d2 = document.getElementById('faqAnswer7Detail2');
+            if (a7d2) a7d2.textContent = getTranslation('incentiveCalculation.faq.answer7Detail2', lang);
+            const a7d3 = document.getElementById('faqAnswer7Detail3');
+            if (a7d3) a7d3.textContent = getTranslation('incentiveCalculation.faq.answer7Detail3', lang);
             
             // Q8
             const q8 = document.getElementById('faqQuestion8');
             if (q8) {{
-                q8.textContent = translations.incentiveCalculation?.faq?.question8?.[lang] || 'Q8. 전month incentive와 차이가 나는 이유는 무엇인가요?';
+                q8.textContent = getTranslation('incentiveCalculation.faq.question8', lang);
             }}
             const answer8Main = document.getElementById('faqAnswer8Main');
             if (answer8Main) {{
-                answer8Main.textContent = translations.incentiveCalculation?.faq?.answer8Main?.[lang] || 'incentive 금액이 변동하는 주요 이유:';
+                answer8Main.textContent = getTranslation('incentiveCalculation.faq.answer8Main', lang);
             }}
             const answer8Reason1 = document.getElementById('faqAnswer8Reason1');
             if (answer8Reason1) {{
-                answer8Reason1.innerHTML = `<strong>ASSEMBLY INSPECTOR</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason1?.[lang] || '연속 work 개월 변화'}}`;
+                answer8Reason1.innerHTML = `<strong>ASSEMBLY INSPECTOR</strong>: ${{getTranslation('incentiveCalculation.faq.answer8Reason1', lang)}}`;
             }}
             const answer8Reason2 = document.getElementById('faqAnswer8Reason2');
             if (answer8Reason2) {{
-                answer8Reason2.innerHTML = `<strong>TYPE-2 ${{lang === 'ko' ? '직급' : lang === 'en' ? 'positions' : 'vị trí'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason2?.[lang] || 'TYPE-1 평균값 변동'}}`;
+                answer8Reason2.innerHTML = `<strong>TYPE-2 ${{lang === 'ko' ? '직급' : lang === 'en' ? 'positions' : 'vị trí'}}</strong>: ${{getTranslation('incentiveCalculation.faq.answer8Reason2', lang)}}`;
             }}
             const answer8Reason3 = document.getElementById('faqAnswer8Reason3');
             if (answer8Reason3) {{
-                answer8Reason3.innerHTML = `<strong>AQL INSPECTOR</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason3?.[lang] || 'Part1, Part2, Part3 조건 변화'}}`;
+                answer8Reason3.innerHTML = `<strong>AQL INSPECTOR</strong>: ${{getTranslation('incentiveCalculation.faq.answer8Reason3', lang)}}`;
             }}
             const answer8Reason4 = document.getElementById('faqAnswer8Reason4');
             if (answer8Reason4) {{
-                answer8Reason4.innerHTML = `<strong>${{lang === 'ko' ? '조건 미충족' : lang === 'en' ? 'Unmet conditions' : 'Điều kiện không đạt'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer8Reason4?.[lang] || '하나라도 미충족시 0'}}`;
+                answer8Reason4.innerHTML = `<strong>${{lang === 'ko' ? '조건 미충족' : lang === 'en' ? 'Unmet conditions' : 'Điều kiện không đạt'}}</strong>: ${{getTranslation('incentiveCalculation.faq.answer8Reason4', lang)}}`;
             }}
-            
+
             // Q9
             const q9 = document.getElementById('faqQuestion9');
             if (q9) {{
-                q9.textContent = translations.incentiveCalculation?.faq?.question9?.[lang] || 'Q9. TYPE-3에서 TYPE-2로 승진하면 incentive가 어떻게 변하나요?';
+                q9.textContent = getTranslation('incentiveCalculation.faq.question9', lang);
             }}
             const answer9Detail1 = document.getElementById('faqAnswer9Detail1');
             if (answer9Detail1) {{
-                answer9Detail1.innerHTML = `<strong>TYPE-3</strong>: ${{translations.incentiveCalculation?.faq?.answer9Detail1?.[lang] || '조건 without 기본 150,000 VND (work시 자동 지급)'}}`;
+                answer9Detail1.innerHTML = `<strong>TYPE-3</strong>: ${{getTranslation('incentiveCalculation.faq.answer9Detail1', lang)}}`;
             }}
             const answer9Detail2 = document.getElementById('faqAnswer9Detail2');
             if (answer9Detail2) {{
-                answer9Detail2.innerHTML = `<strong>TYPE-2</strong>: ${{translations.incentiveCalculation?.faq?.answer9Detail2?.[lang] || '조건 충족 필요, TYPE-1 평균 기준 calculation'}}`;
+                answer9Detail2.innerHTML = `<strong>TYPE-2</strong>: ${{getTranslation('incentiveCalculation.faq.answer9Detail2', lang)}}`;
             }}
             const answer9Detail3 = document.getElementById('faqAnswer9Detail3');
             if (answer9Detail3) {{
-                answer9Detail3.textContent = translations.incentiveCalculation?.faq?.answer9Detail3?.[lang] || '승진 후 조건 충족시 th반적으로 incentive 증가';
+                answer9Detail3.textContent = getTranslation('incentiveCalculation.faq.answer9Detail3', lang);
             }}
             const answer9Detail4 = document.getElementById('faqAnswer9Detail4');
             if (answer9Detail4) {{
-                answer9Detail4.textContent = translations.incentiveCalculation?.faq?.answer9Detail4?.[lang] || '하지만 조건 미충족시 0이 될 count 있으므로 주의 필요';
+                answer9Detail4.textContent = getTranslation('incentiveCalculation.faq.answer9Detail4', lang);
             }}
-            
+
             // Q10
             const q10 = document.getElementById('faqQuestion10');
             if (q10) {{
-                q10.textContent = translations.incentiveCalculation?.faq?.question10?.[lang] || 'Q10. 조건을 모두 충족했는데도 incentive가 0인 이유는 무엇인가요?';
+                q10.textContent = getTranslation('incentiveCalculation.faq.question10', lang);
             }}
             const answer10Main = document.getElementById('faqAnswer10Main');
             if (answer10Main) {{
-                answer10Main.textContent = translations.incentiveCalculation?.faq?.answer10Main?.[lang] || '다음 사항을 재확인해 보세요:';
+                answer10Main.textContent = getTranslation('incentiveCalculation.faq.answer10Main', lang);
             }}
             const answer10Reason1 = document.getElementById('faqAnswer10Reason1');
             if (answer10Reason1) {{
-                answer10Reason1.innerHTML = `<strong>${{lang === 'ko' ? '숨겨진 조건' : lang === 'en' ? 'Hidden conditions' : 'Điều kiện ẩn'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason1?.[lang]?.replace(/.*: (.*)/, '$1') || '직급별로 apply되는 모든 조건 확인'}}`;
+                const text10r1 = getTranslation('incentiveCalculation.faq.answer10Reason1', lang);
+                const parts10r1 = text10r1.split(': ');
+                answer10Reason1.innerHTML = `<strong>${{parts10r1[0]}}:</strong> ${{parts10r1.slice(1).join(': ') || ''}}`;
             }}
             const answer10Reason2 = document.getElementById('faqAnswer10Reason2');
             if (answer10Reason2) {{
-                answer10Reason2.innerHTML = `<strong>${{lang === 'ko' ? '데이터 업데이트' : lang === 'en' ? 'Data update' : 'Cập nhật dữ liệu'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason2?.[lang]?.replace(/.*: (.*)/, '$1') || '최신 data 반영 여부'}}`;
+                const text10r2 = getTranslation('incentiveCalculation.faq.answer10Reason2', lang);
+                const parts10r2 = text10r2.split(': ');
+                answer10Reason2.innerHTML = `<strong>${{parts10r2[0]}}:</strong> ${{parts10r2.slice(1).join(': ') || ''}}`;
             }}
             const answer10Reason3 = document.getElementById('faqAnswer10Reason3');
             if (answer10Reason3) {{
-                answer10Reason3.innerHTML = `<strong>${{lang === 'ko' ? '특별한 사유' : lang === 'en' ? 'Special reasons' : 'Lý do đặc biệt'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason3?.[lang]?.replace(/.*: (.*)/, '$1') || '징계, 경고 등 특별 사유'}}`;
+                const text10r3 = getTranslation('incentiveCalculation.faq.answer10Reason3', lang);
+                const parts10r3 = text10r3.split(': ');
+                answer10Reason3.innerHTML = `<strong>${{parts10r3[0]}}:</strong> ${{parts10r3.slice(1).join(': ') || ''}}`;
             }}
             const answer10Reason4 = document.getElementById('faqAnswer10Reason4');
             if (answer10Reason4) {{
-                answer10Reason4.innerHTML = `<strong>${{lang === 'ko' ? '시스템 오류' : lang === 'en' ? 'System error' : 'Lỗi hệ thống'}}</strong>: ${{translations.incentiveCalculation?.faq?.answer10Reason4?.[lang]?.replace(/.*: (.*)/, '$1') || 'HR 부서에 문의'}}`;
+                const text10r4 = getTranslation('incentiveCalculation.faq.answer10Reason4', lang);
+                const parts10r4 = text10r4.split(': ');
+                answer10Reason4.innerHTML = `<strong>${{parts10r4[0]}}:</strong> ${{parts10r4.slice(1).join(': ') || ''}}`;
             }}
             const answer10Conclusion = document.getElementById('faqAnswer10Conclusion');
             if (answer10Conclusion) {{
-                answer10Conclusion.textContent = translations.incentiveCalculation?.faq?.answer10Conclusion?.[lang] || '개인별 상세 페이지에서 조건별 충족 여부를 상세히 확인하시기 바랍니다.';
+                answer10Conclusion.textContent = getTranslation('incentiveCalculation.faq.answer10Conclusion', lang);
             }}
 
             // FAQ Q11 translations
             const q11 = document.getElementById('faqQuestion11');
             if (q11) {{
-                q11.textContent = translations.incentiveCalculation?.faq?.question11?.[lang] || 'Q11. TYPE-2 GROUP LEADER가 incentive를 못 받는 경우가 있나요?';
+                q11.textContent = getTranslation('incentiveCalculation.faq.question11', lang);
             }}
             const answer11Main = document.getElementById('faqAnswer11Main');
             if (answer11Main) {{
-                answer11Main.textContent = translations.incentiveCalculation?.faq?.answer11Main?.[lang] || 'TYPE-2 GROUP LEADER는 특별한 calculation 규칙이 apply됩니다:';
+                answer11Main.textContent = getTranslation('incentiveCalculation.faq.answer11Main', lang);
             }}
             const answer11Detail1 = document.getElementById('faqAnswer11Detail1');
             if (answer11Detail1) {{
-                const baseCalc = translations.incentiveCalculation?.faq?.answer11Detail1?.[lang] || '기본 calculation: TYPE-1 LINE LEADER 평균 incentive × 2를 받습니다';
-                answer11Detail1.innerHTML = `<strong>${{baseCalc.split(':')[0]}}:</strong> ${{baseCalc.split(':')[1] || ''}}`;
+                const baseCalc = getTranslation('incentiveCalculation.faq.answer11Detail1', lang);
+                const baseCalcParts = baseCalc.split(': ');
+                answer11Detail1.innerHTML = `<strong>${{baseCalcParts[0]}}:</strong> ${{baseCalcParts.slice(1).join(': ') || ''}}`;
             }}
             const answer11Detail2 = document.getElementById('faqAnswer11Detail2');
             if (answer11Detail2) {{
-                const indepCalc = translations.incentiveCalculation?.faq?.answer11Detail2?.[lang] || 'Fallback calculation: TYPE-1 LINE LEADER 평균이 0 VND인 경우, TYPE-2 LINE LEADER 평균 × 2로 calculation됩니다';
-                answer11Detail2.innerHTML = `<strong>${{indepCalc.split(':')[0]}}:</strong> ${{indepCalc.split(':')[1] || ''}}`;
+                const indepCalc = getTranslation('incentiveCalculation.faq.answer11Detail2', lang);
+                const indepCalcParts = indepCalc.split(': ');
+                answer11Detail2.innerHTML = `<strong>${{indepCalcParts[0]}}:</strong> ${{indepCalcParts.slice(1).join(': ') || ''}}`;
             }}
             const answer11Detail3 = document.getElementById('faqAnswer11Detail3');
             if (answer11Detail3) {{
-                const improvement = translations.incentiveCalculation?.faq?.answer11Detail3?.[lang] || '중요: 모든 평균은 인센티브 수령자만 대상 (0 VND 제외)';
-                answer11Detail3.innerHTML = `<strong>${{improvement.split(':')[0]}}:</strong> ${{improvement.split(':')[1] || ''}}`;
+                const improvement = getTranslation('incentiveCalculation.faq.answer11Detail3', lang);
+                const improveParts = improvement.split(': ');
+                answer11Detail3.innerHTML = `<strong>${{improveParts[0]}}:</strong> ${{improveParts.slice(1).join(': ') || ''}}`;
             }}
             const answer11Detail4 = document.getElementById('faqAnswer11Detail4');
             if (answer11Detail4) {{
-                const conditions = translations.incentiveCalculation?.faq?.answer11Detail4?.[lang] || '조건: TYPE-2는 출근 조건(1-4번)만 충족하면 incentive를 받을 count 있습니다';
-                answer11Detail4.innerHTML = `<strong>${{conditions.split(':')[0]}}:</strong> ${{conditions.split(':')[1] || ''}}`;
+                const conditions = getTranslation('incentiveCalculation.faq.answer11Detail4', lang);
+                const condParts = conditions.split(': ');
+                answer11Detail4.innerHTML = `<strong>${{condParts[0]}}:</strong> ${{condParts.slice(1).join(': ') || ''}}`;
             }}
             const answer11Conclusion = document.getElementById('faqAnswer11Conclusion');
             if (answer11Conclusion) {{
-                answer11Conclusion.textContent = translations.incentiveCalculation?.faq?.answer11Conclusion?.[lang] || '따라서 출근 조건을 충족한 TYPE-2 GROUP LEADER는 항상 incentive를 받을 count 있도록 보장됩니다.';
+                answer11Conclusion.textContent = getTranslation('incentiveCalculation.faq.answer11Conclusion', lang);
             }}
 
             // TYPE-2 GROUP LEADER Special Calculation Box translations
@@ -18771,7 +18810,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                     }});
                     if (currentMembersHtml === '') {{
                         // Issue #언어전환 - 번역 적용
-                        const noMembersMsg = getTranslation('talentPool.noMembers', currentLanguage) || '현재 Talent Pool 멤버가 없습니다.';
+                        const noMembersMsg = getTranslation('talentProgram.noMembers', currentLanguage) || '현재 Talent Pool 멤버가 없습니다.';
                         currentMembersHtml = `<p>${{noMembersMsg}}</p>`;
                     }}
                     currentMembersDiv.innerHTML = currentMembersHtml;
@@ -18780,7 +18819,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 // Talent Pool 멤버가 없는 경우 (Issue #언어전환 - 번역 적용)
                 const currentMembersDiv = document.getElementById('talentProgramCurrentMembers');
                 if (currentMembersDiv) {{
-                    const noMembersMsg = getTranslation('talentPool.noMembers', currentLanguage) || '현재 Talent Pool 멤버가 없습니다.';
+                    const noMembersMsg = getTranslation('talentProgram.noMembers', currentLanguage) || '현재 Talent Pool 멤버가 없습니다.';
                     currentMembersDiv.innerHTML = `<p>${{noMembersMsg}}</p>`;
                 }}
             }}

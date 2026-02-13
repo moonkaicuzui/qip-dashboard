@@ -17,6 +17,14 @@
   },
   "working_days_source": "attendance_data",
   "working_days_updated_at": "2026-02-12T23:34:52.807126",
+  "thresholds": {
+    "attendance_rate": 88,
+    "unapproved_absence": 2,
+    "minimum_working_days": 12,
+    "area_reject_rate": 3.0,
+    "5prs_pass_rate": 95,
+    "5prs_min_qty": 100
+  },
   "previous_months": [
     "november",
     "december"

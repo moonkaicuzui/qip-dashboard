@@ -2513,8 +2513,8 @@
       },
       "min_days_12": {
         "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
-        "en": "Min. working days ≥12",
-        "vi": "Ngày làm việc tối thiểu ≥12"
+        "en": "Min. working days ≥{threshold_minimum_working_days}",
+        "vi": "Ngày làm việc tối thiểu ≥{threshold_minimum_working_days}"
       },
       "personal_aql_0": {
         "ko": "개인AQL: 당월실패 0건",
@@ -2846,7 +2846,7 @@
       },
       "minWorkingDays": {
         "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
-        "en": "Minimum working days ≥12",
+        "en": "Minimum working days ≥{threshold_minimum_working_days}",
         "vi": "Tối thiểu ≥{threshold_minimum_working_days} ngày"
       },
       "personalAQLFail": {
@@ -2898,7 +2898,7 @@
       },
       "4": {
         "ko": "최소 근무일 {threshold_minimum_working_days}일 이상",
-        "en": "Min working days ≥12",
+        "en": "Min working days ≥{threshold_minimum_working_days}",
         "vi": "Tối thiểu ≥{threshold_minimum_working_days} ngày"
       },
       "5": {
@@ -4318,7 +4318,7 @@
       "answer1Reasons": {
         "minDays": {
           "ko": "최소 근무일 {threshold_minimum_working_days}일 미충족",
-          "en": "Less than 12 minimum working days",
+          "en": "Less than {threshold_minimum_working_days} minimum working days",
           "vi": "Ít hơn {threshold_minimum_working_days} ngày làm việc tối thiểu"
         },
         "attendance": {
@@ -4349,7 +4349,7 @@
       },
       "answer2Main": {
         "ko": "무단결근은 최대 {threshold_unapproved_absence}일까지 허용됩니다.",
-        "en": "Up to 2 unauthorized absence days are allowed.",
+        "en": "Up to {threshold_unapproved_absence} unauthorized absence days are allowed.",
         "vi": "Cho phép tối đa {threshold_unapproved_absence} ngày vắng không phép."
       },
       "answer2Detail": {
@@ -4439,7 +4439,7 @@
       },
       "answer7Detail1": {
         "ko": "최소 근무일 {threshold_minimum_working_days}일 조건을 충족할 수 없기 때문",
-        "en": "Because the minimum 12 working days condition cannot be met",
+        "en": "Because the minimum {threshold_minimum_working_days} working days condition cannot be met",
         "vi": "Vì không thể đáp ứng điều kiện tối thiểu {threshold_minimum_working_days} ngày làm việc"
       },
       "answer7Detail2": {
