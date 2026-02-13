@@ -2726,3 +2726,36 @@ ls output_files/*Complete_V9*
      - Watchdog이 매일 워크플로우 상태 확인
      - 비활성화 시 자동 복구 + 이메일 알림
      - Keep-Alive 커밋으로 60일 정책 방지
+
+60. **Issue #60: FAQ 템플릿 변수 미치환 + Talent Pool 번역 오류 + 월별 정책 차별화** (FIXED: 2026-02-13):
+   - **Problem**: "인센티브 기준" 탭 FAQ에서 `{threshold_minimum_working_days}`, `{threshold_unapproved_absence}` 등 미치환
+     - Talent Pool 섹션: `talentPool.noMembers` 키 경로 텍스트가 번역 대신 표시
+     - 영어/베트남어 번역에 임계값이 하드코딩 (2월 정책 상향 시 구 기준값 표시)
+   - **Root Cause**: `updateFAQQASection()` 함수가 `getTranslation()` 대신 직접 번역 객체 접근
+     - `getTranslation()`은 `replaceThresholdPlaceholders()`를 자동 호출하여 `{threshold_*}` → 실제 값 치환
+     - 직접 접근(`translations.incentiveCalculation?.faq?.X?.[lang]`)은 치환 파이프라인 우회
+   - **Solution**: 5-Phase 수정
+     - **Phase 1**: FAQ Q1~Q11 (50+ textContent/innerHTML) 모두 `getTranslation()` 사용으로 변경
+     - **Phase 2**: `talentPool.noMembers` → `talentProgram.noMembers` 키 경로 수정 (2곳)
+     - **Phase 3**: `config_january_2026.json`에 thresholds 섹션 추가 (88, 2, 12, 3.0, 95, 100)
+     - **Phase 4**: `dashboard_translations.json` 영어/베트남어 하드코딩 7곳 → `{threshold_*}` 플레이스홀더
+     - **Phase 5**: 1월/2월 대시보드 재생성 및 배포
+   - **월별 정책 차별화**:
+     | 항목 | 1월 (기존) | 2월 (상향) |
+     |------|-----------|-----------|
+     | 출근율 | 88% | 90% |
+     | 무단결근 | 2일 | 1일 |
+     | 최소 근무일 | 12일 | 15일 |
+     | Area Reject Rate | 3.0% | 2.0% |
+     | 5PRS 통과율 | 95% | 97% |
+     | 5PRS 검사량 | 100족 | 150족 |
+   - **Implementation**:
+     - `integrated_dashboard_final.py:11109-11327` (FAQ getTranslation 적용)
+     - `integrated_dashboard_final.py:18774, 18783` (Talent Pool 키 수정)
+     - `config_files/config_january_2026.json` (thresholds 섹션 추가)
+     - `config_files/dashboard_translations.json` (7곳 하드코딩 수정)
+   - **Commit**: `28dd774f3` (2026-02-13)
+   - **Prevention**:
+     - FAQ 번역 접근 시 반드시 `getTranslation()` 사용 (직접 `translations.*` 접근 금지)
+     - 번역 JSON에 수치를 넣을 때 반드시 `{threshold_*}` 플레이스홀더 사용
+     - 새 월 config 생성 시 `thresholds` 섹션 필수 포함
