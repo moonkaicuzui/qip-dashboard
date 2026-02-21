@@ -1828,7 +1828,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2026" data-month="february" data-month-name="2월">2026년 2월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="02" data-day="20" data-hour="23" data-minute="52">보고서 생성일: 2026년 02월 20일 23:52</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="02" data-day="21" data-hour="02" data-minute="11">보고서 생성일: 2026년 02월 21일 02:11</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -1864,7 +1864,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 20일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 21일</span>
             </div>
         </div>
 
@@ -15047,9 +15047,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '20th' :
-                               currentLanguage === 'en' ? 'Day 20' :
-                               'Ngày 20';
+                const dayText = currentLanguage === 'ko' ? '21th' :
+                               currentLanguage === 'en' ? 'Day 21' :
+                               'Ngày 21';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
