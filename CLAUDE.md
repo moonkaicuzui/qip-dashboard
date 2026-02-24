@@ -2811,3 +2811,54 @@ ls output_files/*Complete_V9*
      - f-string(`f"""`)과 일반 문자열(`"""`) 영역을 명확히 구분할 것
      - JavaScript `const` 변수는 형제 함수에서 접근 불가 — 공유 필요 시 상위 스코프에 `let` 선언
      - 번역 JSON의 `{{count}}`와 `.replace('{count}', ...)` 패턴 사용 시 이중 중괄호 먼저 처리
+
+62. **Issue #62: 모달 닫기 불가 - "Late Function Definition" 안티패턴** (FIXED: 2026-02-24):
+   - **Problem**: "5PRS 통과율 97% 미만 상세" 모달의 X 버튼 클릭해도 닫히지 않음
+     - `closeLowInspectionQtyModal` 모달도 동일 패턴 취약
+     - 사용자 스크린샷: 모달이 화면에 고정되어 닫을 수 없는 상태
+   - **Root Cause**: **"Late Function Definition in Error-Prone Context" 안티패턴**
+     - `window.closeLowPassRateModal` 정의 위치: Line 4675 (updateTableBody **이후**)
+     - `updateTableBody()` 호출 위치: Line 4671 (close 함수 **이전**)
+     - `updateTableBody()`에서 에러 발생 시 → JavaScript 실행 중단 → close 함수 정의 코드에 도달 못함
+     - 결과: X 버튼의 `onclick="window.closeLowPassRateModal()"` 호출 시 함수 미정의 에러
+   - **Affected Functions** (3개):
+     | 함수 | 위험도 | 수정 내용 |
+     |------|--------|----------|
+     | `closeLowPassRateModal` | **높음** | close 함수를 updateTableBody 이전으로 이동 + try-catch |
+     | `closeLowInspectionQtyModal` | **높음** | 동일 패턴 수정 |
+     | `closeAqlModal` | **낮음** | querySelector null check 추가 (방어적 개선) |
+   - **Solution**: 3개 모달 함수에 동일 수정 패턴 적용
+     - **패턴**: close 함수 + backdrop click + event propagation 정의를 **먼저** 실행
+     - **그 후**: sort 이벤트 리스너 + updateTableBody를 try-catch로 감싸서 실행
+     ```javascript
+     // [Issue #62] 수정된 코드 순서
+     // 1. 모달 DOM 추가
+     document.body.appendChild(modalDiv);
+
+     // 2. 닫기 함수 먼저 정의 (에러 발생해도 모달 닫기 가능)
+     window.closeLowPassRateModal = function() { ... };
+     backdrop.onclick = function(e) { ... };
+     modalDiv.querySelector('.modal-content').onclick = function(e) { e.stopPropagation(); };
+
+     // 3. 에러 가능 코드는 try-catch로 보호
+     try {
+         updateTableBody();
+         updateTableBody2();
+     } catch (e) {
+         console.error('[Issue #62] 테이블 데이터 로드 오류:', e);
+     }
+     ```
+   - **Verification (Playwright 브라우저 자동화)**:
+     - 모달 열기: "5PRS 통과율 97% 미만 상세" → 3명 직원 정상 표시 ✅
+     - 테이블 1: 624080127, 624060040, 624080083 정상 ✅
+     - 테이블 2: Top 10 lowest pass rates 정상 ✅
+     - X 버튼 클릭 → 모달 정상 닫힘 (DOM에서 제거 확인) ✅
+   - **Implementation**:
+     - `integrated_dashboard_final.py:4634-4699` (closeLowPassRateModal 코드 순서 수정)
+     - `integrated_dashboard_final.py:5039-5086` (closeLowInspectionQtyModal 동일 수정)
+     - `integrated_dashboard_final.py:3627-3639` (closeAqlModal querySelector null check)
+   - **Commit**: `948ec0dec` (2026-02-24)
+   - **Prevention**:
+     - 모달 생성 시 **항상** close 함수를 먼저 정의한 후 데이터 로딩 실행
+     - 데이터 로딩(updateTableBody 등)은 반드시 try-catch로 감싸기
+     - JavaScript 순차 실행 특성: 에러 발생 시 이후 코드 전체가 미실행됨을 인지
