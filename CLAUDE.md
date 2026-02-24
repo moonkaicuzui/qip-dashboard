@@ -2759,3 +2759,55 @@ ls output_files/*Complete_V9*
      - FAQ 번역 접근 시 반드시 `getTranslation()` 사용 (직접 `translations.*` 접근 금지)
      - 번역 JSON에 수치를 넣을 때 반드시 `{threshold_*}` 플레이스홀더 사용
      - 새 월 config 생성 시 `thresholds` 섹션 필수 포함
+
+61. **Issue #61: modal_scripts 임계값 변수 미치환 + prThreshold 스코프 버그 + {{count}} 템플릿 불일치** (FIXED: 2026-02-24):
+   - **Problem**: "요약 및 시스템 검증" 탭의 3개 KPI 카드 모달이 클릭 시 오류 발생
+     - Bug 1: "출근율 90% 미만" 모달 → `{th_attendance_rate}` 미치환으로 ReferenceError
+     - Bug 2: "5PRS Pass Rate < 97%" 모달 → `ReferenceError: prThreshold is not defined`
+     - Bug 3: "5PRS 검사량 < 150족" 모달 → `{th_5prs_min_qty}` 미치환으로 ReferenceError
+   - **Root Cause (3가지)**:
+     - **원인 1**: `integrated_dashboard_final.py`에서 `modal_scripts` 변수는 일반 문자열(`"""`)로 정의 (f-string 아님)
+       - Lines 1412-5088: `{th_*}` 변수가 Python f-string 치환 대상이 아님
+       - Lines 1390-1409: f-string으로 정의된 부분은 정상 치환됨
+       - 9개 `{th_*}` 변수가 HTML에 미치환 상태로 출력 → JavaScript에서 ReferenceError 발생
+     - **원인 2**: `const prThreshold` 가 `create5PrsModal()` 함수 내부에서 선언 (Line 4547)
+       - 형제 함수 `updateTableBody()` (Line 4360), `updateTableBody2()` (Line 4441)에서 접근 불가
+       - JavaScript block scope 규칙: `const`는 선언된 블록 내에서만 유효
+       - `updateTableBody()`에서 ReferenceError → 실행 중단 → `window.closeLowPassRateModal` 정의 코드(Line 4672)에 도달 못함 → 연쇄 실패
+     - **원인 3**: 번역 JSON의 `{{count}}` (이중 중괄호) vs JavaScript `.replace('{count}', ...)` (단일 중괄호)
+       - `getTranslation()`이 `{threshold_*}` 처리 후 `{{count}}`는 유지됨
+       - `.replace('{count}', 2)`가 `{{count}}` 내부의 `{count}`에 부분 매칭 → `{2}` 표시
+   - **Solution (3-Part Fix)**:
+     - **Fix 1** (Commit `f921f5a12`): `modal_scripts` 문자열 끝에 8개 `.replace()` 호출 추가
+       ```python
+       # Line 5091-5104: modal_scripts 변수 치환
+       modal_scripts = modal_scripts.replace('{th_attendance_rate}', str(thresholds.get('attendance_rate', 88)))
+       modal_scripts = modal_scripts.replace('{th_unapproved_absence}', str(thresholds.get('unapproved_absence', 2)))
+       modal_scripts = modal_scripts.replace('{th_minimum_working_days}', str(thresholds.get('minimum_working_days', 12)))
+       modal_scripts = modal_scripts.replace('{th_area_reject_rate}', str(thresholds.get('area_reject_rate', 3.0)))
+       modal_scripts = modal_scripts.replace('{th_5prs_pass_rate}', str(thresholds.get('5prs_pass_rate', 95)))
+       modal_scripts = modal_scripts.replace('{th_5prs_min_qty}', str(thresholds.get('5prs_min_qty', 100)))
+       modal_scripts = modal_scripts.replace('{th_consecutive_aql_months}', str(thresholds.get('consecutive_aql_months', 3)))
+       modal_scripts = modal_scripts.replace('{th_reject_rate}', str(thresholds.get('area_reject_rate', 3.0)))
+       ```
+     - **Fix 2** (Commit `fc141c6e7`): `prThreshold`를 공유 스코프로 이동
+       - Line 4338-4339: `let prThreshold = 95;` 공유 변수 선언 추가
+       - Line 4547: `const prThreshold = ...` → `prThreshold = ...` (const 제거, 할당으로 변경)
+     - **Fix 3** (Commit `fc141c6e7`): `{{count}}` 이중 중괄호 처리
+       - Line 4582: `.replace('{count}', ...)` → `.replace('{{count}}', ...).replace('{count}', ...)`
+       - 이중/단일 중괄호 모두 처리
+   - **Verification (Playwright 브라우저 자동화)**:
+     - Bug 1 ("출근율 90% 미만"): 모달 정상 표시, 직원 테이블 정상 ✅
+     - Bug 2 ("5PRS Pass Rate < 97%"): 모달 정상 표시, 2명 직원 정상, "총 2명이..." 텍스트 정상 ✅
+     - Bug 3 ("5PRS 검사량 < 150족"): 모달 정상 표시, 직원 테이블 정상 ✅
+   - **Implementation**:
+     - `integrated_dashboard_final.py:5091-5104` (8개 .replace() 호출)
+     - `integrated_dashboard_final.py:4338-4339` (공유 스코프 prThreshold 선언)
+     - `integrated_dashboard_final.py:4547` (const → assignment 변경)
+     - `integrated_dashboard_final.py:4582` ({{count}} 이중 중괄호 처리)
+   - **Commits**: `f921f5a12` (Fix 1), `fc141c6e7` (Fix 2+3)
+   - **Prevention**:
+     - `modal_scripts` (일반 문자열)에 `{변수}` 추가 시 반드시 `.replace()` 호출 필요
+     - f-string(`f"""`)과 일반 문자열(`"""`) 영역을 명확히 구분할 것
+     - JavaScript `const` 변수는 형제 함수에서 접근 불가 — 공유 필요 시 상위 스코프에 `let` 선언
+     - 번역 JSON의 `{{count}}`와 `.replace('{count}', ...)` 패턴 사용 시 이중 중괄호 먼저 처리
