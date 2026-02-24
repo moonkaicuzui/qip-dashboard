@@ -5090,6 +5090,19 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
     # Replace month_num placeholder
     modal_scripts = modal_scripts.replace('MONTH_NUM_PLACEHOLDER', str(month_num))
 
+    # [Issue #61] Replace threshold variables in modal_scripts (regular string, NOT f-string)
+    # Issue #60에서 하드코딩된 임계값을 {th_*} 변수로 교체했으나,
+    # modal_scripts는 일반 문자열(""")이므로 f-string 치환이 적용되지 않음.
+    # 따라서 .replace()로 명시적 치환 필요.
+    modal_scripts = modal_scripts.replace('{th_attendance_rate}', str(th_attendance_rate))
+    modal_scripts = modal_scripts.replace('{th_unapproved_absence}', str(th_unapproved_absence))
+    modal_scripts = modal_scripts.replace('{th_minimum_working_days}', str(th_minimum_working_days))
+    modal_scripts = modal_scripts.replace('{th_area_reject_rate}', str(th_area_reject_rate))
+    modal_scripts = modal_scripts.replace('{th_5prs_pass_rate}', str(th_5prs_pass_rate))
+    modal_scripts = modal_scripts.replace('{th_5prs_min_qty}', str(th_5prs_min_qty))
+    modal_scripts = modal_scripts.replace('{th_absence_rate}', str(th_absence_rate))
+    modal_scripts = modal_scripts.replace('{th_unapproved_absence_exceed}', str(th_unapproved_absence_exceed))
+
     # 모달 CSS 추가
     modal_styles = """
     /* 통th된 모달 스타th */

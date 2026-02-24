@@ -1828,7 +1828,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2026" data-month="january" data-month-name="1월">2026년 1월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="02" data-day="13" data-hour="08" data-minute="36">보고서 생성일: 2026년 02월 13일 08:36</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="02" data-day="24" data-hour="14" data-minute="43">보고서 생성일: 2026년 02월 24일 14:43</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -1864,7 +1864,7 @@
                 </div>
             </div>
             <div>
-                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 13일</span>
+                <span style="font-size: 0.85rem; opacity: 0.9;"><span data-i18n="reportTypeBanner.generatedOn">생성일</span>: 24일</span>
             </div>
         </div>
 
@@ -15047,9 +15047,9 @@
 
                 // Generated on date 업데이트
                 const generatedText = getTranslation('reportTypeBanner.generatedOn', currentLanguage);
-                const dayText = currentLanguage === 'ko' ? '13th' :
-                               currentLanguage === 'en' ? 'Day 13' :
-                               'Ngày 13';
+                const dayText = currentLanguage === 'ko' ? '24th' :
+                               currentLanguage === 'en' ? 'Day 24' :
+                               'Ngày 24';
                 const dateSpan = reportTypeBanner.querySelector('span[style*="font-size: 0.85rem"]');
                 if (dateSpan) {
                     dateSpan.textContent = generatedText + ': ' + dayText;
@@ -17298,7 +17298,7 @@
                         const aDays = parseFloat(a['Unapproved Absences'] || 0);
                         const bDays = parseFloat(b['Unapproved Absences'] || 0);
                         // [Issue #60] 동적 threshold 사용
-                        const absLimitSort = window.thresholds ? window.thresholds.unapproved_absence : {th_unapproved_absence};
+                        const absLimitSort = window.thresholds ? window.thresholds.unapproved_absence : 2;
                         aVal = aDays > absLimitSort ? 3 : (aDays === absLimitSort ? 2 : 1);
                         bVal = bDays > absLimitSort ? 3 : (bDays === absLimitSort ? 2 : 1);
                         break;
@@ -17318,7 +17318,7 @@
             const lang = currentLanguage || 'ko';
 
             // [Issue #60] threshold 기반 통계 계산
-            const absThreshold = window.thresholds ? window.thresholds.unapproved_absence : {th_unapproved_absence};
+            const absThreshold = window.thresholds ? window.thresholds.unapproved_absence : 2;
             const total = absentEmployees.length;
             const excluded = absentEmployees.filter(emp => {
                 const days = parseFloat(emp['Unapproved Absences'] || 0);
@@ -17948,7 +17948,7 @@
                 }
                 // attendanceRate < 30은 bg-danger (빨간색) 유지
 
-                const conditionMet = attendanceRate >= {th_attendance_rate};
+                const conditionMet = attendanceRate >= 88;
                 const statusText = conditionMet ? metText : notMetText;
                 const statusBadge = conditionMet ? 'bg-success' : 'bg-danger';
 
@@ -19065,7 +19065,7 @@
         });
 
         // 조건 8번: 구역 reject rate > threshold (AQL 관련 직원 중) [Issue #60]
-        const rejectThresholdAql = window.thresholds ? window.thresholds.area_reject_rate : {th_area_reject_rate};
+        const rejectThresholdAql = window.thresholds ? window.thresholds.area_reject_rate : 3.0;
         let cond8FailEmployees = aqlRelevantEmployees.filter(emp => {
             const cond8 = emp['cond_8_area_reject'] || 'PASS';
             const areaRejectRate = parseFloat(emp['Area_Reject_Rate'] || 0);
@@ -19692,7 +19692,7 @@
                 // Pass Rate에 따른 색상과 아이콘
                 let badgeClass = 'bg-danger';
                 let passIcon = '❌';
-                if (passRate >= {th_5prs_pass_rate}) { badgeClass = 'bg-success'; passIcon = '✅'; }
+                if (passRate >= 95) { badgeClass = 'bg-success'; passIcon = '✅'; }
                 else if (passRate >= 90) { badgeClass = 'bg-warning'; passIcon = '⚠️'; }
                 else if (passRate >= 80) { badgeClass = 'bg-orange'; passIcon = '⚠️'; }
 
@@ -19780,7 +19780,7 @@
                 // Pass Rate에 따른 색상과 아이콘
                 let badgeClass = 'bg-danger';
                 let passIcon = '❌';
-                if (passRate >= {th_5prs_pass_rate}) { badgeClass = 'bg-success'; passIcon = '✅'; }
+                if (passRate >= 95) { badgeClass = 'bg-success'; passIcon = '✅'; }
                 else if (passRate >= 90) { badgeClass = 'bg-warning'; passIcon = '⚠️'; }
                 else if (passRate >= 80) { badgeClass = 'bg-orange'; passIcon = '⚠️'; }
 
@@ -20009,7 +20009,7 @@
             const inspectionQty = hasValidationData ? parseFloat(emp['validation_qty']) : 999999;
 
             // Issue #56 Fix: inspectionQty > 0 조건 추가 (0 = no data, not 0 inspections)
-            return isType1 && isAssemblyInspector && hasValidationData && inspectionQty > 0 && inspectionQty < {th_5prs_min_qty};
+            return isType1 && isAssemblyInspector && hasValidationData && inspectionQty > 0 && inspectionQty < 100;
         });
 
         let sortColumn = 'inspectionQty';
@@ -20071,7 +20071,7 @@
                 // 100+족: 초록색 (충족), 80-99족: 노란색 (경고), 50-79족: 주황색 (주의), 0-49족: 빨간색 (심각)
                 let badgeClass = 'bg-danger text-white';
                 let qtyIcon = '❌';
-                if (inspectionQty >= {th_5prs_min_qty}) {
+                if (inspectionQty >= 100) {
                     badgeClass = 'bg-success text-white';
                     qtyIcon = '✅';
                 } else if (inspectionQty >= 80) {
@@ -20084,7 +20084,7 @@
 
                 // 언어별 단위 및 상태 텍스트
                 const qtyUnit = currentLanguage === 'ko' ? '족' : currentLanguage === 'en' ? ' prs' : ' đôi';
-                const iqThreshold = window.thresholds ? window.thresholds['5prs_min_qty'] : {th_5prs_min_qty};
+                const iqThreshold = window.thresholds ? window.thresholds['5prs_min_qty'] : 100;
                 const statusText = inspectionQty < iqThreshold ?
                     (currentLanguage === 'ko' ? '미충족' : currentLanguage === 'en' ? 'Not Met' : 'Không đạt') :
                     (currentLanguage === 'ko' ? '충족' : currentLanguage === 'en' ? 'Met' : 'Đạt');
