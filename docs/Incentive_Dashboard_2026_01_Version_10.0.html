@@ -1828,7 +1828,7 @@
             </div>
             <h1 id="mainTitle" data-i18n="headers.mainTitle">QIP 인센티브 계산 결과 <span class="version-badge">V10.0</span></h1>
             <p id="mainSubtitle" data-i18n="headers.incentiveStatus" data-year="2026" data-month="january" data-month-name="1월">2026년 1월 인센티브 지급 현황</p>
-            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="02" data-day="24" data-hour="15" data-minute="14">보고서 생성일: 2026년 02월 24일 15:14</p>
+            <p id="generationDate" data-i18n="headers.reportDateLabel" style="color: white; font-size: 0.9em; margin-top: 10px; opacity: 0.9;" data-year="2026" data-month="02" data-day="24" data-hour="15" data-minute="30">보고서 생성일: 2026년 02월 24일 15:30</p>
 
             <!-- 데이터 신선도 인디케이터 -->
             <div id="dataFreshnessBadge" style="display: inline-flex; align-items: center; gap: 12px; margin-top: 15px; padding: 12px 20px; border-radius: 8px; font-size: 0.95em; font-weight: 500; background: rgba(255,255,255,0.95); color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -18902,8 +18902,9 @@
             window.sortAqlData = sortData;
 
             // Draggable 기능 추가 (Issue #39: 모달 좌우 이동 가능)
+            // [Issue #62] null check 추가 - querySelector 실패 시 draggable 비활성화
             const modalDialog = modalDiv.querySelector('.aql-modal-draggable');
-            const modalHeader = modalDialog.querySelector('.modal-header');
+            const modalHeader = modalDialog ? modalDialog.querySelector('.modal-header') : null;
             let isDragging = false;
             let currentX;
             let currentY;
@@ -18912,9 +18913,12 @@
             let xOffset = 0;
             let yOffset = 0;
 
-            modalHeader.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragEnd);
+            // [Issue #62] modalHeader가 null이면 draggable 비활성화
+            if (modalHeader) {
+                modalHeader.addEventListener('mousedown', dragStart);
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', dragEnd);
+            }
 
             function dragStart(e) {
                 initialX = e.clientX - xOffset;
@@ -19913,6 +19917,32 @@
             document.body.appendChild(modalDiv);
             document.body.classList.add('modal-open');
 
+            // [Issue #62] 닫기 함수를 먼저 정의 (updateTableBody 에러 시에도 모달 닫기 가능)
+            window.closeLowPassRateModal = function() {
+                if (modalDiv) {
+                    modalDiv.remove();
+                    modalDiv = null;
+                }
+                if (backdrop) {
+                    backdrop.remove();
+                    backdrop = null;
+                }
+                document.body.classList.remove('modal-open');
+                window.closeLowPassRateModal = null;
+            };
+
+            // 백드롭 클릭으로 닫기
+            backdrop.onclick = function(e) {
+                if (e.target === backdrop) {
+                    window.closeLowPassRateModal();
+                }
+            };
+
+            // 모달 내부 클릭 시 이벤트 전파 중단
+            modalDiv.querySelector('.modal-content').onclick = function(e) {
+                e.stopPropagation();
+            };
+
             // 정렬 이벤트 추가 - Table 1
             modalDiv.querySelectorAll('.sortable-header').forEach(header => {
                 header.addEventListener('click', function() {
@@ -19945,35 +19975,13 @@
                 });
             });
 
-            // 초기 data load
-            updateTableBody();
-            updateTableBody2();
-
-            // 닫기 함count
-            window.closeLowPassRateModal = function() {
-                if (modalDiv) {
-                    modalDiv.remove();
-                    modalDiv = null;
-                }
-                if (backdrop) {
-                    backdrop.remove();
-                    backdrop = null;
-                }
-                document.body.classList.remove('modal-open');
-                window.closeLowPassRateModal = null;
-            };
-
-            // 백드롭 클릭으로 닫기
-            backdrop.onclick = function(e) {
-                if (e.target === backdrop) {
-                    window.closeLowPassRateModal();
-                }
-            };
-
-            // 모달 내부 클릭 시 이벤트 전파 중단
-            modalDiv.querySelector('.modal-content').onclick = function(e) {
-                e.stopPropagation();
-            };
+            // 초기 data load (에러 발생해도 닫기 함수는 이미 정의됨)
+            try {
+                updateTableBody();
+                updateTableBody2();
+            } catch (e) {
+                console.error('[Issue #62] 5PRS 모달 테이블 데이터 로드 오류:', e);
+            }
         }
 
         function getSortIcon(column) {
@@ -20314,25 +20322,7 @@
             document.body.appendChild(modalDiv);
             document.body.classList.add('modal-open');
 
-            // 정렬 이벤트 추가
-            modalDiv.querySelectorAll('.sortable-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    const column = this.getAttribute('data-sort');
-                    sortData(column);
-
-                    // 헤더 업데이트
-                    modalDiv.querySelectorAll('.sortable-header').forEach(h => {
-                        const col = h.getAttribute('data-sort');
-                        const icon = getSortIcon(col);
-                        h.innerHTML = h.textContent.replace(/[▲▼]/g, '').trim() + ' ' + icon;
-                    });
-                });
-            });
-
-            // 초기 data load
-            updateTableBody();
-
-            // 닫기 함count
+            // [Issue #62] 닫기 함수를 먼저 정의 (updateTableBody 에러 시에도 모달 닫기 가능)
             window.closeLowInspectionQtyModal = function() {
                 if (modalDiv) {
                     modalDiv.remove();
@@ -20357,6 +20347,28 @@
             modalDiv.querySelector('.modal-content').onclick = function(e) {
                 e.stopPropagation();
             };
+
+            // 정렬 이벤트 추가
+            modalDiv.querySelectorAll('.sortable-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    sortData(column);
+
+                    // 헤더 업데이트
+                    modalDiv.querySelectorAll('.sortable-header').forEach(h => {
+                        const col = h.getAttribute('data-sort');
+                        const icon = getSortIcon(col);
+                        h.innerHTML = h.textContent.replace(/[▲▼]/g, '').trim() + ' ' + icon;
+                    });
+                });
+            });
+
+            // 초기 data load (에러 발생해도 닫기 함수는 이미 정의됨)
+            try {
+                updateTableBody();
+            } catch (e) {
+                console.error('[Issue #62] 5PRS 검사량 모달 테이블 데이터 로드 오류:', e);
+            }
         }
 
         function getSortIcon(column) {

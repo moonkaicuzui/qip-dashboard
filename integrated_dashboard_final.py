@@ -3624,8 +3624,9 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             window.sortAqlData = sortData;
 
             // Draggable 기능 추가 (Issue #39: 모달 좌우 이동 가능)
+            // [Issue #62] null check 추가 - querySelector 실패 시 draggable 비활성화
             const modalDialog = modalDiv.querySelector('.aql-modal-draggable');
-            const modalHeader = modalDialog.querySelector('.modal-header');
+            const modalHeader = modalDialog ? modalDialog.querySelector('.modal-header') : null;
             let isDragging = false;
             let currentX;
             let currentY;
@@ -3634,9 +3635,12 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             let xOffset = 0;
             let yOffset = 0;
 
-            modalHeader.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragEnd);
+            // [Issue #62] modalHeader가 null이면 draggable 비활성화
+            if (modalHeader) {
+                modalHeader.addEventListener('mousedown', dragStart);
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', dragEnd);
+            }
 
             function dragStart(e) {
                 initialX = e.clientX - xOffset;
@@ -4635,6 +4639,32 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.body.appendChild(modalDiv);
             document.body.classList.add('modal-open');
 
+            // [Issue #62] 닫기 함수를 먼저 정의 (updateTableBody 에러 시에도 모달 닫기 가능)
+            window.closeLowPassRateModal = function() {
+                if (modalDiv) {
+                    modalDiv.remove();
+                    modalDiv = null;
+                }
+                if (backdrop) {
+                    backdrop.remove();
+                    backdrop = null;
+                }
+                document.body.classList.remove('modal-open');
+                window.closeLowPassRateModal = null;
+            };
+
+            // 백드롭 클릭으로 닫기
+            backdrop.onclick = function(e) {
+                if (e.target === backdrop) {
+                    window.closeLowPassRateModal();
+                }
+            };
+
+            // 모달 내부 클릭 시 이벤트 전파 중단
+            modalDiv.querySelector('.modal-content').onclick = function(e) {
+                e.stopPropagation();
+            };
+
             // 정렬 이벤트 추가 - Table 1
             modalDiv.querySelectorAll('.sortable-header').forEach(header => {
                 header.addEventListener('click', function() {
@@ -4667,35 +4697,13 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                 });
             });
 
-            // 초기 data load
-            updateTableBody();
-            updateTableBody2();
-
-            // 닫기 함count
-            window.closeLowPassRateModal = function() {
-                if (modalDiv) {
-                    modalDiv.remove();
-                    modalDiv = null;
-                }
-                if (backdrop) {
-                    backdrop.remove();
-                    backdrop = null;
-                }
-                document.body.classList.remove('modal-open');
-                window.closeLowPassRateModal = null;
-            };
-
-            // 백드롭 클릭으로 닫기
-            backdrop.onclick = function(e) {
-                if (e.target === backdrop) {
-                    window.closeLowPassRateModal();
-                }
-            };
-
-            // 모달 내부 클릭 시 이벤트 전파 중단
-            modalDiv.querySelector('.modal-content').onclick = function(e) {
-                e.stopPropagation();
-            };
+            // 초기 data load (에러 발생해도 닫기 함수는 이미 정의됨)
+            try {
+                updateTableBody();
+                updateTableBody2();
+            } catch (e) {
+                console.error('[Issue #62] 5PRS 모달 테이블 데이터 로드 오류:', e);
+            }
         }
 
         function getSortIcon(column) {
@@ -5036,25 +5044,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             document.body.appendChild(modalDiv);
             document.body.classList.add('modal-open');
 
-            // 정렬 이벤트 추가
-            modalDiv.querySelectorAll('.sortable-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    const column = this.getAttribute('data-sort');
-                    sortData(column);
-
-                    // 헤더 업데이트
-                    modalDiv.querySelectorAll('.sortable-header').forEach(h => {
-                        const col = h.getAttribute('data-sort');
-                        const icon = getSortIcon(col);
-                        h.innerHTML = h.textContent.replace(/[▲▼]/g, '').trim() + ' ' + icon;
-                    });
-                });
-            });
-
-            // 초기 data load
-            updateTableBody();
-
-            // 닫기 함count
+            // [Issue #62] 닫기 함수를 먼저 정의 (updateTableBody 에러 시에도 모달 닫기 가능)
             window.closeLowInspectionQtyModal = function() {
                 if (modalDiv) {
                     modalDiv.remove();
@@ -5079,6 +5069,28 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             modalDiv.querySelector('.modal-content').onclick = function(e) {
                 e.stopPropagation();
             };
+
+            // 정렬 이벤트 추가
+            modalDiv.querySelectorAll('.sortable-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.getAttribute('data-sort');
+                    sortData(column);
+
+                    // 헤더 업데이트
+                    modalDiv.querySelectorAll('.sortable-header').forEach(h => {
+                        const col = h.getAttribute('data-sort');
+                        const icon = getSortIcon(col);
+                        h.innerHTML = h.textContent.replace(/[▲▼]/g, '').trim() + ' ' + icon;
+                    });
+                });
+            });
+
+            // 초기 data load (에러 발생해도 닫기 함수는 이미 정의됨)
+            try {
+                updateTableBody();
+            } catch (e) {
+                console.error('[Issue #62] 5PRS 검사량 모달 테이블 데이터 로드 오류:', e);
+            }
         }
 
         function getSortIcon(column) {
