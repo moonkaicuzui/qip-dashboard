@@ -4336,6 +4336,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
         let sortOrder2 = 'asc';
         let modalDiv = null;
         let backdrop = null;
+        // [Issue #61] prThreshold를 공유 스코프로 이동 (updateTableBody, updateTableBody2에서 접근 필요)
+        let prThreshold = 95;
 
         function sortData(column) {
             if (sortColumn === column) {
@@ -4542,7 +4544,8 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
             });
 
             // TYPE-1 ASSEMBLY INSPECTOR with pass rate < threshold 필터링 (첫 번째 테이블용) [Issue #60]
-            const prThreshold = window.thresholds ? window.thresholds['5prs_pass_rate'] : 95;
+            // [Issue #61] const → assignment (공유 스코프 변수에 실제 threshold 값 할당)
+            prThreshold = window.thresholds ? window.thresholds['5prs_pass_rate'] : 95;
             lowPassEmployees = allType1Inspectors.filter(emp => {
                 const passRate = parseFloat(emp['pass_rate'] || emp['5PRS_Pass_Rate'] || emp['5PRS Pass Rate'] || 100);
                 // Debug log removed for performance
@@ -4576,7 +4579,7 @@ def generate_dashboard_html(df, month='august', year=2025, month_num=8, working_
                                 <div class="alert alert-warning">
                                     <strong>${t.description}</strong>
                                 </div>
-                                <p>${t.totalCount.replace('{count}', lowPassEmployees.length)}</p>
+                                <p>${t.totalCount.replace('{{count}}', lowPassEmployees.length).replace('{count}', lowPassEmployees.length)}</p>
                             </div>
 
                             <!-- Table 1: All 직원 with pass rate < 95% -->
